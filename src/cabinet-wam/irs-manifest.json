@@ -1,0 +1,816 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "factory:Celestion V30/v30 cc8.wav",
+      "filename": "v30 cc8.wav",
+      "relativePath": "Celestion V30/v30 cc8.wav",
+      "groups": [
+        "Celestion V30"
+      ],
+      "displayName": "v30 cc8",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 48000,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 192001
+      },
+      "fileSizeBytes": 576080
+    },
+    {
+      "id": "factory:Celestion V30/v30 m160.wav",
+      "filename": "v30 m160.wav",
+      "relativePath": "Celestion V30/v30 m160.wav",
+      "groups": [
+        "Celestion V30"
+      ],
+      "displayName": "v30 m160",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 48000,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 192001
+      },
+      "fileSizeBytes": 576080
+    },
+    {
+      "id": "factory:Celestion V30/v30 m160+sm57_dc.wav",
+      "filename": "v30 m160+sm57_dc.wav",
+      "relativePath": "Celestion V30/v30 m160+sm57_dc.wav",
+      "groups": [
+        "Celestion V30"
+      ],
+      "displayName": "v30 m160+sm57_dc",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 48000,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 192001
+      },
+      "fileSizeBytes": 576080
+    },
+    {
+      "id": "factory:Celestion V30/v30 mc834.wav",
+      "filename": "v30 mc834.wav",
+      "relativePath": "Celestion V30/v30 mc834.wav",
+      "groups": [
+        "Celestion V30"
+      ],
+      "displayName": "v30 mc834",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 48000,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 192001
+      },
+      "fileSizeBytes": 576080
+    },
+    {
+      "id": "factory:Celestion V30/v30 md421.wav",
+      "filename": "v30 md421.wav",
+      "relativePath": "Celestion V30/v30 md421.wav",
+      "groups": [
+        "Celestion V30"
+      ],
+      "displayName": "v30 md421",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 48000,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 192001
+      },
+      "fileSizeBytes": 576080
+    },
+    {
+      "id": "factory:Celestion V30/v30 oc818.wav",
+      "filename": "v30 oc818.wav",
+      "relativePath": "Celestion V30/v30 oc818.wav",
+      "groups": [
+        "Celestion V30"
+      ],
+      "displayName": "v30 oc818",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 48000,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 192001
+      },
+      "fileSizeBytes": 576080
+    },
+    {
+      "id": "factory:Celestion V30/v30 sm57.wav",
+      "filename": "v30 sm57.wav",
+      "relativePath": "Celestion V30/v30 sm57.wav",
+      "groups": [
+        "Celestion V30"
+      ],
+      "displayName": "v30 sm57",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 48000,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 192001
+      },
+      "fileSizeBytes": 576080
+    },
+    {
+      "id": "factory:tests/cabinet/5150.wav",
+      "filename": "5150.wav",
+      "relativePath": "tests/cabinet/5150.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "5150",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 5640
+      },
+      "fileSizeBytes": 16996
+    },
+    {
+      "id": "factory:tests/cabinet/BlackAlbum-SoloLeadOD_dc.wav",
+      "filename": "BlackAlbum-SoloLeadOD_dc.wav",
+      "relativePath": "tests/cabinet/BlackAlbum-SoloLeadOD_dc.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "BlackAlbum-SoloLeadOD_dc",
+      "type": "ir",
+      "fileSizeBytes": 4894
+    },
+    {
+      "id": "factory:tests/cabinet/Blackstar.wav",
+      "filename": "Blackstar.wav",
+      "relativePath": "tests/cabinet/Blackstar.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Blackstar",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 21525
+      },
+      "fileSizeBytes": 64652
+    },
+    {
+      "id": "factory:tests/cabinet/Block Inside.wav",
+      "filename": "Block Inside.wav",
+      "relativePath": "tests/cabinet/Block Inside.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Block Inside",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 2,
+        "sampleRate": 44100,
+        "bitDepth": 16,
+        "blockAlign": 4,
+        "frames": 62522
+      },
+      "fileSizeBytes": 250132
+    },
+    {
+      "id": "factory:tests/cabinet/DV Mark Triple Six.wav",
+      "filename": "DV Mark Triple Six.wav",
+      "relativePath": "tests/cabinet/DV Mark Triple Six.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "DV Mark Triple Six",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 2505
+      },
+      "fileSizeBytes": 7592
+    },
+    {
+      "id": "factory:tests/cabinet/Engl.wav",
+      "filename": "Engl.wav",
+      "relativePath": "tests/cabinet/Engl.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Engl",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 9727
+      },
+      "fileSizeBytes": 29258
+    },
+    {
+      "id": "factory:tests/cabinet/FenderChampAxisStereo.wav",
+      "filename": "FenderChampAxisStereo.wav",
+      "relativePath": "tests/cabinet/FenderChampAxisStereo.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "FenderChampAxisStereo",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 3,
+        "channels": 2,
+        "sampleRate": 44100,
+        "bitDepth": 32,
+        "blockAlign": 8,
+        "frames": 2048
+      },
+      "fileSizeBytes": 16472
+    },
+    {
+      "id": "factory:tests/cabinet/Hesu2x12V30_440center_edge.wav",
+      "filename": "Hesu2x12V30_440center_edge.wav",
+      "relativePath": "tests/cabinet/Hesu2x12V30_440center_edge.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Hesu2x12V30_440center_edge",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 80640
+      },
+      "fileSizeBytes": 241964
+    },
+    {
+      "id": "factory:tests/cabinet/JB 1.wav",
+      "filename": "JB 1.wav",
+      "relativePath": "tests/cabinet/JB 1.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "JB 1",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 2,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 6,
+        "frames": 6833
+      },
+      "fileSizeBytes": 41102
+    },
+    {
+      "id": "factory:tests/cabinet/JB 2.wav",
+      "filename": "JB 2.wav",
+      "relativePath": "tests/cabinet/JB 2.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "JB 2",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 2,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 6,
+        "frames": 44101
+      },
+      "fileSizeBytes": 264710
+    },
+    {
+      "id": "factory:tests/cabinet/JusticeFor-SoloLeadOD_dc.wav",
+      "filename": "JusticeFor-SoloLeadOD_dc.wav",
+      "relativePath": "tests/cabinet/JusticeFor-SoloLeadOD_dc.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "JusticeFor-SoloLeadOD_dc",
+      "type": "ir",
+      "fileSizeBytes": 4894
+    },
+    {
+      "id": "factory:tests/cabinet/KalthallenCabsIR/001a-SM57-V30-4x12.wav",
+      "filename": "001a-SM57-V30-4x12.wav",
+      "relativePath": "tests/cabinet/KalthallenCabsIR/001a-SM57-V30-4x12.wav",
+      "groups": [
+        "tests",
+        "cabinet",
+        "KalthallenCabsIR"
+      ],
+      "displayName": "001a-SM57-V30-4x12",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 9275
+      },
+      "fileSizeBytes": 40114
+    },
+    {
+      "id": "factory:tests/cabinet/KalthallenCabsIR/009a-SM57-G12T75-4x12.wav",
+      "filename": "009a-SM57-G12T75-4x12.wav",
+      "relativePath": "tests/cabinet/KalthallenCabsIR/009a-SM57-G12T75-4x12.wav",
+      "groups": [
+        "tests",
+        "cabinet",
+        "KalthallenCabsIR"
+      ],
+      "displayName": "009a-SM57-G12T75-4x12",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 8610
+      },
+      "fileSizeBytes": 38118
+    },
+    {
+      "id": "factory:tests/cabinet/KalthallenCabsIR/022a-MD21-V30-4x12.wav",
+      "filename": "022a-MD21-V30-4x12.wav",
+      "relativePath": "tests/cabinet/KalthallenCabsIR/022a-MD21-V30-4x12.wav",
+      "groups": [
+        "tests",
+        "cabinet",
+        "KalthallenCabsIR"
+      ],
+      "displayName": "022a-MD21-V30-4x12",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 8995
+      },
+      "fileSizeBytes": 39274
+    },
+    {
+      "id": "factory:tests/cabinet/KalthallenCabsIR/023a-MD21-V30-4x12.wav",
+      "filename": "023a-MD21-V30-4x12.wav",
+      "relativePath": "tests/cabinet/KalthallenCabsIR/023a-MD21-V30-4x12.wav",
+      "groups": [
+        "tests",
+        "cabinet",
+        "KalthallenCabsIR"
+      ],
+      "displayName": "023a-MD21-V30-4x12",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 9450
+      },
+      "fileSizeBytes": 40638
+    },
+    {
+      "id": "factory:tests/cabinet/KalthallenCabsIR/024a-MD21-G12T75-4x12.wav",
+      "filename": "024a-MD21-G12T75-4x12.wav",
+      "relativePath": "tests/cabinet/KalthallenCabsIR/024a-MD21-G12T75-4x12.wav",
+      "groups": [
+        "tests",
+        "cabinet",
+        "KalthallenCabsIR"
+      ],
+      "displayName": "024a-MD21-G12T75-4x12",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 10220
+      },
+      "fileSizeBytes": 42948
+    },
+    {
+      "id": "factory:tests/cabinet/KalthallenCabsIR/028a-SM7-V30-4x12.wav",
+      "filename": "028a-SM7-V30-4x12.wav",
+      "relativePath": "tests/cabinet/KalthallenCabsIR/028a-SM7-V30-4x12.wav",
+      "groups": [
+        "tests",
+        "cabinet",
+        "KalthallenCabsIR"
+      ],
+      "displayName": "028a-SM7-V30-4x12",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 9660
+      },
+      "fileSizeBytes": 41268
+    },
+    {
+      "id": "factory:tests/cabinet/KalthallenCabsIR/034a-SM58-V30-4x12.wav",
+      "filename": "034a-SM58-V30-4x12.wav",
+      "relativePath": "tests/cabinet/KalthallenCabsIR/034a-SM58-V30-4x12.wav",
+      "groups": [
+        "tests",
+        "cabinet",
+        "KalthallenCabsIR"
+      ],
+      "displayName": "034a-SM58-V30-4x12",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 10395
+      },
+      "fileSizeBytes": 43474
+    },
+    {
+      "id": "factory:tests/cabinet/KillEm-SoloLead-_dc.wav",
+      "filename": "KillEm-SoloLead-_dc.wav",
+      "relativePath": "tests/cabinet/KillEm-SoloLead-_dc.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "KillEm-SoloLead-_dc",
+      "type": "ir",
+      "fileSizeBytes": 4894
+    },
+    {
+      "id": "factory:tests/cabinet/Mark V.wav",
+      "filename": "Mark V.wav",
+      "relativePath": "tests/cabinet/Mark V.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Mark V",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 3312
+      },
+      "fileSizeBytes": 10012
+    },
+    {
+      "id": "factory:tests/cabinet/marshall-4_impact.wav",
+      "filename": "marshall-4_impact.wav",
+      "relativePath": "tests/cabinet/marshall-4_impact.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "marshall-4_impact",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 2382
+      },
+      "fileSizeBytes": 19434
+    },
+    {
+      "id": "factory:tests/cabinet/Marshall1960.wav",
+      "filename": "Marshall1960.wav",
+      "relativePath": "tests/cabinet/Marshall1960.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Marshall1960",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 16,
+        "blockAlign": 2,
+        "frames": 5063
+      },
+      "fileSizeBytes": 10240
+    },
+    {
+      "id": "factory:tests/cabinet/MasterOf-GermanUbersonic_dc.wav",
+      "filename": "MasterOf-GermanUbersonic_dc.wav",
+      "relativePath": "tests/cabinet/MasterOf-GermanUbersonic_dc.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "MasterOf-GermanUbersonic_dc",
+      "type": "ir",
+      "fileSizeBytes": 4894
+    },
+    {
+      "id": "factory:tests/cabinet/Mesa-OS-Rectifier-3.wav",
+      "filename": "Mesa-OS-Rectifier-3.wav",
+      "relativePath": "tests/cabinet/Mesa-OS-Rectifier-3.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Mesa-OS-Rectifier-3",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 96000,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 16224
+      },
+      "fileSizeBytes": 52768
+    },
+    {
+      "id": "factory:tests/cabinet/Orange 2x12.wav",
+      "filename": "Orange 2x12.wav",
+      "relativePath": "tests/cabinet/Orange 2x12.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Orange 2x12",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 44101
+      },
+      "fileSizeBytes": 132380
+    },
+    {
+      "id": "factory:tests/cabinet/Orange 4x12.wav",
+      "filename": "Orange 4x12.wav",
+      "relativePath": "tests/cabinet/Orange 4x12.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Orange 4x12",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 2,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 6,
+        "frames": 40637
+      },
+      "fileSizeBytes": 243866
+    },
+    {
+      "id": "factory:tests/cabinet/Randall 667.wav",
+      "filename": "Randall 667.wav",
+      "relativePath": "tests/cabinet/Randall 667.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Randall 667",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 22315
+      },
+      "fileSizeBytes": 67022
+    },
+    {
+      "id": "factory:tests/cabinet/Rectifier.wav",
+      "filename": "Rectifier.wav",
+      "relativePath": "tests/cabinet/Rectifier.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "Rectifier",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 48000,
+        "bitDepth": 24,
+        "blockAlign": 3,
+        "frames": 1002
+      },
+      "fileSizeBytes": 3050
+    },
+    {
+      "id": "factory:tests/cabinet/RideTL-SoloLeadOD_dc.wav",
+      "filename": "RideTL-SoloLeadOD_dc.wav",
+      "relativePath": "tests/cabinet/RideTL-SoloLeadOD_dc.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "RideTL-SoloLeadOD_dc",
+      "type": "ir",
+      "fileSizeBytes": 4894
+    },
+    {
+      "id": "factory:tests/cabinet/voxCustomBrightM930OnAxis1.wav",
+      "filename": "voxCustomBrightM930OnAxis1.wav",
+      "relativePath": "tests/cabinet/voxCustomBrightM930OnAxis1.wav",
+      "groups": [
+        "tests",
+        "cabinet"
+      ],
+      "displayName": "voxCustomBrightM930OnAxis1",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 3,
+        "channels": 2,
+        "sampleRate": 44100,
+        "bitDepth": 32,
+        "blockAlign": 8,
+        "frames": 1612
+      },
+      "fileSizeBytes": 12984
+    },
+    {
+      "id": "factory:tests/reverb/cardiod-rear-levelled.wav",
+      "filename": "cardiod-rear-levelled.wav",
+      "relativePath": "tests/reverb/cardiod-rear-levelled.wav",
+      "groups": [
+        "tests",
+        "reverb"
+      ],
+      "displayName": "cardiod-rear-levelled",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 2,
+        "sampleRate": 44100,
+        "bitDepth": 16,
+        "blockAlign": 4,
+        "frames": 195362
+      },
+      "fileSizeBytes": 785544
+    },
+    {
+      "id": "factory:tests/reverb/pcm90cleanplate.wav",
+      "filename": "pcm90cleanplate.wav",
+      "relativePath": "tests/reverb/pcm90cleanplate.wav",
+      "groups": [
+        "tests",
+        "reverb"
+      ],
+      "displayName": "pcm90cleanplate",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 2,
+        "sampleRate": 44100,
+        "bitDepth": 16,
+        "blockAlign": 4,
+        "frames": 141993
+      },
+      "fileSizeBytes": 571946
+    },
+    {
+      "id": "factory:tests/reverb/ScalaMilanOperaHall.wav",
+      "filename": "ScalaMilanOperaHall.wav",
+      "relativePath": "tests/reverb/ScalaMilanOperaHall.wav",
+      "groups": [
+        "tests",
+        "reverb"
+      ],
+      "displayName": "ScalaMilanOperaHall",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 2,
+        "sampleRate": 44100,
+        "bitDepth": 16,
+        "blockAlign": 4,
+        "frames": 88594
+      },
+      "fileSizeBytes": 354420
+    },
+    {
+      "id": "factory:TWIN REVERB __ BALANCED.wav",
+      "filename": "TWIN REVERB __ BALANCED.wav",
+      "relativePath": "TWIN REVERB __ BALANCED.wav",
+      "groups": [],
+      "displayName": "TWIN REVERB __ BALANCED",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 32,
+        "blockAlign": 4,
+        "frames": 32256
+      },
+      "fileSizeBytes": 129362
+    },
+    {
+      "id": "factory:TWIN REVERB __ CLEAN.wav",
+      "filename": "TWIN REVERB __ CLEAN.wav",
+      "relativePath": "TWIN REVERB __ CLEAN.wav",
+      "groups": [],
+      "displayName": "TWIN REVERB __ CLEAN",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 32,
+        "blockAlign": 4,
+        "frames": 32256
+      },
+      "fileSizeBytes": 129362
+    },
+    {
+      "id": "factory:TWIN REVERB __ MIDS.wav",
+      "filename": "TWIN REVERB __ MIDS.wav",
+      "relativePath": "TWIN REVERB __ MIDS.wav",
+      "groups": [],
+      "displayName": "TWIN REVERB __ MIDS",
+      "type": "ir",
+      "audio": {
+        "encodingCode": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "bitDepth": 32,
+        "blockAlign": 4,
+        "frames": 36864
+      },
+      "fileSizeBytes": 147794
+    }
+  ]
+}

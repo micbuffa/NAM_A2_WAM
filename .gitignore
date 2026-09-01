@@ -1,0 +1,33 @@
+/build-native/
+/build-wasm/
+
+# Generated distribution and test/build output
+/dist/
+/coverage/
+*.log
+
+# Dependencies and package-manager caches
+/node_modules/
+.npm/
+.yarn/
+.pnpm-store/
+
+# Third-party source trees and vendored projects
+/third_party/
+
+# Prototypes and examples outside the NAM/Cabinet host workflow
+/benchmark/
+/examples/audio-worklet/
+/examples/wam-probe/
+
+# Local agent/editor metadata
+/.agents/
+/.claude/
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local scratch file
+/H

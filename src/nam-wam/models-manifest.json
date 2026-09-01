@@ -1,0 +1,1743 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - 80s Clean - Bright - V5 T8 M8 B8.nam",
+      "filename": "71 Twin - 80s Clean - Bright - V5 T8 M8 B8.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - 80s Clean - Bright - V5 T8 M8 B8.nam",
+      "contentHash": "091597f7fa1e2b099e4619030c085fd1870f4c549338bd4cd5685d2932df980e",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - 80s Clean - Bright - V5 T8 M8 B8",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 6,
+          "minute": 28,
+          "second": 11
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - 80s Clean - Norm - V5 T8 M8 B8.nam",
+      "filename": "71 Twin - 80s Clean - Norm - V5 T8 M8 B8.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - 80s Clean - Norm - V5 T8 M8 B8.nam",
+      "contentHash": "5cd22dd4424fa935790840b2251e3a314f182403892c7c6175f2af58f80f8d2d",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - 80s Clean - Norm - V5 T8 M8 B8",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fendwe Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel Dahman",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 51
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - All on 10 - Bright - V10 T10 M10 B10.nam",
+      "filename": "71 Twin - All on 10 - Bright - V10 T10 M10 B10.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - All on 10 - Bright - V10 T10 M10 B10.nam",
+      "contentHash": "1afddd59ef9162a64295b7c8029f73301d237250de5c17245703334585b9488b",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - All on 10 - Bright - V10 T10 M10 B10",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 6,
+          "minute": 28,
+          "second": 12
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - All on 10 - Norm - V10 T10 M10 B10.nam",
+      "filename": "71 Twin - All on 10 - Norm - V10 T10 M10 B10.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - All on 10 - Norm - V10 T10 M10 B10.nam",
+      "contentHash": "39d60cddc8037f512d260685b40e4b9f7673d4ce81d6675044a740c0eff61fdf",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - All on 10 - Norm - V10 T10 M10 B10",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 51
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - All On 5 - Bright - V5 T5 M5 B5.nam",
+      "filename": "71 Twin - All On 5 - Bright - V5 T5 M5 B5.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - All On 5 - Bright - V5 T5 M5 B5.nam",
+      "contentHash": "a74ba8ceec6b77c7f660dd266fe44937b1d9e973e0ea133eeda57c5132462a99",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - All On 5 - Bright - V5 T5 M5 B5",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 6,
+          "minute": 28,
+          "second": 12
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - All On 5 - Norm - V5 T5 M5 B5.nam",
+      "filename": "71 Twin - All On 5 - Norm - V5 T5 M5 B5.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - All On 5 - Norm - V5 T5 M5 B5.nam",
+      "contentHash": "3bfb7699af3f03b124250fe172202041216ddc95de58cf7e6bfe91ec33e08e9c",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - All On 5 - Norm - V5 T5 M5 B5",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fendwe Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel Dahman",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 52
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Big Clean - Bright - V4 T6 M7 B5.nam",
+      "filename": "71 Twin - Big Clean - Bright - V4 T6 M7 B5.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Big Clean - Bright - V4 T6 M7 B5.nam",
+      "contentHash": "e6e0ed85e39a5d27895b359e17883a47abb83ee3b00fccbffeaba71cf1a292f2",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Big Clean - Bright - V4 T6 M7 B5",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 6,
+          "minute": 28,
+          "second": 12
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Big Clean - Norm - V4 T6 M7 B5.nam",
+      "filename": "71 Twin - Big Clean - Norm - V4 T6 M7 B5.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Big Clean - Norm - V4 T6 M7 B5.nam",
+      "contentHash": "0220f859524e46ecb564182bc65f0791c2d1aeadeac17038b485fb2ed215008e",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Big Clean - Norm - V4 T6 M7 B5",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fendwe Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel Dahman",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 6,
+          "minute": 28,
+          "second": 12
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Big n Bright - Bright - V5 T8 M8 B8.nam",
+      "filename": "71 Twin - Big n Bright - Bright - V5 T8 M8 B8.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Big n Bright - Bright - V5 T8 M8 B8.nam",
+      "contentHash": "aac48b80cd377b5bb609e86086ea2b7c0b84fd2b57efa03ea69338861bd246f9",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Big n Bright - Bright - V5 T8 M8 B8",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 51
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Big n Bright - Norm - V5 T8 M8 B8.nam",
+      "filename": "71 Twin - Big n Bright - Norm - V5 T8 M8 B8.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Big n Bright - Norm - V5 T8 M8 B8.nam",
+      "contentHash": "649e29e5a70d8a6f960de6f42469d35e4cc78ac9a61df14aa831e47ddf7f48a1",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Big n Bright - Norm - V5 T8 M8 B8",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fendwe Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel Dahman",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 52
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Big n Thick - Bright - V5 T4 M5 B4.nam",
+      "filename": "71 Twin - Big n Thick - Bright - V5 T4 M5 B4.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Big n Thick - Bright - V5 T4 M5 B4.nam",
+      "contentHash": "1e09b163625ed73e775c250f7ced4f476fb570383ccacae3820d274c504cfb02",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Big n Thick - Bright - V5 T4 M5 B4",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 52
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Big n Thick - Norm - V5 T4 M5 B4.nam",
+      "filename": "71 Twin - Big n Thick - Norm - V5 T4 M5 B4.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Big n Thick - Norm - V5 T4 M5 B4.nam",
+      "contentHash": "d467cd65b45dbf383d7b4917c60e3fafcb4aeee593f3df5439163adcc5ca7849",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Big n Thick - Norm - V5 T4 M5 B4",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fendwe Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel Dahman",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 51
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Cranked - Bright - V10 T7 M7 B4.nam",
+      "filename": "71 Twin - Cranked - Bright - V10 T7 M7 B4.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Cranked - Bright - V10 T7 M7 B4.nam",
+      "contentHash": "22f2dd7e40425ef18c3daa756b836eae86032651d56bac93f4a7c47574f41ae4",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Cranked - Bright - V10 T7 M7 B4",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 51
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Cranked - Norm - V10 T7 M7 B4.nam",
+      "filename": "71 Twin - Cranked - Norm - V10 T7 M7 B4.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Cranked - Norm - V10 T7 M7 B4.nam",
+      "contentHash": "d09001395397b297e9011c1d4793bba5fe850032d3cbe92b6bc96f6a78f2a053",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Cranked - Norm - V10 T7 M7 B4",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 52
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Driven - Norm - V8 T8 M7 B3.nam",
+      "filename": "71 Twin - Driven - Norm - V8 T8 M7 B3.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Driven - Norm - V8 T8 M7 B3.nam",
+      "contentHash": "c9666c3cae7bf2f8fac17f20392e5cf9a760bafb04b9b00707b566f283f7ac71",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Driven - Norm - V8 T8 M7 B3",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 52
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Driven - Vib - V8 T8 M7 B3.nam",
+      "filename": "71 Twin - Driven - Vib - V8 T8 M7 B3.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Driven - Vib - V8 T8 M7 B3.nam",
+      "contentHash": "2e3d353947629d8333043d26b725309156db6c70927183ffb841f830db34bbe9",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Driven - Vib - V8 T8 M7 B3",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 6,
+          "minute": 28,
+          "second": 11
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Mild Drive - Bright - V7 T7 M7 B4.nam",
+      "filename": "71 Twin - Mild Drive - Bright - V7 T7 M7 B4.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Mild Drive - Bright - V7 T7 M7 B4.nam",
+      "contentHash": "21f760737838b1e9caf50f5bf99b78a9caa87f156a9ec1000e7c8d41b85ec83b",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Mild Drive - Bright - V7 T7 M7 B4",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 6,
+          "minute": 28,
+          "second": 12
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Mild Drive - Norm - V7 T7 M7 B4.nam",
+      "filename": "71 Twin - Mild Drive - Norm - V7 T7 M7 B4.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Mild Drive - Norm - V7 T7 M7 B4.nam",
+      "contentHash": "76e4f35320be509e7bb74fc9d55e12e0dd856a3912d32e8e893ae9fa7afae88c",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Mild Drive - Norm - V7 T7 M7 B4",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 52
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Sweet Spot - Bright - V6 T6 M7 B4.nam",
+      "filename": "71 Twin - Sweet Spot - Bright - V6 T6 M7 B4.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Sweet Spot - Bright - V6 T6 M7 B4.nam",
+      "contentHash": "fc674e83e69d117f04f846661b33092225f5b099904ffad44d004183abf0fc8a",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Sweet Spot - Bright - V6 T6 M7 B4",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 51
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - Sweet Spot - Norm - V6 T6 M7 B4.nam",
+      "filename": "71 Twin - Sweet Spot - Norm - V6 T6 M7 B4.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - Sweet Spot - Norm - V6 T6 M7 B4.nam",
+      "contentHash": "5444dae155323458267c3f8fca036dc70f449bb9d4f10bd6009a1f71ac237097",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - Sweet Spot - Norm - V6 T6 M7 B4",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fendwe Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel Dahman",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 53,
+          "second": 51
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - V1 Pulled - V10 T10 M10 B10.nam",
+      "filename": "71 Twin - V1 Pulled - V10 T10 M10 B10.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - V1 Pulled - V10 T10 M10 B10.nam",
+      "contentHash": "970db6032e1832cc0ca360008d759b876d78bafb8981d3eabc08377dbe9bb5aa",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - V1 Pulled - V10 T10 M10 B10",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 6,
+          "minute": 28,
+          "second": 11
+        }
+      }
+    },
+    {
+      "id": "factory:1971 Fender Twin Reverb/71 Twin - V1 Pulled, 12AX7 in V6 - V10 T10 M10 B10.nam",
+      "filename": "71 Twin - V1 Pulled, 12AX7 in V6 - V10 T10 M10 B10.nam",
+      "relativePath": "1971 Fender Twin Reverb/71 Twin - V1 Pulled, 12AX7 in V6 - V10 T10 M10 B10.nam",
+      "contentHash": "4dea548a6b7c15d9555230ac5767a4f35d58941c7675c73b8664b3aa41c42313",
+      "groups": [
+        "1971 Fender Twin Reverb"
+      ],
+      "displayName": "71 Twin - V1 Pulled, 12AX7 in V6 - V10 T10 M10 B10",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "1971 Fender Twin Reverb",
+        "gear_make": "1971 Fender Twin Reverb",
+        "gear_model": "1971 Fender Twin Reverb",
+        "gear_type": "amp",
+        "tone_type": "blues",
+        "modeled_by": "Nathaniel",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 6,
+          "minute": 28,
+          "second": 11
+        }
+      }
+    },
+    {
+      "id": "factory:A1vsA2-JVM-OD1-OR-A2.nam",
+      "filename": "A1vsA2-JVM-OD1-OR-A2.nam",
+      "relativePath": "A1vsA2-JVM-OD1-OR-A2.nam",
+      "contentHash": "921996d6a69c9217d49a4302f52b8d99aac8e678950f5671e5d28f092b290ab4",
+      "groups": [],
+      "displayName": "A1vsA2-JVM-OD1-OR-A2",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "A1vsA2-JVM-OD1-OR-A2",
+        "gear_make": "EVH 5150 III",
+        "gear_model": "EVH 5150 III",
+        "gear_type": "amp",
+        "tone_type": "T3K-Null",
+        "modeled_by": "pipppriss",
+        "trainer": "TONE3000",
+        "date": {
+          "day": 7,
+          "hour": 8,
+          "year": 2026,
+          "month": 6,
+          "minute": 51,
+          "second": 18
+        }
+      }
+    },
+    {
+      "id": "factory:Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Gain 10 Ultra Lo and Hi MD 421.nam",
+      "filename": "Ampeg SVT - Gain 10 Ultra Lo and Hi MD 421.nam",
+      "relativePath": "Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Gain 10 Ultra Lo and Hi MD 421.nam",
+      "contentHash": "062e69a431bc8837ef3f4c58904457a2c2d6c2a666a2611ba05e459b89428b5d",
+      "groups": [
+        "Bass",
+        "Ampeg SVT Classic with 6x10"
+      ],
+      "displayName": "Ampeg SVT - Gain 10 Ultra Lo and Hi MD 421",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Ampeg SVT - Gain 10 Ultra Lo and Hi MD 421",
+        "gear_make": "Ampeg",
+        "gear_model": "Ampeg",
+        "gear_type": "full-rig",
+        "tone_type": "bass",
+        "modeled_by": "tone3000",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 6,
+          "minute": 18,
+          "second": 33
+        }
+      }
+    },
+    {
+      "id": "factory:Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Gain 10 Ultra Lo and Hi SM57.nam",
+      "filename": "Ampeg SVT - Gain 10 Ultra Lo and Hi SM57.nam",
+      "relativePath": "Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Gain 10 Ultra Lo and Hi SM57.nam",
+      "contentHash": "678adae7df3e7bd8e7aa5e5931b6031d13dab2cb004a33d470d89bcbdae0d150",
+      "groups": [
+        "Bass",
+        "Ampeg SVT Classic with 6x10"
+      ],
+      "displayName": "Ampeg SVT - Gain 10 Ultra Lo and Hi SM57",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Ampeg SVT - Gain 10 Ultra Lo and Hi SM57",
+        "gear_make": "Ampeg",
+        "gear_model": "Ampeg",
+        "gear_type": "full-rig",
+        "tone_type": "bass",
+        "modeled_by": "tone3000",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 6,
+          "minute": 18,
+          "second": 38
+        }
+      }
+    },
+    {
+      "id": "factory:Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - MD 421.nam",
+      "filename": "Ampeg SVT - MD 421.nam",
+      "relativePath": "Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - MD 421.nam",
+      "contentHash": "552bcb206848aebd4a69e63bb4c89df289342c5ce105e6a306343132d976b716",
+      "groups": [
+        "Bass",
+        "Ampeg SVT Classic with 6x10"
+      ],
+      "displayName": "Ampeg SVT - MD 421",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Ampeg SVT - MD 421",
+        "gear_make": "Ampeg",
+        "gear_model": "Ampeg",
+        "gear_type": "full-rig",
+        "tone_type": "bass",
+        "modeled_by": "tone3000",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 6,
+          "minute": 18,
+          "second": 15
+        }
+      }
+    },
+    {
+      "id": "factory:Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - SM75.nam",
+      "filename": "Ampeg SVT - SM75.nam",
+      "relativePath": "Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - SM75.nam",
+      "contentHash": "fd51f53f79e92c1331c7959e10796372d7a3587ea9b686869733ca705230bde4",
+      "groups": [
+        "Bass",
+        "Ampeg SVT Classic with 6x10"
+      ],
+      "displayName": "Ampeg SVT - SM75",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Ampeg SVT - SM75",
+        "gear_make": "Ampeg",
+        "gear_model": "Ampeg",
+        "gear_type": "full-rig",
+        "tone_type": "bass",
+        "modeled_by": "tone3000",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 6,
+          "minute": 18,
+          "second": 18
+        }
+      }
+    },
+    {
+      "id": "factory:Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Ultra Hi MD 421.nam",
+      "filename": "Ampeg SVT - Ultra Hi MD 421.nam",
+      "relativePath": "Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Ultra Hi MD 421.nam",
+      "contentHash": "1b085cba79ef0f005c4529ca45d8578a64af1a2d85675d40602a373bf8c947cf",
+      "groups": [
+        "Bass",
+        "Ampeg SVT Classic with 6x10"
+      ],
+      "displayName": "Ampeg SVT - Ultra Hi MD 421",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Ampeg SVT - Ultra Hi MD 421",
+        "gear_make": "Ampeg",
+        "gear_model": "Ampeg",
+        "gear_type": "full-rig",
+        "tone_type": "bass",
+        "modeled_by": "tone3000",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 6,
+          "minute": 18,
+          "second": 43
+        }
+      }
+    },
+    {
+      "id": "factory:Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Ultra Hi SM57.nam",
+      "filename": "Ampeg SVT - Ultra Hi SM57.nam",
+      "relativePath": "Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Ultra Hi SM57.nam",
+      "contentHash": "286efd9743ca294acb4e23ba46475fdb8f84776f927a27fd121b62a986a4f464",
+      "groups": [
+        "Bass",
+        "Ampeg SVT Classic with 6x10"
+      ],
+      "displayName": "Ampeg SVT - Ultra Hi SM57",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Ampeg SVT - Ultra Hi SM57",
+        "gear_make": "Ampeg",
+        "gear_model": "Ampeg",
+        "gear_type": "full-rig",
+        "tone_type": "bass",
+        "modeled_by": "tone3000",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 6,
+          "minute": 18,
+          "second": 38
+        }
+      }
+    },
+    {
+      "id": "factory:Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Ultra Lo MD 421.nam",
+      "filename": "Ampeg SVT - Ultra Lo MD 421.nam",
+      "relativePath": "Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Ultra Lo MD 421.nam",
+      "contentHash": "a610c47d19f313f179b642d145468842b41848f0e575813d1a9896b5236e8f72",
+      "groups": [
+        "Bass",
+        "Ampeg SVT Classic with 6x10"
+      ],
+      "displayName": "Ampeg SVT - Ultra Lo MD 421",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Ampeg SVT - Ultra Lo MD 421",
+        "gear_make": "Ampeg",
+        "gear_model": "Ampeg",
+        "gear_type": "full-rig",
+        "tone_type": "bass",
+        "modeled_by": "tone3000",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 6,
+          "minute": 18,
+          "second": 29
+        }
+      }
+    },
+    {
+      "id": "factory:Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Ultra Lo SM57.nam",
+      "filename": "Ampeg SVT - Ultra Lo SM57.nam",
+      "relativePath": "Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - Ultra Lo SM57.nam",
+      "contentHash": "5d4ea3c752b0addf7dad7c40ecfe4a5504e0dba606cc7b2cdcdbb9b7561e990b",
+      "groups": [
+        "Bass",
+        "Ampeg SVT Classic with 6x10"
+      ],
+      "displayName": "Ampeg SVT - Ultra Lo SM57",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Ampeg SVT - Ultra Lo SM57",
+        "gear_make": "Ampeg",
+        "gear_model": "Ampeg",
+        "gear_type": "full-rig",
+        "tone_type": "bass",
+        "modeled_by": "tone3000",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 6,
+          "minute": 18,
+          "second": 33
+        }
+      }
+    },
+    {
+      "id": "factory:Bass/MarkBass amp TA501 , cab 151HR , mic Dynamic Beta 52.nam",
+      "filename": "MarkBass amp TA501 , cab 151HR , mic Dynamic Beta 52.nam",
+      "relativePath": "Bass/MarkBass amp TA501 , cab 151HR , mic Dynamic Beta 52.nam",
+      "contentHash": "a9aab1138f42e01db6507cc1df02d9d3efeac469fa8482ba3e5826a0c6db7815",
+      "groups": [
+        "Bass"
+      ],
+      "displayName": "MarkBass amp TA501 , cab 151HR , mic Dynamic Beta 52",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "MarkBass amp TA501 , cab 151HR , mic Dynamic Beta 52",
+        "gear_make": "Markbass Little Mark TA501cab 151HR",
+        "gear_model": "Markbass Little Mark TA501cab 151HR",
+        "gear_type": "full-rig",
+        "tone_type": "clean bass amp",
+        "modeled_by": "kaika007",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 10,
+          "hour": 21,
+          "minute": 47,
+          "second": 35
+        }
+      }
+    },
+    {
+      "id": "factory:Bass/Markbass-LittleMarkTube-104HF-Dynamic57.nam",
+      "filename": "Markbass-LittleMarkTube-104HF-Dynamic57.nam",
+      "relativePath": "Bass/Markbass-LittleMarkTube-104HF-Dynamic57.nam",
+      "contentHash": "567a1b906ee6bcf4071b5b75dc87859585d537d749c98a8dc838835200fdf570",
+      "groups": [
+        "Bass"
+      ],
+      "displayName": "Markbass-LittleMarkTube-104HF-Dynamic57",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Markbass-LittleMarkTube-104HF-Dynamic57",
+        "gear_make": "Mark Bass Little Mark Tube 800",
+        "gear_model": "Mark Bass Little Mark Tube 800",
+        "gear_type": "full-rig",
+        "tone_type": "mark bass",
+        "modeled_by": "nattanfarias",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 22,
+          "minute": 28,
+          "second": 31
+        }
+      }
+    },
+    {
+      "id": "factory:Deluxe Reverb '65 Reissue Clean/Fender DRRI _ Clean _ Room Only _ Full Rig.nam",
+      "filename": "Fender DRRI _ Clean _ Room Only _ Full Rig.nam",
+      "relativePath": "Deluxe Reverb '65 Reissue Clean/Fender DRRI _ Clean _ Room Only _ Full Rig.nam",
+      "contentHash": "ae92a8f3a2f243debfa070f38dc9651677b2694839be50747bc16174f3e97678",
+      "groups": [
+        "Deluxe Reverb '65 Reissue Clean"
+      ],
+      "displayName": "Fender DRRI _ Clean _ Room Only _ Full Rig",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Fender DRRI | Clean | Room Only | Full Rig",
+        "gear_make": "Fender Deluxe Reverb",
+        "gear_model": "Fender Deluxe Reverb",
+        "gear_type": "full-rig",
+        "tone_type": "clean",
+        "modeled_by": "desmondstudio",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 4,
+          "minute": 47,
+          "second": 50
+        }
+      }
+    },
+    {
+      "id": "factory:Deluxe Reverb '65 Reissue Clean/Fender DRRI _ Clean _ SM57 + Royer R-121 (No Room) _ Full Rig.nam",
+      "filename": "Fender DRRI _ Clean _ SM57 + Royer R-121 (No Room) _ Full Rig.nam",
+      "relativePath": "Deluxe Reverb '65 Reissue Clean/Fender DRRI _ Clean _ SM57 + Royer R-121 (No Room) _ Full Rig.nam",
+      "contentHash": "aaa6b958ebc2af1a2b745a9d2233edfa9f42d60e1f83d33696f4aae0e4d4b473",
+      "groups": [
+        "Deluxe Reverb '65 Reissue Clean"
+      ],
+      "displayName": "Fender DRRI _ Clean _ SM57 + Royer R-121 (No Room) _ Full Rig",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Fender DRRI | Clean | SM57 + Royer R-121 (No Room) | Full Rig",
+        "gear_make": "Fender Deluxe Reverb",
+        "gear_model": "Fender Deluxe Reverb",
+        "gear_type": "full-rig",
+        "tone_type": "clean",
+        "modeled_by": "desmondstudio",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 4,
+          "minute": 48,
+          "second": 5
+        }
+      }
+    },
+    {
+      "id": "factory:Deluxe Reverb '65 Reissue Clean/Fender DRRI _ Clean _ SM57 + Royer R-121 + Room _ Full Rig.nam",
+      "filename": "Fender DRRI _ Clean _ SM57 + Royer R-121 + Room _ Full Rig.nam",
+      "relativePath": "Deluxe Reverb '65 Reissue Clean/Fender DRRI _ Clean _ SM57 + Royer R-121 + Room _ Full Rig.nam",
+      "contentHash": "ad977895c8e8c82f6a7c04f82ed472ccc8dab802e0c2903493588392e7817011",
+      "groups": [
+        "Deluxe Reverb '65 Reissue Clean"
+      ],
+      "displayName": "Fender DRRI _ Clean _ SM57 + Royer R-121 + Room _ Full Rig",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Fender DRRI | Clean | SM57 + Royer R-121 + Room | Full Rig",
+        "gear_make": "Fender Deluxe Reverb",
+        "gear_model": "Fender Deluxe Reverb",
+        "gear_type": "full-rig",
+        "tone_type": "clean",
+        "modeled_by": "gindabestari",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 4,
+          "minute": 48,
+          "second": 23
+        }
+      }
+    },
+    {
+      "id": "factory:Deluxe Reverb '65 Reissue Clean/NEW VERSION _ Fender DRRI _ Clean _ Room Only _ Full Rig.nam",
+      "filename": "NEW VERSION _ Fender DRRI _ Clean _ Room Only _ Full Rig.nam",
+      "relativePath": "Deluxe Reverb '65 Reissue Clean/NEW VERSION _ Fender DRRI _ Clean _ Room Only _ Full Rig.nam",
+      "contentHash": "96356f35cb734c77618a1812990a92b933af44b723b780dbf293827387def8f6",
+      "groups": [
+        "Deluxe Reverb '65 Reissue Clean"
+      ],
+      "displayName": "NEW VERSION _ Fender DRRI _ Clean _ Room Only _ Full Rig",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "NEW VERSION | Fender DRRI | Clean | Room Only | Full Rig",
+        "gear_make": "Fender Deluxe Reverb",
+        "gear_model": "Fender Deluxe Reverb",
+        "gear_type": "full-rig",
+        "tone_type": "clean",
+        "modeled_by": "desmondstudio",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 4,
+          "minute": 47,
+          "second": 59
+        }
+      }
+    },
+    {
+      "id": "factory:Deluxe Reverb '65 Reissue Clean/NEW VERSION _ Fender DRRI _ Clean _ SM57 + Royer R-121 (No Room) _ Full Rig.nam",
+      "filename": "NEW VERSION _ Fender DRRI _ Clean _ SM57 + Royer R-121 (No Room) _ Full Rig.nam",
+      "relativePath": "Deluxe Reverb '65 Reissue Clean/NEW VERSION _ Fender DRRI _ Clean _ SM57 + Royer R-121 (No Room) _ Full Rig.nam",
+      "contentHash": "e710cbec88b07e239e45c38c1cae90178d3d65c6ca4336185893209dfb84b5b1",
+      "groups": [
+        "Deluxe Reverb '65 Reissue Clean"
+      ],
+      "displayName": "NEW VERSION _ Fender DRRI _ Clean _ SM57 + Royer R-121 (No Room) _ Full Rig",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "DRRI New 57+121",
+        "gear_make": "Fender Deluxe Reverb",
+        "gear_model": "Fender Deluxe Reverb",
+        "gear_type": "full-rig",
+        "tone_type": "clean",
+        "modeled_by": "desmondstudio",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 4,
+          "minute": 47,
+          "second": 52
+        }
+      }
+    },
+    {
+      "id": "factory:Deluxe Reverb '65 Reissue Clean/NEW VERSION _ Fender DRRI _ Clean _ SM57 + Royer R-121 + Room _ Full Rig.nam",
+      "filename": "NEW VERSION _ Fender DRRI _ Clean _ SM57 + Royer R-121 + Room _ Full Rig.nam",
+      "relativePath": "Deluxe Reverb '65 Reissue Clean/NEW VERSION _ Fender DRRI _ Clean _ SM57 + Royer R-121 + Room _ Full Rig.nam",
+      "contentHash": "6dce5367943b3b7cdf655eb23c472c7561588da2d6925fa21b368e6c57d90abc",
+      "groups": [
+        "Deluxe Reverb '65 Reissue Clean"
+      ],
+      "displayName": "NEW VERSION _ Fender DRRI _ Clean _ SM57 + Royer R-121 + Room _ Full Rig",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "NEW VERSION | Fender DRRI | Clean | SM57 + Royer R-121 + Room | Full Rig",
+        "gear_make": "Fender Deluxe Reverb",
+        "gear_model": "Fender Deluxe Reverb",
+        "gear_type": "full-rig",
+        "tone_type": "clean",
+        "modeled_by": "desmondstudio",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 4,
+          "minute": 48,
+          "second": 4
+        }
+      }
+    },
+    {
+      "id": "factory:EVH5150III+M77-A1vsA2-ThisIsA2.nam",
+      "filename": "EVH5150III+M77-A1vsA2-ThisIsA2.nam",
+      "relativePath": "EVH5150III+M77-A1vsA2-ThisIsA2.nam",
+      "contentHash": "086e0bda34a3a40bd6d57b354dd8bf5189e69db5424988c2d89cde391963aa64",
+      "groups": [],
+      "displayName": "EVH5150III+M77-A1vsA2-ThisIsA2",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "EVH5150III+M77-A1vsA2-ThisIsA2",
+        "gear_make": "EVH 5150 III",
+        "gear_model": "EVH 5150 III",
+        "gear_type": "amp",
+        "tone_type": "T3K-Null",
+        "modeled_by": "pipppriss",
+        "trainer": "TONE3000",
+        "date": {
+          "day": 3,
+          "hour": 15,
+          "year": 2026,
+          "month": 6,
+          "minute": 55,
+          "second": 48
+        }
+      }
+    },
+    {
+      "id": "factory:Fender Blues Deville_FULL RIG_Ch1_ Clean.nam",
+      "filename": "Fender Blues Deville_FULL RIG_Ch1_ Clean.nam",
+      "relativePath": "Fender Blues Deville_FULL RIG_Ch1_ Clean.nam",
+      "contentHash": "43a8e3463b7e8253de99b87c7f59ec3595cc3b9798cc9f5c8f8ebd5d7b65f829",
+      "groups": [],
+      "displayName": "Fender Blues Deville_FULL RIG_Ch1_ Clean",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "gear_make": "Fender Blues Deville",
+        "gear_model": "Fender Blues Deville",
+        "gear_type": "full-rig",
+        "tone_type": "blues",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 22,
+          "minute": 15,
+          "second": 2
+        }
+      }
+    },
+    {
+      "id": "factory:Fender Blues Deville_FULL RIG_Ch2_Mid.nam",
+      "filename": "Fender Blues Deville_FULL RIG_Ch2_Mid.nam",
+      "relativePath": "Fender Blues Deville_FULL RIG_Ch2_Mid.nam",
+      "contentHash": "e18bb02aae3dfedc3966e697d2d34b63d6befbd09f46b0acece5d68f666fa593",
+      "groups": [],
+      "displayName": "Fender Blues Deville_FULL RIG_Ch2_Mid",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "gear_make": "Fender Blues Deville",
+        "gear_model": "Fender Blues Deville",
+        "gear_type": "full-rig",
+        "tone_type": "blues",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 22,
+          "minute": 15,
+          "second": 2
+        }
+      }
+    },
+    {
+      "id": "factory:Fender Super Reverb 1977/Fender Super Reverb_ EQ Flat, Volume 3, AKG 414.nam",
+      "filename": "Fender Super Reverb_ EQ Flat, Volume 3, AKG 414.nam",
+      "relativePath": "Fender Super Reverb 1977/Fender Super Reverb_ EQ Flat, Volume 3, AKG 414.nam",
+      "contentHash": "e31984c8e40ed9e07907cada8f933ac26dc90c62ad7621070fa1f42421d44f3c",
+      "groups": [
+        "Fender Super Reverb 1977"
+      ],
+      "displayName": "Fender Super Reverb_ EQ Flat, Volume 3, AKG 414",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Fender Super Reverb: EQ Flat, Volume 3, AKG 414",
+        "gear_make": "AKG c414",
+        "gear_model": "AKG c414",
+        "gear_type": "full-rig",
+        "tone_type": "tube",
+        "modeled_by": "spooky",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 4,
+          "minute": 48,
+          "second": 1
+        }
+      }
+    },
+    {
+      "id": "factory:Fender Super Reverb 1977/Fender Super Reverb_ EQ Flat, Volume 3, sm57 and AKG 414.nam",
+      "filename": "Fender Super Reverb_ EQ Flat, Volume 3, sm57 and AKG 414.nam",
+      "relativePath": "Fender Super Reverb 1977/Fender Super Reverb_ EQ Flat, Volume 3, sm57 and AKG 414.nam",
+      "contentHash": "84425a854256ff56b5ff4836a0611f452835a595352ffe8f3a13a40edd57f4e7",
+      "groups": [
+        "Fender Super Reverb 1977"
+      ],
+      "displayName": "Fender Super Reverb_ EQ Flat, Volume 3, sm57 and AKG 414",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Fender Deluxe Reverb Drive 6",
+        "gear_make": "AKG c414",
+        "gear_model": "AKG c414",
+        "gear_type": "full-rig",
+        "tone_type": "tube",
+        "modeled_by": "spooky",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 4,
+          "minute": 47,
+          "second": 51
+        }
+      }
+    },
+    {
+      "id": "factory:Fender Super Reverb 1977/Fender Super Reverb_ EQ Flat, Volume 3, sm57.nam",
+      "filename": "Fender Super Reverb_ EQ Flat, Volume 3, sm57.nam",
+      "relativePath": "Fender Super Reverb 1977/Fender Super Reverb_ EQ Flat, Volume 3, sm57.nam",
+      "contentHash": "8884e937d08d62072721f579b6dc6fc8cbaae4b96402c1ff4bd4450eda4aca8a",
+      "groups": [
+        "Fender Super Reverb 1977"
+      ],
+      "displayName": "Fender Super Reverb_ EQ Flat, Volume 3, sm57",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Fender Super Reverb: EQ Flat, Volume 3, sm57",
+        "gear_make": "AKG c414",
+        "gear_model": "AKG c414",
+        "gear_type": "full-rig",
+        "tone_type": "tube",
+        "modeled_by": "spooky",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 4,
+          "minute": 48,
+          "second": 7
+        }
+      }
+    },
+    {
+      "id": "factory:Fender Twin Reverb Amp and Cab Captures/Fender Twin Reverb Full Rig 212 Green 57.nam",
+      "filename": "Fender Twin Reverb Full Rig 212 Green 57.nam",
+      "relativePath": "Fender Twin Reverb Amp and Cab Captures/Fender Twin Reverb Full Rig 212 Green 57.nam",
+      "contentHash": "d5480b918e4f2e66db82e7372617044704291eff828665d20e1f3438c99634c2",
+      "groups": [
+        "Fender Twin Reverb Amp and Cab Captures"
+      ],
+      "displayName": "Fender Twin Reverb Full Rig 212 Green 57",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Fender Twin Reverb Full Rig 212 Green 57",
+        "gear_make": "Fender Twin Reverb",
+        "gear_model": "Fender Twin Reverb",
+        "gear_type": "full-rig",
+        "tone_type": "clean",
+        "modeled_by": "henriquemarcosaugusto03",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 4,
+          "minute": 43,
+          "second": 20
+        }
+      }
+    },
+    {
+      "id": "factory:Fender Twin Reverb Amp and Cab Captures/Fender Twin Reverb.nam",
+      "filename": "Fender Twin Reverb.nam",
+      "relativePath": "Fender Twin Reverb Amp and Cab Captures/Fender Twin Reverb.nam",
+      "contentHash": "292eba4f31f1a05da60f13354a752d5b154f07ad75f8baa7e793a0a0d7cdef2c",
+      "groups": [
+        "Fender Twin Reverb Amp and Cab Captures"
+      ],
+      "displayName": "Fender Twin Reverb",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Fender Twin Reverb",
+        "gear_make": "Fender Twin Reverb",
+        "gear_model": "Fender Twin Reverb",
+        "gear_type": "full-rig",
+        "tone_type": "clean",
+        "modeled_by": "henriquemarcosaugusto03",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 4,
+          "minute": 43,
+          "second": 12
+        }
+      }
+    },
+    {
+      "id": "factory:Fig A2 Wiz LeadBst LG DI.nam",
+      "filename": "Fig A2 Wiz LeadBst LG DI.nam",
+      "relativePath": "Fig A2 Wiz LeadBst LG DI.nam",
+      "contentHash": "1e22a429ec478f0496034dfa6f00e1009702c226e2fcc0547fa16aa64b14c20d",
+      "groups": [],
+      "displayName": "Fig A2 Wiz LeadBst LG DI",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Fig A2 Wiz",
+        "gear_make": "Wizard",
+        "gear_model": "MCII",
+        "gear_type": "amp",
+        "tone_type": "hi_gain",
+        "modeled_by": "mattfig.com",
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 8,
+          "hour": 12,
+          "minute": 54,
+          "second": 53
+        }
+      }
+    },
+    {
+      "id": "factory:Full Rig Peavey 5150 + Mesa 4x12/Full Rig Peavey 5150 Maxon Mesa OS SM57 - jp_is_out_of_tune.nam",
+      "filename": "Full Rig Peavey 5150 Maxon Mesa OS SM57 - jp_is_out_of_tune.nam",
+      "relativePath": "Full Rig Peavey 5150 + Mesa 4x12/Full Rig Peavey 5150 Maxon Mesa OS SM57 - jp_is_out_of_tune.nam",
+      "contentHash": "e005e89a8b885b849a050fcee8183ddaa9ddd6f8a6e105a53a77547c28bba380",
+      "groups": [
+        "Full Rig Peavey 5150 + Mesa 4x12"
+      ],
+      "displayName": "Full Rig Peavey 5150 Maxon Mesa OS SM57 - jp_is_out_of_tune",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Full Rig Peavey 5150 OD808 Mesa OS SM57 - jp_is_out_of_tune",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "gear_type": "full-rig",
+        "tone_type": "metal",
+        "modeled_by": "jpisoutoftune",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 18,
+          "minute": 45,
+          "second": 3
+        }
+      }
+    },
+    {
+      "id": "factory:Full Rig Peavey 5150 + Mesa 4x12/Full Rig Peavey 5150 Maxon Mesa OS SM58 - jp_is_out_of_tune.nam",
+      "filename": "Full Rig Peavey 5150 Maxon Mesa OS SM58 - jp_is_out_of_tune.nam",
+      "relativePath": "Full Rig Peavey 5150 + Mesa 4x12/Full Rig Peavey 5150 Maxon Mesa OS SM58 - jp_is_out_of_tune.nam",
+      "contentHash": "c7ffc7af8501cb72691a208b48af86c1cd624cdeafe818ab41b643348900a845",
+      "groups": [
+        "Full Rig Peavey 5150 + Mesa 4x12"
+      ],
+      "displayName": "Full Rig Peavey 5150 Maxon Mesa OS SM58 - jp_is_out_of_tune",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Full Rig Peavey 5150 OD808 Mesa OS SM58 EQ - jp_is_out_of_tune",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "gear_type": "full-rig",
+        "tone_type": "metal",
+        "modeled_by": "jpisoutoftune",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 18,
+          "minute": 45,
+          "second": 3
+        }
+      }
+    },
+    {
+      "id": "factory:Full Rig Peavey 5150 + Mesa 4x12/Full Rig Peavey 5150 MXR Mesa OS SM57 - jp_is_out_of_tune.nam",
+      "filename": "Full Rig Peavey 5150 MXR Mesa OS SM57 - jp_is_out_of_tune.nam",
+      "relativePath": "Full Rig Peavey 5150 + Mesa 4x12/Full Rig Peavey 5150 MXR Mesa OS SM57 - jp_is_out_of_tune.nam",
+      "contentHash": "a3f151932c4e7f197a21dd8996d5750dfd1657e5fd67a346be17c58dd4c2e2c7",
+      "groups": [
+        "Full Rig Peavey 5150 + Mesa 4x12"
+      ],
+      "displayName": "Full Rig Peavey 5150 MXR Mesa OS SM57 - jp_is_out_of_tune",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Full Rig Peavey 5150 Chug Mesa OS SM57 - jp_is_out_of_tune",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "gear_type": "full-rig",
+        "tone_type": "metal",
+        "modeled_by": "jpisoutoftune",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 18,
+          "minute": 45,
+          "second": 3
+        }
+      }
+    },
+    {
+      "id": "factory:Full Rig Peavey 5150 + Mesa 4x12/Full Rig Peavey 5150 MXR Mesa OS SM58 - jp_is_out_of_tune.nam",
+      "filename": "Full Rig Peavey 5150 MXR Mesa OS SM58 - jp_is_out_of_tune.nam",
+      "relativePath": "Full Rig Peavey 5150 + Mesa 4x12/Full Rig Peavey 5150 MXR Mesa OS SM58 - jp_is_out_of_tune.nam",
+      "contentHash": "8e78f00d38843c074cbb5055f81f69d445e72d8685c8bd4ba87b5e7585251631",
+      "groups": [
+        "Full Rig Peavey 5150 + Mesa 4x12"
+      ],
+      "displayName": "Full Rig Peavey 5150 MXR Mesa OS SM58 - jp_is_out_of_tune",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Full Rig Peavey 5150 Chug Mesa OS SM58 EQ - jp_is_out_of_tune",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "gear_type": "full-rig",
+        "tone_type": "metal",
+        "modeled_by": "jpisoutoftune",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 18,
+          "minute": 45,
+          "second": 3
+        }
+      }
+    },
+    {
+      "id": "factory:Full Rig Peavey 5150 + Mesa 4x12/Full Rig Peavey 5150 No boost Mesa OS SM57 - jp_is_out_of_tune.nam",
+      "filename": "Full Rig Peavey 5150 No boost Mesa OS SM57 - jp_is_out_of_tune.nam",
+      "relativePath": "Full Rig Peavey 5150 + Mesa 4x12/Full Rig Peavey 5150 No boost Mesa OS SM57 - jp_is_out_of_tune.nam",
+      "contentHash": "c8577f07335f3db0d42011a02d395f40d487163b1f2d44f91b27a303de561d31",
+      "groups": [
+        "Full Rig Peavey 5150 + Mesa 4x12"
+      ],
+      "displayName": "Full Rig Peavey 5150 No boost Mesa OS SM57 - jp_is_out_of_tune",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "Full Rig Peavey 5150 No boost Mesa OS SM57 - jp_is_out_of_tune",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "gear_type": "full-rig",
+        "tone_type": "metal",
+        "modeled_by": "jpisoutoftune",
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 18,
+          "minute": 45,
+          "second": 2
+        }
+      }
+    },
+    {
+      "id": "factory:Hughes & Kettner GrandMeister 36 2015 (TAD tubes)/HK-GM36 Clean.nam",
+      "filename": "HK-GM36 Clean.nam",
+      "relativePath": "Hughes & Kettner GrandMeister 36 2015 (TAD tubes)/HK-GM36 Clean.nam",
+      "contentHash": "7e3d116bbfe6bbba15c2f5f7eef3715ebb42d2d2c654e5ba1d82f36d6caef3f6",
+      "groups": [
+        "Hughes & Kettner GrandMeister 36 2015 (TAD tubes)"
+      ],
+      "displayName": "HK-GM36 Clean",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "HK-GM36 Clean",
+        "gear_make": "Hughes Kettner Grandmeister 36 2015 TAD tubes",
+        "gear_model": "Hughes Kettner Grandmeister 36 2015 TAD tubes",
+        "gear_type": "amp",
+        "tone_type": "tube",
+        "modeled_by": "c0d3man",
+        "trainer": "TONE3000",
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 18,
+          "hour": 16,
+          "minute": 37,
+          "second": 2
+        }
+      }
+    },
+    {
+      "id": "factory:Hughes & Kettner GrandMeister 36 2015 (TAD tubes)/HK-GM36 Crunch.nam",
+      "filename": "HK-GM36 Crunch.nam",
+      "relativePath": "Hughes & Kettner GrandMeister 36 2015 (TAD tubes)/HK-GM36 Crunch.nam",
+      "contentHash": "571573b5bad6de4de9c2087362adeee27c8a8a77fef19a39b3394bf03f9122f0",
+      "groups": [
+        "Hughes & Kettner GrandMeister 36 2015 (TAD tubes)"
+      ],
+      "displayName": "HK-GM36 Crunch",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "HK-GM36 Crunch",
+        "gear_make": "Hughes Kettner Grandmeister 36 2015 TAD tubes",
+        "gear_model": "Hughes Kettner Grandmeister 36 2015 TAD tubes",
+        "gear_type": "amp",
+        "tone_type": "tube",
+        "modeled_by": "c0d3man",
+        "trainer": "TONE3000",
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 18,
+          "hour": 16,
+          "minute": 41,
+          "second": 15
+        }
+      }
+    },
+    {
+      "id": "factory:Hughes & Kettner GrandMeister 36 2015 (TAD tubes)/HK-GM36 Lead.nam",
+      "filename": "HK-GM36 Lead.nam",
+      "relativePath": "Hughes & Kettner GrandMeister 36 2015 (TAD tubes)/HK-GM36 Lead.nam",
+      "contentHash": "f9e1326f51a92e0caceffb37d330d8a6cd8b3044d5741363b684ea04997d294d",
+      "groups": [
+        "Hughes & Kettner GrandMeister 36 2015 (TAD tubes)"
+      ],
+      "displayName": "HK-GM36 Lead",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "HK-GM36 Lead",
+        "gear_make": "Hughes Kettner Grandmeister 36 2015 TAD tubes",
+        "gear_model": "Hughes Kettner Grandmeister 36 2015 TAD tubes",
+        "gear_type": "amp",
+        "tone_type": "tube",
+        "modeled_by": "c0d3man",
+        "trainer": "TONE3000",
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 18,
+          "hour": 16,
+          "minute": 54,
+          "second": 43
+        }
+      }
+    },
+    {
+      "id": "factory:Hughes & Kettner GrandMeister 36 2015 (TAD tubes)/HK-GM36 Ultra.nam",
+      "filename": "HK-GM36 Ultra.nam",
+      "relativePath": "Hughes & Kettner GrandMeister 36 2015 (TAD tubes)/HK-GM36 Ultra.nam",
+      "contentHash": "2a95195b9268d7e54c6430f5a161da681fad703d479d1f47d22cfb4de3ab2270",
+      "groups": [
+        "Hughes & Kettner GrandMeister 36 2015 (TAD tubes)"
+      ],
+      "displayName": "HK-GM36 Ultra",
+      "type": "nam",
+      "architecture": "SlimmableContainer",
+      "version": "0.7.0",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "HK-GM36 Ultra",
+        "gear_make": "Hughes Kettner Grandmeister 36 2015 TAD tubes",
+        "gear_model": "Hughes Kettner Grandmeister 36 2015 TAD tubes",
+        "gear_type": "amp",
+        "tone_type": "tube",
+        "modeled_by": "c0d3man",
+        "trainer": "TONE3000",
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 18,
+          "hour": 16,
+          "minute": 40,
+          "second": 23
+        }
+      }
+    },
+    {
+      "id": "factory:MesaMk3.nam",
+      "filename": "MesaMk3.nam",
+      "relativePath": "MesaMk3.nam",
+      "contentHash": "581dad0c939eb42cfbc97a5fa0812fe0ade0b0d6e7ec8ca9b31e3f41c82cd802",
+      "groups": [],
+      "displayName": "MesaMk3",
+      "type": "nam",
+      "architecture": "WaveNet",
+      "version": "0.5.2",
+      "sampleRate": 48000,
+      "metadata": {
+        "name": "MKIII High Gain",
+        "gear_make": "Crab Amps",
+        "gear_model": "MKIII",
+        "gear_type": "amp",
+        "tone_type": "hi_gain",
+        "modeled_by": "Vicious Audio",
+        "date": {
+          "year": 2024,
+          "month": 1,
+          "day": 17,
+          "hour": 15,
+          "minute": 22,
+          "second": 54
+        }
+      }
+    }
+  ]
+}

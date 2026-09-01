@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NAM A2 WAM Rack</title>
+  <link rel="stylesheet" href="./host.css">
+</head>
+<body>
+  <div class="host-shell">
+    <aside class="host-sidebar" aria-label="Host controls">
+      <header class="host-brand">
+        <p class="host-kicker">WAM RACK</p>
+        <h1>NAM A2</h1>
+        <p>Neural amplifier and cabinet chain</p>
+      </header>
+
+      <section class="host-card" aria-labelledby="source-title">
+        <h2 id="source-title"><span class="host-dot violet"></span>Audio source</h2>
+        <label>Source <select id="audioSource"><option>Live input</option></select></label>
+        <label>Input device <select id="inputDevice"></select></label>
+        <button class="host-secondary" id="enableLive" type="button">Enable live input</button>
+        <label class="host-range">Source trim <output id="sourceTrimValue">0.0 dB</output>
+          <input id="sourceTrim" type="range" min="-48" max="12" step="0.5" value="0">
+        </label>
+        <p class="host-help" id="discovery"></p>
+      </section>
+
+      <section class="host-card" aria-labelledby="player-title">
+        <h2 id="player-title"><span class="host-dot amber"></span>Audio player</h2>
+        <div class="transport" role="group" aria-label="Audio transport">
+          <button class="player-control" id="play" type="button" aria-label="Play">▶</button>
+          <button class="player-control" id="pause" type="button" aria-label="Pause">Ⅱ</button>
+          <button class="player-control" id="stop" type="button" aria-label="Stop">■</button>
+          <label class="loop-control"><input class="player-control" id="loop" type="checkbox"> Loop</label>
+        </div>
+        <label class="host-range">Position
+          <input class="player-control" id="seek" type="range" min="0" max="1" step="0.001" value="0">
+        </label>
+        <audio id="player" preload="metadata"></audio>
+      </section>
+
+      <section class="host-card" aria-labelledby="output-title">
+        <h2 id="output-title"><span class="host-dot rose"></span>Audio output</h2>
+        <label>Output device <select id="outputDevice"><option value="">System default</option></select></label>
+        <button class="host-secondary" id="authorizeOutput" type="button">Choose output</button>
+        <p class="host-help" id="outputSupport"></p>
+      </section>
+
+      <details class="host-card host-advanced">
+        <summary>Session & diagnostics</summary>
+        <div class="host-session-actions">
+          <button id="saveState" type="button">Save WAM state</button>
+          <button id="restoreState" type="button">Restore state</button>
+        </div>
+        <span class="host-help" id="stateSize"></span>
+        <details class="validation-panel">
+          <summary>Automated validation output</summary>
+          <pre id="automatedResult"></pre>
+        </details>
+      </details>
+
+      <p id="hostStatus" class="host-status" role="status">Initializing…</p>
+    </aside>
+
+    <main class="rack-stage">
+      <header class="rack-header">
+        <div><p class="rack-kicker">SIGNAL CHAIN</p><h2>Amplifier rack</h2></div>
+        <div class="chain-map" aria-label="Signal chain">
+          <span>INPUT</span><i></i><strong>NAM</strong><i></i><strong>CABINET</strong><i></i><span>OUTPUT</span>
+        </div>
+      </header>
+      <section class="rack-grid" aria-label="Plugin rack">
+        <div class="rack-slot rack-slot-nam" id="pluginGui" aria-label="NAM WAM"></div>
+        <div class="rack-connector" aria-hidden="true"><span>→</span></div>
+        <div class="rack-slot rack-slot-cabinet" id="cabinetGui" aria-label="Cabinet WAM"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  window.NAM_A2_WAM_CONFIG = {
+    tone3000: {
+      clientId: 't3k_pub_pWW-S9JqVvqbsnhKVpN08ekCgaLpWPY4',
+      //redirectUri: 'http://127.0.0.1:8765/examples/wam/index.html'
+      redirectUri: 'https://mainline.i3s.unice.fr/NAM_A2_WAM/index.html'
+    }
+  };
+  </script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

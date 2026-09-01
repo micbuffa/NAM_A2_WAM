@@ -1,0 +1,16 @@
+{
+  "identifier": "org.webaudiomodules.nam-a2",
+  "name": "NAM A2",
+  "vendor": "Web Audio Modules",
+  "description": "Neural Amp Modeler A2 amplifier using NeuralAmpModelerCore",
+  "version": "0.3.0",
+  "apiVersion": "2.0.0-alpha.6",
+  "keywords": ["guitar", "amplifier", "NAM", "A2"],
+  "isInstrument": false,
+  "hasAudioInput": true,
+  "hasAudioOutput": true,
+  "hasAutomationInput": true,
+  "hasAutomationOutput": false,
+  "hasMidiInput": false,
+  "hasMidiOutput": false
+}

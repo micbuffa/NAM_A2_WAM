@@ -1,319 +1,207 @@
-# NAM A2 WebAssembly WAM prototype (Phase 3)
+# NAM A2 WAM
 
-Phase 1 and Phase 2 are retained. Phase 3 adds a WAM v2 plugin and dedicated host. Automated
-real-time rendering, NAM inference, state replacement, and performance validation now pass;
-the remaining exit checks require manual listening and real audio hardware. No Phase 4 work
-or AudioWorklet messaging replacement was started.
+Open-source WebAssembly/WAM audio effects prototype for guitar and bass. The project provides
+a browser-based Web Audio host, a Neural Amp Modeler (NAM A2) plugin, a cabinet plugin based on
+impulse responses (IRs), and TONE3000 Select Flow integration.
 
-Upstream is pinned by the nested checkout at commit
-`2563c0fd4cb1f9ce457d89a761738ea15097e1f3` (2026-08-27 checkout), including its pinned
-Eigen and AudioDSPTools submodules.
+The repository contains the source code, the Factory assets required by the example host, and
+the test suite. The `third_party/`, `dist/`, and build directories are not intended to be
+committed.
 
-## Build and validate
+## Features
+
+- Web Audio/WAM host in [`examples/wam/`](examples/wam/).
+- NAM A2 plugin in [`src/nam-wam/`](src/nam-wam/), with `.nam` model loading and safe replacement,
+  Lite/Full modes, bypass, input/output gain, and state restoration.
+- Cabinet plugin in [`src/cabinet-wam/`](src/cabinet-wam/), with WAV IR loading, convolution,
+  and level matching.
+- Shared WASM/C++ backend in [`src/nam-wasm/`](src/nam-wasm/), built with
+  NeuralAmpModelerCore.
+- Shared assets and file browsing utilities in [`src/shared/`](src/shared/).
+- TONE3000 model selection from the NAM panel through the Select Flow OAuth flow. Each user
+  authenticates with their own TONE3000 account; the public `client_id` identifies the application
+  and does not contain the author's session.
+
+## Requirements
+
+- Recent Node.js with npm.
+- CMake 3.20 or newer and a C++20 compiler.
+- Emscripten with `emcmake` available in the shell for the WASM build.
+- The `third_party/NeuralAmpModelerCore` checkout. Third-party sources are intentionally ignored
+  by Git.
+
+Initialize the NAM Core submodule if necessary:
 
 ```sh
 git -C third_party/NeuralAmpModelerCore submodule update --init --depth 1
+```
+
+## Run the host locally
+
+Install the JavaScript dependencies and start the static server:
+
+```sh
+npm install
+npm start
+```
+
+Then open <http://127.0.0.1:8765/examples/wam/index.html>.
+
+The server automatically scans [`examples/wam/assets/audio/`](examples/wam/assets/audio/) to
+discover `.wav`, `.mp3`, `.aac`, `.m4a`, `.ogg`, and `.flac` audio files. The host supports file
+sources and live audio input, using the following signal chain:
+
+```text
+source → NAM A2 WAM → Cabinet WAM → audio output
+```
+
+An automated validation page is available at
+<http://127.0.0.1:8765/examples/wam/index.html?auto=1>.
+
+## TONE3000 authentication
+
+The TONE3000 tab starts with an authentication step following the Select Flow guidelines. Click
+**Continue to TONE3000**, sign in or create an account, then return to the host to browse and
+select a model.
+
+![NAM A2 WAM host](docs/screenshots/ImageNAM_A2_WAM.jpeg)
+
+The public client ID and redirect URI configuration are exposed in the plugin GUI. For local
+development, use:
+
+```text
+http://127.0.0.1:8765/examples/wam/index.html
+```
+
+For deployment, also add the exact HTTPS host URL to the allowed redirect URIs in TONE3000. The
+TONE3000 secret must never be placed in `index.html`, a JavaScript file, or this repository. The
+public client ID may be distributed in browser code; the session and tokens belong to each user
+in their own browser.
+
+Implementation details are in [`Tone3000Auth.js`](src/nam-wam/tone3000/Tone3000Auth.js),
+[`Tone3000Client.js`](src/nam-wam/tone3000/Tone3000Client.js), and the NAM GUI
+([`gui.js`](src/nam-wam/gui.js)).
+
+## Build the project
+
+### Native C++ build
+
+```sh
 cmake -S . -B build-native -DCMAKE_BUILD_TYPE=Release
 cmake --build build-native -j 8
 ctest --test-dir build-native --output-on-failure
-
-emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release
-cmake --build build-wasm -j 8
-
-build-native/nam_native render third_party/NeuralAmpModelerCore/example_models/A2.nam /tmp/nam-native.f32
-node tests/wasm_test.mjs third_party/NeuralAmpModelerCore/example_models/A2.nam /tmp/nam-wasm.f32
-python3 tests/compare.py /tmp/nam-native.f32 /tmp/nam-wasm.f32
-build-native/nam_native bench third_party/NeuralAmpModelerCore/example_models/A2.nam
 ```
 
-The generated artifacts are `build-wasm/dist/nam.js` and `nam.wasm`. The JS is only an
-offline Node harness at this phase; the C exports and fixed input/output buffers are the
-boundary intended for the later custom AudioWorklet loader.
+The native executables are `build-native/nam_native` and `build-native/cabinet_native`.
 
-The Phase 2 standalone artifact is `build-wasm/dist/nam-simd.wasm` (595,964 bytes). Run the
-browser prototype from the repository root:
+### WASM build
 
 ```sh
-python3 -m http.server 8765 --bind 127.0.0.1
+emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release
+cmake --build build-wasm -j 8
 ```
 
-Then open `http://127.0.0.1:8765/examples/audio-worklet/`. Add `?auto=1` to run the generated
-signal benchmark and Full → Lite → Full replacement test automatically.
+WASM artifacts are written to `build-wasm/dist/`. The host uses the static artifacts generated
+in `dist/` by the following command:
 
-## Current results
-
-Measured locally on the current Apple Silicon macOS host, Release builds, official
-`example_models/A2.nam`, default A2-Full submodel, 128 frames:
-
-| Runtime | SR | SIMD | avg µs/q | p95 µs/q | max µs/q | deadline margin |
-|---|---:|---:|---:|---:|---:|---:|
-| native AppleClang | 44.1k | host | 83.61 | 92.08 | 143.88 | 34.72x |
-| native AppleClang | 48k | host | 83.42 | 91.08 | 126.50 | 31.97x |
-| native AppleClang | 96k | host | 83.72 | 92.21 | 141.08 | 15.93x |
-| WASM Node/V8 | 44.1k | yes | 266.04 | 291.00 | 339.96 | 10.91x |
-| WASM Node/V8 | 48k | yes | 263.61 | 287.67 | 325.96 | 10.12x |
-| WASM Node/V8 | 96k | yes | 266.58 | 290.13 | 333.58 | 5.00x |
-
-These are command-line measurements, not Chrome AudioWorklet measurements. Browser jitter
-and AudioWorklet scheduling remain Phase 2 work. The offline 48,000-sample comparison reports:
-
-```text
-max_abs_error=1.81607902e-07
-rms_error=2.43448265e-08
-relative_rms_error=3.43258997e-07
-```
-
-## Engineering decisions
-
-- The wrapper exposes an opaque `NamModel` and eight C functions. JavaScript passes raw
-  UTF-8 `.nam` bytes once; C++ parses JSON and calls the current `nam::get_dsp(json,
-  options)` overload. No virtual C++ hierarchy crosses the WASM boundary.
-- Loading from memory bypasses `validate_nam_file(path)` and all runtime filesystem access.
-  nlohmann/json remains in C++, avoiding duplicated schema/weight parsing in JavaScript.
-- The official `A2.nam` is a `SlimmableContainer` containing A2-Lite (3 channels) and
-  A2-Full (8 channels); core defaults to the last/full model. `NAM_ENABLE_A2_FAST` selects
-  `A2FastModel<3>` or `<8>` for exact matching shapes. The generic WaveNet remains the
-  fallback upstream, but this wrapper rejects non-A2 shapes.
-- All NAM translation units are linked as object files because factory registration uses
-  static initializers that ordinary static-archive dead stripping removes. This is the
-  reproducible minimum at the integration level; trimming further needs explicit upstream
-  registrars or careful dependency/link analysis and is not worth fragile factory behavior.
-- `NAM_SAMPLE_FLOAT` matches Web Audio `Float32Array`. Model construction is done with
-  constructor prewarm suppressed, then `Reset(contextRate, 128)` allocates working/ring
-  buffers and prewarms before the model becomes usable. Later resets use the fast-path's
-  cached prewarm state.
-- The A2 fast path sizes all vectors in `SetMaxBufferSize`; its `process()` uses the fixed
-  buffers and stack/pointer views without resize/allocation. Core's own allocation-tracking
-  tests also cover A2 fast processing. The wrapper performs no allocation, logging, locks,
-  JSON, or exception handling in successful `nam_process()` calls.
-- Core stores expected and external sample rates but A2 `Reset()` does not reject mismatch,
-  resample, or retime the receptive field. Therefore the current prototype exposes expected
-  rate and deliberately performs no hidden SRC. Production loading should reject mismatch
-  until an explicit non-RT resampling architecture is selected.
-- WASM uses `-msimd128`, exceptions and RTTI at their Emscripten defaults (exceptions are
-  needed at model-load boundaries; RTTI is used by some core paths), no filesystem, no
-  threads, and no BigInt. Eigen compiles unchanged with SIMD; no alignment/vectorization
-  disabling macros were needed. The build currently allows memory growth for model loading,
-  so clients must acquire typed-array views after load. Fixed-memory sizing is deferred until
-  multiple A2 sizes are characterized.
-
-## Phase 2 architecture
-
-- The main thread fetches the standalone WASM bytes and transfers them to the processor.
-  `AudioWorkletGlobalScope` calls `WebAssembly.instantiate()` with seven tiny WASI stubs and
-  `emscripten_notify_memory_growth`; there is no Emscripten JS glue, filesystem, worker, or
-  Node dependency in the browser path.
-- Local `.nam` bytes are transferred over the node port. The port handler mutes/passes through,
-  allocates temporary model-data memory, constructs and prewarms a candidate, checks its
-  expected sample rate, publishes the new handle and refreshed typed-array views, then destroys
-  the old handle. An instantiated model cannot be prepared on the main thread and transferred:
-  its C++ heap/object graph is bound to the worklet's `WebAssembly.Memory`. Therefore model
-  construction in the worklet message handler is the simplest correct Phase 2 choice, with its
-  measured render-thread stall accepted explicitly.
-- `process()` holds preallocated 128-float input/output views and a preallocated 32,768-entry
-  timing ring. It performs no allocation, promises, messages, logging, JSON, model management,
-  `_malloc`, or `_free`. Statistics sorting and `postMessage` happen only in the port handler
-  when polled by the main thread.
-- WebAssembly exceptions (`-fwasm-exceptions`) are enabled because Emscripten's default turned
-  caught C++ model-load errors into an `unreachable` trap in the standalone artifact. Invalid
-  A2 input now returns `0` from `nam_load_model`; this affects loading only, not steady-state DSP.
-- The prototype requires explicit mono input (`channelCountMode: explicit`, discrete mono) and
-  produces mono output. It does not silently downmix stereo in this phase.
-
-## Actual Chrome AudioWorklet results
-
-Measured 2026-08-27 on an Apple M3 Max MacBook Pro (14 cores, 36 GB), Chrome
-151.0.7922.174 headless, real `AudioContext`/AudioWorklet render thread, 48 kHz, 128 frames,
-SIMD standalone WASM, generated 220 Hz input. `baseLatency` was 5.333 ms and reported
-`outputLatency` was 0 in headless mode. The nominal quantum deadline was 2.667 ms.
-
-`performance.now()` is absent from this Chrome AudioWorkletGlobalScope. Measurements therefore
-use `Date.now()`, whose 1 ms resolution gives meaningful long-run averages and maxima but
-quantizes p50/p95/p99. The percentile values below must not be read as sub-millisecond precision.
-
-| Mode/model | Quanta | avg ms | p50 ms | p95 ms | p99 ms | max ms | avg deadline use | misses |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Bypass/pass-through | 2,044 | 0.0015 | 0 | 0 | 0 | 1 | 0.055% | 0 |
-| Two WASM copies, DSP off | 2,072 | 0.0072 | 0 | 0 | 0 | 1 | 0.271% | 0 |
-| A2 Full | 8,014 | 0.4637 | 0 | 1 | 1 | 2 | 17.39% | 0 |
-| A2 Lite | 2,074 | 0.1591 | 0 | 1 | 1 | 1 | 5.97% | 0 |
-| A2 Full after replacement | 2,082 | 0.5850 | 1 | 1 | 2 | 2 | 21.94% | 0 |
-
-The directly observed incremental copy cost was approximately 0.0058 ms per quantum
-(copy-mode average minus bypass average), or 0.22% of the deadline. A 64-pair amplified copy
-calibration produced a 0.0063 ms total average; timer quantization makes a finer copy estimate
-unreliable, but both measurements establish that copying is negligible relative to inference.
-
-The uninterrupted Full segment covered 8,014 quanta (~21.4 seconds). Across the final run there
-were zero NAM failures, zero non-finite samples, zero measured deadline misses, and no maxima
-above 2 ms. Chrome exposes no useful hardware-underrun counter here, so these are measured
-processing deadline misses, not a claim about physical-device underruns. Headless output was not
-audibly monitored.
-
-Model loading and replacement results:
-
-| Load | load + reset/prewarm | WASM memory after load | growth |
-|---|---:|---:|---:|
-| A2 Full | 34 ms | 16,908,288 bytes | 0 |
-| A2 Lite | 6 ms | 16,908,288 bytes | 0 |
-| A2 Full again | 32 ms | 16,908,288 bytes | 0 |
-
-Full → Lite → Full completed without a crash, stale views, processing failures, or NaN/Inf.
-The synthetic mismatched-rate A2 model was explicitly rejected while the prior model remained
-available. The load durations are also the approximate worklet-thread interruption because
-construction occurs synchronously in the message handler.
-
-## Phase 2 conclusion and Phase 3 recommendation
-
-All Phase 2 exit criteria are met within the stated headless Chrome measurement limitation.
-The available A2-Full margin is sufficient on this target: average deadline use was 17.4%, the
-worst measured quantum used 75%, and no deadline misses occurred in 8,014 consecutive Full
-quanta. Scalar-vs-SIMD comparison remains optional and was not allowed to delay validation.
-
-For Phase 3, retain the standalone loader and safe replacement protocol. Prefer a fixed 32 MiB
-WASM memory initially: both tested models fit without growth in the 16.125 MiB current memory,
-while 32 MiB leaves conservative room for model bytes, temporary JSON/weight allocations, and
-future metadata without stale-view risk. Revalidate this against representative third-party A2
-files before making 32 MiB a hard production limit. This was the Phase 2 handoff recommendation;
-the implementation and measured Phase 3 status follow below.
-
-## Phase 3 WAM and host
-
-The plugin entry point is `src/nam-wam/index.js`. It uses the pinned WAM SDK source at
-`third_party/wam-examples/packages/sdk` (SDK commit
-`d425ee7ec6e75e800f61ae6943390b97fbca4c23`, package 0.0.12, API declaration
-2.0.0-alpha.6). The parent `wam-examples` checkout is
-`2179e501f389e3dc995926706a5e45ef87e560a3`. The separately pinned API repository reports
-alpha.5, so the descriptor follows the SDK actually used at runtime (alpha.6).
-
-`NamProcessor` extends the SDK's `WamProcessor` and owns NAM inference in its single
-`AudioWorkletNode`. The WAM exposes sample-accurate `inputGain` (-24 to +24 dB), `outputGain`
-(-24 to +12 dB), and boolean `bypass`; local model loading and safe replacement; sample-rate
-rejection; metadata; self-contained model/parameter state; and a host-synchronized GUI. The
-production path has no unconditional per-quantum timing, finite scan, allocation, logging, or
-messaging. Memory growth remains enabled because only the bundled Lite and Full models were
-available as representative data; every WASM view is refreshed after model loading/growth.
-
-Run the dedicated host with `npm start`, then open
-`http://127.0.0.1:8765/examples/wam/`. Put supported dry guitar files (`.wav`, `.mp3`, `.aac`,
-`.m4a`, `.ogg`, or `.flac`) in `examples/wam/assets/audio/`; the server scans that directory on
-every discovery request, so filenames are never hardcoded. The included dry reference is the
-upstream 48 kHz, 24-bit mono file.
-
-For live input, click **Grant permission / enable live input**, select the desired labeled input,
-and verify switching changes the active interface/channel. Capture requests mono audio with echo
-cancellation, noise suppression, and automatic gain control disabled. Switching devices stops
-the old stream; file mode stops all live tracks. In file mode verify Play, Pause, Stop, seek, and
-Loop. Only one source is connected at a time. Load Full, exercise gains and bypass from plugin and
-host controls, save state, load Lite, restore state, and confirm Full plus parameters return. A
-mismatched-rate model must be rejected while the previous model stays active.
-
-Automated host validation is at
-`http://127.0.0.1:8765/examples/wam/index.html?auto=1`. `npm test` currently reports 7 passed,
-0 failed, covering dynamic add/remove discovery, permission and exact-device constraints, track
-cleanup, exclusive switching, and the production processor contract.
-
-### Phase 3 measured status
-
-The Phase 3b render failure was caused by constructing `TextDecoder` unconditionally in
-`NamProcessor`. `TextDecoder` is not exposed in this Chrome AudioWorkletGlobalScope, so the
-subclass constructor stopped at that instruction before its remaining state was initialized.
-The pinned SDK lifecycle and `_initialize()` override were correct: `WamNode._initialize()`
-posts `initialize/processor`, the processor message handler invokes the virtual override, and
-sets `_initialized` only after it returns. The minimal fix guards `TextDecoder` and uses a
-byte-string fallback for error messages. `registerProcessor()` exceptions are not suppressed.
-
-After the fix, the oscillator probe proved that the pinned `WamProcessor.process()` callback
-reached `NamProcessor._process()`, with input and output present. The final production path no
-longer contains the Phase 3b render/base/input/output counters or its diagnostic `process()`
-override. Optional benchmark timing remains inactive unless explicitly started.
-
-Measured 2026-08-28 on the same Apple M3 Max in separate fresh headless Chrome 151 contexts,
-48 kHz, 128 frames, SIMD A2-Full, generated 220 Hz input. Timing uses `Date.now()` and is
-therefore quantized to 1 ms:
-
-| Check | Actual result |
-|---|---:|
-| A2 Full load/reset/prewarm | 34 ms |
-| A2 Lite replacement and Full state restore | succeeded |
-| mismatched-rate model | rejected; prior model retained |
-| WASM memory after loads | 16,908,288 bytes; 0 growth |
-| dynamically discovered bundled files | 1 |
-| Phase 3 A2-Full diagnostic | 4,040 NAM calls; 0 failures |
-
-Final standalone-versus-WAM comparison:
-
-| Path | A2-Full quanta | avg ms | p50 ms | p95 ms | p99 ms | max ms | deadline use | failures/misses |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Phase 2 standalone | 8,030 | 0.3818 | 0 | 1 | 1 | 2 | 14.32% | 0 / 0 |
-| Phase 3 WAM | 4,040 | 0.3527 | 0 | 1 | 1 | 1 | 13.23% | 0 / 0 |
-
-The observed WAM-minus-standalone average was -0.0291 ms (-7.62%). Given the coarse 1 ms
-worklet timer and separate runs, this should be interpreted as no measurable WAM overhead, not
-as evidence that the WAM wrapper accelerates NAM. Both paths remained well inside the 2.667 ms
-quantum deadline. The WAM run also validated model replacement, state restoration, mismatch
-rejection, and a single `AudioWorkletNode`.
-
-### Remaining manual real-audio validation
-
-Automated and synthetic-signal validation is complete. Before signing off the audible/device
-portion of Phase 3, perform these checks in a headed browser with the intended audio interface:
-
-1. Play the bundled dry guitar reference through A2-Full and confirm audible processed output
-   without clicks, dropouts, NaN-like bursts, or unexpected level changes.
-2. Verify hard bypass by ear and exercise input/output gain from both the plugin GUI and host
-   controls, confirming that each control changes DSP as labeled.
-3. Exercise Play, Pause, Stop, seek, and Loop and confirm that only the selected file source is
-   connected.
-4. Grant microphone permission, select the intended interface/channel, and confirm live guitar
-   input with echo cancellation, noise suppression, and AGC disabled.
-5. Switch input devices while live and confirm the old stream stops; switch between live and file
-   modes and confirm there is no doubled or orphaned source.
-6. While listening, load Full, change parameters, save state, load Lite, restore state, and confirm
-   Full plus the saved parameters return without a crash or stale audio.
-
-### Static distribution
-
-Build a self-contained package for ordinary static hosting with:
-
-```bash
+```sh
 npm run dist
 ```
 
-This regenerates the Factory manifests, builds WASM, and writes `dist/NAM_A2_WAM/`.
-Deploy that directory beneath any HTTP(S) URL; its entry point is `index.html` and plugins are
-under `plugins/nam-wam/` and `plugins/cabinet-wam/`. No Node server or Factory discovery API is
-required at runtime. `--no-regenerate` and `--no-build` are available for development checks.
+This rebuilds the Factory manifests and produces a deployable static distribution.
+`npm run build-static` is an alias for the same operation.
 
-### TONE3000 Select Flow (Phase 4b.1)
+## Test
 
-The NAM WAM optionally integrates the official TONE3000 hosted Select Flow. It uses OAuth 2.0
-with PKCE, a publishable/client ID, and no secret key. TONE3000 logic remains inside the NAM
-plugin; Factory and External models continue to work offline and do not trigger network access.
+Run the complete JavaScript test suite:
 
-Configure a deployment before creating the NAM plugin instance:
-
-```js
-NamPlugin.configureTone3000({
-  clientId: 'YOUR_PUBLISHABLE_KEY',
-  redirectUri: 'https://example.org/audio/NAM_A2_WAM/'
-});
+```sh
+npm test
 ```
 
-The example host reads the same values from `window.NAM_A2_WAM_CONFIG.tone3000`. Register the
-exact HTTPS redirect URI, including its nested path and trailing slash, in TONE3000 settings.
-When configured, `Browse TONE3000` redirects to TONE3000's hosted picker with `format=nam` and
-`architecture=2`. The callback retrieves tone metadata, lists compatible A2 models, downloads
-the selected model with its Bearer token, and passes it through the existing NAM loading path.
-OAuth transaction state and PKCE verifier are session-scoped; access/refresh tokens remain in
-memory for the current page session. TONE3000 provenance is retained in WAM state using an
-identity of the form `tone3000:<tone-id>:<model-id>`.
+The tests cover dynamic file discovery, the host, NAM-to-Cabinet routing, manifests, static
+distribution, the AudioWorklet contract, and TONE3000 integration.
 
-The Select Flow opens in a new tab so the NAM host remains visible and reactive while TONE3000 is
-open. The callback page broadcasts its same-origin callback URL to the host (and also uses the
-opener when available); the host performs state validation and token exchange, then closes the
-tab when possible. If new tabs are blocked, the GUI reports that they must be allowed.
+To compare native and WASM rendering for a reference model:
 
-The application must be served over HTTPS in production. If no client ID is configured, the
-TONE3000 panel displays a non-fatal configuration message and Factory/External remain available.
-# NAM_A2_WAM
+```sh
+build-native/nam_native render \
+  third_party/NeuralAmpModelerCore/example_models/A2.nam \
+  /tmp/nam-native.f32
+node tests/wasm_test.mjs \
+  third_party/NeuralAmpModelerCore/example_models/A2.nam \
+  /tmp/nam-wasm.f32
+python3 tests/compare.py /tmp/nam-native.f32 /tmp/nam-wasm.f32
+```
+
+Regenerate asset analyses with:
+
+```sh
+node tools/analyze_models.mjs
+node tools/analyze_ir_levels.mjs
+```
+
+## Modify the project
+
+### Modify the host
+
+- UI and styles: [`examples/wam/index.html`](examples/wam/index.html) and
+  [`examples/wam/host.css`](examples/wam/host.css).
+- Audio graph initialization and controls: [`examples/wam/main.js`](examples/wam/main.js).
+- Audio source management: [`examples/wam/SourceManager.js`](examples/wam/SourceManager.js).
+- NAM/Cabinet routing: [`examples/wam/CabinetRouting.js`](examples/wam/CabinetRouting.js).
+- Local server and audio discovery: [`examples/wam/server.mjs`](examples/wam/server.mjs).
+
+### Modify the plugins
+
+- NAM: [`src/nam-wam/index.js`](src/nam-wam/index.js), [`NamNode.js`](src/nam-wam/NamNode.js),
+  [`NamProcessor.js`](src/nam-wam/NamProcessor.js), and [`gui.js`](src/nam-wam/gui.js).
+- Cabinet: [`src/cabinet-wam/index.js`](src/cabinet-wam/index.js),
+  [`CabinetNode.js`](src/cabinet-wam/CabinetNode.js),
+  [`CabinetProcessor.js`](src/cabinet-wam/CabinetProcessor.js), and [`gui.js`](src/cabinet-wam/gui.js).
+- C++/WASM interface: [`src/nam-wasm/`](src/nam-wasm/).
+
+After changing code or assets, run `npm test`, then `npm run dist` if the deployed distribution
+must be updated.
+
+## Repository layout
+
+```text
+src/nam-wam/       NAM A2 plugin and TONE3000 integration
+src/cabinet-wam/   Cabinet plugin and Factory IRs
+src/nam-wasm/      C++ wrappers compiled to WASM
+src/shared/        Shared utilities
+examples/wam/      Web Audio/WAM host and demo audio files
+tests/             Node.js tests, static contracts, and distribution tests
+tools/             Builds, manifest generation, and asset analysis
+docs/              Technical notes and integration phase reports
+third_party/       External dependencies, not committed
+dist/              Generated distribution, not committed
+```
+
+## Additional documentation
+
+- [`docs/phase3d-model-analysis.md`](docs/phase3d-model-analysis.md) — NAM model and IR asset
+  analysis.
+- [`docs/phase4a-cabinet-wam.md`](docs/phase4a-cabinet-wam.md) — Cabinet WAM architecture.
+- [`docs/phase4a1-usability.md`](docs/phase4a1-usability.md) — level matching and AUTO routing.
+- [`HANDOFF.md`](HANDOFF.md) — detailed project status and next steps.
+
+## Git and files to commit
+
+The `.gitignore` excludes builds, `dist/`, third-party dependencies, and out-of-scope prototypes.
+To stage the code, host, plugins, and documentation:
+
+```sh
+git add .gitignore package.json CMakeLists.txt \
+  src/nam-wam src/cabinet-wam src/nam-wasm src/shared \
+  examples/wam tools tests HANDOFF.md docs README.md
+```
+
+Review the staged content before creating a commit:
+
+```sh
+git status --short
+git diff --cached --stat
+git diff --cached --name-only
+```

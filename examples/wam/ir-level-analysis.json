@@ -1,0 +1,689 @@
+{
+  "definition": "L2 norm sqrt(sum(h[n]^2)); compensation=1/L2; dB=-20log10(L2); runtime clamp [-24,+24] dB",
+  "assets": [
+    {
+      "path": "TWIN REVERB __ BALANCED.wav",
+      "raw": {
+        "samples": 32256,
+        "energy": 6.506718720761127,
+        "l2Norm": 2.5508270660241017,
+        "rawCompensationDb": -8.133620330037703,
+        "compensationDb": -8.133620330037703,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 35109,
+        "energy": 7.082110957933149,
+        "l2Norm": 2.6612235828530357,
+        "rawCompensationDb": -8.501627267203972,
+        "compensationDb": -8.501627267203972,
+        "clamped": false
+      }
+    },
+    {
+      "path": "TWIN REVERB __ CLEAN.wav",
+      "raw": {
+        "samples": 32256,
+        "energy": 5.597223824435655,
+        "l2Norm": 2.365845266376408,
+        "rawCompensationDb": -7.479726740272838,
+        "compensationDb": -7.479726740272838,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 35109,
+        "energy": 6.092198277161332,
+        "l2Norm": 2.4682378890944308,
+        "rawCompensationDb": -7.847740294761777,
+        "compensationDb": -7.847740294761777,
+        "clamped": false
+      }
+    },
+    {
+      "path": "TWIN REVERB __ MIDS.wav",
+      "raw": {
+        "samples": 36864,
+        "energy": 8.394174963242584,
+        "l2Norm": 2.8972702606492517,
+        "rawCompensationDb": -9.239780171483908,
+        "compensationDb": -9.239780171483908,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 40125,
+        "energy": 9.136449300649966,
+        "l2Norm": 3.02265600104444,
+        "rawCompensationDb": -9.60777448607007,
+        "compensationDb": -9.60777448607007,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/5150.wav",
+      "raw": {
+        "samples": 5640,
+        "energy": 3.9904426896288214,
+        "l2Norm": 1.9976092434780186,
+        "rawCompensationDb": -6.010210778918382,
+        "compensationDb": -6.010210778918382,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 6139,
+        "energy": 4.342011801238971,
+        "l2Norm": 2.0837494574058013,
+        "rawCompensationDb": -6.376909994974892,
+        "compensationDb": -6.376909994974892,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/BlackAlbum-SoloLeadOD_dc.wav",
+      "raw": {
+        "samples": 10240,
+        "energy": 7.549759407389539,
+        "l2Norm": 2.74768255215,
+        "rawCompensationDb": -8.779331119327665,
+        "compensationDb": -8.779331119327665,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 10240,
+        "energy": 7.549759407389539,
+        "l2Norm": 2.74768255215,
+        "rawCompensationDb": -8.779331119327665,
+        "compensationDb": -8.779331119327665,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Blackstar.wav",
+      "raw": {
+        "samples": 21525,
+        "energy": 4.705421970919204,
+        "l2Norm": 2.1691984627781764,
+        "rawCompensationDb": -6.725985759937425,
+        "compensationDb": -6.725985759937425,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 23429,
+        "energy": 5.1209175057898095,
+        "l2Norm": 2.2629444327667017,
+        "rawCompensationDb": -7.093477797264396,
+        "compensationDb": -7.093477797264396,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Block Inside.wav",
+      "raw": {
+        "samples": 62522,
+        "energy": 14.265941821038723,
+        "l2Norm": 3.777028173185729,
+        "rawCompensationDb": -11.54300448560778,
+        "compensationDb": -11.54300448560778,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 68052,
+        "energy": 15.218447597183996,
+        "l2Norm": 3.90108287494434,
+        "rawCompensationDb": -11.823703531991798,
+        "compensationDb": -11.823703531991798,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/DV Mark Triple Six.wav",
+      "raw": {
+        "samples": 2505,
+        "energy": 4.554520707314197,
+        "l2Norm": 2.1341323078277497,
+        "rawCompensationDb": -6.584426809531935,
+        "compensationDb": -6.584426809531935,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 2727,
+        "energy": 4.95690241957167,
+        "l2Norm": 2.2264102091869034,
+        "rawCompensationDb": -6.95210369569123,
+        "compensationDb": -6.95210369569123,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Engl.wav",
+      "raw": {
+        "samples": 9727,
+        "energy": 4.983898574843494,
+        "l2Norm": 2.2324646861358173,
+        "rawCompensationDb": -6.97569195602558,
+        "compensationDb": -6.97569195602558,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 10588,
+        "energy": 5.424365524105044,
+        "l2Norm": 2.3290267332310814,
+        "rawCompensationDb": -7.343489470376825,
+        "compensationDb": -7.343489470376825,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/FenderChampAxisStereo.wav",
+      "raw": {
+        "samples": 2048,
+        "energy": 6.3320064208906075,
+        "l2Norm": 2.5163478338438443,
+        "rawCompensationDb": -8.015413465813396,
+        "compensationDb": -8.015413465813396,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 2230,
+        "energy": 6.891914148633829,
+        "l2Norm": 2.6252455406368806,
+        "rawCompensationDb": -8.383398588794709,
+        "compensationDb": -8.383398588794709,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Hesu2x12V30_440center_edge.wav",
+      "raw": {
+        "samples": 80640,
+        "energy": 5.659351140896973,
+        "l2Norm": 2.3789390788536333,
+        "rawCompensationDb": -7.527666410678346,
+        "compensationDb": -7.527666410678346,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 87772,
+        "energy": 6.159833089222657,
+        "l2Norm": 2.4819011038360608,
+        "rawCompensationDb": -7.895689444027926,
+        "compensationDb": -7.895689444027926,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/JB 1.wav",
+      "raw": {
+        "samples": 6833,
+        "energy": 4.100618028878458,
+        "l2Norm": 2.02499827873469,
+        "rawCompensationDb": -6.128493167938748,
+        "compensationDb": -6.128493167938748,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 7438,
+        "energy": 4.461385930550525,
+        "l2Norm": 2.1121993112749857,
+        "rawCompensationDb": -6.494697933512038,
+        "compensationDb": -6.494697933512038,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/JB 2.wav",
+      "raw": {
+        "samples": 44101,
+        "energy": 5.090388062138672,
+        "l2Norm": 2.2561888356559767,
+        "rawCompensationDb": -7.067508917319043,
+        "compensationDb": -7.067508917319043,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 48002,
+        "energy": 5.53728505628265,
+        "l2Norm": 2.3531436539834645,
+        "rawCompensationDb": -7.432968813201324,
+        "compensationDb": -7.432968813201324,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/JusticeFor-SoloLeadOD_dc.wav",
+      "raw": {
+        "samples": 10240,
+        "energy": 6.874281629766633,
+        "l2Norm": 2.6218851290181715,
+        "rawCompensationDb": -8.372273206071586,
+        "compensationDb": -8.372273206071586,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 10240,
+        "energy": 6.874281629766633,
+        "l2Norm": 2.6218851290181715,
+        "rawCompensationDb": -8.372273206071586,
+        "compensationDb": -8.372273206071586,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/KalthallenCabsIR/001a-SM57-V30-4x12.wav",
+      "raw": {
+        "samples": 9275,
+        "energy": 5.111969982615051,
+        "l2Norm": 2.2609666036045404,
+        "rawCompensationDb": -7.085882949893659,
+        "compensationDb": -7.085882949893659,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 10096,
+        "energy": 5.559956166734753,
+        "l2Norm": 2.357955929769416,
+        "rawCompensationDb": -7.450713677294926,
+        "compensationDb": -7.450713677294926,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/KalthallenCabsIR/009a-SM57-G12T75-4x12.wav",
+      "raw": {
+        "samples": 8610,
+        "energy": 4.648419521625556,
+        "l2Norm": 2.1560193694922027,
+        "rawCompensationDb": -6.6730531639284765,
+        "compensationDb": -6.6730531639284765,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 9372,
+        "energy": 5.052050024476436,
+        "l2Norm": 2.2476765836028183,
+        "rawCompensationDb": -7.034676422092069,
+        "compensationDb": -7.034676422092069,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/KalthallenCabsIR/022a-MD21-V30-4x12.wav",
+      "raw": {
+        "samples": 8995,
+        "energy": 5.535809821235276,
+        "l2Norm": 2.3528301726293965,
+        "rawCompensationDb": -7.431811618304209,
+        "compensationDb": -7.431811618304209,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 9791,
+        "energy": 6.015933821446411,
+        "l2Norm": 2.4527400639787356,
+        "rawCompensationDb": -7.793030501336645,
+        "compensationDb": -7.793030501336645,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/KalthallenCabsIR/023a-MD21-V30-4x12.wav",
+      "raw": {
+        "samples": 9450,
+        "energy": 5.237085270733019,
+        "l2Norm": 2.2884678871972444,
+        "rawCompensationDb": -7.190896451841539,
+        "compensationDb": -7.190896451841539,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 10286,
+        "energy": 5.695346498624178,
+        "l2Norm": 2.3864925096518066,
+        "rawCompensationDb": -7.555201512180659,
+        "compensationDb": -7.555201512180659,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/KalthallenCabsIR/024a-MD21-G12T75-4x12.wav",
+      "raw": {
+        "samples": 10220,
+        "energy": 4.519302427387785,
+        "l2Norm": 2.1258651009383884,
+        "rawCompensationDb": -6.550714048742278,
+        "compensationDb": -6.550714048742278,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 11124,
+        "energy": 4.898510898388125,
+        "l2Norm": 2.2132579827910086,
+        "rawCompensationDb": -6.900640786203986,
+        "compensationDb": -6.900640786203986,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/KalthallenCabsIR/028a-SM7-V30-4x12.wav",
+      "raw": {
+        "samples": 9660,
+        "energy": 4.474637645723689,
+        "l2Norm": 2.115333932438018,
+        "rawCompensationDb": -6.507578720911845,
+        "compensationDb": -6.507578720911845,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 10515,
+        "energy": 4.863391488191351,
+        "l2Norm": 2.205309839499056,
+        "rawCompensationDb": -6.869392303573934,
+        "compensationDb": -6.869392303573934,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/KalthallenCabsIR/034a-SM58-V30-4x12.wav",
+      "raw": {
+        "samples": 10395,
+        "energy": 4.38217213446859,
+        "l2Norm": 2.0933638323207435,
+        "rawCompensationDb": -6.4168943291925125,
+        "compensationDb": -6.4168943291925125,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 11315,
+        "energy": 4.7636566119493,
+        "l2Norm": 2.1825802647209334,
+        "rawCompensationDb": -6.779404478337221,
+        "compensationDb": -6.779404478337221,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/KillEm-SoloLead-_dc.wav",
+      "raw": {
+        "samples": 10240,
+        "energy": 5.785628914130165,
+        "l2Norm": 2.4053334309675583,
+        "rawCompensationDb": -7.623505748851011,
+        "compensationDb": -7.623505748851011,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 10240,
+        "energy": 5.785628914130165,
+        "l2Norm": 2.4053334309675583,
+        "rawCompensationDb": -7.623505748851011,
+        "compensationDb": -7.623505748851011,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Mark V.wav",
+      "raw": {
+        "samples": 3312,
+        "energy": 4.021593746254339,
+        "l2Norm": 2.0053911703840575,
+        "rawCompensationDb": -6.043981968745485,
+        "compensationDb": -6.043981968745485,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 3605,
+        "energy": 4.376199987443575,
+        "l2Norm": 2.0919368985329303,
+        "rawCompensationDb": -6.410971605508341,
+        "compensationDb": -6.410971605508341,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Marshall1960.wav",
+      "raw": {
+        "samples": 5063,
+        "energy": 8.600785616785288,
+        "l2Norm": 2.9327096032142848,
+        "rawCompensationDb": -9.34538122575166,
+        "compensationDb": -9.34538122575166,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 5511,
+        "energy": 9.36093926693771,
+        "l2Norm": 3.0595652088062626,
+        "rawCompensationDb": -9.713194275823723,
+        "compensationDb": -9.713194275823723,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/MasterOf-GermanUbersonic_dc.wav",
+      "raw": {
+        "samples": 10240,
+        "energy": 6.839360717569887,
+        "l2Norm": 2.615217145395366,
+        "rawCompensationDb": -8.350155096430871,
+        "compensationDb": -8.350155096430871,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 10240,
+        "energy": 6.839360717569887,
+        "l2Norm": 2.615217145395366,
+        "rawCompensationDb": -8.350155096430871,
+        "compensationDb": -8.350155096430871,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Mesa-OS-Rectifier-3.wav",
+      "raw": {
+        "samples": 16224,
+        "energy": 10.516959099959394,
+        "l2Norm": 3.242986139341239,
+        "rawCompensationDb": -10.218901849682215,
+        "compensationDb": -10.218901849682215,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 8112,
+        "energy": 5.258553926135571,
+        "l2Norm": 2.293153707481374,
+        "rawCompensationDb": -7.208663319402138,
+        "compensationDb": -7.208663319402138,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Orange 2x12.wav",
+      "raw": {
+        "samples": 44101,
+        "energy": 5.065573188254476,
+        "l2Norm": 2.2506828271114694,
+        "rawCompensationDb": -7.046285944962332,
+        "compensationDb": -7.046285944962332,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 48002,
+        "energy": 5.511292130233425,
+        "l2Norm": 2.3476141357202263,
+        "rawCompensationDb": -7.412534317451004,
+        "compensationDb": -7.412534317451004,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Orange 4x12.wav",
+      "raw": {
+        "samples": 40637,
+        "energy": 9.093838545173199,
+        "l2Norm": 3.015599201680024,
+        "rawCompensationDb": -9.587472393387607,
+        "compensationDb": -9.587472393387607,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 44231,
+        "energy": 9.898020000931064,
+        "l2Norm": 3.146111886270268,
+        "rawCompensationDb": -9.955483270549736,
+        "compensationDb": -9.955483270549736,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Randall 667.wav",
+      "raw": {
+        "samples": 22315,
+        "energy": 5.8487467655744325,
+        "l2Norm": 2.418418236280572,
+        "rawCompensationDb": -7.670628180303602,
+        "compensationDb": -7.670628180303602,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 24289,
+        "energy": 6.365567671942297,
+        "l2Norm": 2.5230076638691163,
+        "rawCompensationDb": -8.038371394584644,
+        "compensationDb": -8.038371394584644,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/Rectifier.wav",
+      "raw": {
+        "samples": 1002,
+        "energy": 5.582790986412007,
+        "l2Norm": 2.3627930477322825,
+        "rawCompensationDb": -7.468513686444263,
+        "compensationDb": -7.468513686444263,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 1002,
+        "energy": 5.582790986412007,
+        "l2Norm": 2.3627930477322825,
+        "rawCompensationDb": -7.468513686444263,
+        "compensationDb": -7.468513686444263,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/RideTL-SoloLeadOD_dc.wav",
+      "raw": {
+        "samples": 10240,
+        "energy": 6.0455562334169946,
+        "l2Norm": 2.45877128530024,
+        "rawCompensationDb": -7.814362651620987,
+        "compensationDb": -7.814362651620987,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 10240,
+        "energy": 6.0455562334169946,
+        "l2Norm": 2.45877128530024,
+        "rawCompensationDb": -7.814362651620987,
+        "compensationDb": -7.814362651620987,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/marshall-4_impact.wav",
+      "raw": {
+        "samples": 2382,
+        "energy": 5.775600499151082,
+        "l2Norm": 2.4032479063032763,
+        "rawCompensationDb": -7.615971452584951,
+        "compensationDb": -7.615971452584951,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 2593,
+        "energy": 6.286360799483592,
+        "l2Norm": 2.5072616136900416,
+        "rawCompensationDb": -7.983993033007284,
+        "compensationDb": -7.983993033007284,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/cabinet/voxCustomBrightM930OnAxis1.wav",
+      "raw": {
+        "samples": 1612,
+        "energy": 2.934354282902788,
+        "l2Norm": 1.7129957042861457,
+        "rawCompensationDb": -4.675125477557005,
+        "compensationDb": -4.675125477557005,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 1755,
+        "energy": 3.0361530352404773,
+        "l2Norm": 1.7424560353823786,
+        "rawCompensationDb": -4.823236580948039,
+        "compensationDb": -4.823236580948039,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/reverb/ScalaMilanOperaHall.wav",
+      "raw": {
+        "samples": 88594,
+        "energy": 86.59010406304151,
+        "l2Norm": 9.30538038250138,
+        "rawCompensationDb": -19.37468261574057,
+        "compensationDb": -19.37468261574057,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 96429,
+        "energy": 92.27309893160503,
+        "l2Norm": 9.605888763232949,
+        "rawCompensationDb": -19.65075106351915,
+        "compensationDb": -19.65075106351915,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/reverb/cardiod-rear-levelled.wav",
+      "raw": {
+        "samples": 195362,
+        "energy": 48.52720783371478,
+        "l2Norm": 6.966147273329411,
+        "rawCompensationDb": -16.859853035284406,
+        "compensationDb": -16.859853035284406,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 212639,
+        "energy": 52.818556803673985,
+        "l2Norm": 7.2676376356883665,
+        "rawCompensationDb": -17.22786530517943,
+        "compensationDb": -17.22786530517943,
+        "clamped": false
+      }
+    },
+    {
+      "path": "tests/reverb/pcm90cleanplate.wav",
+      "raw": {
+        "samples": 141993,
+        "energy": 71.80625353008509,
+        "l2Norm": 8.473857063349906,
+        "rawCompensationDb": -18.561622681328807,
+        "compensationDb": -18.561622681328807,
+        "clamped": false
+      },
+      "resampled48000": {
+        "samples": 154551,
+        "energy": 76.68297401126262,
+        "l2Norm": 8.756881523194352,
+        "rawCompensationDb": -18.846989478632242,
+        "compensationDb": -18.846989478632242,
+        "clamped": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "nam-a2-wam",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node examples/wam/server.mjs",
+    "factory-assets": "./tools/regenerate-factory-assets.sh",
+    "build-static": "./tools/build-static-distribution.sh",
+    "dist": "./tools/build-static-distribution.sh",
+    "test": "node --test tests/phase3/*.test.mjs tests/phase4a/*.test.mjs tests/phase4a2/*.test.mjs tests/phase4a3/*.test.mjs tests/phase4b/*.test.mjs"
+  }
+}

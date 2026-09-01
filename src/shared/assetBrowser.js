@@ -1,0 +1,6 @@
+export function buildAssetTree(container, assets, {search='', selectedId='', onSelect, externalLabel='External'}={}) {
+  const query=search.trim().toLowerCase(); const visible=assets.filter(a=>!query||[a.displayName,a.filename,a.relativePath,JSON.stringify(a.metadata||'')].some(v=>String(v||'').toLowerCase().includes(query)));
+  const roots={}; for(const asset of visible){let node=roots;for(const group of asset.groups||[]){node=node[group]??={};} (node.__assets??=[]).push(asset);}
+  container.replaceChildren(); const render=(node,parent)=>{for(const key of Object.keys(node).filter(k=>k!=='__assets').sort()){const details=document.createElement('details');details.open=!!query;const summary=document.createElement('summary');summary.textContent=key;details.append(summary);render(node[key],details);parent.append(details);}for(const asset of node.__assets||[]){const button=document.createElement('button');button.type='button';button.className='asset-entry';button.dataset.assetId=asset.id;button.textContent=asset.displayName;if(asset.id===selectedId)button.classList.add('selected');button.title=asset.relativePath;button.onclick=()=>onSelect(asset);parent.append(button);}};render(roots,container);
+}
+export function addExternalAsset(assets, asset){if(!assets.some(a=>a.id===asset.id))assets.push(asset);return assets.find(a=>a.id===asset.id);}
