@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-04T15:49:11.012Z",
+  "tone": {
+    "id": 28202,
+    "title": "Ampeg SVT Classic with 6x10",
+    "description": "Classic all tube 300 watt SVT-CL nice harmonically rich bass guitar sound.\n\nMostly gain at 5 and flat EQ.\n\nCaptured with Ultra Hi, Ultra Lo and plain. Using both an SM57 and a Sennheiser MD 421.\n\nAdded one \"crazy\" with gain at 10 and both Ultra Hi and Ultra Lo on :)",
+    "url": "https://www.tone3000.com/tones/ampeg-svt-classic-with-6x10-28202",
+    "format": "nam",
+    "gear": "amp-cab",
+    "license": "t3k",
+    "creator": {
+      "username": "tone3000",
+      "displayName": "TONE3000",
+      "url": "https://www.tone3000.com/tone3000"
+    },
+    "makes": [
+      "Ampeg",
+      "Ampeg 8x10",
+      "Ampeg SVT",
+      "Ampeg SVT Classic",
+      "Sennheiser MD 421",
+      "Shure SM57"
+    ],
+    "tags": [
+      "ampeg",
+      "bass",
+      "classic",
+      "nam",
+      "tube"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/qkpbgjk0uf.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 379991,
+      "file": "captures/Ampeg SVT - Gain 10 Ultra Lo and Hi MD 421--m379991.nam",
+      "name": "Ampeg SVT - Gain 10 Ultra Lo and Hi MD 421",
+      "architecture": "2",
+      "createdAt": "2026-05-04T20:49:21.491768+00:00",
+      "sha256": "062e69a431bc8837ef3f4c58904457a2c2d6c2a666a2611ba05e459b89428b5d"
+    },
+    {
+      "id": 379990,
+      "file": "captures/Ampeg SVT - Gain 10 Ultra Lo and Hi SM57--m379990.nam",
+      "name": "Ampeg SVT - Gain 10 Ultra Lo and Hi SM57",
+      "architecture": "2",
+      "createdAt": "2026-05-04T20:49:20.837431+00:00",
+      "sha256": "678adae7df3e7bd8e7aa5e5931b6031d13dab2cb004a33d470d89bcbdae0d150"
+    },
+    {
+      "id": 379989,
+      "file": "captures/Ampeg SVT - Ultra Lo MD 421--m379989.nam",
+      "name": "Ampeg SVT - Ultra Lo MD 421",
+      "architecture": "2",
+      "createdAt": "2026-05-04T20:49:20.394458+00:00",
+      "sha256": "a610c47d19f313f179b642d145468842b41848f0e575813d1a9896b5236e8f72"
+    },
+    {
+      "id": 379988,
+      "file": "captures/Ampeg SVT - Ultra Lo SM57--m379988.nam",
+      "name": "Ampeg SVT - Ultra Lo SM57",
+      "architecture": "2",
+      "createdAt": "2026-05-04T20:49:19.903804+00:00",
+      "sha256": "5d4ea3c752b0addf7dad7c40ecfe4a5504e0dba606cc7b2cdcdbb9b7561e990b"
+    },
+    {
+      "id": 379987,
+      "file": "captures/Ampeg SVT - Ultra Hi MD 421--m379987.nam",
+      "name": "Ampeg SVT - Ultra Hi MD 421",
+      "architecture": "2",
+      "createdAt": "2026-05-04T20:49:19.460166+00:00",
+      "sha256": "1b085cba79ef0f005c4529ca45d8578a64af1a2d85675d40602a373bf8c947cf"
+    },
+    {
+      "id": 379986,
+      "file": "captures/Ampeg SVT - Ultra Hi SM57--m379986.nam",
+      "name": "Ampeg SVT - Ultra Hi SM57",
+      "architecture": "2",
+      "createdAt": "2026-05-04T20:49:18.735669+00:00",
+      "sha256": "286efd9743ca294acb4e23ba46475fdb8f84776f927a27fd121b62a986a4f464"
+    },
+    {
+      "id": 379985,
+      "file": "captures/Ampeg SVT - MD 421--m379985.nam",
+      "name": "Ampeg SVT - MD 421",
+      "architecture": "2",
+      "createdAt": "2026-05-04T20:49:18.232203+00:00",
+      "sha256": "552bcb206848aebd4a69e63bb4c89df289342c5ce105e6a306343132d976b716"
+    },
+    {
+      "id": 379984,
+      "file": "captures/Ampeg SVT - SM75--m379984.nam",
+      "name": "Ampeg SVT - SM75",
+      "architecture": "2",
+      "createdAt": "2026-05-04T20:49:17.814998+00:00",
+      "sha256": "fd51f53f79e92c1331c7959e10796372d7a3587ea9b686869733ca705230bde4"
+    }
+  ]
+}

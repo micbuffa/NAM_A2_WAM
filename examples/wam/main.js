@@ -8,7 +8,9 @@ const TONE3000_CALLBACK_CHANNEL = 'nam-a2-wam.tone3000.callback';
 const TONE3000_CALLBACK_STORAGE_KEY = 'nam-a2-wam.tone3000.callback';
 
 const $ = (selector) => document.querySelector(selector);
-const context = new AudioContext({latencyHint: 'interactive'});
+// Factory and TONE3000 NAM A2 captures are published at 48 kHz. Request the
+// same rate so the WASM core does not reject otherwise valid models.
+const context = new AudioContext({latencyHint: 'interactive', sampleRate: 48000});
 let plugin;
 let node;
 let cabinetPlugin;
@@ -95,6 +97,9 @@ async function selectSource() {
 }
 
 async function initialize() {
+  if (context.sampleRate !== 48000) {
+    message(`Audio context is ${context.sampleRate} Hz; NAM A2 models require 48000 Hz. Reload with a browser/device that supports a 48 kHz AudioContext.`);
+  }
   NamPlugin.configureTone3000(window.NAM_A2_WAM_CONFIG?.tone3000 || {});
   const [groupId] = await initializeWamHost(context, 'nam-a2-phase3-host');
   plugin = await NamPlugin.createInstance(groupId, context, {});
@@ -222,9 +227,15 @@ async function automatedValidation() {
   const irBuffer = await context.decodeAudioData(await irResponse.arrayBuffer());
   const cabinetLoad = await cabinetNode.loadImpulseResponse(irBuffer.getChannelData(0), 'TWIN REVERB __ CLEAN.wav');
   const convolverReference = await compareConvolverReference(irBuffer.getChannelData(0));
-  await node.setParameterValues({inputGain:{id:'inputGain',value:6,normalized:false}, outputGain:{id:'outputGain',value:-3,normalized:false}, bypass:{id:'bypass',value:0,normalized:false}});
+  const stateValues = {inputGain:6,outputGain:-3,bypass:0,noise:-42,noiseEnabled:0,bass:7.2,middle:3.4,treble:8.1,
+    toneEnabled:0,eqEnabled:1,eqPre:1,eq1Freq:85,eq1Gain:2.5,eq1Q:.8,eq2Freq:230,eq2Gain:-3,eq2Q:1.2,
+    eq3Freq:710,eq3Gain:1.5,eq3Q:1.6,eq4Freq:1750,eq4Gain:4,eq4Q:.9,eq5Freq:4100,eq5Gain:-2,eq5Q:2.1,
+    eq6Freq:9200,eq6Gain:3.5,eq6Q:.65};
+  const wamValues = (values) => Object.fromEntries(Object.entries(values).map(([id,value])=>[id,{id,value,normalized:false}]));
+  await node.setParameterValues(wamValues(stateValues));
   const state = await node.getState();
   await node.loadModelText(lite, 'A2-Lite.nam');
+  await node.setParameterValues(wamValues(Object.fromEntries(Object.keys(stateValues).map((id)=>[id,0]))));
   await node.setState(state);
   const restored = await node.getState();
   await node.startDiagnostic();
@@ -240,8 +251,10 @@ async function automatedValidation() {
   catch (error) { mismatchRejected = /sample-rate mismatch/.test(error.message); }
   const params = await node.getParameterValues(false);
   const status = await node.getNamStatus();
+  const stateParametersRestored = Object.entries(stateValues).every(([id,value])=>Math.abs(params[id].value-value)<1e-5);
   window.phase3Result = {first, performance, cabinetLoad, convolverReference, cabinetPerformance, cabinetStatus:await cabinetNode.getCabinetStatus(), mismatchRejected, status,
-    stateRestored: restored.model?.name === 'A2-Full.nam' && params.inputGain.value === 6 && params.outputGain.value === -3,
+    stateRestored: restored.model?.name === 'A2-Full.nam' && stateParametersRestored,
+    stateParametersRestored,
     discoveredFiles: [...$('#audioSource').options].slice(1).map((option) => option.textContent),
     cabinetUsesOneAudioWorkletNode:cabinetNode instanceof AudioWorkletNode, completedAt:new Date().toISOString()};
   $('#automatedResult').textContent = JSON.stringify(window.phase3Result, null, 2);

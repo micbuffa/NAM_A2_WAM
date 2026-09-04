@@ -1,0 +1,398 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-04T15:50:02.668Z",
+  "tone": {
+    "id": 44209,
+    "title": "Marshall JCM800 2203 Modified (EL34) community pack",
+    "description": "🅰️2️⃣ ready!\n\nIf you like my work & want to support me, consider grabbing the ✨full✨ Marshall JCM800 2203 Modified (EL34) NAM pack over here:\n\n👉 https://ko-fi.com/2dornam/shop 🙏\n\nThe Marshall JCM800 2203 Modified (EL34) NAM pack\n\nℹ️ Summary\n\nThe pack features the 2025-released Marshall JCM800 2203 Modified (EL34) captured using a Mesa 4x12 Oversized Straight cabinet loading down the amplifier.\n\n✅ All profiles calibrated\n✅ Real cab (Mesa 4x12 OS straight) used as load (no reactive load)\n✅ AMP, PRE & POW profiles for maximum flexibility\n✅ DI and MIC-ed up flavors for each AMP and POW profile\n✅ STD (A2), STD (A1) and xSTD architectures\n✅ Extended, anti-aliasing signal leveraged during reamping\n✅ High-fidelity signal chain used during reamping\n✅ Stompbox / OD profiles included\n\nThis full pack includes includes:\n\n• 110 x AMP profiles (1 x DI and 5 mic-ed up, full-rig flavors for every knob combination used)\n• 38 x PRE profiles\n• 11 x POW profiles (1 x DI and 5 mic-ed up, full-rig flavors for every knob combination used)\n• 50 x OD pedal profiles\n\nTOTAL: over 2,000 individual NAM files (across all 3 NAM architectures)\n\n✅ Efficiency \n\nStreamlined for users across platforms (Dimehead, Valeton GP-5 etc), AMP & POW profiles offer 6 flavors:\n\n• DI = raw poweramp <-> cab signal tapped with a DI box, no Microphone \n• SM57 = full-rig chain, cab mic-ed with a Shure SM57 on the top-left speaker\n• SM58 = full-rig chain, cab mic-ed with a Shure SM58 on the top-right speaker\n• BLEND #1: full-rig chain, cab mic-ed with 2 mics (Shure SM57 & SM58) blended\n• BLEND #2: full-rig chain, cab mic-ed with 2 mics (Shure SM57 & SM58 @ +3dB) blended\n• BLEND #3: full-rig chain, cab mic-ed with 2 mics (Shure SM57 @ +3dB & SM58) blended\n\n⚙️ Reamp chain details\n\n• RME Fireface UCX II -> Lehle P-SPLIT III -> Marshall JCM800 2203 Modified -> St.Rock React:IR II (Mesa 4x12 OS Straight load) -> RME Fireface UCX II\n\n• SEND level: 18.995 dBu\n• RETURN level: 13.195 dBu\n\nUse the new \"Calibration\" feature (video linked) in the NAM plugin to get the most out of these profiles: \n\nhttps://www.neuralampmodeler.com/post/neuralampmodelerplugin-v0-7-12-is-released\n\n🏷️ Naming convention summary\n\n• [AMP] = full head (pre & poweramp)\n• [PRE] = preamp section; use a poweramp + IR or tube amp & cab\n• [POW] = poweramp only; use a preamp (and IR if using DI)\n• [OD] = overdrive pedal\n• LO = low sensitivity input used\n• HI = high sensitivity input used\n• STD (A2) = new go-to NAM A2 standard architecture\n• STD (A1) = old standard quality architecture\n• xSTD = custom architecture (by Андрей Полевой) from NAM FB\n• TSMINI = Tube Screamer Mini\n• MXRM77 = MXR Custom Badass Modified O.D.\n• FORTIN14 = Fortin Fourteen\n• DWHAMER = PedalPCB Dwarven Hammer\n• DFXKoD = DemonFX King of Drive\n• DFXKLON = DemonFX Centaur\n• DFXDBOOST = DemonFX Dual Boost, Exotic EP mode\n• JR.TheJef = J.Rockett Audio Designs The Jeff Archer\n• GRIND = Fortin Grind\n• ODD = Warm Audio ODD\n• BO$$ = Boss GE-7 Equalizer\n\n📒 Spreadsheet with settings & inspiration for all profiles:\n\nhttps://mega.nz/file/mtgzASrR#hRpRWaCq-1RZ7GSQzyXZcpq5ITMFaOUvr3jbr5nvsaw",
+    "url": "https://www.tone3000.com/tones/marshall-jcm800-2203-modified-el34-community-pack-44209",
+    "format": "nam",
+    "gear": "amp-cab",
+    "license": "t3k",
+    "creator": {
+      "username": "2dor",
+      "displayName": "2dor",
+      "url": "https://www.tone3000.com/2dor"
+    },
+    "makes": [
+      "2203",
+      "JCM",
+      "JCM800",
+      "JCM800 2203",
+      "Marshall",
+      "Marshall JCM800",
+      "Marshall JCM800 2203"
+    ],
+    "tags": [
+      "clean to mean",
+      "nam"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/f2369pobio.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 567060,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Bad Boys 2 - SM58--m567060.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Bad Boys 2 - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "85e24f9e18819ec720a5030feab5d86ace7ae0bf9965950f5dbe0d796b6dc14f"
+    },
+    {
+      "id": 567061,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Sound - BLEND #1--m567061.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Sound - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "5a53d12da630cfdf755a77f1299026a841119f076af997852a48982d8ab373ec"
+    },
+    {
+      "id": 567062,
+      "file": "captures/[POW] JCM800-2203-MODIFIED EL34 Juice #06 - SM57--m567062.nam",
+      "name": "[POW] JCM800-2203-MODIFIED EL34 Juice #06 - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "e03d52f4c8a61d3b83aee2dd5ab4d8b772e70c383c5f666a0b09c6829b641eef"
+    },
+    {
+      "id": 567063,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI All-In - BLEND #2--m567063.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI All-In - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "40f81f4cc2484230e51ad34564e4c394312bcc8bcd174b4b894bbd691100e0ce"
+    },
+    {
+      "id": 567064,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Killertone M77 #02 - BLEND #3--m567064.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Killertone M77 #02 - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "1621d2854bab7a5caf65f4981bd8fbb3bdbe4b2c1017c53ff3bf75b9409ff353"
+    },
+    {
+      "id": 567065,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI All-In - BLEND #3--m567065.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI All-In - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "db74f50868eab1f9322cba8f0cfc7e1bbc4421ebad9ede05afe59f4654ed2c85"
+    },
+    {
+      "id": 567066,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-LO Edge of Breakup - BLEND #3--m567066.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-LO Edge of Breakup - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "6e8a88b572fe4c8d10d99ae9c340c8e62d08fa63ba6f784a656e625f7c4cf7cb"
+    },
+    {
+      "id": 567067,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Bad Boys - BLEND #1--m567067.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Bad Boys - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "6c86b559d80ef9207df88eb0bb89aaaa30ba17cd733f03fd39781181d7392e82"
+    },
+    {
+      "id": 567068,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Goods - BLEND #3--m567068.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Goods - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "c0cd393d84c876ec4d51c941090771186ddf0a964a1f425afb8085894f870981"
+    },
+    {
+      "id": 567069,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Sound-ODI1 - BLEND #3--m567069.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Sound-ODI1 - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "ac7ad21507b2f191e9077d093b90cccea4f78f250f24fbafb37131986386e480"
+    },
+    {
+      "id": 567070,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-LO Edge of Breakup - SM58--m567070.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-LO Edge of Breakup - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "ab0b799661da1c93b7bc1a2d9af5a0edcc4ce61252a0c46635432545b83edeef"
+    },
+    {
+      "id": 567071,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Sound - BLEND #3--m567071.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Sound - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "2280943f4f688f4063ee3e5e14215af6bc5ae6cd72af374dccb7e035953f6c0e"
+    },
+    {
+      "id": 567072,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Bad Boys - SM57--m567072.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Bad Boys - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "45f6f0f7e26857528869694df800f6aa8d6831ae460e0257728b68aa1e9e61cc"
+    },
+    {
+      "id": 567073,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Goods - BLEND #1--m567073.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Goods - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "a57b748f99dc0a0a1813429a725a3dbcfbaff8534630ef1352eed493f224c7b2"
+    },
+    {
+      "id": 567074,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-LO Edge of Breakup - BLEND #2--m567074.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-LO Edge of Breakup - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "0246b6b4843ee3720a45bd695a2c84b79d9f56deada7da21c22f9c619eeb59cd"
+    },
+    {
+      "id": 567075,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI All-In - SM58--m567075.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI All-In - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "16c568aca1b8af08eb8e9c6eaca4f1170d6ae4bf70729b1c4314e76dc3dd483c"
+    },
+    {
+      "id": 567076,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Bad Boys 2 - BLEND #2--m567076.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Bad Boys 2 - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "7b9c3af229d23ecf2df6bcff2f133ddfb8c43144821b315a70c104197937a246"
+    },
+    {
+      "id": 567077,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Killertone M77 #02 - SM57--m567077.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Killertone M77 #02 - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "9544e0d5cada47fd701d2cc165ee88aacb7d39a83cfd983d5cc2a508c5f22189"
+    },
+    {
+      "id": 567078,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Sound-ODI1 - BLEND #2--m567078.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Sound-ODI1 - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "404218fd090ff5a6cf3df0c3be061beedb7fe6a06c7a7306bd3191fde9bf27b4"
+    },
+    {
+      "id": 567079,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Sound - SM57--m567079.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Sound - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "e5f9b812b2309360e985c7cc05449508d664f2d1087f766dba8ca47224f9b85d"
+    },
+    {
+      "id": 567080,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Sound - SM58--m567080.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Sound - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "e27bb706c86abbb2bc3ef3b6b64bba5aea2fc839f6f4ffe917ce3c3742aaed44"
+    },
+    {
+      "id": 567081,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Bad Boys - BLEND #3--m567081.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Bad Boys - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "1802359f350182e802ad3df640ad680ec03cc63b94c7b200850928817751e377"
+    },
+    {
+      "id": 567082,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Bad Boys 2 - BLEND #1--m567082.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Bad Boys 2 - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "92d4033a3f2c4abb555969dadeea377381df1036def4446c7dbf9080ee4b4816"
+    },
+    {
+      "id": 567083,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Sound-ODI1 - SM57--m567083.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Sound-ODI1 - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "7f21377473792da3aa88dcda3316cd961458e34d02f427d162ecf072992e3615"
+    },
+    {
+      "id": 567084,
+      "file": "captures/[POW] JCM800-2203-MODIFIED EL34 Juice #06 - BLEND #1--m567084.nam",
+      "name": "[POW] JCM800-2203-MODIFIED EL34 Juice #06 - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "7ec4a3c90948a8590b7cefbc5fe7d6f8c0569d62396add1fcb11111a7f35d752"
+    },
+    {
+      "id": 567085,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Bad Boys 2 - SM57--m567085.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Bad Boys 2 - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "abbd9b448c8f5bc6d0fa7bce26be88244b6cfb701678c469d7c2fdb42b352578"
+    },
+    {
+      "id": 567086,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Bad Boys - BLEND #2--m567086.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Bad Boys - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "ba1c810993daf66be536e0d3cdd20dd61168aca8ba1bd15376111e8c635f83c1"
+    },
+    {
+      "id": 567087,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI All-In - SM57--m567087.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI All-In - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "24bc8e1eab874174d8ad93ecd4f82c3475c4d5ca24649512a097ff1a5ea3d07d"
+    },
+    {
+      "id": 567088,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Goods - SM57--m567088.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Goods - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "e6c15cd28eb056de89b3da6eff5488555628e3b405945ebda04f3b7f527130fb"
+    },
+    {
+      "id": 567089,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Sound-ODI1 - SM58--m567089.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Sound-ODI1 - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "1b3655237d5a70990fd6a664587161d96f9db2e067e9f224b0e48620de207d13"
+    },
+    {
+      "id": 567090,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Goods - SM58--m567090.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Goods - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "63ccb93c0b758290568dbc4270fdf29aff7e650bcc0297effbd9d9593acd85e6"
+    },
+    {
+      "id": 567091,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Killertone M77 #02 - BLEND #1--m567091.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Killertone M77 #02 - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "237fd26633e90413d3da0b133fd438bbfffd942e99b75885bf6fd60968045d14"
+    },
+    {
+      "id": 567092,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-LO Edge of Breakup - SM57--m567092.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-LO Edge of Breakup - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "ae8de94e43d8831d48729e9eef2ae4dc432cf5890107230fdde85d8f27c4f11c"
+    },
+    {
+      "id": 567093,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Sound-ODI1 - BLEND #1--m567093.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Sound-ODI1 - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "a4aabef34b7207470d943bbdb4416eb619be12c220523bd1ef5da9026d654540"
+    },
+    {
+      "id": 567094,
+      "file": "captures/[POW] JCM800-2203-MODIFIED EL34 Juice #06 - BLEND #2--m567094.nam",
+      "name": "[POW] JCM800-2203-MODIFIED EL34 Juice #06 - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "f79aca379f9e5dbc743794c19cc25f100d9f4b1881909a905f0212abae80e857"
+    },
+    {
+      "id": 567095,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Bad Boys 2 - BLEND #3--m567095.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Bad Boys 2 - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "cceabecf0149c37e681a695943e4416359ae51456fd7b019a054933bd38a949a"
+    },
+    {
+      "id": 567096,
+      "file": "captures/[POW] JCM800-2203-MODIFIED EL34 Juice #06 - SM58--m567096.nam",
+      "name": "[POW] JCM800-2203-MODIFIED EL34 Juice #06 - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "fd4ea18b1e990f1f8c68c3dba77f7a0f9d9c3788d459b0de5d786992be1e2894"
+    },
+    {
+      "id": 567097,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Goods - BLEND #2--m567097.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Goods - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "cd41af197a6063482a1de3d0319813327fa3ac10a3e20acebb6759836b5d8ce2"
+    },
+    {
+      "id": 567098,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Killertone M77 #02 - BLEND #2--m567098.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Killertone M77 #02 - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "7be5b278768d851b5850ab3f039be1b29721abed12cda0e8e6c178fa85576d8d"
+    },
+    {
+      "id": 567099,
+      "file": "captures/[POW] JCM800-2203-MODIFIED EL34 Juice #06 - BLEND #3--m567099.nam",
+      "name": "[POW] JCM800-2203-MODIFIED EL34 Juice #06 - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "b87af353e63aa6d263a39d0481c8ef50a34024c826f3c9abde8682a810731b06"
+    },
+    {
+      "id": 567100,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI All-In - BLEND #1--m567100.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI All-In - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "db3e721f39dc4f60c6441e762117cc1bef4a2895c0518f90a93fc548796e91bc"
+    },
+    {
+      "id": 567101,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI The Sound - BLEND #2--m567101.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI The Sound - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "b3daba74879fc0b78c32fb99b1a1bb9dc8df65e2bd158c0e3a404a3634ac5a29"
+    },
+    {
+      "id": 567102,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Killertone M77 #02 - SM58--m567102.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Killertone M77 #02 - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "bb5010b2acfc899105e5f36ec1e938df8a5295a22f7aa71814e9a1a413a282a6"
+    },
+    {
+      "id": 567103,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-LO Edge of Breakup - BLEND #1--m567103.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-LO Edge of Breakup - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "835e0aac331eed9e214e97a03c07e07ab9b1c99391c299de34d695395a51ea0e"
+    },
+    {
+      "id": 567104,
+      "file": "captures/[AMP] JCM800-2203-MODIFIED-HI Bad Boys - SM58--m567104.nam",
+      "name": "[AMP] JCM800-2203-MODIFIED-HI Bad Boys - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-07T20:26:22.919+00:00",
+      "sha256": "380287554c1632e421700777f65898454c09d84643634734fcb1c69d022f7e61"
+    }
+  ]
+}

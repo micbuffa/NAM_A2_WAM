@@ -7,6 +7,7 @@
 
 #include "NAM/dsp.h"
 #include "NAM/get_dsp.h"
+#include "NAM/slimmable.h"
 #include "NAM/wavenet/a2_fast.h"
 #include "json.hpp"
 
@@ -62,6 +63,22 @@ extern "C" int nam_load_model(NamModel* model, const char* data, size_t length) 
     model->error = e.what();
   } catch (...) {
     model->error = "Unknown model loading error";
+  }
+  return 0;
+}
+
+extern "C" int nam_set_slimmable_size(NamModel* model, double size) {
+  if (!model || !model->dsp || !std::isfinite(size)) return 0;
+  try {
+    auto* slimmable = dynamic_cast<nam::SlimmableModel*>(model->dsp.get());
+    if (!slimmable) return 0;
+    slimmable->SetSlimmableSize(std::clamp(size, 0.0, 1.0));
+    model->error.clear();
+    return 1;
+  } catch (const std::exception& e) {
+    model->error = e.what();
+  } catch (...) {
+    model->error = "Unknown slimmable model selection error";
   }
   return 0;
 }

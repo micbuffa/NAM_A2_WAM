@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-04T16:02:23.516Z",
+  "tone": {
+    "id": 77452,
+    "title": "Zuta GBG120 (EL34, 6L6) \"MultiLoad\" community pack — Amp Head",
+    "description": "🅰️2️⃣ ready!\n😮 Parametric (AMP & POW) models (Genome) in the full Ko-Fi pack\n\nGet the ✨full✨ Zuta GBG120 (EL34, 6L6) \"MultiLoad\" pack here:\n\n👉 https://ko-fi.com/2dornam/shop 🙏\n\nLadies, gents - the Zuta GBG120 (EL34, 6L6) an engineering marvel.\n\nAs a part of the scene that became legendary in the Late 80's through the 90's known to the world as “The Gothenburg Sound”, ZUTA has introduced the revolutionary & ultimate guitar amplifier for the most discerning musicians.\n\nℹ️ “MultiLoad” - what’s this about?\n\nThe cabinet (or load) a tube amplifier interacts with has a considerable impact on the tone & feel.\nFor this pack, I used 2 iconic cabinets and reamped all AMP and POW settings with each cab.\n\nℹ️ Summary\n\nThe pack features a Zuta GBG120 (EL34, 6L6 loaded) amp captured using 2 iconic cabinets loading down the amplifier.\n\n✅ All profiles calibrated\n✅ 2 iconic guitar cabs used as loads (no reactive load):\n🟣 Mesa 4x12 OS Straight\n🟣 Marshall 4x12 1960BV with Marshall G12 Vintage speakers\n✅ AMP, PRE & POW profiles for maximum flexibility\n✅ DI and MIC-ed up flavors for each AMP and POW profile\n✅ NAM A2 ready\n✅ Extended, anti-aliasing signal leveraged during reamping\n✅ High-fidelity signal chain used during reamping\n✅ Stompbox / OD profiles included\n\nThe full pack includes includes:\n\n• 120 x AMP settings (1 x DI and 5 mic-ed up, full-rig profiles for every knob combination used)\n• 72 x POW settings (1 x DI and 5 mic-ed up, full-rig profiles for every knob combination used)\n• 53 x PRE settings\n• 50 x OD pedal settings\n• 4 x parametric \"One-Trick Pony\" models with the Mesa 4x12 OS Straight cabinet (1 for each amp channel); Gain and Presence knobs modeled\n• 4 x parametric \"One-Trick Pony\" models with the Marshall 4x12 1960BV cabinet (1 for each amp channel); Gain and Presence knobs modeled\n• 12 x parametric POW (poweramp) models in all power tube modes across both cabinets\n\n\nTOTAL: over 1,200 individual NAM files + 20 parametric models\n\n✅ Efficiency\n\nStreamlined for users across platforms AMP & POW profiles offer 6 flavors:\n\n• DI = raw poweramp <-> cab signal tapped with a DI box, no Microphone\n• SM57 = full-rig chain, cab mic-ed with a Shure SM57 on the top-left speaker\n• SM58 = full-rig chain, cab mic-ed with a Shure SM58 on the top-right speaker\n• BLEND #1: full-rig chain, cab mic-ed with 2 mics (Shure SM57 & SM58) blended\n• BLEND #2: full-rig chain, cab mic-ed with 2 mics (Shure SM57 & SM58 @ +4dB) blended\n• BLEND #3: full-rig chain, cab mic-ed with 2 mics (Shure SM57 @ +4dB & SM58) blended\n\n⚙️ Reamp chain details\n\n• RME Fireface UCX II -> Lehle P-SPLIT III -> Zuta GBG120 -> St.Rock React:IR II (Mesa 4x12 OS Straight / Marshall 4x12 1960BV) -> RME Fireface UCX II\n\n• SEND level: 18.995 dBu\n\nUse the \"Calibration\" feature (video linked) in the NAM plugin to get the most out of these profiles:\n\nwww.neuralampmodeler.com/post/neuralampmodelerplugin-v0-7-12-is-released\n\n🏷️ Naming convention summary\n\n• [AMP] = full head (pre & poweramp)\n• [PRE] = preamp only (no poweramp)\n• [POW] = poweramp only (no preamp)\n• [OD] = overdrive pedal\n• Mar412 = Marshall 4x12 1960BV cabinet used as load\n• Mes412 = Mesa 4x12 Oversized Straight cabinet used as load\n• CH1 / CH2 / CH3 / CH4 = channel identifiers\n• AB = AB power mode (EL34 and 6L6 tubes used)\n• A = A power mode (6L6 tubes used)\n• B = B power mode (EL34 tubes used)\n• STD (A2) = new go-to NAM A2 standard architecture\n• TSMINI = Tube Screamer Mini\n• MXRM77 = MXR Custom Badass Modified O.D.\n• FORTIN14 = Fortin Fourteen\n• DWHAMER = PedalPCB Dwarven Hammer\n• DFXKoD = DemonFX King of Drive\n• DFXKLON = DemonFX Centaur\n• DFXDBOOST = DemonFX Dual Boost, Exotic EP mode\n• JR.TheJef = J.Rockett Audio Designs The Jeff Archer\n• GRIND = Fortin Grind\n• ODD = Warm Audio ODD\n• BO$$ = Boss GE-7 Equalizer\n\n📒 Spreadsheet with settings & inspiration for all profiles:\n\nmega.nz/file/3txQDRiB#XFMou3JpaQe8RCnYGYqxIbdrb-y_TVDltzuzmpLmp5w",
+    "url": "https://www.tone3000.com/tones/zuta-gbg120-el34-6l6-multiload-community-pack-amp-head-77452",
+    "format": "nam",
+    "gear": "amp",
+    "license": "t3k",
+    "creator": {
+      "username": "2dor",
+      "displayName": "2dor",
+      "url": "https://www.tone3000.com/2dor"
+    },
+    "makes": [
+      "GBG120",
+      "Zuta",
+      "Zuta GBG120"
+    ],
+    "tags": [
+      "clean to extreme",
+      "nam"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/klqla80pvff.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 671189,
+      "file": "captures/[AMP] Zoota--m671189.nam",
+      "name": "[AMP] Zoota.GBG12O-Mar412-CH1 Big Hairy Breakup - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-20T14:22:09.847+00:00",
+      "sha256": "fcf9326e0b9e7977784a8b4c1dfe23ae17bce59ac9ad8ec3960c7c18e00868f2"
+    },
+    {
+      "id": 670932,
+      "file": "captures/[AMP] Zoota--m670932.nam",
+      "name": "[AMP] Zoota.GBG12O-Mar412-CH3 Huge Favorite - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-20T12:26:44.415+00:00",
+      "sha256": "37305b2154ab3774e4ec619cec2f7d361667753d9f1a22cd0d2d9301c779fa86"
+    },
+    {
+      "id": 670848,
+      "file": "captures/[AMP] Zoota--m670848.nam",
+      "name": "[AMP] Zoota.GBG12O-Mar412-CH2 Transylvanian Clay - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-20T09:15:55.038+00:00",
+      "sha256": "63fec98ddaaa23b85e4e914e13a96b5b3ef02bff9480e78030aca74014beacd9"
+    },
+    {
+      "id": 670713,
+      "file": "captures/[AMP] Zoota--m670713.nam",
+      "name": "[AMP] Zoota.GBG12O-Mar412-CH4 Uno Grande - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-20T07:48:07.038+00:00",
+      "sha256": "a17fd26d69510fd05606e88291ce9b814e60ed143de808ac017cb0ebec58df80"
+    },
+    {
+      "id": 670696,
+      "file": "captures/[AMP] Zoota--m670696.nam",
+      "name": "[AMP] Zoota.GBG12O-Mes412-CH4 Uno Grande - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-20T06:45:36.229+00:00",
+      "sha256": "2f8adccc1e18b1be9b76a984e65929ccedf6a109a647dc04dc24be5394c5808c"
+    },
+    {
+      "id": 666036,
+      "file": "captures/[AMP] Zoota--m666036.nam",
+      "name": "[AMP] Zoota.GBG12O-Mes412-CH1 Big Hairy Breakup - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-15T07:08:26.296+00:00",
+      "sha256": "7bdcbc41c77123b1c0e05dd648e9a74b99dd013971bb93e544dba6d483cab3fd"
+    },
+    {
+      "id": 664901,
+      "file": "captures/[AMP] Zoota--m664901.nam",
+      "name": "[AMP] Zoota.GBG12O-Mes412-CH3 Huge Favorite - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-14T06:52:26.673+00:00",
+      "sha256": "0793a37585fd52a8302f0a95081cf143f2ab5d31a56cefaaa0ff2adbda68138a"
+    },
+    {
+      "id": 664813,
+      "file": "captures/[AMP] Zoota--m664813.nam",
+      "name": "[AMP] Zoota.GBG12O-Mes412-CH2 Transylvanian Clay - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-14T06:28:14.324+00:00",
+      "sha256": "164ad3f7062a8e659e4fe019bc66a10f730c1157b5b3f71958738e1f076e70c1"
+    }
+  ]
+}

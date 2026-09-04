@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-04T07:57:01.001Z",
+  "tone": {
+    "id": 32868,
+    "title": "Full Rig Peavey 5150 + Mesa 4x12",
+    "description": "5 Full Rig captures based on my Peavey 5150 (red channel):\n\n1 - Peavey 5150 + Mesa OS 4x12 V30 with SM57\n2 - Peavey 5150 + MXR Wylde OD + Mesa OS 4x12 V30 with SM57\n3 - Peavey 5150 + MXR Wylde OD + Mesa OS 4x12 V30 with SM58\n4 - Peavey 5150 + Maxon OD808 + Mesa OS 4x12 V30 with SM57\n5 - Peavey 5150 + Maxon OD808 + Mesa OS 4x12 V30 with SM58\n\nSlightly EQ'd for palm muting.",
+    "url": "https://www.tone3000.com/tones/full-rig-peavey-5150-mesa-4x12-32868",
+    "format": "nam",
+    "gear": "amp-cab",
+    "license": "t3k",
+    "creator": {
+      "username": "jpisoutoftune",
+      "displayName": null,
+      "url": "https://www.tone3000.com/jpisoutoftune"
+    },
+    "makes": [
+      "Maxon OD808",
+      "Mesa Oversized 4x12 V30",
+      "MXR Wylde Overdrive",
+      "Peavey 5150",
+      "Shure SM57",
+      "Shure SM58"
+    ],
+    "tags": [
+      "4x12",
+      "boost",
+      "eq",
+      "full rig",
+      "high gain",
+      "high-gain",
+      "metal",
+      "nam",
+      "peavey 5150"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/hcjbjn53ax.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 418392,
+      "file": "captures/Full Rig Peavey 5150 No boost Mesa OS SM57 - jp_is_out_of_tune--m418392.nam",
+      "name": "Full Rig Peavey 5150 No boost Mesa OS SM57 - jp_is_out_of_tune",
+      "architecture": "2",
+      "createdAt": "2026-05-16T17:48:08.091836+00:00",
+      "sha256": "c8577f07335f3db0d42011a02d395f40d487163b1f2d44f91b27a303de561d31"
+    },
+    {
+      "id": 418391,
+      "file": "captures/Full Rig Peavey 5150 MXR Mesa OS SM58 - jp_is_out_of_tune--m418391.nam",
+      "name": "Full Rig Peavey 5150 MXR Mesa OS SM58 - jp_is_out_of_tune",
+      "architecture": "2",
+      "createdAt": "2026-05-16T17:48:07.431667+00:00",
+      "sha256": "8e78f00d38843c074cbb5055f81f69d445e72d8685c8bd4ba87b5e7585251631"
+    },
+    {
+      "id": 418390,
+      "file": "captures/Full Rig Peavey 5150 MXR Mesa OS SM57 - jp_is_out_of_tune--m418390.nam",
+      "name": "Full Rig Peavey 5150 MXR Mesa OS SM57 - jp_is_out_of_tune",
+      "architecture": "2",
+      "createdAt": "2026-05-16T17:48:06.793545+00:00",
+      "sha256": "a3f151932c4e7f197a21dd8996d5750dfd1657e5fd67a346be17c58dd4c2e2c7"
+    },
+    {
+      "id": 418389,
+      "file": "captures/Full Rig Peavey 5150 Maxon Mesa OS SM58 - jp_is_out_of_tune--m418389.nam",
+      "name": "Full Rig Peavey 5150 Maxon Mesa OS SM58 - jp_is_out_of_tune",
+      "architecture": "2",
+      "createdAt": "2026-05-16T17:48:06.150975+00:00",
+      "sha256": "c7ffc7af8501cb72691a208b48af86c1cd624cdeafe818ab41b643348900a845"
+    },
+    {
+      "id": 418388,
+      "file": "captures/Full Rig Peavey 5150 Maxon Mesa OS SM57 - jp_is_out_of_tune--m418388.nam",
+      "name": "Full Rig Peavey 5150 Maxon Mesa OS SM57 - jp_is_out_of_tune",
+      "architecture": "2",
+      "createdAt": "2026-05-16T17:48:05.365342+00:00",
+      "sha256": "e005e89a8b885b849a050fcee8183ddaa9ddd6f8a6e105a53a77547c28bba380"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-04T15:51:23.176Z",
+  "tone": {
+    "id": 69174,
+    "title": "Fender Deluxe Reverb Reissue Iconic Clean A2",
+    "description": "Get the full capture pack for this amp here (coming JUN 5th): https://www.amalgamcaptures.com/nam\nSubscribe to our NEWSLETTER to be in the loop when it drops!\n\nAMP SETTINGS:\nV3.5 T5 B4.5 Lo Input\n\nCAB:\nFender Deluxe Reverb 1X12 C12K\n\nMICS:\nR121, M160, U87\n\nDESCRIPTION:\nHalf the time, when you walk into a guitar shop and hear someone getting excellent tones in the room, it turns out to be a Fender Deluxe Reverb Reissue. “Best amp in the world”? Definitely a candidate.",
+    "url": "https://www.tone3000.com/tones/fender-deluxe-reverb-reissue-iconic-clean-a2-69174",
+    "format": "nam",
+    "gear": "amp-cab",
+    "license": "t3k",
+    "creator": {
+      "username": "amalgamaudio",
+      "displayName": "AmalgamAudio",
+      "url": "https://www.tone3000.com/amalgamaudio"
+    },
+    "makes": [
+      "Fender Deluxe Reverb Reissue"
+    ],
+    "tags": [
+      "a2",
+      "ab763",
+      "amalgam",
+      "blackface",
+      "clean",
+      "deluxe",
+      "fender",
+      "nam",
+      "reissue",
+      "reverb"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/di92rvz3lcs.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 556392,
+      "file": "captures/FNDR BFDRI VB Clean BAL2 CAB--m556392.nam",
+      "name": "FNDR BFDRI VB Clean BAL2 CAB",
+      "architecture": "2",
+      "createdAt": "2026-06-04T12:33:19.091+00:00",
+      "sha256": "eed1c147db2eea77b517dabe1f45d836d7e42200d200643bec48dc9f6ab456fa"
+    }
+  ]
+}

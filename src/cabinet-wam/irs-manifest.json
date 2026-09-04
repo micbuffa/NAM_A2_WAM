@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "assets": [
     {
       "id": "factory:Celestion V30/v30 cc8.wav",
@@ -10,6 +10,7 @@
       ],
       "displayName": "v30 cc8",
       "type": "ir",
+      "contentHash": "7d62b7a2b15c48f1f3c1d49ede86c145ea7df03a622a2394575e6f292e095eac",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -29,6 +30,7 @@
       ],
       "displayName": "v30 m160",
       "type": "ir",
+      "contentHash": "afc23fc1618e5b7473e11e46826596b17dabc397de727bb31bf6abac4ab765ef",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -48,6 +50,7 @@
       ],
       "displayName": "v30 m160+sm57_dc",
       "type": "ir",
+      "contentHash": "a8c5aa6957a6ade82c70b2fe1b0872ad3567e9970fb5020d66117e48bc6c2bef",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -67,6 +70,7 @@
       ],
       "displayName": "v30 mc834",
       "type": "ir",
+      "contentHash": "6c0d4299fb9d3f2aa5dd78cb1cbca3ccd757d0ab5e8adb04c8900d5408f24c6e",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -86,6 +90,7 @@
       ],
       "displayName": "v30 md421",
       "type": "ir",
+      "contentHash": "d5f2f0e10146fafc527957603945a6a2bd9c3de9ef83033ed04fc07a77e2bff1",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -105,6 +110,7 @@
       ],
       "displayName": "v30 oc818",
       "type": "ir",
+      "contentHash": "6c3592ce8b92d0e9925f73d2cc0085c5a511cb83d829a6c45c74282ff9e62279",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -124,6 +130,7 @@
       ],
       "displayName": "v30 sm57",
       "type": "ir",
+      "contentHash": "d59698756419302dd688a3ca28171b65d90fc8c9bc248e8255116ea27ed349ee",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -144,6 +151,7 @@
       ],
       "displayName": "5150",
       "type": "ir",
+      "contentHash": "47cd282fb876fdf11d43adee37fb320404c33697fd5af844f16aa666444281ad",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -164,6 +172,7 @@
       ],
       "displayName": "BlackAlbum-SoloLeadOD_dc",
       "type": "ir",
+      "contentHash": "6f570a2149133d661ccf274e4f26a0aa5412e26bee07e768663c999ccd7c3581",
       "fileSizeBytes": 4894
     },
     {
@@ -176,6 +185,7 @@
       ],
       "displayName": "Blackstar",
       "type": "ir",
+      "contentHash": "2b05c85cf8e07d3f9694c3dfba97282a5693beccc20d6afba3a7ce16c29640c6",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -196,6 +206,7 @@
       ],
       "displayName": "Block Inside",
       "type": "ir",
+      "contentHash": "283462a3221cf7f84546544514fa88f66ff0b9589c50e1dedfab4dcc853d8015",
       "audio": {
         "encodingCode": 1,
         "channels": 2,
@@ -216,6 +227,7 @@
       ],
       "displayName": "DV Mark Triple Six",
       "type": "ir",
+      "contentHash": "c017fc9ef7cabde9244859c722d4e6f7df4a362a400ef6add7fd2b2652afd92b",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -236,6 +248,7 @@
       ],
       "displayName": "Engl",
       "type": "ir",
+      "contentHash": "bb21f0134bb8a43ccb755ef39fe8fbf29a8e157dacc4067e1d635eb375be422f",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -256,6 +269,7 @@
       ],
       "displayName": "FenderChampAxisStereo",
       "type": "ir",
+      "contentHash": "c6072d568702fa1029c9894306f73d3d59d0b1912d3cbb140dda2da32137c5a2",
       "audio": {
         "encodingCode": 3,
         "channels": 2,
@@ -276,6 +290,7 @@
       ],
       "displayName": "Hesu2x12V30_440center_edge",
       "type": "ir",
+      "contentHash": "5a9e53495b784fc721c7ca0bb92dcb3dbe3ff04ddf45e455c4775111ec87cd9c",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -296,6 +311,7 @@
       ],
       "displayName": "JB 1",
       "type": "ir",
+      "contentHash": "a11e18537e86612710d0460782d98a686b3ac209c6e36218180e210a22e0146e",
       "audio": {
         "encodingCode": 1,
         "channels": 2,
@@ -316,6 +332,7 @@
       ],
       "displayName": "JB 2",
       "type": "ir",
+      "contentHash": "2a364380452b14af8d978802cf98f581e60216e12c74696a03de8d992a4cfd8d",
       "audio": {
         "encodingCode": 1,
         "channels": 2,
@@ -336,6 +353,7 @@
       ],
       "displayName": "JusticeFor-SoloLeadOD_dc",
       "type": "ir",
+      "contentHash": "ba57399f0cb4983c0aeaa11abc247de42c38977134eeda63b53a212ad2919b3e",
       "fileSizeBytes": 4894
     },
     {
@@ -349,6 +367,7 @@
       ],
       "displayName": "001a-SM57-V30-4x12",
       "type": "ir",
+      "contentHash": "496ee121ac449e25f34f7c94444b4da4e20a9ab17a4ee3f1d42885dafb2cafab",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -370,6 +389,7 @@
       ],
       "displayName": "009a-SM57-G12T75-4x12",
       "type": "ir",
+      "contentHash": "e50f36613ee85a4334b6b8482804807f7092708e595ca0d6ca5d6941e4c261e8",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -391,6 +411,7 @@
       ],
       "displayName": "022a-MD21-V30-4x12",
       "type": "ir",
+      "contentHash": "e671ebdbd3fadd93b7d082a6248886a96f6207963362ac9cd3b2d05950ff563c",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -412,6 +433,7 @@
       ],
       "displayName": "023a-MD21-V30-4x12",
       "type": "ir",
+      "contentHash": "6684e33f22f656f4b5f93f341ae6aef14724a97b7342f990d92cd27d735a7a9d",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -433,6 +455,7 @@
       ],
       "displayName": "024a-MD21-G12T75-4x12",
       "type": "ir",
+      "contentHash": "4a7962cccf1c27fc063ee50b64efa0b8501f47fcd0f9689c71190bd77fbdce50",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -454,6 +477,7 @@
       ],
       "displayName": "028a-SM7-V30-4x12",
       "type": "ir",
+      "contentHash": "d88f94f186afce880b91e0f60b36b1b034d37d11d0afb62360063f30e65ff07c",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -475,6 +499,7 @@
       ],
       "displayName": "034a-SM58-V30-4x12",
       "type": "ir",
+      "contentHash": "d08234b4a8ce4f4fdb413ab628c4907bc1854a7833dee3ecb9e1daf949e13bae",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -495,6 +520,7 @@
       ],
       "displayName": "KillEm-SoloLead-_dc",
       "type": "ir",
+      "contentHash": "7aeda814b1a33e2cb04a274a92e3fdbb1e6e7822c76058ee5029e3d23790d1ad",
       "fileSizeBytes": 4894
     },
     {
@@ -507,6 +533,7 @@
       ],
       "displayName": "Mark V",
       "type": "ir",
+      "contentHash": "196603af4c951c1ea10444b246b917ab839298a515adf916ca9f44d16ab08781",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -527,6 +554,7 @@
       ],
       "displayName": "marshall-4_impact",
       "type": "ir",
+      "contentHash": "a8bea0e7045dd9bd3a6e3cce8f0cd05a5e204b6a7e27bc73cd417bc998fc3468",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -547,6 +575,7 @@
       ],
       "displayName": "Marshall1960",
       "type": "ir",
+      "contentHash": "43cc39b180362729c3b1630f1bd54031b4fbdc2952423da9e95cb6f8f0c477a2",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -567,6 +596,7 @@
       ],
       "displayName": "MasterOf-GermanUbersonic_dc",
       "type": "ir",
+      "contentHash": "9edc6848e9bbaf280321c078ce8e24261683f57a2d6231c9f3c078e6069bd78e",
       "fileSizeBytes": 4894
     },
     {
@@ -579,6 +609,7 @@
       ],
       "displayName": "Mesa-OS-Rectifier-3",
       "type": "ir",
+      "contentHash": "2099f33e80a333607ebe65a54d5ae25dae6daf3b870502536c0a77378c836dad",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -599,6 +630,7 @@
       ],
       "displayName": "Orange 2x12",
       "type": "ir",
+      "contentHash": "dbfeefc9d152d14c2c0fdedf2ee6599b53c994b549c5ce34edaea3a72ec346a4",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -619,6 +651,7 @@
       ],
       "displayName": "Orange 4x12",
       "type": "ir",
+      "contentHash": "1c956216e7143ce120bbe6785f75ab4e644ce815ba98a6403c8c6d232ac32c98",
       "audio": {
         "encodingCode": 1,
         "channels": 2,
@@ -639,6 +672,7 @@
       ],
       "displayName": "Randall 667",
       "type": "ir",
+      "contentHash": "c0be94a235dd1011d90f0c4a60b9c042585dc0c41015fd51efe252e7f215f8ed",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -659,6 +693,7 @@
       ],
       "displayName": "Rectifier",
       "type": "ir",
+      "contentHash": "8df97b0bd75eddb5bb019e79e4b5e395b41db1c055a01b0f9670aca2f64b7c9f",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -679,6 +714,7 @@
       ],
       "displayName": "RideTL-SoloLeadOD_dc",
       "type": "ir",
+      "contentHash": "68b7acad91cdf627c29a7f9bb2042db7fb4671624e6f142309f51eb3c2ac852a",
       "fileSizeBytes": 4894
     },
     {
@@ -691,6 +727,7 @@
       ],
       "displayName": "voxCustomBrightM930OnAxis1",
       "type": "ir",
+      "contentHash": "eb63f48cdae73a5d17b790b55e922cbb6787602c44c43d86b3238c1a7ed9c7e2",
       "audio": {
         "encodingCode": 3,
         "channels": 2,
@@ -711,6 +748,7 @@
       ],
       "displayName": "cardiod-rear-levelled",
       "type": "ir",
+      "contentHash": "1a51301a5e72efbf6cd13a426a6510844010994a736cb088bb56023c21798cdf",
       "audio": {
         "encodingCode": 1,
         "channels": 2,
@@ -731,6 +769,7 @@
       ],
       "displayName": "pcm90cleanplate",
       "type": "ir",
+      "contentHash": "042b2e14fea2f56da127d65b8038a6b07feaa3d1ef2aa281182289dcad3fda7d",
       "audio": {
         "encodingCode": 1,
         "channels": 2,
@@ -751,6 +790,7 @@
       ],
       "displayName": "ScalaMilanOperaHall",
       "type": "ir",
+      "contentHash": "ce97ed3fb73282bc96d607655e50b1dceecc6649b52edf2ff72b062b2496d6d4",
       "audio": {
         "encodingCode": 1,
         "channels": 2,
@@ -768,6 +808,7 @@
       "groups": [],
       "displayName": "TWIN REVERB __ BALANCED",
       "type": "ir",
+      "contentHash": "8ac5fba60c78702f405f126fce170cd2dc85c5c245a5fb7a2b9b933df0ad8cb7",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -785,6 +826,7 @@
       "groups": [],
       "displayName": "TWIN REVERB __ CLEAN",
       "type": "ir",
+      "contentHash": "46d47c497938fa8aaf1e375dc13f5a05bfdab51e30832440daae28ed7cdbd840",
       "audio": {
         "encodingCode": 1,
         "channels": 1,
@@ -802,6 +844,7 @@
       "groups": [],
       "displayName": "TWIN REVERB __ MIDS",
       "type": "ir",
+      "contentHash": "f156c1e6a1ee348045ba8aca3c734fa686634d81ce30b8e2c1299aa24cbdc815",
       "audio": {
         "encodingCode": 1,
         "channels": 1,

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-04T15:50:47.065Z",
+  "tone": {
+    "id": 5867,
+    "title": "Hartke LH1000 Bass Amp - Gallien Krueger 4X10 Cab",
+    "description": "Reamp Level 13 dBu\nHartke LH1000 Bass rack mount head\nGallien Kruger 4x10 cab\n2 sm 57 mics\nFredman mic clip\nClarett + Pre\nRadial JCR Reamp box\nMorley HumX\nMogami Cables\n",
+    "url": "https://www.tone3000.com/tones/hartke-lh1000-bass-amp-gallien-krueger-4x10-cab-5867",
+    "format": "nam",
+    "gear": "amp-cab",
+    "license": "t3k",
+    "creator": {
+      "username": "studioampcaptures",
+      "displayName": "StudioAmpCaptures",
+      "url": "https://www.tone3000.com/studioampcaptures"
+    },
+    "makes": [
+      "Hartke LH1000"
+    ],
+    "tags": [
+      "bass",
+      "nam",
+      "standard-mdl"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/6to48skvnr4.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 413494,
+      "file": "captures/Full Rig HrtkeL1000 GK4x10 Bright button on 4 SAC918--m413494.nam",
+      "name": "Full Rig HrtkeL1000 GK4x10 Bright button on 4 SAC918",
+      "architecture": "2",
+      "createdAt": "2026-05-15T16:42:58.439248+00:00",
+      "sha256": "e06205cd172f1b2c6fd7294c3920cb83165b1e0f600d7ae6ab348a829011c70e"
+    },
+    {
+      "id": 413493,
+      "file": "captures/Full Rig HrtkeL1000 GK4x10 77 SAC918--m413493.nam",
+      "name": "Full Rig HrtkeL1000 GK4x10 77 SAC918",
+      "architecture": "2",
+      "createdAt": "2026-05-15T16:42:57.400046+00:00",
+      "sha256": "77d3a264f405ec67b58c6600c2bbe103e387c5296d4e38a6e0f1d9c0644ac488"
+    },
+    {
+      "id": 413048,
+      "file": "captures/Hartke LH1000 Bass Amp Head Full Rig GK 4X10 MXR Line driver 2 SAC--m413048.nam",
+      "name": "Hartke LH1000 Bass Amp Head Full Rig GK 4X10 MXR Line driver 2 SAC",
+      "architecture": "2",
+      "createdAt": "2026-05-15T16:37:23.681795+00:00",
+      "sha256": "a1cd8f6acdc06f94fd2f3d9ca8aadd448db8fab21c7d2538c752613ff402291c"
+    },
+    {
+      "id": 413047,
+      "file": "captures/Hartke LH1000 Bass Amp Head Full Rig GK 4X10 Clean 1 SAC--m413047.nam",
+      "name": "Hartke LH1000 Bass Amp Head Full Rig GK 4X10 Clean 1 SAC",
+      "architecture": "2",
+      "createdAt": "2026-05-15T16:37:23.102534+00:00",
+      "sha256": "c647d116cf682747a34c245cfa995d85e606b9f7263ba143b94d06f7dc6aca4a"
+    },
+    {
+      "id": 413046,
+      "file": "captures/Hartke LH1000 Bass Amp Head Full Rig GK 4X10 Swollen Pickle Fuzz 3 SAC--m413046.nam",
+      "name": "Hartke LH1000 Bass Amp Head Full Rig GK 4X10 Swollen Pickle Fuzz 3 SAC",
+      "architecture": "2",
+      "createdAt": "2026-05-15T16:37:22.168645+00:00",
+      "sha256": "21736b19339808d53aa8dd9d95bac587574df368ab4f55494fb28d19e83b2cde"
+    }
+  ]
+}

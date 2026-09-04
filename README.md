@@ -12,7 +12,8 @@ committed.
 
 - Web Audio/WAM host in [`examples/wam/`](examples/wam/).
 - NAM A2 plugin in [`src/nam-wam/`](src/nam-wam/), with `.nam` model loading and safe replacement,
-  Lite/Full modes, bypass, input/output gain, and state restoration.
+  a persistent Full/Lite rendering preference, rotary input/output gain, noise gate, three-band tone
+  stack, six-band parametric EQ, bypass, and state restoration.
 - Cabinet plugin in [`src/cabinet-wam/`](src/cabinet-wam/), with WAV IR loading, convolution,
   and level matching.
 - Shared WASM/C++ backend in [`src/nam-wasm/`](src/nam-wasm/), built with
@@ -21,6 +22,46 @@ committed.
 - TONE3000 model selection from the NAM panel through the Select Flow OAuth flow. Each user
   authenticates with their own TONE3000 account; the public `client_id` identifies the application
   and does not contain the author's session.
+- A persistent Favorites library shared by Factory, External, and downloaded TONE3000 models.
+  Favorites use IndexedDB; External favorites retain their model data and remain loadable after a
+  browser restart.
+- Automatic model-level compensation based on the loudness embedded in each NAM capture. It targets
+  −18 dB, limits correction to ±12 dB, and leaves the manual Output gain control independent.
+
+For `SlimmableContainer` captures, **Full** is the default network used for audio rendering. Open
+**Preferences → A2 rendering mode** to select **Lite** when lower CPU usage is preferred. The current
+model badge and details always report the network that is actually active.
+
+Automatic model level is enabled by default and can be changed under **Preferences → Automatic
+model level**. The correction currently applied to a capture is shown as a green `LEVEL ±x.x dB`
+badge on the current-model card and in Model details. `LEVEL N/A` means that the file contains no
+usable loudness metadata; such captures receive no automatic correction.
+
+If a capture still sounds incorrectly matched, click **Calibrate level** on the current-model card.
+This optional operation measures that model once with an internal low-level reference tone, applies
+a static correction bounded to ±12 dB with peak protection, and resets the NAM state before normal
+audio resumes. The reference tone is never routed to the output, and no adaptive gain runs while
+playing. The badge changes to `MEASURED ±x.x dB`; click **Use metadata** to restore the default mode.
+Measured values are remembered per capture and per Full/Lite variant in browser-local storage, so
+reloading the same capture restores its calibration. Localhost and the deployed origin keep separate
+calibration libraries.
+
+The NAM faceplate follows the processing order used by the official TONE3000 desktop plugin:
+
+```text
+Input gain → Noise gate → optional PRE EQ → NAM → level correction → optional POST EQ
+           → Bass/Middle/Treble → Output gain
+```
+
+Drag a rotary control vertically: upward increases its value and downward decreases it; hold Shift
+for fine adjustment. Double-click restores its default value. Bass, Middle, and Treble are neutral
+at `5`; the gate defaults to `−80 dB`. Click **EQ** to reveal the graphical six-band parametric
+editor. Drag a point horizontally to change frequency and vertically to change gain; use the mouse
+wheel for Q, or edit the selected band's numeric Frequency/Gain/Q fields. The plotted curve uses the
+same RBJ coefficient equations as the audio processor. The EQ is disabled and POST NAM by default,
+but can be moved before NAM. Its bands are low shelf at 100 Hz, four bells at 250 Hz, 650 Hz, 1.6 kHz
+and 3.5 kHz, and high shelf at 8 kHz. Bypassed NAM and Cabinet modules use a red-tinted faceplate so
+their inactive state remains immediately visible.
 
 ## Requirements
 
@@ -55,6 +96,10 @@ sources and live audio input, using the following signal chain:
 source → NAM A2 WAM → Cabinet WAM → audio output
 ```
 
+The host requests a 48 kHz `AudioContext`, matching the sample rate used by the bundled and
+TONE3000 NAM A2 models. If the browser or audio device cannot provide 48 kHz, the host displays a
+diagnostic message and NAM model loading may be rejected by the core.
+
 An automated validation page is available at
 <http://127.0.0.1:8765/examples/wam/index.html?auto=1>.
 
@@ -66,14 +111,15 @@ select a model.
 
 ![NAM A2 WAM host](docs/screenshots/ImageNAM_A2_WAM.jpeg)
 
-The public client ID and redirect URI configuration are exposed in the plugin GUI. For local
-development, use:
+The public client ID and redirect URI are loaded from [`examples/wam/config.js`](examples/wam/config.js),
+not embedded in `index.html`. The configuration derives the redirect URI from the page currently
+being opened, so the same source host works locally and on Mainline:
 
 ```text
 http://127.0.0.1:8765/examples/wam/index.html
 ```
 
-For deployment, also add the exact HTTPS host URL to the allowed redirect URIs in TONE3000. The
+For deployment, add the exact HTTPS host URL to the allowed redirect URIs in TONE3000. The
 TONE3000 secret must never be placed in `index.html`, a JavaScript file, or this repository. The
 public client ID may be distributed in browser code; the session and tokens belong to each user
 in their own browser.
@@ -81,6 +127,11 @@ in their own browser.
 Implementation details are in [`Tone3000Auth.js`](src/nam-wam/tone3000/Tone3000Auth.js),
 [`Tone3000Client.js`](src/nam-wam/tone3000/Tone3000Client.js), and the NAM GUI
 ([`gui.js`](src/nam-wam/gui.js)).
+
+Maintainers can open the host with `?maintainer=1`, select the TONE3000 tab, and export an explicitly
+selected NAM A2 or IR tone as a repository-ready ZIP containing `tone.json`, its local cover image,
+selected captures, hashes, creator attribution, and license metadata. See
+[`docs/FACTORY_LIBRARY.md`](docs/FACTORY_LIBRARY.md) before importing or redistributing any tone.
 
 ## Build the project
 
@@ -185,6 +236,8 @@ dist/              Generated distribution, not committed
   analysis.
 - [`docs/phase4a-cabinet-wam.md`](docs/phase4a-cabinet-wam.md) — Cabinet WAM architecture.
 - [`docs/phase4a1-usability.md`](docs/phase4a1-usability.md) — level matching and AUTO routing.
+- [`docs/FACTORY_LIBRARY.md`](docs/FACTORY_LIBRARY.md) — rich NAM/IR Factory bundle format
+  and maintainer-only TONE3000 import workflow.
 - [`HANDOFF.md`](HANDOFF.md) — detailed project status and next steps.
 
 ## Git and files to commit

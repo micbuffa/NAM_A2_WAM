@@ -1,6 +1,6 @@
 {
   "identifier": "org.webaudiomodules.nam-a2",
-  "name": "NAM A2",
+  "name": "NeuralWAMp",
   "vendor": "Web Audio Modules",
   "description": "Neural Amp Modeler A2 amplifier using NeuralAmpModelerCore",
   "version": "0.3.0",

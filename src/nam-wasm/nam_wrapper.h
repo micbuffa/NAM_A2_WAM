@@ -10,6 +10,7 @@ typedef struct NamModel NamModel;
 
 NamModel* nam_create(double sample_rate);
 int nam_load_model(NamModel* model, const char* data, size_t length);
+int nam_set_slimmable_size(NamModel* model, double size);
 int nam_process(NamModel* model, const float* input, float* output, int num_samples);
 int nam_reset(NamModel* model);
 void nam_destroy(NamModel* model);
@@ -21,4 +22,3 @@ const char* nam_last_error(const NamModel* model);
 #ifdef __cplusplus
 }
 #endif
-

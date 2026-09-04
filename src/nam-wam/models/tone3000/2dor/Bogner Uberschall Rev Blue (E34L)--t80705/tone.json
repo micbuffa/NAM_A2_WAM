@@ -1,0 +1,675 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-04T16:00:31.065Z",
+  "tone": {
+    "id": 80705,
+    "title": "Bogner Uberschall Rev Blue (E34L)",
+    "description": "🅰️2️⃣ ready!\n\nIf you like my work & want to support it, you can do so here: \n\nhttps://ko-fi.com/2dornam/shop 🙏\n\nThis one's the pack that did not get to be 😞\n\nDue to an unforseen failure event, I had to stop work on the pack.\n\nIn light of this, I'm sharing a handful of high-quality, calibrated profiles of what should have been the Bogner Uberschall \"MultiLoad\" pack. \n\nℹ️ Summary\n\nThe pack features a Bogner Uberschall Rev Blue E34L-loaded head captured using a Mesa 4x12 Oversized Straight & a Marshall 4x12 1960BV cabinet loading down the amplifier. \n\n✅ All profiles calibrated\n✅ 2 iconic guitar cabs used as loads (no reactive load):\n🟣 Mesa 4x12 OS Straight\n🟣 Marshall 4x12 1960BV with Marshall G12 Vintage speakers\n✅ AMP (DI and MIC-ed up flavors; check the \"Linked\" pack)\n✅ NAM A2 ready\n✅ Extended, anti-aliasing signal leveraged during reamping\n✅ High-fidelity signal chain used during reamping\n✅ Stompbox / OD profiles included\n\n✅ Efficiency\n\nStreamlined for users across platforms, each amp's knob positions / permutations offers 6 flavors:\n\n• DI = raw poweramp <-> cab signal tapped with a DI box, no Microphone\n• SM57 = full-rig chain, cab mic-ed with a Shure SM57 on the top-left speaker\n• SM58 = full-rig chain, cab mic-ed with a Shure SM58 on the top-right speaker\n• BLEND #1: full-rig chain, cab mic-ed with 2 mics (Shure SM57 & SM58) blended\n• BLEND #2: full-rig chain, cab mic-ed with 2 mics (Shure SM57 & SM58 @ +4dB) blended\n• BLEND #3: full-rig chain, cab mic-ed with 2 mics (Shure SM57 @ +4dB & SM58) blended\n\n⚙️ Reamp chain details\n\n• RME Fireface UCX II -> Lehle P-SPLIT III -> Bogner Uberschall Rev Blue -> St.Rock React:IR II (Mesa 4x12 OS Straight / Marshall 4x12 1960BV) -> RME Fireface UCX II\n\n• SEND level: 18.995 dBu\n\nUse the \"Calibration\" feature (video linked) in the NAM plugin to get the most out of these profiles:\n\nwww.neuralampmodeler.com/post/neuralampmodelerplugin-v0-7-12-is-released\n\n🏷️ Naming convention summary\n\n• [AMP] = full head (pre & poweramp)\n• CLEAN = clean channel\n• LEAD = lead channel\n• Mar412 = Marshall 4x12 1960BV cabinet used as load\n• Mes412 = Mesa 4x12 Oversized Straight cabinet used as load\n\n📒 Spreadsheet with settings & inspiration for all profiles:\n\nhttps://mega.nz/file/ioQHHZSY#CLYjRyIaIbN-KDRE5ZfeIcuSWEjCZE4Rje6yUIGzLCA",
+    "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-80705",
+    "format": "nam",
+    "gear": "amp-cab",
+    "license": "t3k",
+    "creator": {
+      "username": "2dor",
+      "displayName": "2dor",
+      "url": "https://www.tone3000.com/2dor"
+    },
+    "makes": [
+      "Bogner",
+      "Bogner Uberschall",
+      "Bogner Uberschall Rev Blue",
+      "Uberschall"
+    ],
+    "tags": [
+      "clean to extreme",
+      "nam"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/55xzrb0z5t5.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 694998,
+      "file": "captures/[AMP] UBER--m694998.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Basher - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:37:11.089+00:00",
+      "sha256": "d9298d1ed9f4108479d99e12c12bb12505c2c05c8548805131691124fd9d850f"
+    },
+    {
+      "id": 694999,
+      "file": "captures/[AMP] UBER--m694999.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Basher - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:37:11.089+00:00",
+      "sha256": "9c1328279525e8a36c1c4fa9340d0466af0b9641842b0b35e171e266ac12e655"
+    },
+    {
+      "id": 695000,
+      "file": "captures/[AMP] UBER--m695000.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Basher - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:37:11.089+00:00",
+      "sha256": "eeed9d7c385fe484e5f92dbfeda8b1a128bcb8fe7e4c2d50ef41198cfe5884bb"
+    },
+    {
+      "id": 695001,
+      "file": "captures/[AMP] UBER--m695001.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Basher - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:37:11.089+00:00",
+      "sha256": "5cc7a00a8d430bfb870057055b151b52ee057ff4e42ffdba9effaffd7cea36a9"
+    },
+    {
+      "id": 695002,
+      "file": "captures/[AMP] UBER--m695002.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Basher - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:37:11.089+00:00",
+      "sha256": "bfe84c2f8c7a289ac3130a81aa6ebd3e6b0f1344d24ae1ab2fcbb52de6401239"
+    },
+    {
+      "id": 694990,
+      "file": "captures/[AMP] UBER--m694990.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Holly Rocks - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:31:32.083+00:00",
+      "sha256": "aae30d3e21242d6973a3814c3682ac948ff544c1ee6b66423d1dee5f582d5980"
+    },
+    {
+      "id": 694992,
+      "file": "captures/[AMP] UBER--m694992.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Holly Rocks - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:31:32.083+00:00",
+      "sha256": "243e469fd3903041d8704152cbfa9ab9b2e787806b018dfbbc41d9a734a835af"
+    },
+    {
+      "id": 694993,
+      "file": "captures/[AMP] UBER--m694993.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Holly Rocks - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:31:32.083+00:00",
+      "sha256": "f9a14248494edd0fe16cca8831a83b104c33b7525c1364337bd80a9dfeb605a6"
+    },
+    {
+      "id": 694994,
+      "file": "captures/[AMP] UBER--m694994.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Holly Rocks - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:31:32.083+00:00",
+      "sha256": "1bd49c6114a03a72c91f02b1bab5f869d1de8d012fd31856f02c51442859b5f4"
+    },
+    {
+      "id": 694995,
+      "file": "captures/[AMP] UBER--m694995.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Holly Rocks - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:31:32.083+00:00",
+      "sha256": "912676f754816bd5e8a337cdd6bb9bbb546e6c9350c80be89babbe388bf3d89c"
+    },
+    {
+      "id": 694983,
+      "file": "captures/[AMP] UBER--m694983.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Darkness - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:25:39.123+00:00",
+      "sha256": "f404ec5b3dd52bfe39433e4ebd2c738caf92062d505308f98efd17ba5c284787"
+    },
+    {
+      "id": 694978,
+      "file": "captures/[AMP] UBER--m694978.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Darkness - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:25:39.122+00:00",
+      "sha256": "3aa94192ce0685bc981cfc3e6d48df6b776a5ecfa003f166c603c8a0accedd96"
+    },
+    {
+      "id": 694979,
+      "file": "captures/[AMP] UBER--m694979.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Darkness - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:25:39.122+00:00",
+      "sha256": "6d0c3690c9a1017d6c465c0d60d94ff6766c05412f5633c8c21a724e5c3aa848"
+    },
+    {
+      "id": 694980,
+      "file": "captures/[AMP] UBER--m694980.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Darkness - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:25:39.122+00:00",
+      "sha256": "95f5292007e71103f139631db92b0744f91ff8f2c070db894ea970240fdde580"
+    },
+    {
+      "id": 694981,
+      "file": "captures/[AMP] UBER--m694981.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Darkness - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:25:39.122+00:00",
+      "sha256": "f2a5a968960022ee2074a0b4b40bce6fce6d60c5b66ef795f8745287ceea4d0e"
+    },
+    {
+      "id": 694970,
+      "file": "captures/[AMP] UBER--m694970.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Rosemary - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:19:29.11+00:00",
+      "sha256": "393a19bc7a365e47d3c8328ee86c4172377cb2ed3e3082ac5062d8ade7ce0087"
+    },
+    {
+      "id": 694971,
+      "file": "captures/[AMP] UBER--m694971.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Rosemary - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:19:29.11+00:00",
+      "sha256": "e9b5e0fda93b1d22f516f7036546512f85f7e4921fc2e139827da7ff5aaee5ad"
+    },
+    {
+      "id": 694972,
+      "file": "captures/[AMP] UBER--m694972.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Rosemary - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:19:29.11+00:00",
+      "sha256": "ad6f1f4c4bca71cbae79405c8d0b3b495925031d92ee97d8e2d58d8e803902d1"
+    },
+    {
+      "id": 694974,
+      "file": "captures/[AMP] UBER--m694974.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Rosemary - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:19:29.11+00:00",
+      "sha256": "8ebe913163bc6b0e4af4b60197d54a48c3705395f34a91a538c56a76fc36ff4c"
+    },
+    {
+      "id": 694975,
+      "file": "captures/[AMP] UBER--m694975.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Rosemary - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:19:29.11+00:00",
+      "sha256": "f4fefe04767db984167a4108f323cdbc60d5a4021fa1f87455be0ce18fabd668"
+    },
+    {
+      "id": 694962,
+      "file": "captures/[AMP] UBER--m694962.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Blue Lights - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:13:18.526+00:00",
+      "sha256": "a1f8dfdc169e45bd9633ba6518d485112379b9109740471e700639882e0be0f7"
+    },
+    {
+      "id": 694964,
+      "file": "captures/[AMP] UBER--m694964.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Blue Lights - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:13:18.526+00:00",
+      "sha256": "2161be9d913b3a95e7e5ece4cc9738d81a5ef24fb874817763aa330999b9394f"
+    },
+    {
+      "id": 694965,
+      "file": "captures/[AMP] UBER--m694965.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Blue Lights - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:13:18.526+00:00",
+      "sha256": "f81ce5478c7a5f320881258a0644dbec07b17c9b8a334bd824cd6c762c4467f4"
+    },
+    {
+      "id": 694966,
+      "file": "captures/[AMP] UBER--m694966.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Blue Lights - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:13:18.526+00:00",
+      "sha256": "898fa880b3e0c150c37e736aee131bb45c00d8ed99c20154ddcf84170ece911d"
+    },
+    {
+      "id": 694967,
+      "file": "captures/[AMP] UBER--m694967.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Blue Lights - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:13:18.526+00:00",
+      "sha256": "2ba5119ccdeebe6072d5a4f954979fab5736ccc97c2082d7f137fe73136be230"
+    },
+    {
+      "id": 694950,
+      "file": "captures/[AMP] UBER--m694950.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Anthem - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:06:22.801+00:00",
+      "sha256": "476ef02990da2b92b75092795099248a0530ecb4aff86dde48ba7c4c1d11adda"
+    },
+    {
+      "id": 694951,
+      "file": "captures/[AMP] UBER--m694951.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Anthem - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:06:22.801+00:00",
+      "sha256": "93e59c6ecfc63e02812cc7a2ec318cee03341c9f95bfe8f51409eb656649e76b"
+    },
+    {
+      "id": 694952,
+      "file": "captures/[AMP] UBER--m694952.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Anthem - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:06:22.801+00:00",
+      "sha256": "062a0ce0e108975a37927498749871166882901a8ff91248f8a22fbdde79adb1"
+    },
+    {
+      "id": 694953,
+      "file": "captures/[AMP] UBER--m694953.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Anthem - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:06:22.801+00:00",
+      "sha256": "fa50a19ead6cde372e96135344143cb1551db1e3d6402cfe92966a4447ba2516"
+    },
+    {
+      "id": 694955,
+      "file": "captures/[AMP] UBER--m694955.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Anthem - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:06:22.801+00:00",
+      "sha256": "726e321daf77c25ff3ccd601b25264127da118fdc88a589c55e4247c5c0986bb"
+    },
+    {
+      "id": 694938,
+      "file": "captures/[AMP] UBER--m694938.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Glazed - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:00:08.584+00:00",
+      "sha256": "d06d59b079afa65614364a7d856ca081098b77695239ee21394b9f6aaf104934"
+    },
+    {
+      "id": 694939,
+      "file": "captures/[AMP] UBER--m694939.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Glazed - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:00:08.584+00:00",
+      "sha256": "06b94811d8d45c6915225e97bfe02c4ad1e0b712dd9868d54227b1416bb3244e"
+    },
+    {
+      "id": 694941,
+      "file": "captures/[AMP] UBER--m694941.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Glazed - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:00:08.584+00:00",
+      "sha256": "d24023bc6ff0720a592783c7324b17394bdbb75528d17bf8679bec352adcc654"
+    },
+    {
+      "id": 694942,
+      "file": "captures/[AMP] UBER--m694942.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Glazed - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:00:08.584+00:00",
+      "sha256": "916f9d7c88efd0f8715141b4273bc359759286ce5d7ddcb1d9e82d77039a3d79"
+    },
+    {
+      "id": 694943,
+      "file": "captures/[AMP] UBER--m694943.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Glazed - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T14:00:08.584+00:00",
+      "sha256": "86e93a02ea5bdbca2678fa99f9c279b255972ef2bb1c39f9d1f0aed6ec57c05d"
+    },
+    {
+      "id": 694905,
+      "file": "captures/[AMP] UBER--m694905.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Clover - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:53:44.594+00:00",
+      "sha256": "a15a913b638b46ef0c67f52d034a01fca8516911bc02e07f526a70c8c5ddc5b8"
+    },
+    {
+      "id": 694906,
+      "file": "captures/[AMP] UBER--m694906.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Clover - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:53:44.594+00:00",
+      "sha256": "5466ff68c4abef8af806752249abd8e665272eec0d9e85ed4db14d3df2f300b1"
+    },
+    {
+      "id": 694907,
+      "file": "captures/[AMP] UBER--m694907.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Clover - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:53:44.594+00:00",
+      "sha256": "90b75f857c73ddc9e609c699bb9258adf076b2fcd4fd2ad8bcb2708a28b9a5b6"
+    },
+    {
+      "id": 694909,
+      "file": "captures/[AMP] UBER--m694909.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Clover - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:53:44.594+00:00",
+      "sha256": "62e2fe4ce3e7f0227805a6c0b379c9d66069226bde76f0af84dc0d61a6d53e33"
+    },
+    {
+      "id": 694910,
+      "file": "captures/[AMP] UBER--m694910.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Clover - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:53:44.594+00:00",
+      "sha256": "f2dfbca7fb286dfcbf4ccec0f6631b177968e5494420f47e4514d3b2fbbe351c"
+    },
+    {
+      "id": 694896,
+      "file": "captures/[AMP] UBER--m694896.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Cookie - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:47:45.795+00:00",
+      "sha256": "c7ee98ab540c9389a65d27798aeaa38e08f8d9f39fa29adc7b95e1c422ad514a"
+    },
+    {
+      "id": 694897,
+      "file": "captures/[AMP] UBER--m694897.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Cookie - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:47:45.795+00:00",
+      "sha256": "ea561c1ec6bc9f7f1d4aac807fef3d1bdd16e3b5c4c07b862f2a51f7ae104e4f"
+    },
+    {
+      "id": 694898,
+      "file": "captures/[AMP] UBER--m694898.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Cookie - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:47:45.795+00:00",
+      "sha256": "a210fdc7be16fc826f4e43793c5eff0eb28d8c0a5348575258b33eff185b12de"
+    },
+    {
+      "id": 694900,
+      "file": "captures/[AMP] UBER--m694900.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Cookie - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:47:45.795+00:00",
+      "sha256": "38157b0330209d1fca70bf74497c06a5d209a6bcf92840942d40ea2db6e0b8e5"
+    },
+    {
+      "id": 694901,
+      "file": "captures/[AMP] UBER--m694901.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Cookie - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:47:45.795+00:00",
+      "sha256": "65e88e7c6f6c3db816d0e8e3a685d0f1b89c071acfaef7d04e92816a82dc4960"
+    },
+    {
+      "id": 694880,
+      "file": "captures/[AMP] UBER--m694880.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Cookie - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:41:32.137+00:00",
+      "sha256": "02c20b9c607f463c7c26ddceb0207f2d898b8b0fa8499ba7c0ad28fc9fa33da0"
+    },
+    {
+      "id": 694881,
+      "file": "captures/[AMP] UBER--m694881.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Cookie - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:41:32.137+00:00",
+      "sha256": "4ebad75c013dbc7eb1720beba2f0ba2f8adddb00c8d5519b4608421e1f9898b4"
+    },
+    {
+      "id": 694883,
+      "file": "captures/[AMP] UBER--m694883.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Cookie - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:41:32.137+00:00",
+      "sha256": "8906d22be78ca990b30a307295177edadc0398236f3b9b12a7b8bbc7abda4785"
+    },
+    {
+      "id": 694884,
+      "file": "captures/[AMP] UBER--m694884.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Cookie - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:41:32.137+00:00",
+      "sha256": "efb6170716d4ba5cea9864f6b9510164a9ad49cbe7424d9c850dd90826b7219a"
+    },
+    {
+      "id": 694885,
+      "file": "captures/[AMP] UBER--m694885.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Cookie - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:41:32.137+00:00",
+      "sha256": "2b73bf96bfd9e8ddba0effee93414f8b015ac22f3373c301641428cfbe6e41f1"
+    },
+    {
+      "id": 694866,
+      "file": "captures/[AMP] UBER--m694866.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Instant gratification - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:35:44.223+00:00",
+      "sha256": "9b218a0a887efa0b6ae9a3bd38dbd9f5195925f80c8aa5e2dd6e4d1a3b1982ba"
+    },
+    {
+      "id": 694867,
+      "file": "captures/[AMP] UBER--m694867.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Instant gratification - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:35:44.223+00:00",
+      "sha256": "84ca56b1355edc532407f798d04aab9d01e97be6447fea6d0f1822c46a3fb85b"
+    },
+    {
+      "id": 694869,
+      "file": "captures/[AMP] UBER--m694869.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Instant gratification - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:35:44.223+00:00",
+      "sha256": "be53edecdac3ff607cd2f7867915819064b3a5dc5065d98bd2e7ddca7281a2f5"
+    },
+    {
+      "id": 694870,
+      "file": "captures/[AMP] UBER--m694870.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Instant gratification - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:35:44.223+00:00",
+      "sha256": "44e7a4eed700f6e31f6c93294da750f1cd3ddc9f0dced91bbae74b1907477355"
+    },
+    {
+      "id": 694871,
+      "file": "captures/[AMP] UBER--m694871.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Instant gratification - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:35:44.223+00:00",
+      "sha256": "d57e6148e72b30ed53dc07116959187265781f5307bb06fe5e05fb572d6798e8"
+    },
+    {
+      "id": 694872,
+      "file": "captures/[AMP] UBER--m694872.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Instant gratification - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:35:44.223+00:00",
+      "sha256": "c66af730b10720831bb4da8d1fd660fffac2c7d29ec7ca58097c5a68b106d28a"
+    },
+    {
+      "id": 694873,
+      "file": "captures/[AMP] UBER--m694873.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Instant gratification - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:35:44.223+00:00",
+      "sha256": "bc9b9e45b0fb6bb72cc11a269bf80b549dbe00f9a3fdaeb0fac46031d436a57c"
+    },
+    {
+      "id": 694874,
+      "file": "captures/[AMP] UBER--m694874.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Instant gratification - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:35:44.223+00:00",
+      "sha256": "0368a2002096206733fb68fd41907af8a9b2daab2418cf0ec8a0397010362bc3"
+    },
+    {
+      "id": 694875,
+      "file": "captures/[AMP] UBER--m694875.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Instant gratification - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:35:44.223+00:00",
+      "sha256": "8690ee57cf411b40b3becf50405967aff36ebc762b03829a0c4144c97aaf625b"
+    },
+    {
+      "id": 694876,
+      "file": "captures/[AMP] UBER--m694876.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Instant gratification - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:35:44.223+00:00",
+      "sha256": "2c56be6192f3fcf10501eefe060c89d02cebfb85157892b2f31ef6e51a0dff17"
+    },
+    {
+      "id": 694844,
+      "file": "captures/[AMP] UBER--m694844.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Noon - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:23:33.153+00:00",
+      "sha256": "057d2c59c538c9d3e376e2fa49a18fcf698c6ef545e601c98b19210994d5adc7"
+    },
+    {
+      "id": 694845,
+      "file": "captures/[AMP] UBER--m694845.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Noon - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:23:33.153+00:00",
+      "sha256": "d7a157312b1bcdd0d703ee30bacfa64ff773b5a0f00d956da413bb1d1b0b8cae"
+    },
+    {
+      "id": 694847,
+      "file": "captures/[AMP] UBER--m694847.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Noon - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:23:33.153+00:00",
+      "sha256": "167557c01239163714fcc644adaec3aeeb91028d4636f7dbf59a5c8fb0295d29"
+    },
+    {
+      "id": 694848,
+      "file": "captures/[AMP] UBER--m694848.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Noon - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:23:33.153+00:00",
+      "sha256": "be15b177e759c515ceaf66343b90775141b23e22ff8d31280283a357366124a6"
+    },
+    {
+      "id": 694849,
+      "file": "captures/[AMP] UBER--m694849.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-CLEAN Noon - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:23:33.153+00:00",
+      "sha256": "6a4559f215e83f48aa72e3011264810328c1f546019c3d77707711e91abcb1ce"
+    },
+    {
+      "id": 694819,
+      "file": "captures/[AMP] UBER--m694819.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Noon - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:16:42.51+00:00",
+      "sha256": "5a649d2f388ef575d9a129f20e1f1dfc5b749ff8b9e3f2780aa782a052ad6a6f"
+    },
+    {
+      "id": 694820,
+      "file": "captures/[AMP] UBER--m694820.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Noon - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:16:42.51+00:00",
+      "sha256": "5ca85b95a51bae17d34329fd8fe842801ecedc0d57890f1a73249008d9ea5c41"
+    },
+    {
+      "id": 694822,
+      "file": "captures/[AMP] UBER--m694822.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Noon - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:16:42.51+00:00",
+      "sha256": "79756daea0ab6dc2b0f4394220241a0c91579ab85f747f065067b98f8355e6d0"
+    },
+    {
+      "id": 694823,
+      "file": "captures/[AMP] UBER--m694823.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Noon - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:16:42.51+00:00",
+      "sha256": "8f24eff1b6834bdc5ea64a6bfed491f8208cc05a24706d0a0f0a422613633ddf"
+    },
+    {
+      "id": 694824,
+      "file": "captures/[AMP] UBER--m694824.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Noon - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-07T13:16:42.51+00:00",
+      "sha256": "0628bd979269f8d45ba52663b043429677fd1bd3ccfa0ee0aba1d9b707fbdc81"
+    },
+    {
+      "id": 689747,
+      "file": "captures/[AMP] UBER--m689747.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Striptaser - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-03T11:26:27.251+00:00",
+      "sha256": "05e6e3274a9dc33dbd62717ebce29231e8f37d01b1716fa0ee2f1e5b3bc04d8f"
+    },
+    {
+      "id": 689748,
+      "file": "captures/[AMP] UBER--m689748.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Striptaser - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-03T11:26:27.251+00:00",
+      "sha256": "bdf900154c6380f405738824bf259be32baa367e08a99f9fa7db345f493a0677"
+    },
+    {
+      "id": 689749,
+      "file": "captures/[AMP] UBER--m689749.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Striptaser - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-03T11:26:27.251+00:00",
+      "sha256": "b57649729d9f813bb235fd1f1d6ad125e37f370ec1331afe44635f71716081ab"
+    },
+    {
+      "id": 689750,
+      "file": "captures/[AMP] UBER--m689750.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Striptaser - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-03T11:26:27.251+00:00",
+      "sha256": "a3f2ede9fa94b51aaf1f89eb4231dbfa6b9c0bc9e0435916168880bb1ad2a8c2"
+    },
+    {
+      "id": 689751,
+      "file": "captures/[AMP] UBER--m689751.nam",
+      "name": "[AMP] UBER.BLUE-Mar412-LEAD Striptaser - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-03T11:26:27.251+00:00",
+      "sha256": "a73e7a04d897d32088ca72758d4e66ac609fbb772da74c024089e41c8063c727"
+    },
+    {
+      "id": 689732,
+      "file": "captures/[AMP] UBER--m689732.nam",
+      "name": "[AMP] UBER.BLUE-Mes412-LEAD Striptaser - SM58",
+      "architecture": "2",
+      "createdAt": "2026-08-03T10:49:50.928+00:00",
+      "sha256": "69c85ab74ebed6dfd3a72fb8c74489e4e011b6489dd6f7e76abc38611d19996d"
+    },
+    {
+      "id": 689733,
+      "file": "captures/[AMP] UBER--m689733.nam",
+      "name": "[AMP] UBER.BLUE-Mes412-LEAD Striptaser - SM57",
+      "architecture": "2",
+      "createdAt": "2026-08-03T10:49:50.928+00:00",
+      "sha256": "553e4e8a8fc81f03a8b8f1aad86f106ffc587bef2448e4112820233abfcdcb5e"
+    },
+    {
+      "id": 689734,
+      "file": "captures/[AMP] UBER--m689734.nam",
+      "name": "[AMP] UBER.BLUE-Mes412-LEAD Striptaser - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-08-03T10:49:50.928+00:00",
+      "sha256": "bbb3c269d95846cd734cd6cb9224c90c61c91fdfb50423ecd78de8ec9600d06f"
+    },
+    {
+      "id": 689735,
+      "file": "captures/[AMP] UBER--m689735.nam",
+      "name": "[AMP] UBER.BLUE-Mes412-LEAD Striptaser - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-08-03T10:49:50.928+00:00",
+      "sha256": "4a5fc16884c25c79ed963cde19a3ebb181bff8754853a3407c728cb2f5146dff"
+    },
+    {
+      "id": 689737,
+      "file": "captures/[AMP] UBER--m689737.nam",
+      "name": "[AMP] UBER.BLUE-Mes412-LEAD Striptaser - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-08-03T10:49:50.928+00:00",
+      "sha256": "3b0ace97883a2ba5979854e689b1801d6625f64eba46b2f3fee53d09898cd0b1"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-04T16:03:14.944Z",
+  "tone": {
+    "id": 75141,
+    "title": "Wizard Modern Classic MCII 100W (E34L) \"MultiLoad\" community pack — Amp Head",
+    "description": "🅰️2️⃣ ready \n\nGet the ✨full✨ Wizard Modern Classic MCII 100W (E34L) \"MultiLoad\" pack here:\n\n👉 https://ko-fi.com/2dornam/shop 🙏\n\nThe Wizard Modern Classic MCII 100W is a premium, hand-built boutique tube amplifier crafted in Canada by Rick St. Pierre, long-time tour tech for AC/DC. This amp uses E34L power tubes.\n\n😮 Parametric (PRE, POW) models (Genome) in the full Ko-Fi pack\n\nℹ️ “MultiLoad” - what’s this about?\n\nThe cabinet (or load) a tube amplifier interacts with has a considerable impact on the tone & feel. \nFor this pack, I used 2 iconic cabinets and reamped all settings with each cab.\n\nℹ️ Summary\n\nThis release features a Wizard Modern Classic MCII 100W amp captured using 2 iconic cabinets loading down the amplifier. \n\n✅ All profiles calibrated\n✅ NAM A2 - all profiles trained with A2 from original audio\n☑️ Parametric (PRE and POW) models for Two Notes Genome\n✅ 2 iconic guitar cabs used as loads (no reactive load):\n🟣 Mesa 4x12 OS Straight\n🟣 Marshall 4x12 1960BV with Marshall G12 Vintage speakers\n✅ AMP, PRE & POW profiles for maximum flexibility\n✅ DI and MIC-ed up flavors for each AMP & POW profile\n✅ Custom, extended anti-aliasing signal used for reamping\n✅ High-fidelity, low-noise, linear signal chain for reamping\n✅ Stompbox / OD profiles included\n\nThe full Ko-Fi pack includes:\n\n• 128 x AMP settings (1 x DI and 5 mic-ed up, full-rig flavors for every knob combination used)\n• 72 x POW settings (1 x DI and 5 mic-ed up, full-rig flavors for every knob combination used)\n• 50 x PRE settings\n• 50 x OD pedal settings\n• 6 x parametric PRE (isolated preamp) models for Two Notes Genome\n• 2 x parametric POW (isolated poweramp, DI) models for Two Notes Genome; one for each cabinet (Mesa 4x12 and Marshall 4x12)\n\nTOTAL: over 1,200 individual NAM files + 8 parametric models\n\n✅ Efficiency \n\nStreamlined for users across platforms (Dimehead, Valeton GP-5 etc), AMP & POW profiles offer 6 flavors:\n\n• DI = raw poweramp <-> cab signal tapped with a DI box, no Microphone \n• SM57 = full-rig chain, cab mic-ed with a Shure SM57 on the top-left speaker\n• SM58 = full-rig chain, cab mic-ed with a Shure SM58 on the top-right speaker\n• BLEND #1: full-rig chain, cab mic-ed with 2 mics (Shure SM57 & SM58) blended\n• BLEND #2: full-rig chain, cab mic-ed with 2 mics (Shure SM57 & SM58 @ +4dB) blended\n• BLEND #3: full-rig chain, cab mic-ed with 2 mics (Shure SM57 @ +4dB & SM58) blended\n\n⚙️ Reamp chain details\n\n• RME Fireface UCX II -> Lehle P-SPLIT III -> Wizard Modern Classic MCII 100W -> St.Rock React:IR II (Mesa 4x12 OS Straight / Marshall 4x12 1960BV) -> RME Fireface UCX II\n\n• SEND level: 18.995 dBu\n\nUse the \"Calibration\" feature (video linked) in the NAM plugin to get the most out of these profiles: \n\nhttps://www.neuralampmodeler.com/post/neuralampmodelerplugin-v0-7-12-is-released\n\n• [AMP] = full head (pre & poweramp)\n• [PRE] = preamp only (no poweramp)\n• [POW] = poweramp only (no preamp)\n• [OD] = overdrive pedal\n• STD (A2) = new go-to NAM A2 standard architecture\n• HI = high sensitivity input on amp used\n• LO = low sensitivity input on amp used\n• RT = Rhythm channel\n• RT+ = Rhythm channel with overdrive / boost pedal\n• RTK = Rhythm channel with \"Black Cat\" mod \n• RTK+ = Rhythm channel with \"Black Cat\" mod & overdrive / boost pedal\n• LD = Lead channel\n• LD+ = Lead channel with overdrive / boost pedal\n• TSMINI = Tube Screamer Mini\n• MXRM77 = MXR Custom Badass Modified O.D.\n• FORTIN14 = Fortin Fourteen\n• DWHAMER = PedalPCB Dwarven Hammer\n• DFXKoD = DemonFX King of Drive\n• DFXKLON = DemonFX Centaur\n• DFXDBOOST = DemonFX Dual Boost, Exotic EP mode\n• JR.TheJef = J.Rockett Audio Designs The Jeff Archer\n• GRIND = Fortin Grind\n• ODD = Warm Audio ODD\n• BO$$ = Boss GE-7 Equalizer\n\n📒 Spreadsheet with settings & inspiration for all profiles:\n\nhttps://mega.nz/file/Xx5ynaDC#qIUoRldD2ARVXKxaA3el5ajn_aWlvlnkZ8GZ7txU5EI",
+    "url": "https://www.tone3000.com/tones/wizard-modern-classic-mcii-100w-e34l-multiload-community-pack-amp-head-75141",
+    "format": "nam",
+    "gear": "amp",
+    "license": "t3k",
+    "creator": {
+      "username": "2dor",
+      "displayName": "2dor",
+      "url": "https://www.tone3000.com/2dor"
+    },
+    "makes": [
+      "Modern Classic",
+      "Wizard",
+      "Wizard MCII",
+      "Wizard Modern Classic",
+      "Wizard Modern Classic II"
+    ],
+    "tags": [
+      "clean to mean",
+      "nam"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/xqwi2yf2rz.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 657889,
+      "file": "captures/[AMP] Wzd--m657889.nam",
+      "name": "[AMP] Wzd.MCII100-Mar412-RT-NRM-HI Sleepy Sheriff - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-09T15:41:38.58+00:00",
+      "sha256": "077e2ab6e476957b0009aed394bbb723827f3888fe4d238101a42b497f5b0484"
+    },
+    {
+      "id": 657243,
+      "file": "captures/[AMP] Wzd--m657243.nam",
+      "name": "[AMP] Wzd.MCII100-Mar412-RTK-BST-HI AA Bottom - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-09T07:44:56.984+00:00",
+      "sha256": "2e34554b3d55af61d917714ad89e904bc22bf8abe231a0c603b5de1138e0ce13"
+    },
+    {
+      "id": 655354,
+      "file": "captures/[AMP] Wzd--m655354.nam",
+      "name": "[AMP] Wzd.MCII100-Mar412-LD-BST-HI Bandit Torn - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-08T09:16:07.181+00:00",
+      "sha256": "739bc5daaa7d4f099621bf3f101d3a1ea24427b2a0ed467f369bbcb641695a9d"
+    },
+    {
+      "id": 651702,
+      "file": "captures/[AMP] Wzd--m651702.nam",
+      "name": "[AMP] Wzd.MCII100-Mes412-LD-BST-HI Bandit Torn - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-04T22:03:22.93+00:00",
+      "sha256": "7c8da40bdcd73d66489e84120838cc7acec0000af8060d14b68f60c609974b76"
+    },
+    {
+      "id": 651538,
+      "file": "captures/[AMP] Wzd--m651538.nam",
+      "name": "[AMP] Wzd.MCII100-Mes412-RT-NRM-HI Sleepy Sheriff - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-04T21:49:50.151+00:00",
+      "sha256": "cc11595a6cfd24f7ca3dd723040f9286887cbc2f7ccc2daa1618e8a0803c0573"
+    },
+    {
+      "id": 651517,
+      "file": "captures/[AMP] Wzd--m651517.nam",
+      "name": "[AMP] Wzd.MCII100-Mes412-RTK-BST-HI AA Bottom - DI",
+      "architecture": "2",
+      "createdAt": "2026-07-04T21:49:50.15+00:00",
+      "sha256": "8a583339d8123fc157ed50a1170f24fe6f03476575d028cbf678b5bc0fa9654a"
+    }
+  ]
+}

@@ -17,7 +17,9 @@ test('static distribution contains self-contained plugins and consistent Factory
   const host = await readFile(join(dist, 'main.js'), 'utf8');
   assert.match(host, /\.\/plugins\/nam-wam\/index\.js/);
   assert.match(host, /\.\/plugins\/cabinet-wam\/index\.js/);
+  assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /src="\.\/config\.js"/u);
+  assert.match(await readFile(join(dist, 'config.js'), 'utf8'), /redirectUri/u);
   assert.doesNotMatch(host, /\.\.\/(?:src|examples|build)|\/api\/test-audio-files/);
-  for (const file of ['plugins/nam-wam/tone3000/Tone3000Auth.js', 'plugins/nam-wam/tone3000/Tone3000Client.js']) await stat(join(dist, file));
+  for (const file of ['config.js', 'plugins/nam-wam/tone3000/Tone3000Auth.js', 'plugins/nam-wam/tone3000/Tone3000Client.js', 'plugins/nam-wam/tone3000/Tone3000Downloads.js', 'plugins/nam-wam/tone3000/FactoryBundle.js']) await stat(join(dist, file));
   assert.doesNotMatch(host, /(?:client_secret\s*[:=]\s*['"][^'"]+|secret_key\s*[:=]\s*['"]|t3k_cs_)/i);
 });

@@ -54,7 +54,7 @@ if(EMSCRIPTEN)
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/dist")
   target_link_options(nam_wasm PRIVATE
     -O3 -msimd128 -fwasm-exceptions
-    "-sEXPORTED_FUNCTIONS=['_malloc','_free','_nam_create','_nam_load_model','_nam_process','_nam_reset','_nam_destroy','_nam_input_buffer','_nam_output_buffer','_nam_expected_sample_rate','_nam_last_error']"
+    "-sEXPORTED_FUNCTIONS=['_malloc','_free','_nam_create','_nam_load_model','_nam_set_slimmable_size','_nam_process','_nam_reset','_nam_destroy','_nam_input_buffer','_nam_output_buffer','_nam_expected_sample_rate','_nam_last_error']"
     "-sEXPORTED_RUNTIME_METHODS=['ccall','UTF8ToString']"
     -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createNamModule
     -sENVIRONMENT=node
@@ -73,7 +73,7 @@ if(EMSCRIPTEN)
   target_link_options(nam_worklet PRIVATE
     -O3 -msimd128 -fwasm-exceptions --no-entry
     -sSTANDALONE_WASM=1
-    "-sEXPORTED_FUNCTIONS=['_malloc','_free','_nam_create','_nam_load_model','_nam_process','_nam_reset','_nam_destroy','_nam_input_buffer','_nam_output_buffer','_nam_expected_sample_rate','_nam_last_error','_cabinet_create','_cabinet_load_ir','_cabinet_process','_cabinet_reset','_cabinet_destroy','_cabinet_input_buffer','_cabinet_output_buffer','_cabinet_ir_length','_cabinet_last_error']"
+    "-sEXPORTED_FUNCTIONS=['_malloc','_free','_nam_create','_nam_load_model','_nam_set_slimmable_size','_nam_process','_nam_reset','_nam_destroy','_nam_input_buffer','_nam_output_buffer','_nam_expected_sample_rate','_nam_last_error','_cabinet_create','_cabinet_load_ir','_cabinet_process','_cabinet_reset','_cabinet_destroy','_cabinet_input_buffer','_cabinet_output_buffer','_cabinet_ir_length','_cabinet_last_error']"
     -sFILESYSTEM=0
     -sALLOW_MEMORY_GROWTH=1
     -sASSERTIONS=0)

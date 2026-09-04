@@ -36,8 +36,8 @@ export const defaultRedirectUri = (location = window.location) => {
   return url.href;
 };
 
-export const createSelectUrl = async ({clientId, redirectUri, storage = sessionStorage, options = {},
-  randomValues} = {}) => {
+const createOAuthUrl = async ({clientId, redirectUri, storage = sessionStorage, options = {},
+  randomValues, prompt = 'select_tone'} = {}) => {
   if (!clientId) throw new Error('TONE3000 integration is not configured');
   if (!redirectUri) throw new Error('TONE3000 redirect URI is not configured');
   const verifier = createCodeVerifier(randomValues);
@@ -45,12 +45,18 @@ export const createSelectUrl = async ({clientId, redirectUri, storage = sessionS
   const challenge = await createCodeChallenge(verifier);
   storage.setItem(storageKeys.verifier, verifier);
   storage.setItem(storageKeys.state, state);
-  storage.setItem(storageKeys.pending, 'select_tone');
+  storage.setItem(storageKeys.pending, prompt || 'login');
   const params = new URLSearchParams({client_id: clientId, redirect_uri: redirectUri, response_type: 'code',
-    code_challenge: challenge, code_challenge_method: 'S256', state, prompt: 'select_tone',
-    platform: 'nam', format: 'nam', architecture: '2', ...options});
+    code_challenge: challenge, code_challenge_method: 'S256', state, format: 'nam', architecture: '2'});
+  for (const [key, value] of Object.entries(options)) {
+    if (value == null || value === '') params.delete(key); else params.set(key, String(value));
+  }
+  if (prompt) params.set('prompt', prompt);
   return `${TONE3000_AUTH_URL}?${params}`;
 };
+
+export const createSelectUrl = async (args = {}) => createOAuthUrl({...args, prompt: 'select_tone'});
+export const createLoginUrl = async (args = {}) => createOAuthUrl({...args, prompt: ''});
 
 export const clearOAuthTransaction = (storage = sessionStorage) => {
   Object.values(storageKeys).forEach((key) => storage.removeItem(key));

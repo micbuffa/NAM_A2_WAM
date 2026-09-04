@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-04T15:52:06.732Z",
+  "tone": {
+    "id": 46269,
+    "title": "Soldano SLO 100 (6L6) community pack",
+    "description": "🅰️2️⃣ ready!\nLadies & gentlemen - the mighty Soldano SLO 100 (6L6)\n\nIf you like my work & want to support me, consider grabbing the ✨full✨ Soldano SLO 100 (6L6) NAM pack over here:\n\n👉 https://ko-fi.com/2dornam/shop 🙏\n\nℹ️ Summary\n\nThe pack features the BAD reissue Soldano SLO 100 (6L6 loaded) head captured using a Mesa 4x12 Oversized Straight cabinet loading down the amplifier. \n\n✅ All profiles calibrated\n✅ Real cab (Mesa 4x12 OS straight) used as load (no reactive load)\n✅ AMP, PRE & POW profiles for maximum flexibility\n✅ DI and MIC-ed up flavors for each AMP and POW profile\n✅ STD (A2), STD (A1), REVxSTD and REVyHI architectures\n✅ Extended, anti-aliasing signal leveraged during reamping\n✅ High-fidelity signal chain used during reamping\n✅ Stompbox / OD profiles included\n\nThis full pack includes includes:\n\n• 79 x AMP profiles (1 x DI and 5 mic-ed up, full-rig flavors for every knob combination used)\n• 65 x PRE profiles\n• 25 x POW profiles (1 x DI and 5 mic-ed up, full-rig flavors for every knob combination used)\n• 50 x OD pedal profiles\n\nTOTAL: over 2,800 individual NAM files (across all 4 NAM architectures)\n\n✅ Efficiency \n\nStreamlined for users across platforms (Dimehead, Valeton GP-5 etc), AMP & POW profiles offer 6 flavors:\n\n• DI = raw poweramp <-> cab signal tapped with a DI box, no Microphone \n• SM57 = full-rig chain, cab mic-ed with a Shure SM57 on the top-left speaker\n• SM58 = full-rig chain, cab mic-ed with a Shure SM58 on the top-right speaker\n• BLEND #1: full-rig chain, cab mic-ed with 2 mics (Shure SM57 & SM58) blended\n• BLEND #2: full-rig chain, cab mic-ed with 2 mics (Shure SM57 & SM58 @ +3dB) blended\n• BLEND #3: full-rig chain, cab mic-ed with 2 mics (Shure SM57 @ +3dB & SM58) blended\n\n⚙️ Reamp chain details\n\n• RME Fireface UCX II -> Lehle P-SPLIT III -> Soldano SLO 100 -> St.Rock React:IR II (Mesa 4x12 OS Straight load) -> RME Fireface UCX II\n\n• SEND level: 18.995 dBu\n• RETURN level: 13.195 dBu\n\nUse the \"Calibration\" feature (video linked) in the NAM plugin to get the most out of these profiles: \n\nhttps://www.neuralampmodeler.com/post/neuralampmodelerplugin-v0-7-12-is-released\n\n🏷️ Naming convention summary\n\n• [AMP] = full head (pre & poweramp)\n• [PRE] = preamp section; use a poweramp + IR or tube amp & cab\n• [POW] = poweramp only; use a preamp (and IR if using DI)\n• [OD] = overdrive pedal\n• OVD = Overdrive channel\n• NRM = Normal channel\n• CLN = Normal channel in CLEAN mode\n• CLN = Normal channel in CRUNCH mode\n• STD (A2) = new go-to NAM A2 standard architecture\n• STD (A1) = old standard quality architecture\n• REVxSTD = higher quality architecture (by Rickard Gerthsson)\n• REVyHI = highest quality architecture (by Rickard Gerthsson)\n• TSMINI = Tube Screamer Mini\n• MXRM77 = MXR Custom Badass Modified O.D.\n• FORTIN14 = Fortin Fourteen\n• DWHAMER = PedalPCB Dwarven Hammer\n• DFXKoD = DemonFX King of Drive\n• DFXKLON = DemonFX Centaur\n• DFXDBOOST = DemonFX Dual Boost, Exotic EP mode\n• JR.TheJef = J.Rockett Audio Designs The Jeff Archer\n• GRIND = Fortin Grind\n• ODD = Warm Audio ODD\n• BO$$ = Boss GE-7 Equalizer\n\n📒 Spreadsheet with settings & inspiration for all profiles:\n\nhttps://mega.nz/file/WkxF1BCI#ocixVn-C88EXRRvKLwo5lidOYlMXAmnmvEIufY7mhXc",
+    "url": "https://www.tone3000.com/tones/soldano-slo-100-6l6-community-pack-46269",
+    "format": "nam",
+    "gear": "amp-cab",
+    "license": "t3k",
+    "creator": {
+      "username": "2dor",
+      "displayName": "2dor",
+      "url": "https://www.tone3000.com/2dor"
+    },
+    "makes": [
+      "SLO",
+      "SLO100",
+      "Soldano",
+      "Soldano 100",
+      "Soldano Slo",
+      "Soldano SLO 100",
+      "Soldano Super Lead Overdrive"
+    ],
+    "tags": [
+      "clean to mean",
+      "nam"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/xhmfhdozjm.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 569128,
+      "file": "captures/[AMP] SLO100-NRM-CLN Journeyvan - BLEND #1--m569128.nam",
+      "name": "[AMP] SLO100-NRM-CLN Journeyvan - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "ad51d6afbeb79453fb5a3d4284377f0b03f5c52a842362a40ca9f3cac35efd57"
+    },
+    {
+      "id": 569129,
+      "file": "captures/[POW] SLO100 6L6 Juice #13 - SM57--m569129.nam",
+      "name": "[POW] SLO100 6L6 Juice #13 - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "801f1f7080134f44d100e19695d76e24f3a5d8cf9883968f506dba8cc711dcb5"
+    },
+    {
+      "id": 569130,
+      "file": "captures/[AMP] SLO100-OVD The King - BLEND #3--m569130.nam",
+      "name": "[AMP] SLO100-OVD The King - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "836dc395b3f9126c572fff7e2ffe774c5a6ca898a7c281a90dd4eb0f8158873f"
+    },
+    {
+      "id": 569131,
+      "file": "captures/[AMP] SLO100-NRM-CLN Journeyvan - SM57--m569131.nam",
+      "name": "[AMP] SLO100-NRM-CLN Journeyvan - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "2188fa6881d458e30429b47fbf2e0c098179f008ed788b5b7d04674fe46b41f1"
+    },
+    {
+      "id": 569132,
+      "file": "captures/[AMP] SLO100-NRM-CRN Thing of Joy #01 - SM57--m569132.nam",
+      "name": "[AMP] SLO100-NRM-CRN Thing of Joy #01 - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "90273a8d78fba44251a2217ecd027ece9c88dd22848b2979241fec1637c2754c"
+    },
+    {
+      "id": 569133,
+      "file": "captures/[AMP] SLO100-NRM-CLN Journeyvan - BLEND #2--m569133.nam",
+      "name": "[AMP] SLO100-NRM-CLN Journeyvan - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "bb5a9443a1271acca685e98868889efd6f7c48a9b48b3465b0d8618ea1e271f6"
+    },
+    {
+      "id": 569134,
+      "file": "captures/[AMP] SLO100-NRM-CRN Thing of Joy #01 - BLEND #3--m569134.nam",
+      "name": "[AMP] SLO100-NRM-CRN Thing of Joy #01 - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "bac104bbce623f0d6352f2d5c2414f3c21810f824129419927d5a68d500062cc"
+    },
+    {
+      "id": 569135,
+      "file": "captures/[AMP] SLO100-NRM-CRN Thing of Joy #01 - BLEND #1--m569135.nam",
+      "name": "[AMP] SLO100-NRM-CRN Thing of Joy #01 - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "90f26edde3dd39dd9e81030bc8c458fa3df43be4189511e679eb924901381cf8"
+    },
+    {
+      "id": 569136,
+      "file": "captures/[AMP] SLO100-NRM-CLN Journeyvan - SM58--m569136.nam",
+      "name": "[AMP] SLO100-NRM-CLN Journeyvan - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "1e5644a7776d8bed38c8cf6cf47a80b03255952ca574e9f56cf53ba1a795111b"
+    },
+    {
+      "id": 569137,
+      "file": "captures/[POW] SLO100 6L6 Juice #13 - SM58--m569137.nam",
+      "name": "[POW] SLO100 6L6 Juice #13 - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "916ce89ccce6797eea6acaa8c719affb06a125c5ac8242aaa30e08f6a61cba4e"
+    },
+    {
+      "id": 569138,
+      "file": "captures/[POW] SLO100 6L6 Juice #13 - BLEND #2--m569138.nam",
+      "name": "[POW] SLO100 6L6 Juice #13 - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "660bbb58491200127ba4073748065ef864af48946c782896220b03b035b07c83"
+    },
+    {
+      "id": 569139,
+      "file": "captures/[AMP] SLO100-OVD The King - BLEND #1--m569139.nam",
+      "name": "[AMP] SLO100-OVD The King - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "5995b401fc6628d49cecfd401464efd781dc5df84371a10e054f6b13ab124c1c"
+    },
+    {
+      "id": 569140,
+      "file": "captures/[POW] SLO100 6L6 Juice #13 - BLEND #1--m569140.nam",
+      "name": "[POW] SLO100 6L6 Juice #13 - BLEND #1",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "0ee0c85c65097c566643c1242404e9fd11df5eed9308a8b86ee132e50117b5ca"
+    },
+    {
+      "id": 569141,
+      "file": "captures/[AMP] SLO100-OVD The King - BLEND #2--m569141.nam",
+      "name": "[AMP] SLO100-OVD The King - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "a583e452072b0f7e54fd6457d6accee59f4d96ecaa693208e01f27cf508b59a7"
+    },
+    {
+      "id": 569142,
+      "file": "captures/[AMP] SLO100-OVD The King - SM57--m569142.nam",
+      "name": "[AMP] SLO100-OVD The King - SM57",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "fb5b03c76f7ddd8983ba7c49d0bef345cf5377bc7ee70ed19d0df05b16ac7ec5"
+    },
+    {
+      "id": 569143,
+      "file": "captures/[AMP] SLO100-NRM-CRN Thing of Joy #01 - SM58--m569143.nam",
+      "name": "[AMP] SLO100-NRM-CRN Thing of Joy #01 - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "9f99ceaaf83bc63d6b49fffd94746898593f11ccbcd5d4bff9d7dd1390acd2c3"
+    },
+    {
+      "id": 569144,
+      "file": "captures/[POW] SLO100 6L6 Juice #13 - BLEND #3--m569144.nam",
+      "name": "[POW] SLO100 6L6 Juice #13 - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "79a7171e98e1aeb9d33c8a3a144837eb4b67786af65ad0649949b187c2570f30"
+    },
+    {
+      "id": 569145,
+      "file": "captures/[AMP] SLO100-OVD The King - SM58--m569145.nam",
+      "name": "[AMP] SLO100-OVD The King - SM58",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "6c938afacea28d871f0b6df89d14199adaa6bcd76a07d7e4a5728599b5065734"
+    },
+    {
+      "id": 569146,
+      "file": "captures/[AMP] SLO100-NRM-CRN Thing of Joy #01 - BLEND #2--m569146.nam",
+      "name": "[AMP] SLO100-NRM-CRN Thing of Joy #01 - BLEND #2",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "7a994cf43dd0fded6ae41fba011e9e5c525c3a662ad636d1e2077b59d5835b87"
+    },
+    {
+      "id": 569147,
+      "file": "captures/[AMP] SLO100-NRM-CLN Journeyvan - BLEND #3--m569147.nam",
+      "name": "[AMP] SLO100-NRM-CLN Journeyvan - BLEND #3",
+      "architecture": "2",
+      "createdAt": "2026-06-08T09:21:06.414+00:00",
+      "sha256": "30b6c4866ba70a9a77d6d54c9738632efd9c88b31a39b4c1ebf4651fd85bdba9"
+    }
+  ]
+}

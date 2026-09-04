@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-04T15:48:33.770Z",
+  "tone": {
+    "id": 51649,
+    "title": "Deluxe Reverb '65 Reissue Clean",
+    "description": "Get the full capture pack for this amp here : \nhttps://gindabestari.com/\n\nFender Deluxe Reverb '65 Reissue. Clean Sound. Mic'd with Shure SM57 + Royer Ribbon R-121 + Universal Audio OX for Mono Room Sound (Neumann U67 Modeling in OX)\n\n3 Models Available to Download. Closed Mics with Room, Closed Mics without Room and Room Sound only, so you can blend it in post.\n\nModels :\n- Fender DRRI | Clean | SM57 + Royer R-121 + Room | Full Rig\n- Fender DRRI | Clean | SM57 + Royer R-121 (No Room) | Full Rig\n- Fender DRRI | Clean | Room Only | Full Rig\n- Fender DRRI | Clean | DI Capture No Cab\n\nNEW VERSION Update :\n- The Noise Floor is Lower Than The Previous Version\n- Higher Epochs Than The Previous Version\n- Better Transient Response\n- I Turned Down the Room Level on Microphones Blend (57+121+Room)\n- I Added DI Capture (No Cab)\n\nAmp Setting :\n- Vibrato Channel\n- Volume 3, Bass 5, Treble 7\n\nSpeaker :\n- 12\" Jensen® C-12K Speaker\n\nMicrophones :\n- Shure SM57\n- Royer R-121\n- Universal Audio OX (Neumann U67 Microphone Modeling for Mono Room Sound)\n\nAudio Interface, Studio Outboard & Cables:\n- Great River ME-1NV Mic Pre (for SM57)\n- Cranborne Audio EC1 Mic Pre (for Royer R-121)\n- Little Labs Redeye 3D Phantom Direct Box & Re-Amp Box\n- Universal Audio Apollo Twin Audio Interface\n- Evidence Audio Lyric HG Instrument Cables\n- Mogami 2549 Microphone Cables\n\nEnjoy :)",
+    "url": "https://www.tone3000.com/tones/deluxe-reverb-65-reissue-clean-51649",
+    "format": "nam",
+    "gear": "amp-cab",
+    "license": "t3k",
+    "creator": {
+      "username": "gindabestari",
+      "displayName": null,
+      "url": "https://www.tone3000.com/gindabestari"
+    },
+    "makes": [
+      "Fender Deluxe Reverb",
+      "Fender Deluxe Reverb 65 Reissue"
+    ],
+    "tags": [
+      "classic fender clean",
+      "clean",
+      "clean tone",
+      "fender",
+      "fender blackface deluxe",
+      "fenderish",
+      "nam",
+      "royer 121",
+      "sm57"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/4qtvd3wr1ue.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 383470,
+      "file": "captures/NEW VERSION Fender DRRI Clean Room Only Full Rig--m383470.nam",
+      "name": "NEW VERSION | Fender DRRI | Clean | Room Only | Full Rig",
+      "architecture": "2",
+      "createdAt": "2026-05-04T22:22:16.229469+00:00",
+      "sha256": "96356f35cb734c77618a1812990a92b933af44b723b780dbf293827387def8f6"
+    },
+    {
+      "id": 383469,
+      "file": "captures/NEW VERSION Fender DRRI Clean SM57 + Royer R-121 (No Room) Full Rig--m383469.nam",
+      "name": "NEW VERSION | Fender DRRI | Clean | SM57 + Royer R-121 (No Room) | Full Rig",
+      "architecture": "2",
+      "createdAt": "2026-05-04T22:22:15.643909+00:00",
+      "sha256": "e710cbec88b07e239e45c38c1cae90178d3d65c6ca4336185893209dfb84b5b1"
+    },
+    {
+      "id": 383468,
+      "file": "captures/NEW VERSION Fender DRRI Clean SM57 + Royer R-121 + Room Full Rig--m383468.nam",
+      "name": "NEW VERSION | Fender DRRI | Clean | SM57 + Royer R-121 + Room | Full Rig",
+      "architecture": "2",
+      "createdAt": "2026-05-04T22:22:14.750488+00:00",
+      "sha256": "6dce5367943b3b7cdf655eb23c472c7561588da2d6925fa21b368e6c57d90abc"
+    },
+    {
+      "id": 383455,
+      "file": "captures/Fender DRRI Clean SM57 + Royer R-121 (No Room) Full Rig--m383455.nam",
+      "name": "Fender DRRI | Clean | SM57 + Royer R-121 (No Room) | Full Rig",
+      "architecture": "2",
+      "createdAt": "2026-05-04T22:22:05.71764+00:00",
+      "sha256": "aaa6b958ebc2af1a2b745a9d2233edfa9f42d60e1f83d33696f4aae0e4d4b473"
+    },
+    {
+      "id": 383454,
+      "file": "captures/Fender DRRI Clean Room Only Full Rig--m383454.nam",
+      "name": "Fender DRRI | Clean | Room Only | Full Rig",
+      "architecture": "2",
+      "createdAt": "2026-05-04T22:22:04.803575+00:00",
+      "sha256": "ae92a8f3a2f243debfa070f38dc9651677b2694839be50747bc16174f3e97678"
+    },
+    {
+      "id": 383453,
+      "file": "captures/Fender DRRI Clean SM57 + Royer R-121 + Room Full Rig--m383453.nam",
+      "name": "Fender DRRI | Clean | SM57 + Royer R-121 + Room | Full Rig",
+      "architecture": "2",
+      "createdAt": "2026-05-04T22:22:04.180982+00:00",
+      "sha256": "ad977895c8e8c82f6a7c04f82ed472ccc8dab802e0c2903493588392e7817011"
+    }
+  ]
+}
