@@ -19,6 +19,10 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
 
 test('NAM GUI is container-scoped and keeps compact source/details drawers', async () => {
   const gui = await read('src/nam-wam/gui.js');
+  assert.match(gui, /const neuralWampLogoMarkup = `\s*<svg class="module-logo"/u);
+  assert.match(gui, /role="img" aria-label="NeuralWAMp"/u);
+  assert.match(gui, /\$\{neuralWampLogoMarkup\}/u);
+  await access(new URL('../../src/nam-wam/neuralwamp-logo.svg', import.meta.url));
   assert.match(gui, /class="drawer modelDrawer"/u);
   assert.match(gui, /class="drawer detailsDrawer"/u);
   for (const source of ['Factory', 'Favorites', 'External', 'TONE3000']) assert.match(gui, new RegExp(`data-source="${source}"`, 'u'));

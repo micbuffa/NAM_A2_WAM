@@ -23,6 +23,15 @@ const knobMarkup = (id, label, min, max, step, value, unit = '', size = 'normal'
     <output class="${id}Value" data-unit="${unit}">${value}${unit}</output>
   </label>`;
 
+const neuralWampLogoMarkup = `
+  <svg class="module-logo" viewBox="0 0 126 40" role="img" aria-label="NeuralWAMp">
+    <rect class="logo-badge" x="1" y="2" width="36" height="36" rx="10"/>
+    <path class="logo-wave" d="M6 23h4c2.8 0 2.8-11 5.6-11s2.8 17 5.7 17c2.8 0 2.8-13 5.6-13s2.8 7 5.6 7H36"/>
+    <g class="logo-nodes"><circle cx="10" cy="23" r="2.1"/><circle cx="15.6" cy="12" r="2.1"/><circle cx="21.3" cy="29" r="2.1"/><circle cx="26.9" cy="16" r="2.1"/><circle cx="32.5" cy="23" r="2.1"/></g>
+    <g class="logo-word"><path d="M44 10l5 20 6-13 6 13 5-20"/><path d="M69 30l8-20 8 20M72.5 22h9"/><path d="M90 30V10l9 14 9-14v20"/></g>
+    <path class="logo-p" d="M114 31V17h5.3c3.8 0 5.7 2.1 5.7 5.1s-2 5.1-5.7 5.1H114m4.4-6.9h.8c1.3 0 1.9.6 1.9 1.8s-.6 1.8-1.9 1.8h-.8"/>
+  </svg>`;
+
 const getToneImageUrl = (tone) => {
   const candidate = Array.isArray(tone?.images) ? tone.images.find((image) => typeof image === 'string' && image.trim()) : '';
   if (!candidate) return '';
@@ -61,11 +70,11 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui button { min-height:34px; padding:0 12px; cursor:pointer } nam-a2-gui button:hover { border-color:#776b91;background:#1d1a24 }
         nam-a2-gui button:focus-visible,nam-a2-gui input:focus-visible,nam-a2-gui select:focus-visible,nam-a2-gui summary:focus-visible { outline:2px solid var(--nam-accent);outline-offset:2px }
         nam-a2-gui .nam-module { overflow:hidden; background:linear-gradient(145deg,#25232b,#17171c 55%,#121217); border:1px solid #403b49; border-radius:15px; box-shadow:0 18px 44px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.04);transition:background .18s,border-color .18s,filter .18s }
-        nam-a2-gui .nam-module.is-bypassed { background:linear-gradient(145deg,#352126,#21171a 55%,#171114);border-color:#b45160;filter:saturate(.72) } nam-a2-gui .nam-module.is-bypassed .module-head { background:#351b21;border-bottom-color:#723743 } nam-a2-gui .nam-module.is-bypassed .module-mark { color:#ffe8eb;background:#c75060;box-shadow:0 0 18px rgba(220,88,104,.35) } nam-a2-gui .nam-module.is-bypassed .bypass-label { color:#ffb2bc;font-weight:850 }
-        nam-a2-gui .module-head { display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid #393540;background:rgba(9,9,12,.28) }
-        nam-a2-gui .module-title { display:flex;align-items:center;gap:10px;min-width:0 } nam-a2-gui .module-mark { display:grid;place-items:center;width:31px;height:31px;color:#17131d;background:var(--nam-accent);border-radius:8px;font-weight:900;box-shadow:0 0 18px rgba(166,136,255,.22) }
-        nam-a2-gui .module-name-row { display:flex;align-items:baseline;gap:7px;min-width:0 } nam-a2-gui h2 { margin:0;font-size:16px;letter-spacing:.02em } nam-a2-gui .module-author { color:#a99bc0;font-size:9px;font-weight:700;text-decoration:none;white-space:nowrap } nam-a2-gui .module-author:hover { color:#d9ccf0;text-decoration:underline } nam-a2-gui .module-subtitle { display:block;color:#898391;font-size:9px;letter-spacing:.15em;text-transform:uppercase }
-        nam-a2-gui .bypass-label { display:flex;align-items:center;gap:7px;color:#aaa3b4;font-size:10px;letter-spacing:.08em;text-transform:uppercase } nam-a2-gui .bypass { accent-color:var(--nam-accent) }
+        nam-a2-gui .nam-module.is-bypassed { background:linear-gradient(145deg,#352126,#21171a 55%,#171114);border-color:#b45160;filter:saturate(.72) } nam-a2-gui .nam-module.is-bypassed .module-head { background:#351b21;border-bottom-color:#723743 } nam-a2-gui .nam-module.is-bypassed .module-logo { filter:hue-rotate(72deg) saturate(1.45);opacity:.9 } nam-a2-gui .nam-module.is-bypassed .bypass-label { color:#ffb2bc;font-weight:850 }
+        nam-a2-gui .module-head { display:grid;grid-template-columns:94px minmax(0,1fr) 94px;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid #393540;background:rgba(9,9,12,.28) }
+        nam-a2-gui .module-logo { display:block;width:94px;height:31px;overflow:visible;justify-self:start;filter:drop-shadow(0 0 7px rgba(166,136,255,.2));transition:filter .18s,opacity .18s } nam-a2-gui .logo-badge { fill:#17131d;stroke:#6f58aa } nam-a2-gui .logo-wave { fill:none;stroke:#a688ff;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round } nam-a2-gui .logo-nodes { fill:#e8e0ff;stroke:#6f58aa;stroke-width:1 } nam-a2-gui .logo-word { fill:none;stroke:#eee9ff;stroke-width:5.2;stroke-linecap:round;stroke-linejoin:round } nam-a2-gui .logo-p { fill:none;stroke:#a688ff;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round }
+        nam-a2-gui .module-identity { min-width:0;text-align:center } nam-a2-gui .module-name-row { display:flex;align-items:baseline;justify-content:center;min-width:0 } nam-a2-gui h2 { margin:0;font-size:16px;letter-spacing:.02em } nam-a2-gui .module-author { display:block;margin-top:2px;color:#a99bc0;font-size:9px;font-weight:700;text-decoration:none;white-space:nowrap } nam-a2-gui .module-author:hover { color:#d9ccf0;text-decoration:underline } nam-a2-gui .module-subtitle { display:block;color:#898391;font-size:9px;letter-spacing:.15em;text-transform:uppercase }
+        nam-a2-gui .bypass-label { display:flex;align-items:center;justify-self:end;gap:7px;color:#aaa3b4;font-size:10px;letter-spacing:.08em;text-transform:uppercase } nam-a2-gui .bypass { accent-color:var(--nam-accent) }
         nam-a2-gui .signal-flow { display:flex;align-items:center;justify-content:center;gap:4px;overflow-x:auto;padding:8px 10px;border-bottom:1px solid #34303b;background:#111016;scrollbar-width:thin }
         nam-a2-gui .flow-stage { display:flex;align-items:center;gap:5px;min-width:max-content;padding:4px 6px;color:#ded7e8;background:#24202b;border:1px solid #4c435b;border-radius:999px;font-size:8px;font-weight:850;letter-spacing:.07em;text-transform:uppercase;transition:opacity .15s,border-color .15s,background .15s }
         nam-a2-gui .flow-stage::before { content:'';width:5px;height:5px;background:#8fdc9d;border-radius:50%;box-shadow:0 0 6px rgba(103,227,154,.45) } nam-a2-gui .flow-stage.amp { color:#eee6ff;background:#302544;border-color:#70579a } nam-a2-gui .flow-stage.eq { color:#ffd28c;background:#332716;border-color:#806130 } nam-a2-gui .flow-stage.tone { color:#bbf0cf;background:#182a20;border-color:#3b684c }
@@ -114,7 +123,7 @@ class NamA2Gui extends HTMLElement {
       </style>
       <section class="nam-module">
         <header class="module-head">
-          <div class="module-title"><span class="module-mark">N</span><div><div class="module-name-row"><h2>NeuralWAMp</h2><a class="module-author" href="https://github.com/micbuffa" target="_blank" rel="noopener noreferrer">by @micbuffa</a></div><span class="module-subtitle">NAM A2 neural amplifier</span></div></div>
+          ${neuralWampLogoMarkup}<div class="module-identity"><div class="module-name-row"><h2>NeuralWAMp</h2></div><span class="module-subtitle">NAM A2 neural amplifier</span><a class="module-author" href="https://github.com/micbuffa" target="_blank" rel="noopener noreferrer">by @micbuffa</a></div>
           <label class="bypass-label"><input class="bypass" type="checkbox"> Bypass</label>
         </header>
         <div class="signal-flow" role="img" aria-label="Signal path"></div>
