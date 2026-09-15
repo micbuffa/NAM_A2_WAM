@@ -32,6 +32,10 @@ button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity:
 .host-range input { grid-column: 1 / -1; width: 100%; accent-color: var(--host-accent); }
 .host-range output { color: #d7d0e5; font-variant-numeric: tabular-nums; }
 .host-help { margin: 8px 0 0; color: #777180; font-size: 10px; line-height: 1.35; }
+.embedded-player { margin-top: 10px; padding: 10px; background: #131218; border: 1px solid #34303d; border-radius: 9px; }
+.embedded-player[hidden] { display: none; }
+.embedded-player-title { display: flex; align-items: center; gap: 7px; margin: 0 0 9px; color: #aaa4b4; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.embedded-player > .host-range { display: grid; gap: 5px; margin-top: 9px; color: #aaa4b4; font-size: 11px; }
 .transport { display: grid; grid-template-columns: repeat(3, 36px) 1fr; gap: 6px; align-items: center; }
 .transport button { padding: 0; }
 .loop-control { justify-self: end; color: #aaa4b4; font-size: 11px; white-space: nowrap; }
@@ -40,6 +44,7 @@ button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity:
 .host-session-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
 .host-session-actions button { padding: 0 6px; font-size: 11px; }
 .validation-panel { margin-top: 10px; }
+.validation-panel code { color: #c6b9ed; font: inherit; }
 .validation-panel pre { max-height: 220px; overflow: auto; padding: 8px; color: #a9d7b0; background: #0c0d0f; border-radius: 7px; font: 10px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; }
 .host-status { position: sticky; bottom: -1px; z-index: 2; margin: 14px 0 0; padding: 10px; color: #aaa4b4; background: rgba(17,17,22,.96); border: 1px solid #302d39; border-radius: 9px; font-size: 11px; line-height: 1.4; }
 .host-status.error { color: #ff9fae; border-color: #7f3c4c; }

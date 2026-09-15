@@ -18,33 +18,28 @@
       <section class="host-card" aria-labelledby="source-title">
         <h2 id="source-title"><span class="host-dot violet"></span>Audio source</h2>
         <label>Source <select id="audioSource"><option>Live input</option></select></label>
+        <div class="embedded-player" id="playerPanel" hidden>
+          <p class="embedded-player-title"><span class="host-dot amber"></span>Audio player</p>
+          <div class="transport" role="group" aria-label="Audio transport">
+            <button class="player-control" id="play" type="button" aria-label="Play">▶</button>
+            <button class="player-control" id="pause" type="button" aria-label="Pause">Ⅱ</button>
+            <button class="player-control" id="stop" type="button" aria-label="Stop">■</button>
+            <label class="loop-control"><input class="player-control" id="loop" type="checkbox"> Loop</label>
+          </div>
+          <label class="host-range">Position
+            <input class="player-control" id="seek" type="range" min="0" max="1" step="0.001" value="0">
+          </label>
+          <audio id="player" preload="metadata"></audio>
+        </div>
         <label>Input device <select id="inputDevice"></select></label>
+        <label>Output device <select id="outputDevice"><option value="">System default</option></select></label>
+        <button class="host-secondary" id="authorizeOutput" type="button">Choose output</button>
+        <p class="host-help" id="outputSupport"></p>
         <button class="host-secondary" id="enableLive" type="button">Enable live input</button>
         <label class="host-range">Source trim <output id="sourceTrimValue">0.0 dB</output>
           <input id="sourceTrim" type="range" min="-48" max="12" step="0.5" value="0">
         </label>
         <p class="host-help" id="discovery"></p>
-      </section>
-
-      <section class="host-card" aria-labelledby="player-title">
-        <h2 id="player-title"><span class="host-dot amber"></span>Audio player</h2>
-        <div class="transport" role="group" aria-label="Audio transport">
-          <button class="player-control" id="play" type="button" aria-label="Play">▶</button>
-          <button class="player-control" id="pause" type="button" aria-label="Pause">Ⅱ</button>
-          <button class="player-control" id="stop" type="button" aria-label="Stop">■</button>
-          <label class="loop-control"><input class="player-control" id="loop" type="checkbox"> Loop</label>
-        </div>
-        <label class="host-range">Position
-          <input class="player-control" id="seek" type="range" min="0" max="1" step="0.001" value="0">
-        </label>
-        <audio id="player" preload="metadata"></audio>
-      </section>
-
-      <section class="host-card" aria-labelledby="output-title">
-        <h2 id="output-title"><span class="host-dot rose"></span>Audio output</h2>
-        <label>Output device <select id="outputDevice"><option value="">System default</option></select></label>
-        <button class="host-secondary" id="authorizeOutput" type="button">Choose output</button>
-        <p class="host-help" id="outputSupport"></p>
       </section>
 
       <details class="host-card host-advanced">
@@ -55,7 +50,8 @@
         </div>
         <span class="host-help" id="stateSize"></span>
         <details class="validation-panel">
-          <summary>Automated validation output</summary>
+          <summary>Automated test results</summary>
+          <p class="host-help">Diagnostic report generated only when this page is opened with <code>?auto=1</code>.</p>
           <pre id="automatedResult"></pre>
         </details>
       </details>

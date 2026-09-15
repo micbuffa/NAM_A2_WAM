@@ -9,7 +9,11 @@ const dist = join(root, 'dist/NAM_A2_WAM');
 test('static distribution contains self-contained plugins and consistent Factory assets', async () => {
   for (const file of ['index.html', 'host.css', 'main.js', 'plugins/nam-wam/index.js', 'plugins/cabinet-wam/index.js',
     'plugins/nam-wam/nam-simd.wasm', 'plugins/cabinet-wam/nam-simd.wasm',
-    'plugins/nam-wam/neuralwamp-logo.svg']) await stat(join(dist, file));
+    'plugins/nam-wam/neuralwamp-logo.svg', 'plugins/nam-wam/ImageNAM_A2_WAM.jpeg']) await stat(join(dist, file));
+  const descriptor = JSON.parse(await readFile(join(dist, 'plugins/nam-wam/descriptor.json'), 'utf8'));
+  assert.equal(descriptor.thumbnail, 'ImageNAM_A2_WAM.jpeg');
+  assert.deepEqual(await readFile(join(dist, 'plugins/nam-wam', descriptor.thumbnail)),
+    await readFile(join(root, 'docs/screenshots/ImageNAM_A2_WAM.jpeg')));
   const nam = JSON.parse(await readFile(join(dist, 'plugins/nam-wam/models-manifest.json')));
   const irs = JSON.parse(await readFile(join(dist, 'plugins/cabinet-wam/irs-manifest.json')));
   assert.ok(nam.assets.length > 0 && irs.assets.length > 0);

@@ -74,6 +74,7 @@ function syncSourceTrim() {
 
 function setPlayerEnabled(enabled) {
   for (const control of document.querySelectorAll('.player-control')) control.disabled = !enabled;
+  $('#playerPanel').hidden = !enabled;
   $('#inputDevice').disabled = enabled;
   $('#enableLive').disabled = enabled;
 }

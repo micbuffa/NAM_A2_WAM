@@ -11,6 +11,7 @@ const maintainerStorageKey = 'nam-a2-wam.tone3000.maintainer-kind';
 const modelVariantStorageKey = 'nam-a2-wam.model-variant';
 const autoLevelStorageKey = 'nam-a2-wam.auto-level';
 const measuredLevelsStorageKey = 'nam-a2-wam.measured-levels.v1';
+const defaultFactoryToneId = 80705; // Bogner Uberschall Rev Blue (E34L)
 const EQ_BANDS = [
   {index:1, name:'Low', type:'Low shelf', frequency:100, q:.71}, {index:2, name:'Mud', type:'Bell', frequency:250, q:1},
   {index:3, name:'Box', type:'Bell', frequency:650, q:1}, {index:4, name:'Presence', type:'Bell', frequency:1600, q:1},
@@ -42,6 +43,7 @@ const getToneImageUrl = (tone) => {
 };
 
 const factoryImageUrl = (asset) => asset?.imagePath ? factoryAssetUrl(manifestUrl,'models',asset.imagePath).href : '';
+const captureCountLabel = (count) => `${count} capture${count===1?'':'s'} disponible${count===1?'':'s'}`;
 const factoryProvenance = (asset) => ({
   ...(asset.provenance || {}), identity: asset.id, source: 'Factory',
   provider: asset.provenance?.provider || 'Local', title: asset.provenance?.title || asset.metadata?.name || asset.displayName,
@@ -71,44 +73,48 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui button:focus-visible,nam-a2-gui input:focus-visible,nam-a2-gui select:focus-visible,nam-a2-gui summary:focus-visible { outline:2px solid var(--nam-accent);outline-offset:2px }
         nam-a2-gui .nam-module { overflow:hidden; background:linear-gradient(145deg,#25232b,#17171c 55%,#121217); border:1px solid #403b49; border-radius:15px; box-shadow:0 18px 44px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.04);transition:background .18s,border-color .18s,filter .18s }
         nam-a2-gui .nam-module.is-bypassed { background:linear-gradient(145deg,#352126,#21171a 55%,#171114);border-color:#b45160;filter:saturate(.72) } nam-a2-gui .nam-module.is-bypassed .module-head { background:#351b21;border-bottom-color:#723743 } nam-a2-gui .nam-module.is-bypassed .module-logo { filter:hue-rotate(72deg) saturate(1.45);opacity:.9 } nam-a2-gui .nam-module.is-bypassed .bypass-label { color:#ffb2bc;font-weight:850 }
-        nam-a2-gui .module-head { display:grid;grid-template-columns:94px minmax(0,1fr) 94px;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid #393540;background:rgba(9,9,12,.28) }
-        nam-a2-gui .module-logo { display:block;width:94px;height:31px;overflow:visible;justify-self:start;filter:drop-shadow(0 0 7px rgba(166,136,255,.2));transition:filter .18s,opacity .18s } nam-a2-gui .logo-badge { fill:#17131d;stroke:#6f58aa } nam-a2-gui .logo-wave { fill:none;stroke:#a688ff;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round } nam-a2-gui .logo-nodes { fill:#e8e0ff;stroke:#6f58aa;stroke-width:1 } nam-a2-gui .logo-word { fill:none;stroke:#eee9ff;stroke-width:5.2;stroke-linecap:round;stroke-linejoin:round } nam-a2-gui .logo-p { fill:none;stroke:#a688ff;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round }
-        nam-a2-gui .module-identity { min-width:0;text-align:center } nam-a2-gui .module-name-row { display:flex;align-items:baseline;justify-content:center;min-width:0 } nam-a2-gui h2 { margin:0;font-size:16px;letter-spacing:.02em } nam-a2-gui .module-author { display:block;margin-top:2px;color:#a99bc0;font-size:9px;font-weight:700;text-decoration:none;white-space:nowrap } nam-a2-gui .module-author:hover { color:#d9ccf0;text-decoration:underline } nam-a2-gui .module-subtitle { display:block;color:#898391;font-size:9px;letter-spacing:.15em;text-transform:uppercase }
-        nam-a2-gui .bypass-label { display:flex;align-items:center;justify-self:end;gap:7px;color:#aaa3b4;font-size:10px;letter-spacing:.08em;text-transform:uppercase } nam-a2-gui .bypass { accent-color:var(--nam-accent) }
-        nam-a2-gui .signal-flow { display:flex;align-items:center;justify-content:center;gap:4px;overflow-x:auto;padding:8px 10px;border-bottom:1px solid #34303b;background:#111016;scrollbar-width:thin }
-        nam-a2-gui .flow-stage { display:flex;align-items:center;gap:5px;min-width:max-content;padding:4px 6px;color:#ded7e8;background:#24202b;border:1px solid #4c435b;border-radius:999px;font-size:8px;font-weight:850;letter-spacing:.07em;text-transform:uppercase;transition:opacity .15s,border-color .15s,background .15s }
-        nam-a2-gui .flow-stage::before { content:'';width:5px;height:5px;background:#8fdc9d;border-radius:50%;box-shadow:0 0 6px rgba(103,227,154,.45) } nam-a2-gui .flow-stage.amp { color:#eee6ff;background:#302544;border-color:#70579a } nam-a2-gui .flow-stage.eq { color:#ffd28c;background:#332716;border-color:#806130 } nam-a2-gui .flow-stage.tone { color:#bbf0cf;background:#182a20;border-color:#3b684c }
-        nam-a2-gui .flow-stage.off { color:#756f7c;background:#16151a;border-color:#302d35;text-decoration:line-through;opacity:.62 } nam-a2-gui .flow-stage.off::before { background:#716a77;box-shadow:none } nam-a2-gui .flow-stage small { color:inherit;font-size:7px;opacity:.72 } nam-a2-gui .flow-arrow { color:#655d6d;font-size:10px }
-        nam-a2-gui .signal-strip { display:grid;grid-template-columns:44px minmax(96px,.65fr) minmax(180px,1.45fr) minmax(96px,.65fr) 44px;gap:12px;align-items:center;padding:18px 16px }
+        nam-a2-gui .module-head { display:grid;grid-template-columns:80px minmax(0,1fr) 80px;align-items:center;gap:6px;padding:7px 12px;border-bottom:1px solid #393540;background:rgba(9,9,12,.28) }
+        nam-a2-gui .module-logo { display:block;width:78px;height:25px;overflow:visible;justify-self:start;filter:drop-shadow(0 0 5px rgba(166,136,255,.2));transition:filter .18s,opacity .18s } nam-a2-gui .logo-badge { fill:#17131d;stroke:#6f58aa } nam-a2-gui .logo-wave { fill:none;stroke:#a688ff;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round } nam-a2-gui .logo-nodes { fill:#e8e0ff;stroke:#6f58aa;stroke-width:1 } nam-a2-gui .logo-word { fill:none;stroke:#eee9ff;stroke-width:5.2;stroke-linecap:round;stroke-linejoin:round } nam-a2-gui .logo-p { fill:none;stroke:#a688ff;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round }
+        nam-a2-gui .module-identity { min-width:0;text-align:center;line-height:1.15 } nam-a2-gui .module-name-row { display:flex;align-items:baseline;justify-content:center;min-width:0 } nam-a2-gui h2 { margin:0;font-size:14px;letter-spacing:.02em } nam-a2-gui .module-author { display:block;margin-top:1px;color:#a99bc0;font-size:7px;font-weight:700;text-decoration:none;white-space:nowrap } nam-a2-gui .module-author:hover { color:#d9ccf0;text-decoration:underline } nam-a2-gui .module-subtitle { display:block;color:#898391;font-size:7px;letter-spacing:.12em;text-transform:uppercase }
+        nam-a2-gui .bypass-label { display:flex;align-items:center;justify-self:end;gap:5px;color:#aaa3b4;font-size:8px;letter-spacing:.07em;text-transform:uppercase } nam-a2-gui .bypass { width:13px;height:13px;margin:0;accent-color:var(--nam-accent) }
+        nam-a2-gui .signal-flow { display:flex;align-items:center;justify-content:center;gap:3px;overflow-x:auto;padding:4px 8px;border-bottom:1px solid #34303b;background:#111016;scrollbar-width:thin }
+        nam-a2-gui .flow-stage { display:flex;align-items:center;gap:4px;min-width:max-content;padding:2px 5px;color:#ded7e8;background:#24202b;border:1px solid #4c435b;border-radius:999px;font-size:7px;font-weight:850;line-height:1.15;letter-spacing:.06em;text-transform:uppercase;transition:opacity .15s,border-color .15s,background .15s }
+        nam-a2-gui .flow-stage::before { content:'';width:4px;height:4px;background:#8fdc9d;border-radius:50%;box-shadow:0 0 5px rgba(103,227,154,.45) } nam-a2-gui .flow-stage.amp { color:#eee6ff;background:#302544;border-color:#70579a } nam-a2-gui .flow-stage.eq { color:#ffd28c;background:#332716;border-color:#806130 } nam-a2-gui .flow-stage.tone { color:#bbf0cf;background:#182a20;border-color:#3b684c }
+        nam-a2-gui .flow-stage.off { color:#756f7c;background:#16151a;border-color:#302d35;text-decoration:line-through;opacity:.62 } nam-a2-gui .flow-stage.off::before { background:#716a77;box-shadow:none } nam-a2-gui .flow-stage small { color:inherit;font-size:6px;opacity:.72 } nam-a2-gui .flow-arrow { color:#655d6d;font-size:8px }
+        nam-a2-gui .signal-strip { display:grid;grid-template-columns:32px 58px minmax(0,1fr) 32px;gap:8px;align-items:center;margin:10px 12px 12px;padding:10px 8px;border:1px solid #393541;border-radius:14px;background:rgba(8,8,11,.16);transition:border-color .16s ease-out,box-shadow .2s ease-out }
+        nam-a2-gui .meter[data-meter=input] { grid-column:1;grid-row:1 } nam-a2-gui .noise-side { grid-column:2;grid-row:1 } nam-a2-gui .meter[data-meter=output] { grid-column:4;grid-row:1 }
+        nam-a2-gui .noise-side { display:grid;justify-items:center;align-content:center;gap:10px;min-width:0 } nam-a2-gui .noise-side .knob-shell { width:28px;height:28px } nam-a2-gui .noise-side .knob-face { inset:2px } nam-a2-gui .noise-side .knob-pointer { top:3px;height:7px;transform-origin:50% 10px } nam-a2-gui .noise-side .knob-control { font-size:8px;transition:opacity .16s } nam-a2-gui .noise-side .knob-control output { font-size:9px } nam-a2-gui .noise-side.is-disabled .knob-control { opacity:.38 } nam-a2-gui .noise-side .knob-input:disabled { cursor:not-allowed }
         nam-a2-gui .meter { display:grid;grid-template-rows:auto 96px auto;justify-items:center;gap:5px;min-width:0 } nam-a2-gui .meter-label { color:#9a94a1;font-size:9px;font-weight:800;letter-spacing:.14em }
         nam-a2-gui .meter-track { position:relative;width:10px;height:96px;overflow:hidden;background:#08090a;border:1px solid #45404a;border-radius:7px }
         nam-a2-gui .meter-fill { position:absolute;inset:auto 0 0;height:0;background:linear-gradient(0deg,#58c66a 0 68%,#e1bb4c 84%,#e45b66 100%);transition:height 80ms linear }
         nam-a2-gui .clip { color:#68636f;font-size:8px;font-weight:800 } nam-a2-gui .clip.active { color:#ff6472 }
         nam-a2-gui .meter-values { position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0) }
         nam-a2-gui .knob-control { display:grid;justify-items:center;gap:5px;min-width:0;color:#9e98a7;font-size:9px;font-weight:750;text-align:center;text-transform:uppercase;letter-spacing:.08em;user-select:none } nam-a2-gui .knob-shell { position:relative;display:block;width:62px;height:62px } nam-a2-gui .knob-face { position:absolute;inset:3px;border:1px solid #5a5364;border-radius:50%;background:radial-gradient(circle at 38% 30%,#4b4653 0 7%,#292630 35%,#111116 72%);box-shadow:inset 0 0 0 4px #18171c,0 5px 12px rgba(0,0,0,.38) } nam-a2-gui .knob-face::before { content:'';position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(from 225deg,var(--nam-accent) var(--knob-sweep,135deg),#3c3744 0 270deg,transparent 0);mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 0) } nam-a2-gui .knob-pointer { position:absolute;left:50%;top:7px;width:2px;height:18px;background:#eee9f6;border-radius:2px;transform:translateX(-50%) rotate(var(--knob-angle,0deg));transform-origin:50% 21px;box-shadow:0 0 4px rgba(255,255,255,.4) } nam-a2-gui .knob-input { position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ns-resize;touch-action:none } nam-a2-gui .knob-control:focus-within .knob-face { outline:2px solid var(--nam-accent);outline-offset:3px } nam-a2-gui .knob-control output { color:#f2edf8;font-size:11px;font-weight:750;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums }
-        nam-a2-gui .tone-strip { display:grid;grid-template-columns:auto repeat(4,minmax(62px,1fr)) auto;gap:12px;align-items:center;padding:14px 16px;border-top:1px solid #393540;background:rgba(9,9,12,.24) } nam-a2-gui .section-switch { display:grid;justify-items:center;gap:5px;color:#aaa3b4;font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase } nam-a2-gui .section-switch input { accent-color:var(--nam-accent) } nam-a2-gui .eqButton[aria-expanded=true] { color:#18131f;background:var(--nam-accent);border-color:var(--nam-accent);font-weight:850 }
+        nam-a2-gui .amp-knobs { border-top:1px solid #393540;background:rgba(9,9,12,.24) } nam-a2-gui .amp-knobs>summary { padding:11px 16px;color:#aaa3b4;cursor:pointer;font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;list-style-position:inside } nam-a2-gui .amp-knobs[open]>summary { color:#ddd6e8;border-bottom:1px solid #332f39 } nam-a2-gui .tone-strip { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 8px;align-items:center;padding:16px } nam-a2-gui .amp-switches { display:flex;justify-content:center;align-items:center;gap:12px;grid-column:1/-1 } nam-a2-gui .section-switch { display:grid;justify-items:center;gap:5px;color:#aaa3b4;font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase } nam-a2-gui .section-switch input { accent-color:var(--nam-accent) } nam-a2-gui .noise-switch { justify-self:center;max-width:52px;text-align:center } nam-a2-gui .eqButton[aria-expanded=true] { color:#18131f;background:var(--nam-accent);border-color:var(--nam-accent);font-weight:850 }
         nam-a2-gui .eq-panel { padding:14px 16px;border-top:1px solid #484052;background:#100f14 } nam-a2-gui .eq-toolbar { display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px } nam-a2-gui .eq-toolbar-group { display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:#aaa3b4;font-size:10px } nam-a2-gui .eq-toolbar input { accent-color:var(--nam-accent) } nam-a2-gui .eqPosition { min-height:32px;padding:0 8px } nam-a2-gui .eq-spectrum-legend { display:flex;align-items:center;gap:8px;color:#8d8693;font-size:9px } nam-a2-gui .eq-spectrum-legend span::before { content:'';display:inline-block;width:14px;margin-right:4px;border-top:2px solid;vertical-align:middle } nam-a2-gui .eq-spectrum-legend .input::before { border-color:#93a1b7;border-top-style:dashed } nam-a2-gui .eq-spectrum-legend .filtered::before { border-color:#ffb04a } nam-a2-gui .eq-spectrum-legend .final::before { border-color:#67e39a } nam-a2-gui .eq-graph-wrap { overflow:hidden;background:#09090c;border:1px solid #393541;border-radius:11px } nam-a2-gui .eqGraph { display:block;width:100%;height:250px;cursor:crosshair;touch-action:none;transition:opacity .15s } nam-a2-gui .eqGraph.disabled { opacity:.62 } nam-a2-gui .eq-spectrum-input-fill { fill:url(#namSpectrumInputFill);pointer-events:none } nam-a2-gui .eq-spectrum { fill:url(#namSpectrumFill);pointer-events:none;transition:opacity .12s linear } nam-a2-gui .eq-spectrum-input-line,nam-a2-gui .eq-spectrum-filtered-line,nam-a2-gui .eq-spectrum-final-line { fill:none;vector-effect:non-scaling-stroke;pointer-events:none } nam-a2-gui .eq-spectrum-input-line { stroke:#aab7ca;stroke-width:1.4;stroke-dasharray:5 4;stroke-opacity:.78 } nam-a2-gui .eq-spectrum-filtered-line { stroke:#ffb04a;stroke-width:1.7;stroke-opacity:.94 } nam-a2-gui .eq-spectrum-final-line { stroke:#67e39a;stroke-width:1.8;stroke-opacity:.92 } nam-a2-gui .eq-grid-line { stroke:#302d35;stroke-width:1 } nam-a2-gui .eq-zero-line { stroke:#77717d;stroke-width:1.4 } nam-a2-gui .eq-grid-label,nam-a2-gui .eq-axis-label { fill:#817a88;font:10px ui-monospace,SFMono-Regular,Menlo,monospace;pointer-events:none } nam-a2-gui .eq-axis-label.spectrum { fill:#686273;font-size:9px } nam-a2-gui .eq-band-curve { fill:none;stroke-width:1.45;stroke-opacity:.5;vector-effect:non-scaling-stroke;pointer-events:none } nam-a2-gui .eq-band-curve.selected { stroke-width:2.4;stroke-opacity:.92 } nam-a2-gui .eq-curve-fill { fill:url(#namEqFill) } nam-a2-gui .eq-curve { fill:none;stroke:#f3eef8;stroke-width:2.2;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 3px rgba(255,255,255,.18)) } nam-a2-gui .eq-node { stroke:#09090c;stroke-width:3;cursor:grab;vector-effect:non-scaling-stroke } nam-a2-gui .eq-node:hover,nam-a2-gui .eq-node.selected { fill:#fff;stroke-width:4 } nam-a2-gui .eq-node:focus { outline:none;stroke:#fff } nam-a2-gui .eq-node.dragging { cursor:grabbing } nam-a2-gui .eq-readout { display:flex;align-items:end;gap:8px;flex-wrap:wrap;padding:10px;background:#17151c;border-top:1px solid #34303b } nam-a2-gui .eq-band-name { min-width:118px;color:#eee9f4;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.08em } nam-a2-gui .eq-band-name small { display:block;margin-top:2px;color:#9c94a4;font-size:8px;letter-spacing:.12em } nam-a2-gui .eq-value { display:grid;gap:3px;color:#827b8a;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase } nam-a2-gui .eq-value input { width:86px;height:31px;padding:0 7px;color:#fff;background:#22202a;border:1px solid #403b49;border-radius:6px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace } nam-a2-gui .eq-hint { margin:0 0 0 auto;color:#746d7b;font-size:9px }
-        nam-a2-gui .current-model { min-width:0;padding:15px 16px;text-align:center;background:rgba(8,8,11,.48);border:1px solid #36323d;border-radius:12px }
-        nam-a2-gui .currentModelArtwork { position:relative;width:86px;height:68px;margin:0 auto 9px;overflow:hidden;background:#0d0d11;border:1px solid #443d4d;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.3) }
+        nam-a2-gui .current-model { display:grid;grid-column:3;grid-row:1;grid-template-columns:minmax(120px,.85fr) minmax(0,1.15fr);gap:10px;align-items:center;min-width:0;padding:10px;text-align:left;background:rgba(8,8,11,.48);border:1px solid #36323d;border-radius:12px }
+        nam-a2-gui .currentModelArtwork { position:relative;width:100%;height:170px;overflow:hidden;background:#0d0d11;border:1px solid #443d4d;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.3) }
+        nam-a2-gui .currentModelInfo { min-width:0 }
         nam-a2-gui .currentToneImage { display:block;width:100%;height:100%;object-fit:contain }
         nam-a2-gui .currentModelFallback { display:grid;width:100%;height:100%;place-content:center;padding:7px;background:radial-gradient(circle at 75% 20%,#4b3a69,#18141f 64%);text-align:center } nam-a2-gui .currentModelFallback strong { color:#e9ddff;font-size:11px;letter-spacing:.08em;text-transform:uppercase } nam-a2-gui .currentModelFallback small { overflow:hidden;max-width:70px;color:#a99cba;font-size:8px;text-overflow:ellipsis;white-space:nowrap }
         nam-a2-gui .eyebrow { margin:0 0 7px;color:#797381;font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase }
-        nam-a2-gui .currentModel { display:block;overflow:hidden;color:#fff;font-size:16px;text-overflow:ellipsis;white-space:nowrap }
-        nam-a2-gui .model-chips { display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:9px } nam-a2-gui .chip { padding:3px 7px;color:#bbb4c5;background:#24212a;border:1px solid #3a3543;border-radius:999px;font-size:9px;letter-spacing:.06em;text-transform:uppercase }
+        nam-a2-gui .currentModel { display:block;color:#fff;font-size:14px;line-height:1.35;overflow-wrap:anywhere }
+        nam-a2-gui .model-chips { display:flex;justify-content:flex-start;flex-wrap:wrap;gap:6px;margin-top:9px } nam-a2-gui .chip { padding:3px 7px;color:#bbb4c5;background:#24212a;border:1px solid #3a3543;border-radius:999px;font-size:9px;letter-spacing:.06em;text-transform:uppercase }
         nam-a2-gui .chip.source { color:#c7b8fb;border-color:#5d4f7e } nam-a2-gui .chip.modelLevel { color:#8ee6a0;background:#142419;border-color:#376b43;font-variant-numeric:tabular-nums } nam-a2-gui .chip.modelLevel.inactive { color:#ff9da9;background:#2a171b;border-color:#6e3941 } nam-a2-gui .drawer { border-top:1px solid #37333d;background:rgba(9,9,12,.36) }
-        nam-a2-gui .level-actions { display:flex;justify-content:center;gap:6px;margin-top:9px } nam-a2-gui .level-actions button { min-height:27px;padding:0 9px;font-size:9px } nam-a2-gui .calibrateLevel { color:#dcccff;border-color:#655481 } nam-a2-gui .calibrateLevel:disabled { color:#6d6873;cursor:default;border-color:#35313b }
+        nam-a2-gui .level-actions { display:flex;justify-content:flex-start;gap:6px;margin-top:9px } nam-a2-gui .level-actions button { min-height:27px;padding:0 9px;font-size:9px } nam-a2-gui .calibrateLevel { color:#dcccff;border-color:#655481 } nam-a2-gui .calibrateLevel:disabled { color:#6d6873;cursor:default;border-color:#35313b }
         nam-a2-gui .drawer>summary { padding:11px 16px;color:#aaa3b4;cursor:pointer;font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;list-style-position:inside }
         nam-a2-gui .drawer[open]>summary { color:#ddd6e8;border-bottom:1px solid #332f39 } nam-a2-gui .drawer-body { padding:13px 16px 16px }
         nam-a2-gui .source-tabs { display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px } nam-a2-gui .sourceTab[aria-pressed=true] { color:#19151f;background:var(--nam-accent);border-color:var(--nam-accent);font-weight:800 }
         nam-a2-gui .factoryCategories { display:flex;gap:5px;overflow-x:auto;margin:-2px 0 10px;padding:2px 0;scrollbar-width:thin } nam-a2-gui .factoryCategory { min-height:28px;padding:0 9px;border-radius:999px;color:#9f98a9;font-size:9px;white-space:nowrap } nam-a2-gui .factoryCategory[aria-pressed=true] { color:#17131d;background:#c9b7ff;border-color:#c9b7ff;font-weight:850 }
         nam-a2-gui .browser-tools { display:flex;gap:8px;margin-bottom:10px } nam-a2-gui .modelSearch { min-width:0;flex:1;height:36px;padding:0 10px }
         nam-a2-gui .file-action { display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 12px;color:#d8cfdf;background:#101014;border:1px solid #3a3642;border-radius:8px;cursor:pointer;white-space:nowrap } nam-a2-gui .model { position:absolute;width:1px;height:1px;opacity:0;pointer-events:none }
-        nam-a2-gui .modelBrowser { max-height:235px;overflow:auto;padding:7px;background:#0d0d11;border:1px solid #332f39;border-radius:9px;scrollbar-width:thin }
+        nam-a2-gui .modelBrowser { max-height:390px;overflow:auto;padding:7px;background:#0d0d11;border:1px solid #332f39;border-radius:9px;scrollbar-width:thin }
         nam-a2-gui .modelBrowser:empty::after { content:'No models in this source';display:block;padding:14px;color:#6f6976;text-align:center }
         nam-a2-gui .asset-entry { display:block;width:100%;min-height:29px;margin:2px 0;padding:4px 8px;overflow:hidden;color:#bbb5c3;background:transparent;border-color:transparent;text-align:left;text-overflow:ellipsis;white-space:nowrap }
         nam-a2-gui .asset-entry:hover { background:#211e27 } nam-a2-gui .asset-entry.selected { color:#fff;background:#493b66;border-color:#75619c }
         nam-a2-gui .factoryAsset { display:grid;grid-template-columns:48px minmax(0,1fr);gap:9px;align-items:center;min-height:68px;padding:6px;white-space:normal } nam-a2-gui .factoryAsset img,nam-a2-gui .factoryAssetVisual { width:48px;height:46px;object-fit:contain;background:#0b0a0e;border-radius:6px } nam-a2-gui .factoryAssetVisual { display:grid;place-items:center;padding:4px;color:#d8c8ff;background:radial-gradient(circle at 70% 20%,#4b3a69,#18141f 65%);font-size:8px;font-weight:850;text-align:center;text-transform:uppercase } nam-a2-gui .factoryAssetText { min-width:0 } nam-a2-gui .factoryAssetText strong,nam-a2-gui .factoryAssetText small { display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .factoryAssetText strong { color:#e6e0eb;font-size:10px } nam-a2-gui .factoryAssetText small { color:#8e8797;font-size:9px } nam-a2-gui .factoryAssetText .factoryAssetFilename { color:#b8aec4;font-family:ui-monospace,SFMono-Regular,Menlo,monospace }
         nam-a2-gui .factoryToneCard { display:grid;grid-template-columns:82px minmax(0,1fr);gap:10px;margin:3px;padding:8px;background:#15131a;border:1px solid #393342;border-radius:9px } nam-a2-gui .factoryToneArtwork,nam-a2-gui .factoryToneVisual { width:82px;height:68px;object-fit:contain;background:#0a090d;border-radius:7px } nam-a2-gui .factoryToneVisual { display:grid;place-items:center;color:#d8c8ff;background:radial-gradient(circle at 70% 20%,#4b3a69,#18141f 65%);font-size:9px;font-weight:850 } nam-a2-gui .factoryToneBody { min-width:0 } nam-a2-gui .factoryToneTitle { display:block;overflow:hidden;color:#f1ecf7;font-size:11px;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .factoryToneMeta { display:block;overflow:hidden;margin:2px 0 5px;color:#8e8797;font-size:9px;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .factoryCaptureList { display:grid;gap:2px;max-height:104px;overflow:auto;padding-right:3px;scrollbar-width:thin } nam-a2-gui .factoryCaptureRow,nam-a2-gui .assetRow { display:grid;grid-template-columns:minmax(0,1fr) 27px;gap:3px;align-items:center } nam-a2-gui .assetRow .asset-entry { min-width:0 } nam-a2-gui .factoryCapture { width:100%;min-width:0;min-height:25px;margin:0;padding:3px 7px;overflow:hidden;color:#c7becf;background:#0d0c11;border-color:#29252f;border-radius:5px;text-align:left;text-overflow:ellipsis;white-space:nowrap;font:9px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace } nam-a2-gui .factoryCapture:hover { background:#211e27 } nam-a2-gui .factoryCapture.selected { color:#fff;background:#493b66;border-color:#856eb0 } nam-a2-gui .favoriteToggle { width:27px;min-width:27px;min-height:25px;padding:0;color:#8d8498;background:transparent;border-color:transparent;font-size:16px;line-height:1 } nam-a2-gui .favoriteToggle:hover,nam-a2-gui .favoriteToggle.active { color:#ffd45f;background:#292313;border-color:#69592b }
+        nam-a2-gui .factoryToneCard { display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:12px;padding:10px } nam-a2-gui .factoryToneMedia,nam-a2-gui .factoryToneDetails { display:grid;align-content:start;gap:6px;min-width:0 } nam-a2-gui .factoryToneTitle { white-space:normal } nam-a2-gui .factoryToneMeta { margin:0;white-space:normal } nam-a2-gui .factoryToneViewer { display:grid;grid-template-columns:26px minmax(0,1fr) 26px;align-items:center;gap:5px } nam-a2-gui .factoryToneNav { min-height:62px;padding:0;font-size:22px } nam-a2-gui .factoryToneNav:disabled { color:#68616f;opacity:.45;cursor:default } nam-a2-gui .factoryTonePick { display:grid;place-items:center;width:100%;min-height:166px;padding:4px;background:#0a090d;border-color:#302a39 } nam-a2-gui .factoryTonePick.selected { border-color:#856eb0;background:#211a2b } nam-a2-gui .factoryToneArtwork,nam-a2-gui .factoryToneVisual { width:100%;height:156px;object-fit:contain } nam-a2-gui .factoryToneFilename { display:block;overflow:hidden;color:#d9d1e2;font:10px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:left;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .factoryToneFooter { display:flex;align-items:center;justify-content:space-between;gap:6px } nam-a2-gui .factoryToneCounter { color:#8e8797;font-size:9px;text-align:left } nam-a2-gui .factoryToneFavorite { justify-self:end } nam-a2-gui .factoryCaptureList { position:relative;max-height:168px;min-height:84px;overflow-y:auto;overscroll-behavior:contain } nam-a2-gui .factoryCapture.loaded { border-color:#8c77b3 } nam-a2-gui .factoryCaptureLabel { color:#888190;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase }
         nam-a2-gui .preferencesBody { display:grid;gap:12px } nam-a2-gui .preferenceRow { display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,.55fr);gap:12px;align-items:center } nam-a2-gui .preferenceRow strong,nam-a2-gui .preferenceRow small { display:block } nam-a2-gui .preferenceRow small { margin-top:3px;color:#8e8797;font-size:10px } nam-a2-gui .a2Variant { min-height:36px;padding:0 8px } nam-a2-gui .autoLevel { justify-self:end;width:18px;height:18px;accent-color:var(--nam-accent) }
         nam-a2-gui .modelBrowser details { margin-left:7px } nam-a2-gui .modelBrowser summary { padding:4px;color:#958e9e;cursor:pointer;font-size:11px }
         nam-a2-gui .tone3000-panel { display:grid;gap:9px;margin-top:10px;padding:11px;background:#15131a;border:1px solid #3b3544;border-radius:9px } nam-a2-gui .tone3000-head { display:flex;justify-content:space-between;align-items:center;gap:8px }
@@ -116,75 +122,119 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .tone3000Status,nam-a2-gui .tone3000Tone { margin:0;color:#9992a1;font-size:10px;white-space:pre-line } nam-a2-gui .tone3000Selection { display:grid;gap:8px } nam-a2-gui .tone3000Image { display:block;width:auto;max-width:100%;height:auto;max-height:320px;margin:0 auto;object-fit:contain;background:#0d0d11;border:1px solid #443d4d;border-radius:9px } nam-a2-gui .tone3000Selection select { width:100%;min-height:34px;padding:0 8px }
         nam-a2-gui .tone3000Catalog { display:grid;gap:9px } nam-a2-gui .tone3000CatalogTools { display:flex;gap:6px;flex-wrap:wrap } nam-a2-gui .tone3000CatalogTools button[aria-pressed=true] { color:#19151f;background:var(--nam-accent);border-color:var(--nam-accent);font-weight:800 } nam-a2-gui .tone3000Gear { display:flex;gap:5px;overflow:auto;padding-bottom:2px } nam-a2-gui .tone3000Gear button { min-height:27px;padding:0 9px;border-radius:999px;font-size:10px;white-space:nowrap } nam-a2-gui .tone3000Cards { display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px;max-height:330px;overflow:auto;padding:2px } nam-a2-gui .toneCard { display:grid;gap:6px;min-width:0;padding:7px;color:#eee;background:#0d0d11;border:1px solid #332f39;border-radius:9px;text-align:left } nam-a2-gui .toneCard:hover { border-color:#776b91;background:#191620 } nam-a2-gui .toneCard img { display:block;width:100%;height:92px;object-fit:contain;background:#08080b;border-radius:6px } nam-a2-gui .toneCard strong { overflow:hidden;font-size:11px;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .toneCard small { overflow:hidden;color:#928b9d;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .tone3000Pager { display:flex;justify-content:space-between;align-items:center;gap:8px;color:#8f8898;font-size:10px }
         nam-a2-gui .tone3000Downloads { display:grid;gap:8px;margin-top:2px;padding-top:9px;border-top:1px solid #332f39 } nam-a2-gui .tone3000DownloadsHead { display:flex;align-items:center;justify-content:space-between;gap:8px } nam-a2-gui .tone3000DownloadsHead strong { font-size:10px;letter-spacing:.09em;text-transform:uppercase } nam-a2-gui .tone3000Clear { min-height:27px;color:#ffabb4;font-size:10px } nam-a2-gui .tone3000DownloadedList { display:grid;gap:6px;max-height:230px;overflow:auto } nam-a2-gui .tone3000DownloadedList:empty::after { content:'No model downloaded on this device';padding:9px;color:#756e7c;text-align:center;font-size:10px } nam-a2-gui .downloadedTone { display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px;background:#0d0d11;border:1px solid #332f39;border-radius:8px } nam-a2-gui .downloadedTone img,nam-a2-gui .downloadedToneVisual { width:52px;height:42px;object-fit:contain;background:#09090c;border-radius:5px } nam-a2-gui .downloadedToneVisual { display:grid;place-items:center;color:#d8c8ff;font-size:9px;font-weight:850 } nam-a2-gui .downloadedToneMeta { min-width:0 } nam-a2-gui .downloadedToneMeta strong,nam-a2-gui .downloadedToneMeta small { display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .downloadedToneMeta strong { font-size:10px } nam-a2-gui .downloadedToneMeta small { color:#8f8898;font-size:9px } nam-a2-gui .downloadedToneActions { display:flex;gap:5px } nam-a2-gui .downloadedToneActions button { min-height:28px;padding:0 8px;font-size:9px } nam-a2-gui .downloadedToneDelete { color:#ffabb4 }
+        nam-a2-gui .downloadedTone { grid-template-columns:minmax(0,1fr) auto } nam-a2-gui .downloadedToneSelect { display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:8px;min-width:0;padding:0;border:0;background:transparent;text-align:left } nam-a2-gui .downloadedToneSelect:hover { background:#211e27 }
         nam-a2-gui .factoryMaintainer { display:grid;gap:9px;margin-top:2px;padding:10px;background:#111018;border:1px dashed #8067a8;border-radius:8px } nam-a2-gui .factoryMaintainer h3 { margin:0;color:#decfff;font-size:11px;letter-spacing:.08em;text-transform:uppercase } nam-a2-gui .factoryMaintainer p { margin:0;color:#9f96aa;font-size:10px } nam-a2-gui .factoryMaintainerActions { display:flex;gap:6px;flex-wrap:wrap } nam-a2-gui .factoryMaintainerModels { display:grid;gap:5px;max-height:190px;overflow:auto } nam-a2-gui .factoryMaintainerModel { display:flex;align-items:flex-start;gap:7px;padding:6px;background:#0c0b10;border-radius:6px;color:#c8c0ce;font-size:10px } nam-a2-gui .factoryMaintainerModel input { margin-top:2px;accent-color:var(--nam-accent) } nam-a2-gui .factoryMaintainerExport { color:#1b1521;background:var(--nam-accent);border-color:var(--nam-accent);font-weight:800 } nam-a2-gui .factoryMaintainerStatus { color:#b7adbf!important;white-space:pre-line }
         nam-a2-gui .powered { color:#6f6877;font-size:9px } nam-a2-gui .status { min-height:50px;margin:0;padding:10px;color:#aaa3b1;background:#0d0d11;border-radius:8px;white-space:pre-line;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace }
         nam-a2-gui .error { color:#ff9da9 }
-        @media(max-width:720px){nam-a2-gui .tone-strip{grid-template-columns:repeat(3,1fr)}nam-a2-gui .eqGraph{height:210px}nam-a2-gui .eq-hint{width:100%;margin:0}nam-a2-gui .signal-flow{justify-content:flex-start}} @media(max-width:620px){nam-a2-gui .signal-strip{grid-template-columns:36px 1fr 36px;gap:9px}nam-a2-gui .current-model{grid-column:2}nam-a2-gui .input-control{grid-column:1/3;grid-row:2}nam-a2-gui .output-control{grid-column:2/4;grid-row:3}nam-a2-gui .meter[data-meter=output]{grid-column:3;grid-row:1}nam-a2-gui .browser-tools{flex-direction:column}}
+        @media(max-width:720px){nam-a2-gui .eqGraph{height:210px}nam-a2-gui .eq-hint{width:100%;margin:0}nam-a2-gui .signal-flow{justify-content:flex-start}} @media(max-width:620px){nam-a2-gui .signal-strip{grid-template-columns:25px 46px minmax(0,1fr) 25px;gap:6px;padding:12px 8px}nam-a2-gui .current-model{grid-template-columns:minmax(98px,.82fr) minmax(0,1.18fr);gap:8px;padding:8px}nam-a2-gui .currentModelArtwork{height:150px}nam-a2-gui .browser-tools{flex-direction:column}} @media(max-width:410px){nam-a2-gui .current-model{grid-template-columns:minmax(0,1fr);gap:5px}nam-a2-gui .currentModelArtwork{height:115px}nam-a2-gui .currentModel{font-size:11px}nam-a2-gui .factoryToneCard{grid-template-columns:minmax(0,1fr)}nam-a2-gui .factoryCaptureList{max-height:110px}}
+        nam-a2-gui .eqButton.is-off { color:#ff9da9;border-color:#8b4952;background:#2b1b20 } nam-a2-gui .eq-panel.is-off .eq-graph-wrap { position:relative;opacity:.58 } nam-a2-gui .eq-panel.is-off .eq-graph-wrap::after { content:'EQ BYPASSED';position:absolute;top:10px;right:10px;padding:3px 6px;color:#ffb3bb;background:#301b21;border:1px solid #874651;border-radius:5px;font-size:9px;font-weight:850;letter-spacing:.08em;pointer-events:none }
+        nam-a2-gui .factoryCaptureLabel { color:#ded5eb;font-size:10px;font-weight:800;letter-spacing:.04em } nam-a2-gui .tone3000Selection { margin:0 } nam-a2-gui .tone3000Image { display:block;width:100%;height:156px;object-fit:contain;background:#0d0d11;border:0;border-radius:7px }
+        @media(max-width:620px){nam-a2-gui .signal-strip{grid-template-columns:25px 52px minmax(0,1fr) 25px;gap:5px;margin:8px;padding:8px 5px}}
+        nam-a2-gui .signal-strip { grid-template-columns:44px 56px minmax(0,1fr) 44px }
+        nam-a2-gui .meter-side { display:grid;justify-items:center;align-content:center;gap:8px;min-width:0 } nam-a2-gui .input-meter-side { grid-column:1;grid-row:1 } nam-a2-gui .output-meter-side { grid-column:4;grid-row:1 } nam-a2-gui .meter-side .meter { grid-column:auto;grid-row:auto;grid-template-rows:auto 72px auto } nam-a2-gui .meter-side .meter-track { height:72px }
+        nam-a2-gui .meter-side .knob-shell { width:28px;height:28px } nam-a2-gui .meter-side .knob-face { inset:2px } nam-a2-gui .meter-side .knob-pointer { top:3px;height:7px;transform-origin:50% 10px } nam-a2-gui .meter-side .knob-control { font-size:8px;letter-spacing:0 } nam-a2-gui .meter-side .knob-control output { font-size:9px }
+        nam-a2-gui .noise-side .knob-input,nam-a2-gui .meter-side .knob-input { inset:-7px auto auto -7px;width:42px;height:42px }
+        nam-a2-gui .amp-controls { padding:9px }
+        nam-a2-gui .amp-controls .eq-panel { min-width:0;padding:9px;border:1px solid #484052;border-radius:9px }
+        nam-a2-gui .amp-controls .eq-toolbar { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px }
+        nam-a2-gui .amp-controls .eq-toolbar-group { gap:8px }
+        nam-a2-gui .amp-controls .eq-toolbar-group>label { display:flex;align-items:center;gap:5px;min-height:32px }
+        nam-a2-gui .amp-controls .tone-strip { display:grid;grid-template-columns:repeat(4,43px);gap:2px;align-items:center;padding:0;background:none }
+        nam-a2-gui .amp-controls .amp-switches { display:flex;grid-column:auto;align-items:center;justify-content:center;min-height:0 }
+        nam-a2-gui .amp-controls .section-switch { display:flex;align-items:center;justify-content:center;gap:5px;font-size:8px;white-space:nowrap }
+        nam-a2-gui .amp-controls .section-switch input { margin:0 }
+        nam-a2-gui .tone-strip .knob-shell { width:28px;height:28px }
+        nam-a2-gui .tone-strip .knob-face { inset:2px }
+        nam-a2-gui .tone-strip .knob-pointer { top:3px;height:7px;transform-origin:50% 10px }
+        nam-a2-gui .tone-strip .knob-input { inset:-7px auto auto -7px;width:42px;height:42px }
+        nam-a2-gui .tone-strip .knob-control { gap:3px;font-size:8px;letter-spacing:0;transition:opacity .16s }
+        nam-a2-gui .tone-strip .knob-control output { font-size:9px }
+        nam-a2-gui .amp-controls .eq-subtoolbar { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;margin-bottom:8px }
+        nam-a2-gui .amp-controls .eq-subtoolbar .eqReset { min-height:27px;padding:0 8px;font-size:9px }
+        nam-a2-gui .plugin-tabs { display:grid;grid-template-columns:.68fr 1fr 1.15fr 1fr .95fr .7fr;gap:4px;padding:7px 9px;background:#111016;border-bottom:1px solid #34303b }
+        nam-a2-gui .plugin-tab { min-width:0;min-height:30px;padding:0 7px;overflow:hidden;color:#8f8997;background:transparent;border-color:transparent;border-radius:6px;font-size:9px;font-weight:800;letter-spacing:.04em;text-overflow:ellipsis;white-space:nowrap }
+        nam-a2-gui .plugin-tab:hover { color:#ddd5e7;background:#1d1a24 }
+        nam-a2-gui .plugin-tab[aria-selected=true] { color:#18131f;background:var(--nam-accent);border-color:var(--nam-accent) }
+        nam-a2-gui .plugin-panel { min-width:0 }
+        nam-a2-gui .plugin-panel[hidden] { display:none!important }
+        nam-a2-gui .tab-content { padding:13px 16px 16px;background:rgba(9,9,12,.36) }
+        nam-a2-gui .modelHoverCard { position:absolute;z-index:10000;width:320px;max-width:calc(100% - 20px);max-height:360px;overflow:auto;padding:11px 12px;color:#d8d2df;background:rgba(13,12,17,.97);border:1px solid #76628f;border-radius:9px;box-shadow:0 14px 38px rgba(0,0,0,.58),0 0 18px rgba(166,136,255,.16);pointer-events:none }
+        nam-a2-gui .modelHoverCard strong { display:block;margin-bottom:7px;color:#fff;font-size:12px;line-height:1.3 }
+        nam-a2-gui .modelHoverDetails { margin:0;color:#aaa2b3;white-space:pre-wrap;font:9px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace }
+        nam-a2-gui .aboutBody { display:grid;gap:11px;max-height:430px;overflow:auto }
+        nam-a2-gui .aboutBody h3,nam-a2-gui .aboutBody h4,nam-a2-gui .aboutBody p { margin:0 }
+        nam-a2-gui .aboutBody h3 { color:#f2edf8;font-size:15px }
+        nam-a2-gui .aboutBody h4 { margin-bottom:3px;color:#d9ccff;font-size:10px;letter-spacing:.06em;text-transform:uppercase }
+        nam-a2-gui .aboutBody p { color:#aaa3b1;font-size:10px;line-height:1.5 }
+        nam-a2-gui .aboutBody a { color:#c9b7ff;text-underline-offset:2px } nam-a2-gui .aboutBody a:hover { color:#eee8ff }
+        nam-a2-gui .aboutFlow { padding:8px 10px;color:#e8e0f2;background:#17131d;border:1px solid #514361;border-radius:8px;font:9px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center }
+        nam-a2-gui .aboutSections { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px }
+        nam-a2-gui .aboutSections article,nam-a2-gui .aboutNotes,nam-a2-gui .gettingStarted { padding:9px;background:#111016;border:1px solid #34303b;border-radius:8px }
+        nam-a2-gui .aboutNotes,nam-a2-gui .gettingStarted { display:grid;gap:5px }
+        nam-a2-gui .gettingStarted ol { display:grid;gap:6px;margin:2px 0 0;padding-left:22px;color:#aaa3b1;font-size:10px;line-height:1.5 }
+        nam-a2-gui .gettingStarted li::marker { color:var(--nam-accent);font-weight:850 }
+        nam-a2-gui .mainPanel .signal-flow { border-top:1px solid #34303b;border-bottom:0 }
+        nam-a2-gui .mainPanel .signal-strip { margin-top:10px;margin-bottom:8px }
+        @media(max-width:620px){nam-a2-gui .plugin-tabs{display:flex;overflow-x:auto}nam-a2-gui .plugin-tab{flex:0 0 auto;padding:0 10px}nam-a2-gui .aboutSections{grid-template-columns:minmax(0,1fr)}}
+        nam-a2-gui .tone3000-head { justify-content:space-between } nam-a2-gui .tone3000-head-actions { display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap } nam-a2-gui .tone3000Back { min-height:34px;padding:0 8px;color:#d6c8ec;font-size:10px }
+        @media(max-width:620px){nam-a2-gui .signal-strip{grid-template-columns:42px 52px minmax(0,1fr) 42px}}
+        @media(prefers-reduced-motion:reduce){nam-a2-gui .signal-strip{transition:none}}
       </style>
       <section class="nam-module">
         <header class="module-head">
           ${neuralWampLogoMarkup}<div class="module-identity"><div class="module-name-row"><h2>NeuralWAMp</h2></div><span class="module-subtitle">NAM A2 neural amplifier</span><a class="module-author" href="https://github.com/micbuffa" target="_blank" rel="noopener noreferrer">by @micbuffa</a></div>
           <label class="bypass-label"><input class="bypass" type="checkbox"> Bypass</label>
         </header>
-        <div class="signal-flow" role="img" aria-label="Signal path"></div>
-        <div class="signal-strip">
-          <div class="meter" data-meter="input"><span class="meter-label">IN</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>
-          ${knobMarkup('inputGain','Input gain',-48,24,.1,0,' dB','input-control')}
-          <section class="current-model" aria-live="polite"><p class="eyebrow">Current model</p><div class="currentModelArtwork"><img class="currentToneImage" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" hidden><div class="currentModelFallback"><strong>NAM</strong><small>Model capture</small></div></div><strong class="currentModel">No model loaded</strong><div class="model-chips"><span class="chip source modelSource">—</span><span class="chip modelMode">A2 —</span><span class="chip modelLevel inactive" title="Automatic model-level correction">LEVEL —</span></div><div class="level-actions"><button class="calibrateLevel" type="button" disabled>Calibrate level</button><button class="useMetadataLevel" type="button" hidden>Use metadata</button></div></section>
-          ${knobMarkup('outputGain','Output gain',-24,12,.1,0,' dB','output-control')}
-          <div class="meter" data-meter="output"><span class="meter-label">OUT</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>
-        </div>
-        <section class="tone-strip" aria-label="Tone shaping">
-          <label class="section-switch"><input class="noiseEnabled" type="checkbox" checked> Gate</label>
-          ${knobMarkup('noise','Noise',-100,0,1,-80,' dB')}
-          ${knobMarkup('bass','Bass',0,10,.1,5)}
-          ${knobMarkup('middle','Middle',0,10,.1,5)}
-          ${knobMarkup('treble','Treble',0,10,.1,5)}
-          <div><label class="section-switch"><input class="toneEnabled" type="checkbox" checked> Tone</label><button class="eqButton" type="button" aria-expanded="false" aria-controls="namEqPanel">EQ</button></div>
-        </section>
-        <section class="eq-panel" id="namEqPanel" hidden>
-          <div class="eq-toolbar"><div class="eq-toolbar-group"><label><input class="eqEnabled" type="checkbox"> EQ enabled</label><label>Position <select class="eqPosition"><option value="0">POST NAM</option><option value="1">PRE NAM</option></select></label><span class="eq-spectrum-legend" aria-label="Spectrum legend"><span class="input">Input</span><span class="filtered">Filtered</span><span class="final">Final output</span></span></div><button class="eqReset" type="button">Reset EQ</button></div>
+        <nav class="plugin-tabs" role="tablist" aria-label="NeuralWAMp views"><button class="plugin-tab" id="namTabMain" type="button" role="tab" aria-selected="true" aria-controls="namPanelMain" data-plugin-tab="main">Main</button><button class="plugin-tab" id="namTabModels" type="button" role="tab" aria-selected="false" aria-controls="namPanelModels" data-plugin-tab="models">Models</button><button class="plugin-tab" id="namTabAmp" type="button" role="tab" aria-selected="false" aria-controls="namPanelAmp" data-plugin-tab="amp">Amp settings</button><button class="plugin-tab" id="namTabDetails" type="button" role="tab" aria-selected="false" aria-controls="namPanelDetails" data-plugin-tab="details">Model details</button><button class="plugin-tab" id="namTabPreferences" type="button" role="tab" aria-selected="false" aria-controls="namPanelPreferences" data-plugin-tab="preferences">Preferences</button><button class="plugin-tab" id="namTabAbout" type="button" role="tab" aria-selected="false" aria-controls="namPanelAbout" data-plugin-tab="about">Help</button></nav>
+        <section class="plugin-panel mainPanel" id="namPanelMain" role="tabpanel" aria-labelledby="namTabMain" data-plugin-panel="main"><div class="signal-strip">
+          <div class="meter-side input-meter-side"><div class="meter" data-meter="input"><span class="meter-label">IN</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>${knobMarkup('inputGain','Input gain',-48,24,.1,0,' dB','input-control')}</div>
+          <div class="noise-side">${knobMarkup('noise','Threshold',-100,0,1,-80,' dB')}<label class="section-switch noise-switch"><input class="noiseEnabled" type="checkbox"> Noise gate</label></div>
+          <section class="current-model" aria-live="polite"><div class="currentModelArtwork"><img class="currentToneImage" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" hidden><div class="currentModelFallback"><strong>NAM</strong><small>Model capture</small></div></div><div class="currentModelInfo"><p class="eyebrow">Current model</p><strong class="currentModel">No model loaded</strong><div class="model-chips"><span class="chip source modelSource">—</span><span class="chip modelMode">A2 —</span><span class="chip modelLevel inactive" title="Automatic model-level correction">LEVEL —</span></div><div class="level-actions"><button class="calibrateLevel" type="button" disabled>Calibrate level</button><button class="useMetadataLevel" type="button" hidden>Use metadata</button></div></div></section>
+          <div class="meter-side output-meter-side"><div class="meter" data-meter="output"><span class="meter-label">OUT</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>${knobMarkup('outputGain','Output gain',-24,12,.1,0,' dB','output-control')}</div>
+        </div><div class="signal-flow" role="img" aria-label="Signal path"></div></section>
+        <section class="plugin-panel amp-knobs ampPanel" id="namPanelAmp" role="tabpanel" aria-labelledby="namTabAmp" data-plugin-panel="amp" hidden><div class="amp-controls"><section class="eq-panel" id="namEqPanel">
+          <div class="eq-toolbar"><div class="eq-toolbar-group"><label><input class="eqEnabled" type="checkbox" checked> EQ enabled</label><label>Position <select class="eqPosition"><option value="0">POST NAM</option><option value="1">PRE NAM</option></select></label></div><section class="tone-strip" aria-label="Tone stack settings"><div class="amp-switches"><label class="section-switch"><input class="toneEnabled" type="checkbox" checked> Tone</label></div>${knobMarkup('bass','Bass',0,10,.1,5)}${knobMarkup('middle','Middle',0,10,.1,5)}${knobMarkup('treble','Treble',0,10,.1,5)}</section></div>
+          <div class="eq-subtoolbar"><span class="eq-spectrum-legend" aria-label="Spectrum legend"><span class="input">Input</span><span class="filtered">Filtered</span><span class="final">Final output</span></span><button class="eqReset" type="button">Reset EQ</button></div>
           <div class="eq-graph-wrap"><svg class="eqGraph" viewBox="0 0 720 250" preserveAspectRatio="none" role="application" aria-label="Six-band parametric EQ comparing input, filtered, and final output spectra"><defs><linearGradient id="namSpectrumInputFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8094b3" stop-opacity=".18"/><stop offset="1" stop-color="#27364d" stop-opacity=".04"/></linearGradient><linearGradient id="namSpectrumFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff455f" stop-opacity=".5"/><stop offset=".34" stop-color="#ff9e3d" stop-opacity=".42"/><stop offset=".68" stop-color="#a8ad28" stop-opacity=".3"/><stop offset="1" stop-color="#323bce" stop-opacity=".2"/></linearGradient><linearGradient id="namEqFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8c8ff" stop-opacity=".12"/><stop offset="1" stop-color="#3b2d66" stop-opacity=".02"/></linearGradient></defs><path class="eq-spectrum-input-fill" d="M0,230 L720,230 Z"></path><path class="eq-spectrum" d="M0,230 L720,230 Z"></path><g class="eqGrid"></g><path class="eq-spectrum-input-line"></path><path class="eq-spectrum-filtered-line"></path><path class="eq-spectrum-final-line"></path><g class="eqBandCurves"></g><path class="eq-curve-fill"></path><path class="eq-curve"></path><g class="eqNodes"></g></svg><div class="eq-readout"><strong class="eq-band-name">Low<small>Band 1 · Low shelf</small></strong><label class="eq-value">Frequency<input class="eqSelectedFreq" type="number" min="20" max="20000" step="1"></label><label class="eq-value">Gain<input class="eqSelectedGain" type="number" min="-15" max="15" step="0.1"></label><label class="eq-value">Q<input class="eqSelectedQ" type="number" min="0.1" max="10" step="0.01"></label><p class="eq-hint">Drag a point · wheel changes Q · Shift = fine · double-click resets gain</p></div></div>
-        </section>
-        <details class="drawer modelDrawer">
-          <summary>Models & sources</summary>
-          <div class="drawer-body">
+        </section></div></section>
+        <section class="plugin-panel modelDrawer modelsPanel" id="namPanelModels" role="tabpanel" aria-labelledby="namTabModels" data-plugin-panel="models" hidden><div class="tab-content">
             <div class="source-tabs" role="group" aria-label="Model source">
               <button class="sourceTab" data-source="Factory" type="button" aria-pressed="true">Factory</button>
               <button class="sourceTab" data-source="Favorites" type="button" aria-pressed="false">★ Favorites</button>
               <button class="sourceTab" data-source="External" type="button" aria-pressed="false">External</button>
               <button class="sourceTab" data-source="TONE3000" type="button" aria-pressed="false">TONE3000</button>
             </div>
-            <div class="factoryCategories" role="group" aria-label="Factory category"><button class="factoryCategory" data-category="all" type="button" aria-pressed="true">All</button><button class="factoryCategory" data-category="guitar" type="button" aria-pressed="false">Guitar</button><button class="factoryCategory" data-category="bass" type="button" aria-pressed="false">Bass</button><button class="factoryCategory" data-category="pedal" type="button" aria-pressed="false">Pedals</button></div>
-            <div class="browser-tools"><input class="modelSearch" type="search" aria-label="Search models" placeholder="Search models…"><label class="file-action">Load .nam file…<input class="model" type="file" accept=".nam,application/json"></label></div>
+            <div class="factoryCategories" role="group" aria-label="Factory category"><button class="factoryCategory" data-category="all" type="button" aria-pressed="false">All</button><button class="factoryCategory" data-category="guitar" type="button" aria-pressed="true">Guitar</button><button class="factoryCategory" data-category="bass" type="button" aria-pressed="false">Bass</button><button class="factoryCategory" data-category="pedal" type="button" aria-pressed="false">Pedals</button></div>
+            <div class="browser-tools"><input class="modelSearch" type="search" aria-label="Search models" placeholder="Search models…"><label class="file-action">Import .nam…<input class="model" type="file" accept=".nam,application/json"></label></div>
             <div class="modelBrowser"></div>
             <section class="tone3000-panel" aria-label="TONE3000" hidden>
               <section class="tone3000Auth" aria-labelledby="tone3000AuthTitle" hidden><img class="tone3000Logo" src="${tone3000LogoUrl}" alt="TONE3000"><h3 class="tone3000AuthTitle" id="tone3000AuthTitle">Access TONE3000 tones</h3><p class="tone3000AuthCopy">NeuralWAMp has partnered with TONE3000 to give you access to a library of NAM captures created by a global community of musicians.</p><button class="tone3000Authenticate" type="button">Continue to TONE3000</button></section>
-              <div class="tone3000Browser" hidden><div class="tone3000-head"><button class="tone3000Browse" type="button">Browse TONE3000</button><small class="powered">Powered by TONE3000</small></div>
+              <div class="tone3000Browser" hidden><div class="tone3000-head"><div class="tone3000-head-actions"><button class="tone3000Browse" type="button">Browse TONE3000</button><button class="tone3000Back" type="button" hidden>Back to TONE3000 main view</button></div><small class="powered">Powered by TONE3000</small></div>
                 <p class="tone3000Status">TONE3000 integration not configured</p>
                 <section class="tone3000Catalog" hidden><div class="tone3000CatalogTools" role="group" aria-label="TONE3000 collections"><button type="button" data-tone-feed="trending" aria-pressed="true">Trending</button><button type="button" data-tone-feed="latest" aria-pressed="false">Latest</button><button type="button" data-tone-feed="downloaded" aria-pressed="false">Downloaded</button><button type="button" data-tone-feed="favorited" aria-pressed="false">Favorites</button><button type="button" data-tone-feed="created" aria-pressed="false">Created</button></div><div class="tone3000Gear" role="group" aria-label="Gear filter"><button type="button" data-tone-gear="" aria-pressed="true">All gear</button><button type="button" data-tone-gear="amp" aria-pressed="false">Amp</button><button type="button" data-tone-gear="amp-cab" aria-pressed="false">Amp + Cab</button><button type="button" data-tone-gear="pedal" aria-pressed="false">Pedal</button></div><div class="tone3000Cards" aria-live="polite"></div><div class="tone3000Pager"><button class="tone3000Prev" type="button">Previous</button><span class="tone3000Page">Page 1</span><button class="tone3000Next" type="button">Next</button></div></section>
-                <div class="tone3000Selection" hidden><img class="tone3000Image" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" hidden><p class="tone3000Tone"></p><label>Available A2 model <select class="tone3000Model"></select></label><button class="tone3000Load" type="button">Load selected model</button></div>
+                <section class="tone3000Selection factoryToneCard" hidden><div class="factoryToneMedia"><strong class="factoryToneTitle tone3000Title"></strong><p class="tone3000Tone"></p><div class="factoryToneViewer"><button class="factoryToneNav tone3000CapturePrevious" type="button" aria-label="Previous TONE3000 capture">‹</button><button class="factoryTonePick tone3000CapturePick" type="button" aria-label="Load selected TONE3000 capture"><img class="tone3000Image" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" hidden><span class="factoryToneVisual tone3000Visual">NAM</span></button><button class="factoryToneNav tone3000CaptureNext" type="button" aria-label="Next TONE3000 capture">›</button></div><span class="factoryToneFilename tone3000Filename"></span><small class="factoryToneCounter tone3000Counter"></small></div><div class="factoryToneDetails"><span class="factoryCaptureLabel tone3000CaptureLabel"></span><div class="factoryCaptureList tone3000CaptureList" role="group" aria-label="Available TONE3000 captures"></div></div></section>
               </div>
               <section class="tone3000Downloads" aria-label="TONE3000 models downloaded on this device"><div class="tone3000DownloadsHead"><strong>Downloaded on this device</strong><button class="tone3000Clear" type="button" hidden>Delete all</button></div><div class="tone3000DownloadedList"></div></section>
               <section class="factoryMaintainer" aria-label="Factory library maintainer" hidden><h3>Factory library maintainer</h3><p>Explicitly select one TONE3000 tone, choose its files, then export a repository-ready ZIP bundle. Verify redistribution rights before committing it.</p><div class="factoryMaintainerActions"><button type="button" data-maintainer-kind="nam">Select NAM A2 tone</button><button type="button" data-maintainer-kind="ir">Select IR tone</button></div><p class="factoryMaintainerStatus">No tone selected for export.</p><div class="factoryMaintainerModels"></div><button class="factoryMaintainerExport" type="button" hidden>Export selected Factory bundle</button></section>
             </section>
-          </div>
-        </details>
-        <details class="drawer detailsDrawer"><summary>Model details</summary><div class="drawer-body"><p class="status">No model loaded</p></div></details>
-        <details class="drawer preferencesDrawer"><summary>Preferences</summary><div class="drawer-body preferencesBody"><label class="preferenceRow"><span><strong>Automatic model level</strong><small>Normalizes NAM loudness to −18 dB, limited to ±12 dB. Output gain remains independent.</small></span><input class="autoLevel" type="checkbox" checked></label><label class="preferenceRow"><span><strong>A2 rendering mode</strong><small>Used when a model contains both Lite and Full networks.</small></span><select class="a2Variant"><option value="full">Full — higher fidelity</option><option value="lite">Lite — lower CPU</option></select></label></div></details>
-      </section>`;
+          </div></section>
+        <section class="plugin-panel detailsDrawer detailsPanel" id="namPanelDetails" role="tabpanel" aria-labelledby="namTabDetails" data-plugin-panel="details" hidden><div class="tab-content"><p class="status">No model loaded</p></div></section>
+        <section class="plugin-panel preferencesDrawer preferencesPanel" id="namPanelPreferences" role="tabpanel" aria-labelledby="namTabPreferences" data-plugin-panel="preferences" hidden><div class="tab-content preferencesBody"><label class="preferenceRow"><span><strong>Automatic model level</strong><small>Normalizes NAM loudness to −18 dB, limited to ±12 dB. Output gain remains independent.</small></span><input class="autoLevel" type="checkbox" checked></label><label class="preferenceRow"><span><strong>A2 rendering mode</strong><small>Used when a model contains both Lite and Full networks.</small></span><select class="a2Variant"><option value="full">Full — higher fidelity</option><option value="lite">Lite — lower CPU</option></select></label></div></section>
+        <section class="plugin-panel aboutPanel" id="namPanelAbout" role="tabpanel" aria-labelledby="namTabAbout" data-plugin-panel="about" hidden><div class="tab-content aboutBody"><header><h3>About NeuralWAMp</h3><p>NeuralWAMp is a Web Audio Module that runs Neural Amp Modeler A2 captures directly in an AudioWorklet. It is designed to behave like a reusable audio plugin while remaining entirely usable in a web browser.</p></header><article class="gettingStarted"><h4>Getting started with your guitar</h4><ol><li>Choose <strong>Live input</strong> from the Source menu in the host.</li><li>Select your audio input and output devices from the corresponding menus. If your browser does not support output-device selection, audio uses the operating system's default output. After changing a system device, reload the page before continuing.</li><li>Click <strong>Enable live input</strong>. You should now hear your guitar through the processing chain.</li><li>Open <strong>Models</strong> to load a Factory capture or browse TONE3000. A capture selected from TONE3000 is downloaded, loaded, and kept locally in the browser so it remains available later.</li><li>Open <strong>Amp settings</strong> to adjust Bass, Middle, Treble, and the graphical EQ.</li><li>For high-gain amplifiers, enable the <strong>Noise gate</strong> in the Main view and adjust its threshold as needed.</li></ol></article><div class="aboutFlow">Input → Noise gate → EQ PRE/POST → NAM A2 → Tone stack → Output</div><div class="aboutSections"><article><h4>Main</h4><p>Monitor input and output levels, adjust gain and the optional noise gate, inspect the active capture, calibrate its level, and read the live processing chain.</p></article><article><h4>Models</h4><p>Load Factory guitar, bass, and pedal captures; recall favorites; import local .nam files; or browse compatible TONE3000 captures. Selecting a capture loads it immediately.</p></article><article><h4>Amp settings</h4><p>Shape the sound with Bass, Middle, and Treble plus a six-band graphical EQ. Place the EQ before or after NAM and compare input, filtered, and final spectra.</p></article><article><h4>Model details</h4><p>Read architecture, available A2 rendering modes, sample rate, creator, loudness correction, capture metadata, source, and licensing information.</p></article><article><h4>Preferences</h4><p>Choose A2 Full for maximum fidelity or A2 Lite for lower CPU use, and enable or disable automatic model-level normalization.</p></article><article><h4>Controls</h4><p>Drag knobs vertically. Double-click a knob to restore its default. Hover over model artwork for one second to display a compact metadata card.</p></article></div><article class="aboutNotes"><h4>State and storage</h4><p>Audio parameters and the loaded model participate in the standard WAM state round trip. Favorites and explicitly downloaded TONE3000 models are stored locally in the browser. NeuralWAMp contains the amplifier stage; the host may connect a separate Cabinet WAM for impulse-response processing.</p></article></div></section>
+      </section><aside class="modelHoverCard" role="tooltip" hidden><strong class="modelHoverTitle"></strong><pre class="modelHoverDetails"></pre></aside>`;
+    this.querySelector('.aboutBody header').insertAdjacentHTML('beforeend', '<p><a href="https://github.com/micbuffa/NAM_A2_WAM" target="_blank" rel="noopener noreferrer">NeuralWAMp source code and project documentation on GitHub</a></p>');
     this.controls = {
       inputGain: this.querySelector('.inputGain'), outputGain: this.querySelector('.outputGain'),
       bypass: this.querySelector('.bypass'), model: this.querySelector('.model'), status: this.querySelector('.status'),
       noise: this.querySelector('.noise'), noiseEnabled: this.querySelector('.noiseEnabled'),
       bass: this.querySelector('.bass'), middle: this.querySelector('.middle'), treble: this.querySelector('.treble'), toneEnabled: this.querySelector('.toneEnabled'),
-      eqEnabled: this.querySelector('.eqEnabled'), eqPosition: this.querySelector('.eqPosition'), eqButton: this.querySelector('.eqButton'), eqPanel: this.querySelector('.eq-panel'), eqReset: this.querySelector('.eqReset'),
+      eqEnabled: this.querySelector('.eqEnabled'), eqPosition: this.querySelector('.eqPosition'), eqPanel: this.querySelector('.eq-panel'), eqReset: this.querySelector('.eqReset'), ampKnobs: this.querySelector('.amp-knobs'),
       eqGraph:this.querySelector('.eqGraph'), eqGrid:this.querySelector('.eqGrid'), eqNodes:this.querySelector('.eqNodes'), eqBandCurves:this.querySelector('.eqBandCurves'), eqSpectrum:this.querySelector('.eq-spectrum'), eqSpectrumInputFill:this.querySelector('.eq-spectrum-input-fill'), eqSpectrumInputLine:this.querySelector('.eq-spectrum-input-line'), eqSpectrumFilteredLine:this.querySelector('.eq-spectrum-filtered-line'), eqSpectrumFinalLine:this.querySelector('.eq-spectrum-final-line'), eqCurve:this.querySelector('.eq-curve'), eqCurveFill:this.querySelector('.eq-curve-fill'),
       eqBandName:this.querySelector('.eq-band-name'), eqSelectedFreq:this.querySelector('.eqSelectedFreq'), eqSelectedGain:this.querySelector('.eqSelectedGain'), eqSelectedQ:this.querySelector('.eqSelectedQ'),
       search: this.querySelector('.modelSearch'), browser: this.querySelector('.modelBrowser'),
-      toneBrowse: this.querySelector('.tone3000Browse'), toneStatus: this.querySelector('.tone3000Status'),
-      toneSelection: this.querySelector('.tone3000Selection'), toneInfo: this.querySelector('.tone3000Tone'),
-      toneModels: this.querySelector('.tone3000Model'), toneLoad: this.querySelector('.tone3000Load'),
+      toneBrowse: this.querySelector('.tone3000Browse'), toneBack: this.querySelector('.tone3000Back'), toneStatus: this.querySelector('.tone3000Status'),
+      toneSelection: this.querySelector('.tone3000Selection'), toneInfo: this.querySelector('.tone3000Tone'), toneTitle: this.querySelector('.tone3000Title'),
+      toneCaptureList: this.querySelector('.tone3000CaptureList'), toneCaptureLabel: this.querySelector('.tone3000CaptureLabel'), toneCapturePrevious: this.querySelector('.tone3000CapturePrevious'), toneCaptureNext: this.querySelector('.tone3000CaptureNext'), toneCapturePick: this.querySelector('.tone3000CapturePick'), toneFilename: this.querySelector('.tone3000Filename'), toneCounter: this.querySelector('.tone3000Counter'), toneVisual: this.querySelector('.tone3000Visual'),
       toneImage: this.querySelector('.tone3000Image'), currentToneImage: this.querySelector('.currentToneImage'),
       currentModelFallback: this.querySelector('.currentModelFallback'),
       toneAuth: this.querySelector('.tone3000Auth'), toneAuthenticate: this.querySelector('.tone3000Authenticate'), toneBrowser: this.querySelector('.tone3000Browser'),
@@ -194,6 +244,8 @@ class NamA2Gui extends HTMLElement {
       maintainerModels: this.querySelector('.factoryMaintainerModels'), maintainerExport: this.querySelector('.factoryMaintainerExport'),
       currentModel: this.querySelector('.currentModel'), modelSource: this.querySelector('.modelSource'),
       modelMode: this.querySelector('.modelMode'), modelLevel: this.querySelector('.modelLevel'), modelDrawer: this.querySelector('.modelDrawer'),
+      pluginTabs: [...this.querySelectorAll('.plugin-tab')], pluginPanels: [...this.querySelectorAll('.plugin-panel')],
+      modelHoverCard: this.querySelector('.modelHoverCard'), modelHoverTitle: this.querySelector('.modelHoverTitle'), modelHoverDetails: this.querySelector('.modelHoverDetails'),
       calibrateLevel: this.querySelector('.calibrateLevel'), useMetadataLevel: this.querySelector('.useMetadataLevel'),
       a2Variant: this.querySelector('.a2Variant'),
       autoLevel: this.querySelector('.autoLevel'),
@@ -210,9 +262,11 @@ class NamA2Gui extends HTMLElement {
       this.bindVerticalKnob(input);
       this.updateKnob(id,Number(input.value));
     }
-    for(const id of ['noiseEnabled','toneEnabled','eqEnabled'])this.controls[id].onchange=()=>{setParam(id,this.controls[id].checked?1:0);this.renderSignalFlow();};
+    this.bindModelHover(this.controls.currentToneImage,()=>this.node._metadata);
+    this.bindModelHover(this.controls.toneImage,()=>this.toneSelectionHoverData());
+    for(const id of ['noiseEnabled','toneEnabled','eqEnabled'])this.controls[id].onchange=()=>{setParam(id,this.controls[id].checked?1:0);if(id==='noiseEnabled')this.syncNoiseGateVisual();if(id==='eqEnabled')this.syncEqEnabledVisual();this.renderSignalFlow();};
     this.controls.eqPosition.onchange=()=>{setParam('eqPre',Number(this.controls.eqPosition.value));this.renderSignalFlow();};
-    this.controls.eqButton.onclick=()=>{const open=this.controls.eqPanel.hidden;this.controls.eqPanel.hidden=!open;this.controls.eqButton.setAttribute('aria-expanded',String(open));this.node.setSpectrumEnabled(open).catch(()=>{});};
+    this.controls.pluginTabs.forEach((button)=>{button.onclick=()=>this.setPluginTab(button.dataset.pluginTab);button.onkeydown=(event)=>this.navigatePluginTabs(event,button);});
     this._eqBands=EQ_BANDS.map((band)=>({frequency:band.frequency,gain:0,q:band.q}));this._selectedEqBand=0;
     this.initializeEqGraph(setParam,setParams);
     this.renderSignalFlow();
@@ -226,7 +280,7 @@ class NamA2Gui extends HTMLElement {
       try { const text=await file.text(); await this.node.loadModelText(text, file.name); await this.addExternal(text,file.name); }
       catch (error) { this.setModelStatus({status: 'error', error: error.message}); }
     };
-    this._assets=[]; this._selectedId=''; this._sourceFilter='Factory'; this._factoryCategory='all'; this._favoriteIds=new Set();
+    this._assets=[]; this._selectedId=''; this._sourceFilter='Factory'; this._factoryCategory='guitar'; this._favoriteIds=new Set();
     this.tone3000Downloads = new Tone3000Downloads();
     this.modelFavorites = new ModelFavorites();
     let preferredVariant='full';try{preferredVariant=localStorage.getItem(modelVariantStorageKey)==='lite'?'lite':'full';}catch{/* Storage can be unavailable in privacy modes. */}this.controls.a2Variant.value=preferredVariant;await this.node.setModelVariant(preferredVariant);
@@ -244,22 +298,26 @@ class NamA2Gui extends HTMLElement {
     await this.loadTone3000Downloads();
     await this.loadFavorites();
     this._automation = (event) => this.syncParameter(event.detail.data);
-    this._meterState = {inputPeak: 0, inputRms: 0, outputPeak: 0, outputRms: 0, inputClipUntil: 0, outputClipUntil: 0};
+    this._meterState = {inputPeak: 0, inputRms: 0, outputPeak: 0, outputRms: 0, inputClipUntil: 0, outputClipUntil: 0, outputGlow: 0};
     this._meterListener = (data) => this.updateMeters(data);
     this.node.addMeterListener(this._meterListener);
     this._spectrumListener = (data) => this.updateSpectrum(data);
     this.node.addSpectrumListener(this._spectrumListener);
     this.node.addEventListener('wam-automation', this._automation);
     this.syncParameters(await this.node.getParameterValues(false));
+    this.setPluginTab('main');
     this.tone3000 = new Tone3000Client(plugin.constructor.tone3000Config || {});
     this._maintainerMode = new URL(window.location.href).searchParams.get('maintainer') === '1';
     this.controls.maintainer.hidden = !this._maintainerMode;
     this.querySelectorAll('[data-maintainer-kind]').forEach((button) => button.onclick = () => this.selectMaintainerTone(button.dataset.maintainerKind));
     this.controls.maintainerExport.onclick = () => this.exportMaintainerBundle();
-    this._toneModels = [];
+    this._toneModels = []; this._toneModelIndex = 0; this._toneModelLoading = false; this._toneSelectionSerial = 0;
     this.controls.toneBrowse.onclick = () => this.browseTone3000();
+    this.controls.toneBack.onclick = () => this.backToTone3000MainView();
     this.controls.toneAuthenticate.onclick = () => this.authenticateTone3000();
-    this.controls.toneLoad.onclick = () => this.loadTone3000Model();
+    this.controls.toneCapturePrevious.onclick = () => this.loadTone3000Model(this._toneModelIndex-1);
+    this.controls.toneCaptureNext.onclick = () => this.loadTone3000Model(this._toneModelIndex+1);
+    this.controls.toneCapturePick.onclick = () => this.loadTone3000Model(this._toneModelIndex);
     this.controls.toneClear.onclick = () => this.clearTone3000Downloads();
     this._toneFeed = 'trending'; this._toneGear = ''; this._tonePage = 1;
     this.querySelectorAll('[data-tone-feed]').forEach((button) => button.onclick = () => { this._toneFeed = button.dataset.toneFeed; this._tonePage = 1; this.querySelectorAll('[data-tone-feed]').forEach((b) => b.setAttribute('aria-pressed', String(b === button))); this.loadTone3000Catalog(); });
@@ -289,11 +347,63 @@ class NamA2Gui extends HTMLElement {
       if (event.data?.type !== TONE3000_CALLBACK_CHANNEL) return;
       this._receiveTone3000Callback(event.data);
     };
-    this._escapeListener = (event) => { if (event.key === 'Escape') this.querySelectorAll('.drawer[open]').forEach((details) => { details.open = false; }); };
-    this.addEventListener('keydown', this._escapeListener);
     await this.completeTone3000Callback();
     return this;
   }
+
+  setPluginTab(tabName, {focus=false}={}) {
+    const active=this.controls.pluginTabs.find((button)=>button.dataset.pluginTab===tabName)||this.controls.pluginTabs[0];
+    this._activePluginTab=active.dataset.pluginTab;
+    this.controls.pluginTabs.forEach((button)=>{const selected=button===active;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;});
+    this.controls.pluginPanels.forEach((panel)=>{panel.hidden=panel.dataset.pluginPanel!==this._activePluginTab;});
+    this.hideModelHover();
+    this.node.setSpectrumEnabled(this._activePluginTab==='amp').catch(()=>{});
+    if(focus)active.focus();
+  }
+
+  navigatePluginTabs(event, button) {
+    const keys=['ArrowLeft','ArrowRight','Home','End'];if(!keys.includes(event.key))return;
+    event.preventDefault();const tabs=this.controls.pluginTabs;let index=tabs.indexOf(button);
+    if(event.key==='Home')index=0;else if(event.key==='End')index=tabs.length-1;else index=(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+    this.setPluginTab(tabs[index].dataset.pluginTab,{focus:true});
+  }
+
+  modelHoverInfo(value) {
+    if(!value)return null;
+    const provenance=value.provenance||{};const raw=value.rawMetadata||value.metadata||provenance.metadata||{};
+    const creator=value.modeledBy&&value.modeledBy!=='Unknown'?value.modeledBy:raw.modeled_by||provenance.creator||value.creator?.name||value.creator_name||value.created_by;
+    const title=raw.name||provenance.title||value.displayName||value.title||value.name||`Tone ${value.id||value.tone_id||''}`;
+    const lines=[];const add=(label,data)=>{if(data!==undefined&&data!==null&&data!==''&&!lines.some((line)=>line===`${label}: ${data}`))lines.push(`${label}: ${data}`);};
+    const filename=value.filename||(value.name&&value.name!==title?value.name:'');add('File',filename);
+    add('Architecture',value.subtype||value.architecture);if(value.availableVariants?.length)add('Rendering modes','A2 Full, A2 Lite');
+    const sampleRate=value.expectedSampleRate??value.sampleRate??value.sample_rate;if(Number(sampleRate)>0)add('Sample rate',`${sampleRate} Hz`);
+    add('Modeled by',creator);add('NAM format',value.version);if(Number.isFinite(Number(value.loudness)))add('Model loudness',`${Number(value.loudness).toFixed(1)} dB`);
+    add('Source',value.source||provenance.source);add('Gear make',raw.gear_make);if(raw.gear_model!==raw.gear_make)add('Gear model',raw.gear_model);
+    add('Capture type',raw.gear_type||value.gear_type||value.gear||provenance.gear);add('Tone',raw.tone_type?String(raw.tone_type).replaceAll('_',' '):'');
+    const date=metadataDate(raw.date);add('Captured',date);add('License',provenance.license||value.license);add('Provider',provenance.provider);add('Tone ID',provenance.toneId||value.tone_id);
+    return {title:String(title),details:lines.join('\n')||'No additional metadata available'};
+  }
+
+  toneSelectionHoverData() {
+    const tone=this._tone||{};const model=this._toneModels?.[this._toneModelIndex]||{};
+    return {...tone,...model,provenance:{title:tone.title||tone.name,creator:tone.creator?.name||tone.creator_name||tone.created_by,gear:tone.gear||tone.gear_type,license:tone.license,toneId:this._toneId||tone.id||tone.tone_id,source:'TONE3000'}};
+  }
+
+  bindModelHover(element, provider) {
+    if(!element)return;
+    const schedule=(event)=>{this.hideModelHover();this._hoverPoint={x:event.clientX,y:event.clientY};this._hoverTimer=setTimeout(()=>{if(!element.isConnected||element.hidden)return;const info=this.modelHoverInfo(provider());if(info)this.showModelHover(element,info);},1000);};
+    element.addEventListener('mouseenter',schedule);element.addEventListener('mousemove',(event)=>{this._hoverPoint={x:event.clientX,y:event.clientY};});element.addEventListener('mouseleave',()=>this.hideModelHover());
+    element.addEventListener('focus',schedule);element.addEventListener('blur',()=>this.hideModelHover());
+  }
+
+  showModelHover(element, info) {
+    const card=this.controls.modelHoverCard;this.controls.modelHoverTitle.textContent=info.title;this.controls.modelHoverDetails.textContent=info.details;card.hidden=false;
+    const anchor=element.getBoundingClientRect();const width=card.offsetWidth,height=card.offsetHeight;let left=anchor.right+10,top=anchor.top;
+    if(left+width>window.innerWidth-10)left=anchor.left-width-10;if(left<10)left=Math.max(10,Math.min(window.innerWidth-width-10,this._hoverPoint?.x+12||10));
+    top=Math.max(10,Math.min(window.innerHeight-height-10,top));card.style.left=`${left+window.scrollX}px`;card.style.top=`${top+window.scrollY}px`;
+  }
+
+  hideModelHover() { clearTimeout(this._hoverTimer);this._hoverTimer=null;if(this.controls?.modelHoverCard)this.controls.modelHoverCard.hidden=true; }
 
   measuredLevelKey() {
     if (!this._selectedId) return '';
@@ -357,11 +467,25 @@ class NamA2Gui extends HTMLElement {
       band[match[2]==='Freq'?'frequency':match[2].toLowerCase()]=Number(value);if(!deferEqRender)this.renderEqGraph();
     }
     else if (this.controls[id]) this.updateKnob(id, value);
-    if(id==='eqEnabled')this.controls.eqGraph?.classList.toggle('disabled',value<.5);
+    if(id==='noiseEnabled')this.syncNoiseGateVisual();
+    if(id==='eqEnabled')this.syncEqEnabledVisual();
     if(['noiseEnabled','toneEnabled','eqEnabled','eqPre'].includes(id))this.renderSignalFlow();
   }
 
   syncParameters(values) { let hasEq=false;Object.values(values).forEach((data)=>{const isEq=/^eq[1-6](Freq|Gain|Q)$/u.test(data.id);hasEq=hasEq||isEq;this.syncParameter(data,isEq);});if(hasEq)this.renderEqGraph(); }
+
+  syncNoiseGateVisual() {
+    const enabled=this.controls.noiseEnabled.checked;
+    this.controls.noise.disabled=!enabled;
+    this.querySelector('.noise-side')?.classList.toggle('is-disabled',!enabled);
+    this.controls.noise.title=enabled?'Noise gate threshold':'Enable Noise gate to adjust its threshold';
+  }
+
+  syncEqEnabledVisual() {
+    const enabled=this.controls.eqEnabled.checked;
+    this.controls.eqGraph?.classList.toggle('disabled',!enabled);
+    this.controls.eqPanel.classList.toggle('is-off',!enabled);
+  }
 
   bindVerticalKnob(input) {
     let drag=null;
@@ -431,24 +555,40 @@ class NamA2Gui extends HTMLElement {
       element.querySelector('.peak').textContent = `${Number.isFinite(peakDb) ? peakDb.toFixed(1) : '-∞'} dBFS`;
       element.querySelector('.rms').textContent = `RMS ${Number.isFinite(rmsDb) ? rmsDb.toFixed(1) : '-∞'}`;
       element.querySelector('.clip').classList.toggle('active', now < this._meterState[clipKey]);
+      if(id==='output')this.updateOutputGlow(peakDb,rmsDb);
     }
+  }
+
+  updateOutputGlow(peakDb,rmsDb) {
+    const target=Number.isFinite(rmsDb)?Math.max(0,Math.min(1,(rmsDb+55)/55)):0;
+    const energy=this._meterState.outputGlow=Math.max(target,this._meterState.outputGlow*.86);
+    const strip=this.querySelector('.signal-strip');
+    if(energy<.015){strip.style.borderColor='#393541';strip.style.boxShadow='none';return;}
+    const hue=peakDb>-6?3:peakDb>-18?45:145;
+    const alpha=(.16+energy*.7).toFixed(3),outer=(energy*.55).toFixed(3);
+    strip.style.borderColor=`hsla(${hue},95%,60%,${alpha})`;
+    strip.style.boxShadow=`0 0 ${Math.round(8+energy*26)}px hsla(${hue},100%,55%,${outer}), inset 0 0 ${Math.round(4+energy*12)}px hsla(${hue},100%,55%,${(energy*.22).toFixed(3)})`;
   }
 
   amplitudeToDb(amplitude) { return amplitude > 0 ? Math.max(-72, 20 * Math.log10(amplitude)) : -Infinity; }
 
   setToneImage(element, imageUrl, alt) {
     element.onerror = null;
+    const fallback=element.nextElementSibling?.classList.contains('tone3000Visual')?element.nextElementSibling:null;
     if (!imageUrl) {
       element.hidden = true;
+      if(fallback)fallback.hidden=false;
       element.removeAttribute('src');
       element.alt = '';
       return;
     }
     element.hidden = false;
+    if(fallback)fallback.hidden=true;
     element.alt = alt;
     element.onerror = () => {
       element.onerror = null;
       element.hidden = true;
+      if(fallback)fallback.hidden=false;
       element.removeAttribute('src');
     };
     element.src = imageUrl;
@@ -549,6 +689,17 @@ class NamA2Gui extends HTMLElement {
     this.controls.toneBrowser.hidden = show;
     if (show) this.controls.toneSelection.hidden = true;
     this.controls.toneCatalog.hidden = show;
+    if (show) this.controls.toneBack.hidden = true;
+  }
+
+  backToTone3000MainView() {
+    ++this._toneSelectionSerial;
+    this._toneModelLoading = false;
+    this.controls.toneSelection.hidden = true;
+    this.controls.toneCatalog.hidden = false;
+    this.controls.toneBack.hidden = true;
+    this.setToneStatus('Choose a tone to see compatible A2 models');
+    if (!this.controls.toneCards.childElementCount) return this.loadTone3000Catalog();
   }
 
   setSourceFilter(source) {
@@ -587,7 +738,7 @@ class NamA2Gui extends HTMLElement {
   }
 
   async openTone3000Flow(createUrl, waitingStatus) {
-    this.setSourceFilter('TONE3000'); this.showToneAuthentication(false); this.controls.modelDrawer.open = true;
+    this.setSourceFilter('TONE3000'); this.showToneAuthentication(false); this.setPluginTab('models');
     this.setToneStatus('Opening TONE3000…'); this._toneCallbackHref = '';
     sessionStorage.setItem('nam-a2-wam.tone3000.popup', '1');
     const popup = window.open('about:blank', 'tone3000-oauth', 'popup,width=1180,height=820');
@@ -605,7 +756,7 @@ class NamA2Gui extends HTMLElement {
     this._sourceFilter = 'TONE3000';
     this.controls.sourceTabs.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.source === 'TONE3000')));
     this.controls.tonePanel.hidden = false;
-    this.controls.modelDrawer.open = true;
+    this.setPluginTab('models');
     this.renderBrowser();
     this.setToneStatus('Completing TONE3000 authorization…');
     const result = await this.tone3000.completeAuthorization(location);
@@ -653,49 +804,73 @@ class NamA2Gui extends HTMLElement {
 
   async loadTone3000Catalog() {
     if (!this.tone3000?.tokens?.access_token) return;
-    this.controls.toneCatalog.hidden = false; this.controls.toneSelection.hidden = true; this.setToneStatus('Loading TONE3000 catalog…');
+    this.controls.toneCatalog.hidden = false; this.controls.toneSelection.hidden = true; this.controls.toneBack.hidden = true; this.setToneStatus('Loading TONE3000 catalog…');
     try {
       const options = {page: this._tonePage, pageSize: 12, gear: this._toneGear};
       const result = this._toneFeed === 'latest' ? await this.tone3000.listLatestTones() : this._toneFeed === 'trending' ? await this.tone3000.listTrendingTones(this._toneGear) : await this.tone3000[`list${this._toneFeed[0].toUpperCase()}${this._toneFeed.slice(1)}Tones`](options);
       const tones = Array.isArray(result) ? result : result.data || [];
-      this.controls.toneCards.replaceChildren(...tones.map((tone) => { const button=document.createElement('button'); button.type='button'; button.className='toneCard'; const image=document.createElement('img'); image.crossOrigin='anonymous'; image.referrerPolicy='no-referrer'; image.alt=''; image.src=getToneImageUrl(tone); const title=document.createElement('strong'); title.textContent=tone.title || tone.name || `Tone ${tone.id}`; const creator=document.createElement('small'); creator.textContent=tone.creator?.name || tone.creator_name || tone.user?.username || 'TONE3000 creator'; button.append(image,title,creator); button.onclick=()=>this.loadTone3000Selection(tone.id); return button; }));
+      this.controls.toneCards.replaceChildren(...tones.map((tone) => { const button=document.createElement('button'); button.type='button'; button.className='toneCard'; const image=document.createElement('img'); image.crossOrigin='anonymous'; image.referrerPolicy='no-referrer'; image.alt=''; image.src=getToneImageUrl(tone);this.bindModelHover(image,()=>({...tone,provenance:{title:tone.title||tone.name,creator:tone.creator?.name||tone.creator_name||tone.user?.username,gear:tone.gear||tone.gear_type,license:tone.license,toneId:tone.id||tone.tone_id,source:'TONE3000'}})); const title=document.createElement('strong'); title.textContent=tone.title || tone.name || `Tone ${tone.id}`; const creator=document.createElement('small'); creator.textContent=tone.creator?.name || tone.creator_name || tone.user?.username || 'TONE3000 creator'; button.append(image,title,creator); button.onclick=()=>this.loadTone3000Selection(tone.id); return button; }));
       this.controls.tonePage.textContent = `Page ${this._tonePage}`; this.controls.tonePrev.disabled = this._tonePage <= 1; this.controls.toneNext.disabled = tones.length < 12; this.setToneStatus(tones.length ? 'Choose a tone to see compatible A2 models' : 'No tones found for this filter.');
     } catch (error) { this.setToneStatus(error.message, true); }
   }
 
-  async loadTone3000Selection(toneId, {autoLoad = false} = {}) {
+  async loadTone3000Selection(toneId, {autoLoad = true} = {}) {
+    const serial=++this._toneSelectionSerial;
     try {
       this.setToneStatus('Loading tone metadata…');
       const tone = await this.tone3000.getTone(toneId);
+      if(serial!==this._toneSelectionSerial)return;
       this.setToneStatus('Loading compatible A2 models…');
-      this._toneModels = await this.tone3000.getCompatibleModels(toneId);
-      this._toneModels = this._toneModels.filter((model) => String(model.architecture ?? 2) === '2');
+      const models = await this.tone3000.getCompatibleModels(toneId);
+      if(serial!==this._toneSelectionSerial)return;
+      this._toneModels = models.filter((model) => String(model.architecture ?? 2) === '2');
+      this._toneModelIndex=0;this._toneModelLoading=false;this._tone=tone;this._toneId=toneId;
       this.controls.toneSelection.hidden = false;
       this.controls.toneCatalog.hidden = true;
+      this.controls.toneBack.hidden = false;
+      this.controls.toneCaptureLabel.textContent = captureCountLabel(this._toneModels.length);
       const imageUrl = getToneImageUrl(tone);
       const toneTitle = tone.title || tone.name || `Tone ${toneId}`;
       this.setToneImage(this.controls.toneImage, imageUrl, `${toneTitle} — TONE3000 tone image`);
-      this.controls.toneInfo.textContent = `${toneTitle}\nCreator: ${tone.creator?.name || tone.creator_name || tone.created_by || 'Unknown'}\nGear: ${tone.gear_type || tone.gear || 'NAM'}${tone.license ? `\nLicense: ${tone.license}` : ''}`;
-      this.controls.toneModels.replaceChildren(...this._toneModels.map((model) => new Option(model.name || `Model ${model.id}`, String(model.id))));
-      if (!this._toneModels.length) { this.setToneStatus('No compatible NAM A2 model is available for this tone.', true); this.controls.toneLoad.disabled = true; return; }
-      this.controls.toneLoad.disabled = false; this.setToneStatus('Tone selected — choose an A2 model and load it');
-      this._tone = tone; this._toneId = toneId;
+      this.controls.toneTitle.textContent=toneTitle;
+      this.controls.toneInfo.textContent = `Creator: ${tone.creator?.name || tone.creator_name || tone.created_by || 'Unknown'}\nGear: ${tone.gear_type || tone.gear || 'NAM'}${tone.license ? `\nLicense: ${tone.license}` : ''}`;
+      this.controls.toneCaptureList.replaceChildren(...this._toneModels.map((model,index)=>{const button=document.createElement('button');button.type='button';button.className='factoryCapture';button.textContent=model.name||`Model ${model.id}`;button.title=button.textContent;button.setAttribute('aria-label',`Load ${button.textContent}`);button.onclick=()=>this.loadTone3000Model(index);return button;}));
+      this.renderTone3000Selection();
+      if (!this._toneModels.length) { this.setToneStatus('No compatible NAM A2 model is available for this tone.', true); return; }
+      this.setToneStatus('Tone selected — loading the first A2 model…');
       if (autoLoad) await this.loadTone3000Model();
     } catch (error) { this.setToneStatus(error.message, true); }
   }
 
-  async loadTone3000Model() {
-    const model = this._toneModels[Number(this.controls.toneModels.selectedIndex)];
-    if (!model || this.controls.toneLoad.disabled) return;
+  renderTone3000Selection() {
+    const index=this._toneModelIndex,models=this._toneModels,model=models[index],busy=this._toneModelLoading;
+    this.controls.toneCapturePrevious.disabled=busy||index<=0;
+    this.controls.toneCaptureNext.disabled=busy||index>=models.length-1;
+    this.controls.toneCapturePick.disabled=busy||!model;
+    this.controls.toneFilename.textContent=model?.name||'';
+    this.controls.toneFilename.title=model?.name||'';
+    const identity=model?`tone3000:${this._toneId}:${model.id}`:'';
+    const loaded=!!identity&&identity===this._selectedId;
+    this.controls.toneCounter.textContent=model?`${index+1} / ${models.length}${loaded?' · loaded':''}`:'No compatible captures';
+    this.controls.toneCapturePick.classList.toggle('selected',loaded);
+    [...this.controls.toneCaptureList.children].forEach((button,buttonIndex)=>{button.disabled=busy;button.classList.toggle('selected',buttonIndex===index);const active=`tone3000:${this._toneId}:${models[buttonIndex].id}`===this._selectedId;button.classList.toggle('loaded',active);button.setAttribute('aria-current',active?'true':'false');});
+    const selected=this.controls.toneCaptureList.children[index];
+    if(selected)this.controls.toneCaptureList.scrollTop=Math.max(0,selected.offsetTop-(this.controls.toneCaptureList.clientHeight-selected.offsetHeight)/2);
+  }
+
+  async loadTone3000Model(index=this._toneModelIndex) {
+    const model = this._toneModels[index];
+    if (!model || this._toneModelLoading) return;
+    this._toneModelIndex=index;this._toneModelLoading=true;this.renderTone3000Selection();
+    const serial=this._toneSelectionSerial;
     const toneId = this._toneId ?? this._tone?.id ?? this._tone?.tone_id;
     const provenance = {identity: `tone3000:${toneId}:${model.id}`, toneId, modelId: model.id,
       title: this._tone?.title || this._tone?.name, creator: this._tone?.creator?.name || this._tone?.creator_name,
       gear: this._tone?.gear || this._tone?.gear_type, format: this._tone?.format,
       license: this._tone?.license, imageUrl: getToneImageUrl(this._tone), source: 'TONE3000'};
-    this.controls.toneLoad.disabled = true;
-    try { this.setToneStatus('Downloading model…'); const downloaded = await this.tone3000.downloadModel(model); this.setToneStatus('Loading NAM model…'); await this.node.loadModelText(downloaded.text, downloaded.name, provenance); const record={...provenance,name:downloaded.name,text:downloaded.text,downloadedAt:new Date().toISOString()};try{await this.tone3000Downloads.save(record);this.upsertTone3000Asset(record);this.renderTone3000Downloads();this.setToneStatus('TONE3000 model loaded and saved on this device');}catch(cacheError){this.setToneStatus(`Model loaded, but local storage failed: ${cacheError.message}`,true);} }
-    catch (error) { this.setToneStatus(error.message, true); }
-    finally { this.controls.toneLoad.disabled = false; }
+    try { this.setToneStatus('Downloading model…'); const downloaded = await this.tone3000.downloadModel(model);if(serial!==this._toneSelectionSerial)return;this.setToneStatus('Loading NAM model…'); await this.node.loadModelText(downloaded.text, downloaded.name, provenance); const record={...provenance,name:downloaded.name,text:downloaded.text,downloadedAt:new Date().toISOString()};try{await this.tone3000Downloads.save(record);this.upsertTone3000Asset(record);this.renderTone3000Downloads();this.setToneStatus('TONE3000 model loaded and saved on this device');}catch(cacheError){this.setToneStatus(`Model loaded, but local storage failed: ${cacheError.message}`,true);} }
+    catch (error) { if(serial===this._toneSelectionSerial)this.setToneStatus(error.message, true); }
+    finally { if(serial===this._toneSelectionSerial){this._toneModelLoading=false;this.renderTone3000Selection();} }
   }
 
   upsertTone3000Asset(download) {
@@ -746,11 +921,11 @@ class NamA2Gui extends HTMLElement {
     const assets = this._assets.filter((asset) => asset.source === 'TONE3000' && asset.downloadedAt && asset.data);
     this.controls.toneClear.hidden = assets.length === 0;
     this.controls.toneDownloadedList.replaceChildren(...assets.map((asset) => {
-      const row=document.createElement('article'); row.className='downloadedTone';
+      const row=document.createElement('article'); row.className='downloadedTone';const select=document.createElement('button');select.type='button';select.className='downloadedToneSelect';select.setAttribute('aria-label',`Load ${asset.filename}`);
       const visual=document.createElement('div'); visual.className='downloadedToneVisual'; visual.textContent='T3K';
-      if(asset.provenance?.imageUrl){const image=document.createElement('img');image.alt='';image.crossOrigin='anonymous';image.referrerPolicy='no-referrer';image.src=asset.provenance.imageUrl;image.onerror=()=>image.replaceWith(visual);row.append(image);}else row.append(visual);
+      if(asset.provenance?.imageUrl){const image=document.createElement('img');image.alt='';image.crossOrigin='anonymous';image.referrerPolicy='no-referrer';image.src=asset.provenance.imageUrl;image.onerror=()=>image.replaceWith(visual);this.bindModelHover(image,()=>asset);select.append(image);}else select.append(visual);
       const meta=document.createElement('div');meta.className='downloadedToneMeta';const title=document.createElement('strong');title.textContent=asset.provenance?.title||asset.displayName;const by=document.createElement('small');by.textContent=[asset.provenance?.creator,asset.provenance?.license].filter(Boolean).join(' · ')||'TONE3000';meta.append(title,by);
-      const actions=document.createElement('div');actions.className='downloadedToneActions';const load=document.createElement('button');load.type='button';load.textContent='Load';load.onclick=async()=>{try{await this.node.loadModelText(asset.data,asset.filename,asset.provenance);this._selectedId=asset.id;this.setToneStatus('Downloaded TONE3000 model loaded');this.renderBrowser();}catch(error){this.setToneStatus(error.message,true);}};const remove=document.createElement('button');remove.type='button';remove.className='downloadedToneDelete';remove.textContent='Delete';remove.onclick=()=>this.deleteTone3000Download(asset);actions.append(load,remove);row.append(meta,actions);return row;
+      select.append(meta);select.onclick=async()=>{select.disabled=true;try{await this.node.loadModelText(asset.data,asset.filename,asset.provenance);this._selectedId=asset.id;this.setToneStatus('Downloaded TONE3000 model loaded');this.renderBrowser();}catch(error){this.setToneStatus(error.message,true);}finally{select.disabled=false;}};const remove=document.createElement('button');remove.type='button';remove.className='downloadedToneDelete';remove.textContent='Delete';remove.onclick=()=>this.deleteTone3000Download(asset);row.append(select,remove);return row;
     }));
   }
 
@@ -775,22 +950,60 @@ class NamA2Gui extends HTMLElement {
     } catch (error) { this.setToneStatus(`Could not delete local downloads: ${error.message}`, true); }
   }
 
-  async loadManifest(){try{const response=await fetch(manifestUrl);if(!response.ok)throw Error(`HTTP ${response.status}`);const manifest=await response.json();this._assets=manifest.assets||[];this.renderBrowser();const state=await this.node.getState();if(state.model)this._modelListener(null,state.model);}catch(error){this.setModelStatus({status:'error',error:`Factory library unavailable: ${error.message}`});}}
+  async loadManifest(){
+    try{
+      const response=await fetch(manifestUrl);if(!response.ok)throw Error(`HTTP ${response.status}`);
+      const manifest=await response.json();this._assets=manifest.assets||[];this.renderBrowser();
+    }catch(error){this.setModelStatus({status:'error',error:`Factory library unavailable: ${error.message}`});return;}
+    const state=await this.node.getState();
+    if(state.model?.data){await this._modelListener(null,state.model);return;}
+    const firstCapture=this._assets.find((asset)=>asset.category==='guitar'&&Number(asset.provenance?.toneId)===defaultFactoryToneId);
+    if(!firstCapture)return;
+    try{
+      const response=await fetch(factoryAssetUrl(manifestUrl,'models',firstCapture.relativePath));
+      if(!response.ok)throw Error(`HTTP ${response.status} while loading ${firstCapture.filename}`);
+      const text=await response.text();
+      if((await this.node.getState()).model?.data)return;
+      await this.node.loadModelText(text,firstCapture.filename,factoryProvenance(firstCapture));
+    }catch(error){this.setModelStatus({status:'error',error:`Default Factory capture unavailable: ${error.message}`});}
+  }
   createFactoryAssetEntry(asset) {
     const button=document.createElement('button');button.className='factoryAsset';
     const fallback=document.createElement('span');fallback.className='factoryAssetVisual';fallback.textContent=asset.metadata?.gear_make||asset.metadata?.gear_type||'NAM';
     const imageUrl=factoryImageUrl(asset);
-    if(imageUrl){const image=document.createElement('img');image.alt='';image.src=imageUrl;image.onerror=()=>image.replaceWith(fallback);button.append(image);}else button.append(fallback);
+    if(imageUrl){const image=document.createElement('img');image.alt='';image.src=imageUrl;image.onerror=()=>image.replaceWith(fallback);this.bindModelHover(image,()=>asset);button.append(image);}else button.append(fallback);
     const text=document.createElement('span');text.className='factoryAssetText';const title=document.createElement('strong');title.textContent=asset.displayName||asset.metadata?.name;const filename=document.createElement('small');filename.className='factoryAssetFilename';filename.textContent=`File: ${asset.filename}`;const gear=document.createElement('small');gear.textContent=[asset.metadata?.gear_make,asset.metadata?.gear_model].filter((value,index,array)=>value&&array.indexOf(value)===index).join(' · ')||asset.provenance?.title||'NAM capture';const attribution=document.createElement('small');attribution.textContent=[asset.metadata?.gear_type||asset.provenance?.gear,asset.metadata?.tone_type?.replaceAll('_',' '),(asset.metadata?.modeled_by||asset.provenance?.creator)&&`by ${asset.metadata?.modeled_by||asset.provenance?.creator}`,asset.provenance?.license].filter(Boolean).join(' · ');text.append(title,filename,gear,attribution);button.append(text);return button;
   }
 
   createFactoryToneCard(name,assets,selectedId,onSelect) {
-    if(!assets.length||!assets.every((asset)=>asset.id.startsWith('factory:')&&asset.provenance?.toneId!=null))return null;
+    if(!assets.length||!assets.every((asset)=>asset.id.startsWith('factory:'))||(assets.length===1&&assets[0].provenance?.toneId==null))return null;
     const tone=assets[0];const card=document.createElement('section');card.className='factoryToneCard';
-    const fallback=document.createElement('span');fallback.className='factoryToneVisual';fallback.textContent='NAM';const imageUrl=factoryImageUrl(tone);
-    if(imageUrl){const image=document.createElement('img');image.className='factoryToneArtwork';image.alt='';image.src=imageUrl;image.onerror=()=>image.replaceWith(fallback);card.append(image);}else card.append(fallback);
-    const body=document.createElement('div');body.className='factoryToneBody';const title=document.createElement('strong');title.className='factoryToneTitle';title.textContent=tone.provenance?.title||name;const meta=document.createElement('small');meta.className='factoryToneMeta';meta.textContent=[tone.provenance?.creator&&`by ${tone.provenance.creator}`,tone.provenance?.license,`${assets.length} capture${assets.length===1?'':'s'}`].filter(Boolean).join(' · ');
-    const list=document.createElement('div');list.className='factoryCaptureList';list.setAttribute('role','list');for(const asset of assets){const row=document.createElement('div');row.className='factoryCaptureRow';const button=document.createElement('button');button.type='button';button.className='factoryCapture';button.dataset.assetId=asset.id;button.textContent=asset.filename;button.title=asset.filename;if(asset.id===selectedId)button.classList.add('selected');button.onclick=()=>onSelect(asset);const star=document.createElement('button');star.type='button';star.className='favoriteToggle';const favorite=this.isFavorite(asset);star.classList.toggle('active',favorite);star.textContent=favorite?'★':'☆';star.title=favorite?'Remove from favorites':'Add to favorites';star.setAttribute('aria-label',`${favorite?'Remove from':'Add to'} favorites: ${asset.filename}`);star.onclick=(event)=>{event.stopPropagation();this.toggleFavorite(asset);};row.append(button,star);list.append(row);}body.append(title,meta,list);card.append(body);return card;
+    const media=document.createElement('div');media.className='factoryToneMedia';
+    const details=document.createElement('div');details.className='factoryToneDetails';
+    const title=document.createElement('strong');title.className='factoryToneTitle';title.textContent=tone.provenance?.title||name;
+    const meta=document.createElement('small');meta.className='factoryToneMeta';meta.textContent=[tone.provenance?.creator&&`by ${tone.provenance.creator}`,tone.metadata?.gear_type||tone.provenance?.gear,tone.provenance?.license,`${assets.length} capture${assets.length===1?'':'s'}`].filter(Boolean).join(' · ');
+    const viewer=document.createElement('div');viewer.className='factoryToneViewer';
+    const previous=document.createElement('button');previous.type='button';previous.className='factoryToneNav';previous.textContent='‹';
+    const pick=document.createElement('button');pick.type='button';pick.className='factoryTonePick';
+    const next=document.createElement('button');next.type='button';next.className='factoryToneNav';next.textContent='›';
+    const imageUrl=factoryImageUrl(tone);const fallback=document.createElement('span');fallback.className='factoryToneVisual';fallback.textContent='NAM';
+    if(imageUrl){const image=document.createElement('img');image.className='factoryToneArtwork';image.alt='';image.src=imageUrl;image.onerror=()=>image.replaceWith(fallback);this.bindModelHover(image,()=>assets[index]);pick.append(image);}else pick.append(fallback);
+    const filename=document.createElement('span');filename.className='factoryToneFilename';
+    const counter=document.createElement('small');counter.className='factoryToneCounter';
+    const star=document.createElement('button');star.type='button';star.className='favoriteToggle factoryToneFavorite';
+    const footer=document.createElement('div');footer.className='factoryToneFooter';
+    const captureLabel=document.createElement('span');captureLabel.className='factoryCaptureLabel';captureLabel.textContent=captureCountLabel(assets.length);
+    const captureList=document.createElement('div');captureList.className='factoryCaptureList';captureList.setAttribute('role','group');captureList.setAttribute('aria-label',`Captures for ${title.textContent}`);
+    const captureButtons=assets.map((asset)=>{const button=document.createElement('button');button.type='button';button.className='factoryCapture';button.dataset.assetId=asset.id;button.textContent=asset.filename;button.title=asset.filename;button.setAttribute('aria-label',`Load ${asset.filename}`);captureList.append(button);return button;});
+    let index=Math.max(0,assets.findIndex((asset)=>asset.id===selectedId));
+    const update=()=>{const asset=assets[index];previous.disabled=index===0;next.disabled=index===assets.length-1;previous.setAttribute('aria-label',`Previous capture of ${title.textContent}`);next.setAttribute('aria-label',`Next capture of ${title.textContent}`);pick.dataset.assetId=asset.id;pick.classList.toggle('selected',asset.id===this._selectedId);pick.setAttribute('aria-label',`Load ${asset.filename}`);filename.textContent=asset.filename;filename.title=asset.filename;counter.textContent=`${index+1} / ${assets.length}${asset.id===this._selectedId?' · loaded':''}`;captureButtons.forEach((button,buttonIndex)=>{const loaded=assets[buttonIndex].id===this._selectedId;button.classList.toggle('selected',buttonIndex===index);button.classList.toggle('loaded',loaded);button.setAttribute('aria-current',loaded?'true':'false');});const favorite=this.isFavorite(asset);star.classList.toggle('active',favorite);star.textContent=favorite?'★':'☆';star.title=favorite?'Remove from favorites':'Add to favorites';star.setAttribute('aria-label',`${favorite?'Remove from':'Add to'} favorites: ${asset.filename}`);};
+    const revealSelected=()=>{const button=captureButtons[index];captureList.scrollTop=Math.max(0,button.offsetTop-(captureList.clientHeight-button.offsetHeight)/2);};
+    const choose=async(newIndex)=>{index=newIndex;update();revealSelected();previous.disabled=true;next.disabled=true;pick.disabled=true;captureButtons.forEach((button)=>{button.disabled=true;});try{await onSelect(assets[index]);}finally{pick.disabled=false;captureButtons.forEach((button)=>{button.disabled=false;});update();}};
+    previous.onclick=()=>choose(index-1);next.onclick=()=>choose(index+1);pick.onclick=()=>choose(index);
+    captureButtons.forEach((button,buttonIndex)=>{button.onclick=()=>choose(buttonIndex);});
+    star.onclick=()=>this.toggleFavorite(assets[index]);
+    update();viewer.append(previous,pick,next);footer.append(counter,star);media.append(title,meta,viewer,filename,footer);details.append(captureLabel,captureList);card.append(media,details);
+    requestAnimationFrame(()=>{if(card.isConnected)revealSelected();});return card;
   }
 
   renderBrowser() {
@@ -799,6 +1012,7 @@ class NamA2Gui extends HTMLElement {
     const labels={all:'All',guitar:'Guitar',bass:'Bass',pedal:'Pedals'};this.controls.factoryCategoryButtons.forEach((button)=>{button.textContent=`${labels[button.dataset.category]} ${counts[button.dataset.category]}`;});
     const sourceAssets=this._sourceFilter==='Favorites'?this._assets.filter((asset)=>this.isFavorite(asset)):this._sourceFilter==='TONE3000'?this._assets.filter((asset)=>asset.source==='TONE3000'):this._sourceFilter==='External'?this._assets.filter((asset)=>asset.source==='External'||asset.id.startsWith('external:')):factoryAssets;
     const assets=this._sourceFilter==='Factory'&&this._factoryCategory!=='all'?sourceAssets.filter((asset)=>asset.category===this._factoryCategory):sourceAssets;
+    const browserScrollTop=this.controls.browser.scrollTop;
     buildAssetTree(this.controls.browser,assets,{search:this.controls.search.value,selectedId:this._selectedId,
       renderAsset:this._sourceFilter==='Factory'?(asset)=>this.createFactoryAssetEntry(asset):undefined,
       renderGroup:this._sourceFilter==='Factory'||this._sourceFilter==='Favorites'?({name,assets,selectedId,onSelect})=>this.createFactoryToneCard(name,assets,selectedId,onSelect):undefined,
@@ -809,9 +1023,10 @@ class NamA2Gui extends HTMLElement {
         const response=await fetch(factoryAssetUrl(manifestUrl,'models',asset.relativePath));if(!response.ok)throw Error(`HTTP ${response.status} while loading ${asset.filename}`);await this.node.loadModelText(await response.text(),asset.filename,factoryProvenance(asset));this._selectedId=asset.id;this.controls.modelSource.textContent='Factory';this.renderBrowser();
       }catch(error){this.setModelStatus({status:'error',error:error.message});}}
     });
+    this.controls.browser.scrollTop=browserScrollTop;
   }
   async addExternal(text,name){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));const hash=[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');const asset=addExternalAsset(this._assets,{id:`external:${hash}`,filename:name,relativePath:name,groups:['External'],displayName:name.replace(/\.nam$/i,''),type:'nam',source:'External',data:text});asset.data=text;this._selectedId=asset.id;this.controls.modelSource.textContent='External';this.setSourceFilter('External');this.renderBrowser();}
-  destroy() { this.node.setSpectrumEnabled(false).catch(()=>{});this.node.removeEventListener('wam-automation', this._automation); this.node.removeMeterListener(this._meterListener);this.node.removeSpectrumListener(this._spectrumListener); this.node.removeModelListener(this._modelListener); window.removeEventListener('message', this._toneMessage); window.removeEventListener('storage', this._toneStorageMessage); this.removeEventListener('keydown', this._escapeListener); this._toneChannel?.close(); this._tonePopup?.close(); this.tone3000Downloads?.close(); this.modelFavorites?.close(); this.node.gui = null; }
+  destroy() { this.hideModelHover();this.node.setSpectrumEnabled(false).catch(()=>{});this.node.removeEventListener('wam-automation', this._automation); this.node.removeMeterListener(this._meterListener);this.node.removeSpectrumListener(this._spectrumListener); this.node.removeModelListener(this._modelListener); window.removeEventListener('message', this._toneMessage); window.removeEventListener('storage', this._toneStorageMessage); this._toneChannel?.close(); this._tonePopup?.close(); this.tone3000Downloads?.close(); this.modelFavorites?.close(); this.node.gui = null; }
 }
 
 if (!customElements.get('nam-a2-gui')) customElements.define('nam-a2-gui', NamA2Gui);
