@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-16T07:37:42.305Z",
+  "tone": {
+    "id": 1708,
+    "title": "Bass Ampeg SVT  8x10 ",
+    "description": "PURE AMPEG SOUND! ",
+    "url": "https://www.tone3000.com/tones/bass-ampeg-svt-8x10--1708",
+    "format": "ir",
+    "gear": "cab",
+    "license": "t3k",
+    "creator": {
+      "username": "matty",
+      "displayName": null,
+      "url": "https://www.tone3000.com/matty"
+    },
+    "makes": [
+      "Ampeg SVT",
+      "Bass Ampeg SVT 8x10"
+    ],
+    "tags": [
+      "1970s",
+      "1980s",
+      "1990s",
+      "2000s",
+      "2010s",
+      "2020s",
+      "bass",
+      "blues",
+      "clean",
+      "ir",
+      "metal",
+      "rock",
+      "studio-gear"
+    ],
+    "image": null,
+    "sourceImages": []
+  },
+  "assets": [
+    {
+      "id": 80911,
+      "file": "captures/Ampeg 8x10 e602 A107--m80911.wav",
+      "name": "Ampeg 8x10 e602 A107",
+      "createdAt": "2023-04-22T10:51:20.617+00:00",
+      "sha256": "874ec7d9721324c2fb1cc158ffd08b28b6570eb8f6862e93ad09faf130e089d1"
+    },
+    {
+      "id": 80912,
+      "file": "captures/Ampeg 8x10 57 A107--m80912.wav",
+      "name": "Ampeg 8x10 57 A107",
+      "createdAt": "2023-04-22T10:51:20.617+00:00",
+      "sha256": "cea3bc90670629b34dae7d967b5e46ea43fbbc3d15e3ed5d67f2b36d395a45df"
+    },
+    {
+      "id": 80913,
+      "file": "captures/Ampeg 8x10 D6 AH--m80913.wav",
+      "name": "Ampeg 8x10 D6 AH",
+      "createdAt": "2023-04-22T10:51:20.617+00:00",
+      "sha256": "504eb93e819760501f4c8cf7b589a1bf3d16c9466418ebdad75aa409802ac5b6"
+    },
+    {
+      "id": 80914,
+      "file": "captures/Ampeg 8x10 57 AH--m80914.wav",
+      "name": "Ampeg 8x10 57 AH",
+      "createdAt": "2023-04-22T10:51:20.617+00:00",
+      "sha256": "48543317cc7982ff68e4209386eee7f3216e44ea5adaeafa8e5645b9da4eb81c"
+    },
+    {
+      "id": 80915,
+      "file": "captures/Ampeg 8x10 4033 AH--m80915.wav",
+      "name": "Ampeg 8x10 4033 AH",
+      "createdAt": "2023-04-22T10:51:20.617+00:00",
+      "sha256": "67f08e189a64bab2acbbe09c0a4790b720b320b10db313dde5f396b05745d6cb"
+    },
+    {
+      "id": 80916,
+      "file": "captures/Ampeg 8x10 D6 A107--m80916.wav",
+      "name": "Ampeg 8x10 D6 A107",
+      "createdAt": "2023-04-22T10:51:20.617+00:00",
+      "sha256": "d7d82a171287d8cb85ceab06668a8f5558449256881fb54fcfd9ae787a82ee82"
+    },
+    {
+      "id": 80917,
+      "file": "captures/Ampeg 8x10 e602 AH--m80917.wav",
+      "name": "Ampeg 8x10 e602 AH",
+      "createdAt": "2023-04-22T10:51:20.617+00:00",
+      "sha256": "593025ae6f5fdfffdcf88d4a6d778078f65f539c56c4e6e536f4a3e319a81b92"
+    },
+    {
+      "id": 80918,
+      "file": "captures/Ampeg 8x10 4033 A107--m80918.wav",
+      "name": "Ampeg 8x10 4033 A107",
+      "createdAt": "2023-04-22T10:51:20.617+00:00",
+      "sha256": "21a028b955bc141ced7951bc789ab09541208b98eed2d7e48983eb42451b5ad8"
+    }
+  ]
+}

@@ -21,6 +21,7 @@ export default class Tone3000Client {
     try { const value = typeof localStorage !== 'undefined' ? localStorage.getItem('nam-a2-wam.tone3000.tokens') : null; return value ? JSON.parse(value) : null; } catch { return null; }
   }
   setTokens(tokens) { this.tokens = {...tokens, expiresAt: Date.now() + Number(tokens.expires_in || 3600) * 1000}; try { if (typeof localStorage !== 'undefined') localStorage.setItem('nam-a2-wam.tone3000.tokens', JSON.stringify(this.tokens)); } catch { /* Storage can be unavailable in embedded contexts. */ } }
+  reloadTokens() { this.tokens = this._readStoredTokens(); return this.tokens; }
   clearTokens() { this.tokens = null; try { if (typeof localStorage !== 'undefined') localStorage.removeItem('nam-a2-wam.tone3000.tokens'); } catch { /* Ignore unavailable storage. */ } }
 
   async createAuthorizationUrl(options = {}) {
@@ -75,6 +76,15 @@ export default class Tone3000Client {
     if (gear) query.set('gear', gear);
     return (await this.request(`/tones/${endpoint}?${query}`)).json();
   }
+  async searchTones({query = '', page = 1, pageSize = 12, sort = 'trending', gears = '', tags = '', format = '', architecture = ''} = {}) {
+    const params = new URLSearchParams({page:String(page), page_size:String(pageSize), sort});
+    if (query) params.set('query', query);
+    if (gears) params.set('gears', gears);
+    if (tags) params.set('tags', tags);
+    if (format) params.set('format', format);
+    if (architecture) params.set('architecture', architecture);
+    return (await this.request(`/tones/search?${params}`)).json();
+  }
   async listTrendingTones(gear = '') {
     const query = gear ? `?gear=${encodeURIComponent(gear)}` : '';
     const response = this.tokens?.access_token
@@ -106,6 +116,10 @@ export default class Tone3000Client {
     if (!model?.model_url) throw new Tone3000Error('TONE3000 model has no download URL');
     const response = await this.request(model.model_url);
     return {bytes:new Uint8Array(await response.arrayBuffer()),name:model.name || `tone3000-${model.id}`,contentType:response.headers.get('Content-Type') || ''};
+  }
+  async downloadImpulseResponse(model) {
+    const download = await this.downloadModelBytes(model);
+    return {...download, name:/\.wav$/iu.test(download.name) ? download.name : `${download.name}.wav`};
   }
   async downloadPublicAsset(url) {
     const response = await this.fetchImpl(url);

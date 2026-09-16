@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-16T07:39:05.244Z",
+  "tone": {
+    "id": 51086,
+    "title": "Marshall 1960BV V30 and G12T75",
+    "description": "Impulse Responses based on my Marshall 1960BV, with 2 Marshall Vintage and 2 G12T75\nI used one SM57 and one SM58 for each of the 4 speakers",
+    "url": "https://www.tone3000.com/tones/marshall-1960bv-v30-and-g12t75-51086",
+    "format": "ir",
+    "gear": "cab",
+    "license": "t3k",
+    "creator": {
+      "username": "jpisoutoftune",
+      "displayName": null,
+      "url": "https://www.tone3000.com/jpisoutoftune"
+    },
+    "makes": [
+      "G12T75",
+      "Marshall 1960BV 4x12 V30",
+      "Shure SM57",
+      "Shure SM58"
+    ],
+    "tags": [
+      "g12t75",
+      "impulse response",
+      "ir",
+      "marshall 1960bv",
+      "marshall vintage",
+      "metal"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/94vnos2qxak.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 284315,
+      "file": "captures/Marshall G12 1 SM57 3--m284315.wav",
+      "name": "Marshall G12 1 SM57 3",
+      "createdAt": "2026-01-18T17:44:13.011675+00:00",
+      "sha256": "d55582bb1f6ed27e0ee03e4ea71006968c2eb36cba93b55338f86b45d42c5cb1"
+    },
+    {
+      "id": 284312,
+      "file": "captures/Marshall V30 3 SM58 6--m284312.wav",
+      "name": "Marshall V30 3 SM58 6",
+      "createdAt": "2026-01-18T17:44:13.000587+00:00",
+      "sha256": "61b2f1f4bf238e8b5eedd18ea6f714b36a9443650d7216c0d3852fe421ac10ff"
+    },
+    {
+      "id": 284311,
+      "file": "captures/Marshall G12 1 SM57 2--m284311.wav",
+      "name": "Marshall G12 1 SM57 2",
+      "createdAt": "2026-01-18T17:44:12.999949+00:00",
+      "sha256": "5c77709f5fcb78f6622fdf91cfcb976927b85598ab50f742daffa95811fb18d2"
+    },
+    {
+      "id": 284309,
+      "file": "captures/Marshall V30 3 SM58 2--m284309.wav",
+      "name": "Marshall V30 3 SM58 2",
+      "createdAt": "2026-01-18T17:44:12.891369+00:00",
+      "sha256": "3a7274a6db7c189cca1ba1cb63c701e3bde108c1a5d762a9199c3c47fe3edd8c"
+    },
+    {
+      "id": 284307,
+      "file": "captures/Marshall V30 3 SM58 1--m284307.wav",
+      "name": "Marshall V30 3 SM58 1",
+      "createdAt": "2026-01-18T17:44:12.88344+00:00",
+      "sha256": "5f2d1a694d5a74479309d552793c5b5a7e4ad0f6509ec7d3ca6b79b9bb67f04c"
+    },
+    {
+      "id": 284305,
+      "file": "captures/Marshall V30 3 SM57 5--m284305.wav",
+      "name": "Marshall V30 3 SM57 5",
+      "createdAt": "2026-01-18T17:44:12.7779+00:00",
+      "sha256": "2e91af37b978070e0d0c0c4e7b8605bc6f324153bf321398865646a1eaf3284b"
+    },
+    {
+      "id": 284303,
+      "file": "captures/Marshall V30 3 SM57 4--m284303.wav",
+      "name": "Marshall V30 3 SM57 4",
+      "createdAt": "2026-01-18T17:44:12.773499+00:00",
+      "sha256": "a674c97bccd4d3da9380ea5f535294ad6aa7503dedff6cbbb3ff1d221d0c9d89"
+    },
+    {
+      "id": 284301,
+      "file": "captures/Marshall V30 3 SM57 1--m284301.wav",
+      "name": "Marshall V30 3 SM57 1",
+      "createdAt": "2026-01-18T17:44:12.770817+00:00",
+      "sha256": "c2d25bd94e62f0a29062c7031f12a8cd261d3a3aea66c0657a743f30cfd0fb0b"
+    },
+    {
+      "id": 284299,
+      "file": "captures/Marshall V30 2 SM58 3--m284299.wav",
+      "name": "Marshall V30 2 SM58 3",
+      "createdAt": "2026-01-18T17:44:12.676125+00:00",
+      "sha256": "4df11e28d161e15029a3683936611ecc7deb9847ec9bec3393d15f637f80e320"
+    },
+    {
+      "id": 284297,
+      "file": "captures/Marshall V30 2 SM58 4--m284297.wav",
+      "name": "Marshall V30 2 SM58 4",
+      "createdAt": "2026-01-18T17:44:12.665758+00:00",
+      "sha256": "88b6d78fe4c934820d69f41b9c357067e7c19341175bc9e854b6450cf1e4ca28"
+    },
+    {
+      "id": 284295,
+      "file": "captures/Marshall V30 2 SM58 1--m284295.wav",
+      "name": "Marshall V30 2 SM58 1",
+      "createdAt": "2026-01-18T17:44:12.573352+00:00",
+      "sha256": "5cea52a68173d8e7c9d673102b22a04dba6a8f75c862bf3512a06f5d123c3146"
+    },
+    {
+      "id": 284293,
+      "file": "captures/Marshall V30 2 SM57 5--m284293.wav",
+      "name": "Marshall V30 2 SM57 5",
+      "createdAt": "2026-01-18T17:44:12.56681+00:00",
+      "sha256": "93dd95fc3aa82fa7bb44ce6794a003cb8d0432471335081c6dbe620e4d76eeb4"
+    },
+    {
+      "id": 284291,
+      "file": "captures/Marshall V30 2 SM57 3--m284291.wav",
+      "name": "Marshall V30 2 SM57 3",
+      "createdAt": "2026-01-18T17:44:12.562256+00:00",
+      "sha256": "0baf3f6b9be48975515a1e8be71d3960d57eac771742ee1a883735ce6d5b0b7a"
+    },
+    {
+      "id": 284289,
+      "file": "captures/Marshall V30 2 SM57 2--m284289.wav",
+      "name": "Marshall V30 2 SM57 2",
+      "createdAt": "2026-01-18T17:44:12.465473+00:00",
+      "sha256": "147d8e33a4d328e9f8bab1d48435792b9c56cf38e322b8a7b03840eee06e40e5"
+    },
+    {
+      "id": 284287,
+      "file": "captures/Marshall G12 4 SM58 6--m284287.wav",
+      "name": "Marshall G12 4 SM58 6",
+      "createdAt": "2026-01-18T17:44:12.461769+00:00",
+      "sha256": "a864b0eb0d1898439de31d6a46e49d3525f823f43e5bd1fe1704845fb86de6a8"
+    },
+    {
+      "id": 284285,
+      "file": "captures/Marshall G12 4 SM58 2--m284285.wav",
+      "name": "Marshall G12 4 SM58 2",
+      "createdAt": "2026-01-18T17:44:12.36879+00:00",
+      "sha256": "6365751f6f25560176cae9cc2f9b9cde5255910a52836799638578e47634cb0d"
+    },
+    {
+      "id": 284283,
+      "file": "captures/Marshall G12 4 SM58 5--m284283.wav",
+      "name": "Marshall G12 4 SM58 5",
+      "createdAt": "2026-01-18T17:44:12.342107+00:00",
+      "sha256": "67759af8554836a8bb2e48d2436ea3dd84b1deed91291809c56611df54e38ce5"
+    },
+    {
+      "id": 284281,
+      "file": "captures/Marshall G12 4 SM58 1--m284281.wav",
+      "name": "Marshall G12 4 SM58 1",
+      "createdAt": "2026-01-18T17:44:12.331737+00:00",
+      "sha256": "299c1c7fb0d205aa96c08af5f08c44c5f87c9adaac5c9b08105dfb643dceedd6"
+    },
+    {
+      "id": 284279,
+      "file": "captures/Marshall G12 4 SM57 5--m284279.wav",
+      "name": "Marshall G12 4 SM57 5",
+      "createdAt": "2026-01-18T17:44:12.209482+00:00",
+      "sha256": "c80baec86a37cb80ae6477081e2dc594027e6d9ab4ef4b2bbdb54ffceec43b6d"
+    },
+    {
+      "id": 284277,
+      "file": "captures/Marshall G12 4 SM57 7--m284277.wav",
+      "name": "Marshall G12 4 SM57 7",
+      "createdAt": "2026-01-18T17:44:12.207119+00:00",
+      "sha256": "b7750b5e111e2396231a71fc8e015b2a4ac6341d6f1c2d27985b65cab11d0e1d"
+    },
+    {
+      "id": 284275,
+      "file": "captures/Marshall G12 4 SM57 3--m284275.wav",
+      "name": "Marshall G12 4 SM57 3",
+      "createdAt": "2026-01-18T17:44:12.099876+00:00",
+      "sha256": "748c1b71a64cb2b17ebe3833acee2f9e288bee60a80d56c7c28c957467a67a7a"
+    },
+    {
+      "id": 284273,
+      "file": "captures/Marshall G12 4 SM57 1--m284273.wav",
+      "name": "Marshall G12 4 SM57 1",
+      "createdAt": "2026-01-18T17:44:12.08058+00:00",
+      "sha256": "e5b4c7c0d49b331b8d56280e9b56a664273fee5981b1f5bbf00313c264db46a8"
+    },
+    {
+      "id": 284271,
+      "file": "captures/Marshall G12 4 SM57 2--m284271.wav",
+      "name": "Marshall G12 4 SM57 2",
+      "createdAt": "2026-01-18T17:44:12.079338+00:00",
+      "sha256": "8d188d8773ba8f87cc60feb5cc4c0df838d34cf0eadf34eeb35ff5ddc6ac4af3"
+    },
+    {
+      "id": 284269,
+      "file": "captures/Marshall G12 1 SM58 4--m284269.wav",
+      "name": "Marshall G12 1 SM58 4",
+      "createdAt": "2026-01-18T17:44:11.972354+00:00",
+      "sha256": "d41e7a3550a15c4b518a86dc2b7b7f1aea1e888b8f3f0f0a0594dff4531394da"
+    },
+    {
+      "id": 284267,
+      "file": "captures/Marshall G12 1 SM58 2--m284267.wav",
+      "name": "Marshall G12 1 SM58 2",
+      "createdAt": "2026-01-18T17:44:11.969975+00:00",
+      "sha256": "dc1ec3189601f795d2b6248c5527c712ae27a690a1718a812904c42893ffa855"
+    },
+    {
+      "id": 284265,
+      "file": "captures/Marshall G12 1 SM57 8--m284265.wav",
+      "name": "Marshall G12 1 SM57 8",
+      "createdAt": "2026-01-18T17:44:11.857894+00:00",
+      "sha256": "4ca0a92b4aab63bea03792f14fc4dcead12cf2803144717b6b5aefbca1e4c092"
+    },
+    {
+      "id": 284263,
+      "file": "captures/Marshall G12 1 SM57 7--m284263.wav",
+      "name": "Marshall G12 1 SM57 7",
+      "createdAt": "2026-01-18T17:44:11.852746+00:00",
+      "sha256": "a259554f41a1cd1087962bbb0337ccf03278ede6f309e0e0002e473740cadcc0"
+    },
+    {
+      "id": 284262,
+      "file": "captures/Marshall G12 1 SM57 5--m284262.wav",
+      "name": "Marshall G12 1 SM57 5",
+      "createdAt": "2026-01-18T17:44:11.844222+00:00",
+      "sha256": "38dce110f9a96b0d36bad8dafc99f728181d2d498ff9ebe8bea8aa0936d322a7"
+    },
+    {
+      "id": 284261,
+      "file": "captures/Marshall G12 1 SM57 6--m284261.wav",
+      "name": "Marshall G12 1 SM57 6",
+      "createdAt": "2026-01-18T17:44:11.829854+00:00",
+      "sha256": "7321af8ac363ebde96187c4b6610862ace9f411dfc57ff30e3b04a8aae5001ff"
+    }
+  ]
+}

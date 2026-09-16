@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-16T07:31:30.183Z",
+  "tone": {
+    "id": 1612,
+    "title": "Mesa OS 4x12 IR",
+    "description": "2000s Mesa oversized straight cab as an IR. \n\nSM57 at the edge of the dust cap. M160 in the center of the speaker.\n\nClean Pre (UAD), no compression, no saturation.\n\nMix ready in the low end. Adjust the top end to taste based off of which amp is being sent into the IR.",
+    "url": "https://www.tone3000.com/tones/mesa-os-4x12-ir-1612",
+    "format": "ir",
+    "gear": "cab",
+    "license": "t3k",
+    "creator": {
+      "username": "scottcorgan",
+      "displayName": null,
+      "url": "https://www.tone3000.com/scottcorgan"
+    },
+    "makes": [
+      "Mesa OS 4x12"
+    ],
+    "tags": [
+      "guitar",
+      "high-gain",
+      "ir",
+      "metal",
+      "punk",
+      "rock",
+      "tight"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/rfk2d96rph.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 81565,
+      "file": "captures/Mesa_OS_4x12_57_m160--m81565.wav",
+      "name": "Mesa_OS_4x12_57_m160",
+      "createdAt": "2023-04-17T12:42:05.722+00:00",
+      "sha256": "50656f74a3f67aed28ff01912d0eb8bb66f3b8b769f7b56f6fbce04dd2096182"
+    }
+  ]
+}

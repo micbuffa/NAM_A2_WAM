@@ -7,6 +7,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const posix = (path) => path.split(sep).join('/');
 const bundleCache = new Map();
 const NAM_CATEGORIES = new Set(['guitar', 'bass', 'pedal']);
+const IR_CATEGORIES = new Set(['speaker', 'space', 'outboard', 'experimental', 'other']);
 
 function normalizedCategory(value) {
   if (value == null || value === '') return null;
@@ -115,6 +116,19 @@ function namCategory(relativePath, metadata, bundle) {
   return 'guitar';
 }
 
+function irCategory(relativePath, bundle) {
+  const gear=String(bundle.provenance?.gear||'').trim().toLowerCase().replaceAll('_','-');
+  const tags=(bundle.provenance?.tags||[]).map((tag)=>String(tag).trim().toLowerCase());
+  const text=[relativePath,bundle.provenance?.title,...tags].join(' ').toLowerCase();
+  let category='other';
+  if(gear==='cab'||/\b(cab|cabinet|speaker|microphone|mic|celestion|v30|greenback|creamback|jensen|4x12|2x12|1x12|twin reverb)\b/u.test(text))category='speaker';
+  else if(gear==='space'||/\b(space|room|hall|plate|spring|reverb|delay|surface|acoustic|church|studio)\b/u.test(text))category='space';
+  else if(gear==='outboard'||/\b(outboard|preamp|compressor|console|tape)\b/u.test(text))category='outboard';
+  else if(gear==='experimental'||/\bexperimental\b/u.test(text))category='experimental';
+  if(!IR_CATEGORIES.has(category))throw Error(`Invalid Factory IR category: ${category}`);
+  return category;
+}
+
 async function conventionalImage(path) {
   const stem = basename(path, extname(path)); const folder = dirname(path);
   return firstExisting(['.jpg', '.jpeg', '.png', '.webp'].map((extension) => resolve(folder, `${stem}${extension}`))
@@ -157,7 +171,7 @@ async function irAsset(path, base) {
   const audio = extname(path).toLowerCase() === '.wav' ? wavMetadata(bytes) : null;
   return {id: `factory:${relativePath}`, filename: basename(path), relativePath,
     groups: displayGroups(relativePath, bundle), displayName: bundle.entry?.name || basename(path, extname(path)),
-    type: 'ir', contentHash, ...(audio ? {audio} : {}), fileSizeBytes: info.size,
+    type: 'ir', category: irCategory(relativePath, bundle), contentHash, ...(audio ? {audio} : {}), fileSizeBytes: info.size,
     ...(image ? {imagePath: posix(relative(base, image))} : {}), ...(bundle.provenance ? {provenance: bundle.provenance} : {})};
 }
 

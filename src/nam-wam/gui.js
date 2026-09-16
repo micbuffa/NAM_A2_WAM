@@ -151,8 +151,8 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .tone-strip .knob-control output { font-size:9px }
         nam-a2-gui .amp-controls .eq-subtoolbar { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;margin-bottom:8px }
         nam-a2-gui .amp-controls .eq-subtoolbar .eqReset { min-height:27px;padding:0 8px;font-size:9px }
-        nam-a2-gui .plugin-tabs { display:grid;grid-template-columns:.68fr 1fr 1.15fr 1fr .95fr .7fr;gap:4px;padding:7px 9px;background:#111016;border-bottom:1px solid #34303b }
-        nam-a2-gui .plugin-tab { min-width:0;min-height:30px;padding:0 7px;overflow:hidden;color:#8f8997;background:transparent;border-color:transparent;border-radius:6px;font-size:9px;font-weight:800;letter-spacing:.04em;text-overflow:ellipsis;white-space:nowrap }
+        nam-a2-gui .plugin-tabs { display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;background:#111016;border-bottom:1px solid #34303b }
+        nam-a2-gui .plugin-tab { flex:0 0 auto;min-width:0;min-height:30px;padding:0 14px;overflow:hidden;color:#8f8997;background:transparent;border-color:transparent;border-radius:6px;font-size:9px;font-weight:800;letter-spacing:.04em;text-overflow:ellipsis;white-space:nowrap }
         nam-a2-gui .plugin-tab:hover { color:#ddd5e7;background:#1d1a24 }
         nam-a2-gui .plugin-tab[aria-selected=true] { color:#18131f;background:var(--nam-accent);border-color:var(--nam-accent) }
         nam-a2-gui .plugin-panel { min-width:0 }
@@ -175,7 +175,7 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .gettingStarted li::marker { color:var(--nam-accent);font-weight:850 }
         nam-a2-gui .mainPanel .signal-flow { border-top:1px solid #34303b;border-bottom:0 }
         nam-a2-gui .mainPanel .signal-strip { margin-top:10px;margin-bottom:8px }
-        @media(max-width:620px){nam-a2-gui .plugin-tabs{display:flex;overflow-x:auto}nam-a2-gui .plugin-tab{flex:0 0 auto;padding:0 10px}nam-a2-gui .aboutSections{grid-template-columns:minmax(0,1fr)}}
+        @media(max-width:620px){nam-a2-gui .plugin-tabs{justify-content:flex-start;overflow-x:auto}nam-a2-gui .plugin-tab{padding:0 10px}nam-a2-gui .aboutSections{grid-template-columns:minmax(0,1fr)}}
         nam-a2-gui .tone3000-head { justify-content:space-between } nam-a2-gui .tone3000-head-actions { display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap } nam-a2-gui .tone3000Back { min-height:34px;padding:0 8px;color:#d6c8ec;font-size:10px }
         @media(max-width:620px){nam-a2-gui .signal-strip{grid-template-columns:42px 52px minmax(0,1fr) 42px}}
         @media(prefers-reduced-motion:reduce){nam-a2-gui .signal-strip{transition:none}}
@@ -220,7 +220,7 @@ class NamA2Gui extends HTMLElement {
           </div></section>
         <section class="plugin-panel detailsDrawer detailsPanel" id="namPanelDetails" role="tabpanel" aria-labelledby="namTabDetails" data-plugin-panel="details" hidden><div class="tab-content"><p class="status">No model loaded</p></div></section>
         <section class="plugin-panel preferencesDrawer preferencesPanel" id="namPanelPreferences" role="tabpanel" aria-labelledby="namTabPreferences" data-plugin-panel="preferences" hidden><div class="tab-content preferencesBody"><label class="preferenceRow"><span><strong>Automatic model level</strong><small>Normalizes NAM loudness to −18 dB, limited to ±12 dB. Output gain remains independent.</small></span><input class="autoLevel" type="checkbox" checked></label><label class="preferenceRow"><span><strong>A2 rendering mode</strong><small>Used when a model contains both Lite and Full networks.</small></span><select class="a2Variant"><option value="full">Full — higher fidelity</option><option value="lite">Lite — lower CPU</option></select></label></div></section>
-        <section class="plugin-panel aboutPanel" id="namPanelAbout" role="tabpanel" aria-labelledby="namTabAbout" data-plugin-panel="about" hidden><div class="tab-content aboutBody"><header><h3>About NeuralWAMp</h3><p>NeuralWAMp is a Web Audio Module that runs Neural Amp Modeler A2 captures directly in an AudioWorklet. It is designed to behave like a reusable audio plugin while remaining entirely usable in a web browser.</p></header><article class="gettingStarted"><h4>Getting started with your guitar</h4><ol><li>Choose <strong>Live input</strong> from the Source menu in the host.</li><li>Select your audio input and output devices from the corresponding menus. If your browser does not support output-device selection, audio uses the operating system's default output. After changing a system device, reload the page before continuing.</li><li>Click <strong>Enable live input</strong>. You should now hear your guitar through the processing chain.</li><li>Open <strong>Models</strong> to load a Factory capture or browse TONE3000. A capture selected from TONE3000 is downloaded, loaded, and kept locally in the browser so it remains available later.</li><li>Open <strong>Amp settings</strong> to adjust Bass, Middle, Treble, and the graphical EQ.</li><li>For high-gain amplifiers, enable the <strong>Noise gate</strong> in the Main view and adjust its threshold as needed.</li></ol></article><div class="aboutFlow">Input → Noise gate → EQ PRE/POST → NAM A2 → Tone stack → Output</div><div class="aboutSections"><article><h4>Main</h4><p>Monitor input and output levels, adjust gain and the optional noise gate, inspect the active capture, calibrate its level, and read the live processing chain.</p></article><article><h4>Models</h4><p>Load Factory guitar, bass, and pedal captures; recall favorites; import local .nam files; or browse compatible TONE3000 captures. Selecting a capture loads it immediately.</p></article><article><h4>Amp settings</h4><p>Shape the sound with Bass, Middle, and Treble plus a six-band graphical EQ. Place the EQ before or after NAM and compare input, filtered, and final spectra.</p></article><article><h4>Model details</h4><p>Read architecture, available A2 rendering modes, sample rate, creator, loudness correction, capture metadata, source, and licensing information.</p></article><article><h4>Preferences</h4><p>Choose A2 Full for maximum fidelity or A2 Lite for lower CPU use, and enable or disable automatic model-level normalization.</p></article><article><h4>Controls</h4><p>Drag knobs vertically. Double-click a knob to restore its default. Hover over model artwork for one second to display a compact metadata card.</p></article></div><article class="aboutNotes"><h4>State and storage</h4><p>Audio parameters and the loaded model participate in the standard WAM state round trip. Favorites and explicitly downloaded TONE3000 models are stored locally in the browser. NeuralWAMp contains the amplifier stage; the host may connect a separate Cabinet WAM for impulse-response processing.</p></article></div></section>
+        <section class="plugin-panel aboutPanel" id="namPanelAbout" role="tabpanel" aria-labelledby="namTabAbout" data-plugin-panel="about" hidden><div class="tab-content aboutBody"><header><h3>About NeuralWAMp</h3><p>NeuralWAMp is a Web Audio Module that runs Neural Amp Modeler A2 captures directly in an AudioWorklet. It is designed to behave like a reusable audio plugin while remaining entirely usable in a web browser.</p></header><article class="gettingStarted"><h4>Getting started with your guitar</h4><ol><li>Choose <strong>Live input</strong> from the Source menu in the host.</li><li>Select your audio input and output devices from the corresponding menus. For a multichannel interface, choose the physical input carrying the guitar (usually Input 1); do not choose a loopback channel. If your browser does not support output-device selection, audio uses the operating system's default output. After changing a system device, reload the page before continuing.</li><li>Click <strong>Enable live input</strong>. You should now hear your guitar through the processing chain. Click the red <strong>Disable live input</strong> button to stop the microphone stream and monitoring completely.</li><li>Open <strong>Models</strong> to load a Factory capture or browse TONE3000. A capture selected from TONE3000 is downloaded, loaded, and kept locally in the browser so it remains available later.</li><li>Open <strong>Amp settings</strong> to adjust Bass, Middle, Treble, and the graphical EQ.</li><li>For high-gain amplifiers, enable the <strong>Noise gate</strong> in the Main view and adjust its threshold as needed.</li></ol></article><div class="aboutFlow">Input → Noise gate → EQ PRE/POST → NAM A2 → Tone stack → Output</div><div class="aboutSections"><article><h4>Main</h4><p>Monitor input and output levels, adjust gain and the optional noise gate, inspect the active capture, calibrate its level, and read the live processing chain.</p></article><article><h4>Models</h4><p>Load Factory guitar, bass, and pedal captures; recall favorites; import local .nam files; or browse compatible TONE3000 captures. Selecting a capture loads it immediately.</p></article><article><h4>Amp settings</h4><p>Shape the sound with Bass, Middle, and Treble plus a six-band graphical EQ. Place the EQ before or after NAM and compare input, filtered, and final spectra.</p></article><article><h4>Model details</h4><p>Read architecture, available A2 rendering modes, sample rate, creator, loudness correction, capture metadata, source, and licensing information.</p></article><article><h4>Preferences</h4><p>Choose A2 Full for maximum fidelity or A2 Lite for lower CPU use, and enable or disable automatic model-level normalization.</p></article><article><h4>Controls</h4><p>Drag knobs vertically. Double-click a knob to restore its default. Hover over model artwork for one second to display a compact metadata card.</p></article></div><article class="aboutNotes"><h4>State and storage</h4><p>Audio parameters and the loaded model participate in the standard WAM state round trip. Favorites and explicitly downloaded TONE3000 models are stored locally in the browser. NeuralWAMp contains the amplifier stage; the host may connect a separate Cabinet WAM for impulse-response processing.</p></article></div></section>
       </section><aside class="modelHoverCard" role="tooltip" hidden><strong class="modelHoverTitle"></strong><pre class="modelHoverDetails"></pre></aside>`;
     this.querySelector('.aboutBody header').insertAdjacentHTML('beforeend', '<p><a href="https://github.com/micbuffa/NAM_A2_WAM" target="_blank" rel="noopener noreferrer">NeuralWAMp source code and project documentation on GitHub</a></p>');
     this.controls = {
@@ -707,8 +707,9 @@ class NamA2Gui extends HTMLElement {
     this.controls.sourceTabs.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.source === source)));
     this.controls.factoryCategories.hidden = source !== 'Factory';
     this.controls.tonePanel.hidden = source !== 'TONE3000';
-        if (source === 'TONE3000') this.showToneAuthentication(!this.tone3000?.tokens?.access_token);
-        if (source === 'TONE3000' && this.tone3000?.tokens?.access_token) this.loadTone3000Catalog();
+    if (source === 'TONE3000') this.tone3000?.reloadTokens?.();
+    if (source === 'TONE3000') this.showToneAuthentication(!this.tone3000?.tokens?.access_token);
+    if (source === 'TONE3000' && this.tone3000?.tokens?.access_token) this.loadTone3000Catalog();
     this.renderBrowser();
   }
 
@@ -740,18 +741,20 @@ class NamA2Gui extends HTMLElement {
   async openTone3000Flow(createUrl, waitingStatus) {
     this.setSourceFilter('TONE3000'); this.showToneAuthentication(false); this.setPluginTab('models');
     this.setToneStatus('Opening TONE3000…'); this._toneCallbackHref = '';
+    sessionStorage.setItem('nam-a2-wam.tone3000.owner', 'amp');
     sessionStorage.setItem('nam-a2-wam.tone3000.popup', '1');
     const popup = window.open('about:blank', 'tone3000-oauth', 'popup,width=1180,height=820');
     sessionStorage.removeItem('nam-a2-wam.tone3000.popup');
-    if (!popup) { this.setToneStatus('TONE3000 window blocked — allow pop-ups for this site and try again.', true); return; }
+    if (!popup) { sessionStorage.removeItem('nam-a2-wam.tone3000.owner'); this.setToneStatus('TONE3000 window blocked — allow pop-ups for this site and try again.', true); return; }
     this._tonePopup = popup;
     try { popup.location.replace(await createUrl()); this.setToneStatus(waitingStatus); }
-    catch (error) { popup.close(); this._tonePopup = null; this.setToneStatus(error.message, true); }
+    catch (error) { popup.close(); this._tonePopup = null; sessionStorage.removeItem('nam-a2-wam.tone3000.owner'); this.setToneStatus(error.message, true); }
   }
 
   async completeTone3000Callback(location = window.location) {
     const hasCallback = /[?&](?:code|error|canceled)=/u.test(new URL(location.href).search);
     if (!hasCallback) { if (this.tone3000.configured) this.setToneStatus('Ready — click Browse TONE3000 to select a tone'); return; }
+    if (sessionStorage.getItem('nam-a2-wam.tone3000.owner') === 'cabinet') return;
     if (!this.tone3000.configured) { this.setToneStatus('TONE3000 callback received, but integration is not configured', true); return; }
     this._sourceFilter = 'TONE3000';
     this.controls.sourceTabs.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.source === 'TONE3000')));
@@ -760,6 +763,7 @@ class NamA2Gui extends HTMLElement {
     this.renderBrowser();
     this.setToneStatus('Completing TONE3000 authorization…');
     const result = await this.tone3000.completeAuthorization(location);
+    sessionStorage.removeItem('nam-a2-wam.tone3000.owner');
     if (location === window.location && window.history?.replaceState) window.history.replaceState({}, document.title, window.location.pathname);
     if (!result.ok) { this.setToneStatus(result.error, true); return; }
     if (!result.toneId) { this.showToneAuthentication(false); this.controls.toneCatalog.hidden = false; this.setToneStatus('Signed in — choose a tone from the TONE3000 catalog'); await this.loadTone3000Catalog(); return; }

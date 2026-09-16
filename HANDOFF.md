@@ -157,7 +157,7 @@ capture and bypasses the external Cabinet, while `amp` keeps Cabinet active. Thi
 also serialized with WAM state, so routing remains correct after state restoration.
 
 Cabinet default/status follow-up on 2026-09-03: a fresh session automatically loads the Factory IR
-`Celestion V30/v30 m160.wav`; restored sessions retain their saved IR instead. The Current IR panel,
+`tone3000/outmodedelectronics/Celestion Vintage 30 - 2002 Mesa Boogie 4x12 - SM57--t45023/captures/V30 LL 4FB 4x12 SM57 0.50in 0--m239290.wav`; restored sessions retain their saved IR instead. The Current IR panel,
 activity badge, and routing-status message are green when convolution is active and red when the
 loaded IR is bypassed.
 
@@ -283,6 +283,11 @@ Graphical-EQ/spectrum follow-up completed on 2026-09-04:
 - Gate, EQ, and tone-stack processing now remain active when no NAM capture is loaded. Previously, the no-model pass-through branch bypassed all tone shaping, which made a correctly enabled EQ inaudible and left its spectrum unchanged.
 - PRE and POST routing are now explicit in the processing loop and covered independently. PRE filters the gate output before it is copied to the NAM WASM input; POST filters the normalized NAM output. Browser validation with a real Factory Peavey 5150 capture confirmed that the two PRE spectra diverge under a +12 dB bell boost and reported no console errors.
 - The host sidebar now keeps the audio player completely hidden while `Live input` is selected and reveals it immediately below the Source selector only for a discovered audio-file source. Input and output device selectors are adjacent, with Output directly below Input; the separate Player and Output cards were removed. The former `Automated validation output` drawer is labelled `Automated test results` and explains that its JSON diagnostic report is produced only by the `?auto=1` validation run.
+- Live-input selection follow-up on 2026-09-16: **Enable live input** no longer opens a preliminary unconstrained `getUserMedia()` stream on the operating-system default microphone when a concrete input is already selected. The chosen device is requested directly with `deviceId: {exact: ...}`; concurrent device changes are serialized so a late default-microphone permission response cannot replace a newer Scarlett/USB request. The returned track settings are checked against the requested physical device, and the host status reports the label of the track Chrome actually opened.
+- Multichannel-interface follow-up on 2026-09-16: live capture no longer relies on Web Audio's implicit multichannel-to-mono downmix. A `ChannelSplitterNode` routes exactly one chosen interface channel into the mono WAM chain, with physical Input 1 selected by default and an Input channel selector shown when Chrome reports multiple channels. This prevents Scarlett 2i2 4th Gen loopback channels 3–4 from being mixed back into the processed output and creating a digital feedback loop.
+- Live monitoring is now an explicit two-state control: green **Enable live input** starts the selected device/channel, while red **Disable live input** disconnects the source node and stops all `MediaStreamTrack`s. Merely changing an input device/channel no longer opens monitoring while the control is disabled, and switching back from file playback leaves live monitoring off until the user enables it.
+- Feedback investigation note (2026-09-16): USB id `1235:8210` identifies a Scarlett 2i2 3rd Gen, which does not expose Focusrite loopback channels, so loopback is not the explanation for that report. A 10-second zero-input render of the default Bogner Uberschall capture remained at a tiny constant model bias (about `-82.9 dBFS`, peak `0.0000715`) rather than self-oscillating. The next physical test should compare the NAM input meter with the guitar volume at zero and then press **Disable live input**: if the tone stops immediately, it is present in the captured interface signal/acoustic setup; if input is silent while output remains loud, investigate the live browser graph further.
+- The six NeuralWAMp top-level tabs now keep their natural button widths and distribute the remaining space evenly with flex `space-between`. This makes the visible edge-to-edge gaps between `Main`, `Models`, `Amp settings`, `Model details`, `Preferences`, and `Help` regular and avoids an oversized active background around short labels. Below 620 px, the bar switches to left-aligned horizontal scrolling.
 - `NamNode` state is now version 4. All 29 WAM parameters (gain, bypass, gate threshold/enabled, bass/middle/treble/tone enabled, EQ enabled/PRE-POST, and frequency/gain/Q for all six bands) continue through the SDK's standard `parameterValues` state round trip. The host's `?auto=1` validation now changes every one of these values before restoring the saved state and checks them all.
 - Automated coverage includes spectrum enable/disable behavior, 1 kHz FFT-bin detection across all three traces, comparative input/filtered spectra, visible spectrum change after a +12 dB band boost, final-output response to tone-stack changes, independent audible PRE routing, audible EQ with no NAM loaded, full parameter registration/state wiring, and GUI contracts. The complete suite passes 72/72.
 
@@ -301,6 +306,20 @@ A fresh authenticated end-to-end Select Flow was not repeated during the Phase 4
 - a normal browser session with the TONE3000 login/selection flow.
 
 Do not put the TONE3000 secret key in client-side code. The publishable key is deployment configuration, not a secret.
+
+## NeuralWAMp Cabinet library redesign — 2026-09-15
+
+- The Cabinet WAM is now presented as **NeuralWAMp Cabinet**, with its own SVG speaker logo and the same compact visual family as the amp WAM.
+- Its top-level views are Main, IRs, IR details, and Help. The Main view keeps routing, bypass, Level Match, IR Trim, output gain, current artwork, provenance chips, and activity status together.
+- The IR browser now exposes Factory, Favorites, External, and TONE3000 sources. Selecting an IR loads it immediately; grouped Factory/TONE3000 bundles use an artwork-and-capture-list card with previous/next controls.
+- IR categories are `speaker`, `space`, `outboard`, `experimental`, and `other`. Rich bundles prefer canonical TONE3000 gear metadata (`cab`, `space`, `outboard`, `experimental`), with conservative filename/tag fallbacks for legacy loose WAV files.
+- Factory manifest generation writes the category for every IR. Speaker/cabinet detection has priority over the word `reverb` for names such as Fender Twin Reverb.
+- Favorites and explicitly downloaded TONE3000 WAV files persist per browser profile and origin in IndexedDB. Downloaded files can be removed individually or cleared; a favorite keeps its own complete snapshot.
+- TONE3000 browsing uses the official `/tones/search` catalog with `format=ir`, optional gear filtering, pagination, sorting, detail selection, authenticated per-file downloads, local persistence, and full provenance/artwork display.
+- Amp and Cabinet share the same OAuth token storage but tag each popup flow with an owner, so only the initiating WAM consumes the callback. Both clients reload shared tokens when their TONE3000 source opens.
+- `?maintainer=1` reveals the Cabinet Factory maintainer. It selects one IR tone, lets the maintainer choose its WAV files, fetches artwork/metadata, and creates a repository-ready local ZIP using the existing rich `tone.json` format. It does not use the partner-only whole-tone ZIP endpoint.
+- Cabinet state now includes the selected IR provenance metadata, preserving source/category/details after restoration. Existing convolution, Level Match, per-IR Trim, output gain, and AUTO routing semantics are unchanged.
+- TONE3000 actions are rendered above the local downloaded-IR cards, so Browse/Continue remains visible for `All` and `Cabinets / speakers`. With `?maintainer=1`, the maintainer box is the first block in the TONE3000 panel; after a tone is selected it shows the WAV checkboxes and then reveals **Download selected Factory IR bundle (.zip)** in that same box.
 
 ## Critical invariants — do not regress
 

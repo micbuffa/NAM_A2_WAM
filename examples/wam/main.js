@@ -19,6 +19,8 @@ let sourceManager;
 let savedState;
 let savedCabinetState;
 let selectedDeviceId = '';
+let selectedInputChannel = 0;
+let liveInputEnabled = false;
 let outputDeviceManager;
 let currentNamMetadata=null;
 let cabinetGuiElement;
@@ -66,6 +68,14 @@ async function refreshOutputs(options = {}) {
   return outputs;
 }
 
+function refreshInputChannels(channelCount=1,deviceLabel='') {
+  const count=Math.max(1,Math.trunc(Number(channelCount)||1)),selector=$('#inputChannel'),scarlett2i2=/scarlett\s*2i2/iu.test(deviceLabel)&&count>=4;
+  selector.replaceChildren(...Array.from({length:count},(_,index)=>new Option(scarlett2i2?(index<2?`Physical input ${index+1}`:`Loopback ${index-1} — do not use`):`Input ${index+1}`,String(index))));
+  selectedInputChannel=Math.min(selectedInputChannel,count-1);
+  selector.value=String(selectedInputChannel);
+  $('#inputChannelRow').hidden=count<=1;
+}
+
 function syncSourceTrim() {
   const value = sourceManager.activeTrimDb;
   $('#sourceTrim').value = value;
@@ -76,19 +86,46 @@ function setPlayerEnabled(enabled) {
   for (const control of document.querySelectorAll('.player-control')) control.disabled = !enabled;
   $('#playerPanel').hidden = !enabled;
   $('#inputDevice').disabled = enabled;
+  $('#inputChannel').disabled = enabled;
   $('#enableLive').disabled = enabled;
 }
 
+function syncLiveInputButton() {
+  const button = $('#enableLive');
+  button.textContent = liveInputEnabled ? 'Disable live input' : 'Enable live input';
+  button.setAttribute('aria-pressed', String(liveInputEnabled));
+  button.classList.toggle('live-active', liveInputEnabled);
+}
+
+async function activateSelectedLiveInput() {
+  if (!selectedDeviceId) await refreshDevices(true);
+  if (!selectedDeviceId) throw new Error('No audio input device is available');
+  const stream = await sourceManager.activateLive(selectedDeviceId, selectedInputChannel);
+  if (!stream) return false;
+  const activeInput = sourceManager.liveInput;
+  refreshInputChannels(activeInput?.channelCount, activeInput?.label);
+  liveInputEnabled = true;
+  syncLiveInputButton();
+  syncSourceTrim();
+  message(`Live input active: ${activeInput?.label || $('#inputDevice').selectedOptions[0]?.textContent || selectedDeviceId} · input ${Number(activeInput?.channelIndex || 0) + 1}/${activeInput?.channelCount || 1}`);
+  return true;
+}
+
+async function disableLiveInput(status = 'Live input disabled') {
+  await sourceManager.disconnectCurrent();
+  liveInputEnabled = false;
+  syncLiveInputButton();
+  message(status);
+}
+
 async function selectSource() {
-  await context.resume();
   const value = $('#audioSource').value;
   if (value === 'live') {
     setPlayerEnabled(false);
-    if (!selectedDeviceId) await refreshDevices(true);
-    if (selectedDeviceId) await sourceManager.activateLive(selectedDeviceId);
-    syncSourceTrim();
-    message(`Live input active: ${$('#inputDevice').selectedOptions[0]?.textContent || selectedDeviceId}`);
+    await disableLiveInput('Live input ready. Click Enable live input to start monitoring.');
   } else {
+    liveInputEnabled = false;
+    syncLiveInputButton();
     setPlayerEnabled(true);
     const filename = value.slice(5);
     await sourceManager.activateFile(`./assets/audio/${encodeURIComponent(filename)}`);
@@ -102,6 +139,7 @@ async function initialize() {
     message(`Audio context is ${context.sampleRate} Hz; NAM A2 models require 48000 Hz. Reload with a browser/device that supports a 48 kHz AudioContext.`);
   }
   NamPlugin.configureTone3000(window.NAM_A2_WAM_CONFIG?.tone3000 || {});
+  CabinetPlugin.configureTone3000(window.NAM_A2_WAM_CONFIG?.tone3000 || {});
   const [groupId] = await initializeWamHost(context, 'nam-a2-phase3-host');
   plugin = await NamPlugin.createInstance(groupId, context, {});
   node = plugin.audioNode;
@@ -130,14 +168,15 @@ async function initialize() {
   }
   $('#authorizeOutput').hidden = !outputDeviceManager.authorizationSupported;
   setPlayerEnabled(false);
+  syncLiveInputButton();
   navigator.mediaDevices?.addEventListener?.('devicechange', async () => {
-    const wasLive = sourceManager.mode === 'live';
+    const wasLive = liveInputEnabled;
     const old = selectedDeviceId;
     const devices = await refreshDevices(false);
     if (outputDeviceManager.supported) await refreshOutputs({includeAuthorized: false});
     if (wasLive && !devices.some((device) => device.deviceId === old)) {
-      if (selectedDeviceId) await sourceManager.activateLive(selectedDeviceId);
-      else await sourceManager.disconnectCurrent();
+      if (selectedDeviceId) await activateSelectedLiveInput();
+      else await disableLiveInput('Selected input device disappeared');
       message(selectedDeviceId ? 'Selected device disappeared; switched to an available input' : 'Selected input device disappeared', !selectedDeviceId);
     }
   });
@@ -147,12 +186,32 @@ async function initialize() {
     $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
   };
   $('#enableLive').onclick = async () => {
-    try { await context.resume(); await refreshDevices(true); await selectSource(); }
-    catch (error) { message(error.message, true); }
+    try {
+      if (liveInputEnabled) {
+        await disableLiveInput();
+        return;
+      }
+      await context.resume();
+      if (!$('#inputDevice').value) await refreshDevices(true);
+      else selectedDeviceId=$('#inputDevice').value;
+      await activateSelectedLiveInput();
+    }
+    catch (error) { liveInputEnabled=false; syncLiveInputButton(); message(error.message, true); }
   };
   $('#inputDevice').onchange = async () => {
     selectedDeviceId = $('#inputDevice').value;
-    if ($('#audioSource').value === 'live') await sourceManager.activateLive(selectedDeviceId);
+    selectedInputChannel=0;
+    if ($('#audioSource').value !== 'live' || !liveInputEnabled) return;
+    try {
+      await context.resume();
+      await activateSelectedLiveInput();
+    } catch(error) { message(`Cannot select audio input: ${error.message}`,true); }
+  };
+  $('#inputChannel').onchange=async()=>{
+    selectedInputChannel=Math.max(0,Number($('#inputChannel').value)||0);
+    if($('#audioSource').value!=='live'||!selectedDeviceId||!liveInputEnabled)return;
+    try{await activateSelectedLiveInput();}
+    catch(error){message(`Cannot select input channel: ${error.message}`,true);}
   };
   $('#outputDevice').onchange = async () => {
     try { await outputDeviceManager.select($('#outputDevice').value); }

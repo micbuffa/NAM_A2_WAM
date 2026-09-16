@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 82" role="img" aria-labelledby="title desc">
+  <title id="title">NeuralWAMp Cabinet</title>
+  <desc id="desc">A neural waveform, speaker cone, and WAM Cabinet wordmark.</desc>
+  <defs>
+    <linearGradient id="signal" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#b89cff"/><stop offset="1" stop-color="#62c8aa"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <g fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <path d="M8 42h15l8-19 13 39 12-28 10 16h14" stroke-width="5"/>
+    <circle cx="23" cy="42" r="4" fill="#b89cff" stroke="none"/>
+    <circle cx="80" cy="42" r="4" fill="#62c8aa" stroke="none"/>
+    <rect x="91" y="12" width="58" height="58" rx="12" stroke-width="4"/>
+    <circle cx="120" cy="41" r="19" stroke-width="4"/>
+    <circle cx="120" cy="41" r="7" fill="#62c8aa" stroke="none"/>
+  </g>
+  <text x="162" y="39" fill="#f3eff9" font-family="Inter,system-ui,sans-serif" font-size="26" font-weight="850" letter-spacing="-1">WAM</text>
+  <text x="162" y="62" fill="#79d8bc" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="800" letter-spacing="3">CABINET</text>
+</svg>

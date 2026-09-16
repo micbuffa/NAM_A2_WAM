@@ -13,6 +13,8 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(html, /class="embedded-player" id="playerPanel" hidden/u);
   assert.ok(html.indexOf('id="audioSource"') < html.indexOf('id="playerPanel"'));
   assert.ok(html.indexOf('id="inputDevice"') < html.indexOf('id="outputDevice"'));
+  assert.ok(html.indexOf('id="inputDevice"') < html.indexOf('id="inputChannel"'));
+  assert.ok(html.indexOf('id="inputChannel"') < html.indexOf('id="outputDevice"'));
   assert.doesNotMatch(html, /<section class="host-card" aria-labelledby="(?:player|output)-title"/u);
   assert.match(html, /<summary>Automated test results<\/summary>/u);
   assert.match(html, /opened with <code>\?auto=1<\/code>/u);
@@ -22,6 +24,11 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(main, /cabinet-routing-mode/u);
   assert.match(main, /node\.connect\(cabinetNode\)\.connect\(context\.destination\)/u);
   assert.match(main, /\$\('#playerPanel'\)\.hidden = !enabled/u);
+  assert.match(html, /id="enableLive"[^>]*aria-pressed="false"[^>]*>Enable live input/u);
+  assert.match(css, /\.live-toggle\.live-active/u);
+  assert.match(main, /liveInputEnabled \? 'Disable live input' : 'Enable live input'/u);
+  assert.match(main, /if \(liveInputEnabled\) \{\s*await disableLiveInput\(\)/u);
+  assert.match(main, /if \(\$\('#audioSource'\)\.value !== 'live' \|\| !liveInputEnabled\) return/u);
 });
 
 test('NAM GUI is container-scoped and exposes compact top-level tabs', async () => {
@@ -35,6 +42,9 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /\.flow-stage\s*\{[^}]*padding:2px 5px[^}]*font-size:7px/u);
   await access(new URL('../../src/nam-wam/neuralwamp-logo.svg', import.meta.url));
   assert.match(gui, /class="plugin-tabs" role="tablist"/u);
+  assert.match(gui, /\.plugin-tabs\s*\{[^}]*display:flex[^}]*justify-content:space-between/u);
+  assert.match(gui, /\.plugin-tab\s*\{[^}]*flex:0 0 auto[^}]*padding:0 14px/u);
+  assert.match(gui, /@media\(max-width:620px\)\{nam-a2-gui \.plugin-tabs\{justify-content:flex-start;overflow-x:auto\}/u);
   for (const tab of ['main','models','amp','details','preferences','about']) assert.match(gui, new RegExp(`data-plugin-tab="${tab}"`,'u'));
   assert.match(gui, /class="plugin-panel mainPanel"[^>]*data-plugin-panel="main"/u);
   assert.match(gui, /data-plugin-panel="main"><div class="signal-strip">[\s\S]*?<div class="signal-flow" role="img" aria-label="Signal path"><\/div><\/section>/u);
@@ -47,6 +57,7 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /<article class="gettingStarted"><h4>Getting started with your guitar<\/h4><ol>/u);
   assert.match(gui, /Choose <strong>Live input<\/strong>/u);
   assert.match(gui, /Click <strong>Enable live input<\/strong>/u);
+  assert.match(gui, /red <strong>Disable live input<\/strong> button to stop the microphone stream/u);
   assert.match(gui, /If your browser does not support output-device selection/u);
   assert.match(gui, /A capture selected from TONE3000 is downloaded, loaded, and kept locally/u);
   assert.match(gui, /class="modelHoverCard" role="tooltip" hidden/u);
@@ -211,14 +222,16 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.doesNotMatch(gui, /100vw|position:\s*fixed|(?:^|[}\s,])body\s*\{/mu);
 });
 
-test('Cabinet GUI is container-scoped and exposes AUTO plus collapsible IR sources', async () => {
+test('Cabinet GUI belongs to the NeuralWAMp family and manages rich IR sources', async () => {
   const gui = await read('src/cabinet-wam/gui.js');
   assert.match(gui, /class="routingMode"/u);
   assert.match(gui, /<option value="auto">AUTO<\/option>/u);
-  assert.match(gui, /class="drawer irDrawer"/u);
-  assert.match(gui, /data-source="Factory"/u);
-  assert.match(gui, /data-source="External"/u);
-  assert.match(gui, /DEFAULT_IR_PATH = 'Celestion V30\/v30 m160\.wav'/u);
+  assert.match(gui, /<h2>NeuralWAMp Cabinet<\/h2>/u);
+  assert.match(gui, /const cabinetLogoMarkup=/u);
+  for (const tab of ['main','irs','details','help']) assert.match(gui,new RegExp(`data-tab="${tab}"`,'u'));
+  for (const source of ['Factory','Favorites','External','TONE3000']) assert.match(gui,new RegExp(`data-source="${source}"`,'u'));
+  for (const category of ['all','speaker','space','outboard','experimental','other']) assert.match(gui,new RegExp(`data-category="${category}"`,'u'));
+  assert.match(gui, /DEFAULT_IR_PATH='tone3000\/outmodedelectronics\/Celestion Vintage 30 - 2002 Mesa Boogie 4x12 - SM57--t45023\/captures\/V30 LL 4FB 4x12 SM57 0\.50in 0--m239290\.wav'/u);
   assert.match(gui, /class="chip irActivity"/u);
   assert.match(gui, /\.current-ir\.is-active/u);
   assert.match(gui, /\.current-ir\.is-bypassed/u);
@@ -226,8 +239,18 @@ test('Cabinet GUI is container-scoped and exposes AUTO plus collapsible IR sourc
   assert.match(gui, /\.routingStatus\.is-bypassed/u);
   assert.match(gui, /\.cab-module\.is-bypassed/u);
   assert.match(gui, /querySelector\('\.cab-module'\)\.classList\.toggle\('is-bypassed',bypassed\)/u);
-  assert.match(gui, /createFactoryToneCard/u);
-  await access(new URL('../../src/cabinet-wam/IRs/Celestion V30/v30 m160.wav', import.meta.url));
+  assert.match(gui, /createToneCard/u);
+  assert.match(gui, /format:'ir'/u);
+  assert.match(gui, /searchTones/u);
+  assert.match(gui, /new ImpulseResponseLibrary/u);
+  assert.match(gui, /createFactoryBundle/u);
+  assert.match(gui, /class="maintainer" hidden/u);
+  assert.match(gui, /\.maintainer\{order:-2/u);
+  assert.ok(gui.indexOf('<section class="tone3000-panel"') < gui.indexOf('<div class="browser-tools"'));
+  assert.match(gui, /Download selected Factory IR bundle \(\.zip\)/u);
+  assert.match(gui, /nam-cabinet-gui \[hidden\]\{display:none!important\}/u);
+  await access(new URL('../../src/cabinet-wam/neuralwamp-cabinet-logo.svg', import.meta.url));
+  await access(new URL('../../src/cabinet-wam/IRs/tone3000/outmodedelectronics/Celestion Vintage 30 - 2002 Mesa Boogie 4x12 - SM57--t45023/captures/V30 LL 4FB 4x12 SM57 0.50in 0--m239290.wav', import.meta.url));
   assert.doesNotMatch(gui, /100vw|position:\s*fixed|(?:^|[}\s,])body\s*\{/mu);
 });
 

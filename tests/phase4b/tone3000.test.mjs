@@ -4,19 +4,20 @@ import {createCodeChallenge, createCodeVerifier, createLoginUrl, createSelectUrl
 import Tone3000Client from '../../src/nam-wam/tone3000/Tone3000Client.js';
 import Tone3000Downloads from '../../src/nam-wam/tone3000/Tone3000Downloads.js';
 import ModelFavorites from '../../src/nam-wam/ModelFavorites.js';
+import ImpulseResponseLibrary from '../../src/cabinet-wam/ImpulseResponseLibrary.js';
 import {createFactoryBundle, createZip, sanitizePathSegment} from '../../src/nam-wam/tone3000/FactoryBundle.js';
 import {readFile} from 'node:fs/promises';
 
 const storage = () => { const values = new Map(); return {setItem:(k,v)=>values.set(k,String(v)),getItem:(k)=>values.get(k)||null,removeItem:(k)=>values.delete(k)}; };
 const fixedRandom = (bytes) => bytes.fill(7);
 const fakeIndexedDB = () => {
-  const records = new Map(); let created = false;
-  const database = {objectStoreNames:{contains:()=>created},createObjectStore:()=>{created=true;},close(){},
-    transaction(){let transaction;const complete=()=>queueMicrotask(()=>transaction.oncomplete?.());const store={
+  const stores = new Map();
+  const database = {objectStoreNames:{contains:(name)=>stores.has(name)},createObjectStore:(name)=>{stores.set(name,new Map());},close(){},
+    transaction(storeName){const records=stores.get(storeName);let transaction;const complete=()=>queueMicrotask(()=>transaction.oncomplete?.());const store={
       getAll(){const request={};queueMicrotask(()=>{request.result=[...records.values()];request.onsuccess?.();});return request;},
       put(value){records.set(value.identity,value);complete();},delete(identity){records.delete(identity);complete();},clear(){records.clear();complete()},
     };transaction={objectStore:()=>store};return transaction;}};
-  return {open(){const request={};queueMicrotask(()=>{request.result=database;if(!created)request.onupgradeneeded?.();request.onsuccess?.();});return request;}};
+  return {open(){const request={};queueMicrotask(()=>{request.result=database;if(!stores.size)request.onupgradeneeded?.();request.onsuccess?.();});return request;}};
 };
 
 test('TONE3000 PKCE uses URL-safe verifier and SHA-256 challenge', async () => {
@@ -116,9 +117,20 @@ test('TONE3000 client exposes official catalog streams and pagination', async ()
   client.setTokens({access_token:'access-test', expires_in:3600});
   assert.equal((await client.listTrendingTones('amp')).data[0].id, 7);
   assert.equal((await client.listFavoritedTones({page:2, pageSize:12, gear:'amp-cab'})).data[0].id, 7);
+  assert.equal((await client.searchTones({page:3,pageSize:12,sort:'newest',gears:'space',format:'ir'})).data[0].id, 7);
   assert.match(calls[0].url, /\/tones\/trending\?gear=amp/u);
   assert.match(calls[1].url, /\/tones\/favorited\?page=2&page_size=12&gear=amp-cab/u);
+  assert.match(calls[2].url, /\/tones\/search\?page=3&page_size=12&sort=newest&gears=space&format=ir/u);
   assert.equal(calls[0].options.headers.get('Authorization'), 'Bearer access-test');
+});
+
+test('TONE3000 client downloads an impulse response as bytes with a WAV filename', async () => {
+  const client = new Tone3000Client({clientId:'t3k_pk_test',redirectUri:'https://example.test/',storage:storage(),fetchImpl:async()=>new Response(new Uint8Array([82,73,70,70]),{status:200,headers:{'Content-Type':'audio/wav'}})});
+  client.setTokens({access_token:'access-test',expires_in:3600});
+  const download=await client.downloadImpulseResponse({id:9,name:'V30 SM57',model_url:'https://download.test/ir'});
+  assert.equal(download.name,'V30 SM57.wav');
+  assert.equal(download.contentType,'audio/wav');
+  assert.deepEqual([...download.bytes],[82,73,70,70]);
 });
 
 test('NAM GUI completes a relayed popup callback using the relayed URL', async () => {
@@ -142,6 +154,18 @@ test('favorites persist complete external model snapshots and can be removed', a
   await favorites.save(asset);
   const records=await favorites.list();assert.equal(records[0].identity,'external:abc');assert.equal(records[0].asset.data,asset.data);
   await favorites.delete(asset.id);assert.equal((await favorites.list()).length,0);favorites.close();
+});
+
+test('Cabinet downloads and favorites persist independently in the IR library', async () => {
+  const library=new ImpulseResponseLibrary({indexedDBImpl:fakeIndexedDB()});
+  await library.saveDownload({identity:'tone3000-ir:7:9',name:'V30.wav',bytes:new Uint8Array([1,2,3])});
+  await library.saveFavorite({id:'factory:Celestion/V30.wav',filename:'V30.wav',source:'Factory'});
+  assert.equal((await library.listDownloads())[0].identity,'tone3000-ir:7:9');
+  assert.equal((await library.listFavorites())[0].identity,'factory:Celestion/V30.wav');
+  await library.deleteDownload('tone3000-ir:7:9');
+  assert.equal((await library.listDownloads()).length,0);
+  assert.equal((await library.listFavorites()).length,1);
+  library.close();
 });
 
 test('Factory exporter creates a sanitized rich bundle without temporary model URLs', async () => {

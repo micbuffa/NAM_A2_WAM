@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-16T07:44:29.847Z",
+  "tone": {
+    "id": 50024,
+    "title": "Ashdown ABM 810",
+    "description": "Ashdown ABM 8x10 cabinet mic'd with an sE Electronics V7X dynamic microphone. 6 positions, from cap center to cone edge. ",
+    "url": "https://www.tone3000.com/tones/ashdown-abm-810-50024",
+    "format": "ir",
+    "gear": "cab",
+    "license": "t3k",
+    "creator": {
+      "username": "erdosi",
+      "displayName": null,
+      "url": "https://www.tone3000.com/erdosi"
+    },
+    "makes": [
+      "Ashdown ABM 810"
+    ],
+    "tags": [
+      "bass",
+      "bass cabinet",
+      "bass cabinet ir",
+      "cab impulse response",
+      "impulse response",
+      "impulse responses",
+      "ir"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/tobnaj5lh2.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 276644,
+      "file": "captures/ABM810 6--m276644.wav",
+      "name": "ABM810 6",
+      "createdAt": "2026-01-09T10:36:18.968082+00:00",
+      "sha256": "ed67468e21d357f46d155d429ecfa37627a9a5ff077ae8e922622d8290e1c938"
+    },
+    {
+      "id": 276643,
+      "file": "captures/ABM810 1--m276643.wav",
+      "name": "ABM810 1",
+      "createdAt": "2026-01-09T10:36:18.881511+00:00",
+      "sha256": "b405eb946f52eb108c490d4638e3afd50d0bfb181d5209304e4ffaa98ab09d70"
+    },
+    {
+      "id": 276642,
+      "file": "captures/ABM810 5--m276642.wav",
+      "name": "ABM810 5",
+      "createdAt": "2026-01-09T10:36:18.879988+00:00",
+      "sha256": "6e19917d95cb413922fa24afa65adf3eb12c8b7a3274942c587042772c3534de"
+    },
+    {
+      "id": 276641,
+      "file": "captures/ABM810 4--m276641.wav",
+      "name": "ABM810 4",
+      "createdAt": "2026-01-09T10:36:18.879669+00:00",
+      "sha256": "17a4bc743370ed0a7abda9626fc19aad4051b4d16e97c1a9cfed11e1c8e42176"
+    },
+    {
+      "id": 276640,
+      "file": "captures/ABM810 3--m276640.wav",
+      "name": "ABM810 3",
+      "createdAt": "2026-01-09T10:36:18.872981+00:00",
+      "sha256": "b4352b3af404fb0101b96815cbb793564c5ba3d9df17afdf4b699fb43260cb8a"
+    },
+    {
+      "id": 276639,
+      "file": "captures/ABM810 2--m276639.wav",
+      "name": "ABM810 2",
+      "createdAt": "2026-01-09T10:36:18.84743+00:00",
+      "sha256": "334bb2f4413aa6f0f4431165c39b47943f0db46b461887d44e02852fd7e64ec4"
+    }
+  ]
+}

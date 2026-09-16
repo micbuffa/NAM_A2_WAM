@@ -28,6 +28,10 @@ button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity:
 .host-card > label { display: grid; gap: 5px; margin-top: 9px; color: #aaa4b4; font-size: 11px; }
 .host-card select { width: 100%; min-height: 37px; padding: 0 10px; }
 .host-secondary { width: 100%; margin-top: 9px; color: #c6b9ed; }
+.live-toggle { color: #baf7cf; background: #10261a; border-color: #2d8150; font-weight: 750; }
+.live-toggle:hover { color: #d8ffe5; background: #163522; border-color: #48ae70; }
+.live-toggle.live-active { color: #ffd0d7; background: #36151c; border-color: #a74758; box-shadow: 0 0 13px rgba(203,65,86,.18); }
+.live-toggle.live-active:hover { color: #fff0f2; background: #481b24; border-color: #dc6075; }
 .host-range { grid-template-columns: 1fr auto; align-items: center; }
 .host-range input { grid-column: 1 / -1; width: 100%; accent-color: var(--host-accent); }
 .host-range output { color: #d7d0e5; font-variant-numeric: tabular-nums; }

@@ -1,0 +1,205 @@
+{
+    "name": "AUtoWahMB",
+    "filename": "AUtoWahMB.dsp",
+    "version": "2.74.8",
+    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "include_pathnames": [
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 88,
+    "code": "+MW1",
+    "inputs": 1,
+    "outputs": 1,
+    "meta": [
+        {
+            "basics_lib_name": "Faust Basic Element Library"
+        },
+        {
+            "basics_lib_tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+        },
+        {
+            "basics_lib_version": "1.19.1"
+        },
+        {
+            "compile_options": "-single -scal -I /usr/share/project/"
+        },
+        {
+            "effect_lib_author": "Julius O. Smith (jos at ccrma.stanford.edu)"
+        },
+        {
+            "effect_lib_copyright": "Julius O. Smith III"
+        },
+        {
+            "effect_lib_deprecated": "This library is deprecated and is not maintained anymore. It will be removed in August 2017."
+        },
+        {
+            "effect_lib_exciter_author": "Priyanka Shekar (pshekar@ccrma.stanford.edu)"
+        },
+        {
+            "effect_lib_exciter_copyright": "Copyright (c) 2013 Priyanka Shekar"
+        },
+        {
+            "effect_lib_exciter_license": "MIT License (MIT)"
+        },
+        {
+            "effect_lib_exciter_name": "Harmonic Exciter"
+        },
+        {
+            "effect_lib_exciter_version": "1.0"
+        },
+        {
+            "effect_lib_license": "STK-4.3"
+        },
+        {
+            "effect_lib_name": "Faust Audio Effect Library"
+        },
+        {
+            "effect_lib_version": "1.33"
+        },
+        {
+            "filename": "AUtoWahMB.dsp"
+        },
+        {
+            "filter_lib_author": "Julius O. Smith (jos at ccrma.stanford.edu)"
+        },
+        {
+            "filter_lib_copyright": "Julius O. Smith III"
+        },
+        {
+            "filter_lib_deprecated": "This library is deprecated and is not maintained anymore. It will be removed in August 2017."
+        },
+        {
+            "filter_lib_license": "STK-4.3"
+        },
+        {
+            "filter_lib_name": "Faust Filter Library"
+        },
+        {
+            "filter_lib_reference": "https://ccrma.stanford.edu/~jos/filters/"
+        },
+        {
+            "filter_lib_version": "1.29"
+        },
+        {
+            "library_path0": "/usr/share/faust/effect.lib"
+        },
+        {
+            "library_path1": "/usr/share/faust/filter.lib"
+        },
+        {
+            "library_path2": "/usr/share/faust/music.lib"
+        },
+        {
+            "library_path3": "/usr/share/faust/math.lib"
+        },
+        {
+            "library_path4": "/usr/share/faust/stdfaust.lib"
+        },
+        {
+            "library_path5": "/usr/share/faust/basics.lib"
+        },
+        {
+            "library_path6": "/usr/share/faust/maths.lib"
+        },
+        {
+            "library_path7": "/usr/share/faust/platform.lib"
+        },
+        {
+            "math_lib_author": "GRAME"
+        },
+        {
+            "math_lib_copyright": "GRAME"
+        },
+        {
+            "math_lib_deprecated": "This library is deprecated and is not maintained anymore. It will be removed in August 2017."
+        },
+        {
+            "math_lib_license": "LGPL with exception"
+        },
+        {
+            "math_lib_name": "Math Library"
+        },
+        {
+            "math_lib_version": "1.0"
+        },
+        {
+            "maths_lib_author": "GRAME"
+        },
+        {
+            "maths_lib_copyright": "GRAME"
+        },
+        {
+            "maths_lib_license": "LGPL with exception"
+        },
+        {
+            "maths_lib_name": "Faust Math Library"
+        },
+        {
+            "maths_lib_version": "2.8.0"
+        },
+        {
+            "music_lib_author": "GRAME"
+        },
+        {
+            "music_lib_copyright": "GRAME"
+        },
+        {
+            "music_lib_deprecated": "This library is deprecated and is not maintained anymore. It will be removed in August 2017."
+        },
+        {
+            "music_lib_license": "LGPL with exception"
+        },
+        {
+            "music_lib_name": "Music Library"
+        },
+        {
+            "music_lib_version": "1.0"
+        },
+        {
+            "name": "AUtoWahMB"
+        },
+        {
+            "platform_lib_name": "Generic Platform Library"
+        },
+        {
+            "platform_lib_version": "1.3.0"
+        },
+        {
+            "version": "2.75.15"
+        }
+    ],
+    "ui": [
+        {
+            "type": "vgroup",
+            "label": "AUtoWahMB",
+            "items": [
+                {
+                    "type": "hslider",
+                    "label": "Autowah Level",
+                    "shortname": "Autowah_Level",
+                    "address": "/AUtoWahMB/Autowah_Level",
+                    "index": 24,
+                    "meta": [
+                        {
+                            "style": "knob"
+                        }
+                    ],
+                    "init": 0.5,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                },
+                {
+                    "type": "checkbox",
+                    "label": "bypass",
+                    "shortname": "bypass",
+                    "address": "/AUtoWahMB/bypass",
+                    "index": 12
+                }
+            ]
+        }
+    ]
+}

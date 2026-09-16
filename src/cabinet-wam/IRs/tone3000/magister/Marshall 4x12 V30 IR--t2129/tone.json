@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-16T07:31:50.872Z",
+  "tone": {
+    "id": 2129,
+    "title": "Marshall 4x12 V30 IR",
+    "description": "These ir are a blend made by me of a 421 and a 121 on a marshall 4x12 with v30. \nI took the ispiration to make this ir from a youtube video of Eric Valentine explaining how he recorded slash during his first 2 solo album.\nTo replicate as close as possible the tone i took 2 ir's of a 421 and a 121 dead center to the speaker and while listening the video i apply eq for each microphone as Eric does and blended them togheder.\nThese are 2 version of the same ir, a bright one and a dark one (labled as B and D) difference are subtle and made just to fit different style of amp and context.\nThis ir works well with marshall style amp but possibility are endless so...\nHope you like it",
+    "url": "https://www.tone3000.com/tones/marshall-4x12-v30-ir-2129",
+    "format": "ir",
+    "gear": "cab",
+    "license": "t3k",
+    "creator": {
+      "username": "magister",
+      "displayName": null,
+      "url": "https://www.tone3000.com/magister"
+    },
+    "makes": [
+      "Marshall"
+    ],
+    "tags": [
+      "ir"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/z4qctuxmpc.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 76952,
+      "file": "captures/EV MIX D--m76952.wav",
+      "name": "EV MIX D",
+      "createdAt": "2023-05-27T14:44:49.165+00:00",
+      "sha256": "d09cf7117854ff70f6c164b48d5bef4182b812f9e111c2441a839a770e88faf2"
+    },
+    {
+      "id": 76953,
+      "file": "captures/EV MIX B--m76953.wav",
+      "name": "EV MIX B",
+      "createdAt": "2023-05-27T14:44:49.165+00:00",
+      "sha256": "ac12b54de4dbd612c9355927c7d48f6ca990067cf10e925d3534ef754c289156"
+    }
+  ]
+}

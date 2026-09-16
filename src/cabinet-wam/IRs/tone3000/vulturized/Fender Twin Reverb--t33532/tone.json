@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-16T07:39:26.527Z",
+  "tone": {
+    "id": 33532,
+    "title": "Fender Twin Reverb",
+    "description": "Loaded with a pair of JBL D120s.\n\nEQ'd for different purposes, from clean articulate rhythm work with no mud, to mid heavy leads.",
+    "url": "https://www.tone3000.com/tones/fender-twin-reverb-33532",
+    "format": "ir",
+    "gear": "cab",
+    "license": "t3k",
+    "creator": {
+      "username": "vulturized",
+      "displayName": null,
+      "url": "https://www.tone3000.com/vulturized"
+    },
+    "makes": [
+      "Fender Twin Reverb"
+    ],
+    "tags": [
+      "clean",
+      "d120",
+      "fender",
+      "ir",
+      "jbl",
+      "twin reverb"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/51sv1irv88a.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 156872,
+      "file": "captures/TWIN REVERB __ MIDS--m156872.wav",
+      "name": "TWIN REVERB __ MIDS",
+      "createdAt": "2025-07-22T22:27:20.895207+00:00",
+      "sha256": "f156c1e6a1ee348045ba8aca3c734fa686634d81ce30b8e2c1299aa24cbdc815"
+    },
+    {
+      "id": 156871,
+      "file": "captures/TWIN REVERB __ CLEAN--m156871.wav",
+      "name": "TWIN REVERB __ CLEAN",
+      "createdAt": "2025-07-22T22:27:19.734102+00:00",
+      "sha256": "46d47c497938fa8aaf1e375dc13f5a05bfdab51e30832440daae28ed7cdbd840"
+    },
+    {
+      "id": 156870,
+      "file": "captures/TWIN REVERB __ BALANCED--m156870.wav",
+      "name": "TWIN REVERB __ BALANCED",
+      "createdAt": "2025-07-22T22:27:18.574585+00:00",
+      "sha256": "8ac5fba60c78702f405f126fce170cd2dc85c5c245a5fb7a2b9b933df0ad8cb7"
+    }
+  ]
+}

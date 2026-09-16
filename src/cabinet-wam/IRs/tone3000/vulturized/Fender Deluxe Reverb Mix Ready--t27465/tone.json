@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-16T07:31:05.545Z",
+  "tone": {
+    "id": 27465,
+    "title": "Fender Deluxe Reverb Mix Ready",
+    "description": "The classic blackface sound with an Oxford speaker, polished and ready to go. Sounds very pleasing and balanced to me. No harsh high end, no muddy low mids, controlled low end.\n\nBuy my Mix Ready Guitar IRs:\nhttps://lamego.gumroad.com",
+    "url": "https://www.tone3000.com/tones/fender-deluxe-reverb-mix-ready-27465",
+    "format": "ir",
+    "gear": "cab",
+    "license": "t3k",
+    "creator": {
+      "username": "vulturized",
+      "displayName": null,
+      "url": "https://www.tone3000.com/vulturized"
+    },
+    "makes": [
+      "Fender Deluxe Reverb"
+    ],
+    "tags": [
+      "blackface",
+      "blues",
+      "clean",
+      "country",
+      "deluxe",
+      "fender",
+      "ir",
+      "oxford"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/neyd0ho10zb.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 220918,
+      "file": "captures/DELUXE REVERB OXFORD - BIG - 48 24--m220918.wav",
+      "name": "DELUXE REVERB OXFORD - BIG - 48 24",
+      "createdAt": "2025-11-14T10:34:16.698664+00:00",
+      "sha256": "b607d70fe6f79e56f9af049567071a65f73c18f66bc5c61089abda7c39e96b8b"
+    },
+    {
+      "id": 220917,
+      "file": "captures/DELUXE REVERB OXFORD - LEAN - 48 24--m220917.wav",
+      "name": "DELUXE REVERB OXFORD - LEAN - 48 24",
+      "createdAt": "2025-11-14T10:34:16.690741+00:00",
+      "sha256": "498889978243891d1990dfd5ceeecc53aeed43089c34de4e218e2249bad9b6cf"
+    },
+    {
+      "id": 106586,
+      "file": "captures/DELUXE REVERB OXFORD - LEAN--m106586.wav",
+      "name": "DELUXE REVERB OXFORD - LEAN",
+      "createdAt": "2025-04-11T23:56:06.680873+00:00",
+      "sha256": "15d9635e7a32d9784553dd2825100a9db5e35484b98dc81564acbabf5a3b6fb2"
+    },
+    {
+      "id": 106585,
+      "file": "captures/DELUXE REVERB OXFORD - BIG--m106585.wav",
+      "name": "DELUXE REVERB OXFORD - BIG",
+      "createdAt": "2025-04-11T23:56:05.796925+00:00",
+      "sha256": "5bf150fa2e48402140bfb15766aa0b6373a646fc12f33d98991ab6996bd99720"
+    }
+  ]
+}

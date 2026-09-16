@@ -1,0 +1,627 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-16T07:36:16.084Z",
+  "tone": {
+    "id": 45023,
+    "title": "Celestion Vintage 30 - 2002 Mesa Boogie 4x12 - SM57",
+    "description": "I made impulse responses of my Mesa Boogie 4FB Traditional Straight 4x12 cabinet loaded with Celestion Vintage 30 speakers. I used a Shure SM57 on all four speakers and have uploaded on-axis IRs in 0.25inch (~0.6cm) increments from 0.00” to 2.00” from the cap. Off-axis IRs were captured in 0.5” increments.\n\n5/6/26 - I deleted the 2.25in and 2.50in positions since they are most likely too dark for most users playing rock and metal. See Linked Tones for SM57 IRs backed off the cab to reduce congestion in darker positions.\n\nRecommended starting points vary depending on amp:\nMesa Rectifier Modern Mode - 0.50” from cap\nPeavey 5150/6505 Lead - 0.75” from cap\n\nThe Upper Left and Lower Left speakers are not as thick sounding.\n\nI will be using this cab as a load to train my high gain amps for both Full Rigs and DI captures with the ideal cab load. I also intend to provide a Part 2 to this set, but with non-SM57 microphones.\n\nThe cabinet has a production date of 2002 with 8 ohm Vintage 30s from 2001. The cabinet is comparable in dimensions vs other 4x12 cabinets. It is not as tall as the Mesa Standard Oversized 4x12, which is well represented on TONE3000. These V30 IRs in general are warmer sounding compared to my IRs of my 16 Ohm V30 in various cabs.\n\nMore about the cab here:\nhttps://outmodedelectronics.blogspot.com/2025/11/mesa-boogie-rectifier-standard-4x12.html?m=1\n\nI shot each microphone position through Chameleon Labs 7603 (Neve 1073-inspired), Stam SA-73 (Neve-inspired), and CAPI VP28 (API-based) microphone preamps for some variety.\n\n24Bit 48kHz - 500ms - MPT Format\n\nNaming Convention\nV30 <speaker position> 4FB 4x12 SM57 <Distance from Center> <Distance Off Grill> <Off Axis Angle, if applicable> <Microphone Preamp>\n\nSpeaker Positions are LL – lower left, LR – lower right, UL – upper left, UR – upper right\n\nEquipment Used:\n-Shure SM57\n-Behringer A800 Power Amp\n-Chameleon Labs 7603 Microphone Preamp\n-Stam SA-73 Microphone Preamp\n-CAPI VP28 Microphone Preamp\n-Steinberg UR824 Audio Interface\n-Voxengo Deconvolver\n\n10sec sine sweeps were used to excite speaker",
+    "url": "https://www.tone3000.com/tones/celestion-vintage-30-2002-mesa-boogie-4x12-sm57-45023",
+    "format": "ir",
+    "gear": "cab",
+    "license": "t3k",
+    "creator": {
+      "username": "outmodedelectronics",
+      "displayName": "OutmodedElectronics",
+      "url": "https://www.tone3000.com/outmodedelectronics"
+    },
+    "makes": [
+      "Celestion",
+      "Celestion Vintage 30",
+      "Mesa Boogie Traditional 4x12",
+      "Shure SM57"
+    ],
+    "tags": [
+      "celestion v30",
+      "impulse response",
+      "ir",
+      "mesa boogie",
+      "rock",
+      "thick mids"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/7zeubq5u8m.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 239385,
+      "file": "captures/V30 UL 4FB 4x12 SM57 0.50in 0--m239385.wav",
+      "name": "V30 UL 4FB 4x12 SM57 0.50in 0.0in 7603",
+      "createdAt": "2025-11-29T04:27:51.83923+00:00",
+      "sha256": "48e8b68df33d23d487a311d27e0afdbd96c7cd5871acdc6cc86821fda60201eb"
+    },
+    {
+      "id": 239438,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.50in 0--m239438.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.50in 0.0in SA73",
+      "createdAt": "2025-11-29T04:28:24.704223+00:00",
+      "sha256": "577a59ea66f3d00bb75d191ce141b1a7e79b356c0e6f69b53d98265782cce686"
+    },
+    {
+      "id": 239442,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.50in 0--m239442.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.50in 0.0in VP28",
+      "createdAt": "2025-11-29T04:28:24.720238+00:00",
+      "sha256": "1f8dbb343e596334fe91dc076732425b854d8721b9335e9bcb63bae4856c68b5"
+    },
+    {
+      "id": 239290,
+      "file": "captures/V30 LL 4FB 4x12 SM57 0.50in 0--m239290.wav",
+      "name": "V30 LL 4FB 4x12 SM57 0.50in 0.0in 7603",
+      "createdAt": "2025-11-29T04:26:42.777644+00:00",
+      "sha256": "06b853f53c2436eb8a0cf9deb6a129e0f8f3a31c48f45a1376efb70d85c4e55a"
+    },
+    {
+      "id": 239345,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.50in 0--m239345.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.50in 0.0in SA73",
+      "createdAt": "2025-11-29T04:27:24.693952+00:00",
+      "sha256": "10f8f7eb3a9fbfcf74a5166432e0bfbb57547841a7ed8c524037a1aaf06212d0"
+    },
+    {
+      "id": 239343,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.50in 0--m239343.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.50in 0.0in VP28",
+      "createdAt": "2025-11-29T04:27:24.686483+00:00",
+      "sha256": "56c94a282e113dfd1772735c3a77d6b02046bad9365399a784a17a484e7dd4c8"
+    },
+    {
+      "id": 239391,
+      "file": "captures/V30 UL 4FB 4x12 SM57 0.50in 0--m239391.wav",
+      "name": "V30 UL 4FB 4x12 SM57 0.50in 0.0in OA30 7603",
+      "createdAt": "2025-11-29T04:27:51.936122+00:00",
+      "sha256": "340d533c4ed75518e32888f6013b7be32379e50ee589e8e8c4750e58cb744306"
+    },
+    {
+      "id": 239441,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.50in 0--m239441.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.50in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:28:24.710251+00:00",
+      "sha256": "4958010cc22ab829a4a7e92ef3fbba5cd70eb138ef31142f94571c22de910aba"
+    },
+    {
+      "id": 239439,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.50in 0--m239439.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.50in 0.0in OA30 VP28",
+      "createdAt": "2025-11-29T04:28:24.708803+00:00",
+      "sha256": "612db8cab48cd672a14b12f258a55edae150956d7c2a795dd8f9389fcf996642"
+    },
+    {
+      "id": 239298,
+      "file": "captures/V30 LL 4FB 4x12 SM57 0.50in 0--m239298.wav",
+      "name": "V30 LL 4FB 4x12 SM57 0.50in 0.0in OA30 7603",
+      "createdAt": "2025-11-29T04:26:42.890086+00:00",
+      "sha256": "2ed44d8f10a6f8bac32f8291fe09b86a726c89b6814ca31fa6be22e3c686c3f0"
+    },
+    {
+      "id": 239344,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.50in 0--m239344.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.50in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:27:24.691247+00:00",
+      "sha256": "a25027f94252fe0ba5192042dff612cf17464a54e36d171f77ea74ce2c1a41d3"
+    },
+    {
+      "id": 239342,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.50in 0--m239342.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.50in 0.0in OA30 VP28",
+      "createdAt": "2025-11-29T04:27:24.682633+00:00",
+      "sha256": "9b08225f587332e5cf9e6ce11fcf7e69d96cce3af3d231b40f2da3107d1d5c8d"
+    },
+    {
+      "id": 239395,
+      "file": "captures/V30 UL 4FB 4x12 SM57 0.75in 0--m239395.wav",
+      "name": "V30 UL 4FB 4x12 SM57 0.75in 0.0in 7603",
+      "createdAt": "2025-11-29T04:27:52.033585+00:00",
+      "sha256": "b0f15c1e7ef800491d13eac148ead20f3fc56e7fe987bc12edf496177d31e26e"
+    },
+    {
+      "id": 239443,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.75in 0--m239443.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.75in 0.0in SA73",
+      "createdAt": "2025-11-29T04:28:24.803338+00:00",
+      "sha256": "2cde83c407f824a02df585e639ae3366bfa968ad191c50d13831c89481b80374"
+    },
+    {
+      "id": 239447,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.75in 0--m239447.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.75in 0.0in VP28",
+      "createdAt": "2025-11-29T04:28:24.823117+00:00",
+      "sha256": "d5efe827ce68e5ff7c4ad414df1b7b1a21d2c5ed456556eb7c85f67c58a2604e"
+    },
+    {
+      "id": 239300,
+      "file": "captures/V30 LL 4FB 4x12 SM57 0.75in 0--m239300.wav",
+      "name": "V30 LL 4FB 4x12 SM57 0.75in 0.0in 7603",
+      "createdAt": "2025-11-29T04:26:42.986597+00:00",
+      "sha256": "51e943125411e940110c7e85bd2cc031e4718e470b991c8dffd1463d140f6e3b"
+    },
+    {
+      "id": 239348,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.75in 0--m239348.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.75in 0.0in SA73",
+      "createdAt": "2025-11-29T04:27:24.798222+00:00",
+      "sha256": "579fa8f23a7c5f40d67a1db4b3ff342ebccedcd4431c7f93ab4275e1b2a2da41"
+    },
+    {
+      "id": 239347,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.75in 0--m239347.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.75in 0.0in VP28",
+      "createdAt": "2025-11-29T04:27:24.795538+00:00",
+      "sha256": "580835f477b2c3be041061801b4d42c15df85f840c5a8ec94fd88137f5b08490"
+    },
+    {
+      "id": 239399,
+      "file": "captures/V30 UL 4FB 4x12 SM57 1.00in 0--m239399.wav",
+      "name": "V30 UL 4FB 4x12 SM57 1.00in 0.0in 7603",
+      "createdAt": "2025-11-29T04:27:52.041186+00:00",
+      "sha256": "5c804ec28d296f08ccc46bcc5b9472275b358829ddd442f3506471527dce61da"
+    },
+    {
+      "id": 239451,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.00in 0--m239451.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.00in 0.0in SA73",
+      "createdAt": "2025-11-29T04:28:24.921009+00:00",
+      "sha256": "625221ff975fc22ec60393a5eac8abdb89e0f4a0424befa28947655a067cf1a6"
+    },
+    {
+      "id": 239449,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.00in 0--m239449.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.00in 0.0in VP28",
+      "createdAt": "2025-11-29T04:28:24.913441+00:00",
+      "sha256": "e29625bc9f4c28bc941303a0b956cacb138e0e29ae80b1491b689cf3e0b1584f"
+    },
+    {
+      "id": 239301,
+      "file": "captures/V30 LL 4FB 4x12 SM57 1.00in 0--m239301.wav",
+      "name": "V30 LL 4FB 4x12 SM57 1.00in 0.0in 7603",
+      "createdAt": "2025-11-29T04:26:42.988598+00:00",
+      "sha256": "4d4ac53cbc54a56b54520be4b51d01d42abeaf5233b85d66d8d9faf260852291"
+    },
+    {
+      "id": 239353,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.00in 0--m239353.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.00in 0.0in SA73",
+      "createdAt": "2025-11-29T04:27:24.896663+00:00",
+      "sha256": "dd529c3aaa96af069bc00c2dbadfcf546bd3722c46a51559bcde9f9605575aa1"
+    },
+    {
+      "id": 239356,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.00in 0--m239356.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.00in 0.0in VP28",
+      "createdAt": "2025-11-29T04:27:24.899976+00:00",
+      "sha256": "dd465fb4a1d1c57ecf162168dffd2e2f8c58655b82d0354da0d3acbfb38ab1b9"
+    },
+    {
+      "id": 239386,
+      "file": "captures/V30 UL 4FB 4x12 SM57 0.25in 0--m239386.wav",
+      "name": "V30 UL 4FB 4x12 SM57 0.25in 0.0in 7603",
+      "createdAt": "2025-11-29T04:27:51.842957+00:00",
+      "sha256": "6e1ce8cc679b707ff09e11a416d79561b17799383b0bad9ebdef7b1a9fd134bb"
+    },
+    {
+      "id": 239437,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.25in 0--m239437.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.25in 0.0in SA73",
+      "createdAt": "2025-11-29T04:28:24.613192+00:00",
+      "sha256": "4968d0b71461d5e30243508cc4863e240eacd89eccfdb90c090c08fad8348285"
+    },
+    {
+      "id": 239434,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.25in 0--m239434.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.25in 0.0in VP28",
+      "createdAt": "2025-11-29T04:28:24.599173+00:00",
+      "sha256": "d8106251257c904ae618150c14139e2b98fc1d744bc8920f906890866e744dd3"
+    },
+    {
+      "id": 239289,
+      "file": "captures/V30 LL 4FB 4x12 SM57 0.25in 0--m239289.wav",
+      "name": "V30 LL 4FB 4x12 SM57 0.25in 0.0in 7603",
+      "createdAt": "2025-11-29T04:26:42.775822+00:00",
+      "sha256": "1be6569171a2896c76b3e811a679ccddb76444a51db35ef50b79fc5371d2e736"
+    },
+    {
+      "id": 239341,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.25in 0--m239341.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.25in 0.0in SA73",
+      "createdAt": "2025-11-29T04:27:24.604443+00:00",
+      "sha256": "86b958a0eacb7013ae2991280d606ccfaae3f28bd33b40e563eb7bfa2e4e6b3c"
+    },
+    {
+      "id": 239339,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.25in 0--m239339.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.25in 0.0in VP28",
+      "createdAt": "2025-11-29T04:27:24.593421+00:00",
+      "sha256": "b9a1b88cd3a02cf9e3e26533fa99315e208ab770878c877f79eaf7d6eb04d05e"
+    },
+    {
+      "id": 239380,
+      "file": "captures/V30 UL 4FB 4x12 SM57 0.00in 0--m239380.wav",
+      "name": "V30 UL 4FB 4x12 SM57 0.00in 0.0in OA30 7603",
+      "createdAt": "2025-11-29T04:27:51.72788+00:00",
+      "sha256": "5b37d78e29da7e903ae41126fa6302c93df71b0818aacf260a09fa1a4ef65273"
+    },
+    {
+      "id": 239431,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.00in 0--m239431.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.00in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:28:24.489368+00:00",
+      "sha256": "f07b01ea1e2eb18874354cf6a55c10b01f1232bb6658abfa4d9a14bc624a5a81"
+    },
+    {
+      "id": 239430,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.00in 0--m239430.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.00in 0.0in OA30 VP28",
+      "createdAt": "2025-11-29T04:28:24.486663+00:00",
+      "sha256": "2685fb6775cd71b3baea9062bb0bf00e9a11b121afa8d203220e0938c7ab03c8"
+    },
+    {
+      "id": 239286,
+      "file": "captures/V30 LL 4FB 4x12 SM57 0.00in 0--m239286.wav",
+      "name": "V30 LL 4FB 4x12 SM57 0.00in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:26:42.680207+00:00",
+      "sha256": "1e516d27fe8879a8ebc9ea61112b2c3c0dab0759e3b36f2971503bc1d5ca2e73"
+    },
+    {
+      "id": 239334,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.00in 0--m239334.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.00in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:27:24.471034+00:00",
+      "sha256": "0bddc09592534e758ea563ed5e6a086c3176650e55201a31611a2f83dec2ac03"
+    },
+    {
+      "id": 239336,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.00in 0--m239336.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.00in 0.0in OA30 VP28",
+      "createdAt": "2025-11-29T04:27:24.489911+00:00",
+      "sha256": "79e312b97a8efac398b9f903ac34148d72a9311b3d8bb00898843e52933c046a"
+    },
+    {
+      "id": 239382,
+      "file": "captures/V30 UL 4FB 4x12 SM57 0.00in 0--m239382.wav",
+      "name": "V30 UL 4FB 4x12 SM57 0.00in 0.0in 7603",
+      "createdAt": "2025-11-29T04:27:51.738386+00:00",
+      "sha256": "ef07cf54dd2241c6e33a862648f43a9514ffa12510af71afbcd308d5d7205c89"
+    },
+    {
+      "id": 239432,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.00in 0--m239432.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.00in 0.0in SA73",
+      "createdAt": "2025-11-29T04:28:24.510688+00:00",
+      "sha256": "109f6be9b3ca3cd6dceee79ea286afe784e66d362e91cf290a93cd8f77f3d3a4"
+    },
+    {
+      "id": 239435,
+      "file": "captures/V30 UR 4FB 4x12 SM57 0.00in 0--m239435.wav",
+      "name": "V30 UR 4FB 4x12 SM57 0.00in 0.0in VP28",
+      "createdAt": "2025-11-29T04:28:24.600875+00:00",
+      "sha256": "e3f07b39e08d57b3cdfde14ea5ac2933e81154442b8a8dd7bbc56eeae15c0a6a"
+    },
+    {
+      "id": 239288,
+      "file": "captures/V30 LL 4FB 4x12 SM57 0.00in 0--m239288.wav",
+      "name": "V30 LL 4FB 4x12 SM57 0.00in 0.0in 7603",
+      "createdAt": "2025-11-29T04:26:42.689989+00:00",
+      "sha256": "eb49deff8b6a98e6c8929450b788e1fb91e27b6a75e6a6ef0867e2046542ab25"
+    },
+    {
+      "id": 239333,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.00in 0--m239333.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.00in 0.0in SA73",
+      "createdAt": "2025-11-29T04:27:24.470843+00:00",
+      "sha256": "74745f81b55765b1b2033ac004ead89f77314f7ae869aad9831b1fdd9defd584"
+    },
+    {
+      "id": 239340,
+      "file": "captures/V30 LR 4FB 4x12 SM57 0.00in 0--m239340.wav",
+      "name": "V30 LR 4FB 4x12 SM57 0.00in 0.0in VP28",
+      "createdAt": "2025-11-29T04:27:24.594495+00:00",
+      "sha256": "a5afab11c306b52f01e244ebc57cbdc207e0a5963b510e4b232f4395c6a345d1"
+    },
+    {
+      "id": 239397,
+      "file": "captures/V30 UL 4FB 4x12 SM57 1.00in 0--m239397.wav",
+      "name": "V30 UL 4FB 4x12 SM57 1.00in 0.0in OA30 7603",
+      "createdAt": "2025-11-29T04:27:52.037206+00:00",
+      "sha256": "183486788b981a9f118bc5bfed681ed4250dc42d7cc0716faef90eeb6341b46e"
+    },
+    {
+      "id": 239450,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.00in 0--m239450.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.00in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:28:24.915475+00:00",
+      "sha256": "b559b4f973a02a8abc778e4de35c1cd17706e2fd288ae667005326b4e9839bf2"
+    },
+    {
+      "id": 239448,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.00in 0--m239448.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.00in 0.0in OA30 VP28",
+      "createdAt": "2025-11-29T04:28:24.908231+00:00",
+      "sha256": "b704ef85149841e308d01eb5109326aef7c9a9301617b9f9f69f27d7581ce13c"
+    },
+    {
+      "id": 239303,
+      "file": "captures/V30 LL 4FB 4x12 SM57 1.00in 0--m239303.wav",
+      "name": "V30 LL 4FB 4x12 SM57 1.00in 0.0in OA30 7603",
+      "createdAt": "2025-11-29T04:26:43.000306+00:00",
+      "sha256": "dc9446af61251ef07348489c5d79ea70c0b59ecb5aaff3cfb0700c1492e4b480"
+    },
+    {
+      "id": 239354,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.00in 0--m239354.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.00in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:27:24.899027+00:00",
+      "sha256": "a405fb43fa431d2d86c7f1064958b025812f2f144524720a5d60bad195ae17cf"
+    },
+    {
+      "id": 239355,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.00in 0--m239355.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.00in 0.0in OA30 VP28",
+      "createdAt": "2025-11-29T04:27:24.899862+00:00",
+      "sha256": "ba4de29efeadf2ecf7a6106e80811bc5a9bf7dfc506e053e98f2eca82a4c5b80"
+    },
+    {
+      "id": 239402,
+      "file": "captures/V30 UL 4FB 4x12 SM57 1.25in 0--m239402.wav",
+      "name": "V30 UL 4FB 4x12 SM57 1.25in 0.0in 7603",
+      "createdAt": "2025-11-29T04:27:52.138941+00:00",
+      "sha256": "3d47ebaadb7a2ac7e0e946eed2b66bf21ca59af9e1fce53c2bf0e04a0795f8ae"
+    },
+    {
+      "id": 239455,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.25in 0--m239455.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.25in 0.0in SA73",
+      "createdAt": "2025-11-29T04:28:25.016261+00:00",
+      "sha256": "02384dc93dcde86cf512665fc5fdc8a3257f6000a310712051c0c292321f1f20"
+    },
+    {
+      "id": 239454,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.25in 0--m239454.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.25in 0.0in VP28",
+      "createdAt": "2025-11-29T04:28:25.014477+00:00",
+      "sha256": "b81245e2fd7a1cd58d80d60f629f2239aecc5b1b48779dd83a141ccbad2e90a8"
+    },
+    {
+      "id": 239305,
+      "file": "captures/V30 LL 4FB 4x12 SM57 1.25in 0--m239305.wav",
+      "name": "V30 LL 4FB 4x12 SM57 1.25in 0.0in 7603",
+      "createdAt": "2025-11-29T04:26:43.091582+00:00",
+      "sha256": "68680099298139488a5fe377c77d92a208bf777db787663ca9f486815a646c3d"
+    },
+    {
+      "id": 239359,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.25in 0--m239359.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.25in 0.0in SA73",
+      "createdAt": "2025-11-29T04:27:24.989101+00:00",
+      "sha256": "606957118df77759b325849e7f928f415b79b4febbf6287b409d7309c4b65309"
+    },
+    {
+      "id": 239361,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.25in 0--m239361.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.25in 0.0in VP28",
+      "createdAt": "2025-11-29T04:27:25.007831+00:00",
+      "sha256": "0907b21818acabf67b71e406baec1867d73cc9e8040190f8beca177ad4938a68"
+    },
+    {
+      "id": 239409,
+      "file": "captures/V30 UL 4FB 4x12 SM57 1.50in 0--m239409.wav",
+      "name": "V30 UL 4FB 4x12 SM57 1.50in 0.0in 7603",
+      "createdAt": "2025-11-29T04:27:52.277061+00:00",
+      "sha256": "9f2b70f56888fed81160eb5c424e7ff3d378a25320c7e0753b4b9dcc57477145"
+    },
+    {
+      "id": 239458,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.50in 0--m239458.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.50in 0.0in SA73",
+      "createdAt": "2025-11-29T04:28:25.108197+00:00",
+      "sha256": "a3656d7caccb71b942d17ca6f97ff1a5d3c385c7e5f1ab16c601feb9fad1a4b6"
+    },
+    {
+      "id": 239460,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.50in 0--m239460.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.50in 0.0in VP28",
+      "createdAt": "2025-11-29T04:28:25.113743+00:00",
+      "sha256": "67ada619142d803b9b519649af1d160a340dc633e86768b7aec9e34bac12266a"
+    },
+    {
+      "id": 239313,
+      "file": "captures/V30 LL 4FB 4x12 SM57 1.50in 0--m239313.wav",
+      "name": "V30 LL 4FB 4x12 SM57 1.50in 0.0in 7603",
+      "createdAt": "2025-11-29T04:26:43.212901+00:00",
+      "sha256": "946be2807cef1dd88e92beb143861ded03d0b8ab43192301105b5c92a80670fa"
+    },
+    {
+      "id": 239363,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.50in 0--m239363.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.50in 0.0in SA73",
+      "createdAt": "2025-11-29T04:27:25.096953+00:00",
+      "sha256": "2a81951bd9f27af5252dd3ee7e042376b4fbacb00d8e640d317c63df805d5c60"
+    },
+    {
+      "id": 239362,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.50in 0--m239362.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.50in 0.0in VP28",
+      "createdAt": "2025-11-29T04:27:25.091173+00:00",
+      "sha256": "4c15d54f35065769a7b4b963df75493c304e8b9016049266cd57b2ede155849e"
+    },
+    {
+      "id": 239406,
+      "file": "captures/V30 UL 4FB 4x12 SM57 1.50in 0--m239406.wav",
+      "name": "V30 UL 4FB 4x12 SM57 1.50in 0.0in OA30 7603",
+      "createdAt": "2025-11-29T04:27:52.258876+00:00",
+      "sha256": "c5eccf53f821379cfbdcf0919181034e3294bbc7743a08c9eb6f9212c1d7a1f3"
+    },
+    {
+      "id": 239457,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.50in 0--m239457.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.50in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:28:25.020076+00:00",
+      "sha256": "6dcb42c03d191d56e4768df5e495cf134de828d4157bf1ac6ba76fc924dcfcee"
+    },
+    {
+      "id": 239459,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.50in 0--m239459.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.50in 0.0in OA30 VP28",
+      "createdAt": "2025-11-29T04:28:25.111584+00:00",
+      "sha256": "7e856ebabd1a62bb6c1a80c86d687f5c6ac321fe1e9f7b28a991f765922f3141"
+    },
+    {
+      "id": 239309,
+      "file": "captures/V30 LL 4FB 4x12 SM57 1.50in 0--m239309.wav",
+      "name": "V30 LL 4FB 4x12 SM57 1.50in 0.0in OA30 7603",
+      "createdAt": "2025-11-29T04:26:43.193148+00:00",
+      "sha256": "91cd9ebad1ff3631617a7952d58e06b77bd64b17fcd03799a902747d2db492a0"
+    },
+    {
+      "id": 239358,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.50in 0--m239358.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.50in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:27:24.983709+00:00",
+      "sha256": "3c2ad02263d8d4d68626f3731d7de4d6b830f3d3301e515a5f533369150723e0"
+    },
+    {
+      "id": 239366,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.50in 0--m239366.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.50in 0.0in OA30 VP28",
+      "createdAt": "2025-11-29T04:27:25.104632+00:00",
+      "sha256": "324dd99f71b2de26e876cf590d5443cc226871c2ef119a1322cf9e50c869e7dc"
+    },
+    {
+      "id": 239410,
+      "file": "captures/V30 UL 4FB 4x12 SM57 1.75in 0--m239410.wav",
+      "name": "V30 UL 4FB 4x12 SM57 1.75in 0.0in 7603",
+      "createdAt": "2025-11-29T04:27:52.359531+00:00",
+      "sha256": "40929520bc8f379bf73ac4d25edcd7bb3953bdafe90fe1f5755022b3bc15dadc"
+    },
+    {
+      "id": 239462,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.75in 0--m239462.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.75in 0.0in SA73",
+      "createdAt": "2025-11-29T04:28:25.128984+00:00",
+      "sha256": "aab5ac79cdf70a540209c7b6efb5d446cba612dd80946a4d816e3dd7818d1eb4"
+    },
+    {
+      "id": 239466,
+      "file": "captures/V30 UR 4FB 4x12 SM57 1.75in 0--m239466.wav",
+      "name": "V30 UR 4FB 4x12 SM57 1.75in 0.0in VP28",
+      "createdAt": "2025-11-29T04:28:25.21964+00:00",
+      "sha256": "5fc690f65889063de5adedc03d14188d26f4df02a93c80e26cf1d087357fb3e7"
+    },
+    {
+      "id": 239318,
+      "file": "captures/V30 LL 4FB 4x12 SM57 1.75in 0--m239318.wav",
+      "name": "V30 LL 4FB 4x12 SM57 1.75in 0.0in 7603",
+      "createdAt": "2025-11-29T04:26:43.620861+00:00",
+      "sha256": "9cfb18b6401f7b8cebe3218496009c4e45cbc8c7f6c6d6af45abf057706d4933"
+    },
+    {
+      "id": 239365,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.75in 0--m239365.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.75in 0.0in SA73",
+      "createdAt": "2025-11-29T04:27:25.099161+00:00",
+      "sha256": "0152ef4bdfe6106fe9fc7eb152a7c75d334fd806a1a8642e08fb66367c3cbe7a"
+    },
+    {
+      "id": 239369,
+      "file": "captures/V30 LR 4FB 4x12 SM57 1.75in 0--m239369.wav",
+      "name": "V30 LR 4FB 4x12 SM57 1.75in 0.0in VP28",
+      "createdAt": "2025-11-29T04:27:25.211209+00:00",
+      "sha256": "0700346f24fcd65bf2dacc82af59278622bcf44a121369ed446ae1001dba51d1"
+    },
+    {
+      "id": 239415,
+      "file": "captures/V30 UL 4FB 4x12 SM57 2.00in 0--m239415.wav",
+      "name": "V30 UL 4FB 4x12 SM57 2.00in 0.0in 7603",
+      "createdAt": "2025-11-29T04:27:52.454131+00:00",
+      "sha256": "3736c6333c40828a85676dc816de15e3b960f865ac26815c12057b01f545e693"
+    },
+    {
+      "id": 239471,
+      "file": "captures/V30 UR 4FB 4x12 SM57 2.00in 0--m239471.wav",
+      "name": "V30 UR 4FB 4x12 SM57 2.00in 0.0in SA73",
+      "createdAt": "2025-11-29T04:28:25.330121+00:00",
+      "sha256": "8b8ee53e2e72907178b175c397c495618c8fabed182b749fb4c84711c2bef164"
+    },
+    {
+      "id": 239468,
+      "file": "captures/V30 UR 4FB 4x12 SM57 2.00in 0--m239468.wav",
+      "name": "V30 UR 4FB 4x12 SM57 2.00in 0.0in VP28",
+      "createdAt": "2025-11-29T04:28:25.319034+00:00",
+      "sha256": "7fd2602e714dd4f29ddd356904f375fea9bef45392576f49a00922f728857cce"
+    },
+    {
+      "id": 239320,
+      "file": "captures/V30 LL 4FB 4x12 SM57 2.00in 0--m239320.wav",
+      "name": "V30 LL 4FB 4x12 SM57 2.00in 0.0in 7603",
+      "createdAt": "2025-11-29T04:26:43.721723+00:00",
+      "sha256": "6147592c088788d6e402b1d545b1e6ecf013db3d9e921ce7ca697e516bdce0c2"
+    },
+    {
+      "id": 239376,
+      "file": "captures/V30 LR 4FB 4x12 SM57 2.00in 0--m239376.wav",
+      "name": "V30 LR 4FB 4x12 SM57 2.00in 0.0in SA73",
+      "createdAt": "2025-11-29T04:27:25.306382+00:00",
+      "sha256": "709508bfa1c29975e1ba77d05c2c8585733b842ea2480b53aa5b5c4916a2a0f4"
+    },
+    {
+      "id": 239374,
+      "file": "captures/V30 LR 4FB 4x12 SM57 2.00in 0--m239374.wav",
+      "name": "V30 LR 4FB 4x12 SM57 2.00in 0.0in VP28",
+      "createdAt": "2025-11-29T04:27:25.304597+00:00",
+      "sha256": "d91892f318ede1a686dd7687ba450e2c70ceff25d2d9e39dc0372d89d8bc630c"
+    },
+    {
+      "id": 239419,
+      "file": "captures/V30 UL 4FB 4x12 SM57 2.00in 0--m239419.wav",
+      "name": "V30 UL 4FB 4x12 SM57 2.00in 0.0in OA30 7603",
+      "createdAt": "2025-11-29T04:27:52.462083+00:00",
+      "sha256": "ba16e5c81288484a75863668fdce1f1303b596f7f9a24a7eedd3f7b62009c1f6"
+    },
+    {
+      "id": 239464,
+      "file": "captures/V30 UR 4FB 4x12 SM57 2.00in 0--m239464.wav",
+      "name": "V30 UR 4FB 4x12 SM57 2.00in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:28:25.216427+00:00",
+      "sha256": "0eb8105ccbde49d33a4b1b6aeda1cfb29b4c878862f3a68868c52da2e56fe7f7"
+    },
+    {
+      "id": 239467,
+      "file": "captures/V30 UR 4FB 4x12 SM57 2.00in 0--m239467.wav",
+      "name": "V30 UR 4FB 4x12 SM57 2.00in 0.0in OA30 VP28",
+      "createdAt": "2025-11-29T04:28:25.23407+00:00",
+      "sha256": "8afea096133dbe14890e87f7facf87b51549fad6a986c78cf87f5cafb7d576e6"
+    },
+    {
+      "id": 239321,
+      "file": "captures/V30 LL 4FB 4x12 SM57 2.00in 0--m239321.wav",
+      "name": "V30 LL 4FB 4x12 SM57 2.00in 0.0in OA30 7603",
+      "createdAt": "2025-11-29T04:26:43.733849+00:00",
+      "sha256": "ed4e39b64e27dfe553394e73ec100c1683d22334a8a2194c9ae49d87be26f276"
+    },
+    {
+      "id": 239371,
+      "file": "captures/V30 LR 4FB 4x12 SM57 2.00in 0--m239371.wav",
+      "name": "V30 LR 4FB 4x12 SM57 2.00in 0.0in OA30 SA73",
+      "createdAt": "2025-11-29T04:27:25.215546+00:00",
+      "sha256": "8a57d0403e9fe8abe94afc739b82f60b2800dfc858ff2c4f8cca4f5b43bce54e"
+    },
+    {
+      "id": 239367,
+      "file": "captures/V30 LR 4FB 4x12 SM57 2.00in 0--m239367.wav",
+      "name": "V30 LR 4FB 4x12 SM57 2.00in 0.0in OA30 VP28",
+      "createdAt": "2025-11-29T04:27:25.206119+00:00",
+      "sha256": "d97343c712d31d674a67af91bdafb949407f731a548dbf00af72a2db830bdb6c"
+    }
+  ]
+}

@@ -44,6 +44,47 @@ test('device switching targets deviceId and stops the previous stream', async ()
   assert.equal(constraints[1].audio.autoGainControl, false);
 });
 
+test('rejects a browser stream that does not match the requested physical input', async () => {
+  const track=makeTrack();track.label='MacBook Microphone';track.getSettings=()=>({deviceId:'mac-mic'});
+  const stream={track,getTracks:()=>[track],getAudioTracks:()=>[track]};
+  const audioContext={currentTime:0,createGain:makeGain,createMediaElementSource:()=>({connect(){},disconnect(){}}),createMediaStreamSource:()=>({connect(){},disconnect(){}})};
+  const manager=new SourceManager({audioContext,wamNode:{},mediaDevices:{getUserMedia:async()=>stream},player:{pause(){},load(){}}});
+  await assert.rejects(()=>manager.activateLive('scarlett-solo'),/different audio input/u);
+  assert.equal(track.stopped,true);
+  assert.equal(manager.liveStream,null);
+});
+
+test('a later input request wins when browser permission requests resolve out of order', async () => {
+  let resolveFirst;const firstPromise=new Promise((resolve)=>{resolveFirst=resolve;});
+  const first=makeStream(),second=makeStream(),constraints=[];
+  const mediaDevices={getUserMedia:(value)=>{constraints.push(value);return constraints.length===1?firstPromise:Promise.resolve(second);}};
+  const nodes=[];const audioContext={currentTime:0,createGain:makeGain,createMediaElementSource:()=>({connect(){},disconnect(){}}),createMediaStreamSource:(stream)=>{const node={stream,connect(){},disconnect(){}};nodes.push(node);return node;}};
+  const manager=new SourceManager({audioContext,wamNode:{},mediaDevices,player:{pause(){},load(){}}});
+  const pendingFirst=manager.activateLive('mac-mic');
+  const selected=await manager.activateLive('scarlett-solo');
+  resolveFirst(first);await pendingFirst;
+  assert.equal(selected,second);
+  assert.equal(first.track.stopped,true);
+  assert.equal(manager.liveStream,second);
+  assert.equal(nodes.length,1);
+  assert.deepEqual(constraints[1].audio.deviceId,{exact:'scarlett-solo'});
+});
+
+test('routes only the selected physical interface channel instead of downmixing loopback channels', async () => {
+  const track=makeTrack();track.label='Scarlett 2i2 USB';track.getSettings=()=>({deviceId:'scarlett',channelCount:4});
+  const stream={track,getTracks:()=>[track],getAudioTracks:()=>[track]};
+  const connections=[];
+  const splitter={connect(target,output,input){connections.push({target,output,input});},disconnect(){}};
+  const source={connect(target){connections.push({sourceTarget:target});},disconnect(){}};
+  const audioContext={currentTime:0,createGain:makeGain,createMediaElementSource:()=>({connect(){},disconnect(){}}),createMediaStreamSource:()=>source,createChannelSplitter:(count)=>{assert.equal(count,4);return splitter;}};
+  const manager=new SourceManager({audioContext,wamNode:{},mediaDevices:{getUserMedia:async()=>stream},player:{pause(){},load(){}}});
+  await manager.activateLive('scarlett',0);
+  assert.deepEqual(manager.liveInput,{requestedDeviceId:'scarlett',deviceId:'scarlett',label:'Scarlett 2i2 USB',channelCount:4,channelIndex:0});
+  assert.equal(connections[0].sourceTarget,splitter);
+  assert.deepEqual(connections[1],{target:manager.sourceTrim,output:0,input:0});
+  assert.equal(connections.some((connection)=>connection.output===2||connection.output===3),false);
+});
+
 test('file mode stops live input and connects only media element source to WAM', async () => {
   const stream = makeStream();
   let mediaConnected = false;

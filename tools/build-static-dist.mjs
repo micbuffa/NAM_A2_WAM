@@ -43,7 +43,7 @@ const nam = JSON.parse(await readFile(join(dist, 'plugins/nam-wam/models-manifes
 const irs = JSON.parse(await readFile(join(dist, 'plugins/cabinet-wam/irs-manifest.json'), 'utf8'));
 for (const a of nam.assets) await required(join(dist, 'plugins/nam-wam/models', ...a.relativePath.split('/')));
 for (const a of irs.assets) await required(join(dist, 'plugins/cabinet-wam/IRs', ...a.relativePath.split('/')));
-for (const p of ['index.html', 'config.js', 'host.css', 'main.js', 'plugins/nam-wam/index.js', 'plugins/nam-wam/models-manifest.json', 'plugins/nam-wam/nam-simd.wasm', 'plugins/cabinet-wam/index.js', 'plugins/cabinet-wam/irs-manifest.json', 'plugins/cabinet-wam/nam-simd.wasm']) await required(join(dist, p));
+for (const p of ['index.html', 'config.js', 'host.css', 'main.js', 'plugins/nam-wam/index.js', 'plugins/nam-wam/models-manifest.json', 'plugins/nam-wam/nam-simd.wasm', 'plugins/cabinet-wam/index.js', 'plugins/cabinet-wam/irs-manifest.json', 'plugins/cabinet-wam/neuralwamp-cabinet-logo.svg', 'plugins/cabinet-wam/nam-simd.wasm']) await required(join(dist, p));
 const forbidden = /(?:\.\.\/src|\.\.\/examples|\.\.\/build|\/api\/test-audio-files)/;
 const secrets = /(?:t3k_cs_|(?:client_secret|secret_key|access_token|refresh_token)\s*[:=]\s*['"][^'"]+)/i;
 for (const p of ['index.html', 'main.js', 'plugins/nam-wam/index.js', 'plugins/cabinet-wam/index.js']) if (forbidden.test(await readFile(join(dist, p), 'utf8'))) throw Error(`Invalid source/runtime reference in ${p}`);

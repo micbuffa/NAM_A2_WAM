@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-09-16T07:32:13.582Z",
+  "tone": {
+    "id": 27468,
+    "title": "Vox AC30 Mix Ready",
+    "description": "Celestion Blue speakers.\n\nBuy my Mix Ready Guitar IRs:\nhttps://lamego.gumroad.com",
+    "url": "https://www.tone3000.com/tones/vox-ac30-mix-ready-27468",
+    "format": "ir",
+    "gear": "cab",
+    "license": "t3k",
+    "creator": {
+      "username": "vulturized",
+      "displayName": null,
+      "url": "https://www.tone3000.com/vulturized"
+    },
+    "makes": [],
+    "tags": [
+      "chime",
+      "ir",
+      "mix ready",
+      "voxish"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/xbvp5z1szbl.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 76952,
+      "file": "captures/EV MIX D--m76952.wav",
+      "name": "EV MIX D",
+      "createdAt": "2023-05-27T14:44:49.165+00:00",
+      "sha256": "d09cf7117854ff70f6c164b48d5bef4182b812f9e111c2441a839a770e88faf2"
+    },
+    {
+      "id": 76953,
+      "file": "captures/EV MIX B--m76953.wav",
+      "name": "EV MIX B",
+      "createdAt": "2023-05-27T14:44:49.165+00:00",
+      "sha256": "ac12b54de4dbd612c9355927c7d48f6ca990067cf10e925d3534ef754c289156"
+    }
+  ]
+}
