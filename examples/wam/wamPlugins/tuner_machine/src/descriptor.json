@@ -1,7 +1,7 @@
 {
     "documentation": "TODO", 
     "name": "TunerMachine",
-    "thumbnail": "WasabiTuner.png",
+    "thumbnail": "Gui/WasabiTuner.png",
     "vendor": "Wasabi",
     "category":"Tuner",
     "version": "1.0"

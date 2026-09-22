@@ -3,6 +3,7 @@ import NamPlugin from '../../src/nam-wam/index.js';
 import CabinetPlugin from '../../src/cabinet-wam/index.js';
 import SourceManager from './SourceManager.js';
 import OutputDeviceManager from './OutputDeviceManager.js';
+import {readAudioDevicePreferences, saveAudioDevicePreferences, resolveInputPreference} from './AudioDevicePreferences.js';
 import {cabinetRoutingDecision} from './CabinetRouting.js';
 const TONE3000_CALLBACK_CHANNEL = 'nam-a2-wam.tone3000.callback';
 const TONE3000_CALLBACK_STORAGE_KEY = 'nam-a2-wam.tone3000.callback';
@@ -18,8 +19,9 @@ let cabinetNode;
 let sourceManager;
 let savedState;
 let savedCabinetState;
-let selectedDeviceId = '';
-let selectedInputChannel = 0;
+const audioPreferences = readAudioDevicePreferences();
+let selectedDeviceId = audioPreferences.inputDeviceId;
+let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
 let currentNamMetadata=null;
@@ -49,8 +51,9 @@ async function refreshDevices(requestPermission = false) {
   const selector = $('#inputDevice');
   selector.replaceChildren();
   inputs.forEach((device, index) => selector.add(new Option(device.label || `Audio input ${index + 1}`, device.deviceId)));
-  if (inputs.some((device) => device.deviceId === previous)) selector.value = previous;
-  else if (inputs.length) selector.value = inputs[0].deviceId;
+  const choice = resolveInputPreference(inputs, previous, selectedInputChannel);
+  selector.value = choice.deviceId;
+  selectedInputChannel = choice.channel;
   selectedDeviceId = selector.value;
   if (!inputs.length) message('No audio input device is available', true);
   return inputs;
@@ -74,6 +77,28 @@ function refreshInputChannels(channelCount=1,deviceLabel='') {
   selectedInputChannel=Math.min(selectedInputChannel,count-1);
   selector.value=String(selectedInputChannel);
   $('#inputChannelRow').hidden=count<=1;
+  $('#inputChannelStatus').textContent=count===1?'The browser opened a mono stream (1 channel). Check the interface and macOS audio configuration if you expect two inputs.':`${count} capture channels available. Only the selected channel is processed.`;
+}
+
+async function detectSelectedInputChannels() {
+  if (liveInputEnabled || $('#audioSource').value !== 'live' || !$('#inputDevice').options.length) return;
+  const probingDevice = selectedDeviceId;
+  $('#inputChannel').replaceChildren(new Option('Detecting channels…', ''));
+  $('#inputChannel').disabled = true;
+  $('#inputChannelRow').hidden = false;
+  $('#inputChannelStatus').textContent='Detecting input channels (monitoring off)…';
+  try {
+    const input = await sourceManager.activateLive(probingDevice, 0, {monitor:false});
+    if (input && selectedDeviceId === probingDevice && !liveInputEnabled && $('#audioSource').value === 'live') {
+      refreshInputChannels(input.channelCount,input.label);
+      $('#inputChannel').disabled = false;
+    }
+  } catch(error) {
+    if (selectedDeviceId === probingDevice && !liveInputEnabled && $('#audioSource').value === 'live') {
+      $('#inputChannel').replaceChildren(new Option('Channels unavailable', ''));
+      $('#inputChannelStatus').textContent=`Cannot detect channels: ${error.message}`;
+    }
+  }
 }
 
 function syncSourceTrim() {
@@ -104,6 +129,11 @@ async function activateSelectedLiveInput() {
   if (!stream) return false;
   const activeInput = sourceManager.liveInput;
   refreshInputChannels(activeInput?.channelCount, activeInput?.label);
+  $('#inputChannel').disabled = false;
+  if (activeInput?.channelCount === 1) {
+    const detail = sourceManager.captureDiagnostics;
+    $('#inputChannelStatus').textContent = `${activeInput.label || 'Selected input'}: requested ${detail.requestedChannels} channels, browser supplied 1. ${detail.channelNegotiationError || 'The browser did not provide a stereo stream.'}`;
+  }
   liveInputEnabled = true;
   syncLiveInputButton();
   syncSourceTrim();
@@ -150,16 +180,22 @@ async function initialize() {
   sourceManager = new SourceManager({audioContext: context, wamNode: node, player: $('#player')});
   outputDeviceManager = new OutputDeviceManager({audioContext: context});
   window.phase3Debug = {context, node, plugin, cabinetNode, cabinetPlugin, sourceManager, outputDeviceManager};
+  // GUI initialization can load the default factory model before createGui resolves.
+  node.addModelListener((metadata)=>{currentNamMetadata=metadata;applyCabinetRouting().catch((error)=>message(error.message,true));});
   $('#pluginGui').append(await plugin.createGui());
   cabinetGuiElement = await cabinetPlugin.createGui();
   $('#cabinetGui').append(cabinetGuiElement);
   cabinetGuiElement.addEventListener('cabinet-routing-mode',(event)=>{event.preventDefault();applyCabinetRouting(event.detail.mode).catch((error)=>message(error.message,true));});
-  node.addModelListener((metadata)=>{currentNamMetadata=metadata;applyCabinetRouting().catch((error)=>message(error.message,true));});
   await applyCabinetRouting();
   await discoverFiles();
   await refreshDevices(false);
   if (outputDeviceManager.supported) {
-    await refreshOutputs();
+    const outputs = await refreshOutputs({includeAuthorized:false});
+    if (audioPreferences.outputDeviceId && outputs.some(device => device.deviceId === audioPreferences.outputDeviceId)) {
+      try { await outputDeviceManager.select(audioPreferences.outputDeviceId); }
+      catch { await outputDeviceManager.select(''); }
+      await refreshOutputs();
+    }
     $('#outputSupport').textContent = 'Output selection uses AudioContext.setSinkId().';
   } else {
     $('#outputDevice').disabled = true;
@@ -169,16 +205,48 @@ async function initialize() {
   $('#authorizeOutput').hidden = !outputDeviceManager.authorizationSupported;
   setPlayerEnabled(false);
   syncLiveInputButton();
-  navigator.mediaDevices?.addEventListener?.('devicechange', async () => {
+  let deviceRefresh = Promise.resolve();
+  let wasRunning = context.state === 'running';
+  let recovery = null;
+  const recoverAudio = () => {
+    if (recovery) return recovery;
+    $('#recoverAudio').hidden = false;
+    $('#recoverAudio').disabled = true;
+    recovery = (async () => {
+      // A broken renderer may leave a browser promise pending indefinitely.
+      let timer;
+      try {
+        await Promise.race([outputDeviceManager.recover(), new Promise((_, reject) => {
+          timer = setTimeout(() => reject(new Error('Audio recovery timed out. Reconnect the output and reload the page if recovery still fails.')), 4000);
+        })]);
+        $('#outputDevice').value = '';
+        $('#recoverAudio').hidden = true;
+        message('Audio recovered using the system default output.');
+      } catch (error) { message(error.message, true); }
+      finally { clearTimeout(timer); $('#recoverAudio').disabled = false; recovery = null; }
+    })();
+    return recovery;
+  };
+  $('#recoverAudio').onclick = recoverAudio;
+  context.addEventListener('statechange', () => {
+    if (context.state === 'running') { wasRunning = true; return; }
+    if (wasRunning && (liveInputEnabled || !$('#player').paused)) {
+      message(`Audio engine ${context.state}. Attempting recovery…`, true);
+      recoverAudio();
+    }
+  });
+  navigator.mediaDevices?.addEventListener?.('devicechange', () => {
+    deviceRefresh = deviceRefresh.catch(() => {}).then(async () => {
     const wasLive = liveInputEnabled;
     const old = selectedDeviceId;
     const devices = await refreshDevices(false);
-    if (outputDeviceManager.supported) await refreshOutputs({includeAuthorized: false});
     if (wasLive && !devices.some((device) => device.deviceId === old)) {
-      if (selectedDeviceId) await activateSelectedLiveInput();
-      else await disableLiveInput('Selected input device disappeared');
-      message(selectedDeviceId ? 'Selected device disappeared; switched to an available input' : 'Selected input device disappeared', !selectedDeviceId);
+      await disableLiveInput('Selected input disconnected. Select an input and enable live input again.');
+      refreshInputChannels();
     }
+    if (outputDeviceManager.supported) await refreshOutputs({includeAuthorized: false});
+    if (wasRunning && context.state !== 'running') await recoverAudio();
+    }).catch(async (error) => { message(`Audio device change failed: ${error.message}`, true); await recoverAudio(); });
   });
   $('#audioSource').onchange = () => selectSource().catch((error) => message(error.message, true));
   $('#sourceTrim').oninput = () => {
@@ -201,24 +269,32 @@ async function initialize() {
   $('#inputDevice').onchange = async () => {
     selectedDeviceId = $('#inputDevice').value;
     selectedInputChannel=0;
-    if ($('#audioSource').value !== 'live' || !liveInputEnabled) return;
+    saveAudioDevicePreferences({inputDeviceId:selectedDeviceId,inputChannel:0});
+    refreshInputChannels();
+    $('#inputChannelStatus').textContent='Enable live input to detect the channels of this device.';
+    if ($('#audioSource').value !== 'live') return;
+    if (!liveInputEnabled) {
+      await detectSelectedInputChannels();
+      return;
+    }
     try {
       await context.resume();
       await activateSelectedLiveInput();
-    } catch(error) { message(`Cannot select audio input: ${error.message}`,true); }
+    } catch(error) { await disableLiveInput(); message(`Cannot select audio input: ${error.message}`,true); }
   };
   $('#inputChannel').onchange=async()=>{
     selectedInputChannel=Math.max(0,Number($('#inputChannel').value)||0);
+    saveAudioDevicePreferences({inputDeviceId:selectedDeviceId,inputChannel:selectedInputChannel});
     if($('#audioSource').value!=='live'||!selectedDeviceId||!liveInputEnabled)return;
     try{await activateSelectedLiveInput();}
-    catch(error){message(`Cannot select input channel: ${error.message}`,true);}
+    catch(error){await disableLiveInput();message(`Cannot select input channel: ${error.message}`,true);}
   };
   $('#outputDevice').onchange = async () => {
-    try { await outputDeviceManager.select($('#outputDevice').value); }
+    try { await outputDeviceManager.select($('#outputDevice').value); saveAudioDevicePreferences({outputDeviceId:outputDeviceManager.selectedDeviceId}); }
     catch (error) { message(`Cannot select audio output: ${error.message}`, true); await refreshOutputs(); }
   };
   $('#authorizeOutput').onclick = async () => {
-    try { await context.resume(); await outputDeviceManager.authorize(); await refreshOutputs(); }
+    try { await context.resume(); await outputDeviceManager.authorize(); await refreshOutputs(); saveAudioDevicePreferences({outputDeviceId:outputDeviceManager.selectedDeviceId}); }
     catch (error) { message(`Audio output authorization failed: ${error.message}`, true); }
   };
   $('#play').onclick = async () => { await context.resume(); await $('#player').play(); };
@@ -239,6 +315,9 @@ async function initialize() {
     message('WAM state restored');
   };
   message('NAM WAM instantiated. Select a model in the plugin GUI.');
+  // Programmatic selection during refreshDevices does not fire onchange.
+  // Probe the initially displayed device too, after all controls are ready.
+  if (!new URLSearchParams(location.search).has('auto')) void detectSelectedInputChannels();
   if (new URLSearchParams(location.search).has('auto')) await automatedValidation();
 }
 

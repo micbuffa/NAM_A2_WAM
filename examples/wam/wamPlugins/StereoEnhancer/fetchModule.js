@@ -1,18 +1,19 @@
 const cache = new Map();
 
 const fetchModule = async (url) => {
-	if (cache.has(url)) return cache.get(url);
+	const absoluteUrl = new URL(url, import.meta.url).href;
+	if (cache.has(absoluteUrl)) return cache.get(absoluteUrl);
 	let exported;
 	const toExport = {};
 	window.exports = toExport;
 	window.module = { exports: toExport };
-	const esm = await import(/* webpackIgnore: true */url);
+	const esm = await import(/* webpackIgnore: true */absoluteUrl);
 	const esmKeys = Object.keys(esm);
 	if (esmKeys.length) exported = esm;
 	else exported = window.module.exports;
 	delete window.exports;
 	delete window.module;
-	cache.set(url, exported);
+	cache.set(absoluteUrl, exported);
 	return exported;
 };
 export default fetchModule;

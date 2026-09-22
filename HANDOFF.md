@@ -1,5 +1,16 @@
 # NAM A2 WAM — Next-session handoff
 
+## 2026-09-22 — Cabinet Settings tab
+
+- Cabinet routing/status, Level Match, IR Trim and Output Gain now live in a separate Settings tab. Main remains the default tab and retains the current IR artwork, metadata chips and active/bypassed indicator.
+- Host Source trim is independent: it adjusts audio before NAM, defaults to 0 dB for live input and -18 dB for files, with separate in-session values. Cabinet IR Trim is a per-IR level adjustment instead.
+
+## 2026-09-22 — Cabinet AUTO during default model loading
+
+- Register the host NAM model listener before creating the NAM GUI, which autoloads the default factory capture. Previously this event was missed and AUTO used null metadata, leaving the Cabinet active for an amp+cab capture.
+- `amp_cab`, `amp-cab` and `full-rig` already qualify for automatic Cabinet bypass. Manual ON remains an explicit override.
+- Regression tests cover startup GUI autoload and switching back to an amp-only capture.
+
 Updated: 2026-09-04
 
 ## Current milestone
@@ -321,7 +332,31 @@ Do not put the TONE3000 secret key in client-side code. The publishable key is d
 - Cabinet state now includes the selected IR provenance metadata, preserving source/category/details after restoration. Existing convolution, Level Match, per-IR Trim, output gain, and AUTO routing semantics are unchanged.
 - TONE3000 actions are rendered above the local downloaded-IR cards, so Browse/Continue remains visible for `All` and `Cabinets / speakers`. With `?maintainer=1`, the maintainer box is the first block in the TONE3000 panel; after a tone is selected it shows the WAV checkboxes and then reveals **Download selected Factory IR bundle (.zip)** in that same box.
 
+## WAM FX plugin registry — Phase 1 completed 2026-09-16
+
+- A reusable registry now loads `examples/wam/wamPlugins/plugins.json`, resolves relative and absolute plugin URIs, validates allowed URL protocols, imports each WAM independently, normalizes its descriptor, infers categories from descriptor tags, and records every compatibility stage without letting one broken plugin block the others.
+- Ten bundled WAMs are registered: DeathGate, TS9, AutoWah, SweetWah, Chorus, StonePhaser, PingPongDelay, GreyHole, StereoEnhancer, and TunerMachine. Compatibility fixes were limited to relocated SDK, GUI dependency, dynamic-module, and thumbnail paths.
+- The compact `wam-plugin-card` component displays descriptor artwork, identity, category, tags, and validation state with a generated fallback thumbnail when needed.
+- The standalone test host is available during development at `http://127.0.0.1:8765/examples/wam/fx-test/` and in a static build at `dist/NAM_A2_WAM/fx-test/`. It provides test-tone, live-input, and local-file sources; input/output meters; plugin loading and host-level bypass; GUI open/close; parameter inspection; state save/restore; diagnostics; and sequential validation of the complete catalogue.
+- TunerMachine runs on a parallel analysis branch connected through a zero-gain sink, so opening the tuner does not replace or mute the main effect route. Its GUI is available from the tuner control in the test host header.
+- The distribution builder copies the registry, card component, test host, catalogue, and bundled plugins, rewrites the development-only SDK path, and verifies required files and forbidden source references.
+- Registry authoring, catalogue fields, category rules, remote URI constraints, and compatibility stages are documented in `docs/WAM_PLUGIN_REGISTRY.md`.
+- Validation completed successfully in both the development host and the generated static distribution: all ten real plugins reached descriptor, import, instantiation, GUI, audio, and state validation. The full automated suite passes 91/91.
+- This phase deliberately does not modify the production guitar signal chain. It establishes the registry and compatibility laboratory that the later routing/pedalboard phases will consume.
+- Every catalogue card is now directly clickable (and keyboard accessible). It loads the effect and opens its real plugin GUI in a modal window. The window header carries the plugin title, a synchronized host-level `BYPASS ON/OFF` control with explicit color states, and a close control; closing the window keeps the effect loaded and audible. Clicking the loaded card reopens its GUI without reinstantiating it. The tuner uses the same window but omits the unrelated effect-bypass control.
+- Effects now start with host bypass OFF whenever a new catalogue plugin is loaded. GUI elements are mounted only after the modal becomes layout-visible; this is required by plugins such as TunerMachine that size their canvas in `connectedCallback()`, and restores the complete tuner scale, centered needle, and pivot instead of a clipped red fragment.
+
 ## Critical invariants — do not regress
+
+Audio preferences (2026-09-22): explicit input device/channel and successful output selections persist under `neuralwamp.audio-devices.v1` in localStorage. Startup resolves saved IDs against enumerated hardware, resets the channel for a replacement input, clamps it after probing, and restores an available output with system-default fallback. Missing devices do not erase stored preferences, so reconnecting them for a later session can restore the user's choices. Monitoring is never enabled by restoration. Storage failures and invalid JSON are tolerated. Device identity remains browser/origin-dependent.
+
+Initial input follow-up (2026-09-22): after host initialization the initially selected device is now probed without monitoring, using the same channel-discovery function as a manual selection. The channel menu shows a disabled “Detecting channels…” placeholder until the result arrives, instead of implying a mono device. Failure displays “Channels unavailable” and the capture error; normal live activation re-enables the selector. Automated `?auto=1` runs skip the initial microphone probe.
+
+UI follow-up (2026-09-21): choosing an input device with monitoring disabled now briefly opens a capture to negotiate its channel count, stops all tracks, and updates the channel menu without an audio connection. The NAM Main view now includes previous/next capture arrows around its photo, the selected filename and position beneath it, and boundary/loading disabled states. Navigation groups Factory and locally stored captures by tone identity and uses the active TONE3000 tone list for remote captures.
+
+AudioBox follow-up (2026-09-21): capture now requests exact stereo when opening the selected device, rather than relying on an ideal constraint or reported capability maximum. Only an explicit channelCount overconstraint permits fallback on the same device; device/permission failures propagate. Stereo renegotiation is also attempted when capability data is missing or reports mono. The UI reports requested versus supplied channels and the negotiation error when capture remains mono. This is covered by simulated browser tests; physical AudioBox verification remains pending.
+
+Device handling follow-up (2026-09-21): the main host clears stale channel choices on input changes and reports the actual negotiated channel count. SourceManager retries an exact stereo constraint when a mono stream exposes stereo capabilities, while retaining selected-channel-only routing. Output selections are serialized; devicechange errors are caught and interrupted audio attempts system-default sink selection followed by resume. A bounded recovery attempt exposes a Recover audio button if needed. If Chrome has permanently closed the context, the UI explicitly requests a page reload; automatic graph reconstruction is not implemented. Removing the selected input stops monitoring instead of opening an unrelated microphone. Tests pass 96/96, including mocked stereo renegotiation, mono devices, ordered sink changes, interrupted recovery and terminal closure. Actual PreSonus hardware hot-unplug verification is still needed.
 
 ### NAM
 

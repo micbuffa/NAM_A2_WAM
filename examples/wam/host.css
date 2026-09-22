@@ -17,7 +17,9 @@ button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity:
 .host-sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 20px 16px; background: #111116; border-right: 1px solid #28262f; scrollbar-width: thin; }
 .host-brand { padding: 0 4px 17px; margin-bottom: 16px; border-bottom: 1px solid #28262f; }
 .host-brand h1 { margin: 1px 0 3px; color: #b09aff; font-size: 21px; letter-spacing: -.02em; }
-.host-brand p:last-child { margin: 0; color: var(--host-muted); font-size: 12px; }
+.host-brand p:not(.host-kicker) { margin: 0; color: var(--host-muted); font-size: 12px; }
+.host-lab-link { display: inline-block; margin-top: 9px; color: #bcaeff; font-size: 10px; text-decoration: none; }
+.host-lab-link:hover { color: #e0d9ff; }
 .host-kicker, .rack-kicker { margin: 0; color: #777180; font-size: 9px; font-weight: 800; letter-spacing: .2em; }
 .host-card { margin: 0 0 12px; padding: 13px 14px; background: var(--host-card); border: 1px solid var(--host-line); border-radius: 12px; box-shadow: inset 0 1px rgba(255,255,255,.025); }
 .host-card h2 { display: flex; align-items: center; gap: 7px; margin: 0 0 11px; color: #aaa4b4; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }

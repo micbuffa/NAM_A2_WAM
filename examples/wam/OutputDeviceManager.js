@@ -8,6 +8,7 @@ export default class OutputDeviceManager {
     // authorized devices so a subsequent refresh cannot make the selection
     // disappear merely because enumerateDevices() returned a reduced list.
     this.authorizedOutputs = new Map();
+    this._selection = Promise.resolve();
   }
 
   get supported() { return typeof this.audioContext.setSinkId === 'function'; }
@@ -33,9 +34,20 @@ export default class OutputDeviceManager {
       this.selectedDeviceId = '';
       return false;
     }
-    await this.audioContext.setSinkId(deviceId);
-    this.selectedDeviceId = deviceId;
-    return true;
+    const operation = this._selection.catch(() => {}).then(async () => {
+      await this.audioContext.setSinkId(deviceId);
+      this.selectedDeviceId = deviceId;
+      return true;
+    });
+    this._selection = operation;
+    return operation;
+  }
+
+  async recover() {
+    if (this.audioContext.state === 'closed') throw new Error('The browser closed the audio engine. Reload the page to restart audio.');
+    if (this.supported) await this.select('');
+    if (this.audioContext.state !== 'running') await this.audioContext.resume();
+    if (this.audioContext.state !== 'running') throw new Error('Audio is interrupted. Reconnect an output and click Recover audio.');
   }
 
   async authorize() {

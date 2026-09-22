@@ -6,6 +6,72 @@ const makeTrack = () => ({stopped: false, stop() { this.stopped = true; }});
 const makeStream = () => { const track = makeTrack(); return {track, getTracks: () => [track]}; };
 const makeGain = () => ({gain:{value:1,setValueAtTime(value){this.value=value;}},connect(){this.connected=true;}});
 
+test('channel discovery releases capture without connecting monitoring', async () => {
+  const stream=makeStream();stream.track.getSettings=()=>({channelCount:2,deviceId:'audiobox'});
+  const audioContext={currentTime:0,createGain:makeGain,createMediaElementSource:()=>({disconnect(){}}),createMediaStreamSource:()=>assert.fail('Probe must not connect audio')};
+  const manager=new SourceManager({audioContext,wamNode:{},mediaDevices:{getUserMedia:async()=>stream},player:{pause(){}}});
+  const result=await manager.activateLive('audiobox',0,{monitor:false});
+  assert.equal(result.channelCount,2);assert.equal(stream.track.stopped,true);
+  assert.equal(manager.liveStream,null);assert.equal(manager.mode,null);
+});
+
+test('renegotiates a mono USB capture to two real channels before selecting input 2', async () => {
+  const stream=makeStream();let channels=1;
+  stream.track.getSettings=()=>({deviceId:'usb',channelCount:channels});
+  stream.track.getCapabilities=()=>({channelCount:{min:1,max:2}});
+  stream.track.applyConstraints=async constraints=>{assert.equal(constraints.channelCount.exact,2);channels=2;};
+  const routes=[];
+  const audioContext={currentTime:0,createGain:makeGain,createMediaElementSource:()=>({disconnect(){}}),createMediaStreamSource:()=>({connect(){}}),createChannelSplitter:count=>{assert.equal(count,2);return {connect:(_,output)=>routes.push(output)};}};
+  const manager=new SourceManager({audioContext,wamNode:{},mediaDevices:{getUserMedia:async()=>stream},player:{pause(){}}});
+  await manager.activateLive('usb',1);
+  assert.equal(manager.liveInput.channelCount,2);
+  assert.deepEqual(routes,[1]);
+});
+
+test('does not invent input 2 when the browser only exposes mono', async () => {
+  const stream=makeStream();stream.track.getSettings=()=>({channelCount:1});
+  stream.track.getCapabilities=()=>({channelCount:{max:1}});
+  stream.track.applyConstraints=async()=>{throw Object.assign(new Error('Only mono supported'),{name:'OverconstrainedError',constraint:'channelCount'});};
+  const audioContext={currentTime:0,createGain:makeGain,createMediaElementSource:()=>({disconnect(){}}),createMediaStreamSource:()=>({connect(){}})};
+  const manager=new SourceManager({audioContext,wamNode:{},mediaDevices:{getUserMedia:async()=>stream},player:{pause(){}}});
+  await manager.activateLive('usb',1);
+  assert.equal(manager.liveInput.channelCount,1);
+  assert.equal(manager.liveInput.channelIndex,0);
+});
+
+test('requests stereo when opening AudioBox even if capabilities are missing', async () => {
+  const stream=makeStream();stream.track.label='AudioBox 22VSL';
+  stream.track.getSettings=()=>({deviceId:'audiobox',channelCount:2});
+  const routes=[];
+  const audioContext={currentTime:0,createGain:makeGain,createMediaElementSource:()=>({disconnect(){}}),createMediaStreamSource:()=>({connect(){}}),createChannelSplitter:()=>({connect:(_,channel)=>routes.push(channel)})};
+  const manager=new SourceManager({audioContext,wamNode:{},mediaDevices:{getUserMedia:async({audio})=>{
+    assert.deepEqual(audio.deviceId,{exact:'audiobox'});assert.deepEqual(audio.channelCount,{exact:2});return stream;
+  }},player:{pause(){}}});
+  await manager.activateLive('audiobox',1);
+  assert.equal(manager.liveInput.channelCount,2);assert.deepEqual(routes,[1]);
+});
+
+test('stereo opening falls back only for a channel-count rejection on the same device', async () => {
+  const stream=makeStream();stream.track.getSettings=()=>({channelCount:1});const calls=[];
+  const audioContext={currentTime:0,createGain:makeGain,createMediaElementSource:()=>({disconnect(){}}),createMediaStreamSource:()=>({connect(){},disconnect(){}})};
+  const manager=new SourceManager({audioContext,wamNode:{},mediaDevices:{getUserMedia:async({audio})=>{
+    calls.push(audio);if(calls.length===1)throw Object.assign(new Error('Mono only'),{name:'OverconstrainedError',constraint:'channelCount'});return stream;
+  }},player:{pause(){}}});
+  await manager.activateLive('mono');
+  assert.equal(calls.length,2);assert.deepEqual(calls[1].deviceId,{exact:'mono'});assert.equal(manager.liveInput.channelCount,1);
+  manager.mediaDevices.getUserMedia=async()=>{throw Object.assign(new Error('Device removed'),{name:'OverconstrainedError',constraint:'deviceId'});};
+  await assert.rejects(()=>manager.activateLive('removed'),/Device removed/);
+});
+
+test('tries stereo renegotiation even when capabilities incorrectly advertise mono', async () => {
+  const stream=makeStream();let channels=1;
+  stream.track.getSettings=()=>({channelCount:channels});stream.track.getCapabilities=()=>({channelCount:{max:1}});
+  stream.track.applyConstraints=async({channelCount})=>{assert.equal(channelCount.exact,2);channels=2;};
+  const audioContext={currentTime:0,createGain:makeGain,createMediaElementSource:()=>({disconnect(){}}),createMediaStreamSource:()=>({connect(){}})};
+  const manager=new SourceManager({audioContext,wamNode:{},mediaDevices:{getUserMedia:async()=>stream},player:{pause(){}}});
+  await manager.activateLive('usb');assert.equal(manager.liveInput.channelCount,2);
+});
+
 test('enumerates only audio inputs and requests music-oriented permission', async () => {
   const permission = makeStream();
   const calls = [];

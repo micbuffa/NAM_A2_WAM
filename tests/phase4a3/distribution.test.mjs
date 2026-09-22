@@ -25,6 +25,13 @@ test('static distribution contains self-contained plugins and consistent Factory
   assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /src="\.\/config\.js"/u);
   assert.match(await readFile(join(dist, 'config.js'), 'utf8'), /redirectUri/u);
   assert.doesNotMatch(host, /\.\.\/(?:src|examples|build)|\/api\/test-audio-files/);
+  for (const file of ['WamPluginRegistry.js','PluginCard.js','fx-test/index.html','fx-test/main.js','fx-test/style.css','wamPlugins/plugins.json']) await stat(join(dist,file));
+  const fxHost=await readFile(join(dist,'fx-test/main.js'),'utf8');
+  assert.match(fxHost,/\.\.\/third_party\/wam-examples\/packages\/sdk\/src\/initializeWamHost\.js/u);
+  assert.doesNotMatch(fxHost,/\.\.\/\.\.\/\.\.\/third_party/u);
+  const catalogue=JSON.parse(await readFile(join(dist,'wamPlugins/plugins.json'),'utf8'));
+  assert.ok(catalogue.plugins.length>=10);
+  for(const entry of catalogue.plugins){const item=typeof entry==='string'?{uri:entry}:entry;await stat(join(dist,'wamPlugins',...item.uri.replace(/^\.\//u,'').split('/')));}
   for (const file of ['config.js', 'plugins/nam-wam/tone3000/Tone3000Auth.js', 'plugins/nam-wam/tone3000/Tone3000Client.js', 'plugins/nam-wam/tone3000/Tone3000Downloads.js', 'plugins/nam-wam/tone3000/FactoryBundle.js']) await stat(join(dist, file));
   assert.doesNotMatch(host, /(?:client_secret\s*[:=]\s*['"][^'"]+|secret_key\s*[:=]\s*['"]|t3k_cs_)/i);
 });

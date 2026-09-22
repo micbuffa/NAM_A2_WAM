@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NeuralWAMp FX Registry Lab</title><link rel="stylesheet" href="./style.css"></head>
+<body>
+  <header class="topbar"><div><p>NEURALWAMP LAB</p><h1>WAM Plugin Registry</h1></div><div class="top-actions"><button id="tunerButton" type="button" title="Open tuner" disabled>♩ Tuner</button><a href="../index.html">Main host</a></div></header>
+  <main>
+    <aside>
+      <section><h2>Audio source</h2><label>Source<select id="source"><option value="tone">Test tone</option><option value="live">Live input</option><option value="file">Local audio file</option></select></label><label id="inputRow" hidden>Input device<select id="inputDevice"></select></label><input id="audioFile" type="file" accept="audio/*" hidden><button id="sourceAction" type="button">Start test tone</button><audio id="player" controls hidden></audio></section>
+      <section><h2>Signal</h2><label>Input <meter id="inputMeter" min="0" max="1" value="0"></meter></label><label>Output <meter id="outputMeter" min="0" max="1" value="0"></meter></label><label class="switch"><input id="bypass" type="checkbox"> Host bypass</label></section>
+      <section><h2>Active plugin</h2><strong id="activeName">None</strong><div class="button-grid"><button id="showGui" disabled>Show GUI</button><button id="unload" disabled>Unload</button><button id="saveState" disabled>Save state</button><button id="restoreState" disabled>Restore state</button></div><pre id="parameters">No parameters</pre></section>
+      <section><h2>Diagnostics</h2><button id="validateAll">Validate all plugins</button><pre id="diagnostics" aria-live="polite"></pre></section>
+    </aside>
+    <section class="browser"><div class="browser-head"><div><p class="eyebrow">BUNDLED EFFECTS</p><h2>Plugin catalogue</h2></div><input id="search" type="search" placeholder="Search name, vendor, tag…"></div><nav id="categories" aria-label="Plugin categories"></nav><div id="registrySummary"></div><div id="pluginGrid" class="plugin-grid"></div></section>
+  </main>
+  <dialog id="guiDialog">
+    <header class="plugin-window-bar">
+      <div class="plugin-window-identity"><span>WAM PLUGIN</span><strong id="guiTitle">Plugin</strong></div>
+      <div class="plugin-window-actions">
+        <button id="guiBypass" class="bypass-off" type="button" aria-pressed="false">BYPASS OFF</button>
+        <button id="closeGui" class="close-gui" type="button" aria-label="Close plugin GUI">× <span>Close</span></button>
+      </div>
+    </header>
+    <div id="guiMount"></div>
+  </dialog>
+  <script type="module" src="./main.js"></script>
+</body></html>

@@ -1,5 +1,33 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {analyzeImpulseResponse} from '../../src/cabinet-wam/levelMatch.js';import {detectFullRig,cabinetRoutingDecision} from '../../examples/wam/CabinetRouting.js';
 import getCabinetProcessor from '../../src/cabinet-wam/CabinetProcessor.js';
+import {readFile} from 'node:fs/promises';
+
+test('AUTO recognizes amp_cab capture metadata',()=>{
+  assert.equal(cabinetRoutingDecision('auto',{rawMetadata:{gear_type:'amp_cab'}}).bypass,true);
+});
+
+test('host observes factory autoload during GUI creation and later model changes',async()=>{
+  const source=await readFile(new URL('../../examples/wam/main.js',import.meta.url),'utf8');
+  const start=source.indexOf('  node.addModelListener(');
+  const end=source.indexOf('  await discoverFiles();',start);
+  assert.ok(start>=0&&end>start);
+  const decisions=[];
+  let listener;
+  const node={addModelListener(fn){listener=fn;}};
+  const plugin={async createGui(){listener?.({rawMetadata:{gear_type:'amp_cab'}});return {};}};
+  const cabinetPlugin={async createGui(){return {addEventListener(){},getRoutingMode(){return 'auto';}};}};
+  const run=new Function('node','plugin','cabinetPlugin','cabinetRoutingDecision','decisions',`return (async()=>{
+    let currentNamMetadata=null,cabinetGuiElement;
+    const $=()=>({append(){}});
+    const message=(text)=>{throw new Error(text);};
+    async function applyCabinetRouting(){decisions.push(cabinetRoutingDecision(cabinetGuiElement?.getRoutingMode()||'auto',currentNamMetadata));}
+    ${source.slice(start,end)}
+  })()`);
+  await run(node,plugin,cabinetPlugin,cabinetRoutingDecision,decisions);
+  assert.equal(decisions.at(-1).bypass,true);
+  listener({rawMetadata:{gear_type:'amp'}});
+  assert.equal(decisions.at(-1).bypass,false);
+});
 test('L2 level matching uses reciprocal white-noise RMS gain',()=>{const a=analyzeImpulseResponse(Float32Array.of(.5,.5,.5,.5));assert.equal(a.energy,1);assert.equal(a.compensation,1);const b=analyzeImpulseResponse(Float32Array.of(.25,.25,.25,.25));assert.ok(Math.abs(b.compensationDb-6.0205999)<1e-5);});
 test('silent, non-finite, and extreme IRs are protected',()=>{assert.deepEqual(analyzeImpulseResponse(new Float32Array(8)).compensation,1);assert.equal(analyzeImpulseResponse(Float32Array.of(NaN)).valid,false);assert.equal(analyzeImpulseResponse(Float32Array.of(1e-4)).compensationDb,24);});
 test('full-rig detection prioritizes metadata and accepts only specified name forms',()=>{for(const value of ['FULL-RIG','full rig','full_rig','fullrig'])assert.equal(detectFullRig({name:value}).fullRig,true);assert.equal(detectFullRig({name:'A2 Full model'}).fullRig,false);assert.equal(detectFullRig({rawMetadata:{gear_type:'FuLl-RiG'},name:'x'}).reason,'full-rig metadata');});

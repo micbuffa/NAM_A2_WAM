@@ -92,13 +92,20 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .knob-control { display:grid;justify-items:center;gap:5px;min-width:0;color:#9e98a7;font-size:9px;font-weight:750;text-align:center;text-transform:uppercase;letter-spacing:.08em;user-select:none } nam-a2-gui .knob-shell { position:relative;display:block;width:62px;height:62px } nam-a2-gui .knob-face { position:absolute;inset:3px;border:1px solid #5a5364;border-radius:50%;background:radial-gradient(circle at 38% 30%,#4b4653 0 7%,#292630 35%,#111116 72%);box-shadow:inset 0 0 0 4px #18171c,0 5px 12px rgba(0,0,0,.38) } nam-a2-gui .knob-face::before { content:'';position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(from 225deg,var(--nam-accent) var(--knob-sweep,135deg),#3c3744 0 270deg,transparent 0);mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 0) } nam-a2-gui .knob-pointer { position:absolute;left:50%;top:7px;width:2px;height:18px;background:#eee9f6;border-radius:2px;transform:translateX(-50%) rotate(var(--knob-angle,0deg));transform-origin:50% 21px;box-shadow:0 0 4px rgba(255,255,255,.4) } nam-a2-gui .knob-input { position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ns-resize;touch-action:none } nam-a2-gui .knob-control:focus-within .knob-face { outline:2px solid var(--nam-accent);outline-offset:3px } nam-a2-gui .knob-control output { color:#f2edf8;font-size:11px;font-weight:750;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums }
         nam-a2-gui .amp-knobs { border-top:1px solid #393540;background:rgba(9,9,12,.24) } nam-a2-gui .amp-knobs>summary { padding:11px 16px;color:#aaa3b4;cursor:pointer;font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;list-style-position:inside } nam-a2-gui .amp-knobs[open]>summary { color:#ddd6e8;border-bottom:1px solid #332f39 } nam-a2-gui .tone-strip { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 8px;align-items:center;padding:16px } nam-a2-gui .amp-switches { display:flex;justify-content:center;align-items:center;gap:12px;grid-column:1/-1 } nam-a2-gui .section-switch { display:grid;justify-items:center;gap:5px;color:#aaa3b4;font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase } nam-a2-gui .section-switch input { accent-color:var(--nam-accent) } nam-a2-gui .noise-switch { justify-self:center;max-width:52px;text-align:center } nam-a2-gui .eqButton[aria-expanded=true] { color:#18131f;background:var(--nam-accent);border-color:var(--nam-accent);font-weight:850 }
         nam-a2-gui .eq-panel { padding:14px 16px;border-top:1px solid #484052;background:#100f14 } nam-a2-gui .eq-toolbar { display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px } nam-a2-gui .eq-toolbar-group { display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:#aaa3b4;font-size:10px } nam-a2-gui .eq-toolbar input { accent-color:var(--nam-accent) } nam-a2-gui .eqPosition { min-height:32px;padding:0 8px } nam-a2-gui .eq-spectrum-legend { display:flex;align-items:center;gap:8px;color:#8d8693;font-size:9px } nam-a2-gui .eq-spectrum-legend span::before { content:'';display:inline-block;width:14px;margin-right:4px;border-top:2px solid;vertical-align:middle } nam-a2-gui .eq-spectrum-legend .input::before { border-color:#93a1b7;border-top-style:dashed } nam-a2-gui .eq-spectrum-legend .filtered::before { border-color:#ffb04a } nam-a2-gui .eq-spectrum-legend .final::before { border-color:#67e39a } nam-a2-gui .eq-graph-wrap { overflow:hidden;background:#09090c;border:1px solid #393541;border-radius:11px } nam-a2-gui .eqGraph { display:block;width:100%;height:250px;cursor:crosshair;touch-action:none;transition:opacity .15s } nam-a2-gui .eqGraph.disabled { opacity:.62 } nam-a2-gui .eq-spectrum-input-fill { fill:url(#namSpectrumInputFill);pointer-events:none } nam-a2-gui .eq-spectrum { fill:url(#namSpectrumFill);pointer-events:none;transition:opacity .12s linear } nam-a2-gui .eq-spectrum-input-line,nam-a2-gui .eq-spectrum-filtered-line,nam-a2-gui .eq-spectrum-final-line { fill:none;vector-effect:non-scaling-stroke;pointer-events:none } nam-a2-gui .eq-spectrum-input-line { stroke:#aab7ca;stroke-width:1.4;stroke-dasharray:5 4;stroke-opacity:.78 } nam-a2-gui .eq-spectrum-filtered-line { stroke:#ffb04a;stroke-width:1.7;stroke-opacity:.94 } nam-a2-gui .eq-spectrum-final-line { stroke:#67e39a;stroke-width:1.8;stroke-opacity:.92 } nam-a2-gui .eq-grid-line { stroke:#302d35;stroke-width:1 } nam-a2-gui .eq-zero-line { stroke:#77717d;stroke-width:1.4 } nam-a2-gui .eq-grid-label,nam-a2-gui .eq-axis-label { fill:#817a88;font:10px ui-monospace,SFMono-Regular,Menlo,monospace;pointer-events:none } nam-a2-gui .eq-axis-label.spectrum { fill:#686273;font-size:9px } nam-a2-gui .eq-band-curve { fill:none;stroke-width:1.45;stroke-opacity:.5;vector-effect:non-scaling-stroke;pointer-events:none } nam-a2-gui .eq-band-curve.selected { stroke-width:2.4;stroke-opacity:.92 } nam-a2-gui .eq-curve-fill { fill:url(#namEqFill) } nam-a2-gui .eq-curve { fill:none;stroke:#f3eef8;stroke-width:2.2;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 3px rgba(255,255,255,.18)) } nam-a2-gui .eq-node { stroke:#09090c;stroke-width:3;cursor:grab;vector-effect:non-scaling-stroke } nam-a2-gui .eq-node:hover,nam-a2-gui .eq-node.selected { fill:#fff;stroke-width:4 } nam-a2-gui .eq-node:focus { outline:none;stroke:#fff } nam-a2-gui .eq-node.dragging { cursor:grabbing } nam-a2-gui .eq-readout { display:flex;align-items:end;gap:8px;flex-wrap:wrap;padding:10px;background:#17151c;border-top:1px solid #34303b } nam-a2-gui .eq-band-name { min-width:118px;color:#eee9f4;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.08em } nam-a2-gui .eq-band-name small { display:block;margin-top:2px;color:#9c94a4;font-size:8px;letter-spacing:.12em } nam-a2-gui .eq-value { display:grid;gap:3px;color:#827b8a;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase } nam-a2-gui .eq-value input { width:86px;height:31px;padding:0 7px;color:#fff;background:#22202a;border:1px solid #403b49;border-radius:6px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace } nam-a2-gui .eq-hint { margin:0 0 0 auto;color:#746d7b;font-size:9px }
-        nam-a2-gui .current-model { display:grid;grid-column:3;grid-row:1;grid-template-columns:minmax(120px,.85fr) minmax(0,1.15fr);gap:10px;align-items:center;min-width:0;padding:10px;text-align:left;background:rgba(8,8,11,.48);border:1px solid #36323d;border-radius:12px }
-        nam-a2-gui .currentModelArtwork { position:relative;width:100%;height:170px;overflow:hidden;background:#0d0d11;border:1px solid #443d4d;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.3) }
+        nam-a2-gui .current-model { display:grid;grid-column:3;grid-row:1;grid-template-columns:minmax(120px,1fr) minmax(0,1fr);gap:10px;align-items:center;min-width:0;padding:10px;text-align:left;background:rgba(8,8,11,.48);border:1px solid #36323d;border-radius:12px }
+        nam-a2-gui .currentModelArtwork { position:relative;width:100%;height:213px;overflow:hidden;background:#0d0d11;border:1px solid #443d4d;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.3) }
         nam-a2-gui .currentModelInfo { min-width:0 }
+        nam-a2-gui .mainCaptureMedia { min-width:0 }
+        nam-a2-gui .mainCaptureViewer { display:grid;grid-template-columns:22px minmax(0,1fr) 22px;gap:4px;align-items:center }
+        nam-a2-gui .mainCaptureViewer button { padding:0;min-width:0;height:40px;font-size:24px }
+        nam-a2-gui .mainCaptureName { display:block;min-width:0;margin:7px 0 0;font-size:10px;line-height:1.4;overflow-wrap:anywhere;color:#ddd3e8 }
+        nam-a2-gui .currentModelInfo .level-actions { align-items:center;flex-wrap:wrap;gap:5px }
+        nam-a2-gui .currentModelInfo .level-actions .modelLevel { font-size:8px;letter-spacing:.03em;padding:3px 6px;white-space:nowrap }
+        nam-a2-gui .currentModelInfo .level-actions button { font-size:8px;min-height:23px;padding:0 6px;white-space:nowrap }
         nam-a2-gui .currentToneImage { display:block;width:100%;height:100%;object-fit:contain }
         nam-a2-gui .currentModelFallback { display:grid;width:100%;height:100%;place-content:center;padding:7px;background:radial-gradient(circle at 75% 20%,#4b3a69,#18141f 64%);text-align:center } nam-a2-gui .currentModelFallback strong { color:#e9ddff;font-size:11px;letter-spacing:.08em;text-transform:uppercase } nam-a2-gui .currentModelFallback small { overflow:hidden;max-width:70px;color:#a99cba;font-size:8px;text-overflow:ellipsis;white-space:nowrap }
         nam-a2-gui .eyebrow { margin:0 0 7px;color:#797381;font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase }
-        nam-a2-gui .currentModel { display:block;color:#fff;font-size:14px;line-height:1.35;overflow-wrap:anywhere }
+        nam-a2-gui .currentModel { display:block;color:#fff;font-size:12px;line-height:1.35;overflow-wrap:anywhere }
         nam-a2-gui .model-chips { display:flex;justify-content:flex-start;flex-wrap:wrap;gap:6px;margin-top:9px } nam-a2-gui .chip { padding:3px 7px;color:#bbb4c5;background:#24212a;border:1px solid #3a3543;border-radius:999px;font-size:9px;letter-spacing:.06em;text-transform:uppercase }
         nam-a2-gui .chip.source { color:#c7b8fb;border-color:#5d4f7e } nam-a2-gui .chip.modelLevel { color:#8ee6a0;background:#142419;border-color:#376b43;font-variant-numeric:tabular-nums } nam-a2-gui .chip.modelLevel.inactive { color:#ff9da9;background:#2a171b;border-color:#6e3941 } nam-a2-gui .drawer { border-top:1px solid #37333d;background:rgba(9,9,12,.36) }
         nam-a2-gui .level-actions { display:flex;justify-content:flex-start;gap:6px;margin-top:9px } nam-a2-gui .level-actions button { min-height:27px;padding:0 9px;font-size:9px } nam-a2-gui .calibrateLevel { color:#dcccff;border-color:#655481 } nam-a2-gui .calibrateLevel:disabled { color:#6d6873;cursor:default;border-color:#35313b }
@@ -126,7 +133,7 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .factoryMaintainer { display:grid;gap:9px;margin-top:2px;padding:10px;background:#111018;border:1px dashed #8067a8;border-radius:8px } nam-a2-gui .factoryMaintainer h3 { margin:0;color:#decfff;font-size:11px;letter-spacing:.08em;text-transform:uppercase } nam-a2-gui .factoryMaintainer p { margin:0;color:#9f96aa;font-size:10px } nam-a2-gui .factoryMaintainerActions { display:flex;gap:6px;flex-wrap:wrap } nam-a2-gui .factoryMaintainerModels { display:grid;gap:5px;max-height:190px;overflow:auto } nam-a2-gui .factoryMaintainerModel { display:flex;align-items:flex-start;gap:7px;padding:6px;background:#0c0b10;border-radius:6px;color:#c8c0ce;font-size:10px } nam-a2-gui .factoryMaintainerModel input { margin-top:2px;accent-color:var(--nam-accent) } nam-a2-gui .factoryMaintainerExport { color:#1b1521;background:var(--nam-accent);border-color:var(--nam-accent);font-weight:800 } nam-a2-gui .factoryMaintainerStatus { color:#b7adbf!important;white-space:pre-line }
         nam-a2-gui .powered { color:#6f6877;font-size:9px } nam-a2-gui .status { min-height:50px;margin:0;padding:10px;color:#aaa3b1;background:#0d0d11;border-radius:8px;white-space:pre-line;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace }
         nam-a2-gui .error { color:#ff9da9 }
-        @media(max-width:720px){nam-a2-gui .eqGraph{height:210px}nam-a2-gui .eq-hint{width:100%;margin:0}nam-a2-gui .signal-flow{justify-content:flex-start}} @media(max-width:620px){nam-a2-gui .signal-strip{grid-template-columns:25px 46px minmax(0,1fr) 25px;gap:6px;padding:12px 8px}nam-a2-gui .current-model{grid-template-columns:minmax(98px,.82fr) minmax(0,1.18fr);gap:8px;padding:8px}nam-a2-gui .currentModelArtwork{height:150px}nam-a2-gui .browser-tools{flex-direction:column}} @media(max-width:410px){nam-a2-gui .current-model{grid-template-columns:minmax(0,1fr);gap:5px}nam-a2-gui .currentModelArtwork{height:115px}nam-a2-gui .currentModel{font-size:11px}nam-a2-gui .factoryToneCard{grid-template-columns:minmax(0,1fr)}nam-a2-gui .factoryCaptureList{max-height:110px}}
+        @media(max-width:720px){nam-a2-gui .eqGraph{height:210px}nam-a2-gui .eq-hint{width:100%;margin:0}nam-a2-gui .signal-flow{justify-content:flex-start}} @media(max-width:620px){nam-a2-gui .signal-strip{grid-template-columns:25px 46px minmax(0,1fr) 25px;gap:6px;padding:12px 8px}nam-a2-gui .current-model{grid-template-columns:minmax(98px,.96fr) minmax(0,1.04fr);gap:8px;padding:8px}nam-a2-gui .currentModelArtwork{height:188px}nam-a2-gui .browser-tools{flex-direction:column}} @media(max-width:410px){nam-a2-gui .current-model{grid-template-columns:minmax(0,1fr);gap:5px}nam-a2-gui .currentModelArtwork{height:144px}nam-a2-gui .currentModel{font-size:10px}nam-a2-gui .factoryToneCard{grid-template-columns:minmax(0,1fr)}nam-a2-gui .factoryCaptureList{max-height:110px}}
         nam-a2-gui .eqButton.is-off { color:#ff9da9;border-color:#8b4952;background:#2b1b20 } nam-a2-gui .eq-panel.is-off .eq-graph-wrap { position:relative;opacity:.58 } nam-a2-gui .eq-panel.is-off .eq-graph-wrap::after { content:'EQ BYPASSED';position:absolute;top:10px;right:10px;padding:3px 6px;color:#ffb3bb;background:#301b21;border:1px solid #874651;border-radius:5px;font-size:9px;font-weight:850;letter-spacing:.08em;pointer-events:none }
         nam-a2-gui .factoryCaptureLabel { color:#ded5eb;font-size:10px;font-weight:800;letter-spacing:.04em } nam-a2-gui .tone3000Selection { margin:0 } nam-a2-gui .tone3000Image { display:block;width:100%;height:156px;object-fit:contain;background:#0d0d11;border:0;border-radius:7px }
         @media(max-width:620px){nam-a2-gui .signal-strip{grid-template-columns:25px 52px minmax(0,1fr) 25px;gap:5px;margin:8px;padding:8px 5px}}
@@ -178,6 +185,21 @@ class NamA2Gui extends HTMLElement {
         @media(max-width:620px){nam-a2-gui .plugin-tabs{justify-content:flex-start;overflow-x:auto}nam-a2-gui .plugin-tab{padding:0 10px}nam-a2-gui .aboutSections{grid-template-columns:minmax(0,1fr)}}
         nam-a2-gui .tone3000-head { justify-content:space-between } nam-a2-gui .tone3000-head-actions { display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap } nam-a2-gui .tone3000Back { min-height:34px;padding:0 8px;color:#d6c8ec;font-size:10px }
         @media(max-width:620px){nam-a2-gui .signal-strip{grid-template-columns:42px 52px minmax(0,1fr) 42px}}
+        nam-a2-gui .mainPanel .signal-strip { grid-template-columns:52px minmax(0,1fr) 44px;align-items:start }
+        nam-a2-gui .mainPanel .current-model { grid-column:2;grid-template-columns:minmax(120px,1.2fr) minmax(0,1fr) }
+        nam-a2-gui .mainPanel .output-meter-side { grid-column:3 }
+        nam-a2-gui .mainCaptureMedia .currentModelArtwork { display:flex;flex-direction:column }
+        nam-a2-gui .mainCaptureMedia .currentToneImage,nam-a2-gui .mainCaptureMedia .currentModelFallback { flex:1 1 0;min-height:0;height:0 }
+        nam-a2-gui .mainCaptureMedia .noise-side { display:flex;flex:0 0 auto;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px;margin:0;padding:5px 3px;border-top:1px solid #302b37;background:#141118 }
+        nam-a2-gui .mainCaptureMedia .noise-switch { display:flex;align-items:center;gap:4px;max-width:none;margin:0;font-size:8px;letter-spacing:.02em;white-space:nowrap }
+        nam-a2-gui .mainCaptureMedia .noise-switch input { width:11px;height:11px;margin:0 }
+        nam-a2-gui .mainCaptureMedia .noise-side .knob-control { display:flex;align-items:center;gap:5px;margin:0 }
+        nam-a2-gui .mainCaptureMedia .noise-side .knob-label { display:none }
+        nam-a2-gui .mainCaptureMedia .noise-side .knob-shell { width:23px;height:23px }
+        nam-a2-gui .mainCaptureMedia .noise-side .knob-pointer { top:3px;height:6px;transform-origin:50% 7.5px }
+        nam-a2-gui .mainCaptureMedia .noise-side .knob-input { inset:-5px auto auto -5px;width:33px;height:33px }
+        nam-a2-gui .mainCaptureMedia .noise-side output { font-size:8px }
+        @media(max-width:410px){nam-a2-gui .mainPanel .current-model{grid-template-columns:minmax(0,1fr)}}
         @media(prefers-reduced-motion:reduce){nam-a2-gui .signal-strip{transition:none}}
       </style>
       <section class="nam-module">
@@ -187,9 +209,9 @@ class NamA2Gui extends HTMLElement {
         </header>
         <nav class="plugin-tabs" role="tablist" aria-label="NeuralWAMp views"><button class="plugin-tab" id="namTabMain" type="button" role="tab" aria-selected="true" aria-controls="namPanelMain" data-plugin-tab="main">Main</button><button class="plugin-tab" id="namTabModels" type="button" role="tab" aria-selected="false" aria-controls="namPanelModels" data-plugin-tab="models">Models</button><button class="plugin-tab" id="namTabAmp" type="button" role="tab" aria-selected="false" aria-controls="namPanelAmp" data-plugin-tab="amp">Amp settings</button><button class="plugin-tab" id="namTabDetails" type="button" role="tab" aria-selected="false" aria-controls="namPanelDetails" data-plugin-tab="details">Model details</button><button class="plugin-tab" id="namTabPreferences" type="button" role="tab" aria-selected="false" aria-controls="namPanelPreferences" data-plugin-tab="preferences">Preferences</button><button class="plugin-tab" id="namTabAbout" type="button" role="tab" aria-selected="false" aria-controls="namPanelAbout" data-plugin-tab="about">Help</button></nav>
         <section class="plugin-panel mainPanel" id="namPanelMain" role="tabpanel" aria-labelledby="namTabMain" data-plugin-panel="main"><div class="signal-strip">
-          <div class="meter-side input-meter-side"><div class="meter" data-meter="input"><span class="meter-label">IN</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>${knobMarkup('inputGain','Input gain',-48,24,.1,0,' dB','input-control')}</div>
-          <div class="noise-side">${knobMarkup('noise','Threshold',-100,0,1,-80,' dB')}<label class="section-switch noise-switch"><input class="noiseEnabled" type="checkbox"> Noise gate</label></div>
-          <section class="current-model" aria-live="polite"><div class="currentModelArtwork"><img class="currentToneImage" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" hidden><div class="currentModelFallback"><strong>NAM</strong><small>Model capture</small></div></div><div class="currentModelInfo"><p class="eyebrow">Current model</p><strong class="currentModel">No model loaded</strong><div class="model-chips"><span class="chip source modelSource">—</span><span class="chip modelMode">A2 —</span><span class="chip modelLevel inactive" title="Automatic model-level correction">LEVEL —</span></div><div class="level-actions"><button class="calibrateLevel" type="button" disabled>Calibrate level</button><button class="useMetadataLevel" type="button" hidden>Use metadata</button></div></div></section>
+          <div class="meter-side input-meter-side"><div class="meter" data-meter="input"><span class="meter-label">IN</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>${knobMarkup('inputGain','Input gain',-48,24,.1,0,' dB','input-control')}
+          <div class="noise-side">${knobMarkup('noise','Threshold',-100,0,1,-80,' dB')}<label class="section-switch noise-switch"><input class="noiseEnabled" type="checkbox"> Noise gate</label></div></div>
+          <section class="current-model" aria-live="polite"><div class="currentModelArtwork"><img class="currentToneImage" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" hidden><div class="currentModelFallback"><strong>NAM</strong><small>Model capture</small></div></div><div class="currentModelInfo"><strong class="currentModel">No model loaded</strong><div class="model-chips"><span class="chip source modelSource">—</span><span class="chip modelMode">A2 —</span><span class="chip modelLevel inactive" title="Automatic model-level correction">LEVEL —</span></div><div class="level-actions"><button class="calibrateLevel" type="button" disabled>Calibrate level</button><button class="useMetadataLevel" type="button" hidden>Use metadata</button></div></div></section>
           <div class="meter-side output-meter-side"><div class="meter" data-meter="output"><span class="meter-label">OUT</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>${knobMarkup('outputGain','Output gain',-24,12,.1,0,' dB','output-control')}</div>
         </div><div class="signal-flow" role="img" aria-label="Signal path"></div></section>
         <section class="plugin-panel amp-knobs ampPanel" id="namPanelAmp" role="tabpanel" aria-labelledby="namTabAmp" data-plugin-panel="amp" hidden><div class="amp-controls"><section class="eq-panel" id="namEqPanel">
@@ -281,6 +303,7 @@ class NamA2Gui extends HTMLElement {
       catch (error) { this.setModelStatus({status: 'error', error: error.message}); }
     };
     this._assets=[]; this._selectedId=''; this._sourceFilter='Factory'; this._factoryCategory='guitar'; this._favoriteIds=new Set();
+    this.initMainCaptureNavigation();
     this.tone3000Downloads = new Tone3000Downloads();
     this.modelFavorites = new ModelFavorites();
     let preferredVariant='full';try{preferredVariant=localStorage.getItem(modelVariantStorageKey)==='lite'?'lite':'full';}catch{/* Storage can be unavailable in privacy modes. */}this.controls.a2Variant.value=preferredVariant;await this.node.setModelVariant(preferredVariant);
@@ -620,7 +643,7 @@ class NamA2Gui extends HTMLElement {
     }
     const m = info.metadata;
     this.controls.status.classList.remove('error');
-    this.controls.currentModel.textContent = m.rawMetadata?.name || m.name.replace(/\.nam$/iu, '');
+    this.controls.currentModel.textContent = m.provenance?.title || m.rawMetadata?.gear_model || m.rawMetadata?.name || m.name.replace(/\.nam$/iu, '');
     this.controls.modelMode.textContent = m.subtype || 'A2';
     const hasLoudness = Number.isFinite(m.loudness);
     const correction = Number(m.autoLevelCompensationDb);
@@ -1010,7 +1033,68 @@ class NamA2Gui extends HTMLElement {
     requestAnimationFrame(()=>{if(card.isConnected)revealSelected();});return card;
   }
 
+  initMainCaptureNavigation() {
+    const artwork=this.querySelector('.currentModelArtwork');
+    const media=document.createElement('div');media.className='mainCaptureMedia';
+    const viewer=document.createElement('div');viewer.className='mainCaptureViewer';
+    const previous=document.createElement('button'),next=document.createElement('button');
+    previous.type=next.type='button';previous.textContent='‹';next.textContent='›';
+    previous.setAttribute('aria-label','Previous capture');next.setAttribute('aria-label','Next capture');
+    previous.disabled=next.disabled=true;
+    const name=document.createElement('span');name.className='mainCaptureName';
+    artwork.replaceWith(media);viewer.append(previous,artwork,next);media.append(viewer);
+    const noise=this.querySelector('.noise-side');
+    noise.prepend(noise.querySelector('.noise-switch'));
+    artwork.append(noise);
+    this.querySelector('.currentModelInfo').append(name);
+    this.querySelector('.level-actions').prepend(this.controls.modelLevel);
+    this._mainCaptures={previous,next,name};
+    previous.onclick=()=>this.moveMainCapture(-1);next.onclick=()=>this.moveMainCapture(1);
+  }
+
+  mainCaptureCollection() {
+    const asset=this._assets.find(entry=>entry.id===this._selectedId);
+    if(!asset)return {items:[],index:-1};
+    if(asset.source==='TONE3000'&&String(asset.provenance?.toneId)===String(this._toneId)&&this._toneModels?.length){
+      return {items:this._toneModels,index:this._toneModels.findIndex(model=>`tone3000:${this._toneId}:${model.id}`===asset.id),remote:true};
+    }
+    const items=this._assets.filter(entry=>{
+      if(entry.id===asset.id)return true;
+      if(asset.provenance?.toneId!=null)return entry.source===asset.source&&String(entry.provenance?.toneId)===String(asset.provenance.toneId);
+      return asset.id.startsWith('factory:')&&entry.id.startsWith('factory:')&&JSON.stringify(entry.groups)===JSON.stringify(asset.groups);
+    });
+    return {items,index:items.findIndex(entry=>entry.id===asset.id)};
+  }
+
+  updateMainCaptureNavigation() {
+    if(!this._mainCaptures)return;
+    const {items,index}=this.mainCaptureCollection(),ui=this._mainCaptures;
+    ui.previous.disabled=!!this._mainCaptureLoading||index<=0;
+    ui.next.disabled=!!this._mainCaptureLoading||index<0||index>=items.length-1;
+    const asset=this._assets.find(entry=>entry.id===this._selectedId);
+    ui.name.textContent=asset?`${asset.filename}${items.length>1?` · ${index+1} / ${items.length}`:''}`:'';
+    ui.name.title=asset?.filename||'';
+  }
+
+  async moveMainCapture(direction) {
+    if(this._mainCaptureLoading)return;
+    const {items,index,remote}=this.mainCaptureCollection(),target=index+direction,asset=items[target];
+    if(index<0||!asset)return;
+    this._mainCaptureLoading=true;this.updateMainCaptureNavigation();
+    try {
+      if(remote)await this.loadTone3000Model(target);
+      else {
+        let text=asset.data;
+        if(!text){const response=await fetch(factoryAssetUrl(manifestUrl,'models',asset.relativePath));if(!response.ok)throw Error(`HTTP ${response.status}`);text=await response.text();}
+        await this.node.loadModelText(text,asset.filename,asset.id.startsWith('factory:')?factoryProvenance(asset):asset.provenance);
+        this._selectedId=asset.id;this.renderBrowser();
+      }
+    } catch(error){this.setModelStatus({status:'error',error:error.message});}
+    finally{this._mainCaptureLoading=false;this.updateMainCaptureNavigation();}
+  }
+
   renderBrowser() {
+    this.updateMainCaptureNavigation();
     const factoryAssets=this._assets.filter((asset)=>asset.source!=='TONE3000'&&!asset.id.startsWith('external:'));
     const counts={all:factoryAssets.length,guitar:0,bass:0,pedal:0};for(const asset of factoryAssets)if(Object.hasOwn(counts,asset.category))counts[asset.category]++;
     const labels={all:'All',guitar:'Guitar',bass:'Bass',pedal:'Pedals'};this.controls.factoryCategoryButtons.forEach((button)=>{button.textContent=`${labels[button.dataset.category]} ${counts[button.dataset.category]}`;});

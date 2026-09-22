@@ -28,7 +28,8 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(css, /\.live-toggle\.live-active/u);
   assert.match(main, /liveInputEnabled \? 'Disable live input' : 'Enable live input'/u);
   assert.match(main, /if \(liveInputEnabled\) \{\s*await disableLiveInput\(\)/u);
-  assert.match(main, /if \(\$\('#audioSource'\)\.value !== 'live' \|\| !liveInputEnabled\) return/u);
+  assert.match(main, /if \(\$\('#audioSource'\)\.value !== 'live'\) return/u);
+  assert.match(main, /activateLive\(probingDevice, 0, \{monitor:false\}\)/u);
 });
 
 test('NAM GUI is container-scoped and exposes compact top-level tabs', async () => {

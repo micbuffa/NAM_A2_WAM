@@ -72,25 +72,59 @@ export default class SourceManager {
     this.mode = null;
   }
 
-  async activateLive(deviceId, channelIndex = 0) {
+  async activateLive(deviceId, channelIndex = 0, {monitor = true} = {}) {
     const requestId = ++this._liveRequestId;
     await this.disconnectCurrent({keepLiveRequest: true});
     const audio = {...MUSIC_CAPTURE_CONSTRAINTS};
     if (deviceId) audio.deviceId = {exact: deviceId};
-    const stream = await this.mediaDevices.getUserMedia({audio});
+    const desired = Math.min(32, Math.max(2, Math.trunc(Number(channelIndex) || 0) + 1));
+    let stream;
+    let channelNegotiationError = '';
+    try {
+      // Request stereo at device opening, not just after a mono track exists.
+      stream = await this.mediaDevices.getUserMedia({audio: {...audio, channelCount: {exact: desired}}});
+    } catch (error) {
+      if (error.name !== 'OverconstrainedError' || error.constraint !== 'channelCount') throw error;
+      if (requestId !== this._liveRequestId) return null;
+      channelNegotiationError = error.message;
+      stream = await this.mediaDevices.getUserMedia({audio});
+    }
     if (requestId !== this._liveRequestId) {
       stream.getTracks().forEach((track) => track.stop());
       return null;
     }
     const track = stream.getAudioTracks?.()[0] || stream.getTracks()[0];
-    const settings = track?.getSettings?.() || {};
+    let settings = track?.getSettings?.() || {};
+    // An ideal constraint can still produce mono on a stereo USB interface.
+    // Negotiate again on the selected track, then trust the actual settings.
+    if ((Number(settings.channelCount) || 1) < desired && track?.applyConstraints) {
+      try {
+        await track.applyConstraints({...audio, channelCount: {exact: desired}});
+        settings = track.getSettings();
+      } catch (error) {
+        channelNegotiationError = error.message;
+        if (error.name !== 'OverconstrainedError' && error.name !== 'NotSupportedError') {
+          stream.getTracks().forEach((entry) => entry.stop());
+          throw error;
+        }
+      }
+    }
+    if (requestId !== this._liveRequestId) {
+      stream.getTracks().forEach((entry) => entry.stop());
+      return null;
+    }
     const actualDeviceId = settings.deviceId || '';
     if (deviceId && deviceId !== 'default' && actualDeviceId && actualDeviceId !== deviceId) {
       stream.getTracks().forEach((entry) => entry.stop());
       throw new Error(`Browser opened a different audio input (requested ${deviceId}, received ${actualDeviceId})`);
     }
     const channelCount = Math.max(1, Number(settings.channelCount) || 1);
+    this.captureDiagnostics = {requestedChannels: desired, settings: {...settings}, capabilities: track?.getCapabilities?.() || {}, channelNegotiationError};
     const selectedChannel = Math.max(0, Math.min(channelCount - 1, Math.trunc(Number(channelIndex) || 0)));
+    if (!monitor) {
+      stream.getTracks().forEach((entry) => entry.stop());
+      return {deviceId: actualDeviceId || deviceId, label: track?.label || '', channelCount};
+    }
     const node = this.audioContext.createMediaStreamSource(stream);
     let splitter = null;
     if (typeof this.audioContext.createChannelSplitter === 'function') {

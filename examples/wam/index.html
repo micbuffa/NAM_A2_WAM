@@ -13,6 +13,7 @@
         <p class="host-kicker">WAM RACK</p>
         <h1>NAM A2</h1>
         <p>Neural amplifier and cabinet chain</p>
+        <a class="host-lab-link" href="./fx-test/">Open WAM FX Registry Lab</a>
       </header>
 
       <section class="host-card" aria-labelledby="source-title">
@@ -36,6 +37,8 @@
         <label>Output device <select id="outputDevice"><option value="">System default</option></select></label>
         <button class="host-secondary" id="authorizeOutput" type="button">Choose output</button>
         <p class="host-help" id="outputSupport"></p>
+        <button class="host-secondary" id="recoverAudio" type="button" hidden>Recover audio</button>
+        <p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p>
         <button class="host-secondary live-toggle" id="enableLive" type="button" aria-pressed="false">Enable live input</button>
         <label class="host-range">Source trim <output id="sourceTrimValue">0.0 dB</output>
           <input id="sourceTrim" type="range" min="-48" max="12" step="0.5" value="0">

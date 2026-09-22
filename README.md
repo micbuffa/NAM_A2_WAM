@@ -88,6 +88,12 @@ npm start
 
 Then open <http://127.0.0.1:8765/examples/wam/index.html>.
 
+The isolated WAM effect registry and compatibility lab is available at
+<http://127.0.0.1:8765/examples/wam/fx-test/>. It discovers the bundled catalogue, categorizes
+effects from descriptors and catalogue overrides, and validates plugin loading, GUI creation,
+state round trips, bypass, and cleanup without changing the production NAM/Cabinet graph. See
+[`docs/WAM_PLUGIN_REGISTRY.md`](docs/WAM_PLUGIN_REGISTRY.md).
+
 The server automatically scans [`examples/wam/assets/audio/`](examples/wam/assets/audio/) to
 discover `.wav`, `.mp3`, `.aac`, `.m4a`, `.ogg`, and `.flac` audio files. The host supports file
 sources and live audio input, using the following signal chain:
