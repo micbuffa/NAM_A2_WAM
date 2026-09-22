@@ -1,6 +1,7 @@
 import WebAudioModule from '../../third_party/wam-examples/packages/sdk/src/WebAudioModule.js';
 import NamNode from './NamNode.js';
-import {createElement} from './gui.js';
+import {loadDefaultAsset} from '../shared/defaultAssets.js';
+import {ToneCallbackSession} from '../shared/ToneCallbackSession.js';
 
 const baseUrl = new URL('.', import.meta.url).href.replace(/\/$/, '');
 
@@ -10,7 +11,12 @@ export default class NamPlugin extends WebAudioModule {
 
   async initialize(state) {
     await this._loadDescriptor();
-    return super.initialize(state);
+    await super.initialize();
+    if (state) await this.audioNode.setState(structuredClone(state));
+    await loadDefaultAsset(this.audioNode, 'nam', new URL('./models-manifest.json', import.meta.url));
+    this.toneSession=new ToneCallbackSession(this,'nam');
+    this.audioNode.toneSession=this.toneSession;
+    return this;
   }
 
   async createAudioNode(initialState) {
@@ -21,7 +27,8 @@ export default class NamPlugin extends WebAudioModule {
     return node;
   }
 
-  createGui() { return createElement(this); }
+  createGui() { return this._guiPromise ||= import('./gui.js').then(({createElement})=>createElement(this)).catch(error=>{this._guiPromise=null;throw error;}); }
+  destroyGui(gui) { gui?.destroy?.(); gui?.remove(); this._guiPromise=null; }
 
   static configureTone3000(config) { NamPlugin.tone3000Config = {...config}; }
 }

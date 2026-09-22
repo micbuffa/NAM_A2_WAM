@@ -8,7 +8,7 @@ const read = (path) => readFile(new URL(`../../${path}`, import.meta.url), 'utf8
 test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin controls', async () => {
   const [html, css, main] = await Promise.all([read('examples/wam/index.html'), read('examples/wam/host.css'), read('examples/wam/main.js')]);
   assert.match(html, /class="host-sidebar"/u);
-  assert.match(html, /class="rack-grid"/u);
+  assert.match(html, /class="fx-chain"/u);
   assert.match(html, /href="\.\/host\.css"/u);
   assert.match(html, /class="embedded-player" id="playerPanel" hidden/u);
   assert.ok(html.indexOf('id="audioSource"') < html.indexOf('id="playerPanel"'));
@@ -21,8 +21,8 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.doesNotMatch(html, /host-(?:inputGain|outputGain|bypass)|id="cabinetMode"/u);
   assert.match(css, /grid-template-columns:\s*286px minmax\(0, 1fr\)/u);
   assert.match(css, /@media \(max-width: 720px\)/u);
-  assert.match(main, /cabinet-routing-mode/u);
-  assert.match(main, /node\.connect\(cabinetNode\)\.connect\(context\.destination\)/u);
+  assert.match(main, /chain.initialize\(plugin,cabinetPlugin\)/u);
+  assert.match(main, /chain\.output\.connect\(context\.destination\)/u);
   assert.match(main, /\$\('#playerPanel'\)\.hidden = !enabled/u);
   assert.match(html, /id="enableLive"[^>]*aria-pressed="false"[^>]*>Enable live input/u);
   assert.match(css, /\.live-toggle\.live-active/u);
@@ -92,12 +92,10 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /class="useMetadataLevel"/u);
   assert.match(gui, /calibrateCurrentModelLevel/u);
   assert.match(gui, /MEASURED/u);
-  assert.match(gui, /measuredLevelsStorageKey/u);
-  assert.match(gui, /restoreMeasuredLevel/u);
   assert.match(gui, /Applied NAM correction:/u);
-  assert.match(gui, /setAutoLevel\(autoLevel\)/u);
+  assert.match(gui, /this\.controls\.autoLevel\.checked=\(await this\.node\.getState\(\)\)\.autoLevel!==false/u);
   assert.match(gui, /Auto level:/u);
-  assert.match(gui, /setModelVariant\(preferredVariant\)/u);
+  assert.match(gui, /this\.controls\.a2Variant\.value=\(await this\.node\.getState\(\)\)\.modelVariant/u);
   assert.match(gui, /knobMarkup\('inputGain'/u);
   assert.match(gui, /knobMarkup\('outputGain'/u);
   assert.match(gui, /input\.ondblclick=/u);
@@ -262,13 +260,9 @@ test('asset accordions keep the selected model path open and highlighted', async
   assert.match(browser, /renderGroup\?\.\(\{name:key,assets:branch\.__assets,selectedId,onSelect,isFavorite,toggleFavorite,favoriteButton\}\)/u);
 });
 
-test('NAM GUI loads the first Bogner guitar capture only when no model was restored', async () => {
+test('NAM GUI hydrates a previously loaded capture without loading a default', async () => {
   const gui = await read('src/nam-wam/gui.js');
-  const manifest = JSON.parse(await read('src/nam-wam/models-manifest.json'));
-  const firstCapture = manifest.assets.find((asset) => asset.category === 'guitar' && Number(asset.provenance?.toneId) === 80705);
-  assert.equal(firstCapture?.filename, '[AMP] UBER--m689732.nam');
-  assert.match(gui, /const defaultFactoryToneId = 80705/u);
-  assert.match(gui, /if\(state\.model\?\.data\)\{await this\._modelListener\(null,state\.model\);return;\}/u);
-  assert.match(gui, /this\._assets\.find\(\(asset\)=>asset\.category==='guitar'&&Number\(asset\.provenance\?\.toneId\)===defaultFactoryToneId\)/u);
-  assert.match(gui, /await this\.node\.loadModelText\(text,firstCapture\.filename,factoryProvenance\(firstCapture\)\)/u);
+  const body=gui.slice(gui.indexOf('  async loadManifest(){'),gui.indexOf('  createFactoryAssetEntry'));
+  assert.match(body,/this.node.getState/);
+  assert.doesNotMatch(body,/loadModelText/);
 });
