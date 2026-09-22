@@ -71,18 +71,13 @@ their inactive state remains immediately visible.
 - The `third_party/NeuralAmpModelerCore` checkout. Third-party sources are intentionally ignored
   by Git.
 
-Initialize the NAM Core submodule if necessary:
-
-```sh
-git -C third_party/NeuralAmpModelerCore submodule update --init --depth 1
-```
-
 ## Run the host locally
 
-Install the JavaScript dependencies and start the static server:
+Install dependencies, fetch third-party sources, build the WASM, then start the static server:
 
 ```sh
 npm install
+npm run setup
 npm start
 ```
 

@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "setup": "./tools/setup.sh",
     "start": "node examples/wam/server.mjs",
     "factory-assets": "./tools/regenerate-factory-assets.sh",
     "build-static": "./tools/build-static-distribution.sh",
