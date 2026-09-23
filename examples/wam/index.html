@@ -80,17 +80,18 @@
           </div>
         </aside>
         <section class="fx-chain" id="fxChain" aria-label="Effects — drag to swap cards, or Alt + arrow keys"></section>
-        <aside class="fx-endpoint" aria-label="Chain A output">
+        <aside class="fx-endpoint fx-output-strip" aria-label="Chain A output">
           <strong>OUTPUT · A</strong>
           <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Output device</span><select id="outputDevice" title="Output device"><option value="">System default</option></select></label></div>
           <div class="fx-endpoint-controls">
             <div class="fx-meter-column">
-              <div class="fx-meter" id="chainOutputMeter" role="meter" aria-label="Output level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></div>
+              <div class="fx-meter fx-meter-linear" id="chainOutputMeter" role="meter" aria-label="Output level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></div>
               <output id="chainOutputLevel">−∞ dBFS</output>
               <button class="fx-gain-reset" id="chainOutputReset" aria-label="Reset output gain">Reset</button>
             </div>
-            <label class="fx-gain">Gain<input id="chainOutputGain" aria-label="Output gain" aria-orientation="vertical" type="range" min="-48" max="12" step="0.5" value="0"><output id="chainOutputGainValue">0.0 dB</output></label>
+            <label class="fx-gain">Volume<input id="chainOutputGain" aria-label="Output gain" aria-orientation="vertical" type="range" min="-48" max="12" step="0.5" value="0"><output id="chainOutputGainValue">0.0 dB</output></label>
           </div>
+          <label class="fx-pan"><span>L</span><input id="chainOutputPan" type="range" min="-1" max="1" step="0.01" value="0" aria-label="Chain A pan" title="Pan L/R — double-click to center"><span>R</span><output id="chainOutputPanValue">C</output></label>
         </aside>
       </section>
       <p class="fx-help">Drop on a card to swap · Drop on + to insert at that position · Alt + ← / → to move. NAM and Cabinet are permanent core modules.</p>

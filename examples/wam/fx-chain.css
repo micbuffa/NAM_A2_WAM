@@ -64,6 +64,7 @@
 .fx-output-link{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;margin-top:32px;height:26px;color:#c8b7e1;font-size:11px;white-space:nowrap}
 .fx-output-link>span:first-child{font-size:22px;line-height:1;color:#9eecbd}
 .fx-route-action{position:absolute;top:28px;left:0;min-height:22px;height:22px;width:24px;padding:0;border-color:#80709e;color:#c6a4ff;opacity:0;pointer-events:none;transition:opacity .15s .2s}
+.fx-rack:not(.has-chain-b) .fx-route-action{display:none}
 .fx-slot:hover>.fx-route-action,.fx-slot:focus-within>.fx-route-action{opacity:1;pointer-events:auto}
 @media(hover:none){.fx-route-action{opacity:1;pointer-events:auto}}
 .fx-route-gutter{position:relative;height:40px}
@@ -74,3 +75,27 @@
 .fx-lane-enable{font-size:10px;min-height:25px;color:#bde6c8}
 .fx-lane-enable[aria-pressed=true]{border-color:#bf7185}
 .fx-routing-dialog{max-width:420px}
+
+/* Compact mixer outputs; inputs retain their analogue meters. */
+.fx-output-strip{gap:5px}
+.fx-output-strip .fx-endpoint-routing{height:23px;flex-direction:row;justify-content:space-between;align-items:center}
+.fx-output-strip .fx-lane-enable{min-height:22px;height:22px;padding:1px 10px;font-size:9px}
+.fx-output-strip .fx-lane-enable[aria-pressed=true]{background:#632331;border-color:#f16f85;color:#ffe3e8}
+.fx-output-strip .fx-endpoint-controls{display:grid;grid-template-columns:48px 42px;justify-content:center;gap:9px;margin:0;height:100px}
+.fx-output-strip .fx-meter-column{gap:3px;padding-top:13px}
+.fx-output-strip .fx-meter-linear{position:relative;width:12px;height:73px;flex-shrink:0;border:1px solid #444b46;border-radius:2px;background:#0b100e;box-shadow:inset 0 0 3px #000;overflow:hidden}
+.fx-meter-fill{position:absolute;inset:0;background:repeating-linear-gradient(to top,transparent 0 4px,#101510 4px 6px),linear-gradient(to top,#4cda85 0 70%,#f2b449 85%,#ff4d5f 100%);clip-path:inset(calc((1 - var(--meter-level,0))*100%) 0 0);transition:clip-path 70ms linear}
+.fx-output-strip .fx-meter-linear.is-clipping{border-color:#ff4d5f;box-shadow:0 0 5px #ff4d5f}
+.fx-output-strip .fx-gain{gap:3px;font-size:9px;line-height:10px}
+.fx-output-strip .fx-gain input{appearance:none;-webkit-appearance:none;width:30px;height:73px;border:0;border-radius:2px;background:repeating-linear-gradient(to top,#706779 0 1px,transparent 1px 12px) center/20px 100% no-repeat;outline-offset:3px}
+.fx-output-strip .fx-gain input::-webkit-slider-runnable-track{width:4px;height:100%;background:#09090c;border:1px solid #49404f;border-radius:3px}
+.fx-output-strip .fx-gain input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:26px;height:12px;margin-left:-12px;border:1px solid #97909e;border-radius:2px;background:linear-gradient(to bottom,#e0dbe5,#948e9c 44%,#34303b 45% 55%,#b9b3c2 56%,#e1dce7);box-shadow:0 2px 3px #000b}
+.fx-output-strip .fx-gain input::-moz-range-track{width:4px;height:100%;background:#09090c;border:1px solid #49404f;border-radius:3px}
+.fx-output-strip .fx-gain input::-moz-range-thumb{width:26px;height:12px;border:1px solid #97909e;border-radius:2px;background:linear-gradient(to bottom,#e0dbe5,#948e9c 44%,#34303b 45% 55%,#b9b3c2 56%,#e1dce7);box-shadow:0 2px 3px #000b}
+.fx-pan{display:grid;grid-template-columns:9px minmax(0,1fr) 9px 26px;align-items:center;gap:3px;margin-top:auto;height:20px;font-size:9px;color:#bfb5cb}
+.fx-pan input{appearance:none;-webkit-appearance:none;min-width:0;width:100%;height:16px;margin:0;background:linear-gradient(#82758d,#82758d) center/1px 10px no-repeat;cursor:ew-resize}
+.fx-pan input::-webkit-slider-runnable-track{height:3px;background:#544760;border-radius:2px}
+.fx-pan input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:7px;height:13px;margin-top:-5px;border:1px solid #c0afcf;border-radius:2px;background:#9e89b3}
+.fx-pan input::-moz-range-track{height:3px;background:#544760;border-radius:2px}
+.fx-pan input::-moz-range-thumb{width:7px;height:13px;border:1px solid #c0afcf;border-radius:2px;background:#9e89b3}
+.fx-pan output{font-size:8px;text-align:right;font-variant-numeric:tabular-nums}

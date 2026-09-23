@@ -5,10 +5,14 @@ export class FxRack extends EventTarget {
   constructor({context,a,source,createLane}) {
     super();Object.assign(this,{context,a,source,createLane});
     this.pending=Promise.resolve();this.b=null;this.visible=false;this.enabledB=false;this.mutedA=false;
+    this.panA=0;this.panB=0;this.pannerA=context.createStereoPanner();this.pannerB=context.createStereoPanner();
+    // Explicit stereo keeps a mono lane at its existing center level.
+    for(const panner of [this.pannerA,this.pannerB]){panner.channelCount=2;panner.channelCountMode='explicit';}
     this.channelB=1;this.inputDbB=0;this.tap=null;this.route=null;
     this.physicalB=context.createGain();this.gateA=context.createGain();this.gateB=context.createGain();this.gateB.gain.value=0;
     this.mix=context.createGain();this.output=context.createGain();this.mix.connect(this.output);
-    a.output.connect(this.gateA).connect(this.mix);this.gateB.connect(this.mix);
+    a.output.connect(this.gateA).connect(this.pannerA).connect(this.mix);this.gateB.connect(this.pannerB).connect(this.mix);
+    a.outputMeter.destroy();a.outputMeter=new AudioLevel(context,this.pannerA);
     this.meter=new AudioLevel(context,this.output);this.attach(a);
     this.sourceChanged=()=>{this.syncSource();this.changed();};
     source.addEventListener('change',this.sourceChanged);this.syncMix();
@@ -40,6 +44,7 @@ export class FxRack extends EventTarget {
     if(this.b)return this.b;
     const b=await this.createLane();this.b=b;
     b.upstreamEntries=()=>this.route?this.a.entries.slice(0,this.route.index):[];
+    b.outputMeter.destroy();b.outputMeter=new AudioLevel(this.context,this.pannerB);
     this.attach(b);return b;
   }
   setVisible(visible){return this.enqueue(async()=>{
@@ -90,6 +95,11 @@ export class FxRack extends EventTarget {
     if(enabled&&!this.route&&!(this.source.mode==='live'&&this.channelB>=0&&this.channelB<this.source.liveInput?.channelCount))throw Error('Enable live input and select an available channel for B, or route A to B');
     this.enabledB=enabled;this.syncMix();this.changed();
   });}
+  setPan(lane,value){
+    const pan=Number(value);if(!['a','b'].includes(lane)||!Number.isFinite(pan)||pan< -1||pan>1)throw Error('Invalid pan');
+    const key=lane==='a'?'A':'B';this['pan'+key]=pan;
+    this['panner'+key].pan.setTargetAtTime(pan,this.context.currentTime,.008);this.changed();
+  }
   setMutedA(muted){return this.enqueue(()=>{this.mutedA=muted;this.syncMix();this.changed();});}
   syncMix(){
     const b=this.visible&&this.enabledB,t=this.context.currentTime;
@@ -100,9 +110,9 @@ export class FxRack extends EventTarget {
     this.source.removeEventListener('change',this.sourceChanged);this.source.setSecondary(null,this.channelB);
     if(this.tap&&this.b)disconnect(this.tap,this.b.input);
     this.meter.destroy();this.a.destroy();this.b?.destroy();
-    for(const node of [this.physicalB,this.gateA,this.gateB,this.mix,this.output])node.disconnect();
+    for(const node of [this.physicalB,this.gateA,this.gateB,this.pannerA,this.pannerB,this.mix,this.output])node.disconnect();
   }
-  async snapshot(){return {version:2,a:await this.a.captureState(),b:this.b?await this.b.captureState():null,visible:this.visible,route:this.route?{...this.route}:null,inputDbB:this.inputDbB,outputDbA:this.a.outputDb,outputDbB:this.b?.outputDb||0,mutedA:this.mutedA,enabledB:this.enabledB,sourceTrim:{...this.source.trimDb}};}
+  async snapshot(){return {version:2,panA:this.panA,panB:this.panB,a:await this.a.captureState(),b:this.b?await this.b.captureState():null,visible:this.visible,route:this.route?{...this.route}:null,inputDbB:this.inputDbB,outputDbA:this.a.outputDb,outputDbB:this.b?.outputDb||0,mutedA:this.mutedA,enabledB:this.enabledB,sourceTrim:{...this.source.trimDb}};}
   getState(){return this.enqueue(()=>this.snapshot());}
   setState(state){return this.enqueue(async()=>{
     const saved=structuredClone(state.version===1?{version:2,a:state,b:null,visible:false,route:null,inputDbB:0,outputDbA:0,outputDbB:0,mutedA:false,enabledB:false}:state);
@@ -111,6 +121,7 @@ export class FxRack extends EventTarget {
     const ids=new Set();for(const e of [...saved.a.entries,...saved.b?.entries||[]]){if(ids.has(e.id))throw Error('Duplicate rack instance ID');ids.add(e.id);}
     if(saved.route&&(!saved.b||!Number.isInteger(saved.route.index)||saved.route.index<0||saved.route.index>saved.a.entries.length))throw Error('Invalid saved junction');
     for(const key of ['inputDbB','outputDbA','outputDbB'])if(!Number.isFinite(saved[key])||saved[key]<-48||saved[key]>12)throw Error('Invalid saved gain');
+    for(const key of ['panA','panB']){saved[key]??=0;if(!Number.isFinite(saved[key])||Math.abs(saved[key])>1)throw Error('Invalid saved pan');}
     const backup=await this.snapshot();if(saved.b)await this.ensureB();
     const apply=async value=>{
       this.route=null;this.a.junction=null;this.syncTap();
@@ -118,6 +129,7 @@ export class FxRack extends EventTarget {
       this.visible=value.visible;this.route=value.route;this.a.junction=this.route;this.mutedA=value.mutedA;
       // Diagnostics restore never activates an independent physical input.
       this.enabledB=Boolean(value.visible&&value.route&&value.enabledB);
+      this.setPan('a',value.panA);this.setPan('b',value.panB);
       this.setInputDbB(value.inputDbB);this.a.setOutputDb(value.outputDbA);this.b?.setOutputDb(value.outputDbB);
       if(value.sourceTrim)for(const mode of ['live','file'])this.source.setTrimDb(value.sourceTrim[mode],mode);
       this.syncTap();this.syncSource();await this.a.applyRouting();this.changed();

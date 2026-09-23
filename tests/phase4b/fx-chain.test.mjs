@@ -22,7 +22,7 @@ function plugin(){return {audioNode:new Node(),guiCalls:0,async createGui(){this
 async function setup(){
   const record={name:'Delay',entryUrl:'https://example.test/wam/delay/index.js',catalogue:{uri:'./delay/index.js'}};
   const registry={catalogueUrl:'https://example.test/wam/plugins.json',records:[record],async instantiate(r,{state}){const p=plugin();if(state)p.audioNode.setState(state);return p;}};
-  const chain=new FxChain({context:{currentTime:0,state:'running',createGain:()=>new Node(),createChannelSplitter:()=>new Node(),createAnalyser:()=>Object.assign(new Node(),{getFloatTimeDomainData(data){data.fill(0);}})},registry,groupId:'test'});
+  const chain=new FxChain({context:{currentTime:0,state:'running',createGain:()=>new Node(),createStereoPanner:()=>{const node=new Node();node.pan={...node.gain,value:0};return node;},createChannelSplitter:()=>new Node(),createAnalyser:()=>Object.assign(new Node(),{getFloatTimeDomainData(data){data.fill(0);}})},registry,groupId:'test'});
   const nam=plugin(),cab=plugin();await chain.initialize(nam,cab);return {chain,nam,cab,record};
 }
 test('headless chain applies AUTO and uses a single ordered route',async()=>{
@@ -183,4 +183,17 @@ test('hidden split roundtrip retains its junction but has no active B path until
   assert.equal(rack.tap,null);assert.ok(!rack.b.output.connections.has(rack.gateB));
   await rack.setVisible(true);assert.equal(rack.enabledB,true);
   assert.equal(rack.tap,a.entries[0].output);assert.equal(rack.mixDb,-6);
+});
+
+test('per-lane pan is independent, bounded, retained when hiding, and backwards compatible in state',async()=>{
+  const {rack,a}=await setupRack();await rack.setVisible(true);
+  rack.setPan('a',-1);rack.setPan('b',.65);
+  assert.equal(rack.pannerA.pan.value,-1);assert.equal(rack.pannerB.pan.value,.65);
+  assert.ok(rack.gateA.connections.has(rack.pannerA));assert.ok(rack.pannerB.connections.has(rack.mix));
+  assert.equal(a.outputMeter.source,rack.pannerA);assert.equal(rack.b.outputMeter.source,rack.pannerB);
+  assert.throws(()=>rack.setPan('a',NaN));assert.throws(()=>rack.setPan('b',2));
+  const saved=await rack.getState();await rack.setVisible(false);await rack.setVisible(true);
+  assert.equal(rack.panB,.65);rack.setPan('a',0);await rack.setState(saved);assert.equal(rack.panA,-1);
+  const bad={...saved,panA:3};await assert.rejects(rack.setState(bad),/pan/);assert.equal(rack.panA,-1);
+  delete saved.panA;delete saved.panB;await rack.setState(saved);assert.equal(rack.panA,0);assert.equal(rack.panB,0);
 });

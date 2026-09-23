@@ -31,7 +31,8 @@ export class FxChainView {
       const [x,y]=point(-52+(db+60)/60*104,56);
       ticks+=`<text x="${x}" y="${y}" text-anchor="middle">${db}</text>`;
     }
-    for(const meter of document.querySelectorAll('.fx-meter'))meter.innerHTML=`<svg viewBox="0 0 120 76" aria-hidden="true"><path class="vu-arc" d="M22 38 Q60 1 98 38"/>${ticks}<text x="60" y="47" text-anchor="middle" class="vu-unit">dBFS</text><circle class="vu-clip" cx="109" cy="9" r="3"/><g class="vu-needle"><path d="M60 68L60 22"/></g><circle cx="60" cy="68" r="3" fill="#554734"/></svg>`;
+    for(const meter of document.querySelectorAll('.fx-meter:not(.fx-meter-linear)'))meter.innerHTML=`<svg viewBox="0 0 120 76" aria-hidden="true"><path class="vu-arc" d="M22 38 Q60 1 98 38"/>${ticks}<text x="60" y="47" text-anchor="middle" class="vu-unit">dBFS</text><circle class="vu-clip" cx="109" cy="9" r="3"/><g class="vu-needle"><path d="M60 68L60 22"/></g><circle cx="60" cy="68" r="3" fill="#554734"/></svg>`;
+    for(const meter of document.querySelectorAll('.fx-meter-linear'))meter.innerHTML='<span class="fx-meter-fill" aria-hidden="true"></span>';
     for(const input of document.querySelectorAll('.fx-gain input')){
       const sync=()=>input.setAttribute('aria-valuetext',`${Number(input.value).toFixed(1)} dB`);
       input.addEventListener('input',sync);input.addEventListener('change',sync);sync();
@@ -61,6 +62,7 @@ export class FxChainView {
         for(const [side,meter] of [['Input',this.chain.inputMeter],['Output',this.chain.outputMeter]]){
           const value=meter.read(),bar=document.getElementById(`${this.options.meterPrefix||'chain'}${side}Meter`),label=document.getElementById(`${this.options.meterPrefix||'chain'}${side}Level`);
           if(bar){
+            bar.style.setProperty('--meter-level',String(value.level));
             bar.style.setProperty('--needle-angle',`${-52+value.level*104}deg`);bar.setAttribute('aria-valuenow',String(Math.max(-60,Math.min(0,value.db)).toFixed(1)));
             if(value.peak>=1)bar.dataset.clipUntil=String(now+1000);
             bar.classList.toggle('is-clipping',Number(bar.dataset.clipUntil)>now);

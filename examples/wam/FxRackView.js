@@ -7,6 +7,7 @@ export class FxRackView {
     const header=el('div','fx-rack-controls');this.toggle=el('button','','☷  1 / 2 chains');this.toggle.id='toggleChains';this.toggle.setAttribute('aria-expanded','false');
     header.append(this.toggle);
     for(const id of ['inputDevice','outputDevice']){const label=document.getElementById(id).closest('label');label.className='fx-device-label';header.append(label);}
+    output.querySelector('.fx-endpoint-routing').append(output.querySelector('#chainOutputReset'));
     this.status=el('span','fx-rack-status');header.append(this.status);this.root.before(header);
     this.left=el('div','fx-endpoints');this.right=el('div','fx-endpoints');
     const cell=panel=>{const c=el('div','fx-endpoint-cell');c.append(panel);return c;};this.left.append(cell(input));this.right.append(cell(output));
@@ -26,8 +27,8 @@ export class FxRackView {
       }
     };rename(this.inputB,'Input');rename(this.outputB,'Output');
     this.bLeft=cell(this.inputB);this.bRight=cell(this.outputB);this.left.append(this.bLeft);this.right.append(this.bRight);
-    this.muteA=el('button','fx-lane-enable','Mute A');output.querySelector('.fx-endpoint-routing').append(this.muteA);
-    this.enableB=el('button','fx-lane-enable','Enable B');this.outputB.querySelector('.fx-endpoint-routing').append(this.enableB);
+    this.muteA=el('button','fx-lane-enable','Mute');output.querySelector('.fx-endpoint-routing').append(this.muteA);
+    this.enableB=el('button','fx-lane-enable','Mute');this.outputB.querySelector('.fx-endpoint-routing').append(this.enableB);
     this.dialog=el('dialog','fx-confirm fx-routing-dialog');document.body.append(this.dialog);
     this.aView=new FxChainView(rack.a,strip,report,{onRoute:(index,button)=>this.routeMenu(index,button),onLayout:()=>this.scheduleLayout(),onOpen:()=>this.bView?.close()});
     this.toggle.onclick=async()=>{
@@ -36,6 +37,12 @@ export class FxRackView {
     };
     this.enableB.onclick=()=>this.act(()=>rack.setEnabledB(!rack.enabledB));
     this.muteA.onclick=()=>this.act(()=>rack.setMutedA(!rack.mutedA));
+    for(const [lane,id] of [['a','chainOutputPan'],['b','chainBOutputPan']]){
+      const input=document.getElementById(id);input.setAttribute('aria-label',`Chain ${lane.toUpperCase()} pan`);
+      input.oninput=()=>rack.setPan(lane,input.value);
+      input.ondblclick=()=>rack.setPan(lane,0);
+      input.onkeydown=event=>{if(event.key==='Home'){event.preventDefault();rack.setPan(lane,0);}};
+    }
     this.inputB.querySelector('#inputChannelB').onchange=event=>this.act(()=>rack.setChannelB(Number(event.target.value)));
     this.inputB.querySelector('#sourceTrimB').oninput=event=>rack.setInputDbB(Number(event.target.value));
     this.inputB.querySelector('#chainBInputReset').onclick=()=>rack.setInputDbB(0);
@@ -53,8 +60,8 @@ export class FxRackView {
     this.bLeft.hidden=this.bRight.hidden=this.bStrip.hidden=this.gutter.hidden=!r.visible;
     this.inputB.style.visibility=r.route?'hidden':'visible';
     this.root.classList.toggle('has-chain-b',r.visible);
-    this.muteA.textContent=r.mutedA?'Unmute A':'Mute A';this.muteA.setAttribute('aria-pressed',String(r.mutedA));
-    this.enableB.textContent=r.enabledB?'Mute B':'Enable B';this.enableB.setAttribute('aria-pressed',String(r.enabledB));
+    this.muteA.textContent='Mute';this.muteA.setAttribute('aria-label','Mute chain A');this.muteA.setAttribute('aria-pressed',String(r.mutedA));
+    this.enableB.textContent='Mute';this.enableB.setAttribute('aria-label','Mute chain B');this.enableB.setAttribute('aria-pressed',String(!r.enabledB));
     this.status.textContent=`${r.visible?(r.route?'A → B split':'Independent inputs'):'One chain'} · Mix ${r.mixDb} dB`;
     const selector=this.inputB.querySelector('#inputChannelB'),aOptions=document.querySelector('#inputChannel').options;
     const options=[...aOptions].filter(o=>/^\d+$/.test(o.value));
@@ -67,6 +74,10 @@ export class FxRackView {
       const node=document.getElementById(id);node.value=db;node.setAttribute('aria-valuetext',`${db.toFixed(1)} dB`);document.getElementById(id+'Value').textContent=`${db.toFixed(1)} dB`;
     }
     document.querySelector('#chainOutputGain').value=r.a.outputDb;document.querySelector('#chainOutputGainValue').textContent=`${r.a.outputDb.toFixed(1)} dB`;
+    for(const [id,pan] of [['chainOutputPan',r.panA],['chainBOutputPan',r.panB]]){
+      const input=document.getElementById(id),text=pan===0?'C':`${Math.round(Math.abs(pan)*100)}${pan<0?'L':'R'}`;
+      input.value=pan;input.setAttribute('aria-valuetext',pan===0?'Center':`${Math.round(Math.abs(pan)*100)}% ${pan<0?'left':'right'}`);document.getElementById(id+'Value').textContent=text;
+    }
     this.scheduleLayout();
   }
   scheduleLayout(){if(this.layoutQueued)return;this.layoutQueued=true;requestAnimationFrame(()=>{this.layoutQueued=false;this.layout();});}
