@@ -110,7 +110,9 @@ export default class NamNode extends WamNode {
 
   async setParameterValues(values) {
     await super.setParameterValues(values);
-    this._gui?.syncParameters(await super.getParameterValues(false));
+    const parameters = await super.getParameterValues(false);
+    this._gui?.syncParameters(parameters);
+    if (values.bypass) this.dispatchEvent(new CustomEvent('bypass-change', {detail: parameters.bypass}));
   }
 
   async setModelVariant(variant) {

@@ -12,9 +12,9 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(html, /href="\.\/host\.css"/u);
   assert.match(html, /class="embedded-player" id="playerPanel" hidden/u);
   assert.ok(html.indexOf('id="audioSource"') < html.indexOf('id="playerPanel"'));
-  assert.ok(html.indexOf('id="inputDevice"') < html.indexOf('id="outputDevice"'));
+  assert.ok(html.indexOf('aria-label="Chain A input"') < html.indexOf('id="inputDevice"'));
   assert.ok(html.indexOf('id="inputDevice"') < html.indexOf('id="inputChannel"'));
-  assert.ok(html.indexOf('id="inputChannel"') < html.indexOf('id="outputDevice"'));
+  assert.ok(html.indexOf('id="inputChannel"') < html.indexOf('id="fxChain"'));
   assert.doesNotMatch(html, /<section class="host-card" aria-labelledby="(?:player|output)-title"/u);
   assert.match(html, /<summary>Automated test results<\/summary>/u);
   assert.match(html, /opened with <code>\?auto=1<\/code>/u);
@@ -22,7 +22,7 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(css, /grid-template-columns:\s*286px minmax\(0, 1fr\)/u);
   assert.match(css, /@media \(max-width: 720px\)/u);
   assert.match(main, /chain.initialize\(plugin,cabinetPlugin\)/u);
-  assert.match(main, /chain\.output\.connect\(context\.destination\)/u);
+  assert.match(main, /rack\.output\.connect\(context\.destination\)/u);
   assert.match(main, /\$\('#playerPanel'\)\.hidden = !enabled/u);
   assert.match(html, /id="enableLive"[^>]*aria-pressed="false"[^>]*>Enable live input/u);
   assert.match(css, /\.live-toggle\.live-active/u);

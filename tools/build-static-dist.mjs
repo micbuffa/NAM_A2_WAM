@@ -20,7 +20,7 @@ for (const [source, target] of [
   ['examples/wam/CabinetRouting.js', 'CabinetRouting.js'], ['examples/wam/OutputDeviceManager.js', 'OutputDeviceManager.js'],
   ['examples/wam/SourceManager.js', 'SourceManager.js'], ['examples/wam/AudioDevicePreferences.js', 'AudioDevicePreferences.js'], ['examples/wam/assets', 'assets'],
   ['examples/wam/WamPluginRegistry.js', 'WamPluginRegistry.js'], ['examples/wam/PluginCard.js', 'PluginCard.js'],
-  ...['FxChain.js','FxChainView.js','fx-chain.css'].map(name=>[`examples/wam/${name}`,name]),
+  ...['FxRack.js','FxRackView.js','AudioLevel.js','FxChain.js','FxChainView.js','fx-chain.css'].map(name=>[`examples/wam/${name}`,name]),
   ['examples/wam/fx-test', 'fx-test'], ['examples/wam/wamPlugins', 'wamPlugins'],
   ['src/nam-wam', 'plugins/nam-wam'], ['src/cabinet-wam', 'plugins/cabinet-wam'], ['src/shared', 'plugins/shared'],
   ['third_party/wam-examples/packages/sdk/src', 'third_party/wam-examples/packages/sdk/src'],

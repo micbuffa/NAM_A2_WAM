@@ -1,11 +1,12 @@
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import NamPlugin from '../../src/nam-wam/index.js';
 import CabinetPlugin from '../../src/cabinet-wam/index.js';
-import SourceManager from './SourceManager.js';
+import SourceManager, {DEFAULT_SOURCE_TRIM_DB} from './SourceManager.js';
 import OutputDeviceManager from './OutputDeviceManager.js';
 import {readAudioDevicePreferences, saveAudioDevicePreferences, resolveInputPreference} from './AudioDevicePreferences.js';
 import {FxChain} from './FxChain.js';
-import {FxChainView} from './FxChainView.js';
+import {FxRack} from './FxRack.js';
+import {FxRackView} from './FxRackView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
 const TONE3000_CALLBACK_CHANNEL = 'nam-a2-wam.tone3000.callback';
 const TONE3000_CALLBACK_STORAGE_KEY = 'nam-a2-wam.tone3000.callback';
@@ -25,7 +26,7 @@ let selectedDeviceId = audioPreferences.inputDeviceId;
 let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
-let chain, chainView;
+let chain, chainView, rack;
 
 
 function message(text, error = false) {
@@ -75,8 +76,10 @@ function refreshInputChannels(channelCount=1,deviceLabel='') {
   selector.replaceChildren(...Array.from({length:count},(_,index)=>new Option(scarlett2i2?(index<2?`Physical input ${index+1}`:`Loopback ${index-1} — do not use`):`Input ${index+1}`,String(index))));
   selectedInputChannel=Math.min(selectedInputChannel,count-1);
   selector.value=String(selectedInputChannel);
-  $('#inputChannelRow').hidden=count<=1;
-  $('#inputChannelStatus').textContent=count===1?'The browser opened a mono stream (1 channel). Check the interface and macOS audio configuration if you expect two inputs.':`${count} capture channels available. Only the selected channel is processed.`;
+  $('#inputChannelRow').hidden=false;
+  if(chain)chain.lane.input.channelIndex=selectedInputChannel;
+  rack?.changed();
+  $('#inputChannelStatus').textContent=count===1?'The browser opened a mono stream (1 channel). Check the interface and macOS audio configuration if you expect two inputs.':`${count} capture channels available. Each chain can select an available input channel.`;
 }
 
 async function detectSelectedInputChannels() {
@@ -103,6 +106,7 @@ async function detectSelectedInputChannels() {
 function syncSourceTrim() {
   const value = sourceManager.activeTrimDb;
   $('#sourceTrim').value = value;
+  $('#sourceTrim').dispatchEvent(new Event('change'));
   $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
 }
 
@@ -181,11 +185,20 @@ async function initialize() {
   await chain.initialize(plugin,cabinetPlugin);
   plugin.toneSession.identity='nam';cabinetPlugin.toneSession.identity='cabinet';
   await Promise.all([plugin.toneSession.complete(),cabinetPlugin.toneSession.complete()]);
-  chain.output.connect(context.destination);
   sourceManager = new SourceManager({audioContext: context, wamNode: chain.input, player: $('#player')});
   outputDeviceManager = new OutputDeviceManager({audioContext: context});
   window.phase3Debug = {context, node, plugin, cabinetNode, cabinetPlugin, sourceManager, outputDeviceManager, chain};
-  chainView=new FxChainView(chain,$('#fxChain'),message);
+  rack=new FxRack({context,a:chain,source:sourceManager,createLane:async()=>{
+    let nam,cab,b;
+    try{
+      nam=await NamPlugin.createInstance(groupId,context,{});
+      cab=await CabinetPlugin.createInstance(groupId,context,{});
+      b=new FxChain({context,registry,groupId});await b.initialize(nam,cab,'b-');
+      nam.toneSession.identity='b-nam';cab.toneSession.identity='b-cabinet';return b;
+    }catch(error){if(b)b.destroy();else{nam?.audioNode.destroy?.();cab?.audioNode.destroy?.();}throw error;}
+  }});
+  rack.output.connect(context.destination);window.phase3Debug.rack=rack;
+  chainView=new FxRackView(rack,message);
   await discoverFiles();
   await refreshDevices(false);
   if (outputDeviceManager.supported) {
@@ -248,9 +261,22 @@ async function initialize() {
     }).catch(async (error) => { message(`Audio device change failed: ${error.message}`, true); await recoverAudio(); });
   });
   $('#audioSource').onchange = () => selectSource().catch((error) => message(error.message, true));
+  $('#chainOutputGain').oninput=()=>{
+    const db=chain.setOutputDb($('#chainOutputGain').value);
+    $('#chainOutputGainValue').textContent=`${db.toFixed(1)} dB`;
+  };
   $('#sourceTrim').oninput = () => {
     const value = sourceManager.setTrimDb(Number($('#sourceTrim').value), $('#audioSource').value === 'live' ? 'live' : 'file');
     $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
+  };
+  $('#chainInputReset').onclick=()=>{
+    const mode=$('#audioSource').value==='live'?'live':'file';
+    $('#sourceTrim').value=DEFAULT_SOURCE_TRIM_DB[mode];
+    $('#sourceTrim').dispatchEvent(new Event('input',{bubbles:true}));
+  };
+  $('#chainOutputReset').onclick=()=>{
+    $('#chainOutputGain').value=0;
+    $('#chainOutputGain').dispatchEvent(new Event('input',{bubbles:true}));
   };
   $('#enableLive').onclick = async () => {
     try {
@@ -283,9 +309,10 @@ async function initialize() {
   };
   $('#inputChannel').onchange=async()=>{
     selectedInputChannel=Math.max(0,Number($('#inputChannel').value)||0);
+    chain.lane.input.channelIndex=selectedInputChannel;
     saveAudioDevicePreferences({inputDeviceId:selectedDeviceId,inputChannel:selectedInputChannel});
     if($('#audioSource').value!=='live'||!selectedDeviceId||!liveInputEnabled)return;
-    try{await activateSelectedLiveInput();}
+    try{sourceManager.selectLiveChannel(selectedInputChannel);}
     catch(error){await disableLiveInput();message(`Cannot select input channel: ${error.message}`,true);}
   };
   $('#outputDevice').onchange = async () => {
@@ -303,13 +330,13 @@ async function initialize() {
   $('#seek').oninput = () => { if (Number.isFinite($('#player').duration)) $('#player').currentTime = Number($('#seek').value) * $('#player').duration; };
   $('#player').ontimeupdate = () => { if (Number.isFinite($('#player').duration) && $('#player').duration) $('#seek').value = $('#player').currentTime / $('#player').duration; };
   $('#saveState').onclick = async () => {
-    savedState = await chain.getState();
+    savedState = await rack.getState();
     $('#stateSize').textContent = `${new TextEncoder().encode(JSON.stringify(savedState)).byteLength.toLocaleString()} serialized bytes`;
   };
   $('#restoreState').onclick = async () => {
     if (!savedState) return message('Save state first', true);
     chainView.close();
-    await chain.setState(savedState);
+    await rack.setState(savedState);syncSourceTrim();
     message('WAM state restored');
   };
   message('Chain ready. Click a photo to edit, or + to insert an effect.');

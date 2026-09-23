@@ -33,17 +33,11 @@
           </label>
           <audio id="player" preload="metadata"></audio>
         </div>
-        <label>Input device <select id="inputDevice"></select></label>
-        <label id="inputChannelRow" hidden>Input channel <select id="inputChannel"><option value="0">Input 1</option></select></label>
-        <label>Output device <select id="outputDevice"><option value="">System default</option></select></label>
         <button class="host-secondary" id="authorizeOutput" type="button">Choose output</button>
         <p class="host-help" id="outputSupport"></p>
         <button class="host-secondary" id="recoverAudio" type="button" hidden>Recover audio</button>
         <p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p>
         <button class="host-secondary live-toggle" id="enableLive" type="button" aria-pressed="false">Enable live input</button>
-        <label class="host-range">Source trim <output id="sourceTrimValue">0.0 dB</output>
-          <input id="sourceTrim" type="range" min="-48" max="12" step="0.5" value="0">
-        </label>
         <p class="host-help" id="discovery"></p>
       </section>
 
@@ -71,7 +65,35 @@
           <span>INPUT</span><i></i><strong>NAM</strong><i></i><strong>CABINET</strong><i></i><span>OUTPUT</span>
         </div>
       </header>
-      <section class="fx-chain" id="fxChain" aria-label="Processing chain"></section>
+      <section class="fx-rack" aria-label="Processing chain A">
+        <aside class="fx-endpoint" aria-label="Chain A input">
+          <strong>INPUT · A</strong>
+          <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Input device</span><select id="inputDevice" title="Input device"></select></label>
+            <label class="fx-select-label" id="inputChannelRow" hidden><span>Input channel</span><select id="inputChannel" title="Input channel"><option value="0">Input 1</option></select></label></div>
+          <div class="fx-endpoint-controls">
+            <div class="fx-meter-column">
+              <div class="fx-meter" id="chainInputMeter" role="meter" aria-label="Input level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></div>
+              <output id="chainInputLevel">−∞ dBFS</output>
+              <button class="fx-gain-reset" id="chainInputReset" aria-label="Reset input gain">Reset</button>
+            </div>
+            <label class="fx-gain">Gain<input id="sourceTrim" aria-label="Input gain" aria-orientation="vertical" type="range" min="-48" max="12" step="0.5" value="0"><output id="sourceTrimValue">0.0 dB</output></label>
+          </div>
+        </aside>
+        <section class="fx-chain" id="fxChain" aria-label="Effects — drag to swap cards, or Alt + arrow keys"></section>
+        <aside class="fx-endpoint" aria-label="Chain A output">
+          <strong>OUTPUT · A</strong>
+          <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Output device</span><select id="outputDevice" title="Output device"><option value="">System default</option></select></label></div>
+          <div class="fx-endpoint-controls">
+            <div class="fx-meter-column">
+              <div class="fx-meter" id="chainOutputMeter" role="meter" aria-label="Output level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></div>
+              <output id="chainOutputLevel">−∞ dBFS</output>
+              <button class="fx-gain-reset" id="chainOutputReset" aria-label="Reset output gain">Reset</button>
+            </div>
+            <label class="fx-gain">Gain<input id="chainOutputGain" aria-label="Output gain" aria-orientation="vertical" type="range" min="-48" max="12" step="0.5" value="0"><output id="chainOutputGainValue">0.0 dB</output></label>
+          </div>
+        </aside>
+      </section>
+      <p class="fx-help">Drop on a card to swap · Drop on + to insert at that position · Alt + ← / → to move. NAM and Cabinet are permanent core modules.</p>
     </main>
   </div>
 
