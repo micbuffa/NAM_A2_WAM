@@ -25,7 +25,7 @@ test('static distribution contains self-contained plugins and consistent Factory
   assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /src="\.\/config\.js"/u);
   assert.match(await readFile(join(dist, 'config.js'), 'utf8'), /redirectUri/u);
   assert.doesNotMatch(host, /\.\.\/(?:src|examples|build)|\/api\/test-audio-files/);
-  for (const file of ['WamPluginRegistry.js','PluginCard.js','fx-test/index.html','fx-test/main.js','fx-test/style.css','wamPlugins/plugins.json']) await stat(join(dist,file));
+  for (const file of ['FxChain.js','FxChainView.js','fx-chain.css','plugins/shared/defaultAssets.js','plugins/shared/ToneCallbackSession.js','fx-test/chain-validation.html','fx-test/chain-validation.js','WamPluginRegistry.js','PluginCard.js','fx-test/index.html','fx-test/main.js','fx-test/style.css','wamPlugins/plugins.json']) await stat(join(dist,file));
   const fxHost=await readFile(join(dist,'fx-test/main.js'),'utf8');
   assert.match(fxHost,/\.\.\/third_party\/wam-examples\/packages\/sdk\/src\/initializeWamHost\.js/u);
   assert.doesNotMatch(fxHost,/\.\.\/\.\.\/\.\.\/third_party/u);

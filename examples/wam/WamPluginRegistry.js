@@ -92,8 +92,9 @@ export class WamPluginRegistry{
   }
   async instantiate(record,{groupId,audioContext,state}={}){
     const module=record.module||await this.import(record);const Plugin=module.default;
-    try{const plugin=await Plugin.createInstance(groupId,audioContext,state?{initialState:state}:{});if(!plugin?.audioNode)throw new Error('WAM instance did not expose audioNode');record.stages.instantiable=true;record.status='instantiable';return plugin;}
-    catch(error){record.status='instantiate-error';record.diagnostics.push({stage:'instantiate',level:'error',message:error.message});throw error;}
+    let plugin;
+    try{plugin=await Plugin.createInstance(groupId,audioContext);if(!plugin?.audioNode)throw new Error('WAM instance did not expose audioNode');if(state!==undefined)await plugin.audioNode.setState(structuredClone(state));record.stages.instantiable=true;record.status='instantiable';return plugin;}
+    catch(error){if(plugin)destroyPluginInstance(plugin);record.status='instantiate-error';record.diagnostics.push({stage:'instantiate',level:'error',message:error.message});throw error;}
   }
   async inspectInstance(record,plugin){
     const result={parameters:null,state:null,gui:null};
