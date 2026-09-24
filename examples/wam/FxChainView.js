@@ -97,7 +97,7 @@ export class FxChainView {
         const remove=element('button','fx-delete');
         remove.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg>';
         remove.setAttribute('aria-label',`Remove ${entry.record?.name||entry.kind}`);
-        remove.disabled=entry.kind!=='effect';remove.title=remove.disabled?'Permanent core module — use bypass':'Remove effect';
+        remove.title='Remove plugin';
         remove.onclick=()=>this.confirmRemove(entry.id);toolbar.append(remove);
         const photo=element('button','fx-photo'),image=element('img'),caption=element('span','fx-caption');photo.append(image,caption);image.draggable=false;
         photo.onclick=()=>{if(!this.suppressClick)this.open(entry.id,photo);};
@@ -152,9 +152,9 @@ export class FxChainView {
     try { for(const e of this.chain.entries){
       const card=this.cards.get(e.id);if(!card)continue;
       let name=e.record?.name||e.kind,image=e.record?.thumbnailUrl;
-      if(e.kind==='nam'){const m=e.plugin.audioNode.getModelSnapshot();name=m?.provenance?.title||m?.name||'NeuralWAMp';image=m?.provenance?.imageUrl;}
-      if(e.kind==='cabinet'){const ir=e.plugin.audioNode.getIrSnapshot();name=ir?.metadata?.title||ir?.name||'Cabinet';image=ir?.metadata?.imageUrl;}
-      if(e.kind!=='effect'){const params=await e.plugin.audioNode.getParameterValues(false,'bypass');e.bypass=Number(params.bypass?.value)>=.5;}
+      if(e.plugin&&e.kind==='nam'){const m=e.plugin.audioNode.getModelSnapshot();name=m?.provenance?.title||m?.name||'NeuralWAMp';image=m?.provenance?.imageUrl;}
+      if(e.plugin&&e.kind==='cabinet'){const ir=e.plugin.audioNode.getIrSnapshot();name=ir?.metadata?.title||ir?.name||'Cabinet';image=ir?.metadata?.imageUrl;}
+      if(e.plugin&&e.kind!=='effect'){const params=await e.plugin.audioNode.getParameterValues(false,'bypass');e.bypass=Number(params.bypass?.value)>=.5;}
       image ||= fallbackThumbnail({id:e.id,name});
       if(card.image.dataset.source!==image){card.image.dataset.source=image;card.image.src=image;}
       card.image.alt=name;card.photo.title=e.error?`${name}: ${e.error}`:name;card.photo.setAttribute('aria-label',`Open ${name}`);
@@ -171,7 +171,7 @@ export class FxChainView {
   async open(id,trigger) {
     this.options.onOpen?.();
     if(this.dialog.open)this.close();const serial=++this.openSerial;this.activeId=id;this.returnFocus=trigger;
-    const e=this.chain.find(id);this.title.textContent=e.record?.name||(e.kind==='nam'?'NeuralWAMp':'NeuralWAMp Cabinet');this.remove.hidden=e.kind!=='effect';
+    const e=this.chain.find(id);this.title.textContent=e.record?.name||(e.kind==='nam'?'NeuralWAMp':'NeuralWAMp Cabinet');this.remove.hidden=false;
     this.dialog.showModal();this.mount.textContent='Loading editor…';
     try {
       const gui=await this.chain.getGui(id);
@@ -183,7 +183,7 @@ export class FxChainView {
   }
   showMenu(beforeId,trigger) {
     this.menu.replaceChildren();const close=element('button','','Close');close.onclick=()=>{this.menu.close();trigger.focus();};
-    const title=element('h3','','Insert an effect'),status=element('p');this.menu.append(close,title,status);
+    const title=element('h3','','Insert a WAM'),status=element('p');status.setAttribute('aria-live','polite');this.menu.append(close,title,status);
     let side=null;
     const index=beforeId?this.chain.entries.indexOf(this.chain.find(beforeId)):this.chain.entries.length;
     if(this.chain.junction?.index===index){side=element('select');side.setAttribute('aria-label','Position relative to split');side.append(new Option('After split — A only','after'),new Option('Before split — A + B','before'));this.menu.append(side);}
@@ -192,7 +192,7 @@ export class FxChainView {
       if(!records.length)continue;this.menu.append(element('h4','',category.replaceAll('-',' / ')));
       const group=element('div','fx-menu-group');this.menu.append(group);
       for(const record of records){
-        const button=element('button','fx-menu-item'),image=element('img');image.src=record.thumbnailUrl||fallbackThumbnail(record);image.alt='';image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail(record);};button.append(image,element('span','',record.name));group.append(button);
+        const button=element('button','fx-menu-item'),image=element('img');image.src=record.thumbnailUrl||fallbackThumbnail(record);image.alt='';image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail(record);};button.append(image,element('span','',record.name));const item=element('div','fx-menu-entry'),copy=element('button','fx-copy-uri','WAM URI');copy.title=record.entryUrl;copy.setAttribute('aria-label',`Copy WAM URI for ${record.name}`);copy.onclick=async()=>{try{await navigator.clipboard.writeText(record.entryUrl);status.textContent=`WAM URI copied: ${record.entryUrl}`;}catch{status.textContent=`Copy this WAM URI: ${record.entryUrl}`;}};item.append(button,copy);group.append(item);
         button.onclick=async()=>{
           this.menu.querySelectorAll('button').forEach(b=>b.disabled=true);status.textContent=`Loading ${record.name}…`;
           try{await this.chain.insert(record,beforeId,side?.value||'after');this.menu.close();this.container.querySelector('button')?.focus();}

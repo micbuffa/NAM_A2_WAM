@@ -1,15 +1,67 @@
 {
   "version": 1,
   "plugins": [
-    {"uri":"./deathgate/index.js","category":"dynamics"},
-    {"uri":"./TS9_OverdriveFaustGenerated/index.js","category":"drive"},
-    {"uri":"./AutoWahMB/index.js","category":"filter-wah","tags":["wah","auto-wah"]},
-    {"uri":"./sweetWah/index.js","category":"filter-wah"},
-    {"uri":"./WAMChorusMB/index.js","category":"modulation"},
-    {"uri":"./StonePhaserStereo/index.js","category":"modulation","tags":["phaser"]},
-    {"uri":"./faustPingPongDelay/plugin/index.js","category":"delay"},
-    {"uri":"./greyhole/index.js","category":"reverb"},
-    {"uri":"./StereoEnhancer/index.js","category":"stereo-utility"},
-    {"uri":"./tuner_machine/src/index.js","descriptor":"./tuner_machine/src/descriptor.json","category":"tuner","role":"tuner","thumbnail":"./Gui/WasabiTuner.png"}
+    {
+      "uri": "./deathgate/index.js",
+      "category": "dynamics"
+    },
+    {
+      "uri": "./TS9_OverdriveFaustGenerated/index.js",
+      "category": "drive"
+    },
+    {
+      "uri": "./AutoWahMB/index.js",
+      "category": "filter-wah",
+      "tags": [
+        "wah",
+        "auto-wah"
+      ]
+    },
+    {
+      "uri": "./sweetWah/index.js",
+      "category": "filter-wah"
+    },
+    {
+      "uri": "./WAMChorusMB/index.js",
+      "category": "modulation"
+    },
+    {
+      "uri": "./StonePhaserStereo/index.js",
+      "category": "modulation",
+      "tags": [
+        "phaser"
+      ]
+    },
+    {
+      "uri": "./faustPingPongDelay/plugin/index.js",
+      "category": "delay"
+    },
+    {
+      "uri": "./greyhole/index.js",
+      "category": "reverb"
+    },
+    {
+      "uri": "./StereoEnhancer/index.js",
+      "category": "stereo-utility"
+    },
+    {
+      "uri": "./tuner_machine/src/index.js",
+      "descriptor": "./tuner_machine/src/descriptor.json",
+      "category": "tuner",
+      "role": "tuner",
+      "thumbnail": "./Gui/WasabiTuner.png"
+    },
+    {
+      "uri": "../../../src/nam-wam/index.js",
+      "category": "amplifier",
+      "role": "nam",
+      "name": "NeuralWAMp Amp Sim"
+    },
+    {
+      "uri": "../../../src/cabinet-wam/index.js",
+      "category": "cabinet",
+      "role": "cabinet",
+      "name": "NeuralWAMp Cabinet"
+    }
   ]
 }

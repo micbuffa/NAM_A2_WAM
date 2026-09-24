@@ -197,3 +197,32 @@ test('per-lane pan is independent, bounded, retained when hiding, and backwards 
   const bad={...saved,panA:3};await assert.rejects(rack.setState(bad),/pan/);assert.equal(rack.panA,-1);
   delete saved.panA;delete saved.panB;await rack.setState(saved);assert.equal(rack.panA,0);assert.equal(rack.panB,0);
 });
+
+function registerCore(chain){
+  const records=['nam','cabinet'].map(role=>({role,name:role,entryUrl:`https://example.test/${role}/index.js`,catalogue:{uri:`https://example.test/${role}/index.js`}}));
+  chain.registry.records.push(...records);return records;
+}
+test('amp and cabinets can be removed, reinserted multiple times and restored, including empty chains',async()=>{
+  const {chain}=await setup();const [amp,cab]=registerCore(chain);
+  await chain.remove('nam');await chain.remove('cabinet');assert.equal(chain.entries.length,0);assert.equal(chain.edges.length,1);
+  const empty=await chain.getState();const n1=await chain.insert(amp),c1=await chain.insert(cab),n2=await chain.insert(amp),c2=await chain.insert(cab);
+  assert.equal(n1.kind,'nam');assert.equal(c1.kind,'cabinet');assert.notEqual(n1.id,n2.id);
+  n1.plugin.audioNode.gear='amp';n2.plugin.audioNode.gear='amp_cab';await chain.applyRouting();
+  assert.equal(c1.bypass,false);assert.equal(c2.bypass,true);
+  const saved=await chain.getState();await chain.setState(empty);assert.equal(chain.entries.length,0);
+  await chain.setState(saved);assert.deepEqual(chain.entries.map(e=>e.kind),['nam','cabinet','nam','cabinet']);
+  assert.equal(new Set(chain.entries.map(e=>e.plugin.audioNode)).size,4);
+  await chain.setState(empty);chain.registry.records=[];await chain.setState(saved);
+  assert.equal(chain.entries.length,4);assert.ok(chain.entries.every(e=>!e.plugin&&e.dry.gain.value===1));
+  assert.deepEqual((await chain.getState()).entries.map(e=>e.state),saved.entries.map(e=>e.state));
+});
+test('cabinet-only B inherits A amp at the split and survives removing/readding amps',async()=>{
+  const {rack,a}=await setupRack();const [amp]=registerCore(a);await rack.setVisible(true);
+  await rack.b.remove('b-nam');await rack.connectRoute(1);await rack.a.applyRouting();
+  assert.deepEqual(rack.b.entries.map(e=>e.kind),['cabinet']);assert.equal(rack.b.entries[0].bypass,true);
+  await a.remove('nam');await rack.pending;assert.equal(rack.route.index,0);assert.equal(rack.b.entries[0].bypass,false);
+  await a.insert(amp,a.entries[0].id,'before');await rack.pending;
+  assert.equal(rack.route.index,1);assert.equal(rack.b.entries[0].bypass,true);
+  const saved=await rack.getState();await rack.b.remove('b-cabinet');await rack.setState(saved);
+  assert.deepEqual(rack.b.entries.map(e=>e.kind),['cabinet']);
+});

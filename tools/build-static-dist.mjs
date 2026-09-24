@@ -27,6 +27,9 @@ for (const [source, target] of [
   ['build-wasm/dist/nam-simd.wasm', 'plugins/nam-wam/nam-simd.wasm'], ['build-wasm/dist/nam-simd.wasm', 'plugins/cabinet-wam/nam-simd.wasm'],
 ]) await copy(source, target);
 
+const cataloguePath=join(dist,'wamPlugins/plugins.json');
+await writeFile(cataloguePath,(await readFile(cataloguePath,'utf8')).replaceAll('../../../src/','../plugins/'));
+
 const hostPath = join(dist, 'main.js');
 let host = await readFile(hostPath, 'utf8');
 host = host.replace("'../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js'", "'./third_party/wam-examples/packages/sdk/src/initializeWamHost.js'")

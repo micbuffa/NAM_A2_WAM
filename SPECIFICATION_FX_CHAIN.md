@@ -1,7 +1,7 @@
 # NeuralWAMp — Integrated FX Chain
 
 Status: serial chain, ergonomics and first two-chain implementation available. Browser routing and deterministic audio checks pass; physical two-input listening validation remains pending. Preset phase 7.2 remains on hold.
-Updated: 2026-09-23
+Updated: 2026-09-24
 
 Each lane ends with a non-interactive **→ Output** indicator immediately after its final insertion `+`. It remains after the last effect as cards are added, removed or reordered, in both independent and split layouts.
 
@@ -9,7 +9,7 @@ Each lane ends with a non-interactive **→ Output** indicator immediately after
 
 Integrate the WAM effects validated in `examples/wam/fx-test/` into the main host. Replace the permanently expanded NAM and Cabinet editors with a compact, left-to-right processing chain. Reuse the existing plugin registry, descriptors, categories and artwork resolution.
 
-The current implementation has one serial chain. This increment improves editing and prepares per-chain inputs and endpoints. Section 11 now specifies the next increment: two independent inputs or one input split from chain A into chain B. Single-chain operation remains available. This revision is specification-only; do not implement until the proposed interaction has been reviewed. Do not start task 7.2 (presets).
+The implementation supports one or two chains, independent inputs or a split from A into B, and freely ordered/removable WAM instances. Section 11 describes routing; section 13 records the flexible-module increment. Task 7.2 (presets) remains deferred.
 
 ## 2. Default view
 
@@ -21,7 +21,7 @@ The current implementation has one serial chain. This increment improves editing
 - Initially load the same default NAM capture and Cabinet IR as today.
 - The body of each NAM/Cabinet box contains the current model/IR photo and its selected name below it, without embedded knobs. Effect boxes likewise show the effect name below the thumbnail. Use 10 px text on at most two lines, truncating overflow; the full name remains available on hover. Reserve caption space inside the unchanged 161 × 161 px frame and keep the whole image visible with `object-fit: contain`. Update the caption when the model/IR changes, in both lanes.
 - The body of an effect box contains its descriptor thumbnail. Missing/broken artwork uses the existing deterministic fallback.
-- A small toolbar above each box provides Active/Bypassed in 10 px text and an SVG trash button on its right. Confirm effect removal with the instance name and loss-of-settings warning; cancelling leaves DSP, state and editor unchanged. The controls must not open the editor. NAM/Cabinet retain the existing permanent-core restriction: their trash buttons are disabled with an explanatory tooltip.
+- A small toolbar above each box provides Active/Bypassed in 10 px text and an SVG trash button on its right. Confirm effect removal with the instance name and loss-of-settings warning; cancelling leaves DSP, state and editor unchanged. The controls must not open the editor. Amp Sim and Cabinet are removable through the same confirmation flow as every other plugin.
 - Bypassed cards remain clickable but look visibly dimmed, with a clear bypass indicator; do not rely solely on color.
 - Small square `+` buttons appear before the first node, between every pair of nodes and after the final node. Every successful insertion adds another insertion point.
 - Reduce the square photo frames by 30% on each axis: 230 × 230 px → 161 × 161 px. Keep 12 px internal padding around images and `object-fit: contain`. Only the middle effect strip scrolls horizontally. Keyboard access and focus indicators are required.
@@ -47,7 +47,7 @@ Source → Overdrive → NAM → Cabinet → Chorus → Delay → Output
 - Disable duplicate submission while an insertion is loading. Show loading/error state at the selected slot.
 - Instantiate successfully before changing the working chain; on failure retain the previous graph and report the failing plugin/stage.
 - Give every instance a unique ID distinct from its catalogue ID. Multiple instances of the same WAM are a required host capability, with independent parameters, state, bypass and editors. A third-party plugin's own incompatibility must be reported as such; never impose one global instance per plugin or damage an existing instance.
-- Offer removal of inserted effects in their editor toolbar, with safe graph reconnection and cleanup. NAM and Cabinet remain fixed core nodes in this first version; they can be bypassed but not deleted.
+- Offer removal of every plugin, including Amp Sim and Cabinet, in its card and editor toolbar, with confirmation, safe reconnection and cleanup. Empty chains pass input to output; no minimum or maximum count of Amp Sim/Cabinet instances is imposed.
 - Drop a card onto another card to swap their positions (including first onto second). Drop onto a + insertion point to move before that position; the final insertion point appends. Auto-scroll near the strip edges. Provide Alt + Left/Right on focused cards as a keyboard equivalent. Move existing instances, preserving GUI, settings and bypass; serialize edits, validate IDs before changing the graph, and use the same short audio transitions as insertion/removal.
 - Keep the tuner out of insert menus. Its existing special analysis role is preserved; a dedicated top-bar tuner action is a follow-up, not a blocker for this increment.
 
@@ -326,3 +326,13 @@ Remaining validation/refinement: listening through a physical multichannel inter
 - **2026-09-23, single-chain UI refinement:** hide the routing companion action at every A insertion `+` while B is hidden. Showing B restores it; effect insertion remains available in both modes.
 
 - **2026-09-23, mixer output strips:** each output now has a vertical mixer-style fader, adjacent green/orange/red linear meter, active-state Mute button, gain Reset and a compact horizontal L/R pan with numeric position. Pan is centered by default, ranges from −1 to +1 and supports double-click/Home to center. Each lane uses an independent smoothed StereoPannerNode before the shared mix; explicit stereo preserves the previous center level and follows the Web Audio stereo panning law away from center. Meters read the post-mute/post-pan output. Diagnostics retain panA/panB; old states without these fields restore centered, and out-of-range values are rejected before restore. Pan survives B hide/show. Panel and card dimensions remain unchanged. Validation: 122 unit tests passed and all 8 deterministic browser audio scenarios passed, including opposite hard-pan settings for A/B. Browser UI checked at narrow width. Presets remain deferred.
+
+
+## 13. Flexible Amp Sim/Cabinet modules and WAM URI — 2026-09-24
+
+- The default layout still starts with an Amp Sim and Cabinet, but neither is mandatory. Remove either through the existing confirmation dialog, then add it again from `+`. Multiple independent instances of each type are supported in either chain; each has its own model/IR, bypass, editor and callback identity.
+- The authoritative WAM catalogue includes **NeuralWAMp Amp Sim** (Amplifier) and **NeuralWAMp Cabinet** (Cabinet), pointing to the actual WAM module entrypoints. The static build rewrites their paths to its bundled plugin locations; no second hardcoded catalogue is used.
+- Example: A = Amp Sim → Cabinet → effect; split immediately after Amp Sim; B = Cabinet only. Delete B's initial Amp Sim and retain its Cabinet. B's Cabinet AUTO resolves A's active upstream Amp Sim, not A's Cabinet or any later amplifier. Every Cabinet resolves its own upstream path, including when several amplifiers/cabinets occur in one row. A fully empty chain remains a valid passthrough with its final `+` and output indicator.
+- Removing a module releases its audio, editor, analyser and instance callbacks, preserves neighbouring instances and adjusts any adjacent junction. Saved diagnostics permit zero, one or multiple Amp Sim/Cabinet modules and retain globally unique instance IDs. Existing matching core instances are reused on restore; deleted instances can be recreated. Missing modules remain dry placeholders carrying their saved state.
+- Each plugin in the `+` chooser and registry-lab list exposes a small **WAM URI** button. It copies the absolute current module entry URL to the clipboard without inserting/opening the plugin. Success is indicated; when clipboard access fails the full URI remains available for manual copying. Source and static/subpath deployments resolve against their own catalogue URL. A localhost URI remains local to the running development server.
+- Validation: unit coverage includes removal/reinsertion, multiple core instances with different AUTO paths, empty-state roundtrip, missing-core placeholders and Cabinet-only B inheriting the A-prefix amp. Static distribution rebuilt with both catalogue entries. Preset phase 7.2 remains untouched.

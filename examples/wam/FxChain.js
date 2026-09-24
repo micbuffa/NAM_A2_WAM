@@ -25,7 +25,7 @@ export class FxChain extends EventTarget {
     const input=this.context.createGain(), output=this.context.createGain();
     const entry={id,kind,plugin,record,input,output,bypass,missingState,gui:null,guiPromise:null,disposed:false,cleanups:[]};
     entry.meter=new AudioLevel(this.context,input);
-    if(kind==='effect') {
+    if(kind==='effect'||!plugin) {
       entry.dry=this.context.createGain();entry.wet=this.context.createGain();
       input.connect(entry.dry).connect(output);
       if(plugin)input.connect(plugin.audioNode).connect(entry.wet).connect(output);
@@ -59,27 +59,34 @@ export class FxChain extends EventTarget {
         entry.cleanups.push(()=>plugin.audioNode.removeEventListener?.('processorerror',failed));
       }
     }
+    if(plugin&&kind!=='effect'){
+      if(plugin.toneSession)plugin.toneSession.identity=id;
+      const update=()=>this.applyRouting().catch(error=>this.dispatchEvent(new CustomEvent('error',{detail:error})));
+      if(kind==='nam'){
+        plugin.audioNode.addModelListener(update);
+        entry.cleanups.push(()=>plugin.audioNode.removeModelListener(update));
+      }else{
+        plugin.audioNode.addEventListener('routing-mode',update);
+        entry.cleanups.push(()=>plugin.audioNode.removeEventListener('routing-mode',update));
+        entry.cleanups.push(plugin.audioNode.addChangeListener(()=>this.changed()));
+      }
+    }
     return entry;
   }
   async initialize(nam,cabinet,prefix='') {
-    this.entries=[this.wrap({id:prefix+'nam',kind:'nam',plugin:nam}),this.wrap({id:prefix+'cabinet',kind:'cabinet',plugin:cabinet})];
-    const update=()=>this.applyRouting().catch(error=>this.dispatchEvent(new CustomEvent('error',{detail:error})));
-    nam.audioNode.addModelListener(update);
-    cabinet.audioNode.addEventListener('routing-mode',update);
-    this.entries[0].cleanups.push(()=>nam.audioNode.removeModelListener(update));
-    this.entries[1].cleanups.push(()=>cabinet.audioNode.removeEventListener('routing-mode',update));
-    this.entries[1].cleanups.push(cabinet.audioNode.addChangeListener(()=>this.changed()));
+    this.entries=[this.wrap({id:prefix+'nam',kind:'nam',plugin:nam,record:this.registry.records.find(r=>r.role==='nam')}),this.wrap({id:prefix+'cabinet',kind:'cabinet',plugin:cabinet,record:this.registry.records.find(r=>r.role==='cabinet')})];
     this.reconnect();await this.applyRouting();
   }
   async applyRouting() {
-    const cab=this.entries.find(e=>e.kind==='cabinet');if(!cab)return;
+    for(const cab of this.entries.filter(e=>e.kind==='cabinet'&&e.plugin)){
     const path=[...(this.upstreamEntries?.()||[]),...this.entries.slice(0,this.entries.indexOf(cab))];
-    const nam=path.findLast(e=>e.kind==='nam'&&!e.bypass);
+    const nam=path.findLast(e=>e.kind==='nam'&&e.plugin&&!e.bypass);
     const mode=cab.plugin.audioNode.routingMode;
     const decision=cabinetRoutingDecision(mode,nam?.plugin.audioNode.getModelSnapshot());
     await cab.plugin.audioNode.setParameterValues({bypass:{id:'bypass',value:Number(decision.bypass),normalized:false}});
     cab.bypass=decision.bypass;cab.routingStatus=decision.text;
-    cab.gui?.setRoutingStatus(mode,decision.text);this.changed();
+    cab.gui?.setRoutingStatus(mode,decision.text);
+    }this.changed();
   }
   reconnect() {
     for(const [from,to] of this.edges)disconnect(from,to);
@@ -124,19 +131,20 @@ export class FxChain extends EventTarget {
   insert(record,beforeId=null,splitSide='after') { return this.enqueue(async()=>{
     if(beforeId)this.find(beforeId);
     const plugin=await this.registry.instantiate(record,{groupId:this.groupId,audioContext:this.context});
-    const entry=this.wrap({plugin,record});
+    const entry=this.wrap({plugin,record,kind:['nam','cabinet'].includes(record.role)?record.role:'effect'});
     try{await this.transition(()=>{const index=beforeId?this.entries.indexOf(this.find(beforeId)):this.entries.length;if(this.junction&&(index<this.junction.index||(index===this.junction.index&&splitSide==='before')))this.junction.index++;this.entries.splice(index,0,entry);this.reconnect();});}
     catch(error){this.entries=this.entries.filter(e=>e!==entry);this.dispose(entry);this.reconnect();throw error;}
-    return entry;
+    await this.applyRouting();return entry;
   }); }
   remove(id) { return this.enqueue(async()=>{
-    const entry=this.find(id);if(entry.kind!=='effect')throw Error('Core plugins cannot be removed');
+    const entry=this.find(id);
     await this.transition(()=>{if(this.junction&&this.entries.indexOf(entry)<this.junction.index)this.junction.index--;this.entries=this.entries.filter(e=>e!==entry);this.reconnect();this.dispose(entry);});
+    await this.applyRouting();
   }); }
   setBypass(id,bypass) { return this.enqueue(async()=>{
     const e=this.find(id);
-    if(e.kind==='cabinet'){e.plugin.audioNode.setRoutingMode(bypass?'bypass':'on');await this.applyRouting();}
-    else if(e.kind==='nam')await e.plugin.audioNode.setParameterValues({bypass:{id:'bypass',value:Number(bypass),normalized:false}});
+    if(e.plugin&&e.kind==='cabinet'){e.plugin.audioNode.setRoutingMode(bypass?'bypass':'on');await this.applyRouting();}
+    else if(e.plugin&&e.kind==='nam')await e.plugin.audioNode.setParameterValues({bypass:{id:'bypass',value:Number(bypass),normalized:false}});
     else {e.dry.gain.setTargetAtTime(bypass||!e.plugin?1:0,this.context.currentTime,.008);e.wet.gain.setTargetAtTime(bypass||!e.plugin?0:1,this.context.currentTime,.008);}
     e.bypass=bypass;if(e.kind==='nam')await this.applyRouting();this.changed();
   }); }
@@ -150,7 +158,7 @@ export class FxChain extends EventTarget {
   }
   getState() {return this.enqueue(()=>this.captureState());}
   async captureState() {
-    for(const e of this.entries)if(e.kind!=='effect'){
+    for(const e of this.entries)if(e.kind!=='effect'&&e.plugin){
       const state=await e.plugin.audioNode.getState();e.bypass=Number(state.parameterValues?.bypass?.value)>=.5;
     }
     return {version:1,entries:await Promise.all(this.entries.map(async e=>({
@@ -164,29 +172,28 @@ export class FxChain extends EventTarget {
     if(saved?.version!==1||!Array.isArray(saved.entries))throw Error('Unsupported chain state');
     const ids=new Set();
     for(const e of saved.entries){if(!e.id||ids.has(e.id)||!['nam','cabinet','effect'].includes(e.kind))throw Error('Invalid instance IDs or kinds');ids.add(e.id);}
-    for(const kind of ['nam','cabinet'])if(saved.entries.filter(e=>e.kind===kind).length!==1)throw Error(`State requires one ${kind}`);
-    const prepared=[];
+    const prepared=[],reused=[],old=this.entries;
     try {
-      for(const item of saved.entries.filter(e=>e.kind==='effect')){
-        const record=this.registry.records.find(r=>r.entryUrl===new URL(item.pluginUri,this.registry.catalogueUrl).href);
+      for(const item of saved.entries){
+        // Keep matching core instances alive for their open editors and callbacks.
+        const existing=item.kind!=='effect'&&old.find(e=>e.id===item.id&&e.kind===item.kind&&e.plugin);
+        if(existing){reused.push({entry:existing,item,backup:clone(await existing.plugin.audioNode.getState()),bypass:existing.bypass});continue;}
+        const record=item.pluginUri?this.registry.records.find(r=>r.entryUrl===new URL(item.pluginUri,this.registry.catalogueUrl).href):this.registry.records.find(r=>r.role===item.kind);
+        if(record&&(['nam','cabinet'].includes(record.role)?record.role:'effect')!==item.kind)throw Error('Plugin kind does not match catalogue');
         let plugin,error;
         try{if(!record)throw Error('Plugin absent from catalogue');plugin=await this.registry.instantiate(record,{groupId:this.groupId,audioContext:this.context,state:item.state});}
         catch(cause){error=cause.message;}
         const entry=this.wrap({...item,plugin,record,missingState:item.state});
-        if(!record)entry.record={name:item.pluginUri,catalogue:{uri:item.pluginUri}};
+        if(!record)entry.record={name:item.pluginUri||item.kind,catalogue:{uri:item.pluginUri}};
         entry.error=error;prepared.push(entry);
       }
-      const old=this.entries,core=old.filter(e=>e.kind!=='effect');
-      const backups=await Promise.all(core.map(async e=>clone(await e.plugin.audioNode.getState())));
       await this.transition(async()=>{
-        try{for(const e of core)await e.plugin.audioNode.setState(saved.entries.find(item=>item.kind===e.kind).state);}
-        catch(error){for(let i=0;i<core.length;i++)await core[i].plugin.audioNode.setState(backups[i]);throw error;}
-        this.entries=saved.entries.map(item=>{
-          const e=item.kind==='effect'?prepared.find(p=>p.id===item.id):core.find(c=>c.kind===item.kind);
-          e.id=item.id;e.bypass=item.bypass;if(e.plugin?.toneSession)e.plugin.toneSession.identity=e.id;return e;
-        });this.reconnect();for(const e of old)if(e.kind==='effect')this.dispose(e);
+        try{for(const {entry,item} of reused){await entry.plugin.audioNode.setState(item.state);entry.bypass=item.bypass;}}
+        catch(error){for(const {entry,backup,bypass} of reused){await entry.plugin.audioNode.setState(backup);entry.bypass=bypass;}throw error;}
+        this.entries=saved.entries.map(item=>prepared.find(e=>e.id===item.id)||reused.find(r=>r.entry.id===item.id).entry);
+        this.reconnect();for(const entry of old)if(!this.entries.includes(entry))this.dispose(entry);
       });await this.applyRouting();
-    }catch(error){for(const e of prepared)if(!this.entries.includes(e))this.dispose(e);throw error;}
+    }catch(error){for(const entry of prepared)if(!this.entries.includes(entry))this.dispose(entry);throw error;}
     this.changed();
   }
   dispose(e) {

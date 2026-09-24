@@ -99,3 +99,5 @@
 .fx-pan input::-moz-range-track{height:3px;background:#544760;border-radius:2px}
 .fx-pan input::-moz-range-thumb{width:7px;height:13px;border:1px solid #c0afcf;border-radius:2px;background:#9e89b3}
 .fx-pan output{font-size:8px;text-align:right;font-variant-numeric:tabular-nums}
+
+.fx-menu-entry{display:flex;flex-direction:column;gap:4px;width:125px}.fx-menu-entry>.fx-copy-uri{min-height:23px;padding:2px 6px;font-size:9px;color:#bdb1ce}.fx-menu>p{overflow-wrap:anywhere}
