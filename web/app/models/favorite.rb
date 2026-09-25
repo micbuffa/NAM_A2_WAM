@@ -1,6 +1,8 @@
 class Favorite < ApplicationRecord
   KINDS = %w[nam_model ir].freeze
-  MAX_METADATA_BYTES = 64.kilobytes
+  # NAM snapshots embed the model text (~300 KB) so a TONE3000 favorite can
+  # be loaded on another device; IR snapshots embed the IR file (base64).
+  MAX_METADATA_BYTES = 2.megabytes
 
   belongs_to :user
 
