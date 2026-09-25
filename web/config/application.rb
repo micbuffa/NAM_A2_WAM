@@ -19,6 +19,15 @@ require "rails/test_unit/railtie"
 Bundler.require(*Rails.groups)
 
 module Web
+  # SharedArrayBuffer (WAM SDK ring buffers) requires a cross-origin isolated
+  # page. Sent on Rails responses (default_headers) and on every static file
+  # under public/ (public_file_server.headers, set in each environment).
+  CROSS_ORIGIN_ISOLATION_HEADERS = {
+    "cross-origin-opener-policy" => "same-origin",
+    "cross-origin-embedder-policy" => "require-corp",
+    "cross-origin-resource-policy" => "same-origin"
+  }.freeze
+
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
@@ -27,6 +36,9 @@ module Web
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
+
+    config.action_dispatch.default_headers = config.action_dispatch.default_headers.merge(CROSS_ORIGIN_ISOLATION_HEADERS)
+    config.public_file_server.headers = CROSS_ORIGIN_ISOLATION_HEADERS
 
     # Configuration for the application, engines, and railties goes here.
     #

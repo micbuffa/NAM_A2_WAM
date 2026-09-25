@@ -20,9 +20,11 @@ Rails.application.configure do
   if Rails.root.join("tmp/caching-dev.txt").exist?
     config.action_controller.perform_caching = true
     config.action_controller.enable_fragment_cache_logging = true
-    config.public_file_server.headers = { "cache-control" => "public, max-age=#{2.days.to_i}" }
+    config.public_file_server.headers = Web::CROSS_ORIGIN_ISOLATION_HEADERS.merge("cache-control" => "public, max-age=#{2.days.to_i}")
   else
     config.action_controller.perform_caching = false
+    # public/rack is re-synced while developing; always revalidate.
+    config.public_file_server.headers = Web::CROSS_ORIGIN_ISOLATION_HEADERS.merge("cache-control" => "no-cache")
   end
 
   # Change to :null_store to avoid any caching.
@@ -59,7 +61,8 @@ Rails.application.configure do
   # config.i18n.raise_on_missing_translations = true
 
   # Annotate rendered view with file names.
-  config.action_view.annotate_rendered_view_with_filenames = true
+  # Disabled: the leading HTML comment would push the rack page into quirks mode.
+  config.action_view.annotate_rendered_view_with_filenames = false
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true

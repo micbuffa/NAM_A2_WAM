@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NAM A2 WAM Rack</title>
+  <%= csrf_meta_tags %>
+  <link rel="stylesheet" href="./host.css">
+  <script type="application/json" id="currentUser"><%= json_escape(@current_user_payload.to_json).html_safe %></script>
+</head>
+<body>
+  <div class="host-shell">
+    <aside class="host-sidebar" aria-label="Host controls">
+      <header class="host-brand">
+        <p class="host-kicker">WAM RACK</p>
+        <h1>NAM A2</h1>
+        <p>Neural amplifier and cabinet chain</p>
+        <a class="host-lab-link" href="./fx-test/">Open WAM FX Registry Lab</a>
+      </header>
+
+      <section class="host-card host-account" id="accountPanel" aria-labelledby="account-title" hidden>
+        <h2 id="account-title"><span class="host-dot rose"></span>Account</h2>
+        <div id="accountSignedOut">
+          <p class="host-help">Sign in to keep presets, favorites and preferences on every device.</p>
+          <button class="host-secondary" id="accountSignIn" type="button" aria-haspopup="dialog">Sign in / Sign up</button>
+        </div>
+        <div id="accountSignedIn" hidden>
+          <p class="account-identity">Signed in as <strong id="accountEmail"></strong></p>
+          <div class="host-session-actions">
+            <button id="accountSignOut" type="button">Sign out</button>
+            <button id="accountSignOutOthers" type="button">Sign out other devices</button>
+          </div>
+        </div>
+        <p class="host-help" id="accountStatus" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="host-card" aria-labelledby="source-title">
+        <h2 id="source-title"><span class="host-dot violet"></span>Audio source</h2>
+        <label>Source <select id="audioSource"><option>Live input</option></select></label>
+        <div class="embedded-player" id="playerPanel" hidden>
+          <p class="embedded-player-title"><span class="host-dot amber"></span>Audio player</p>
+          <div class="transport" role="group" aria-label="Audio transport">
+            <button class="player-control" id="play" type="button" aria-label="Play">▶</button>
+            <button class="player-control" id="pause" type="button" aria-label="Pause">Ⅱ</button>
+            <button class="player-control" id="stop" type="button" aria-label="Stop">■</button>
+            <label class="loop-control"><input class="player-control" id="loop" type="checkbox"> Loop</label>
+          </div>
+          <label class="host-range">Position
+            <input class="player-control" id="seek" type="range" min="0" max="1" step="0.001" value="0">
+          </label>
+          <audio id="player" preload="metadata"></audio>
+        </div>
+        <label>Input device <select id="inputDevice"></select></label>
+        <label id="inputChannelRow" hidden>Input channel <select id="inputChannel"><option value="0">Input 1</option></select></label>
+        <label>Output device <select id="outputDevice"><option value="">System default</option></select></label>
+        <button class="host-secondary" id="authorizeOutput" type="button">Choose output</button>
+        <p class="host-help" id="outputSupport"></p>
+        <button class="host-secondary" id="recoverAudio" type="button" hidden>Recover audio</button>
+        <p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p>
+        <button class="host-secondary live-toggle" id="enableLive" type="button" aria-pressed="false">Enable live input</button>
+        <label class="host-range">Source trim <output id="sourceTrimValue">0.0 dB</output>
+          <input id="sourceTrim" type="range" min="-48" max="12" step="0.5" value="0">
+        </label>
+        <p class="host-help" id="discovery"></p>
+      </section>
+
+      <section class="host-card host-presets" id="presetsPanel" aria-labelledby="presets-title" hidden>
+        <h2 id="presets-title"><span class="host-dot amber"></span>Presets</h2>
+        <p class="host-help" id="presetScope">Stored in this browser.</p>
+        <button class="host-secondary" id="presetSave" type="button" aria-haspopup="dialog">Save current chain…</button>
+        <ul class="preset-list" id="presetList" aria-label="Saved presets"></ul>
+        <p class="host-help" id="presetStatus" role="status" aria-live="polite"></p>
+      </section>
+
+      <details class="host-card host-advanced">
+        <summary>Session & diagnostics</summary>
+        <div class="host-session-actions">
+          <button id="saveState" type="button">Save WAM state</button>
+          <button id="restoreState" type="button">Restore state</button>
+        </div>
+        <span class="host-help" id="stateSize"></span>
+        <details class="validation-panel">
+          <summary>Automated test results</summary>
+          <p class="host-help">Diagnostic report generated only when this page is opened with <code>?auto=1</code>.</p>
+          <pre id="automatedResult"></pre>
+        </details>
+      </details>
+
+      <p id="hostStatus" class="host-status" role="status">Initializing…</p>
+    </aside>
+
+    <main class="rack-stage">
+      <header class="rack-header">
+        <div><p class="rack-kicker">SIGNAL CHAIN</p><h2>Amplifier rack</h2></div>
+        <div class="chain-map" aria-label="Signal chain">
+          <span>INPUT</span><i></i><strong>NAM</strong><i></i><strong>CABINET</strong><i></i><span>OUTPUT</span>
+        </div>
+      </header>
+      <section class="rack-grid" aria-label="Plugin rack">
+        <div class="rack-slot rack-slot-nam" id="pluginGui" aria-label="NAM WAM"></div>
+        <div class="rack-connector" aria-hidden="true"><span>→</span></div>
+        <div class="rack-slot rack-slot-cabinet" id="cabinetGui" aria-label="Cabinet WAM"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./config.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

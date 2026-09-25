@@ -15,8 +15,9 @@ Rails.application.configure do
   # Turn on fragment caching in view templates.
   config.action_controller.perform_caching = true
 
-  # Cache assets for far-future expiry since they are all digest stamped.
-  config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
+  # public/rack has no digested filenames: revalidate (cheap 304s) instead of
+  # caching for a year, so a deploy never mixes old and new ES modules.
+  config.public_file_server.headers = Web::CROSS_ORIGIN_ISOLATION_HEADERS.merge("cache-control" => "public, no-cache")
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"

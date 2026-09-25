@@ -16,6 +16,22 @@
         <a class="host-lab-link" href="./fx-test/">Open WAM FX Registry Lab</a>
       </header>
 
+      <section class="host-card host-account" id="accountPanel" aria-labelledby="account-title" hidden>
+        <h2 id="account-title"><span class="host-dot rose"></span>Account</h2>
+        <div id="accountSignedOut">
+          <p class="host-help">Sign in to keep presets, favorites and preferences on every device.</p>
+          <button class="host-secondary" id="accountSignIn" type="button" aria-haspopup="dialog">Sign in / Sign up</button>
+        </div>
+        <div id="accountSignedIn" hidden>
+          <p class="account-identity">Signed in as <strong id="accountEmail"></strong></p>
+          <div class="host-session-actions">
+            <button id="accountSignOut" type="button">Sign out</button>
+            <button id="accountSignOutOthers" type="button">Sign out other devices</button>
+          </div>
+        </div>
+        <p class="host-help" id="accountStatus" role="status" aria-live="polite"></p>
+      </section>
+
       <section class="host-card" aria-labelledby="source-title">
         <h2 id="source-title"><span class="host-dot violet"></span>Audio source</h2>
         <label>Source <select id="audioSource"><option>Live input</option></select></label>
@@ -44,6 +60,14 @@
           <input id="sourceTrim" type="range" min="-48" max="12" step="0.5" value="0">
         </label>
         <p class="host-help" id="discovery"></p>
+      </section>
+
+      <section class="host-card host-presets" id="presetsPanel" aria-labelledby="presets-title" hidden>
+        <h2 id="presets-title"><span class="host-dot amber"></span>Presets</h2>
+        <p class="host-help" id="presetScope">Stored in this browser.</p>
+        <button class="host-secondary" id="presetSave" type="button" aria-haspopup="dialog">Save current chain…</button>
+        <ul class="preset-list" id="presetList" aria-label="Saved presets"></ul>
+        <p class="host-help" id="presetStatus" role="status" aria-live="polite"></p>
       </section>
 
       <details class="host-card host-advanced">
