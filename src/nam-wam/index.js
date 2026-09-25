@@ -6,6 +6,8 @@ const baseUrl = new URL('.', import.meta.url).href.replace(/\/$/, '');
 
 export default class NamPlugin extends WebAudioModule {
   static tone3000Config = {};
+  // Optional host account integration: {favorites, preferences} (see gui.js).
+  static account = {};
   _descriptorUrl = `${baseUrl}/descriptor.json`;
 
   async initialize(state) {
@@ -24,4 +26,6 @@ export default class NamPlugin extends WebAudioModule {
   createGui() { return createElement(this); }
 
   static configureTone3000(config) { NamPlugin.tone3000Config = {...config}; }
+
+  static configureAccount(config) { NamPlugin.account = {...config}; }
 }

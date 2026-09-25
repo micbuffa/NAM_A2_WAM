@@ -305,13 +305,15 @@ class NamA2Gui extends HTMLElement {
     this._assets=[]; this._selectedId=''; this._sourceFilter='Factory'; this._factoryCategory='guitar'; this._favoriteIds=new Set();
     this.initMainCaptureNavigation();
     this.tone3000Downloads = new Tone3000Downloads();
-    this.modelFavorites = new ModelFavorites();
-    let preferredVariant='full';try{preferredVariant=localStorage.getItem(modelVariantStorageKey)==='lite'?'lite':'full';}catch{/* Storage can be unavailable in privacy modes. */}this.controls.a2Variant.value=preferredVariant;await this.node.setModelVariant(preferredVariant);
-    this.controls.a2Variant.onchange=async()=>{const variant=this.controls.a2Variant.value;try{localStorage.setItem(modelVariantStorageKey,variant);}catch{/* Keep the session preference even if persistence is unavailable. */}await this.node.setModelVariant(variant);await this.restoreMeasuredLevel();};
-    let autoLevel=true;try{autoLevel=localStorage.getItem(autoLevelStorageKey)!=='off';}catch{/* Keep the default in privacy modes. */}this.controls.autoLevel.checked=autoLevel;await this.node.setAutoLevel(autoLevel);
-    this.controls.autoLevel.onchange=async()=>{const enabled=this.controls.autoLevel.checked;try{localStorage.setItem(autoLevelStorageKey,enabled?'on':'off');}catch{/* Keep the session preference even if persistence is unavailable. */}await this.node.setAutoLevel(enabled);};
+    // A host may swap in account-backed favorites/preferences (NamPlugin.configureAccount).
+    this.account = this.plugin.constructor.account || {};
+    this.modelFavorites = this.account.favorites || new ModelFavorites();
+    let preferredVariant='full';try{preferredVariant=localStorage.getItem(modelVariantStorageKey)==='lite'?'lite':'full';}catch{/* Storage can be unavailable in privacy modes. */}preferredVariant=this.accountPreferences().modelVariant||preferredVariant;this.controls.a2Variant.value=preferredVariant;await this.node.setModelVariant(preferredVariant);
+    this.controls.a2Variant.onchange=async()=>{const variant=this.controls.a2Variant.value;try{localStorage.setItem(modelVariantStorageKey,variant);}catch{/* Keep the session preference even if persistence is unavailable. */}this.account.preferences?.write('modelVariant',variant);await this.node.setModelVariant(variant);await this.restoreMeasuredLevel();};
+    let autoLevel=true;try{autoLevel=localStorage.getItem(autoLevelStorageKey)!=='off';}catch{/* Keep the default in privacy modes. */}if(typeof this.accountPreferences().autoLevel==='boolean')autoLevel=this.accountPreferences().autoLevel;this.controls.autoLevel.checked=autoLevel;await this.node.setAutoLevel(autoLevel);
+    this.controls.autoLevel.onchange=async()=>{const enabled=this.controls.autoLevel.checked;try{localStorage.setItem(autoLevelStorageKey,enabled?'on':'off');}catch{/* Keep the session preference even if persistence is unavailable. */}this.account.preferences?.write('autoLevel',enabled);await this.node.setAutoLevel(enabled);};
     this.controls.calibrateLevel.onclick=()=>this.calibrateCurrentModelLevel();
-    this.controls.useMetadataLevel.onclick=async()=>{this.controls.useMetadataLevel.disabled=true;try{this.removeStoredMeasuredLevel();await this.node.useMetadataModelLevel();this.controls.autoLevel.checked=true;try{localStorage.setItem(autoLevelStorageKey,'on');}catch{/* Keep session state. */}}catch(error){this.controls.status.classList.add('error');this.controls.status.textContent=`Level reset failed: ${error.message}`;}finally{this.controls.useMetadataLevel.disabled=false;}};
+    this.controls.useMetadataLevel.onclick=async()=>{this.controls.useMetadataLevel.disabled=true;try{this.removeStoredMeasuredLevel();await this.node.useMetadataModelLevel();this.controls.autoLevel.checked=true;try{localStorage.setItem(autoLevelStorageKey,'on');}catch{/* Keep session state. */}this.account.preferences?.write('autoLevel',true);}catch(error){this.controls.status.classList.add('error');this.controls.status.textContent=`Level reset failed: ${error.message}`;}finally{this.controls.useMetadataLevel.disabled=false;}};
     this.controls.search.oninput=()=>this.renderBrowser();
     this.controls.sourceTabs.forEach((button)=>button.onclick=()=>this.setSourceFilter(button.dataset.source));
     this.controls.factoryCategoryButtons.forEach((button)=>button.onclick=()=>this.setFactoryCategory(button.dataset.category));
@@ -935,6 +937,25 @@ class NamA2Gui extends HTMLElement {
   }
 
   isFavorite(asset) { return this._favoriteIds.has(asset.id); }
+
+  accountPreferences() { try { return this.account.preferences?.read() || {}; } catch { return {}; } }
+
+  // Called by the host after sign-in/sign-out: reload favorites and apply the
+  // account preferences without touching the loaded model.
+  async reloadAccountData() {
+    this._favoriteIds.clear();
+    await this.loadFavorites();
+    const {modelVariant, autoLevel} = this.accountPreferences();
+    if ((modelVariant === 'full' || modelVariant === 'lite') && modelVariant !== this.controls.a2Variant.value) {
+      this.controls.a2Variant.value = modelVariant;
+      await this.node.setModelVariant(modelVariant);
+      await this.restoreMeasuredLevel();
+    }
+    if (typeof autoLevel === 'boolean' && autoLevel !== this.controls.autoLevel.checked) {
+      this.controls.autoLevel.checked = autoLevel;
+      await this.node.setAutoLevel(autoLevel);
+    }
+  }
 
   async toggleFavorite(asset) {
     try {

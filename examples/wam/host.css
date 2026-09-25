@@ -54,6 +54,25 @@ button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity:
 .validation-panel pre { max-height: 220px; overflow: auto; padding: 8px; color: #a9d7b0; background: #0c0d0f; border-radius: 7px; font: 10px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; }
 .host-status { position: sticky; bottom: -1px; z-index: 2; margin: 14px 0 0; padding: 10px; color: #aaa4b4; background: rgba(17,17,22,.96); border: 1px solid #302d39; border-radius: 9px; font-size: 11px; line-height: 1.4; }
 .host-status.error { color: #ff9fae; border-color: #7f3c4c; }
+.host-help.error { color: #ff9fae; }
+.account-identity { margin: 0; color: #aaa4b4; font-size: 11px; overflow-wrap: anywhere; }
+.account-identity strong { color: var(--host-text); font-weight: 650; }
+.preset-list { display: grid; gap: 5px; margin: 10px 0 0; padding: 0; list-style: none; }
+.preset-list[hidden] { display: none; }
+.preset-item { display: grid; grid-template-columns: minmax(0, 1fr) 30px 30px; gap: 4px; }
+.preset-load { overflow: hidden; text-align: left; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.preset-icon { padding: 0; color: #aaa4b4; font-size: 12px; }
+.host-primary { color: #0b0a10; background: var(--host-accent); border-color: var(--host-accent); font-weight: 750; }
+.host-primary:hover { color: #0b0a10; background: #b7a2ff; border-color: #b7a2ff; }
+.host-dialog { width: min(400px, calc(100vw - 32px)); padding: 20px; color: var(--host-text); background: var(--host-card); border: 1px solid var(--host-line); border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.55); }
+.host-dialog::backdrop { background: rgba(5,5,8,.72); }
+.host-dialog h2 { margin: 0 0 10px; color: #b09aff; font-size: 16px; letter-spacing: -.01em; }
+.host-dialog p { margin: 0 0 10px; color: #aaa4b4; font-size: 12px; line-height: 1.45; }
+.host-dialog form { display: grid; gap: 6px; }
+.host-dialog form[hidden] { display: none; }
+.host-dialog label { color: #aaa4b4; font-size: 11px; }
+.host-dialog input { min-height: 37px; padding: 0 10px; color: var(--host-text); background: #111116; border: 1px solid var(--host-line); border-radius: 8px; }
+.host-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
 .rack-stage { min-width: 0; min-height: 100vh; padding: clamp(20px, 3vw, 42px); background: radial-gradient(circle at 50% 15%, #16151c 0, #0b0c0f 42%, #08090b 100%); }
 .rack-header { display: flex; justify-content: space-between; align-items: end; gap: 20px; max-width: 1320px; margin: 0 auto 22px; }
 .rack-header h2 { margin: 3px 0 0; font-size: 24px; letter-spacing: -.03em; }

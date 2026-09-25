@@ -7,4 +7,13 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     options.add_argument("--use-fake-device-for-media-stream")
     options.add_argument("--autoplay-policy=no-user-gesture-required")
   end
+
+  # Exercise real CSRF protection in the browser (the rack's account UI also
+  # needs the csrf-token meta tag to enable itself).
+  setup do
+    @forgery_protection = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
+  end
+
+  teardown { ActionController::Base.allow_forgery_protection = @forgery_protection }
 end

@@ -1,10 +1,13 @@
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import NamPlugin from '../../src/nam-wam/index.js';
 import CabinetPlugin from '../../src/cabinet-wam/index.js';
+import ModelFavorites from '../../src/nam-wam/ModelFavorites.js';
+import ImpulseResponseLibrary from '../../src/cabinet-wam/ImpulseResponseLibrary.js';
 import SourceManager from './SourceManager.js';
 import OutputDeviceManager from './OutputDeviceManager.js';
 import {readAudioDevicePreferences, saveAudioDevicePreferences, resolveInputPreference} from './AudioDevicePreferences.js';
 import {cabinetRoutingDecision} from './CabinetRouting.js';
+import {setupAccount} from './account/index.js';
 const TONE3000_CALLBACK_CHANNEL = 'nam-a2-wam.tone3000.callback';
 const TONE3000_CALLBACK_STORAGE_KEY = 'nam-a2-wam.tone3000.callback';
 
@@ -170,6 +173,8 @@ async function initialize() {
   }
   NamPlugin.configureTone3000(window.NAM_A2_WAM_CONFIG?.tone3000 || {});
   CabinetPlugin.configureTone3000(window.NAM_A2_WAM_CONFIG?.tone3000 || {});
+  // Before createGui(): the GUIs pick their favorites/preferences stores up here.
+  const accountIntegration = setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseResponseLibrary});
   const [groupId] = await initializeWamHost(context, 'nam-a2-phase3-host');
   plugin = await NamPlugin.createInstance(groupId, context, {});
   node = plugin.audioNode;
@@ -182,7 +187,8 @@ async function initialize() {
   window.phase3Debug = {context, node, plugin, cabinetNode, cabinetPlugin, sourceManager, outputDeviceManager};
   // GUI initialization can load the default factory model before createGui resolves.
   node.addModelListener((metadata)=>{currentNamMetadata=metadata;applyCabinetRouting().catch((error)=>message(error.message,true));});
-  $('#pluginGui').append(await plugin.createGui());
+  const namGuiElement = await plugin.createGui();
+  $('#pluginGui').append(namGuiElement);
   cabinetGuiElement = await cabinetPlugin.createGui();
   $('#cabinetGui').append(cabinetGuiElement);
   cabinetGuiElement.addEventListener('cabinet-routing-mode',(event)=>{event.preventDefault();applyCabinetRouting(event.detail.mode).catch((error)=>message(error.message,true));});
@@ -314,6 +320,13 @@ async function initialize() {
     if (savedCabinetState) await cabinetNode.setState(savedCabinetState);
     message('WAM state restored');
   };
+  await accountIntegration.attach({namGui: namGuiElement, cabinetGui: cabinetGuiElement, report: message,
+    captureState: async () => ({version: 1, nam: await node.getState(), cabinet: await cabinetNode.getState()}),
+    applyState: async (state) => {
+      await node.setState(state.nam);
+      if (state.cabinet) await cabinetNode.setState(state.cabinet);
+    },
+    suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
   message('NAM WAM instantiated. Select a model in the plugin GUI.');
   // Programmatic selection during refreshDevices does not fire onchange.
   // Probe the initially displayed device too, after all controls are ready.
