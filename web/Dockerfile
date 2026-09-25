@@ -47,6 +47,11 @@ RUN bundle install && \
 # Copy application code
 COPY . .
 
+# public/rack is generated outside the image (bin/rack-sync needs the WASM
+# toolchain and the third_party checkouts). Refuse to build without it.
+RUN test -f public/rack/plugins/nam-wam/nam-simd.wasm || \
+    (echo "public/rack is missing: run web/bin/rack-sync before building" >&2 && exit 1)
+
 # Precompile bootsnap code for faster boot times.
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
 RUN bundle exec bootsnap precompile -j 1 app/ lib/

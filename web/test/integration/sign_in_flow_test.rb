@@ -27,6 +27,13 @@ class SignInFlowTest < ActionDispatch::IntegrationTest
     assert_match(/^\d{6}$/, mail.text_part.body.to_s)
   end
 
+  test "the mail job never logs the token or the code" do
+    post sign_in_path, params: { email: "carol@example.com" }
+    job = enqueued_jobs.last
+    assert_equal "SensitiveMailDeliveryJob", job["job_class"]
+    assert_not SensitiveMailDeliveryJob.log_arguments?
+  end
+
   test "invalid email is rejected" do
     post sign_in_path, params: { email: "nope" }, as: :json
     assert_response :unprocessable_content

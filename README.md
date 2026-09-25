@@ -104,6 +104,25 @@ diagnostic message and NAM model loading may be rejected by the core.
 An automated validation page is available at
 <http://127.0.0.1:8765/examples/wam/index.html?auto=1>.
 
+## Accounts, presets and sync (Rails app)
+
+[`web/`](web/) is a Rails 8 + SQLite app that serves the same rack on one origin and adds
+passwordless accounts (emailed link or 6-digit code), server-side presets of the whole WAM chain,
+synced NAM/IR favorites and preferences. Without an account the rack works as above, with presets
+kept in the browser (IndexedDB); after sign-in the rack offers to import them.
+
+```sh
+npm run setup                 # once: third-party checkouts + WASM
+cd web && bin/setup --skip-server
+bin/rack-sync                 # copies dist/NAM_A2_WAM into web/public/rack
+bin/rails server              # http://localhost:3000/rack/
+```
+
+The page must be cross-origin isolated (`COOP: same-origin`, `COEP: require-corp`) because the
+WAM SDK uses `SharedArrayBuffer`; the Rails app sends these headers on the page and every static
+file. Installation, environment variables (SMTP via Brevo or Postmark), deployment with a
+persistent SQLite volume and Litestream backups are documented in [`web/README.md`](web/README.md).
+
 ## TONE3000 authentication
 
 The TONE3000 tab starts with an authentication step following the Select Flow guidelines. Click
