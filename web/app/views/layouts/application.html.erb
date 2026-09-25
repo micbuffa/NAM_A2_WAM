@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "NAM A2 WAM" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/auth.css">
+    <%= yield :head %>
+  </head>
+
+  <body>
+    <main class="auth-shell">
+      <%= yield %>
+    </main>
+  </body>
+</html>
