@@ -10,7 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_25_133448) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_25_133850) do
+  create_table "favorites", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "kind", null: false
+    t.string "asset_ref", null: false
+    t.json "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "kind", "asset_ref"], name: "index_favorites_on_user_id_and_kind_and_asset_ref", unique: true
+    t.index ["user_id"], name: "index_favorites_on_user_id"
+  end
+
+  create_table "presets", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "name", null: false
+    t.json "state", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "updated_at"], name: "index_presets_on_user_id_and_updated_at"
+    t.index ["user_id"], name: "index_presets_on_user_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "user_agent"
@@ -44,5 +65,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_25_133448) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "favorites", "users"
+  add_foreign_key "presets", "users"
   add_foreign_key "sessions", "users"
 end

@@ -18,4 +18,13 @@ Rails.application.routes.draw do
   delete "sessions/others", to: "sessions#destroy_others", as: :other_sessions
 
   get "api/me", to: "accounts#show", as: :api_me
+
+  namespace :api, defaults: { format: :json } do
+    resources :presets, except: %i[new edit]
+    resources :favorites, only: %i[index create destroy] do
+      delete "", on: :collection, action: :destroy_by_ref
+    end
+    resource :preferences, only: %i[show update]
+    resource :import, only: :create
+  end
 end
