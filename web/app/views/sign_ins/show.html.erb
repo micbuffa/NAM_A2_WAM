@@ -1,0 +1,10 @@
+<% content_for :title, "Confirm sign-in · NAM A2 WAM" %>
+<section class="auth-card" aria-labelledby="auth-title">
+  <p class="auth-kicker">NAM A2 WAM</p>
+  <h1 id="auth-title">Confirm sign-in</h1>
+  <p class="auth-help">Sign in as <strong><%= @sign_in_token.email %></strong> on this device.</p>
+  <%= form_with url: confirm_sign_in_path, method: :post, class: "auth-form" do |form| %>
+    <%= form.hidden_field :token, value: @token %>
+    <%= form.submit "Sign in" %>
+  <% end %>
+</section>

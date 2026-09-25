@@ -17,13 +17,4 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=csrf-token]"
     assert_select "script#currentUser[type='application/json']", text: "null"
   end
-
-  private
-    def with_forgery_protection
-      previous = ActionController::Base.allow_forgery_protection
-      ActionController::Base.allow_forgery_protection = true
-      yield
-    ensure
-      ActionController::Base.allow_forgery_protection = previous
-    end
 end

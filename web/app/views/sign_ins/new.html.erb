@@ -1,0 +1,13 @@
+<% content_for :title, "Sign in · NAM A2 WAM" %>
+<section class="auth-card" aria-labelledby="auth-title">
+  <p class="auth-kicker">NAM A2 WAM</p>
+  <h1 id="auth-title">Sign in or create an account</h1>
+  <p class="auth-help">No password: we email you a link and a 6-digit code.</p>
+  <% if flash[:alert] %><p class="auth-error" role="alert"><%= flash[:alert] %></p><% end %>
+  <%= form_with url: sign_in_path, method: :post, class: "auth-form" do |form| %>
+    <%= form.label :email, "Email" %>
+    <%= form.email_field :email, required: true, autocomplete: "email", autofocus: true %>
+    <%= form.submit "Send link and code" %>
+  <% end %>
+  <p><a href="/rack/">Back to the rack</a></p>
+</section>

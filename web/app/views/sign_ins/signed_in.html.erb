@@ -1,0 +1,15 @@
+<% content_for :title, "Signed in · NAM A2 WAM" %>
+<section class="auth-card" aria-labelledby="auth-title">
+  <p class="auth-kicker">NAM A2 WAM</p>
+  <h1 id="auth-title">You are signed in</h1>
+  <p class="auth-help" role="status">Signed in as <strong><%= current_user.email %></strong>. An open rack tab updates automatically.</p>
+  <p><a class="auth-button" href="/rack/">Open the rack</a></p>
+</section>
+<script>
+  // Tell any open rack tab (same origin) to refresh its account state.
+  if (typeof BroadcastChannel === 'function') {
+    const channel = new BroadcastChannel('nam-a2-wam.account');
+    channel.postMessage({type: 'signed-in'});
+    setTimeout(() => channel.close(), 1000);
+  }
+</script>
