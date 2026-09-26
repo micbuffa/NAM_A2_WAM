@@ -53,3 +53,6 @@ group :test do
 end
 
 gem "litestream", "~> 0.14.0"
+
+gem "rails-hyperdrive", "~> 0.10.1", group: :development
+plugin "bundler-hyperdrive"

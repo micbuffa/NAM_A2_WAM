@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  mount Rails::Hyperdrive::Engine => "/_hyperdrive" if Rails.env.development?
   get "up" => "rails/health#show", as: :rails_health_check
 
   # The rack page. /rack/index.html is the TONE3000 OAuth redirect URI
