@@ -35,16 +35,57 @@ npm run setup
 
 cd web
 bin/setup --skip-server   # gems + databases
-bin/rack-sync             # dist/NAM_A2_WAM -> public/rack (rerun after editing examples/wam or src)
+bin/rack-sync             # copies the rack into public/rack (see "Syncing the rack" below)
 bin/rails server          # http://localhost:3000/rack/
 ```
-
-`bin/rack-sync --full` (or `RACK_FULL=1 bin/rails rack:sync`) also regenerates
-the Factory manifests and rebuilds the WASM before copying.
 
 In development, sign-in emails are opened by
 [letter_opener](https://github.com/ryanb/letter_opener) (files under
 `tmp/letter_opener/`) and jobs run in-process.
+
+## Syncing the rack into `public/rack` (`bin/rack-sync`)
+
+Rails does not serve the rack sources directly. `public/rack/` is a
+**generated copy** of the static distribution; the sources stay in
+[`../examples/wam/`](../examples/wam/) and [`../src/`](../src/). Never edit
+files under `public/rack/`: the next sync overwrites them.
+
+```sh
+bin/rack-sync            # fast: rebuild dist/NAM_A2_WAM from sources, copy it to public/rack
+bin/rack-sync --full     # also regenerate the Factory manifests and rebuild the WASM
+bin/rails rack:sync      # same as bin/rack-sync (RACK_FULL=1 for --full)
+```
+
+What it does:
+
+1. Runs `node ../tools/build-static-dist.mjs --no-regenerate --no-build`,
+   which assembles `../dist/NAM_A2_WAM/` and rewrites the imports that leave
+   the served tree (`'../../src/nam-wam/index.js'` becomes
+   `'./plugins/nam-wam/index.js'`, `nam-simd.wasm` is copied next to each
+   plugin, the audio catalogue comes from `assets/audio/audioFiles.json`).
+2. `rsync --delete`s that tree into `public/rack/`, **without `index.html`**:
+   the page itself is rendered by `RackController#show`
+   (`app/views/rack/show.html.erb`).
+
+When to run it:
+
+| You changed… | Run |
+| --- | --- |
+| `examples/wam/**` or `src/**` (JS, CSS, manifests) | `bin/rack-sync`, then reload the page |
+| C++ in `src/nam-wasm/`, or Factory models/IRs | `bin/rack-sync --full` |
+| `examples/wam/index.html` | port the change to `app/views/rack/show.html.erb` (`test/integration/rack_markup_test.rb` checks that every id still exists), then `bin/rack-sync` |
+| Only Rails code (`app/`, `config/`) | nothing |
+
+Notes:
+
+- `public/rack/` is ignored by Git (`web/.gitignore`) and takes about 200 MB
+  (models and IRs), plus the same again in `../dist/`.
+- The server does not need a restart; in development the files are sent
+  with `Cache-Control: no-cache`, so a reload picks up the new copy.
+- Tests that need the rack tree (WASM MIME type, system tests) skip with a
+  hint when `public/rack/` has not been synced.
+- The Docker image copies `public/rack/` as it is on disk: sync before
+  building (the Dockerfile fails fast when it is missing).
 
 ## Tests
 
