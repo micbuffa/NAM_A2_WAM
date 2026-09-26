@@ -28,8 +28,8 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
   const api = new AccountApi();
   const localPresets = new LocalPresetStore();
   if (!api.available) {
-    return {account: null, attach: ({captureState, applyState, suggestName}) =>
-      new PresetsPanel({localStore: localPresets, captureState, applyState, suggestName}).attach()};
+    return {account: null, attach: ({captureState, applyState, suggestName, report}) =>
+      new PresetsPanel({localStore: localPresets, captureState, applyState, suggestName, report}).attach()};
   }
 
   const account = new Account({api});
@@ -49,7 +49,7 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
 
   const attach = async ({namGui, cabinetGui, captureState, applyState, suggestName, report = () => {}}) => {
     const presets = new PresetsPanel({account, localStore: localPresets, remoteStore: new RemotePresetStore({api}),
-      captureState, applyState, suggestName});
+      captureState, applyState, suggestName, report});
     const importer = new LocalDataImport({account, localPresets, localFavorites, readLocalPreferences, encodeAsset});
     const reloadGuis = () => Promise.all([namGui?.reloadAccountData?.(), cabinetGui?.reloadAccountData?.()]);
     const offerImport = async () => {

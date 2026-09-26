@@ -45,7 +45,8 @@ class AccountPresetsTest < ApplicationSystemTestCase
       click_on "Save preset"
     end
     within("#presetList") { assert_button "System test crunch" }
-    preset = User.find_by!(email: "player@example.com").presets.sole
+    assert_selector "#presetList li[aria-current=true]", text: "System test crunch"
+    preset = User.find_by!(email: "player@example.com").presets.find_by!(name: "System test crunch")
     assert_equal saved["model"], preset.state.dig("nam", "model", "name")
 
     page.evaluate_async_script(<<~JS)
@@ -59,6 +60,25 @@ class AccountPresetsTest < ApplicationSystemTestCase
     within("#presetList") { click_on "System test crunch" }
     assert_selector "#presetStatus", text: "Loaded “System test crunch”.", wait: 20
     assert_equal saved, chain_snapshot
+    assert_selector "#presetList li[aria-current=true]", count: 1, text: "System test crunch"
+    assert_selector "#hostStatus", text: "Preset “System test crunch” active."
+
+    # A second preset of the same chain gets a distinct default name and
+    # becomes the active one; loading the first switches back to it.
+    model_name = saved["model"].delete_suffix(".nam")
+    click_on "Save current chain…"
+    within("dialog[open]") do
+      assert_field "Preset name", with: model_name
+      click_on "Save preset"
+    end
+    assert_selector "#presetList li[aria-current=true]", count: 1, text: model_name
+    click_on "Save current chain…"
+    within("dialog[open]") do
+      assert_field "Preset name", with: "#{model_name} 2"
+      click_on "Cancel"
+    end
+    within("#presetList") { click_on "System test crunch" }
+    assert_selector "#presetList li[aria-current=true]", count: 1, text: "System test crunch", wait: 20
 
     # The account survives a reload; the preset is listed from the server.
     visit "/rack/"
