@@ -47,11 +47,12 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
   });
   CabinetPlugin.configureAccount({favorites: new AccountFavorites({account, kind: 'ir', local: localFavorites.ir})});
 
-  const attach = async ({namGui, cabinetGui, captureState, applyState, suggestName, report = () => {}}) => {
+  // guis(): the plugin editors currently open (FxChain creates them on demand).
+  const attach = async ({guis = () => [], captureState, applyState, suggestName, report = () => {}}) => {
     const presets = new PresetsPanel({account, localStore: localPresets, remoteStore: new RemotePresetStore({api}),
       captureState, applyState, suggestName, report});
     const importer = new LocalDataImport({account, localPresets, localFavorites, readLocalPreferences, encodeAsset});
-    const reloadGuis = () => Promise.all([namGui?.reloadAccountData?.(), cabinetGui?.reloadAccountData?.()]);
+    const reloadGuis = () => Promise.all(guis().map((gui) => gui.reloadAccountData?.()));
     const offerImport = async () => {
       const imported = await importer.offer();
       if (!imported) return;

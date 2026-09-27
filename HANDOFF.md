@@ -1,5 +1,16 @@
 # NAM A2 WAM — Next-session handoff
 
+## 2026-09-22 — Serial FX chain (spec through 7.1)
+
+- Main host now displays model/IR photo cards, insertion buttons and categorized bundled effects. `FxChain.js` owns serial routing, per-instance dry/wet bypass, insertion/removal, missing-plugin placeholders and versioned full-chain state. `FxChainView.js` owns reusable lazy editors and card state/artwork.
+- NAM/Cabinet default assets load without GUI creation, supplied state takes precedence, and worklet registration is cached per AudioContext/module for multiple instances. GUI initialization hydrates node state rather than overwriting it from global preferences. Measured calibration history is now per NAM instance and serialized, keyed by model content and variant.
+- Core nodes expose metadata snapshots; Cabinet routing mode is nonvisual and serialized. Host AUTO works before any editor exists. Shared source trim/device selection remain outside chain state.
+- TONE3000 callback sessions have per-instance ownership and a nonvisual fallback. Cached editors retain selection/maintainer workflows. A real authenticated external callback still needs manual testing; mocked ownership/deduplication tests pass.
+- Session & diagnostics save/restore now covers the full chain in memory. No factory/user preset UI or IndexedDB preset storage yet (section 7.2).
+- Browser validation: `examples/wam/fx-test/chain-validation.html` (also in dist). Runs muted real DSP, headless defaults, repeated NAM/Cabinet and effect instances, distinct restored settings, all nine insert effects, reusable editors and first-open state invariance. No microphone is used.
+- `skills-lock.json` remains unrelated and untracked. No commit/push requested for this implementation.
+- Validation: 109 Node tests passed. The in-app browser completed the real-audio headless test for all nine insert effects, repeated-instance state restore and first-editor-open invariance. Main distribution startup and NAM modal were visually checked. Physical audio-interface switching and authenticated TONE3000 callbacks were not retested in this phase.
+
 ## 2026-09-22 — Cabinet Settings tab
 
 - Cabinet routing/status, Level Match, IR Trim and Output Gain now live in a separate Settings tab. Main remains the default tab and retains the current IR artwork, metadata chips and active/bypassed indicator.

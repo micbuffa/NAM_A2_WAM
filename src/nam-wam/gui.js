@@ -10,8 +10,6 @@ const tone3000LogoUrl = new URL('./tone3000/TONE3000-logo.svg', import.meta.url)
 const maintainerStorageKey = 'nam-a2-wam.tone3000.maintainer-kind';
 const modelVariantStorageKey = 'nam-a2-wam.model-variant';
 const autoLevelStorageKey = 'nam-a2-wam.auto-level';
-const measuredLevelsStorageKey = 'nam-a2-wam.measured-levels.v1';
-const defaultFactoryToneId = 80705; // Bogner Uberschall Rev Blue (E34L)
 const EQ_BANDS = [
   {index:1, name:'Low', type:'Low shelf', frequency:100, q:.71}, {index:2, name:'Mud', type:'Bell', frequency:250, q:1},
   {index:3, name:'Box', type:'Bell', frequency:650, q:1}, {index:4, name:'Presence', type:'Bell', frequency:1600, q:1},
@@ -63,6 +61,7 @@ class NamA2Gui extends HTMLElement {
   async initialize(plugin) {
     this.plugin = plugin;
     this.node = plugin.audioNode;
+    this.toneSession=plugin.toneSession;
     this.node.gui = this;
     this.innerHTML = `
       <style>
@@ -308,16 +307,16 @@ class NamA2Gui extends HTMLElement {
     // A host may swap in account-backed favorites/preferences (NamPlugin.configureAccount).
     this.account = this.plugin.constructor.account || {};
     this.modelFavorites = this.account.favorites || new ModelFavorites();
-    let preferredVariant='full';try{preferredVariant=localStorage.getItem(modelVariantStorageKey)==='lite'?'lite':'full';}catch{/* Storage can be unavailable in privacy modes. */}preferredVariant=this.accountPreferences().modelVariant||preferredVariant;this.controls.a2Variant.value=preferredVariant;await this.node.setModelVariant(preferredVariant);
-    this.controls.a2Variant.onchange=async()=>{const variant=this.controls.a2Variant.value;try{localStorage.setItem(modelVariantStorageKey,variant);}catch{/* Keep the session preference even if persistence is unavailable. */}this.account.preferences?.write('modelVariant',variant);await this.node.setModelVariant(variant);await this.restoreMeasuredLevel();};
-    let autoLevel=true;try{autoLevel=localStorage.getItem(autoLevelStorageKey)!=='off';}catch{/* Keep the default in privacy modes. */}if(typeof this.accountPreferences().autoLevel==='boolean')autoLevel=this.accountPreferences().autoLevel;this.controls.autoLevel.checked=autoLevel;await this.node.setAutoLevel(autoLevel);
+    this.controls.a2Variant.value=(await this.node.getState()).modelVariant||'full';
+    this.controls.a2Variant.onchange=async()=>{const variant=this.controls.a2Variant.value;try{localStorage.setItem(modelVariantStorageKey,variant);}catch{/* Keep the session preference even if persistence is unavailable. */}this.account.preferences?.write('modelVariant',variant);await this.node.setModelVariant(variant);};
+    this.controls.autoLevel.checked=(await this.node.getState()).autoLevel!==false;
     this.controls.autoLevel.onchange=async()=>{const enabled=this.controls.autoLevel.checked;try{localStorage.setItem(autoLevelStorageKey,enabled?'on':'off');}catch{/* Keep the session preference even if persistence is unavailable. */}this.account.preferences?.write('autoLevel',enabled);await this.node.setAutoLevel(enabled);};
     this.controls.calibrateLevel.onclick=()=>this.calibrateCurrentModelLevel();
-    this.controls.useMetadataLevel.onclick=async()=>{this.controls.useMetadataLevel.disabled=true;try{this.removeStoredMeasuredLevel();await this.node.useMetadataModelLevel();this.controls.autoLevel.checked=true;try{localStorage.setItem(autoLevelStorageKey,'on');}catch{/* Keep session state. */}this.account.preferences?.write('autoLevel',true);}catch(error){this.controls.status.classList.add('error');this.controls.status.textContent=`Level reset failed: ${error.message}`;}finally{this.controls.useMetadataLevel.disabled=false;}};
+    this.controls.useMetadataLevel.onclick=async()=>{this.controls.useMetadataLevel.disabled=true;try{await this.node.useMetadataModelLevel();this.controls.autoLevel.checked=true;try{localStorage.setItem(autoLevelStorageKey,'on');}catch{/* Keep session state. */}this.account.preferences?.write('autoLevel',true);}catch(error){this.controls.status.classList.add('error');this.controls.status.textContent=`Level reset failed: ${error.message}`;}finally{this.controls.useMetadataLevel.disabled=false;}};
     this.controls.search.oninput=()=>this.renderBrowser();
     this.controls.sourceTabs.forEach((button)=>button.onclick=()=>this.setSourceFilter(button.dataset.source));
     this.controls.factoryCategoryButtons.forEach((button)=>button.onclick=()=>this.setFactoryCategory(button.dataset.category));
-    this._modelListener=async(metadata,model)=>{if(!model?.data)return;if(model.provenance?.source==='TONE3000'){const asset=this.upsertTone3000Asset({...model.provenance,name:model.name,text:model.data});this._selectedId=asset.id;this.controls.modelSource.textContent='TONE3000';await this.restoreMeasuredLevel();this.renderBrowser();this.renderTone3000Downloads();return;}if(model.provenance?.source==='Factory'){this._selectedId=model.provenance.identity;this.controls.modelSource.textContent='Factory';await this.restoreMeasuredLevel();this.renderBrowser();return;}const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(model.data));const hash=[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');const factory=this._assets.find(a=>a.contentHash===hash);if(factory){this._selectedId=factory.id;this.controls.modelSource.textContent='Factory';}else {const asset=addExternalAsset(this._assets,{id:`external:${hash}`,filename:model.name,relativePath:model.name,groups:['External'],displayName:model.name.replace(/\.nam$/i,''),type:'nam',contentHash:hash,source:'External',data:model.data});asset.data=model.data;this._selectedId=asset.id;this.controls.modelSource.textContent='External';}await this.restoreMeasuredLevel();this.renderBrowser();};
+    this._modelListener=async(metadata,model)=>{if(!model?.data)return;if(model.provenance?.source==='TONE3000'){const asset=this.upsertTone3000Asset({...model.provenance,name:model.name,text:model.data});this._selectedId=asset.id;this.controls.modelSource.textContent='TONE3000';this.renderBrowser();this.renderTone3000Downloads();return;}if(model.provenance?.source==='Factory'){this._selectedId=model.provenance.identity;this.controls.modelSource.textContent='Factory';this.renderBrowser();return;}const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(model.data));const hash=[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');const factory=this._assets.find(a=>a.contentHash===hash);if(factory){this._selectedId=factory.id;this.controls.modelSource.textContent='Factory';}else {const asset=addExternalAsset(this._assets,{id:`external:${hash}`,filename:model.name,relativePath:model.name,groups:['External'],displayName:model.name.replace(/\.nam$/i,''),type:'nam',contentHash:hash,source:'External',data:model.data});asset.data=model.data;this._selectedId=asset.id;this.controls.modelSource.textContent='External';}this.renderBrowser();};
     this.node.addModelListener(this._modelListener);
     await this.loadManifest();
     await this.loadTone3000Downloads();
@@ -352,6 +351,7 @@ class NamA2Gui extends HTMLElement {
     this._tonePopup = null;
     this._toneCallbackHref = '';
     this._receiveTone3000Callback = (data) => {
+      if(this.toneSession){this.toneSession.receive(data);return;}
       if (!data?.href || data.href === this._toneCallbackHref) return;
       this._toneCallbackHref = data.href;
       this._tonePopup?.close(); this._tonePopup = null;
@@ -372,9 +372,11 @@ class NamA2Gui extends HTMLElement {
       if (event.data?.type !== TONE3000_CALLBACK_CHANNEL) return;
       this._receiveTone3000Callback(event.data);
     };
-    await this.completeTone3000Callback();
+    await this.toneSession?.complete();
     return this;
   }
+
+  setEditorVisible(visible) {this._editorVisible=visible;this.node.setSpectrumEnabled(visible&&this._activePluginTab==='amp').catch(()=>{});if(!visible)this.hideModelHover();}
 
   setPluginTab(tabName, {focus=false}={}) {
     const active=this.controls.pluginTabs.find((button)=>button.dataset.pluginTab===tabName)||this.controls.pluginTabs[0];
@@ -382,7 +384,7 @@ class NamA2Gui extends HTMLElement {
     this.controls.pluginTabs.forEach((button)=>{const selected=button===active;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;});
     this.controls.pluginPanels.forEach((panel)=>{panel.hidden=panel.dataset.pluginPanel!==this._activePluginTab;});
     this.hideModelHover();
-    this.node.setSpectrumEnabled(this._activePluginTab==='amp').catch(()=>{});
+    this.node.setSpectrumEnabled(this._editorVisible!==false&&this._activePluginTab==='amp').catch(()=>{});
     if(focus)active.focus();
   }
 
@@ -429,36 +431,6 @@ class NamA2Gui extends HTMLElement {
   }
 
   hideModelHover() { clearTimeout(this._hoverTimer);this._hoverTimer=null;if(this.controls?.modelHoverCard)this.controls.modelHoverCard.hidden=true; }
-
-  measuredLevelKey() {
-    if (!this._selectedId) return '';
-    const variant = this.node._metadata?.activeVariant || 'fixed';
-    return `${this._selectedId}::${variant}`;
-  }
-
-  readMeasuredLevels() {
-    try { const value=JSON.parse(localStorage.getItem(measuredLevelsStorageKey)||'{}');return value&&typeof value==='object'?value:{}; }
-    catch { return {}; }
-  }
-
-  storeMeasuredLevel(calibration) {
-    const key=this.measuredLevelKey();if(!key)return;
-    try { const levels=this.readMeasuredLevels();levels[key]=calibration;localStorage.setItem(measuredLevelsStorageKey,JSON.stringify(levels)); }
-    catch { /* Calibration remains active for this session. */ }
-  }
-
-  removeStoredMeasuredLevel() {
-    const key=this.measuredLevelKey();if(!key)return;
-    try { const levels=this.readMeasuredLevels();delete levels[key];localStorage.setItem(measuredLevelsStorageKey,JSON.stringify(levels)); }
-    catch { /* Keep the current session usable if storage is unavailable. */ }
-  }
-
-  async restoreMeasuredLevel() {
-    if(!this.controls.autoLevel.checked)return false;
-    const calibration=this.readMeasuredLevels()[this.measuredLevelKey()];
-    if(!calibration||calibration.version!==1||!Number.isFinite(Number(calibration.compensationDb)))return false;
-    await this.node.applyMeasuredModelLevel(calibration);return true;
-  }
 
   renderSignalFlow() {
     if(!this.controls.signalFlow)return;
@@ -644,6 +616,8 @@ class NamA2Gui extends HTMLElement {
       return;
     }
     const m = info.metadata;
+    this.controls.autoLevel.checked=m.autoLevelEnabled!==false;
+    if(m.modelVariant)this.controls.a2Variant.value=m.modelVariant;
     this.controls.status.classList.remove('error');
     this.controls.currentModel.textContent = m.provenance?.title || m.rawMetadata?.gear_model || m.rawMetadata?.name || m.name.replace(/\.nam$/iu, '');
     this.controls.modelMode.textContent = m.subtype || 'A2';
@@ -693,7 +667,6 @@ class NamA2Gui extends HTMLElement {
     this.controls.calibrateLevel.textContent = 'Measuring…';
     try {
       const result = await this.node.calibrateModelLevel();
-      this.storeMeasuredLevel(result);
       this.controls.autoLevel.checked = true;
       try { localStorage.setItem(autoLevelStorageKey, 'on'); } catch { /* Keep session state. */ }
       if (result.clamped) this.controls.modelLevel.title += ' · correction limited for safety';
@@ -766,6 +739,7 @@ class NamA2Gui extends HTMLElement {
   async openTone3000Flow(createUrl, waitingStatus) {
     this.setSourceFilter('TONE3000'); this.showToneAuthentication(false); this.setPluginTab('models');
     this.setToneStatus('Opening TONE3000…'); this._toneCallbackHref = '';
+    this.toneSession?.claim();
     sessionStorage.setItem('nam-a2-wam.tone3000.owner', 'amp');
     sessionStorage.setItem('nam-a2-wam.tone3000.popup', '1');
     const popup = window.open('about:blank', 'tone3000-oauth', 'popup,width=1180,height=820');
@@ -938,23 +912,11 @@ class NamA2Gui extends HTMLElement {
 
   isFavorite(asset) { return this._favoriteIds.has(asset.id); }
 
-  accountPreferences() { try { return this.account.preferences?.read() || {}; } catch { return {}; } }
-
-  // Called by the host after sign-in/sign-out: reload favorites and apply the
-  // account preferences without touching the loaded model.
+  // Called by the host after sign-in/sign-out. Variant and auto-level belong
+  // to the rack state (presets), so only the favorites are reloaded here.
   async reloadAccountData() {
     this._favoriteIds.clear();
     await this.loadFavorites();
-    const {modelVariant, autoLevel} = this.accountPreferences();
-    if ((modelVariant === 'full' || modelVariant === 'lite') && modelVariant !== this.controls.a2Variant.value) {
-      this.controls.a2Variant.value = modelVariant;
-      await this.node.setModelVariant(modelVariant);
-      await this.restoreMeasuredLevel();
-    }
-    if (typeof autoLevel === 'boolean' && autoLevel !== this.controls.autoLevel.checked) {
-      this.controls.autoLevel.checked = autoLevel;
-      await this.node.setAutoLevel(autoLevel);
-    }
   }
 
   async toggleFavorite(asset) {
@@ -1004,16 +966,7 @@ class NamA2Gui extends HTMLElement {
       const manifest=await response.json();this._assets=manifest.assets||[];this.renderBrowser();
     }catch(error){this.setModelStatus({status:'error',error:`Factory library unavailable: ${error.message}`});return;}
     const state=await this.node.getState();
-    if(state.model?.data){await this._modelListener(null,state.model);return;}
-    const firstCapture=this._assets.find((asset)=>asset.category==='guitar'&&Number(asset.provenance?.toneId)===defaultFactoryToneId);
-    if(!firstCapture)return;
-    try{
-      const response=await fetch(factoryAssetUrl(manifestUrl,'models',firstCapture.relativePath));
-      if(!response.ok)throw Error(`HTTP ${response.status} while loading ${firstCapture.filename}`);
-      const text=await response.text();
-      if((await this.node.getState()).model?.data)return;
-      await this.node.loadModelText(text,firstCapture.filename,factoryProvenance(firstCapture));
-    }catch(error){this.setModelStatus({status:'error',error:`Default Factory capture unavailable: ${error.message}`});}
+    if(state.model?.data){this.setModelStatus({status:'ready',metadata:state.metadata,loadMs:0});await this._modelListener(state.metadata,state.model);}return;
   }
   createFactoryAssetEntry(asset) {
     const button=document.createElement('button');button.className='factoryAsset';

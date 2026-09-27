@@ -7,8 +7,10 @@ export const MUSIC_CAPTURE_CONSTRAINTS = Object.freeze({
 export const DEFAULT_SOURCE_TRIM_DB = Object.freeze({file: -18, live: 0});
 export const dbToLinear = (db) => 10 ** (db / 20);
 
-export default class SourceManager {
+export default class SourceManager extends EventTarget {
   constructor({audioContext, wamNode, mediaDevices = navigator.mediaDevices, player}) {
+    super();
+    this.secondary=null;
     this.audioContext = audioContext;
     this.wamNode = wamNode;
     this.mediaDevices = mediaDevices;
@@ -42,6 +44,19 @@ export default class SourceManager {
     this.sourceTrim.gain.setValueAtTime(dbToLinear(this.trimDb[mode]), this.audioContext.currentTime);
   }
 
+  setSecondary(target,channelIndex) {
+    if(this.secondary&&this.liveSplitter){try{this.liveSplitter.disconnect(this.secondary.target);}catch{}}
+    this.secondary=target?{target,channelIndex}:null;
+    if(target&&this.liveSplitter&&Number.isInteger(channelIndex)&&channelIndex>=0&&channelIndex<this.liveInput.channelCount){
+      this.liveSplitter.connect(target,channelIndex,0);
+    }
+  }
+  selectLiveChannel(channelIndex) {
+    if(!this.liveSplitter||!Number.isInteger(channelIndex)||channelIndex<0||channelIndex>=this.liveInput.channelCount)throw Error('Input channel unavailable');
+    this.liveSplitter.disconnect(this.sourceTrim);
+    this.liveSplitter.connect(this.sourceTrim,channelIndex,0);this.liveInput.channelIndex=channelIndex;
+    this.dispatchEvent(new Event('change'));
+  }
   async enumerateInputs({requestPermission = false} = {}) {
     let permissionStream = null;
     if (requestPermission) {
@@ -69,7 +84,7 @@ export default class SourceManager {
     this.liveInput = null;
     this.player.pause();
     try { this.mediaElementNode.disconnect(); } catch (error) { /* not connected */ }
-    this.mode = null;
+    this.mode = null;this.dispatchEvent(new Event('change'));
   }
 
   async activateLive(deviceId, channelIndex = 0, {monitor = true} = {}) {
@@ -137,6 +152,8 @@ export default class SourceManager {
     this.liveSplitter = splitter;
     this.liveInput = {requestedDeviceId: deviceId || '', deviceId: actualDeviceId || deviceId || '', label: track?.label || '', channelCount, channelIndex:selectedChannel};
     this._activateTrim('live');
+    if(this.secondary)this.setSecondary(this.secondary.target,this.secondary.channelIndex);
+    this.dispatchEvent(new Event('change'));
     return stream;
   }
 
@@ -145,7 +162,7 @@ export default class SourceManager {
     this.player.src = url;
     this.player.load();
     this.mediaElementNode.connect(this.sourceTrim);
-    this._activateTrim('file');
+    this._activateTrim('file');this.dispatchEvent(new Event('change'));
   }
 
   async destroy() { await this.disconnectCurrent(); }

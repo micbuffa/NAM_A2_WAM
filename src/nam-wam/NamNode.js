@@ -4,7 +4,14 @@ import getNamProcessor from './NamProcessor.js';
 import {modelLevelCompensationDb, modelLoudnessFromNam} from './ModelLevel.js';
 
 export default class NamNode extends WamNode {
+  static moduleLoads = new WeakMap();
   static async addModules(audioContext, moduleId, wasmUrl) {
+    let modules=this.moduleLoads.get(audioContext);
+    if(!modules){modules=new Map();this.moduleLoads.set(audioContext,modules);}
+    if(!modules.has(moduleId))modules.set(moduleId,this.loadModules(audioContext,moduleId,wasmUrl).catch(error=>{modules.delete(moduleId);throw error;}));
+    return modules.get(moduleId);
+  }
+  static async loadModules(audioContext, moduleId, wasmUrl) {
     await super.addModules(audioContext, moduleId);
     await addFunctionModule(audioContext.audioWorklet, getNamProcessor, moduleId);
     const bytes = await fetch(wasmUrl).then((response) => {
@@ -25,6 +32,7 @@ export default class NamNode extends WamNode {
     this._modelVariant = 'full';
     this._autoLevel = true;
     this._measuredCalibration = null;
+    this._measuredLevels = {};
     this._gui = null;
     this._meterListeners = new Set();
     this._spectrumListeners = new Set();
@@ -60,19 +68,25 @@ export default class NamNode extends WamNode {
   }
 
   async loadModelText(text, name = 'model.nam', provenance = null) {
+    provenance=structuredClone(provenance);
+    this.assetRevision = (this.assetRevision || 0) + 1;
     this._measuredCalibration = null;
     const metadata = NamNode.inspectMetadata(text, name, this._modelVariant);
     const compensationDb = modelLevelCompensationDb(metadata.loudness, this._autoLevel);
     const encoded = new TextEncoder().encode(text);
     const result = await this._requestNam('load', {modelData: encoded.buffer, name, variant: this._modelVariant, compensationDb}, [encoded.buffer]);
-    this._model = {name, data: text, ...(provenance ? {provenance} : {})};
+    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));
+    const contentHash=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
+    this._model = {name, data: text, contentHash, ...(provenance ? {provenance:structuredClone(provenance)} : {})};
     this._metadata = {...metadata, subtype: result.slimmable ? `A2 ${result.variant === 'lite' ? 'Lite' : 'Full'}` : metadata.subtype,
-      availableVariants: result.slimmable ? ['full', 'lite'] : [], activeVariant: result.slimmable ? result.variant : null,
+      availableVariants: result.slimmable ? ['full', 'lite'] : [], activeVariant: result.slimmable ? result.variant : null, modelVariant:this._modelVariant,
       autoLevelEnabled: this._autoLevel,
       autoLevelCompensationDb: Number.isFinite(Number(result.compensationDb)) ? Number(result.compensationDb) : compensationDb,
       levelMode: this._autoLevel ? 'metadata' : 'off',
       expectedSampleRate: result.expectedSampleRate,
       ...(provenance ? {source: provenance.source || 'TONE3000', provenance} : {})};
+    const calibration=this._measuredLevels[this.calibrationKey()];
+    if(this._autoLevel&&calibration)await this.applyMeasuredModelLevel(calibration);
     this._gui?.setModelStatus({status: 'ready', metadata: this._metadata, loadMs: result.loadMs});
     this._modelListeners.forEach((listener) => listener(this._metadata, this._model));
     return {...result, metadata: this._metadata};
@@ -96,7 +110,9 @@ export default class NamNode extends WamNode {
 
   async setParameterValues(values) {
     await super.setParameterValues(values);
-    this._gui?.syncParameters(await super.getParameterValues(false));
+    const parameters = await super.getParameterValues(false);
+    this._gui?.syncParameters(parameters);
+    if (values.bypass) this.dispatchEvent(new CustomEvent('bypass-change', {detail: parameters.bypass}));
   }
 
   async setModelVariant(variant) {
@@ -107,7 +123,7 @@ export default class NamNode extends WamNode {
       const requestedCompensationDb = modelLevelCompensationDb(refreshed.loudness, this._autoLevel);
       const normalization = await this._requestNam('normalization', {compensationDb:requestedCompensationDb});
       this._metadata = {...this._metadata, ...refreshed, subtype: `A2 ${this._modelVariant === 'lite' ? 'Lite' : 'Full'}`,
-        activeVariant: this._modelVariant, availableVariants: ['full', 'lite'], autoLevelEnabled:this._autoLevel,
+        activeVariant: this._modelVariant, modelVariant:this._modelVariant, availableVariants: ['full', 'lite'], autoLevelEnabled:this._autoLevel,
         autoLevelCompensationDb:Number.isFinite(Number(normalization.compensationDb)) ? Number(normalization.compensationDb) : requestedCompensationDb,
         levelMode:this._autoLevel?'metadata':'off'};
       this._measuredCalibration = null;
@@ -135,6 +151,7 @@ export default class NamNode extends WamNode {
     const calibration = await this._requestNam('calibrate');
     this._autoLevel = true;
     this._measuredCalibration = calibration;
+    this._measuredLevels[this.calibrationKey()]=structuredClone(calibration);
     this._metadata = {...this._metadata, autoLevelEnabled:true, autoLevelCompensationDb:calibration.compensationDb,
       levelMode:'measured', measuredCalibration:calibration};
     this._gui?.setModelStatus({status:'ready',metadata:this._metadata,loadMs:0});
@@ -147,6 +164,7 @@ export default class NamNode extends WamNode {
     const result = await this._requestNam('normalization', {compensationDb:Number(calibration.compensationDb)});
     this._autoLevel = true;
     this._measuredCalibration = {...calibration, compensationDb:result.compensationDb};
+    this._measuredLevels[this.calibrationKey()]=structuredClone(this._measuredCalibration);
     this._metadata = {...this._metadata, autoLevelEnabled:true, autoLevelCompensationDb:result.compensationDb,
       levelMode:'measured', measuredCalibration:this._measuredCalibration};
     this._gui?.setModelStatus({status:'ready',metadata:this._metadata,loadMs:0});
@@ -154,16 +172,22 @@ export default class NamNode extends WamNode {
   }
 
   async useMetadataModelLevel() {
+    delete this._measuredLevels[this.calibrationKey()];
     return this.setAutoLevel(true);
   }
 
+  calibrationKey() { return `${this._model?.contentHash}::${this._metadata?.activeVariant||'fixed'}`; }
+
   async getState() {
     const parameterState = await super.getState();
-    return {parameterValues: parameterState.parameterValues, model: this._model, modelVariant: this._modelVariant, autoLevel:this._autoLevel,
-      measuredCalibration:this._measuredCalibration, metadata: this._metadata, stateVersion: 4};
+    return structuredClone({parameterValues: parameterState.parameterValues, model: this._model, modelVariant: this._modelVariant, autoLevel:this._autoLevel,
+      measuredCalibration:this._measuredCalibration, measuredLevels:this._measuredLevels, metadata: this._metadata, stateVersion: 5});
   }
 
   async setState(state) {
+    state = structuredClone(state);
+    this._measuredLevels=state.measuredLevels||{};
+    this.assetRevision = (this.assetRevision || 0) + 1;
     if (state.modelVariant) this._modelVariant = state.modelVariant === 'lite' ? 'lite' : 'full';
     if (typeof state.autoLevel === 'boolean') this._autoLevel = state.autoLevel;
     if (state.model?.data) await this.loadModelText(state.model.data, state.model.name, state.model.provenance);
@@ -182,12 +206,14 @@ export default class NamNode extends WamNode {
   removeSpectrumListener(listener) { this._spectrumListeners.delete(listener); }
   setSpectrumEnabled(enabled) { return this._requestNam('spectrum/enabled', {enabled:Boolean(enabled)}); }
   addModelListener(listener) { this._modelListeners.add(listener); }
+  getModelSnapshot() { return structuredClone(this._metadata); }
   removeModelListener(listener) { this._modelListeners.delete(listener); }
 
   set gui(value) { this._gui = value; }
   get gui() { return this._gui; }
 
   destroy() {
+    this.toneSession?.destroy();
     this._gui?.destroy();
     this._meterListeners.clear();
     this._spectrumListeners.clear();

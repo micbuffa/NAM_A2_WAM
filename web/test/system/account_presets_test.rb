@@ -18,7 +18,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   test "sign in with the emailed code, save a preset, alter the chain and restore it" do
     skip_unless_rack_synced
     visit "/rack/"
-    assert_text "NAM WAM instantiated", wait: 40
+    assert_text "Chain ready", wait: 40
     assert page.evaluate_script("window.crossOriginIsolated")
 
     click_on "Sign in / Sign up"
@@ -47,7 +47,9 @@ class AccountPresetsTest < ApplicationSystemTestCase
     within("#presetList") { assert_button "System test crunch" }
     assert_selector "#presetList li[aria-current=true]", text: "System test crunch"
     preset = User.find_by!(email: "player@example.com").presets.find_by!(name: "System test crunch")
-    assert_equal saved["model"], preset.state.dig("nam", "model", "name")
+    # A preset is the whole rack state (what "Save WAM state" captures).
+    nam_entry = preset.state.dig("a", "entries").find { |entry| entry["kind"] == "nam" }
+    assert_equal saved["model"], nam_entry.dig("state", "model", "name")
 
     page.evaluate_async_script(<<~JS)
       const done = arguments[0];
@@ -82,7 +84,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
 
     # The account survives a reload; the preset is listed from the server.
     visit "/rack/"
-    assert_text "NAM WAM instantiated", wait: 40
+    assert_text "Chain ready", wait: 40
     within("#accountPanel") { assert_text "player@example.com" }
     within("#presetList") { assert_button "System test crunch" }
   end
@@ -90,7 +92,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   test "confirming the magic link in another tab updates the open rack without reloading" do
     skip_unless_rack_synced
     visit "/rack/"
-    assert_text "NAM WAM instantiated", wait: 40
+    assert_text "Chain ready", wait: 40
     page.execute_script("window.__sameDocument = true")
     within("#accountPanel") { assert_button "Sign in / Sign up" }
 

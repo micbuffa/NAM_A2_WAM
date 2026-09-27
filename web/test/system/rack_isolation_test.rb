@@ -9,7 +9,7 @@ class RackIsolationTest < ApplicationSystemTestCase
 
     assert_equal true, page.evaluate_script("window.crossOriginIsolated")
     assert_equal true, page.evaluate_script("typeof SharedArrayBuffer === 'function'")
-    assert_text "NAM WAM instantiated", wait: 30
+    assert_text "Chain ready", wait: 30
     assert_equal true, page.evaluate_script("Boolean(window.phase3Debug?.node && window.phase3Debug?.cabinetNode)")
     assert_nil page.evaluate_script("window.phase3Error || null")
   end

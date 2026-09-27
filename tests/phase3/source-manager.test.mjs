@@ -199,3 +199,16 @@ test('source switching routes only the active source through one shared trim nod
   assert.equal(connections.filter(([kind]) => kind === 'file').length, 2);
   assert.ok(connections.filter(([kind]) => kind === 'live' || kind === 'file').every(([,target]) => target === manager.sourceTrim));
 });
+
+test('switching lane A or B channels reuses one live capture and preserves the other route',async()=>{
+  const stream=makeStream();stream.track.getSettings=()=>({channelCount:2,deviceId:'usb'});
+  let opens=0;const routes=new Map();const splitter={connect:(target,channel)=>routes.set(target,channel),disconnect:target=>target?routes.delete(target):routes.clear()};
+  const context={currentTime:0,createGain:makeGain,createMediaElementSource:()=>({disconnect(){}}),createMediaStreamSource:()=>({connect(){},disconnect(){}}),createChannelSplitter:()=>splitter};
+  const manager=new SourceManager({audioContext:context,wamNode:{},mediaDevices:{getUserMedia:async()=>{opens++;return stream;}},player:{pause(){}}});
+  await manager.activateLive('usb',0);const targetB={};manager.setSecondary(targetB,1);
+  assert.equal(routes.get(manager.sourceTrim),0);assert.equal(routes.get(targetB),1);
+  manager.selectLiveChannel(1);assert.equal(routes.get(manager.sourceTrim),1);assert.equal(routes.get(targetB),1);
+  manager.setSecondary(targetB,0);assert.equal(routes.get(manager.sourceTrim),1);assert.equal(routes.get(targetB),0);
+  manager.setSecondary(null,0);assert.equal(routes.has(targetB),false);assert.equal(routes.get(manager.sourceTrim),1);
+  assert.equal(opens,1);assert.equal(stream.track.stopped,false);await manager.disconnectCurrent();assert.equal(stream.track.stopped,true);
+});
