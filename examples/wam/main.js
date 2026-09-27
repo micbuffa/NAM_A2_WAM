@@ -85,6 +85,18 @@ function refreshInputChannels(channelCount=1,deviceLabel='') {
   $('#inputChannelStatus').textContent=count===1?'The browser opened a mono stream (1 channel). Check the interface and macOS audio configuration if you expect two inputs.':`${count} capture channels available. Each chain can select an available input channel.`;
 }
 
+// Before microphone permission every input is anonymous (deviceId ''), so
+// opening one shows the browser prompt, where the user may pick another
+// device (e.g. the sound card). Adopt the device the browser actually opened:
+// otherwise the devicechange refresh that follows the grant cannot find ''
+// and falls back to the system default (often a mono built-in microphone).
+async function adoptOpenedInput(deviceId) {
+  if (!deviceId || deviceId === selectedDeviceId) return;
+  selectedDeviceId = deviceId;
+  saveAudioDevicePreferences({inputDeviceId: deviceId, inputChannel: selectedInputChannel});
+  await refreshDevices(false);
+}
+
 async function detectSelectedInputChannels() {
   if (liveInputEnabled || $('#audioSource').value !== 'live' || !$('#inputDevice').options.length) return;
   const probingDevice = selectedDeviceId;
@@ -94,7 +106,11 @@ async function detectSelectedInputChannels() {
   $('#inputChannelStatus').textContent='Detecting input channels (monitoring off)…';
   try {
     const input = await sourceManager.activateLive(probingDevice, 0, {monitor:false});
-    if (input && selectedDeviceId === probingDevice && !liveInputEnabled && $('#audioSource').value === 'live') {
+    // An anonymous probe stays valid even if the post-permission refresh
+    // already replaced the '' device id meanwhile.
+    const stillSelected = selectedDeviceId === probingDevice || !probingDevice;
+    if (input && stillSelected && !liveInputEnabled && $('#audioSource').value === 'live') {
+      if (!probingDevice) await adoptOpenedInput(input.deviceId);
       refreshInputChannels(input.channelCount,input.label);
       $('#inputChannel').disabled = false;
     }
@@ -129,11 +145,14 @@ function syncLiveInputButton() {
 }
 
 async function activateSelectedLiveInput() {
-  if (!selectedDeviceId) await refreshDevices(true);
-  if (!selectedDeviceId) throw new Error('No audio input device is available');
+  if (!$('#inputDevice').options.length) await refreshDevices(false);
+  if (!$('#inputDevice').options.length) throw new Error('No audio input device is available');
+  // selectedDeviceId may be '' (no permission yet): the prompt opens the device the user picks.
+  const requestedDeviceId = selectedDeviceId;
   const stream = await sourceManager.activateLive(selectedDeviceId, selectedInputChannel);
   if (!stream) return false;
   const activeInput = sourceManager.liveInput;
+  if (!requestedDeviceId) await adoptOpenedInput(activeInput?.deviceId);
   refreshInputChannels(activeInput?.channelCount, activeInput?.label);
   $('#inputChannel').disabled = false;
   if (activeInput?.channelCount === 1) {
@@ -290,8 +309,7 @@ async function initialize() {
         return;
       }
       await context.resume();
-      if (!$('#inputDevice').value) await refreshDevices(true);
-      else selectedDeviceId=$('#inputDevice').value;
+      selectedDeviceId=$('#inputDevice').value;
       await activateSelectedLiveInput();
     }
     catch (error) { liveInputEnabled=false; syncLiveInputButton(); message(error.message, true); }
