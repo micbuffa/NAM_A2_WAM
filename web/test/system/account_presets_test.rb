@@ -39,7 +39,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
 
     saved = chain_snapshot
     assert saved["model"], "a default model should be loaded"
-    click_on "Save current chain…"
+    click_on "Save as new…"
     within("dialog[open]") do
       fill_in "Preset name", with: "System test crunch"
       click_on "Save preset"
@@ -68,13 +68,13 @@ class AccountPresetsTest < ApplicationSystemTestCase
     # A second preset of the same chain gets a distinct default name and
     # becomes the active one; loading the first switches back to it.
     model_name = saved["model"].delete_suffix(".nam")
-    click_on "Save current chain…"
+    click_on "Save as new…"
     within("dialog[open]") do
       assert_field "Preset name", with: model_name
       click_on "Save preset"
     end
     assert_selector "#presetList li[aria-current=true]", count: 1, text: model_name
-    click_on "Save current chain…"
+    click_on "Save as new…"
     within("dialog[open]") do
       assert_field "Preset name", with: "#{model_name} 2"
       click_on "Cancel"

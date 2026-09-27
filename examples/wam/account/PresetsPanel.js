@@ -1,8 +1,9 @@
 import {confirmDialog, promptDialog} from './dialogs.js';
 
-// Sidebar preset list (#presetsPanel): save the whole WAM chain, load,
-// rename, delete. Uses the account store when signed in, IndexedDB otherwise.
-// The preset last loaded or saved is marked active (aria-current).
+// Sidebar preset list (#presetsPanel): save the whole rack, load, rename,
+// delete. Uses the account store when signed in, IndexedDB otherwise.
+// The preset last loaded or saved is marked active (aria-current); changes
+// made after loading it are kept only by "Update" or "Save as new".
 export default class PresetsPanel {
   constructor({account, localStore, remoteStore, captureState, applyState, suggestName = () => '', report = () => {},
     root = document}) {
@@ -18,6 +19,7 @@ export default class PresetsPanel {
   attach() {
     this.$('presetsPanel').hidden = false;
     this.$('presetSave').onclick = () => this.save();
+    this.$('presetUpdate').onclick = () => this.update();
     this.account?.addEventListener('change', () => this.refresh());
     return this.refresh();
   }
@@ -75,6 +77,14 @@ export default class PresetsPanel {
     const empty = !this.presets.length;
     list.hidden = empty;
     list.setAttribute('aria-busy', String(this.loadingId !== null));
+    const active = this.presets.find((preset) => preset.id === this.activeId);
+    const update = this.$('presetUpdate');
+    update.hidden = !active;
+    update.disabled = this.loadingId !== null;
+    if (active) {
+      update.textContent = `Update “${active.name}”`;
+      update.title = `Replace “${active.name}” with the current rack`;
+    }
     if (empty) this.status('No preset saved yet.');
     else this.status(`${this.presets.length} preset${this.presets.length === 1 ? '' : 's'}.`);
   }
@@ -91,7 +101,7 @@ export default class PresetsPanel {
 
   async save() {
     const suggestion = (await Promise.resolve(this.suggestName()).catch(() => '')) || 'Preset';
-    const name = await promptDialog({title: 'Save new preset', label: 'Preset name', value: this.uniqueName(suggestion.slice(0, 90)),
+    const name = await promptDialog({title: 'Save as new preset', label: 'Preset name', value: this.uniqueName(suggestion.slice(0, 90)),
       confirmLabel: 'Save preset'});
     if (!name) return;
     this.$('presetSave').disabled = true;
@@ -103,6 +113,20 @@ export default class PresetsPanel {
       this.status(`Saved “${name}”.`);
     } catch (error) { this.status(`Could not save the preset: ${error.message}`, true); }
     finally { this.$('presetSave').disabled = false; }
+  }
+
+  // Overwrites the active preset with the current rack (pedals, gains, both lanes).
+  async update() {
+    const active = this.presets.find((preset) => preset.id === this.activeId);
+    if (!active) return;
+    this.$('presetUpdate').disabled = true;
+    try {
+      await this.store.update(active.id, {state: await this.captureState()});
+      await this.refresh();
+      this.status(`Updated “${active.name}”.`);
+      this.report(`Preset “${active.name}” updated.`);
+    } catch (error) { this.status(`Could not update “${active.name}”: ${error.message}`, true); }
+    finally { this.$('presetUpdate').disabled = false; }
   }
 
   async load(preset) {

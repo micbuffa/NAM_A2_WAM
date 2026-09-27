@@ -362,6 +362,19 @@ async function initialize() {
     await rack.setState(savedState);syncSourceTrim();
     message('WAM state restored');
   };
+  // Presets saved before the FX rack hold only lane A's NAM and cabinet
+  // ({version: 1, nam, cabinet}). Rebuild a whole rack from them, so loading
+  // one also removes pedals, lane B and chain gains instead of keeping
+  // whatever the current rack has. Updating such a preset upgrades it.
+  const legacyPresetToRack = async ({nam, cabinet}) => {
+    const current = await rack.getState();
+    const entry = (kind, pluginState) => {
+      const existing = current.a.entries.find((candidate) => candidate.kind === kind);
+      return existing && pluginState ? {...existing, state: pluginState, bypass: Number(pluginState.parameterValues?.bypass?.value) >= .5} : null;
+    };
+    return {...current, a: {...current.a, entries: [entry('nam', nam), entry('cabinet', cabinet)].filter(Boolean)},
+      b: null, visible: false, route: null, enabledB: false, mutedA: false, panA: 0, panB: 0, inputDbB: 0, outputDbA: 0, outputDbB: 0};
+  };
   // Plugin editors are created on demand by FxChain; the account reloads the
   // favorites/preferences of whichever NAM and cabinet editors are open.
   const accountGuis = () => [rack.a, rack.b].filter(Boolean).flatMap((lane) => lane.entries)
@@ -371,11 +384,7 @@ async function initialize() {
     captureState: () => rack.getState(),
     applyState: async (state) => {
       chainView.close();
-      if (state.nam && !state.a && !state.entries) {
-        // Presets saved before the FX rack: {version: 1, nam, cabinet} for lane A.
-        await node.setState(state.nam);
-        if (state.cabinet) await cabinetNode.setState(state.cabinet);
-      } else await rack.setState(state);
+      await rack.setState(state.nam && !state.a && !state.entries ? await legacyPresetToRack(state) : state);
       syncSourceTrim();
     },
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});

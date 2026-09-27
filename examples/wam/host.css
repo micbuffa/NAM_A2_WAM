@@ -57,6 +57,12 @@ button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity:
 .host-help.error { color: #ff9fae; }
 .account-identity { margin: 0; color: #aaa4b4; font-size: 11px; overflow-wrap: anywhere; }
 .account-identity strong { color: var(--host-text); font-weight: 650; }
+.preset-actions { display: grid; gap: 6px; }
+.preset-actions button { margin-top: 0; }
+.preset-actions button:first-child:not([hidden]) { margin-top: 9px; color: #efeaff; border-color: var(--host-accent); }
+.preset-actions button[hidden] { display: none; }
+.preset-actions button:last-child { margin-top: 9px; }
+.preset-actions button:not([hidden]) + button { margin-top: 0; }
 .preset-list { display: grid; gap: 5px; margin: 10px 0 0; padding: 0; list-style: none; }
 .preset-list[hidden] { display: none; }
 .preset-item { display: grid; grid-template-columns: minmax(0, 1fr) 30px 30px; gap: 4px; }

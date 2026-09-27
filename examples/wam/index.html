@@ -60,7 +60,10 @@
       <section class="host-card host-presets" id="presetsPanel" aria-labelledby="presets-title" hidden>
         <h2 id="presets-title"><span class="host-dot amber"></span>Presets</h2>
         <p class="host-help" id="presetScope">Stored in this browser.</p>
-        <button class="host-secondary" id="presetSave" type="button" aria-haspopup="dialog">Save current chain…</button>
+        <div class="preset-actions">
+          <button class="host-secondary" id="presetUpdate" type="button" hidden>Update preset</button>
+          <button class="host-secondary" id="presetSave" type="button" aria-haspopup="dialog">Save as new…</button>
+        </div>
         <ul class="preset-list" id="presetList" aria-label="Saved presets"></ul>
         <p class="host-help" id="presetStatus" role="status" aria-live="polite"></p>
       </section>
