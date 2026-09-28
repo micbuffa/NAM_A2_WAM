@@ -49,6 +49,9 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
 
   // guis(): the plugin editors currently open (FxChain creates them on demand).
   const attach = async ({guis = () => [], captureState, applyState, suggestName, report = () => {}}) => {
+    // The rack as it starts, before any preset: what a guest gets. Signing
+    // out goes back to it, so the account's sound does not stay on screen.
+    const guestRack = await captureState();
     const presets = new PresetsPanel({account, localStore: localPresets, remoteStore: new RemotePresetStore({api}),
       captureState, applyState, suggestName, report});
     const importer = new LocalDataImport({account, localPresets, localFavorites, readLocalPreferences, encodeAsset});
@@ -60,9 +63,16 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
       await Promise.all([reloadGuis(), presets.refresh()]);
       report(`Imported ${imported.presets} preset(s) and ${imported.favorites} favorite(s) into your account.`);
     };
+    const resetToGuestRack = async () => {
+      await applyState(structuredClone(guestRack));
+      report('Signed out: the rack is back to its default settings.');
+    };
     // PresetsPanel refreshes itself on change; the plugin GUIs need a nudge.
-    account.addEventListener('change', () => reloadGuis().then(offerImport)
-      .catch((error) => report(`Account sync failed: ${error.message}`, true)));
+    account.addEventListener('change', ({detail: {previous, user}}) => {
+      const signedOut = previous && !user;
+      (signedOut ? resetToGuestRack() : Promise.resolve()).then(reloadGuis).then(offerImport)
+        .catch((error) => report(`Account sync failed: ${error.message}`, true));
+    });
     new AccountPanel({account}).attach();
     await presets.attach();
     // Signed in by a page load (magic link, then "Open the rack").

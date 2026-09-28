@@ -108,6 +108,28 @@ class AccountPresetsTest < ApplicationSystemTestCase
     wait_until("the sign-in tab closes itself") { link_window.closed? }
   end
 
+  test "signing out puts the rack back to the guest default" do
+    skip_unless_rack_synced
+    visit "/rack/"
+    assert_text "Chain ready", wait: 40
+    guest = chain_snapshot
+
+    token = SignInToken.issue!(email: "leaver@example.com").token
+    within_window(open_like_a_mail_client(confirm_sign_in_path(token:))) { click_on "Sign in" }
+    within("#accountPanel") { assert_text "leaver@example.com", wait: 10 }
+    click_on "Not now" if page.has_css?("dialog[open]", text: "Import", wait: 2)
+    page.evaluate_async_script(<<~JS)
+      const done = arguments[0];
+      window.phase3Debug.node.setParameterValues({inputGain: {id: 'inputGain', value: -7, normalized: false}}).then(() => done());
+    JS
+    assert_not_equal guest["params"], chain_snapshot["params"]
+
+    within("#accountPanel") { click_on "Sign out" }
+    within("#accountPanel") { assert_button "Sign in / Sign up" }
+    assert_text "the rack is back to its default settings", wait: 20
+    assert_equal guest, chain_snapshot
+  end
+
   test "confirming the magic link with no rack open opens the rack signed in" do
     skip_unless_rack_synced
     token = SignInToken.issue!(email: "solo@example.com").token
