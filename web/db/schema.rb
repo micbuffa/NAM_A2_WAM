@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_25_133850) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_28_120000) do
   create_table "favorites", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "kind", null: false
@@ -45,10 +45,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_25_133850) do
   create_table "sign_in_tokens", force: :cascade do |t|
     t.string "email", null: false
     t.string "token_digest", null: false
-    t.string "code_digest", null: false
     t.datetime "expires_at", null: false
     t.datetime "used_at"
-    t.integer "failed_attempts", default: 0, null: false
     t.string "request_ip"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

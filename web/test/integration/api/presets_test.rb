@@ -64,10 +64,11 @@ class Api::PresetsTest < ActionDispatch::IntegrationTest
     with_forgery_protection do
       get "/rack/"
       token = css_select("meta[name=csrf-token]").first["content"]
-      sign_in_code = SignInToken.issue!(email: "alice@example.com").code
-      post sign_in_code_path, params: { email: "alice@example.com", code: sign_in_code }, headers: { "X-CSRF-Token" => token }, as: :json
+      sign_in_token = SignInToken.issue!(email: "alice@example.com").token
+      post confirm_sign_in_path, params: { token: sign_in_token }, headers: { "X-CSRF-Token" => token }
       assert_response :success
-      token = response.parsed_body["csrfToken"] # rotated by the new session
+      get "/rack/" # the new session rotates the CSRF token
+      token = css_select("meta[name=csrf-token]").first["content"]
 
       post api_presets_path, params: { name: "No token", state: STATE }, as: :json
       assert_response :unprocessable_content

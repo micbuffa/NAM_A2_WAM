@@ -1,29 +1,25 @@
-# One-time magic link + 6-digit code, both stored as keyed digests (HMAC with a
-# key derived from secret_key_base, so a leaked table cannot be brute-forced
-# offline). Issuing a token revokes the previous ones for the same address.
+# One-time magic link, stored as a keyed digest (HMAC with a key derived from
+# secret_key_base, so a leaked table is useless on its own). Issuing a token
+# revokes the previous ones for the same address.
 class SignInToken < ApplicationRecord
   TTL = 15.minutes
-  MAX_FAILED_ATTEMPTS = 5
-  CODE_DIGITS = 6
 
-  Issued = Data.define(:record, :token, :code)
+  Issued = Data.define(:record, :token)
 
   normalizes :email, with: ->(email) { email.strip.downcase }
   validates :email, presence: true, length: { maximum: 254 }, format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  scope :active, -> { where(used_at: nil).where(expires_at: Time.current..).where(failed_attempts: ...MAX_FAILED_ATTEMPTS) }
+  scope :active, -> { where(used_at: nil).where(expires_at: Time.current..) }
 
   class << self
     def issue!(email:, request_ip: nil)
       email = normalize_value_for(:email, email.to_s)
       token = SecureRandom.urlsafe_base64(32)
-      code = SecureRandom.random_number(10**CODE_DIGITS).to_s.rjust(CODE_DIGITS, "0")
       transaction do
         # "used_at" doubles as revocation: only the latest request stays valid.
         where(email:, used_at: nil).update_all(used_at: Time.current)
-        record = create!(email:, token_digest: digest(token), code_digest: code_digest(email, code),
-          expires_at: TTL.from_now, request_ip:)
-        Issued.new(record:, token:, code:)
+        record = create!(email:, token_digest: digest(token), expires_at: TTL.from_now, request_ip:)
+        Issued.new(record:, token:)
       end
     end
 
@@ -31,28 +27,11 @@ class SignInToken < ApplicationRecord
       active.find_by(token_digest: digest(token.to_s)) if token.present?
     end
 
-    # Returns the signed-in User, or nil. Every wrong code counts against the
-    # latest token for the address; it dies after MAX_FAILED_ATTEMPTS.
-    def consume_code(email:, code:)
-      email = normalize_value_for(:email, email.to_s)
-      record = active.where(email:).order(created_at: :desc).first
-      return unless record
-
-      if ActiveSupport::SecurityUtils.secure_compare(record.code_digest, code_digest(email, code.to_s.gsub(/\s/, "")))
-        record.consume
-      else
-        record.class.where(id: record.id).update_all("failed_attempts = failed_attempts + 1")
-        nil
-      end
-    end
-
     def digest(value)
       OpenSSL::HMAC.hexdigest("SHA256", digest_key, value)
     end
 
     private
-      def code_digest(email, code) = digest("#{email}:#{code}")
-
       def digest_key
         @digest_key ||= Rails.application.key_generator.generate_key("sign_in_tokens/v1", 32)
       end

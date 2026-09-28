@@ -55,7 +55,7 @@ test('writes send the CSRF token and adopt a rotated token', async () => {
   const document = fakeDocument();
   const {calls, fetchImpl} = recordingFetch([{body: {user: {id: 1}, csrfToken: 'token-2'}}, {status: 201, body: {id: 3}}, {body: []}]);
   const api = new AccountApi({document, fetchImpl});
-  await api.verifyCode('a@example.com', '123456');
+  await api.signOut();
   await api.createPreset('Crunch', {version: 1});
   await api.listPresets();
   assert.equal(calls[0].headers['X-CSRF-Token'], 'token-1');

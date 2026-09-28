@@ -13,7 +13,7 @@ class SignInFlowTest < ActionDispatch::IntegrationTest
     assert_equal 200, responses.first.first
   end
 
-  test "requesting a link enqueues an email with the link and the code" do
+  test "requesting a link enqueues an email with the link" do
     assert_enqueued_emails 1 do
       post sign_in_path, params: { email: "carol@example.com" }
     end
@@ -24,10 +24,9 @@ class SignInFlowTest < ActionDispatch::IntegrationTest
     mail = ActionMailer::Base.deliveries.last
     assert_equal [ "carol@example.com" ], mail.to
     assert_match %r{/sign_in/confirm\?token=[\w-]+}, mail.text_part.body.to_s
-    assert_match(/^\d{6}$/, mail.text_part.body.to_s)
   end
 
-  test "the mail job never logs the token or the code" do
+  test "the mail job never logs the token" do
     post sign_in_path, params: { email: "carol@example.com" }
     job = enqueued_jobs.last
     assert_equal "SensitiveMailDeliveryJob", job["job_class"]
@@ -70,25 +69,6 @@ class SignInFlowTest < ActionDispatch::IntegrationTest
     assert_match(/expires=/i, cookie)
   end
 
-  test "code flow signs in and returns the account with a fresh CSRF token" do
-    issued = SignInToken.issue!(email: "alice@example.com")
-    post sign_in_code_path, params: { email: "Alice@example.com", code: issued.code }, as: :json
-    assert_response :success
-    assert_equal "alice@example.com", response.parsed_body.dig("user", "email")
-    assert response.parsed_body["csrfToken"].present?
-
-    get api_me_path
-    assert_equal users(:alice).id, response.parsed_body.dig("user", "id")
-  end
-
-  test "wrong code is rejected" do
-    SignInToken.issue!(email: "alice@example.com")
-    post sign_in_code_path, params: { email: "alice@example.com", code: "abcdef" }, as: :json
-    assert_response :unprocessable_content
-    get api_me_path
-    assert_nil response.parsed_body["user"]
-  end
-
   test "link requests are rate limited per email" do
     5.times { post sign_in_path, params: { email: "alice@example.com" }, as: :json }
     assert_response :success
@@ -101,13 +81,6 @@ class SignInFlowTest < ActionDispatch::IntegrationTest
   test "link requests are rate limited per IP" do
     20.times { |i| post sign_in_path, params: { email: "user#{i}@example.com" }, as: :json }
     post sign_in_path, params: { email: "another@example.com" }, as: :json
-    assert_response :too_many_requests
-  end
-
-  test "code attempts are rate limited per email" do
-    SignInToken.issue!(email: "alice@example.com")
-    10.times { post sign_in_code_path, params: { email: "alice@example.com", code: "000000" }, as: :json }
-    post sign_in_code_path, params: { email: "alice@example.com", code: "000000" }, as: :json
     assert_response :too_many_requests
   end
 

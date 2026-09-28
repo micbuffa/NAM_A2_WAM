@@ -45,7 +45,6 @@ export default class AccountApi {
 
   me() { return this.request('GET', '/api/me'); }
   requestSignIn(email) { return this.request('POST', '/sign_in', {email}); }
-  verifyCode(email, code) { return this.request('POST', '/sign_in/code', {email, code}); }
   signOut() { return this.request('DELETE', '/session'); }
   signOutOthers() { return this.request('DELETE', '/sessions/others'); }
 

@@ -1,7 +1,7 @@
 # NAM A2 WAM — Rails app (accounts)
 
 Rails 8 + SQLite monolith that serves the rack on a single origin and adds
-passwordless accounts: sign in with an emailed link or 6-digit code, then
+passwordless accounts: sign in with an emailed link, then
 keep presets (the full WAM chain), NAM/IR favorites and preferences on every
 device. Visitors who do not sign in keep using the rack exactly as before,
 with their data in the browser.
@@ -12,7 +12,7 @@ with their data in the browser.
 | --- | --- | --- |
 | `/rack/` (and `/rack/index.html`) | `RackController#show` | Port of `examples/wam/index.html` with `csrf_meta_tags` and the current user as JSON (`#currentUser`). `/` and `/rack` redirect here. |
 | `/rack/**` (JS, WASM, models, IRs) | `public/rack/`, static | Generated copy of `dist/NAM_A2_WAM/` without `index.html`. No Propshaft, no importmap: relative imports and `new URL('./x.wasm', import.meta.url)` keep working. |
-| `/sign_in…`, `/session`, `/sessions/others` | `SignInsController`, `SessionsController` | Magic link + code, sign-out, sign-out of other devices. |
+| `/sign_in…`, `/session`, `/sessions/others` | `SignInsController`, `SessionsController` | Magic link, sign-out, sign-out of other devices. |
 | `/api/me`, `/api/presets`, `/api/favorites`, `/api/preferences`, `/api/import` | JSON controllers | Session cookie + `X-CSRF-Token`. Every query is scoped to the current user. |
 
 The rack's account code lives in [`../examples/wam/account/`](../examples/wam/account/)
@@ -92,7 +92,7 @@ Notes:
 ```sh
 bin/rails test          # models, auth flow, API scoping, isolation headers
 bin/rails test:system   # headless Chrome: crossOriginIsolated, WAM startup,
-                        # sign-in by code, preset save/alter/restore, cross-tab sign-in
+                        # sign-in by link, preset save/alter/restore, cross-tab sign-in
 ```
 
 Tests that need the real rack tree skip with a hint when `public/rack/` has
@@ -152,17 +152,15 @@ https://<APP_HOST>/rack/index.html
 
 - One email form for sign-in and sign-up; the account is created on the first
   successful sign-in. The response is identical whether the address exists.
-- `sign_in_tokens` stores an HMAC of a random token and of a 6-digit code
-  (key derived from `secret_key_base`), valid 15 minutes, single use; each new
-  request revokes the previous ones for the address; a code dies after 5 wrong
-  attempts.
+- `sign_in_tokens` stores an HMAC of a random token (key derived from
+  `secret_key_base`), valid 15 minutes, single use; each new request revokes
+  the previous ones for the address.
 - The emailed link (`GET /sign_in/confirm?token=…`, filtered from logs) only
   shows a confirmation button; the `POST` consumes the token, so mail scanners
-  that prefetch links cannot burn it. The code can be typed in the rack's
-  dialog, e.g. when the mail is read on a phone.
+  that prefetch links cannot burn it. We assume the mail is read on the
+  computer running the rack: the link signs in that browser only.
 - Rate limits (Rails 8 `rate_limit`, Solid Cache in production): 5 link
-  requests per email per 15 min, 20 per IP per hour; 10 code attempts per
-  email per 15 min, 30 per IP per hour.
+  requests per email per 15 min, 20 per IP per hour.
 - Sessions are `Session` rows (user agent, IP, `last_seen_at`) behind a signed,
   httpOnly, `SameSite=Lax`, `Secure` (production), 20-year cookie. Sign-out
   destroys the row; "Sign out other devices" destroys the others.
@@ -191,7 +189,7 @@ SMTP values for the two tested relays:
 | Brevo | `smtp-relay.brevo.com` | `587` | your Brevo SMTP login | an SMTP key |
 | Postmark | `smtp.postmarkapp.com` | `587` | the server API token | the same server API token |
 
-Mail jobs carry the plaintext token and code: they are delivered by
+Mail jobs carry the plaintext token: they are delivered by
 `SensitiveMailDeliveryJob`, which does not log its arguments, and finished
 jobs are not kept (`solid_queue.preserve_finished_jobs = false`). A failed job
 stays in `solid_queue_failed_executions` until discarded; its token has

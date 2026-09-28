@@ -115,7 +115,7 @@ An automated validation page is available at
 ## Accounts, presets and sync (Rails app)
 
 [`web/`](web/) is a Rails 8 + SQLite app that serves the same rack on one origin and adds
-passwordless accounts (emailed link or 6-digit code), server-side presets of the whole WAM chain,
+passwordless accounts (emailed magic link), server-side presets of the whole WAM chain,
 synced NAM/IR favorites and preferences. Without an account the rack works as above, with presets
 kept in the browser (IndexedDB); after sign-in the rack offers to import them.
 

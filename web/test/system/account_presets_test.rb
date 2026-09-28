@@ -15,7 +15,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
     }))).catch((error) => done('ERROR ' + error.message));
   JS
 
-  test "sign in with the emailed code, save a preset, alter the chain and restore it" do
+  test "sign in with the emailed link, save a preset, alter the chain and restore it" do
     skip_unless_rack_synced
     visit "/rack/"
     assert_text "Chain ready", wait: 40
@@ -25,16 +25,20 @@ class AccountPresetsTest < ApplicationSystemTestCase
     within("dialog[open]") do
       fill_in "Email", with: "player@example.com"
       perform_enqueued_jobs do # the server enqueues the mail while we wait
-        click_on "Send link and code"
-        assert_field "6-digit code"
+        click_on "Send link"
+        assert_text "Open it on this computer"
       end
     end
-    code = ActionMailer::Base.deliveries.last.text_part.body.to_s[/^\d{6}$/]
-    within("dialog[open]") do
-      fill_in "6-digit code", with: code
+    link = ActionMailer::Base.deliveries.last.text_part.body.to_s[%r{http\S+/sign_in/confirm\?token=[\w-]+}]
+    rack_window = current_window
+    within_window(open_new_window) do
+      visit URI(link).request_uri
       click_on "Sign in"
+      assert_text "You are signed in"
     end
-    within("#accountPanel") { assert_text "player@example.com" }
+    switch_to_window(rack_window)
+    within("#accountPanel") { assert_text "player@example.com", wait: 10 }
+    assert_no_css "dialog[open]", text: "Sign in or create an account"
     click_on "Not now" if page.has_css?("dialog[open]", text: "Import", wait: 2)
 
     saved = chain_snapshot

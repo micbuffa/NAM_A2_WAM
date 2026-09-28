@@ -1,9 +1,8 @@
 import {actionsRow, button, confirmDialog, createDialog} from './dialogs.js';
 
 // Sidebar account block (#accountPanel) and the sign-in dialog. Sign-in and
-// sign-up are one flow: email -> link + 6-digit code by mail. The code can be
-// typed here (mail read on a phone); the link, opened on this computer,
-// signs in another tab which notifies this one via BroadcastChannel.
+// sign-up are one flow: email -> link by mail. The link, opened on this
+// computer, signs in another tab which notifies this one via BroadcastChannel.
 export default class AccountPanel {
   constructor({account, root = document}) {
     this.account = account;
@@ -57,43 +56,32 @@ export default class AccountPanel {
 
     const emailForm = document.createElement('form');
     const email = Object.assign(document.createElement('input'), {id: `${id}-email`, type: 'email', required: true, autocomplete: 'email', maxLength: 254});
-    const send = button('Send link and code', {type: 'submit', primary: true});
+    const send = button('Send link', {type: 'submit', primary: true});
     emailForm.append(...field('Email', email), actionsRow(cancel(), send));
 
-    const codeForm = document.createElement('form');
-    codeForm.hidden = true;
-    const code = Object.assign(document.createElement('input'), {id: `${id}-code`, required: true, inputMode: 'numeric',
-      autocomplete: 'one-time-code', pattern: '[0-9 ]{6,7}', maxLength: 7});
-    const verify = button('Sign in', {type: 'submit', primary: true});
+    // After sending, the dialog waits: the link opened in another tab signs
+    // in over BroadcastChannel, and the 'change' listener closes it.
+    const waiting = document.createElement('div');
+    waiting.hidden = true;
     const back = button('Use another email');
-    back.onclick = () => { codeForm.hidden = true; emailForm.hidden = false; message.textContent = ''; error.textContent = ''; email.focus(); };
-    codeForm.append(...field('6-digit code', code), actionsRow(back, verify));
+    back.onclick = () => { waiting.hidden = true; emailForm.hidden = false; message.textContent = ''; error.textContent = ''; email.focus(); };
+    waiting.append(actionsRow(back, cancel()));
 
     emailForm.onsubmit = async (event) => {
       event.preventDefault();
       send.disabled = true; error.textContent = '';
       try {
         const result = await this.api.requestSignIn(email.value.trim());
-        message.textContent = `${result.message} Type the code below, or open the link on this computer.`;
-        emailForm.hidden = true; codeForm.hidden = false; code.value = ''; code.focus();
+        message.textContent = `${result.message} Open it on this computer: this window closes once you are signed in.`;
+        emailForm.hidden = true; waiting.hidden = false; back.focus();
       } catch (failure) { error.textContent = failure.message; }
       finally { send.disabled = false; }
-    };
-    codeForm.onsubmit = async (event) => {
-      event.preventDefault();
-      verify.disabled = true; error.textContent = '';
-      try {
-        const {user} = await this.api.verifyCode(email.value.trim(), code.value.replace(/\s/gu, ''));
-        this.account.setUser(user, {announce: true});
-        dialog.close();
-      } catch (failure) { error.textContent = failure.message; code.select(); }
-      finally { verify.disabled = false; }
     };
 
     const intro = document.createElement('p');
     intro.className = 'host-help';
-    intro.textContent = 'No password: we email you a sign-in link and a 6-digit code. New addresses get an account automatically.';
-    body.append(intro, emailForm, codeForm, message, error);
+    intro.textContent = 'No password: we email you a sign-in link. New addresses get an account automatically.';
+    body.append(intro, emailForm, waiting, message, error);
     dialog.showModal();
     email.focus();
   }

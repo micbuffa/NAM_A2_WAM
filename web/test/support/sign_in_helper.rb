@@ -1,8 +1,8 @@
 module SignInHelper
-  # Signs in through the real code flow so cookies are set like in a browser.
+  # Signs in through the real magic-link flow so cookies are set like in a browser.
   def sign_in_as(user)
     issued = SignInToken.issue!(email: user.email)
-    post sign_in_code_path, params: { email: user.email, code: issued.code }, as: :json
+    post confirm_sign_in_path, params: { token: issued.token }
     assert_response :success
     user
   end
