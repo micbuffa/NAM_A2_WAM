@@ -1,0 +1,20 @@
+<script>
+  // Hands the sign-in over to the rack: an open rack tab refreshes its account
+  // and answers "rack-open", then this tab closes; with no rack open, this tab
+  // becomes the rack.
+  window.handOffToRack = () => {
+    const status = document.getElementById('auth-status');
+    const openRack = () => location.replace('/rack/');
+    if (typeof BroadcastChannel !== 'function') return openRack();
+    const channel = new BroadcastChannel('nam-a2-wam.account');
+    const fallback = setTimeout(() => { channel.close(); openRack(); }, 600);
+    channel.onmessage = (event) => {
+      if (event.data?.type !== 'rack-open') return;
+      clearTimeout(fallback);
+      channel.close();
+      window.close(); // allowed while the tab has a single history entry
+      if (status) status.textContent = 'Signed in. The rack has been updated: you can close this tab.';
+    };
+    channel.postMessage({type: 'signed-in'});
+  };
+</script>

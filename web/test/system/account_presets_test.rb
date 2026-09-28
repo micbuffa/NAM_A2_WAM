@@ -30,14 +30,10 @@ class AccountPresetsTest < ApplicationSystemTestCase
       end
     end
     link = ActionMailer::Base.deliveries.last.text_part.body.to_s[%r{http\S+/sign_in/confirm\?token=[\w-]+}]
-    rack_window = current_window
-    within_window(open_new_window) do
-      visit URI(link).request_uri
-      click_on "Sign in"
-      assert_text "You are signed in"
-    end
-    switch_to_window(rack_window)
+    link_window = open_like_a_mail_client(URI(link).request_uri)
+    within_window(link_window) { click_on "Sign in" }
     within("#accountPanel") { assert_text "player@example.com", wait: 10 }
+    wait_until("the sign-in tab closes itself") { link_window.closed? }
     assert_no_css "dialog[open]", text: "Sign in or create an account"
     click_on "Not now" if page.has_css?("dialog[open]", text: "Import", wait: 2)
 
@@ -101,21 +97,42 @@ class AccountPresetsTest < ApplicationSystemTestCase
     within("#accountPanel") { assert_button "Sign in / Sign up" }
 
     token = SignInToken.issue!(email: "linker@example.com").token
-    rack_window = current_window
-    link_window = open_new_window
+    link_window = open_like_a_mail_client(confirm_sign_in_path(token:))
     within_window(link_window) do
-      visit confirm_sign_in_path(token:)
       assert_text "Confirm sign-in"
       click_on "Sign in"
-      assert_text "You are signed in"
     end
 
-    switch_to_window(rack_window)
     within("#accountPanel") { assert_text "linker@example.com", wait: 10 }
     assert page.evaluate_script("window.__sameDocument === true"), "the rack tab must not reload"
+    wait_until("the sign-in tab closes itself") { link_window.closed? }
+  end
+
+  test "confirming the magic link with no rack open opens the rack signed in" do
+    skip_unless_rack_synced
+    token = SignInToken.issue!(email: "solo@example.com").token
+    visit confirm_sign_in_path(token:)
+    click_on "Sign in"
+    assert_current_path "/rack/", wait: 10
+    within("#accountPanel") { assert_text "solo@example.com", wait: 10 }
   end
 
   private
+    # A new tab whose history starts at the link, like a webmail's
+    # target=_blank rel=noopener (open_new_window starts at about:blank, which
+    # forbids window.close()).
+    def open_like_a_mail_client(path)
+      window_opened_by { page.execute_script("window.open(arguments[0], '_blank', 'noopener')", path) }
+    end
+
+    def wait_until(what, timeout: 5)
+      deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+      until yield
+        flunk "timed out waiting until #{what}" if Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
+        sleep 0.05
+      end
+    end
+
     def chain_snapshot
       result = page.evaluate_async_script(CHAIN_SNAPSHOT_JS)
       flunk result if result.start_with?("ERROR")

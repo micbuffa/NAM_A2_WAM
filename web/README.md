@@ -164,8 +164,11 @@ https://<APP_HOST>/rack/index.html
 - Sessions are `Session` rows (user agent, IP, `last_seen_at`) behind a signed,
   httpOnly, `SameSite=Lax`, `Secure` (production), 20-year cookie. Sign-out
   destroys the row; "Sign out other devices" destroys the others.
-- After a sign-in in another tab, the confirmation page posts on the
-  `nam-a2-wam.account` BroadcastChannel and the rack updates without reloading.
+- The confirmation page confirms with `fetch` (the tab keeps a one-entry
+  history, so it may close itself), then posts `signed-in` on the
+  `nam-a2-wam.account` BroadcastChannel. An open rack refreshes its account
+  without reloading and answers `rack-open`, and the sign-in tab closes; with
+  no rack open, the tab goes to `/rack/`.
 
 ## Environment variables (production)
 

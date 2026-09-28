@@ -11,6 +11,8 @@ export default class Account extends EventTarget {
     this.channel = typeof BroadcastChannelImpl === 'function' ? new BroadcastChannelImpl(ACCOUNT_CHANNEL) : null;
     if (this.channel) this.channel.onmessage = (event) => {
       if (event.data?.type === 'signed-in' || event.data?.type === 'signed-out') this.refresh().catch(() => {});
+      // Lets the sign-in tab know a rack is open, so it closes instead of opening another one.
+      if (event.data?.type === 'signed-in') this.channel.postMessage({type: 'rack-open'});
     };
   }
 

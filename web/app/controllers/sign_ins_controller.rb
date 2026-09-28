@@ -40,13 +40,22 @@ class SignInsController < ApplicationController
     render :invalid, status: :not_found unless @sign_in_token
   end
 
-  # POST /sign_in/confirm
+  # POST /sign_in/confirm — JSON from the confirmation page's script (so the
+  # tab keeps a one-entry history and may close itself), HTML without JS.
   def confirm
     user = SignInToken.find_active_by_token(params[:token])&.consume
-    return render(:invalid, status: :not_found) unless user
+    unless user
+      return respond_to do |format|
+        format.html { render :invalid, status: :not_found }
+        format.json { render json: { error: "This link is invalid or has expired." }, status: :not_found }
+      end
+    end
 
     start_new_session_for(user)
-    render :signed_in
+    respond_to do |format|
+      format.html { render :signed_in }
+      format.json { render json: account_payload }
+    end
   end
 
   private

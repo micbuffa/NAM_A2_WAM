@@ -60,6 +60,17 @@ class SignInFlowTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "the confirmation page's script confirms over JSON" do
+    issued = SignInToken.issue!(email: "alice@example.com")
+    post confirm_sign_in_path, params: { token: issued.token }, as: :json
+    assert_response :success
+    assert_equal "alice@example.com", response.parsed_body.dig("user", "email")
+
+    post confirm_sign_in_path, params: { token: issued.token }, as: :json
+    assert_response :not_found
+    assert response.parsed_body["error"].present?
+  end
+
   test "session cookie is httpOnly, SameSite=Lax and long-lived" do
     issued = SignInToken.issue!(email: "alice@example.com")
     post confirm_sign_in_path, params: { token: issued.token }
