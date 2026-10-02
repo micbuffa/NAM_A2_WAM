@@ -11,4 +11,12 @@ class SessionTest < ActiveSupport::TestCase
       session.touch_last_seen
     end
   end
+
+  test "a session unused for 90 days is idle" do
+    fresh = users(:alice).sessions.create!(last_seen_at: 89.days.ago)
+    stale = users(:alice).sessions.create!(last_seen_at: 91.days.ago)
+    assert_not fresh.idle?
+    assert stale.idle?
+    assert_equal [ stale ], Session.idle.to_a
+  end
 end

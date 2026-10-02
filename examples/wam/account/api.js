@@ -46,7 +46,6 @@ export default class AccountApi {
   me() { return this.request('GET', '/api/me'); }
   requestSignIn(email) { return this.request('POST', '/sign_in', {email}); }
   signOut() { return this.request('DELETE', '/session'); }
-  signOutOthers() { return this.request('DELETE', '/sessions/others'); }
 
   listPresets() { return this.request('GET', '/api/presets'); }
   getPreset(id) { return this.request('GET', `/api/presets/${encodeURIComponent(id)}`); }

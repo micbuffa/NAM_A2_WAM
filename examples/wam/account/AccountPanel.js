@@ -1,4 +1,4 @@
-import {actionsRow, button, confirmDialog, createDialog} from './dialogs.js';
+import {actionsRow, button, createDialog} from './dialogs.js';
 
 // Sidebar account block (#accountPanel) and the sign-in dialog. Sign-in and
 // sign-up are one flow: email -> link by mail. The link, opened on this
@@ -15,7 +15,6 @@ export default class AccountPanel {
     this.panel.hidden = false;
     this.$('accountSignIn').onclick = () => this.openSignIn();
     this.$('accountSignOut').onclick = () => this.signOut();
-    this.$('accountSignOutOthers').onclick = () => this.signOutOthers();
     this.account.addEventListener('change', () => { this.render(); if (this.account.signedIn) this.signInDialog?.close(); });
     this.render();
   }
@@ -91,17 +90,6 @@ export default class AccountPanel {
       await this.api.signOut();
       this.account.setUser(null, {announce: true});
       this.status('Signed out. Presets and favorites are now stored in this browser.');
-    } catch (error) { this.status(error.message, true); }
-  }
-
-  async signOutOthers() {
-    const confirmed = await confirmDialog({title: 'Sign out other devices',
-      message: 'Every other browser signed in to this account will be signed out. This one stays signed in.',
-      confirmLabel: 'Sign out others'});
-    if (!confirmed) return;
-    try {
-      const {signedOut} = await this.api.signOutOthers();
-      this.status(signedOut ? `Signed out ${signedOut} other device${signedOut === 1 ? '' : 's'}.` : 'No other device was signed in.');
     } catch (error) { this.status(error.message, true); }
   }
 }

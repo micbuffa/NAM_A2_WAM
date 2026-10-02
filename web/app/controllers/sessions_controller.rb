@@ -10,15 +10,6 @@ class SessionsController < ApplicationController
     end
   end
 
-  # DELETE /sessions/others — keep this device, sign every other one out.
-  def destroy_others
-    count = current_user.sessions.where.not(id: Current.session.id).destroy_all.size
-    respond_to do |format|
-      format.html { redirect_to rack_path, status: :see_other }
-      format.json { render json: { signedOut: count } }
-    end
-  end
-
   private
     def require_session
       return if authenticated?

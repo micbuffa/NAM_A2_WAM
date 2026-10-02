@@ -112,18 +112,14 @@ class SignInFlowTest < ActionDispatch::IntegrationTest
     assert_nil response.parsed_body["user"]
   end
 
-  test "sign out other devices keeps the current one" do
-    other = users(:alice).sessions.create!(last_seen_at: Time.current)
-    bobs = users(:bob).sessions.create!(last_seen_at: Time.current)
+  test "a session idle for 90 days no longer signs in" do
     sign_in_as users(:alice)
-
-    delete other_sessions_path, as: :json
-    assert_response :success
-    assert_equal 1, response.parsed_body["signedOut"]
-    assert_not Session.exists?(other.id)
-    assert Session.exists?(bobs.id)
-    get api_me_path
-    assert_equal users(:alice).id, response.parsed_body.dig("user", "id")
+    travel 91.days do
+      assert_difference -> { Session.count }, -1 do
+        get api_me_path
+      end
+      assert_nil response.parsed_body["user"]
+    end
   end
 
   test "sign out requires a session" do

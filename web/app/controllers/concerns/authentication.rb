@@ -20,7 +20,12 @@ module Authentication
     end
 
     def find_session_by_cookie
-      Session.find_by(id: cookies.signed[COOKIE]) if cookies.signed[COOKIE]
+      session = Session.find_by(id: cookies.signed[COOKIE]) if cookies.signed[COOKIE]
+      return session unless session&.idle?
+
+      session.destroy
+      cookies.delete(COOKIE)
+      nil
     end
 
     def start_new_session_for(user)

@@ -12,7 +12,7 @@ with their data in the browser.
 | --- | --- | --- |
 | `/rack/` (and `/rack/index.html`) | `RackController#show` | Port of `examples/wam/index.html` with `csrf_meta_tags` and the current user as JSON (`#currentUser`). `/` and `/rack` redirect here. |
 | `/rack/**` (JS, WASM, models, IRs) | `public/rack/`, static | Generated copy of `dist/NAM_A2_WAM/` without `index.html`. No Propshaft, no importmap: relative imports and `new URL('./x.wasm', import.meta.url)` keep working. |
-| `/sign_in…`, `/session`, `/sessions/others` | `SignInsController`, `SessionsController` | Magic link, sign-out, sign-out of other devices. |
+| `/sign_in…`, `/session` | `SignInsController`, `SessionsController` | Magic link, sign-out. |
 | `/api/me`, `/api/presets`, `/api/favorites`, `/api/preferences`, `/api/import` | JSON controllers | Session cookie + `X-CSRF-Token`. Every query is scoped to the current user. |
 
 The rack's account code lives in [`../examples/wam/account/`](../examples/wam/account/)
@@ -163,7 +163,8 @@ https://<APP_HOST>/rack/index.html
   requests per email per 15 min, 20 per IP per hour.
 - Sessions are `Session` rows (user agent, IP, `last_seen_at`) behind a signed,
   httpOnly, `SameSite=Lax`, `Secure` (production), 20-year cookie. Sign-out
-  destroys the row; "Sign out other devices" destroys the others.
+  destroys the row. A session unused for 90 days is dropped on its next
+  request and by a daily job (`config/recurring.yml`).
 - The confirmation page confirms with `fetch` (the tab keeps a one-entry
   history, so it may close itself), then posts `signed-in` on the
   `nam-a2-wam.account` BroadcastChannel. An open rack refreshes its account
