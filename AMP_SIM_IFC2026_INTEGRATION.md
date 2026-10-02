@@ -1,7 +1,7 @@
 # Intégration du simulateur d’amplificateur IFC2026
 
 Date : 2026-09-24
-Statut : spécification préalable à l’implémentation. Inspection statique effectuée ; aucune validation audio ni modification du plugin réalisée à ce stade.
+Statut : intégration implémentée et validée dans le navigateur pour EndUserAmp1 et EndUserAmp2. La spécification initiale est conservée ci-dessous ; les sections 9–11 décrivent la livraison et son extension.
 
 ## 1. Objectif
 
@@ -139,3 +139,55 @@ La proposition de « modifier le other_wam » ne décrit pas encore le changemen
 4. Validation audio et multi-instance de la copie isolée.
 5. Ajout au catalogue, tests du rack et de la distribution ; mise à jour de la trace.
 6. Éventuelle adaptation de l’autre hôte, selon le périmètre retenu.
+
+## 9. Livraison Amp1 — résultats du 2026-09-24
+
+Le plugin original a été instancié dans Chromium avec le SDK de notre hôte : 30 paramètres, deux instances distinctes, sortie finie et non nulle sur sinus à 48 kHz (pic mesuré 0,000567 pour cette excitation). Cette mesure a précédé l’ajout du WAM copié au catalogue.
+
+La copie autonome est `examples/wam/wamPlugins/EndUserAmp1`. Son WASM et ses métadonnées DSP sont identiques aux fichiers fournis (SHA-256 conservés dans `SOURCE_MANIFEST.json`). Nom public validé par l’utilisateur le 24 septembre 2026 : **WAM•FAUST TubeLab**, interface or/anthracite. L’identifiant WAM historique est préservé. La vignette provient d’une capture de la GUI réelle.
+
+Corrections nécessaires : état initial attendu, GUI chargée à la demande, arrêt/reprise du polling selon visibilité, destruction idempotente, contrôles `ifc-webaudio-*` initialisés une seule fois. Le ParamMgr fourni fermait son port avant de répondre à `destroy`, bloquant l’attente côté hôte : l’accusé de réception précède maintenant la fermeture. Aucun changement de l’algorithme DSP ou de ses valeurs par défaut.
+
+## 10. Extension Amp2 — ShredLab
+
+Source : `examples/other_wam_host/EndUserAmp2`, chargée par son `host/index.js` via `../index.js`. Version du descripteur : 0.3. Le WAM original a produit une sortie finie et non nulle à 48 kHz et supporté deux instances. Il expose **47 paramètres**, dont les contrôles Preamp_v6 : placement du gain, filtres, trim inter-étages, sag, biais et égalisation post-préampli.
+
+Copie autonome : `examples/wam/wamPlugins/EndUserAmp2`, avec le fichier supplémentaire `ampProfiles.js`. Nom public validé par l’utilisateur le 24 septembre 2026 : **WAM•FAUST ShredLab**, palette bleu pétrole/cuivre. La paire WAM•FAUST TubeLab / WAM•FAUST ShredLab est confirmée par l’utilisateur (choix 1).
+
+Les sources partageaient le même identifiant malgré des DSP différents. Amp2 reçoit `fr.grame.faust.ifc2026.amp2` : worklets et classe de GUI distincts de ceux d’Amp1. Les adresses de paramètres Faust, le binaire et les valeurs DSP par défaut sont conservés. Ses contrôles sont préfixés `ifc2-webaudio-*`.
+
+Le constructeur original de sa GUI appliquait un profil puis écrivait les valeurs de tous les boutons après un délai. Cela écrasait un état fourni par l’hôte et modifiait le son à l’ouverture. Ces écritures automatiques sont retirées : la GUI lit le DSP. La sélection explicite d’un profil applique toujours `AMP_PROFILES`; son libellé est retrouvé depuis les paramètres courants lors d’une réouverture/restauration. Ces choix internes appartiennent au plugin, pas à la phase presets du rack.
+
+Les deux interfaces décrivent les étages Preamp / Tone stack / Power amp / Cabinet / Reverb et s’adaptent aux petites largeurs. « Modélisation paramétrique par étages » est une description vérifiée. L’étiquette méthodologique « grey box » reste à confirmer avec les sources DSP et leur démarche de calibration ; la copie ne présente pas cette classification comme un résultat établi.
+
+## 11. Catalogue et bilan de validation
+
+- Dans `+`, **Amplifiers** et **Cabinets / Speakers** forment les deux colonnes du premier groupe. Les pédales suivent en dessous. Les boutons WAM URI restent indépendants de l’insertion. Le laboratoire place aussi amplis et cabinets en premier dans ses filtres et cartes.
+- Chaque descripteur référence sa propre capture `thumbnail.png`. La distribution vérifie les deux packages et `ampProfiles.js`.
+- `npm test` : **129 tests réussis**, notamment compilation des binaires, empreintes, ressources, URIs relocalisées et identifiants distincts.
+- `npm run dist` : réussi. Tests navigateur sous `/dist/NAM_A2_WAM/`, sans dépendance à l’ancien hôte.
+- Page reproductible : `examples/wam/fx-test/ifc-validation.html`, variante 1 par défaut, variante 2 avec `?variant=2`. **41 vérifications par plugin**, soit **82**, réussies dans la distribution à 44,1/48 kHz : traitement sans GUI, instances indépendantes, canaux gauche/droite, master, état, bypass dry, impulsion, guitare DI, état préservé à l’ouverture, pause/reprise/détachement/suppression de GUI. Aucune erreur navigateur ni promesse rejetée non gérée. Mesures conservées dans les fichiers `VALIDATION.json` des deux plugins.
+- Parcours automatisé du rack : les deux DSP coexistent avec leurs paramètres corrects ; ajout via `+`, vignette/URI, choix explicite de modèle ShredLab, réouverture sans changement d’état, éditeurs distincts, sauvegarde/restauration de ShredLab dans B alimentée après TubeLab dans A. Confirmation de suppression et réinsertion d’Amp1 vérifiées également.
+- Inspection visuelle : dialogue du rack, menu à deux colonnes, ShredLab à 360 px ; les cartes de chaîne ne sont pas agrandies.
+- **Limite :** mesures dans Chromium avec haut-parleur coupé, sans microphone. Aucune écoute matérielle ni mesure de latence/CPU sur une véritable interface guitare n’est revendiquée.
+
+L’ancien hôte et les deux sources restent inchangés. Leur éventuelle redirection vers les copies communes demeure une étape séparée. Aucune gestion des presets du rack n’a été commencée.
+
+### Trace Git
+
+Avant l’implémentation, les changements précédents ont été enregistrés (`77163b8`), fusionnés avec le main distant puis poussés sur `origin/main` (`0a2feab`). L’intégration a ensuite été réalisée sur **New-UI**, revenue au résultat de cette fusion. Les nouvelles intégrations ne sont pas incluses dans le push initial de main.
+
+## 12. Presets d’usine internes aux WAMs — 2026-09-24
+
+Demande utilisateur : proposer des sons prêts à jouer dans chaque plugin, indépendamment des presets du rack (phase 7.2 toujours reportée).
+
+- Chaque GUI propose **Default, Clean, Crunch, Disto / Hi gain, Jazzy, Jordan**. Le choix ne concerne que l’instance courante.
+- Les cinq sons sont extraits exclusivement de `state.amp` dans le `host/presets.js` de la variante correspondante. Contrairement à l’hypothèse initiale, ces fichiers contiennent aussi des pédales : leurs états ne sont pas importés. Leur provenance et leur SHA-256 sont consignés dans `SOURCE_MANIFEST.json`.
+- `factory-presets.js` contient des snapshots complets : 30 paramètres TubeLab, 47 ShredLab. Les sept contrôles Post EQ manquants des anciens presets ShredLab prennent les valeurs initiales de `dsp-meta.json`. Default représente les valeurs initiales du DSP, sans modifier le son au chargement du plugin.
+- API non visuelle : `audioNode.getFactoryPresets()`, `loadFactoryPreset(id)` et `getFactoryPresetStatus()`. Le catalogue est embarqué dans le WAM, sans stockage local ni dépendance à l’ancien hôte.
+- `getState()` conserve les paramètres à plat et ajoute `__wamFactoryPreset: {version: 1, id}`. `setState()` retire ces métadonnées avant ParamMgr, restaure les valeurs exactes puis l’identifiant sélectionné. Un preset retouché n’est jamais remplacé par sa version d’usine lors de la restauration.
+- Le menu affiche **Modified** lorsque les paramètres diffèrent du preset choisi, y compris après une modification par l’hôte. Les anciens états sans métadonnées, ou avec un identifiant inconnu, restent utilisables et s’affichent comme **Current settings**. Un état initial fonctionne sans GUI ; ouvrir ou rouvrir l’éditeur n’applique aucun preset.
+- Les profils de préampli ShredLab restent distincts : un preset d’usine couvre l’ensemble de l’ampli ; un profil modifie seulement ses paramètres propres.
+- Tests : couverture Node du catalogue complet, plages, indépendance des instances, presets retouchés, anciens états et identifiants inconnus. La page `ifc-validation.html` vérifie aussi la sélection par la GUI, le DSP réel pour chaque son et les restaurations à 44,1/48 kHz.
+
+Validation finale de cette extension : **133 tests Node**, **130 vérifications navigateur** (65 par variante), aucune erreur navigateur ; distribution statique reconstruite. Les mesures restent automatisées et muettes, sans écoute sur matériel physique.

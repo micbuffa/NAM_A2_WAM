@@ -62,6 +62,100 @@
       "category": "cabinet",
       "role": "cabinet",
       "name": "NeuralWAMp Cabinet"
+    },
+    {
+      "uri": "./EndUserAmp1/index.js",
+      "name": "WAM•FAUST TubeLab",
+      "category": "amplifier",
+      "tags": [
+        "faust",
+        "guitarix",
+        "tube",
+        "amp",
+        "cabinet"
+      ]
+    },
+    {
+      "uri": "./EndUserAmp2/index.js",
+      "name": "WAM•FAUST ShredLab",
+      "category": "amplifier",
+      "tags": [
+        "faust",
+        "tube",
+        "amp",
+        "cabinet",
+        "advanced"
+      ]
+    },
+    {
+      "uri": "./BigMuff/index.js",
+      "category": "drive"
+    },
+    {
+      "uri": "./CompressorGuitarix/index.js",
+      "category": "dynamics"
+    },
+    {
+      "uri": "./DualPitchShifter/index.js",
+      "category": "modulation"
+    },
+    {
+      "uri": "./kbverb/index.js",
+      "category": "reverb"
+    },
+    {
+      "uri": "./Kpp_fuzz/index.js",
+      "category": "drive"
+    },
+    {
+      "uri": "./kppdistorder/index.js",
+      "category": "drive"
+    },
+    {
+      "uri": "./Octaver/index.js",
+      "category": "modulation"
+    },
+    {
+      "uri": "./OscTube/index.js",
+      "category": "drive"
+    },
+    {
+      "uri": "./OverdriveRix/index.js",
+      "category": "drive"
+    },
+    {
+      "uri": "./OwlDirty/index.js",
+      "category": "drive"
+    },
+    {
+      "uri": "./OwlShimmer/index.js",
+      "category": "reverb"
+    },
+    {
+      "uri": "./SmoothDelay/index.js",
+      "category": "delay"
+    },
+    {
+      "uri": "./StereoFreqShifter/index.js",
+      "category": "modulation"
+    },
+    {
+      "uri": "./temper/index.js",
+      "category": "drive"
+    },
+    {
+      "uri": "./ThruZeroFlanger/index.js",
+      "category": "modulation"
+    },
+    {
+      "uri": "./VintageAmp60s/index.js",
+      "category": "amplifier",
+      "enabled": false,
+      "disabledReason": "DSP WASM traps (float unrepresentable in integer range) at 44.1/48 kHz, including without GUI. Requires DSP correction before enabling."
+    },
+    {
+      "uri": "./WeirdPhaser/index.js",
+      "category": "modulation"
     }
   ]
 }
