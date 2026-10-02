@@ -108,6 +108,24 @@ class AccountPresetsTest < ApplicationSystemTestCase
     wait_until("the sign-in tab closes itself") { link_window.closed? }
   end
 
+  test "a sign-in tab that cannot close says the rack is signed in" do
+    skip_unless_rack_synced
+    visit "/rack/"
+    assert_text "Chain ready", wait: 40
+    token = SignInToken.issue!(email: "inplace@example.com").token
+    link_window = open_new_window # starts at about:blank: window.close() is refused, as in letter_opener
+    within_window(link_window) do
+      visit confirm_sign_in_path(token:)
+      click_on "Sign in"
+      assert_selector "h1", text: "You are signed in"
+      assert_text "Your open rack tab is now signed in"
+      assert_link "Open the rack in this tab"
+      refresh # the used link now leads to the rack
+      assert_current_path "/rack/"
+    end
+    within("#accountPanel") { assert_text "inplace@example.com", wait: 10 }
+  end
+
   test "signing out puts the rack back to the guest default" do
     skip_unless_rack_synced
     visit "/rack/"

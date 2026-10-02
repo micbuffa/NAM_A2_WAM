@@ -71,6 +71,13 @@ class SignInFlowTest < ActionDispatch::IntegrationTest
     assert response.parsed_body["error"].present?
   end
 
+  test "a used link reopened while signed in goes to the rack" do
+    issued = SignInToken.issue!(email: "alice@example.com")
+    post confirm_sign_in_path, params: { token: issued.token }
+    get confirm_sign_in_path(token: issued.token)
+    assert_redirected_to rack_path
+  end
+
   test "session cookie is httpOnly, SameSite=Lax and long-lived" do
     issued = SignInToken.issue!(email: "alice@example.com")
     post confirm_sign_in_path, params: { token: issued.token }

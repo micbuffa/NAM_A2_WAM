@@ -7,6 +7,7 @@
     <%= form.hidden_field :token, value: @token %>
     <%= form.submit "Sign in" %>
   <% end %>
+  <p id="auth-rack" hidden><a class="auth-button" href="/rack/">Open the rack in this tab</a></p>
 </section>
 <%= render "handoff" %>
 <script>

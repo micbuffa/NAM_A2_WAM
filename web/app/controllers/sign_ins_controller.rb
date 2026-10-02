@@ -37,7 +37,10 @@ class SignInsController < ApplicationController
   def show
     @token = params[:token].to_s
     @sign_in_token = SignInToken.find_active_by_token(@token)
-    render :invalid, status: :not_found unless @sign_in_token
+    return if @sign_in_token
+
+    # A used link reopened (reload, back button) once signed in: go on to the rack.
+    authenticated? ? redirect_to(rack_path) : render(:invalid, status: :not_found)
   end
 
   # POST /sign_in/confirm — JSON from the confirmation page's script (so the

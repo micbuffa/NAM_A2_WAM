@@ -168,7 +168,10 @@ https://<APP_HOST>/rack/index.html
   history, so it may close itself), then posts `signed-in` on the
   `nam-a2-wam.account` BroadcastChannel. An open rack refreshes its account
   without reloading and answers `rack-open`, and the sign-in tab closes; with
-  no rack open, the tab goes to `/rack/`.
+  no rack open, the tab goes to `/rack/`. A tab with other history cannot
+  close itself (letter_opener in development opens the link in place): it
+  then says the rack is signed in. A used link reopened while signed in
+  redirects to `/rack/`.
 
 ## Environment variables (production)
 

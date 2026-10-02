@@ -3,7 +3,7 @@
   <p class="auth-kicker">NAM A2 WAM</p>
   <h1 id="auth-title">You are signed in</h1>
   <p class="auth-help" id="auth-status" role="status">Signed in as <strong><%= current_user.email %></strong>. Opening the rack…</p>
-  <p><a class="auth-button" href="/rack/">Open the rack</a></p>
+  <p id="auth-rack"><a class="auth-button" href="/rack/">Open the rack</a></p>
 </section>
 <%= render "handoff" %>
 <script>handOffToRack();</script>
