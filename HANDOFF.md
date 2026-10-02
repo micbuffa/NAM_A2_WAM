@@ -1,5 +1,56 @@
 # NAM A2 WAM — Next-session handoff
 
+## Current handoff — 2026-09-24
+
+### Per-plugin meters, gains and Replace — latest update
+
+- Every existing-size card now has 4 px input/output meters; the detailed editor has 5 px meters flanking the GUI. Input is measured after input trim, output after output gain; existing input-driven halos remain. Output analysers are disposed with their entries.
+- Click each editor-side gain icon to reveal its −48…+12 dB slider and Reset (0 dB). Gains are smoothed, instance-local and saved as `inputDb` / `outputDb` in chain entries. Legacy entries restore unity. These are host wrapper controls, separate from plugin-internal preset state.
+- Replace opens the existing catalogue over the editor and opens the new GUI immediately after success. It preserves slot ID, position, gains and split location. Loading is completed before retiring the old plugin; failed instantiation leaves the original intact. New plugin settings start from defaults.
+- Latest validation: **137 Node tests passed**, static distribution rebuilt, **22 browser checks passed** for metering, measured gain, reset, replacement, split preservation and rack save/restore. Desktop editor screenshot inspected; physical-interface listening remains pending.
+- Details: section 15 of `SPECIFICATION_FX_CHAIN.md`. Rack preset phase 7.2 is still on hold.
+
+### Added WAM catalogue — preceding update
+
+- `npm run wam-plugins` scans plugin root / `plugin/` / `src/` entry points and updates `plugins.json`, preserving manual metadata and external/core entries. Deleted internal entrypoints are removed; `-- --check` is read-only. Guide: `examples/wam/wamPlugins/HOW_TO_ADD_WAM_PLUGINS.md`.
+- 17 additions, 31 catalogue entries / 30 active. VintageAmp60s remains disabled (`enabled: false`): its supplied WASM traps at 44.1/48 kHz even without a GUI. The 16 other additions passed import, GUI, state round trip and finite/non-silent audio checks in both source and relocated distribution; no browser errors in the active distribution test.
+- Validation at this checkpoint: 135 Node tests passed; distribution rebuilt. Existing uncommitted user input folders remain untouched.
+
+
+This section supersedes older milestone, Git, test-count and scope notes below. Earlier sections are retained as historical records; the host now supports editable two-chain routing, not just the original fixed NAM → Cabinet graph.
+
+### Confirmed amplifier integration
+
+- User confirmed the names **WAM•FAUST TubeLab** for EndUserAmp1 (gold/anthracite, 30 parameters) and **WAM•FAUST ShredLab** for EndUserAmp2 (petrol blue/copper, 47 parameters). These are no longer provisional names.
+- Autonomous runtime copies live in `examples/wam/wamPlugins/EndUserAmp1/` and `examples/wam/wamPlugins/EndUserAmp2/`. Each includes descriptor-referenced GUI artwork, source hashes in `SOURCE_MANIFEST.json`, and browser measurements in `VALIDATION.json`. ShredLab also requires `ampProfiles.js`.
+- The original files under `examples/other_wam_host/` remain unchanged. This untracked source tree is user-supplied input, not part of the extracted packages; do not add the whole tree when committing the integration. Adapting the other host is still a separate task.
+- Both plugins model preamp, tone stack, power amp, cabinet and reverb. DSP binaries, parameter addresses and default DSP values are preserved. The “grey box” classification has not been verified from modeling/calibration sources.
+- TubeLab retains its original WAM identifier; ShredLab uses `fr.grame.faust.ifc2026.amp2` to avoid the originals' duplicate identifier. Controls and GUI classes are isolated between variants and other WAMs.
+- Both use the generic effect wrapper, not the NAM-specific API. Their internal cabinets do not trigger NAM metadata-based Cabinet AUTO. They can be inserted, removed and repeated in either rack chain.
+- Runtime fixes include awaited initial state, lazy GUI loading, visibility-aware polling, safe detach/reattach, idempotent destruction and ParamMgr destruction acknowledgement before port closure. ShredLab no longer writes a default profile when opening its editor; explicit profile selection still works and restored DSP state drives the displayed profile.
+- The `+` menu places amplifiers and cabinets/speakers side by side at the top, with effect pedals below. The laboratory also lists these categories first. WAM URI buttons copy each plugin's resolved entry URI.
+
+### Validation and next checks
+
+- Last implementation validation: **133 Node tests passed**, `npm run dist` succeeded, and **130 browser checks passed** (65 per amp at 44.1/48 kHz, including factory presets) against the relocated static distribution, with no browser errors.
+- Reproduce browser checks with `examples/wam/fx-test/ifc-validation.html?variant=1` or `?variant=2`; the same page ships in `dist/NAM_A2_WAM/fx-test/`. Coverage includes real DSP signal processing, stereo input handling, independent instances, parameter/state restoration, bypass and GUI lifecycle. The Node integration test is `tests/phase4b/ifc-integration.test.mjs`.
+- Rack checks covered both variants together, catalogue insertion, artwork/URI, editor reopening without state changes, ShredLab profiles, and B fed from a split after TubeLab in A. Narrow ShredLab layout was inspected at 360 px.
+- Audio validation used muted Chromium without microphone capture. Live guitar listening, physical device switching and hardware latency/CPU checks remain pending. No deployment of the new integration is claimed.
+- **Do not start rack preset phase 7.2.** ShredLab's internal model/profile controls are part of the plugin and are separate from rack preset management.
+- Current specifications: [AMP_SIM_IFC2026_INTEGRATION.md](AMP_SIM_IFC2026_INTEGRATION.md) and [SPECIFICATION_FX_CHAIN.md](SPECIFICATION_FX_CHAIN.md).
+
+### Internal factory presets — 2026-09-24 follow-up
+
+- Both WAM editors now offer Default, Clean, Crunch, Disto / Hi gain, Jazzy and Jordan. Only `state.amp` was extracted from the corresponding original host; pedal states are excluded. ShredLab's seven missing Post EQ controls use DSP defaults, so all presets fully determine the sound.
+- Portable package files: `factory-presets.js` and `preset-state.js`. Audio-node APIs: `getFactoryPresets()`, `loadFactoryPreset(id)`, `getFactoryPresetStatus()`.
+- WAM state remains flat parameter values plus `__wamFactoryPreset: {version: 1, id}`. Restore exact saved controls, not the factory snapshot: edited presets retain their selection and “Modified” indication. Legacy parameter-only states still restore and display “Current settings”. No GUI is required for loading/restoration; opening an editor never applies a preset.
+- Validation after this addition: 133 Node tests and 130 browser checks passed; static distribution rebuilt. Regression coverage is in `tests/phase4b/ifc-presets.test.mjs` and the extended browser validation page. This is plugin-local functionality explicitly requested by the user; rack preset phase 7.2 remains on hold.
+
+### Git checkpoint
+
+- Previous rack work was committed as `77163b8`, merged with updated main, and pushed to `origin/main` as `0a2feab` before the amplifier integration.
+- Active branch: **New-UI**, returned to the merge result. The new amplifier integration, catalogue changes and latest documentation are currently uncommitted; they were not included in that earlier main push.
+
 ## 2026-09-22 — Serial FX chain (spec through 7.1)
 
 - Main host now displays model/IR photo cards, insertion buttons and categorized bundled effects. `FxChain.js` owns serial routing, per-instance dry/wet bypass, insertion/removal, missing-plugin placeholders and versioned full-chain state. `FxChainView.js` owns reusable lazy editors and card state/artwork.

@@ -47,6 +47,10 @@ const validationPath=join(dist,'fx-test/chain-validation.js');
 let validation=await readFile(validationPath,'utf8');
 validation=validation.replaceAll('../../../third_party/','../third_party/').replaceAll('../../../src/','../plugins/');
 await writeFile(validationPath,validation);
+const ifcValidationPath=join(dist,'fx-test/ifc-validation.js');
+await writeFile(ifcValidationPath,(await readFile(ifcValidationPath,'utf8')).replaceAll('../../../third_party/','../third_party/'));
+for(const amp of ['EndUserAmp1','EndUserAmp2'])for(const name of ['factory-presets.js','preset-state.js','index.js','descriptor.json','dsp-module.wasm','dsp-meta.json','gui.js','thumbnail.png','sdk/index.js','sdk-parammgr/index.js','faustwasm/index.js','utils/webaudio-controls.js']) await required(join(dist,'wamPlugins',amp,name));
+await required(join(dist,'wamPlugins/EndUserAmp2/ampProfiles.js'));
 for (const plugin of ['plugins/nam-wam/index.js', 'plugins/cabinet-wam/index.js']) {
   const path = join(dist, plugin); let source = await readFile(path, 'utf8');
   source = source.replace(/\$\{baseUrl\}\/\.\.\/\.\.\/build-wasm\/dist\/nam-simd\.wasm/g, '${baseUrl}/nam-simd.wasm');

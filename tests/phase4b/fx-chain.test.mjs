@@ -226,3 +226,26 @@ test('cabinet-only B inherits A amp at the split and survives removing/readding 
   const saved=await rack.getState();await rack.b.remove('b-cabinet');await rack.setState(saved);
   assert.deepEqual(rack.b.entries.map(e=>e.kind),['cabinet']);
 });
+
+test('per-plugin gain is bounded, serialized, restored and defaults to unity for legacy snapshots',async()=>{
+ const {chain,record}=await setup();const e=await chain.insert(record);
+ chain.setEntryGain(e.id,'input',-6);chain.setEntryGain(e.id,'output',3);
+ assert.ok(Math.abs(e.input.gain.value-10**(-6/20))<1e-9);assert.ok(Math.abs(e.output.gain.value-10**(3/20))<1e-9);
+ chain.setEntryGain('nam','input',-12);const saved=await chain.getState();
+ chain.setEntryGain('nam','input',5);await chain.setState(saved);
+ assert.equal(chain.find(e.id).inputDb,-6);assert.equal(chain.find(e.id).outputDb,3);assert.equal(chain.find('nam').inputDb,-12);
+ assert.equal(chain.setEntryGain(e.id,'output',99),12);assert.throws(()=>chain.setEntryGain(e.id,'input',NaN));
+ for(const item of saved.entries){delete item.inputDb;delete item.outputDb;}await chain.setState(saved);
+ for(const item of chain.entries){assert.equal(item.inputDb,0);assert.equal(item.outputDb,0);}
+ chain.destroy();
+});
+test('replacement prepares before removal, preserves slot, gains and split, and disposes old resources',async()=>{
+ const {chain,record}=await setup();const old=await chain.insert(record);chain.junction={index:2};
+ chain.setEntryGain(old.id,'input',-7);chain.setEntryGain(old.id,'output',2);const order=chain.entries.map(e=>e.id);
+ const instantiate=chain.registry.instantiate;chain.registry.instantiate=async()=>{throw Error('Cannot load');};
+ await assert.rejects(chain.replace(old.id,record),/Cannot load/);assert.equal(chain.find(old.id),old);assert.equal(old.disposed,false);
+ chain.registry.instantiate=instantiate;const replacement=await chain.replace(old.id,record);
+ assert.deepEqual(chain.entries.map(e=>e.id),order);assert.equal(chain.junction.index,2);assert.notEqual(replacement.plugin,old.plugin);assert.equal(replacement.inputDb,-7);assert.equal(replacement.outputDb,2);
+ assert.equal(old.disposed,true);assert.equal(old.plugin.audioNode.destroyed,true);assert.equal(old.outputMeter.splitter.connections.size,0);
+ chain.destroy();
+});

@@ -1,0 +1,21 @@
+{
+  "identifier": "fr.grame.faust.guitar tube amp sim 100% faust",
+  "name": "WAM•FAUST TubeLab",
+  "vendor": "Michel Buffa & Jerome Lebrun",
+  "description": "User-configurable guitar amplifier modelling: preamp, tone stack, power amp, cabinet and reverb.",
+  "version": "0.1",
+  "apiVersion": "2.0.0",
+  "keywords": [],
+  "isInstrument": false,
+  "website": "",
+  "hasAudioInput": true,
+  "hasAudioOutput": true,
+  "hasMidiInput": true,
+  "hasMidiOutput": false,
+  "faustMeta": {
+    "poly": false,
+    "fft": false,
+    "effect": null
+  },
+  "thumbnail": "./thumbnail.png"
+}

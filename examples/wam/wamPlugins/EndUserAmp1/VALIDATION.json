@@ -1,0 +1,204 @@
+{
+  "date": "2026-09-24",
+  "browser": "Chrome headless",
+  "audibleListening": false,
+  "checks": 65,
+  "browserErrors": 0,
+  "includesFactoryPresets": true,
+  "results": [
+    "PASS headless initialization 44100",
+    "PASS 30 WAM parameters 44100",
+    "PASS two unique instances 44100",
+    "PASS initial state awaited and instance isolation 44100",
+    "PASS left-only source reaches both DSP outputs 44100",
+    "PASS right-only source has matching downmix 44100",
+    "PASS stereo input is finite 44100",
+    "PASS master changes actual DSP output 44100",
+    "PASS chain state restored 44100",
+    "PASS restored processing audible in measured samples 44100",
+    "PASS host bypass has one dry path 44100",
+    "PASS impulse response finite 44100",
+    "PASS DI guitar processed 44100",
+    "PASS independent custom editors 44100",
+    "PASS opening GUI preserves restored DSP state 44100",
+    "PASS six factory choices plus custom state 44100",
+    "PASS preset GUI and real DSP Default 44100",
+    "PASS preset GUI and real DSP Clean 44100",
+    "PASS preset GUI and real DSP Crunch 44100",
+    "PASS preset GUI and real DSP Disto / Hi gain 44100",
+    "PASS preset GUI and real DSP Jazzy 44100",
+    "PASS preset GUI and real DSP Jordan 44100",
+    "PASS edited preset indicated 44100",
+    "PASS edited preset round trip restores exact controls and menu 44100",
+    "PASS initial state restores preset without GUI 44100",
+    "PASS presets do not affect other instance 44100",
+    "PASS legacy flat state restores custom controls 44100",
+    "PASS hidden editor stops polling 44100",
+    "PASS editor polling resumes 44100",
+    "PASS detached editor stops polling 44100",
+    "PASS reattached editor resumes 44100",
+    "PASS remove destroys editor and stops polling 44100",
+    "PASS headless initialization 48000",
+    "PASS 30 WAM parameters 48000",
+    "PASS two unique instances 48000",
+    "PASS initial state awaited and instance isolation 48000",
+    "PASS left-only source reaches both DSP outputs 48000",
+    "PASS right-only source has matching downmix 48000",
+    "PASS stereo input is finite 48000",
+    "PASS master changes actual DSP output 48000",
+    "PASS chain state restored 48000",
+    "PASS restored processing audible in measured samples 48000",
+    "PASS host bypass has one dry path 48000",
+    "PASS impulse response finite 48000",
+    "PASS DI guitar processed 48000",
+    "PASS independent custom editors 48000",
+    "PASS opening GUI preserves restored DSP state 48000",
+    "PASS six factory choices plus custom state 48000",
+    "PASS preset GUI and real DSP Default 48000",
+    "PASS preset GUI and real DSP Clean 48000",
+    "PASS preset GUI and real DSP Crunch 48000",
+    "PASS preset GUI and real DSP Disto / Hi gain 48000",
+    "PASS preset GUI and real DSP Jazzy 48000",
+    "PASS preset GUI and real DSP Jordan 48000",
+    "PASS edited preset indicated 48000",
+    "PASS edited preset round trip restores exact controls and menu 48000",
+    "PASS initial state restores preset without GUI 48000",
+    "PASS presets do not affect other instance 48000",
+    "PASS legacy flat state restores custom controls 48000",
+    "PASS hidden editor stops polling 48000",
+    "PASS editor polling resumes 48000",
+    "PASS detached editor stops polling 48000",
+    "PASS reattached editor resumes 48000",
+    "PASS remove destroys editor and stops polling 48000",
+    "PASS no browser errors or unhandled rejections",
+    "COMPLETE"
+  ],
+  "measurements": [
+    {
+      "sampleRate": 44100,
+      "left": [
+        {
+          "peak": 0.00029420145438052714,
+          "rms": 0.00020272913301471945
+        },
+        {
+          "peak": 0.00029420145438052714,
+          "rms": 0.00020272913301471945
+        }
+      ],
+      "right": [
+        {
+          "peak": 0.0002931221679318696,
+          "rms": 0.00019964828516201496
+        },
+        {
+          "peak": 0.0002931221679318696,
+          "rms": 0.00019964828516201496
+        }
+      ],
+      "stereo": [
+        {
+          "peak": 0.000579593877773732,
+          "rms": 0.00040294851098744835
+        },
+        {
+          "peak": 0.000579593877773732,
+          "rms": 0.00040294851098744835
+        }
+      ],
+      "active": [
+        {
+          "peak": 0.0005795302568003535,
+          "rms": 0.00040495069455643114
+        },
+        {
+          "peak": 0.0005795302568003535,
+          "rms": 0.00040495069455643114
+        }
+      ],
+      "dry": [
+        {
+          "peak": 0.0009999994654208422,
+          "rms": 0.0007003891175095607
+        },
+        {
+          "peak": 0.0009999994654208422,
+          "rms": 0.0007003891175095607
+        }
+      ],
+      "di": [
+        {
+          "peak": 0.009816496632993221,
+          "rms": 0.002543734683676851
+        },
+        {
+          "peak": 0.009816496632993221,
+          "rms": 0.002543734683676851
+        }
+      ]
+    },
+    {
+      "sampleRate": 48000,
+      "left": [
+        {
+          "peak": 0.00026043911930173635,
+          "rms": 0.0001831268917108465
+        },
+        {
+          "peak": 0.00026043911930173635,
+          "rms": 0.0001831268917108465
+        }
+      ],
+      "right": [
+        {
+          "peak": 0.00026156302192248404,
+          "rms": 0.00018076893482264222
+        },
+        {
+          "peak": 0.00026156302192248404,
+          "rms": 0.00018076893482264222
+        }
+      ],
+      "stereo": [
+        {
+          "peak": 0.0005158780259080231,
+          "rms": 0.00035735728469603984
+        },
+        {
+          "peak": 0.0005158780259080231,
+          "rms": 0.00035735728469603984
+        }
+      ],
+      "active": [
+        {
+          "peak": 0.0005166823975741863,
+          "rms": 0.0003632204419806501
+        },
+        {
+          "peak": 0.0005166823975741863,
+          "rms": 0.0003632204419806501
+        }
+      ],
+      "dry": [
+        {
+          "peak": 0.0009999989997595549,
+          "rms": 0.0007039210388866127
+        },
+        {
+          "peak": 0.0009999989997595549,
+          "rms": 0.0007039210388866127
+        }
+      ],
+      "di": [
+        {
+          "peak": 0.009984883479773998,
+          "rms": 0.0025187994502740793
+        },
+        {
+          "peak": 0.009984883479773998,
+          "rms": 0.0025187994502740793
+        }
+      ]
+    }
+  ]
+}

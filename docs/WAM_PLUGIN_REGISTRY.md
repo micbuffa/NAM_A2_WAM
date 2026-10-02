@@ -21,8 +21,8 @@ The lab loads one insert effect at a time, provides host-level bypass, meters, G
 
 1. Copy the complete runtime plugin directory below `examples/wam/wamPlugins/`.
 2. Preserve its relative JavaScript, AudioWorklet, WASM, CSS, and image layout.
-3. Add its exact JavaScript entry URI to `plugins.json`.
-4. Prefer `<folder>/index.js`; nested entry points such as `<folder>/src/index.js` and `<folder>/plugin/index.js` are supported when declared explicitly.
+3. Run `npm run wam-plugins` from the repository root to refresh `plugins.json` after additions or deletions. See [HOW_TO_ADD_WAM_PLUGINS.md](../examples/wam/wamPlugins/HOW_TO_ADD_WAM_PLUGINS.md).
+4. Automatic detection supports `<folder>/index.js`, `<folder>/plugin/index.js` and `<folder>/src/index.js` with an adjacent descriptor. Declare other layouts manually.
 5. Ensure that `descriptor.json` is beside the entry point, or set the catalogue entry's `descriptor` property.
 6. Add a `category`, `role`, tags, or thumbnail override when the third-party descriptor is incomplete.
 7. Open the FX Registry Lab and run **Validate all plugins**.

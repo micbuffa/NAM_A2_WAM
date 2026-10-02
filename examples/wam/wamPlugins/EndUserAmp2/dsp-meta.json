@@ -1,0 +1,1531 @@
+{
+    "name": "guitar tube amp sim 100% FAUST",
+    "filename": "IFCampSim",
+    "version": "2.84.3",
+    "compile_options": "-lang wasm-i -fpga-mem-th 4 -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "library_list": [
+        "/faust/user/inc0/IFCcabSim.dsp",
+        "/usr/share/faust/stdfaust.lib",
+        "/faust/user/inc0/IFCreverbMulti.dsp",
+        "/faust/user/inc0/IFCpowerAmp.dsp",
+        "/faust/user/inc0/IFCpreampGuitarix_multivoice.dsp",
+        "/faust/user/inc0/IFCguitarixTubes.dsp",
+        "/faust/user/inc0/IFCtonestackMulti.dsp",
+        "/usr/share/faust/filters.lib",
+        "/usr/share/faust/maths.lib",
+        "/usr/share/faust/platform.lib",
+        "/usr/share/faust/basics.lib",
+        "/usr/share/faust/signals.lib",
+        "/usr/share/faust/analyzers.lib",
+        "/usr/share/faust/webaudio.lib",
+        "/usr/share/faust/delays.lib",
+        "/usr/share/faust/reverbs.lib",
+        "/usr/share/faust/routes.lib",
+        "/usr/share/faust/aanl.lib"
+    ],
+    "include_pathnames": [
+        "/faust/user/inc0",
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 2665796,
+    "code": "aPJCClQ8Hw==",
+    "inputs": 1,
+    "outputs": 2,
+    "meta": [
+        {
+            "IFCguitarixTubes.dsp/author": "Generated automatically from Guitarix C++ arrays"
+        },
+        {
+            "IFCguitarixTubes.dsp/license": "LGPL"
+        },
+        {
+            "IFCguitarixTubes.dsp/name": "Tube Emulation Library (100% Faust)"
+        },
+        {
+            "IFCpowerAmp.dsp/author": "Michel Buffa and Jerome Lebrun"
+        },
+        {
+            "IFCpowerAmp.dsp/license": "LGPL"
+        },
+        {
+            "IFCpowerAmp.dsp/name": "IFCpowerAmp"
+        },
+        {
+            "IFCpowerAmp.dsp/version": "1.0"
+        },
+        {
+            "IFCreverbMulti.dsp/author": "Michel Buffa"
+        },
+        {
+            "IFCreverbMulti.dsp/license": "LGPL"
+        },
+        {
+            "IFCreverbMulti.dsp/name": "IFCreverbMulti"
+        },
+        {
+            "IFCreverbMulti.dsp/version": "1.0"
+        },
+        {
+            "IFCtonestackMulti.dsp/author": "Michel Buffa / based on Guitarix tonestacks.lib"
+        },
+        {
+            "IFCtonestackMulti.dsp/license": "LGPL"
+        },
+        {
+            "IFCtonestackMulti.dsp/name": "IFCtonestack"
+        },
+        {
+            "IFCtonestackMulti.dsp/version": "1.1"
+        },
+        {
+            "aanl.lib/ADAA1:author": "Dario Sanfilippo"
+        },
+        {
+            "aanl.lib/ADAA1:copyright": "Copyright (C) 2021 Dario Sanfilippo     <sanfilippo.dario@gmail.com>"
+        },
+        {
+            "aanl.lib/ADAA1:license": "MIT License"
+        },
+        {
+            "aanl.lib/hardclip:author": "Dario Sanfilippo"
+        },
+        {
+            "aanl.lib/hardclip:copyright": "Copyright (C) 2021 Dario Sanfilippo     <sanfilippo.dario@gmail.com>"
+        },
+        {
+            "aanl.lib/hardclip:license": "MIT License"
+        },
+        {
+            "aanl.lib/name": "Faust Antialiased Nonlinearities"
+        },
+        {
+            "aanl.lib/version": "1.4.2"
+        },
+        {
+            "analyzers.lib/name": "Faust Analyzer Library"
+        },
+        {
+            "analyzers.lib/version": "1.3.0"
+        },
+        {
+            "author": "Michel Buffa & Jerome Lebrun"
+        },
+        {
+            "basics.lib/name": "Faust Basic Element Library"
+        },
+        {
+            "basics.lib/selectoutn:author": "Vince"
+        },
+        {
+            "basics.lib/version": "1.22.0"
+        },
+        {
+            "category": "Amp"
+        },
+        {
+            "compile_options": "-lang wasm-i -fpga-mem-th 4 -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+        },
+        {
+            "delays.lib/name": "Faust Delay Library"
+        },
+        {
+            "delays.lib/version": "1.2.0"
+        },
+        {
+            "filename": "IFCampSim"
+        },
+        {
+            "filters.lib/allpass_comb:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/allpass_comb:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/allpass_comb:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/dcblocker:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/dcblocker:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/dcblocker:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/filterbank:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/filterbank:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/filterbank:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/fir:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/fir:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/fir:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/highpass:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/highpass:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/highshelf:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/highshelf:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/highshelf:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/iir:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/iir:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/iir:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/low_shelf:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/low_shelf:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/low_shelf:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/lowpass0_highpass1": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/lowpass0_highpass1:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/lowpass:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/lowpass:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/lowpass:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/lowshelf:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/lowshelf:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/lowshelf:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/name": "Faust Filters Library"
+        },
+        {
+            "filters.lib/peak_eq:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/peak_eq:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/peak_eq:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/peak_eq_cq:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/peak_eq_cq:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/peak_eq_cq:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/pole:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/pole:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/pole:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/tf1:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/tf1:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/tf1:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/tf1s:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/tf1s:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/tf1s:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/tf2:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/tf2:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/tf2:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/tf2s:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/tf2s:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/tf2s:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/version": "1.7.1"
+        },
+        {
+            "filters.lib/zero:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/zero:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/zero:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "maths.lib/author": "GRAME"
+        },
+        {
+            "maths.lib/copyright": "GRAME"
+        },
+        {
+            "maths.lib/license": "LGPL with exception"
+        },
+        {
+            "maths.lib/name": "Faust Math Library"
+        },
+        {
+            "maths.lib/version": "2.9.0"
+        },
+        {
+            "name": "guitar tube amp sim 100% FAUST"
+        },
+        {
+            "platform.lib/name": "Generic Platform Library"
+        },
+        {
+            "platform.lib/version": "1.3.0"
+        },
+        {
+            "reverbs.lib/mono_freeverb:author": "Romain Michon"
+        },
+        {
+            "reverbs.lib/name": "Faust Reverb Library"
+        },
+        {
+            "reverbs.lib/springreverb:author": "Daniel Leonov"
+        },
+        {
+            "reverbs.lib/stereo_freeverb:author": "Romain Michon"
+        },
+        {
+            "reverbs.lib/version": "1.5.1"
+        },
+        {
+            "routes.lib/hadamard:author": "Remy Muller, revised by Romain Michon"
+        },
+        {
+            "routes.lib/name": "Faust Signal Routing Library"
+        },
+        {
+            "routes.lib/version": "1.2.0"
+        },
+        {
+            "signals.lib/name": "Faust Signal Routing Library"
+        },
+        {
+            "signals.lib/version": "1.6.0"
+        },
+        {
+            "version": "0.3"
+        },
+        {
+            "webaudio.lib/author": "GRAME"
+        },
+        {
+            "webaudio.lib/copyright": "GRAME"
+        },
+        {
+            "webaudio.lib/license": "LGPL with exception"
+        },
+        {
+            "webaudio.lib/name": "Faust WebAudio Filters Library"
+        },
+        {
+            "webaudio.lib/version": "1.1.0"
+        }
+    ],
+    "ui": [
+        {
+            "type": "vgroup",
+            "label": "guitar tube amp sim 100% FAUST",
+            "items": [
+                {
+                    "type": "hgroup",
+                    "label": "4 Tonestack",
+                    "items": [
+                        {
+                            "type": "hgroup",
+                            "label": "4 Tonestack",
+                            "items": [
+                                {
+                                    "type": "hgroup",
+                                    "label": "EQ",
+                                    "items": [
+                                        {
+                                            "type": "vslider",
+                                            "label": "Bass",
+                                            "varname": "fVslider1",
+                                            "shortname": "Bass",
+                                            "address": "/guitar_tube_amp_sim_100%_FAUST/4_Tonestack/4_Tonestack/EQ/Bass",
+                                            "index": 96132,
+                                            "meta": [
+                                                {
+                                                    "1": ""
+                                                },
+                                                {
+                                                    "style": "knob"
+                                                }
+                                            ],
+                                            "init": 0.5,
+                                            "min": 0,
+                                            "max": 1,
+                                            "step": 0.01
+                                        },
+                                        {
+                                            "type": "vslider",
+                                            "label": "Middle",
+                                            "varname": "fVslider0",
+                                            "shortname": "Middle",
+                                            "address": "/guitar_tube_amp_sim_100%_FAUST/4_Tonestack/4_Tonestack/EQ/Middle",
+                                            "index": 96128,
+                                            "meta": [
+                                                {
+                                                    "2": ""
+                                                },
+                                                {
+                                                    "style": "knob"
+                                                }
+                                            ],
+                                            "init": 0.3,
+                                            "min": 0,
+                                            "max": 1,
+                                            "step": 0.01
+                                        },
+                                        {
+                                            "type": "vslider",
+                                            "label": "Treble",
+                                            "varname": "fVslider2",
+                                            "shortname": "Treble",
+                                            "address": "/guitar_tube_amp_sim_100%_FAUST/4_Tonestack/4_Tonestack/EQ/Treble",
+                                            "index": 96144,
+                                            "meta": [
+                                                {
+                                                    "3": ""
+                                                },
+                                                {
+                                                    "style": "knob"
+                                                }
+                                            ],
+                                            "init": 0.75,
+                                            "min": 0,
+                                            "max": 1,
+                                            "step": 0.01
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "hgroup",
+                                    "label": "tonestack type",
+                                    "items": [
+                                        {
+                                            "type": "nentry",
+                                            "label": "Model",
+                                            "varname": "fEntry0",
+                                            "shortname": "Model",
+                                            "address": "/guitar_tube_amp_sim_100%_FAUST/4_Tonestack/4_Tonestack/tonestack_type/Model",
+                                            "index": 96108,
+                                            "meta": [
+                                                {
+                                                    "style": "menu{-Mesa Mark-:0;-Mesa Rectifier-:1;-JCM800-:2;-AC30-:3;-Fender Hot Rod-:4;-Soldano-:5}"
+                                                }
+                                            ],
+                                            "init": 1,
+                                            "min": 0,
+                                            "max": 5,
+                                            "step": 1
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "bypass",
+                            "varname": "fCheckbox2",
+                            "shortname": "4_Tonestack_bypass",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/4_Tonestack/bypass",
+                            "index": 96112
+                        }
+                    ]
+                },
+                {
+                    "type": "hgroup",
+                    "label": "5 Power Amp",
+                    "items": [
+                        {
+                            "type": "hslider",
+                            "label": "Curve k",
+                            "varname": "fHslider23",
+                            "shortname": "Curve_k",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/5_Power_Amp/Curve_k",
+                            "index": 98100,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 1,
+                            "min": 0.1,
+                            "max": 4,
+                            "step": 0.001
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Drive gain",
+                            "varname": "fHslider22",
+                            "shortname": "Drive_gain",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/5_Power_Amp/Drive_gain",
+                            "index": 98088,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 4,
+                            "min": -10,
+                            "max": 10,
+                            "step": 0.001
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Level",
+                            "varname": "fHslider24",
+                            "shortname": "5_Power_Amp_Level",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/5_Power_Amp/Level",
+                            "index": 98144,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": -3,
+                            "min": -24,
+                            "max": 24,
+                            "step": 1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Master Volume",
+                            "varname": "fHslider21",
+                            "shortname": "Master_Volume",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/5_Power_Amp/Master_Volume",
+                            "index": 98060,
+                            "meta": [
+                                {
+                                    "name": "MV"
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 2.3,
+                            "min": 0,
+                            "max": 4,
+                            "step": 0.1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Negative gain",
+                            "varname": "fHslider20",
+                            "shortname": "Negative_gain",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/5_Power_Amp/Negative_gain",
+                            "index": 98008,
+                            "meta": [
+                                {
+                                    "name": "Level"
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": -0.4,
+                            "min": -0.8,
+                            "max": 1,
+                            "step": 0.01
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Presence",
+                            "varname": "fHslider19",
+                            "shortname": "Presence",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/5_Power_Amp/Presence",
+                            "index": 98004,
+                            "meta": [
+                                {
+                                    "name": "p1Gain"
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 0,
+                            "min": -15,
+                            "max": 15,
+                            "step": 0.1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Saturation dry wet",
+                            "varname": "fHslider18",
+                            "shortname": "Saturation_dry_wet",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/5_Power_Amp/Saturation_dry_wet",
+                            "index": 97984,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 1,
+                            "min": 0,
+                            "max": 1,
+                            "step": 0.001
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "bypass",
+                            "varname": "fCheckbox1",
+                            "shortname": "5_Power_Amp_bypass",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/5_Power_Amp/bypass",
+                            "index": 96096
+                        }
+                    ]
+                },
+                {
+                    "type": "hgroup",
+                    "label": "6 Reverb",
+                    "items": [
+                        {
+                            "type": "hslider",
+                            "label": "Mix",
+                            "varname": "fHslider25",
+                            "shortname": "Mix",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/6_Reverb/Mix",
+                            "index": 98172,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 0.597,
+                            "min": 0,
+                            "max": 1,
+                            "step": 0.001
+                        },
+                        {
+                            "type": "nentry",
+                            "label": "Type",
+                            "varname": "fEntry9",
+                            "shortname": "Type",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/6_Reverb/Type",
+                            "index": 98196,
+                            "meta": [
+                                {
+                                    "style": "menu{-Freeverb-:0;-Spring-:1;-Zita-:2}"
+                                }
+                            ],
+                            "init": 1,
+                            "min": 0,
+                            "max": 2,
+                            "step": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "hgroup",
+                    "label": "Cabinet Simulator",
+                    "items": [
+                        {
+                            "type": "checkbox",
+                            "label": "Bypass",
+                            "varname": "fCheckbox0",
+                            "shortname": "Bypass",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Cabinet_Simulator/Bypass",
+                            "index": 96048,
+                            "meta": [
+                                {
+                                    "stratus": "0"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "nentry",
+                            "label": "Cabinet Select",
+                            "varname": "fEntry10",
+                            "shortname": "Cabinet_Select",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Cabinet_Simulator/Cabinet_Select",
+                            "index": 2557408,
+                            "meta": [
+                                {
+                                    "stratus": "1"
+                                },
+                                {
+                                    "style": "menu{-fenderDeluxeJensen1x12-:0;-Mesa-OS-Rectifier-3-:1;-EV MIX D-:2}"
+                                }
+                            ],
+                            "init": 1,
+                            "min": 0,
+                            "max": 2,
+                            "step": 1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Mix (Dry/Wet)",
+                            "varname": "fHslider1",
+                            "shortname": "Mix_Dry_Wet",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Cabinet_Simulator/Mix__Dry_Wet_",
+                            "index": 96080,
+                            "meta": [
+                                {
+                                    "stratus": "2"
+                                }
+                            ],
+                            "init": 1,
+                            "min": 0,
+                            "max": 1,
+                            "step": 0.01
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Output (dB)",
+                            "varname": "fHslider0",
+                            "shortname": "Output_dB",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Cabinet_Simulator/Output__dB_",
+                            "index": 96064,
+                            "meta": [
+                                {
+                                    "stratus": "3"
+                                }
+                            ],
+                            "init": 0,
+                            "min": -20,
+                            "max": 10,
+                            "step": 0.1
+                        }
+                    ]
+                },
+                {
+                    "type": "hgroup",
+                    "label": "Output",
+                    "meta": [
+                        {
+                            "stratus": "4"
+                        }
+                    ],
+                    "items": [
+                        {
+                            "type": "hslider",
+                            "label": "Level",
+                            "varname": "fHslider26",
+                            "shortname": "Output_Level",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Output/Level",
+                            "index": 98184,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 1,
+                            "min": 0,
+                            "max": 1,
+                            "step": 0.01
+                        }
+                    ]
+                },
+                {
+                    "type": "vgroup",
+                    "label": "Preamp v6",
+                    "items": [
+                        {
+                            "type": "hgroup",
+                            "label": "Preamp/ Amp Model",
+                            "meta": [
+                                {
+                                    "00": ""
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "type": "nentry",
+                                    "label": "Amp",
+                                    "varname": "fEntry1",
+                                    "shortname": "Amp",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Amp_Model/Amp",
+                                    "index": 96168,
+                                    "meta": [
+                                        {
+                                            "style": "menu{-Lab (Manual)-:0;-Mesa Rectifier-:1;-Fender Deluxe-:2;-Marshall JCM 800-:3;-Soldano SLO-100-:4;-Vox AC30-:5}"
+                                        }
+                                    ],
+                                    "init": 1,
+                                    "min": 0,
+                                    "max": 5,
+                                    "step": 1
+                                }
+                            ]
+                        },
+                        {
+                            "type": "hgroup",
+                            "label": "Preamp/ Controls",
+                            "meta": [
+                                {
+                                    "01": ""
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "type": "hslider",
+                                    "label": "Gain",
+                                    "varname": "fHslider8",
+                                    "shortname": "Gain",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Controls/Gain",
+                                    "index": 96696,
+                                    "meta": [
+                                        {
+                                            "00": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": 5,
+                                    "min": 0,
+                                    "max": 10,
+                                    "step": 0.1
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Input Trim",
+                                    "varname": "fHslider5",
+                                    "shortname": "Input_Trim",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Controls/Input_Trim",
+                                    "index": 96376,
+                                    "meta": [
+                                        {
+                                            "01": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        },
+                                        {
+                                            "unit": "dB"
+                                        }
+                                    ],
+                                    "init": 0,
+                                    "min": -18,
+                                    "max": 18,
+                                    "step": 0.1
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Output Level",
+                                    "varname": "fHslider12",
+                                    "shortname": "Output_Level",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Controls/Output_Level",
+                                    "index": 97652,
+                                    "meta": [
+                                        {
+                                            "02": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": 5,
+                                    "min": 0,
+                                    "max": 10,
+                                    "step": 0.1
+                                }
+                            ]
+                        },
+                        {
+                            "type": "hgroup",
+                            "label": "Preamp/ Lab Controls",
+                            "meta": [
+                                {
+                                    "02": ""
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "type": "nentry",
+                                    "label": "NbStages",
+                                    "varname": "fEntry2",
+                                    "shortname": "NbStages",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Lab_Controls/NbStages",
+                                    "index": 96220,
+                                    "meta": [
+                                        {
+                                            "10": ""
+                                        },
+                                        {
+                                            "style": "menu{-1 stage-:1;-2 stages-:2;-3 stages-:3;-4 stages-:4;-5 stages-:5}"
+                                        }
+                                    ],
+                                    "init": 5,
+                                    "min": 1,
+                                    "max": 5,
+                                    "step": 1
+                                },
+                                {
+                                    "type": "nentry",
+                                    "label": "GainPlacement",
+                                    "varname": "fEntry5",
+                                    "shortname": "GainPlacement",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Lab_Controls/GainPlacement",
+                                    "index": 96692,
+                                    "meta": [
+                                        {
+                                            "11": ""
+                                        },
+                                        {
+                                            "style": "menu{-between 1-2-:1;-between 2-3-:2;-between 3-4-:3;-All stages (mild)-:4}"
+                                        }
+                                    ],
+                                    "init": 4,
+                                    "min": 1,
+                                    "max": 4,
+                                    "step": 1
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Tightness HP",
+                                    "varname": "fHslider7",
+                                    "shortname": "Tightness_HP",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Lab_Controls/Tightness_HP",
+                                    "index": 96672,
+                                    "meta": [
+                                        {
+                                            "12": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        },
+                                        {
+                                            "unit": "Hz"
+                                        }
+                                    ],
+                                    "init": 120,
+                                    "min": 20,
+                                    "max": 320,
+                                    "step": 1
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Brightness LP",
+                                    "varname": "fHslider6",
+                                    "shortname": "Brightness_LP",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Lab_Controls/Brightness_LP",
+                                    "index": 96652,
+                                    "meta": [
+                                        {
+                                            "13": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        },
+                                        {
+                                            "unit": "Hz"
+                                        }
+                                    ],
+                                    "init": 8000,
+                                    "min": 2500,
+                                    "max": 14000,
+                                    "step": 10
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Interstage Trim",
+                                    "varname": "fHslider9",
+                                    "shortname": "Interstage_Trim",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Lab_Controls/Interstage_Trim",
+                                    "index": 96708,
+                                    "meta": [
+                                        {
+                                            "14": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        },
+                                        {
+                                            "unit": "dB"
+                                        }
+                                    ],
+                                    "init": 0,
+                                    "min": -18,
+                                    "max": 12,
+                                    "step": 0.1
+                                }
+                            ]
+                        },
+                        {
+                            "type": "hgroup",
+                            "label": "Preamp/ Dynamics",
+                            "meta": [
+                                {
+                                    "03": ""
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "type": "checkbox",
+                                    "label": "Cathode Sag",
+                                    "varname": "fCheckbox4",
+                                    "shortname": "Cathode_Sag",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Dynamics/Cathode_Sag",
+                                    "index": 96216,
+                                    "meta": [
+                                        {
+                                            "40": ""
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Sag Time (ms)",
+                                    "varname": "fHslider11",
+                                    "shortname": "Sag_Time_ms",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Dynamics/Sag_Time__ms_",
+                                    "index": 97624,
+                                    "meta": [
+                                        {
+                                            "41": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": 30,
+                                    "min": 5,
+                                    "max": 200,
+                                    "step": 1
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Sag Amount",
+                                    "varname": "fHslider10",
+                                    "shortname": "Sag_Amount",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Dynamics/Sag_Amount",
+                                    "index": 97600,
+                                    "meta": [
+                                        {
+                                            "42": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": 0.15,
+                                    "min": 0,
+                                    "max": 0.5,
+                                    "step": 0.01
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "label": "Bias Offset (H2)",
+                                    "varname": "fCheckbox5",
+                                    "shortname": "Bias_Offset_H2",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Dynamics/Bias_Offset__H2_",
+                                    "index": 96244,
+                                    "meta": [
+                                        {
+                                            "43": ""
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Bias Amount",
+                                    "varname": "fHslider4",
+                                    "shortname": "Bias_Amount",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Dynamics/Bias_Amount",
+                                    "index": 96248,
+                                    "meta": [
+                                        {
+                                            "44": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": -0.08,
+                                    "min": -0.3,
+                                    "max": 0.1,
+                                    "step": 0.001
+                                }
+                            ]
+                        },
+                        {
+                            "type": "hgroup",
+                            "label": "Preamp/ Tube choices",
+                            "meta": [
+                                {
+                                    "04": ""
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "type": "nentry",
+                                    "label": "Stage 1 Tube",
+                                    "varname": "fEntry3",
+                                    "shortname": "Stage_1_Tube",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Tube_choices/Stage_1_Tube",
+                                    "index": 96224,
+                                    "meta": [
+                                        {
+                                            "30": ""
+                                        },
+                                        {
+                                            "style": "menu{-12AX7-:0;-12AT7-:1;-12AU7-:2;-6V6-:3;-6DJ8-:4;-6C16-:5}"
+                                        }
+                                    ],
+                                    "init": 0,
+                                    "min": 0,
+                                    "max": 5,
+                                    "step": 1
+                                },
+                                {
+                                    "type": "nentry",
+                                    "label": "Stage 2 Tube",
+                                    "varname": "fEntry4",
+                                    "shortname": "Stage_2_Tube",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Tube_choices/Stage_2_Tube",
+                                    "index": 96628,
+                                    "meta": [
+                                        {
+                                            "31": ""
+                                        },
+                                        {
+                                            "style": "menu{-12AX7-:0;-12AT7-:1;-12AU7-:2;-6V6-:3;-6DJ8-:4;-6C16-:5}"
+                                        }
+                                    ],
+                                    "init": 0,
+                                    "min": 0,
+                                    "max": 5,
+                                    "step": 1
+                                },
+                                {
+                                    "type": "nentry",
+                                    "label": "Stage 3 Tube",
+                                    "varname": "fEntry6",
+                                    "shortname": "Stage_3_Tube",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Tube_choices/Stage_3_Tube",
+                                    "index": 96964,
+                                    "meta": [
+                                        {
+                                            "32": ""
+                                        },
+                                        {
+                                            "style": "menu{-12AX7-:0;-12AT7-:1;-12AU7-:2;-6V6-:3;-6DJ8-:4;-6C16-:5}"
+                                        }
+                                    ],
+                                    "init": 0,
+                                    "min": 0,
+                                    "max": 5,
+                                    "step": 1
+                                },
+                                {
+                                    "type": "nentry",
+                                    "label": "Stage 4 Tube",
+                                    "varname": "fEntry7",
+                                    "shortname": "Stage_4_Tube",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Tube_choices/Stage_4_Tube",
+                                    "index": 97184,
+                                    "meta": [
+                                        {
+                                            "33": ""
+                                        },
+                                        {
+                                            "style": "menu{-12AX7-:0;-12AT7-:1;-12AU7-:2;-6V6-:3;-6DJ8-:4;-6C16-:5}"
+                                        }
+                                    ],
+                                    "init": 0,
+                                    "min": 0,
+                                    "max": 5,
+                                    "step": 1
+                                },
+                                {
+                                    "type": "nentry",
+                                    "label": "Stage 5 Tube",
+                                    "varname": "fEntry8",
+                                    "shortname": "Stage_5_Tube",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Tube_choices/Stage_5_Tube",
+                                    "index": 97392,
+                                    "meta": [
+                                        {
+                                            "34": ""
+                                        },
+                                        {
+                                            "style": "menu{-12AX7-:0;-12AT7-:1;-12AU7-:2;-6V6-:3;-6DJ8-:4;-6C16-:5}"
+                                        }
+                                    ],
+                                    "init": 0,
+                                    "min": 0,
+                                    "max": 5,
+                                    "step": 1
+                                }
+                            ]
+                        },
+                        {
+                            "type": "hgroup",
+                            "label": "Preamp/ Post EQ",
+                            "meta": [
+                                {
+                                    "05": ""
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "type": "hslider",
+                                    "label": "Low Shelf dB",
+                                    "varname": "fHslider13",
+                                    "shortname": "Low_Shelf_dB",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Post_EQ/Low_Shelf_dB",
+                                    "index": 97704,
+                                    "meta": [
+                                        {
+                                            "1": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": 8.5,
+                                    "min": -12,
+                                    "max": 18,
+                                    "step": 0.1
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Low Shelf Hz",
+                                    "varname": "fHslider3",
+                                    "shortname": "Low_Shelf_Hz",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Post_EQ/Low_Shelf_Hz",
+                                    "index": 96192,
+                                    "meta": [
+                                        {
+                                            "2": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": 200,
+                                    "min": 80,
+                                    "max": 400,
+                                    "step": 1
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Mid Peak dB",
+                                    "varname": "fHslider15",
+                                    "shortname": "Mid_Peak_dB",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Post_EQ/Mid_Peak_dB",
+                                    "index": 97764,
+                                    "meta": [
+                                        {
+                                            "3": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": 0,
+                                    "min": -15,
+                                    "max": 15,
+                                    "step": 0.1
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Mid Peak Hz",
+                                    "varname": "fHslider14",
+                                    "shortname": "Mid_Peak_Hz",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Post_EQ/Mid_Peak_Hz",
+                                    "index": 97744,
+                                    "meta": [
+                                        {
+                                            "4": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": 1000,
+                                    "min": 200,
+                                    "max": 5000,
+                                    "step": 1
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Mid Peak Q",
+                                    "varname": "fHslider16",
+                                    "shortname": "Mid_Peak_Q",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Post_EQ/Mid_Peak_Q",
+                                    "index": 97784,
+                                    "meta": [
+                                        {
+                                            "5": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": 1,
+                                    "min": 0.3,
+                                    "max": 5,
+                                    "step": 0.01
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Hi Shelf dB",
+                                    "varname": "fHslider17",
+                                    "shortname": "Hi_Shelf_dB",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Post_EQ/Hi_Shelf_dB",
+                                    "index": 97868,
+                                    "meta": [
+                                        {
+                                            "6": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": -10,
+                                    "min": -20,
+                                    "max": 6,
+                                    "step": 0.1
+                                },
+                                {
+                                    "type": "hslider",
+                                    "label": "Hi Shelf Hz",
+                                    "varname": "fHslider2",
+                                    "shortname": "Hi_Shelf_Hz",
+                                    "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Post_EQ/Hi_Shelf_Hz",
+                                    "index": 96172,
+                                    "meta": [
+                                        {
+                                            "7": ""
+                                        },
+                                        {
+                                            "style": "knob"
+                                        }
+                                    ],
+                                    "init": 4000,
+                                    "min": 2000,
+                                    "max": 10000,
+                                    "step": 10
+                                }
+                            ]
+                        },
+                        {
+                            "type": "hbargraph",
+                            "label": "Preamp/ Meters/ Input",
+                            "varname": "fHbargraph0",
+                            "shortname": "Preamp_Meters_Input",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Meters__Input",
+                            "index": 96396,
+                            "meta": [
+                                {
+                                    "0": ""
+                                },
+                                {
+                                    "90": ""
+                                },
+                                {
+                                    "unit": "dB"
+                                }
+                            ],
+                            "min": -60,
+                            "max": 10
+                        },
+                        {
+                            "type": "hbargraph",
+                            "label": "Preamp/ Meters/ After Stage1",
+                            "varname": "fHbargraph1",
+                            "shortname": "Preamp_Meters_After_Stage1",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Meters__After_Stage1",
+                            "index": 96624,
+                            "meta": [
+                                {
+                                    "1": ""
+                                },
+                                {
+                                    "90": ""
+                                },
+                                {
+                                    "unit": "dB"
+                                }
+                            ],
+                            "min": -60,
+                            "max": 10
+                        },
+                        {
+                            "type": "hbargraph",
+                            "label": "Preamp/ Meters/ Inter 1-2",
+                            "varname": "fHbargraph2",
+                            "shortname": "Preamp_Meters_Inter_1_2",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Meters__Inter_1-2",
+                            "index": 96960,
+                            "meta": [
+                                {
+                                    "2": ""
+                                },
+                                {
+                                    "90": ""
+                                },
+                                {
+                                    "unit": "dB"
+                                }
+                            ],
+                            "min": -60,
+                            "max": 10
+                        },
+                        {
+                            "type": "hbargraph",
+                            "label": "Preamp/ Meters/ Inter 2-3",
+                            "varname": "fHbargraph3",
+                            "shortname": "Preamp_Meters_Inter_2_3",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Meters__Inter_2-3",
+                            "index": 97180,
+                            "meta": [
+                                {
+                                    "3": ""
+                                },
+                                {
+                                    "90": ""
+                                },
+                                {
+                                    "unit": "dB"
+                                }
+                            ],
+                            "min": -60,
+                            "max": 10
+                        },
+                        {
+                            "type": "hbargraph",
+                            "label": "Preamp/ Meters/ Inter 3-4",
+                            "varname": "fHbargraph4",
+                            "shortname": "Preamp_Meters_Inter_3_4",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Meters__Inter_3-4",
+                            "index": 97388,
+                            "meta": [
+                                {
+                                    "4": ""
+                                },
+                                {
+                                    "90": ""
+                                },
+                                {
+                                    "unit": "dB"
+                                }
+                            ],
+                            "min": -60,
+                            "max": 10
+                        },
+                        {
+                            "type": "hbargraph",
+                            "label": "Preamp/ Meters/ Inter 4-5",
+                            "varname": "fHbargraph5",
+                            "shortname": "Preamp_Meters_Inter_4_5",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Meters__Inter_4-5",
+                            "index": 97596,
+                            "meta": [
+                                {
+                                    "5": ""
+                                },
+                                {
+                                    "90": ""
+                                },
+                                {
+                                    "unit": "dB"
+                                }
+                            ],
+                            "min": -60,
+                            "max": 10
+                        },
+                        {
+                            "type": "hbargraph",
+                            "label": "Preamp/ Meters/ Output",
+                            "varname": "fHbargraph6",
+                            "shortname": "Preamp_Meters_Output",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/Preamp__Meters__Output",
+                            "index": 97672,
+                            "meta": [
+                                {
+                                    "6": ""
+                                },
+                                {
+                                    "90": ""
+                                },
+                                {
+                                    "unit": "dB"
+                                }
+                            ],
+                            "min": -60,
+                            "max": 10
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "bypass",
+                            "varname": "fCheckbox3",
+                            "shortname": "Preamp_v6_bypass",
+                            "address": "/guitar_tube_amp_sim_100%_FAUST/Preamp_v6/bypass",
+                            "index": 96152,
+                            "meta": [
+                                {
+                                    "99": ""
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
