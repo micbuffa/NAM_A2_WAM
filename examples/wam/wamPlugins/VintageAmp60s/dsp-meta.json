@@ -1,0 +1,336 @@
+{
+    "name": "VintageAmp60s",
+    "filename": "VintageAmp60s.dsp",
+    "version": "2.74.8",
+    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "include_pathnames": [
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 8436,
+    "code": "9AEf",
+    "inputs": 1,
+    "outputs": 1,
+    "meta": [
+        {
+            "analyzers_lib_name": "Faust Analyzer Library"
+        },
+        {
+            "analyzers_lib_version": "1.2.0"
+        },
+        {
+            "basics_lib_name": "Faust Basic Element Library"
+        },
+        {
+            "basics_lib_tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+        },
+        {
+            "basics_lib_version": "1.19.1"
+        },
+        {
+            "category": "Extern"
+        },
+        {
+            "compile_options": "-single -scal -I /usr/share/project/"
+        },
+        {
+            "description": "VintageAmp"
+        },
+        {
+            "filename": "VintageAmp60s.dsp"
+        },
+        {
+            "filters_lib_filterbank_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_filterbank_copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_filterbank_license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters_lib_fir_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_fir_copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_fir_license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters_lib_highpass_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_highpass_copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_highpass_plus_lowpass_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_highpass_plus_lowpass_copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_highpass_plus_lowpass_license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters_lib_iir_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_iir_copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_iir_license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters_lib_lowpass0_highpass1": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_lowpass0_highpass1_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_lowpass_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_lowpass_copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_lowpass_license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters_lib_name": "Faust Filters Library"
+        },
+        {
+            "filters_lib_tf1_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_tf1_copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_tf1_license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters_lib_tf1s_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_tf1s_copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_tf1s_license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters_lib_tf2_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_tf2_copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_tf2_license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters_lib_tf2s_author": "Julius O. Smith III"
+        },
+        {
+            "filters_lib_tf2s_copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters_lib_tf2s_license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters_lib_version": "1.3.0"
+        },
+        {
+            "id": "vintageamp"
+        },
+        {
+            "library_path0": "/usr/share/faust/stdfaust.lib"
+        },
+        {
+            "library_path1": "/usr/share/faust/filters.lib"
+        },
+        {
+            "library_path2": "/usr/share/faust/analyzers.lib"
+        },
+        {
+            "library_path3": "/usr/share/faust/basics.lib"
+        },
+        {
+            "library_path4": "/usr/share/faust/maths.lib"
+        },
+        {
+            "library_path5": "/usr/share/faust/platform.lib"
+        },
+        {
+            "library_path6": "/usr/share/faust/signals.lib"
+        },
+        {
+            "maths_lib_author": "GRAME"
+        },
+        {
+            "maths_lib_copyright": "GRAME"
+        },
+        {
+            "maths_lib_license": "LGPL with exception"
+        },
+        {
+            "maths_lib_name": "Faust Math Library"
+        },
+        {
+            "maths_lib_version": "2.8.0"
+        },
+        {
+            "name": "VintageAmp60s"
+        },
+        {
+            "platform_lib_name": "Generic Platform Library"
+        },
+        {
+            "platform_lib_version": "1.3.0"
+        },
+        {
+            "samplerate": "96000"
+        },
+        {
+            "shortname": "VintageAmp"
+        },
+        {
+            "signals_lib_name": "Faust Signal Routing Library"
+        },
+        {
+            "signals_lib_version": "1.6.0"
+        },
+        {
+            "version": "2.75.16"
+        }
+    ],
+    "ui": [
+        {
+            "type": "vgroup",
+            "label": "VintageAmp60s",
+            "items": [
+                {
+                    "type": "vslider",
+                    "label": "Bass",
+                    "shortname": "Bass",
+                    "address": "/VintageAmp60s/Bass",
+                    "index": 3708,
+                    "meta": [
+                        {
+                            "name": "Bass"
+                        },
+                        {
+                            "style": "knob"
+                        }
+                    ],
+                    "init": 0.5,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Bright",
+                    "shortname": "Bright",
+                    "address": "/VintageAmp60s/Bright",
+                    "index": 3268
+                },
+                {
+                    "type": "vslider",
+                    "label": "Master",
+                    "shortname": "Master",
+                    "address": "/VintageAmp60s/Master",
+                    "index": 3244,
+                    "meta": [
+                        {
+                            "name": "Master"
+                        },
+                        {
+                            "style": "knob"
+                        }
+                    ],
+                    "init": 0.5,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                },
+                {
+                    "type": "vslider",
+                    "label": "Middle",
+                    "shortname": "Middle",
+                    "address": "/VintageAmp60s/Middle",
+                    "index": 3680,
+                    "meta": [
+                        {
+                            "name": "Middle"
+                        },
+                        {
+                            "style": "knob"
+                        }
+                    ],
+                    "init": 0.5,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                },
+                {
+                    "type": "vslider",
+                    "label": "Presense",
+                    "shortname": "Presense",
+                    "address": "/VintageAmp60s/Presense",
+                    "index": 4200,
+                    "meta": [
+                        {
+                            "name": "Presense"
+                        },
+                        {
+                            "style": "knob"
+                        }
+                    ],
+                    "init": 0.5,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                },
+                {
+                    "type": "vslider",
+                    "label": "Treble",
+                    "shortname": "Treble",
+                    "address": "/VintageAmp60s/Treble",
+                    "index": 3736,
+                    "meta": [
+                        {
+                            "name": "Treble"
+                        },
+                        {
+                            "style": "knob"
+                        }
+                    ],
+                    "init": 0.5,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                },
+                {
+                    "type": "vslider",
+                    "label": "Volume",
+                    "shortname": "Volume",
+                    "address": "/VintageAmp60s/Volume",
+                    "index": 3256,
+                    "meta": [
+                        {
+                            "name": "Volume"
+                        },
+                        {
+                            "style": "knob"
+                        }
+                    ],
+                    "init": 0.5,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                }
+            ]
+        }
+    ]
+}

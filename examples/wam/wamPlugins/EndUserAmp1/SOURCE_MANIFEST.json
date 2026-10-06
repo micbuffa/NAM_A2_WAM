@@ -1,0 +1,20 @@
+{
+  "source": "examples/other_wam_host/EndUserAmp1",
+  "date": "2026-09-24",
+  "sha256Original": {
+    "index.js": "c7b32a91f9ab69d97a64dbf7ec338126b81174f3ed30ce1e36cf1af82a3e2493",
+    "descriptor.json": "1a9cc1b5ffed760bf65580ba594bdf85e4e393c8c0b5311d5e03837b5e18ac2d",
+    "dsp-meta.json": "fb2e54e9bc57ca5a445338b614ff91e8cb0f292a1f17378ea8552cb02bb3c360",
+    "dsp-module.wasm": "4e45d41315f6f295383c53dff25ba80ead8651e2b44b22a1a093d75bb7e26ef6",
+    "gui.js": "824db20d388731570d1691c336abca26c850282937288eb389595c2bddf95abf",
+    "sdk/index.js": "8088a3063feb8e1e6ee91fd3fb944a874d9c50e4b2886baef689ea43dd9f2c31",
+    "sdk-parammgr/index.js": "ba87510d82e46ff8a5e0c02a146e0c698d4dfd049e0267f81f7cdc6f83f79a57",
+    "faustwasm/index.js": "1791ce3468ef2dc7d83eba74c760e322934c3bd56126672078d69730d2858aca",
+    "utils/webaudio-controls.js": "ed401c2f4bf6637620044e47213ea4b92554c7ec146191491a1729b514c15a6b"
+  },
+  "factoryPresetsSource": {
+    "path": "examples/other_wam_host/EndUserAmp1/host/presets.js",
+    "sha256": "19541a89769cc260605afcd07cc6e9b19525856502a610594cd8b0e7e47c0863",
+    "extraction": "state.amp only; missing controls filled with dsp-meta defaults"
+  }
+}

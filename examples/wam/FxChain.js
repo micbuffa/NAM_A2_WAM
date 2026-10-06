@@ -1,6 +1,7 @@
 import {AudioLevel} from './AudioLevel.js';
 import {cabinetRoutingDecision} from './CabinetRouting.js';
 
+const gainDb = value => {const db=Number(value);if(!Number.isFinite(db))throw Error('Invalid plugin gain');return Math.max(-48,Math.min(12,db));};
 const clone = value => structuredClone(value);
 const disconnect = (node, target) => { try { target ? node.disconnect(target) : node.disconnect(); } catch {} };
 
@@ -21,10 +22,12 @@ export class FxChain extends EventTarget {
   }
   changed() { this.dispatchEvent(new Event('change')); }
   find(id) { const entry=this.entries.find(e=>e.id===id); if(!entry)throw Error('Plugin instance no longer exists');return entry; }
-  wrap({id=crypto.randomUUID(), kind='effect', plugin, record, missingState, bypass=false}) {
+  wrap({id=crypto.randomUUID(), kind='effect', plugin, record, missingState, bypass=false, inputDb=0, outputDb=0}) {
     const input=this.context.createGain(), output=this.context.createGain();
     const entry={id,kind,plugin,record,input,output,bypass,missingState,gui:null,guiPromise:null,disposed:false,cleanups:[]};
-    entry.meter=new AudioLevel(this.context,input);
+    entry.inputDb=gainDb(inputDb);entry.outputDb=gainDb(outputDb);
+    input.gain.value=10**(entry.inputDb/20);output.gain.value=10**(entry.outputDb/20);
+    entry.meter=new AudioLevel(this.context,input);entry.outputMeter=new AudioLevel(this.context,output);
     if(kind==='effect'||!plugin) {
       entry.dry=this.context.createGain();entry.wet=this.context.createGain();
       input.connect(entry.dry).connect(output);
@@ -107,6 +110,25 @@ export class FxChain extends EventTarget {
     this.output.gain.setTargetAtTime(10**(this.outputDb/20),this.context.currentTime,.008);
     return this.outputDb;
   }
+  setEntryGain(id,side,db) {
+    if(!['input','output'].includes(side))throw Error('Invalid gain side');
+    const entry=this.find(id);entry[side+'Db']=gainDb(db);
+    entry[side].gain.setTargetAtTime(10**(entry[side+'Db']/20),this.context.currentTime,.008);
+    this.changed();return entry[side+'Db'];
+  }
+  replace(id,record) {return this.enqueue(async()=>{
+    const previous=this.find(id);
+    // Prepare first: a failed import must leave the existing sound and editor intact.
+    const plugin=await this.registry.instantiate(record,{groupId:this.groupId,audioContext:this.context});
+    const entry=this.wrap({id,plugin,record,kind:['nam','cabinet'].includes(record.role)?record.role:'effect',inputDb:previous.inputDb,outputDb:previous.outputDb});
+    try {
+      await this.transition(()=>{
+        this.entries[this.entries.indexOf(previous)]=entry;
+        this.reconnect();this.dispose(previous);
+      });
+    } catch(error){if(!this.entries.includes(entry))this.dispose(entry);throw error;}
+    await this.applyRouting();return entry;
+  });}
   swap(id,targetId) {return this.enqueue(async()=>{
     const entry=this.find(id),target=this.find(targetId);if(entry===target)return;
     await this.transition(()=>{
@@ -163,7 +185,7 @@ export class FxChain extends EventTarget {
     }
     return {version:1,entries:await Promise.all(this.entries.map(async e=>({
     id:e.id,kind:e.kind,pluginUri:e.record?.catalogue?.uri||e.record?.entryUrl,
-    bypass:e.bypass,state:clone(e.plugin?await e.plugin.audioNode.getState():e.missingState)
+    bypass:e.bypass,inputDb:e.inputDb,outputDb:e.outputDb,state:clone(e.plugin?await e.plugin.audioNode.getState():e.missingState)
   })))};
   }
   setState(state) {return this.enqueue(()=>this.restoreState(state));}
@@ -171,7 +193,7 @@ export class FxChain extends EventTarget {
     const saved=clone(state);
     if(saved?.version!==1||!Array.isArray(saved.entries))throw Error('Unsupported chain state');
     const ids=new Set();
-    for(const e of saved.entries){if(!e.id||ids.has(e.id)||!['nam','cabinet','effect'].includes(e.kind))throw Error('Invalid instance IDs or kinds');ids.add(e.id);}
+    for(const e of saved.entries){if(!e.id||ids.has(e.id)||!['nam','cabinet','effect'].includes(e.kind))throw Error('Invalid instance IDs or kinds');gainDb(e.inputDb??0);gainDb(e.outputDb??0);ids.add(e.id);}
     const prepared=[],reused=[],old=this.entries;
     try {
       for(const item of saved.entries){
@@ -190,6 +212,7 @@ export class FxChain extends EventTarget {
       await this.transition(async()=>{
         try{for(const {entry,item} of reused){await entry.plugin.audioNode.setState(item.state);entry.bypass=item.bypass;}}
         catch(error){for(const {entry,backup,bypass} of reused){await entry.plugin.audioNode.setState(backup);entry.bypass=bypass;}throw error;}
+        for(const {entry,item} of reused){this.setEntryGain(entry.id,'input',item.inputDb??0);this.setEntryGain(entry.id,'output',item.outputDb??0);}
         this.entries=saved.entries.map(item=>prepared.find(e=>e.id===item.id)||reused.find(r=>r.entry.id===item.id).entry);
         this.reconnect();for(const entry of old)if(!this.entries.includes(entry))this.dispose(entry);
       });await this.applyRouting();
@@ -197,7 +220,7 @@ export class FxChain extends EventTarget {
     this.changed();
   }
   dispose(e) {
-    e.meter.destroy();e.disposed=true;for(const cleanup of e.cleanups)cleanup?.();
+    e.meter.destroy();e.outputMeter.destroy();e.disposed=true;for(const cleanup of e.cleanups)cleanup?.();
     try{if(e.gui)e.plugin.destroyGui?.(e.gui);}catch{}
     e.gui?.remove();disconnect(e.input);disconnect(e.output);if(e.dry)disconnect(e.dry);if(e.wet)disconnect(e.wet);
     if(e.plugin){disconnect(e.plugin.audioNode);e.plugin.audioNode.destroy?.();}

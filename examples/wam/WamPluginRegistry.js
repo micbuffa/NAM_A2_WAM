@@ -1,4 +1,4 @@
-export const PLUGIN_CATEGORIES=Object.freeze(['tuner','dynamics','drive','filter-wah','modulation','delay','reverb','stereo-utility','amplifier','cabinet','other']);
+export const PLUGIN_CATEGORIES=Object.freeze(['amplifier','cabinet','tuner','dynamics','drive','filter-wah','modulation','delay','reverb','stereo-utility','other']);
 const CATEGORY_ALIASES=new Map([
   ['tuner','tuner'],['noisegate','dynamics'],['noise gate','dynamics'],['gate','dynamics'],['compressor','dynamics'],['limiter','dynamics'],
   ['overdrive','drive'],['distortion','drive'],['boost','drive'],['drive','drive'],['wahwah','filter-wah'],['wah','filter-wah'],['filter','filter-wah'],
@@ -74,7 +74,7 @@ export class WamPluginRegistry{
     const seen=new Set();
     for(let index=0;index<catalogue.plugins.length;index++){
       let entry;
-      try{entry=normalizeCatalogueEntry(catalogue.plugins[index],this.catalogueUrl,index);if(seen.has(entry.entryUrl)){this.diagnostics.push({stage:'catalogue',level:'warning',message:`Duplicate plugin ignored: ${entry.entryUrl}`});continue;}seen.add(entry.entryUrl);}
+      try{entry=normalizeCatalogueEntry(catalogue.plugins[index],this.catalogueUrl,index);if(entry.enabled===false)continue;if(seen.has(entry.entryUrl)){this.diagnostics.push({stage:'catalogue',level:'warning',message:`Duplicate plugin ignored: ${entry.entryUrl}`});continue;}seen.add(entry.entryUrl);}
       catch(error){this.diagnostics.push({stage:'catalogue',level:'error',message:error.message,index});continue;}
       try{
         const descriptorResponse=await this.fetchImpl(entry.descriptorUrl,{cache:'no-store'});if(!descriptorResponse.ok)throw new Error(`Descriptor fetch failed (${descriptorResponse.status})`);

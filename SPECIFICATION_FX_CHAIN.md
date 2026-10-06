@@ -336,3 +336,39 @@ Remaining validation/refinement: listening through a physical multichannel inter
 - Removing a module releases its audio, editor, analyser and instance callbacks, preserves neighbouring instances and adjusts any adjacent junction. Saved diagnostics permit zero, one or multiple Amp Sim/Cabinet modules and retain globally unique instance IDs. Existing matching core instances are reused on restore; deleted instances can be recreated. Missing modules remain dry placeholders carrying their saved state.
 - Each plugin in the `+` chooser and registry-lab list exposes a small **WAM URI** button. It copies the absolute current module entry URL to the clipboard without inserting/opening the plugin. Success is indicated; when clipboard access fails the full URI remains available for manual copying. Source and static/subpath deployments resolve against their own catalogue URL. A localhost URI remains local to the running development server.
 - Validation: unit coverage includes removal/reinsertion, multiple core instances with different AUTO paths, empty-state roundtrip, missing-core placeholders and Cabinet-only B inheriting the A-prefix amp. Static distribution rebuilt with both catalogue entries. Preset phase 7.2 remains untouched.
+
+## 14. Amplificateurs Faust et présentation du catalogue — 2026-09-24
+
+Le catalogue inclut **WAM•FAUST TubeLab** (EndUserAmp1) et **WAM•FAUST ShredLab** (EndUserAmp2), noms confirmés par l’utilisateur le 24 septembre 2026, avec identifiants WAM distincts et captures de leurs interfaces comme vignettes. Tous deux modélisent plusieurs étages, cabinet et réverbération inclus ; ils utilisent le wrapper générique des effets, sans fournir de métadonnées NAM pour Cabinet AUTO.
+
+Dans `+`, les amplificateurs apparaissent en premier à gauche, les simulateurs de haut-parleurs/cabinets à droite, puis les pédales en dessous. Copie WAM URI et insertion au point choisi sont conservées. Sur fenêtre étroite, les deux groupes restent côte à côte avec des cartes adaptées.
+
+Voir `AMP_SIM_IFC2026_INTEGRATION.md` pour les dépendances, corrections, états, mesures et limites : 129 tests du dépôt, 82 vérifications navigateur et distribution statique validés. Les profils internes de ShredLab restent propres au plugin ; la phase presets 7.2 demeure différée.
+
+### 14.1 Presets internes TubeLab / ShredLab — 2026-09-24
+
+Chaque WAM propose son propre menu de six presets d’usine (Default et les cinq sons extraits de son hôte d’exemple). Le preset choisi et les valeurs éventuellement retouchées font partie de l’état WAM, restaurable sans GUI et sans intervention spéciale du rack. La GUI reflète la restauration et indique les modifications. Aucun état de pédale de l’ancien hôte n’est importé. Voir la section 12 de `AMP_SIM_IFC2026_INTEGRATION.md` pour le contrat et la compatibilité des anciens états. Cette fonctionnalité ne démarre pas la gestion des presets du rack (7.2).
+
+## 15. Mesures et gains par module, remplacement depuis l’éditeur — 2026-09-24
+
+### Vu-mètres par instance
+
+- Chaque cadre conserve sa taille et affiche deux vu-mètres verticaux de 4 px à l’intérieur de la bordure, entrée à gauche, sortie à droite. Les images et légendes restent dans le cadre existant.
+- Les deux mesures sont également visibles sur les côtés de la GUI détaillée (5 px). Affichage de −60 à 0 dBFS, vert/orange/rouge et maintien du témoin de clipping pendant une seconde. Le halo existant reste piloté par le niveau d’entrée.
+- Les mesures sont prises **après le gain d’entrée, avant le WAM**, et **après le gain de sortie du module**. Le bypass du WAM conserve les gains du cadre ; les barres montrent donc le signal réellement envoyé au module suivant.
+- Les analyseurs sont des branches de mesure sans connexion à la destination ; ils sont libérés avec l’instance. La mise à jour visuelle partage la boucle existante, limitée à environ 30 Hz et suspendue quand le document est masqué.
+
+### Gains dans l’éditeur
+
+- Une icône de réglage à chaque côté de la GUI ouvre un panneau compact de gain d’entrée ou de sortie. Les panneaux sont repliés à l’ouverture de l’éditeur ; chaque réglage comporte un slider, la valeur en dB et Reset à 0 dB.
+- Plage : −48 à +12 dB, pas UI de 0,5 dB ; transitions audio lissées. Les gains sont indépendants entre instances.
+- Les champs `inputDb` et `outputDb` sont sauvegardés dans l’entrée de chaîne, à côté de l’état WAM. Les anciens états sans ces champs donnent 0 dB. Ces gains appartiennent au wrapper de l’hôte et ne changent pas le contrat des presets internes TubeLab/ShredLab.
+
+### Replace
+
+- Le bouton **Replace** dans la barre de l’éditeur ouvre le même catalogue que `+`, au-dessus de l’éditeur. Annuler conserve le plugin et sa GUI.
+- Le nouveau plugin est instancié avant de retirer l’ancien. Une erreur de chargement laisse l’ancienne instance en place et affiche l’erreur.
+- Le remplacement garde l’identifiant du cadre, sa position, les gains et le point de split. Il démarre avec les réglages par défaut du nouveau plugin ; le bypass/Cabinet AUTO suit les règles de ce nouveau module.
+- Après sélection, la chaîne est reconnectée avec la transition habituelle, les ressources de l’ancien plugin sont libérées et la GUI du nouveau plugin s’ouvre directement. Aucun retour préalable à la vue principale n’est nécessaire.
+
+Validation : **137 tests Node réussis**. Parcours navigateur sur la distribution : 22 vérifications, dont largeur des vu-mètres, absence d’agrandissement des cadres, écart audio mesuré de 6 dB, Reset, remplacement, conservation du split, annulation et restauration des gains dans une session. Aucune exception navigateur sur ce parcours. L’écoute sur interface physique reste à effectuer ; aucune gestion des presets du rack (7.2) n’est ajoutée.

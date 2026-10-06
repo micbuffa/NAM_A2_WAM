@@ -1,0 +1,21 @@
+{
+  "identifier": "fr.grame.faust.ifc2026.amp2",
+  "name": "WAM•FAUST ShredLab",
+  "vendor": "Michel Buffa & Jerome Lebrun",
+  "description": "User-configurable guitar amplifier modelling: preamp, tone stack, power amp, cabinet and reverb.",
+  "version": "0.3",
+  "apiVersion": "2.0.0",
+  "keywords": [],
+  "isInstrument": false,
+  "website": "",
+  "hasAudioInput": true,
+  "hasAudioOutput": true,
+  "hasMidiInput": true,
+  "hasMidiOutput": false,
+  "faustMeta": {
+    "poly": false,
+    "fft": false,
+    "effect": null
+  },
+  "thumbnail": "./thumbnail.png"
+}

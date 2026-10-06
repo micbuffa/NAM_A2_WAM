@@ -101,3 +101,26 @@
 .fx-pan output{font-size:8px;text-align:right;font-variant-numeric:tabular-nums}
 
 .fx-menu-entry{display:flex;flex-direction:column;gap:4px;width:125px}.fx-menu-entry>.fx-copy-uri{min-height:23px;padding:2px 6px;font-size:9px;color:#bdb1ce}.fx-menu>p{overflow-wrap:anywhere}
+
+.fx-menu-amps{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px;padding-bottom:18px;border-bottom:1px solid #4a3b59}.fx-menu-category{min-width:0}.fx-menu-amps>.fx-menu-category+section{border-left:1px solid #4a3b59;padding-left:16px}.fx-menu-amps .fx-menu-entry,.fx-menu-amps .fx-menu-item{width:120px;max-width:100%}.fx-menu-amps h4{margin-top:16px}.fx-menu-amps .fx-menu-item{font-size:11px}
+@media(max-width:500px){.fx-menu-amps{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.fx-menu-amps>.fx-menu-category+section{padding-left:10px}.fx-menu-amps .fx-menu-entry,.fx-menu-amps .fx-menu-item{width:100%}}
+
+/* Per-plugin metering fits inside the existing photo frame. */
+.fx-thin-meter{position:relative;display:block;width:4px;min-width:4px;background:#0a110e;border-radius:2px;overflow:hidden;pointer-events:none}
+.fx-thin-meter.is-clipping{box-shadow:0 0 5px #ff4d5f;background:#ff4d5f}
+.fx-thin-meter.is-clipping .fx-meter-fill{background:#ff4d5f;clip-path:none}
+.fx-card-input-meter,.fx-card-output-meter{position:absolute;top:10px;bottom:33px;z-index:1}
+.fx-card-input-meter{left:4px}.fx-card-output-meter{right:4px}
+.fx-editor{width:980px}
+.fx-editor-body{display:grid;grid-template-columns:34px minmax(0,1fr) 34px;align-items:stretch;padding:8px;gap:2px}
+.fx-editor-mount{min-width:0;padding:6px;overflow:auto}
+.fx-editor-side{position:relative;display:flex;align-items:center;flex-direction:column;gap:8px;padding:6px 0;min-height:160px}
+.fx-editor-side>.fx-thin-meter{flex:1;min-height:90px;width:5px}
+.fx-editor-side-label{font:9px system-ui;color:#c7bdcf}
+.fx-plugin-gain-toggle{display:grid;place-items:center;width:28px;height:28px;padding:4px;border:1px solid #716184;border-radius:6px;background:#242030;color:#eee}
+.fx-plugin-gain-toggle[aria-expanded=true]{background:#554167}
+.fx-plugin-gain-panel{position:absolute;top:40px;left:0;width:185px;padding:12px;background:#242030;border:1px solid #88739d;border-radius:8px;box-shadow:0 6px 20px #000a;z-index:8;color:#eee;font:12px system-ui}
+.fx-plugin-gain-panel[hidden]{display:none}.fx-editor-output .fx-plugin-gain-panel{left:auto;right:0}
+.fx-plugin-gain-panel label{display:block}.fx-plugin-gain-panel input{display:block;width:100%;margin:12px 0;accent-color:#b798e9}
+.fx-plugin-gain-panel output{display:inline-block;min-width:85px}.fx-plugin-gain-panel button{background:#393044;color:#eee;border:1px solid #88739d;border-radius:4px;padding:4px 8px}
+@media(max-width:520px){.fx-editor-bar{gap:5px;flex-wrap:wrap;padding:8px}.fx-editor-bar strong{flex-basis:100%}.fx-editor-body{padding:4px;grid-template-columns:28px minmax(0,1fr) 28px}.fx-editor-mount{padding:3px}}
