@@ -48,7 +48,7 @@
 
 /* Two lanes share a single horizontal viewport. The side columns never scroll. */
 .fx-rack-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px}
-.fx-rack-controls>button{color:#dfceff;border-color:#725490}
+.fx-rack-controls>button:not(.live-toggle){color:#dfceff;border-color:#725490}
 .fx-device-label{display:flex;align-items:center;gap:6px;color:#a99cb8;font-size:10px;min-width:0}
 .fx-device-label select{max-width:200px;height:30px;font-size:10px}
 .fx-rack-status{color:#b4a3c7;font-size:10px}.fx-rack-status.is-clipping{color:#ff4a4a;text-shadow:0 0 8px red}
@@ -64,7 +64,7 @@
 .fx-output-link{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;margin-top:32px;height:26px;color:#c8b7e1;font-size:11px;white-space:nowrap}
 .fx-output-link>span:first-child{font-size:22px;line-height:1;color:#9eecbd}
 .fx-route-action{position:absolute;top:28px;left:0;min-height:22px;height:22px;width:24px;padding:0;border-color:#80709e;color:#c6a4ff;opacity:0;pointer-events:none;transition:opacity .15s}
-.fx-rack:not(.has-chain-b) .fx-route-action{display:none}
+.fx-rack:not(.has-chain-b) .fx-route-action,.fx-route-action[hidden]{display:none}
 .fx-slot.route-visible>.fx-route-action,.fx-slot:hover>.fx-route-action,.fx-slot:focus-within>.fx-route-action{opacity:1;pointer-events:auto}
 @media(hover:none){.fx-route-action{opacity:1;pointer-events:auto}}
 .fx-route-gutter{position:relative;height:40px}
@@ -124,3 +124,6 @@
 .fx-plugin-gain-panel label{display:block}.fx-plugin-gain-panel input{display:block;width:100%;margin:12px 0;accent-color:#b798e9}
 .fx-plugin-gain-panel output{display:inline-block;min-width:85px}.fx-plugin-gain-panel button{background:#393044;color:#eee;border:1px solid #88739d;border-radius:4px;padding:4px 8px}
 @media(max-width:520px){.fx-editor-bar{gap:5px;flex-wrap:wrap;padding:8px}.fx-editor-bar strong{flex-basis:100%}.fx-editor-body{padding:4px;grid-template-columns:28px minmax(0,1fr) 28px}.fx-editor-mount{padding:3px}}
+
+#toggleChains{font-weight:400}
+#toggleChains strong{font-weight:800}

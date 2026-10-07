@@ -157,7 +157,7 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /class="plugin-panel amp-knobs ampPanel"[^>]*data-plugin-panel="amp" hidden/u);
   assert.match(gui, /class="amp-switches"/u);
   assert.match(gui, /class="amp-controls"><section class="eq-panel"/u);
-  assert.match(gui, /class="eqPosition"[\s\S]*?<\/select><\/label><\/div><section class="tone-strip"/u);
+  assert.match(gui, /class="eqPosition"[\s\S]*?<\/select><\/label><\/div><div class="noise-side">[\s\S]*?<section class="tone-strip"/u);
   assert.match(gui, /class="amp-switches"><label class="section-switch"><input class="toneEnabled" type="checkbox" checked> Tone<\/label><\/div>\$\{knobMarkup\('bass'/u);
   assert.match(gui, /\.tone-strip \.knob-shell\s*\{ width:28px;height:28px \}/u);
   assert.match(gui, /\.amp-controls \.tone-strip\s*\{ display:grid;grid-template-columns:repeat\(4,43px\)/u);
@@ -165,7 +165,7 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /\.amp-controls \.section-switch\s*\{ display:flex;align-items:center;justify-content:center/u);
   const ampSettings=gui.match(/<section class="plugin-panel amp-knobs ampPanel"([\s\S]*?)<section class="plugin-panel modelDrawer/u)?.[1] || '';
   for (const id of ['bass','middle','treble']) assert.match(ampSettings,new RegExp(`knobMarkup\\('${id}'`,'u'));
-  assert.doesNotMatch(ampSettings,/knobMarkup\('(noise|inputGain|outputGain)'/u);
+  assert.doesNotMatch(ampSettings,/knobMarkup\('(inputGain|outputGain)'/u);
   assert.match(gui,/syncNoiseGateVisual\(\)/u);
   assert.doesNotMatch(gui,/syncToneEnabledVisual\(\)/u);
   assert.doesNotMatch(gui,/this\.controls\[id\]\.disabled=!enabled/u);
@@ -181,7 +181,7 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /captureButtons\.forEach\(\(button,buttonIndex\)=>\{button\.onclick=\(\)=>choose\(buttonIndex\)/u);
   assert.match(gui, /captureList\.scrollTop=Math\.max/u);
   assert.match(gui, /\.factoryCaptureList\s*\{[^}]*overflow-y:auto/u);
-  assert.match(gui, /this\.setPluginTab\('main'\)/u);
+  assert.match(gui, /this\.setPluginTab\(this\.node\._metadata\?'amp':'models'\)/u);
   assert.match(gui, /this\._factoryCategory='guitar'/u);
   assert.match(gui, /data-category="guitar"[^>]*aria-pressed="true"/u);
   assert.match(gui, /class="tone3000Selection factoryToneCard"/u);

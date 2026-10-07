@@ -49,7 +49,7 @@ Source → Overdrive → NAM → Cabinet → Chorus → Delay → Output
 - Give every instance a unique ID distinct from its catalogue ID. Multiple instances of the same WAM are a required host capability, with independent parameters, state, bypass and editors. A third-party plugin's own incompatibility must be reported as such; never impose one global instance per plugin or damage an existing instance.
 - Offer removal of every plugin, including Amp Sim and Cabinet, in its card and editor toolbar, with confirmation, safe reconnection and cleanup. Empty chains pass input to output; no minimum or maximum count of Amp Sim/Cabinet instances is imposed.
 - Drop a card onto another card to swap their positions (including first onto second). Drop onto a + insertion point to move before that position; the final insertion point appends. Auto-scroll near the strip edges. Provide Alt + Left/Right on focused cards as a keyboard equivalent. Move existing instances, preserving GUI, settings and bypass; serialize edits, validate IDs before changing the graph, and use the same short audio transitions as insertion/removal.
-- Keep the tuner out of insert menus. Its existing special analysis role is preserved; a dedicated top-bar tuner action is a follow-up, not a blocker for this increment.
+- Keep the tuner out of insert menus. Its special analysis role is preserved. The dedicated top-bar Tuner action is implemented as of 2026-10-07 (see below).
 
 ## 4. Plugin editor
 
@@ -384,3 +384,36 @@ La sauvegarde de session comporte un champ optionnel `backingTrack`, distinct du
 Le lecteur d’accompagnement se replie entièrement via un en-tête d’accordéon pleine largeur, sans arrêter le son. Le bouton de dérivation sous « + » reste cliquable 700 ms après sortie du pointeur, avec annulation du délai au retour et maintien pendant le focus clavier. Dans Models/TONE3000, la bibliothèque locale devient un accordéon fermé automatiquement lorsqu’une nouvelle sélection est affichée ; la carte sélectionnée est remise en vue. Validation : 143 tests Node et 9 contrôles navigateur, callback TONE3000 simulé.
 
 Correction complémentaire du 6 octobre : fermer aussi le groupe « Downloaded on this device » généré dans `.modelBrowser`, au-dessus du panneau TONE3000. La sélection active ne doit pas le rouvrir lors des rendus suivants. Conserver la réouverture manuelle et l’expansion des résultats de recherche ; ne pas changer les accordéons Factory/Favorites.
+
+
+### Interface simplifiée — 2026-10-07
+
+- Au chargement, le panneau gauche complet est replié. Une icône dans l’en-tête du rack permet de l’ouvrir/fermer ; `aria-expanded`, un libellé accessible et Échap depuis le panneau accompagnent cette commande. Les sources audio et les diagnostics restent dans ce panneau ; l’activation du micro est directement accessible dans l’en-tête.
+- Le bouton **UI mode: beginner** passe à **UI mode: full** et inversement. Chaque chargement démarre en beginner. La chaîne A, son édition, les périphériques et le lecteur d’accompagnement restent disponibles.
+- Beginner masque le sélecteur 1/2 chaînes, B (entrée, cadres, sortie), les actions de dérivation, le câble et son édition. B est déconnectée en entrée et en sortie du graphe audio ; le mix ne tient plus compte de B. Les plugins, paramètres, panoramiques, mute, visibilité demandée et jonction sont conservés. Full rétablit la configuration précédente ; il ne crée pas automatiquement une seconde chaîne.
+- Le mode UI est une préférence de présentation de la session, indépendante de l’état WAM/rack. Restaurer un état à deux chaînes en beginner ne doit pas reconnecter B ; passer en full permet ensuite de retrouver cette configuration. Les règles existantes de restauration des entrées physiques restent applicables.
+- La GUI NAM A2 s’ouvre sur **Amp settings** lorsqu’un modèle est chargé, avec son nom et **Change model** en haut. La barre d’onglets est masquée dans cette vue compacte. **Change model** ouvre Models et donne accès aux vues actuelles (Main, Models, Model details, Preferences, Help). **Back to amp settings** revient aux réglages. Sans modèle, l’éditeur s’ouvre sur Models. Chaque réouverture d’un cadre chargé retrouve Amp settings ; les états audio et paramètres ne sont pas modifiés par cette navigation.
+- Aucun travail sur les presets de chaînes (7.2).
+
+
+Complément du 7 octobre — accès audio : l’en-tête expose **Enable live input** puis l’icône légendée **Change audio source**. Le premier bouton fonctionne aussi depuis une source fichier : sélection immédiate de Live input, arrêt du lecteur de guitare sèche, activation du périphérique/canal choisi. Il devient **Disable live input** pendant l’écoute. L’accès au lecteur d’accompagnement est indépendant. Le second bouton ouvre/ferme le panneau gauche. En cas d’échec du micro, le panneau s’ouvre sur le statut d’erreur. Aucun démarrage automatique de capture au chargement.
+
+
+En-tête des vues détaillées (7 octobre) : supprimer le bouton Bypass ON/OFF ajouté par l’hôte. Conserver Replace, Remove et Fermer. Le bypass reste accessible sur les cartes et dans les GUIs des plugins qui le proposent.
+
+
+### Accordeur dans l’en-tête — 2026-10-07
+
+- Bouton **Tuner** avec icône SVG en forme de diapason, disponible en beginner et full. Un clic ouvre un dialogue contenant la GUI existante de TunerMachine. La version compacte intégrée dans la barre reste une évolution ultérieure.
+- Chargement à la demande depuis le catalogue WAM ; l’accordeur n’est pas un insert de chaîne. Analyse du signal d’entrée A après le trim, avant tous les plugins. La chaîne B indépendante et le lecteur d’accompagnement ne sont pas analysés.
+- Une dérivation avec gain de sortie nul permet l’analyse sans ajouter de signal audible ni modifier les effets, le bypass ou le routage. Ouvrir l’accordeur ne demande pas l’accès au microphone : utiliser **Enable live input** pour activer la source.
+- Montage de la GUI après ouverture du dialogue pour dimensionner correctement les canvas ; activation automatique de son interrupteur. Fermer ou Échap arrête l’animation, déconnecte la dérivation, détruit l’instance et rend le focus au bouton. Une fermeture pendant le chargement annule l’ouverture et libère les ressources tardives. Erreur visible dans le dialogue, avec possibilité de réessayer.
+
+
+Correction du 7 octobre : masquer le petit bouton de création de dérivation au point déjà connecté, ainsi que sous le câble de prévisualisation, même au survol/focus. Les autres points restent disponibles ; supprimer ou déplacer le routage rétablit le bouton à son ancien emplacement. Le libellé du routage conserve les actions d’édition/suppression.
+
+
+Ajustement de barre audio (7 octobre) : **Change audio source** est visible uniquement en mode full ; le passage en beginner referme le panneau. **Enable/Disable live input** est placé sur la ligne des menus Input device / Output device (retour à la ligne possible sur petit écran). Le bouton **1 / 2 chains** met en gras uniquement le nombre de chaînes actuel et expose ce nombre ainsi que la cible aux lecteurs d’écran.
+
+
+NAM A2 (7 octobre) : la noise gate (interrupteur et seuil) est déplacée de Main vers **Amp settings**, avant les knobs du tonestack, sans duplication et avec les mêmes paramètres WAM. Le bouton de choix du modèle devient **Change amp model**, centré sous le nom du modèle, agrandi et coloré avec l’accent du plugin.

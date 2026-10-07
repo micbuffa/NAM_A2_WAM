@@ -5,7 +5,7 @@ export class FxRackView {
     Object.assign(this,{rack,report});this.root=document.querySelector('.fx-rack');this.root.setAttribute('aria-label','Processing chains');
     const input=this.root.querySelector('[aria-label="Chain A input"]'),output=this.root.querySelector('[aria-label="Chain A output"]'),strip=document.querySelector('#fxChain');
     const header=el('div','fx-rack-controls');this.toggle=el('button','','☷  1 / 2 chains');this.toggle.id='toggleChains';this.toggle.setAttribute('aria-expanded','false');
-    header.append(this.toggle);
+    header.append(document.getElementById('enableLive'),this.toggle);
     for(const id of ['inputDevice','outputDevice']){const label=document.getElementById(id).closest('label');label.className='fx-device-label';header.append(label);}
     output.querySelector('.fx-endpoint-routing').append(output.querySelector('#chainOutputReset'));
     this.status=el('span','fx-rack-status');header.append(this.status);this.root.before(header);
@@ -33,7 +33,7 @@ export class FxRackView {
     this.aView=new FxChainView(rack.a,strip,report,{onRoute:(index,button)=>this.routeMenu(index,button),onLayout:()=>this.scheduleLayout(),onOpen:()=>this.bView?.close()});
     this.toggle.onclick=async()=>{
       this.toggle.disabled=true;this.toggle.textContent='Loading…';
-      try{await this.act(()=>rack.setVisible(!rack.visible));}finally{this.toggle.disabled=false;this.toggle.textContent='☷  1 / 2 chains';}
+      try{await this.act(()=>rack.setVisible(!rack.visible));}finally{this.toggle.disabled=false;this.renderChainToggle();}
     };
     this.enableB.onclick=()=>this.act(()=>rack.setEnabledB(!rack.enabledB));
     this.muteA.onclick=()=>this.act(()=>rack.setMutedA(!rack.mutedA));
@@ -53,13 +53,20 @@ export class FxRackView {
     this.render();this.tick();
   }
   async act(operation){try{await operation();}catch(error){this.report(error.message,true);}}
+  renderChainToggle(){
+    const two=this.rack.visible;
+    this.toggle.replaceChildren('☷  ',el(two?'span':'strong','','1'),' / ',el(two?'strong':'span','','2'),' chains');
+    this.toggle.setAttribute('aria-label',`${two?'2':'1'} ${two?'chains':'chain'} active. Switch to ${two?'1 chain':'2 chains'}`);
+  }
   render(){
     const r=this.rack;
+    if(!this.toggle.disabled)this.renderChainToggle();
+    this.toggle.hidden=r.uiMode==='beginner';
     if(r.b&&!this.bView)this.bView=new FxChainView(r.b,this.bStrip,this.report,{secondary:true,meterPrefix:'chainB',onLayout:()=>this.scheduleLayout(),onOpen:()=>this.aView.close()});
     this.toggle.setAttribute('aria-expanded',String(r.visible));this.toggle.title=r.visible?'Hide chain B':'Show chain B';
-    this.bLeft.hidden=this.bRight.hidden=this.bStrip.hidden=this.gutter.hidden=!r.visible;
+    this.bLeft.hidden=this.bRight.hidden=this.bStrip.hidden=this.gutter.hidden=!r.activeB;
     this.inputB.style.visibility=r.route?'hidden':'visible';
-    this.root.classList.toggle('has-chain-b',r.visible);
+    this.root.classList.toggle('has-chain-b',r.activeB);
     this.muteA.textContent='Mute';this.muteA.setAttribute('aria-label','Mute chain A');this.muteA.setAttribute('aria-pressed',String(r.mutedA));
     this.enableB.textContent='Mute';this.enableB.setAttribute('aria-label','Mute chain B');this.enableB.setAttribute('aria-pressed',String(!r.enabledB));
     this.status.textContent=`${r.visible?(r.route?'A → B split':'Independent inputs'):'One chain'} · Mix ${r.mixDb} dB`;
@@ -83,10 +90,17 @@ export class FxRackView {
   scheduleLayout(){if(this.layoutQueued)return;this.layoutQueued=true;requestAnimationFrame(()=>{this.layoutQueued=false;this.layout();});}
   layout(){
     const route=this.preview||this.rack.route;
+    const slots=this.aView.container.querySelectorAll('.fx-slot');
+    for(const slot of slots){
+      const button=slot.querySelector('.fx-route-action');if(!button)continue;
+      const index=Number(slot.dataset.index);
+      button.hidden=this.rack.activeB&&(index===this.rack.route?.index||index===this.preview?.index);
+      if(button.hidden&&document.activeElement===button)slot.querySelector('.fx-add')?.focus();
+    }
     this.inputB.style.visibility=route?'hidden':'visible';
-    this.bStrip.style.paddingLeft='12px';this.svg.replaceChildren();this.routeLabel.hidden=!route||!this.rack.visible;
-    if(!route||!this.rack.visible)return;
-    const slots=this.aView.container.querySelectorAll('.fx-slot'),slot=slots[route.index];if(!slot)return;
+    this.bStrip.style.paddingLeft='12px';this.svg.replaceChildren();this.routeLabel.hidden=!route||!this.rack.activeB;
+    if(!route||!this.rack.activeB)return;
+    const slot=slots[route.index];if(!slot)return;
     const offset=slot.offsetLeft-slots[0].offsetLeft;this.bStrip.style.paddingLeft=`${12+offset}px`;
     const x=slot.offsetLeft+slot.offsetWidth/2,y1=slot.offsetTop+slot.offsetHeight/2,y2=this.bStrip.offsetTop+this.bStrip.querySelector('.fx-slot').offsetTop+13;
     this.svg.setAttribute('width',String(this.track.scrollWidth));this.svg.setAttribute('height',String(this.track.scrollHeight));
@@ -96,7 +110,7 @@ export class FxRackView {
   }
   positionLabel(){if(this.routeLabel.hidden)return;const min=this.scroller.scrollLeft+8,max=min+this.scroller.clientWidth-this.routeLabel.offsetWidth-16;this.routeLabel.style.left=`${Math.max(min,Math.min(this.labelAnchor||0,max))}px`;}
   routeMenu(index,trigger,existing=false){
-    if(!this.rack.visible){this.report('Click 1 / 2 chains to show B first.');return;}
+    if(!this.rack.activeB){this.report('Click 1 / 2 chains to show B first.');return;}
     const order=this.rack.a.entries.map(e=>e.id).join('|');
     this.preview={index};this.layout();this.dialog.replaceChildren();
     const title=el('h3','',existing?'A → B route':this.rack.route?'Replace A → B route':'Split A → B');
