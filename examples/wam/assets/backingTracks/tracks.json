@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "tracks": [
+    {
+      "id": "bt-e593dafe4c5eefe3",
+      "title": "Aerosmith - Cryin'",
+      "url": "Aerosmith%20-%20Cryin'.mp3"
+    },
+    {
+      "id": "bt-8db1e127605b33de",
+      "title": "Always on the Run - Lenny Krawitz",
+      "url": "Always%20on%20the%20Run%20-%20Lenny%20Krawitz.mp3"
+    },
+    {
+      "id": "bt-bae22a7a284e168d",
+      "title": "Are You Gonna Be My Girl - Jet",
+      "url": "Are%20You%20Gonna%20Be%20My%20Girl%20-%20Jet.mp3"
+    },
+    {
+      "id": "bt-2c571be86d9f5c8d",
+      "title": "Beds Are Burning - Midnight Oil",
+      "url": "Beds%20Are%20Burning%20-%20Midnight%20Oil.mp3"
+    },
+    {
+      "id": "bt-1781912844d02f83",
+      "title": "Blow - Ed Sheeran Bruno Mars E",
+      "url": "Blow%20-%20Ed%20Sheeran%20Bruno%20Mars%20E.mp3"
+    },
+    {
+      "id": "bt-ed6f38215b9b7b31",
+      "title": "Born To Be Wild - Steppenwolf",
+      "url": "Born%20To%20Be%20Wild%20-%20Steppenwolf.mp3"
+    },
+    {
+      "id": "bt-685968699fafce4c",
+      "title": "Ca C'est vraiment toi BackingTrack",
+      "url": "Ca%20C'est%20vraiment%20toi_BackingTrack.mp3"
+    },
+    {
+      "id": "bt-41b89d4736bd112f",
+      "title": "Come Out And Play - Offspring",
+      "url": "Come%20Out%20And%20Play%20-%20Offspring.mp3"
+    },
+    {
+      "id": "bt-b0f46658118cc699",
+      "title": "Come Together - Godsmack",
+      "url": "Come%20Together%20-%20Godsmack.mp3"
+    },
+    {
+      "id": "bt-90ba0518238601d5",
+      "title": "Eteins la lumière - Axel Bauer",
+      "url": "Eteins%20la%20lumi%C3%A8re%20-%20Axel%20Bauer.mp3"
+    },
+    {
+      "id": "bt-0414f255cd18effd",
+      "title": "Fortunate Son - CCR",
+      "url": "Fortunate%20Son%20-%20CCR.mp3"
+    },
+    {
+      "id": "bt-1203689d3b78dbcd",
+      "title": "Highway to Hell (live) E - ACDC",
+      "url": "Highway%20to%20Hell%20(live)%20E%20-%20ACDC.mp3"
+    },
+    {
+      "id": "bt-3f4b34ace834ce96",
+      "title": "Highway To Hell E BonScott - ACDC",
+      "url": "Highway%20To%20Hell%20E%20BonScott%20-%20ACDC.mp3"
+    },
+    {
+      "id": "bt-00a97dd72c34414a",
+      "title": "I Was Made For Lovin You - YungBlud",
+      "url": "I%20Was%20Made%20For%20Lovin%20You%20-%20YungBlud.mp3"
+    },
+    {
+      "id": "bt-1db3816068afd3f7",
+      "title": "Killing In The Name - Rage Against The Machine",
+      "url": "Killing%20In%20The%20Name%20-%20Rage%20Against%20The%20Machine.mp3"
+    },
+    {
+      "id": "bt-47895e7827a8944b",
+      "title": "Knocking On Heavens Door E - Guns and Roses",
+      "url": "Knocking%20On%20Heavens%20Door%20E%20-%20Guns%20and%20Roses.mp3"
+    },
+    {
+      "id": "bt-87e9ae5eda7e11b2",
+      "title": "La Fille Du Pere Noel - Jacques Dutronc",
+      "url": "La%20Fille%20Du%20Pere%20Noel%20-%20Jacques%20Dutronc.mp3"
+    },
+    {
+      "id": "bt-472f8fe2332d88b7",
+      "title": "Lonely Boy - Black Keys",
+      "url": "Lonely%20Boy%20-%20Black%20Keys.mp3"
+    },
+    {
+      "id": "bt-ad36b3fd17575a07",
+      "title": "Personal Jesus E - Def Leppard",
+      "url": "Personal%20Jesus%20E%20-%20Def%20Leppard.mp3"
+    },
+    {
+      "id": "bt-38eb1e8b1636d227",
+      "title": "Seven Nation Army - White Stripes",
+      "url": "Seven%20Nation%20Army%20-%20White%20Stripes.mp3"
+    },
+    {
+      "id": "bt-477c4f6e06803c6c",
+      "title": "Sharp Dressed Man - ZZ Top",
+      "url": "Sharp%20Dressed%20Man%20-%20ZZ%20Top.mp3"
+    },
+    {
+      "id": "bt-7594a7297d817aff",
+      "title": "Should I Stay or Should I Go - The Clash",
+      "url": "Should%20I%20Stay%20or%20Should%20I%20Go%20-%20The%20Clash.mp3"
+    },
+    {
+      "id": "bt-af43dd4cf7e303d2",
+      "title": "Supersonic - Oasis",
+      "url": "Supersonic%20-%20Oasis.mp3"
+    },
+    {
+      "id": "bt-79fc883e9c413d4e",
+      "title": "Sweet Child O Mine E - Guns and Roses",
+      "url": "Sweet%20Child%20O%20Mine%20E%20-%20Guns%20and%20Roses.mp3"
+    },
+    {
+      "id": "bt-8c3bdbf289cba8ba",
+      "title": "The Wall P2 SOLO ONLY - Pink Floyd",
+      "url": "The%20Wall%20P2%20SOLO%20ONLY%20-%20Pink%20Floyd.mp3"
+    },
+    {
+      "id": "bt-d3806a81e2aed987",
+      "title": "The Wall Part 2 - Pink FLoyd",
+      "url": "The%20Wall%20Part%202%20-%20Pink%20FLoyd.mp3"
+    },
+    {
+      "id": "bt-50b0f16f2a7cf399",
+      "title": "Where Is My Mind - Pixies",
+      "url": "Where%20Is%20My%20Mind%20-%20Pixies.mp3"
+    },
+    {
+      "id": "bt-49f26afe6b48a5a4",
+      "title": "Wild Thing - The Troggs",
+      "url": "Wild%20Thing%20-%20The%20Troggs.mp3"
+    },
+    {
+      "id": "bt-7fc9c252be33fd09",
+      "title": "You Really Got Me - The Kinks",
+      "url": "You%20Really%20Got%20Me%20-%20The%20Kinks.mp3"
+    }
+  ]
+}

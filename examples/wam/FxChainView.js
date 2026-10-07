@@ -126,7 +126,12 @@ export class FxChainView {
     if(ids!==this.layout){
       this.layout=ids;this.container.replaceChildren();this.cards.clear();
       const add=before=>{const button=element('button','fx-add','+');button.setAttribute('aria-label',before?'Insert effect before '+(before.record?.name||before.kind):'Insert effect at end');button.onclick=()=>this.showMenu(before?.id||null,button);this.dropTarget(button,before?.id||null);const slot=element('span','fx-slot');slot.append(button);slot.dataset.index=String(before?this.chain.entries.indexOf(before):this.chain.entries.length);
-        if(this.options.onRoute){const route=element('button','fx-route-action','↳');route.title='Route to B here';route.setAttribute('aria-label','Route to B at this position');route.onclick=()=>this.options.onRoute(Number(slot.dataset.index),route);slot.append(route);}
+        if(this.options.onRoute){const route=element('button','fx-route-action','↳');route.title='Route to B here';route.setAttribute('aria-label','Route to B at this position');route.onclick=()=>this.options.onRoute(Number(slot.dataset.index),route);slot.append(route);
+          let hideTimer;
+          const showRoute=()=>{clearTimeout(hideTimer);slot.classList.add('route-visible');};
+          const delayHide=()=>{clearTimeout(hideTimer);hideTimer=setTimeout(()=>{if(!slot.matches(':hover,:focus-within'))slot.classList.remove('route-visible');},700);};
+          slot.addEventListener('pointerenter',showRoute);slot.addEventListener('pointerleave',delayHide);
+          slot.addEventListener('focusin',showRoute);slot.addEventListener('focusout',delayHide);}
         this.container.append(slot);};
       for(const entry of this.chain.entries){
         add(entry);const card=element('article','fx-card'),toolbar=element('div','fx-card-toolbar');
