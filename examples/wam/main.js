@@ -9,6 +9,7 @@ import {readAudioDevicePreferences, saveAudioDevicePreferences, resolveInputPref
 import {FxChain} from './FxChain.js';
 import {FxRack} from './FxRack.js';
 import {FxRackView} from './FxRackView.js';
+import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
 const TONE3000_CALLBACK_CHANNEL = 'nam-a2-wam.tone3000.callback';
 const TONE3000_CALLBACK_STORAGE_KEY = 'nam-a2-wam.tone3000.callback';
@@ -30,6 +31,18 @@ let liveInputEnabled = false;
 let outputDeviceManager;
 let chain, chainView, rack, backingPlayer, backingMix;
 
+
+const sidebarToggle = $('#toggleSidebar');
+sidebarToggle.onclick = () => {
+  const sidebar = $('#hostSidebar');
+  sidebar.hidden = !sidebar.hidden;
+  $('.host-shell').classList.toggle('sidebar-collapsed', sidebar.hidden);
+  sidebarToggle.setAttribute('aria-expanded', String(!sidebar.hidden));
+  sidebarToggle.setAttribute('aria-label', sidebar.hidden ? 'Change audio source' : 'Close audio source panel');
+};
+$('#hostSidebar').addEventListener('keydown', event => {
+  if (event.key === 'Escape') { sidebarToggle.click(); sidebarToggle.focus(); }
+});
 
 function message(text, error = false) {
   $('#hostStatus').textContent = text;
@@ -117,7 +130,7 @@ function setPlayerEnabled(enabled) {
   $('#playerPanel').hidden = !enabled;
   $('#inputDevice').disabled = enabled;
   $('#inputChannel').disabled = enabled;
-  $('#enableLive').disabled = enabled;
+
 }
 
 function syncLiveInputButton() {
@@ -199,11 +212,25 @@ async function initialize() {
       nam.toneSession.identity='b-nam';cab.toneSession.identity='b-cabinet';return b;
     }catch(error){if(b)b.destroy();else{nam?.audioNode.destroy?.();cab?.audioNode.destroy?.();}throw error;}
   }});
+  await rack.setUiMode('beginner');
   window.phase3Debug.rack=rack;
   backingPlayer=document.createElement('backing-track-player');document.querySelector('.fx-rack').after(backingPlayer);
   await backingPlayer.initialize({audioContext:context});backingMix=new BackingTrackMix(context,rack.output,backingPlayer);
   Object.assign(window.phase3Debug,{backingPlayer,backingMix});
   chainView=new FxRackView(rack,message);
+  window.phase3Debug.tuner=new TunerView({context,registry,groupId,input:chain.input,button:$('#tunerButton')});
+  const modeButton=$('#uiMode');modeButton.disabled=false;
+  modeButton.onclick=async()=>{
+    modeButton.disabled=true;chainView.close();
+    try{
+      await rack.setUiMode(rack.uiMode==='beginner'?'full':'beginner');
+      if(rack.uiMode==='beginner'&&!$('#hostSidebar').hidden)sidebarToggle.click();
+      document.body.dataset.uiMode=rack.uiMode;
+      modeButton.textContent=`UI mode: ${rack.uiMode}`;
+      modeButton.setAttribute('aria-pressed',String(rack.uiMode==='full'));
+      modeButton.title=rack.uiMode==='beginner'?'Switch to full mode to use two chains':'Switch to beginner mode (chain A only)';
+    }catch(error){message(error.message,true);}finally{modeButton.disabled=false;}
+  };
   await discoverFiles();
   await refreshDevices(false);
   if (outputDeviceManager.supported) {
@@ -283,18 +310,25 @@ async function initialize() {
     $('#chainOutputGain').value=0;
     $('#chainOutputGain').dispatchEvent(new Event('input',{bubbles:true}));
   };
+  $('#enableLive').disabled=false;
   $('#enableLive').onclick = async () => {
+    $('#enableLive').disabled=true;
     try {
       if (liveInputEnabled) {
         await disableLiveInput();
         return;
       }
-      await context.resume();
+      $('#audioSource').value='live';
+      setPlayerEnabled(false);
+      const resumed=context.resume();
+      await selectSource();
+      await resumed;
       if (!$('#inputDevice').value) await refreshDevices(true);
       else selectedDeviceId=$('#inputDevice').value;
       await activateSelectedLiveInput();
     }
-    catch (error) { liveInputEnabled=false; syncLiveInputButton(); message(error.message, true); }
+    catch (error) { liveInputEnabled=false; syncLiveInputButton(); message(error.message, true); if($('#hostSidebar').hidden)sidebarToggle.click(); }
+    finally { $('#enableLive').disabled=false; }
   };
   $('#inputDevice').onchange = async () => {
     selectedDeviceId = $('#inputDevice').value;

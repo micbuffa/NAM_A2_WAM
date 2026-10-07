@@ -1,5 +1,42 @@
 # NAM A2 WAM — Next-session handoff
 
+## 2026-10-07 — Gate in Amp settings and model CTA
+
+Moved the single NAM noise-gate control (enable + threshold) from Main artwork to Amp settings before the tone-stack knobs. Existing WAM parameter/automation bindings are unchanged. Change model is now Change amp model, centered below the model name with a larger accent-colored button. Help updated. Validation: 145 Node tests and 9 Chrome checks including gate enable/threshold parameters and model-browser navigation; desktop screenshot inspected. Distribution rebuilt.
+
+## 2026-10-07 — Audio toolbar placement
+
+Enable/Disable live input now shares the device-selection toolbar. Change audio source appears only in full mode; switching to beginner closes the sidebar. The 1 / 2 chains toggle bolds only the current count, with an accessible label describing current and target counts; updates also follow state restoration.
+
+## 2026-10-07 — Hide route action at connected junction
+
+The small route action is hidden at the active A→B junction (and at the preview junction), including on hover/focus. Other insertion points retain the 700 ms hover grace. Moving/removing the route restores the old action; the existing route label remains the edit/remove control. Focus moves to the adjacent + when its route action becomes hidden.
+
+## 2026-10-07 — Main-host tuner popup
+
+- Added top-bar Tuner with SVG tuning fork, available in both UI modes. `TunerView.js` lazily instantiates the catalogue tuner on a silent parallel tap of chain A input (after source trim, before effects). No microphone activation, backing-track analysis or insert-menu entry.
+- Existing tuner GUI mounts after dialog visibility and powers on automatically. Close/Escape cancels pitch animation, disconnects/destroys the instance, and restores focus. Async opening is guarded against close/reopen; errors appear in the dialog. Static build now includes TunerView.js.
+- Validation: 145 Node tests; 10 Chrome checks passed without exceptions, including detection of synthetic 220 Hz as A, nonzero canvas dimensions, silent output branch, unchanged rack, close/reopen and cancellation during loading. Physical instrument/microphone not exercised. Desktop screenshot inspected. Distribution rebuilt.
+- Compact inline tuner UI remains deferred as requested.
+
+## 2026-10-07 — Detail editor header
+
+Removed the host-level Bypass ON/OFF button from all detailed card editors. The header retains Replace, Remove and Close. Card-level bypass and plugin-native controls remain available.
+
+## 2026-10-07 — Direct live-input shortcut
+
+- The existing Enable live input toggle moved from the sidebar to the rack header. It remains enabled in file-source mode and immediately selects Live input, stops the dry player and activates the selected input. It becomes Disable live input while monitoring. Busy clicks are disabled; capture errors open the sidebar to expose the status.
+- The adjacent panel icon now has the visible label Change audio source, retaining its expand/collapse behavior.
+- Validation: 145 Node tests and 10 Chrome checks passed, including file-to-live, stop, and permission failure using a simulated MediaStream (no physical microphone). Distribution rebuilt.
+
+## 2026-10-07 — Beginner/full UI and compact NAM editor
+
+- Host sidebar starts fully collapsed, toggled by the accessible panel icon in the rack header; Escape from inside closes it. Source selection and diagnostics remain there; live-input activation is now directly in the rack header.
+- Host defaults to beginner on every page load. Header toggle enables full mode. Beginner hides B and every dual-chain routing control. `FxRack.activeB` gates B’s physical/tap input, output connection and mix contribution, independently of the saved `visible`/mute/routing configuration. Returning to full restores the previous layout without recreating B. UI mode is not serialized; restoring a two-chain state while beginner keeps B disconnected. Core rack defaults to full for existing API consumers; host explicitly selects beginner before creating the view.
+- NAM GUI opens Amp settings when a model is loaded, with model name and Change model. Management UI is retained behind Change model; Back to amp settings returns to the compact view. Every reopening resets to amp (or Models if empty). Spectrum monitoring follows the active view. Other WAM GUIs unchanged.
+- Validation: 145 Node tests passed, including B isolation, restore under beginner, split recovery, independent-input mute preservation. 13 desktop Chrome interaction checks and 14 checks against the rebuilt distribution at 390 px passed with no exceptions or horizontal page overflow. Desktop and narrow screenshots inspected. Static distribution rebuilt. No live TONE3000 authentication or physical audio listening tested in this change.
+- Scope/spec: `SPECIFICATION_FX_CHAIN.md`, section Interface simplifiée. Presets 7.2 remains deferred.
+
 ## 2026-10-06 — TONE3000 accordion correction after screenshot
 
 The screenshot showed the generic `.modelBrowser` asset-tree group “Downloaded on this device”, not only the separate `.tone3000Downloads` section. `buildAssetTree` automatically expands ancestors of the selected model on every render, which defeated the previous fix. NAM now overrides this specific group's open state in the TONE3000 source, resets it when presenting a new remote selection, and preserves explicit manual reopening through rerenders. Search can still expand matching results; Factory/Favorites behavior is unchanged. Validation: 143 Node tests and 13 browser checks with a mocked callback, seeded downloaded model and repeated browser renders; no browser exceptions. Distribution rebuilt.

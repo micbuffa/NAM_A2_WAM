@@ -4,7 +4,7 @@ const disconnect=(from,to)=>{try{from.disconnect(to);}catch{}};
 export class FxRack extends EventTarget {
   constructor({context,a,source,createLane}) {
     super();Object.assign(this,{context,a,source,createLane});
-    this.pending=Promise.resolve();this.b=null;this.visible=false;this.enabledB=false;this.mutedA=false;
+    this.uiMode='full';this.pending=Promise.resolve();this.b=null;this.visible=false;this.enabledB=false;this.mutedA=false;
     this.panA=0;this.panB=0;this.pannerA=context.createStereoPanner();this.pannerB=context.createStereoPanner();
     // Explicit stereo keeps a mono lane at its existing center level.
     for(const panner of [this.pannerA,this.pannerB]){panner.channelCount=2;panner.channelCountMode='explicit';}
@@ -47,6 +47,12 @@ export class FxRack extends EventTarget {
     b.outputMeter.destroy();b.outputMeter=new AudioLevel(this.context,this.pannerB);
     this.attach(b);return b;
   }
+  get activeB(){return this.uiMode==='full'&&this.visible;}
+  setUiMode(mode){return this.enqueue(async()=>{
+    if(!['beginner','full'].includes(mode))throw Error('Invalid UI mode');
+    await this.transition(()=>{this.uiMode=mode;this.syncTap();this.syncSource();this.syncMix();});
+    await this.a.applyRouting();this.changed();
+  });}
   setVisible(visible){return this.enqueue(async()=>{
     if(visible)await this.ensureB();
     await this.transition(()=>{this.visible=visible;this.enabledB=visible;this.syncTap();this.syncSource();this.syncMix();});
@@ -67,7 +73,7 @@ export class FxRack extends EventTarget {
   });}
   syncTap(){
     if(this.tap&&this.b)disconnect(this.tap,this.b.input);this.tap=null;
-    if(this.route&&this.visible&&this.b){
+    if(this.route&&this.activeB&&this.b){
       this.route.index=Math.max(0,Math.min(this.route.index,this.a.entries.length));
       this.tap=this.route.index?this.a.entries[this.route.index-1].output:this.a.input;
       this.tap.connect(this.b.input);
@@ -75,11 +81,11 @@ export class FxRack extends EventTarget {
   }
   syncSource(){
     // Isolate both ends of the hidden lane, rather than merely muting its sum.
-    if(this.b){disconnect(this.b.output,this.gateB);if(this.visible)this.b.output.connect(this.gateB);}
+    if(this.b){disconnect(this.b.output,this.gateB);if(this.activeB)this.b.output.connect(this.gateB);}
     if(this.b)disconnect(this.physicalB,this.b.input);
-    if(this.b&&this.visible&&!this.route)this.physicalB.connect(this.b.input);
+    if(this.b&&this.activeB&&!this.route)this.physicalB.connect(this.b.input);
     const live=this.source.mode==='live',available=live&&this.channelB>=0&&this.channelB<this.source.liveInput?.channelCount;
-    this.source.setSecondary(this.visible&&!this.route&&available?this.physicalB:null,this.channelB);
+    this.source.setSecondary(this.activeB&&!this.route&&available?this.physicalB:null,this.channelB);
     // Device loss and source switches must not silently re-enable an independent input.
     if(!this.route&&!available)this.enabledB=false;
     this.physicalB.gain.setTargetAtTime(10**(this.inputDbB/20),this.context.currentTime,.008);
@@ -102,7 +108,7 @@ export class FxRack extends EventTarget {
   }
   setMutedA(muted){return this.enqueue(()=>{this.mutedA=muted;this.syncMix();this.changed();});}
   syncMix(){
-    const b=this.visible&&this.enabledB,t=this.context.currentTime;
+    const b=this.activeB&&this.enabledB,t=this.context.currentTime;
     this.gateA.gain.setTargetAtTime(this.mutedA?0:1,t,.008);this.gateB.gain.setTargetAtTime(b?1:0,t,.008);
     this.mixDb=!this.mutedA&&b?-6:0;this.mix.gain.setTargetAtTime(10**(this.mixDb/20),t,.008);
   }

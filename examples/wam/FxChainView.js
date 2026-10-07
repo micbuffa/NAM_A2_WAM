@@ -6,13 +6,12 @@ export class FxChainView {
     Object.assign(this,{chain,container,report,options});this.openSerial=0;this.activeId=null;
     this.cards=new Map();this.parking=element('div');this.parking.hidden=true;document.body.append(this.parking);
     this.dialog=element('dialog','fx-editor');
-    const bar=element('header','fx-editor-bar');this.title=element('strong');this.bypass=element('button');
+    const bar=element('header','fx-editor-bar');this.title=element('strong');
     this.replace=element('button','fx-replace','Replace');this.remove=element('button','','Remove');const close=element('button','','×');close.setAttribute('aria-label','Close editor');
-    bar.append(this.title,this.bypass,this.replace,this.remove,close);this.mount=element('div','fx-editor-mount');
+    bar.append(this.title,this.replace,this.remove,close);this.mount=element('div','fx-editor-mount');
     const body=element('div','fx-editor-body');this.editorSides={input:this.createEditorSide('input'),output:this.createEditorSide('output')};
     body.append(this.editorSides.input.root,this.mount,this.editorSides.output.root);this.dialog.append(bar,body);document.body.append(this.dialog);
     close.onclick=()=>this.close();this.dialog.addEventListener('cancel',event=>{event.preventDefault();this.close();});
-    this.bypass.onclick=()=>this.toggle(this.activeId);
     this.remove.onclick=()=>this.confirmRemove(this.activeId);
     this.replace.onclick=()=>this.showMenu(null,this.replace,this.activeId);
     this.confirmation=element('dialog','fx-confirm');document.body.append(this.confirmation);
@@ -202,7 +201,6 @@ export class FxChainView {
       card.image.alt=name;card.photo.title=e.error?`${name}: ${e.error}`:name;card.photo.setAttribute('aria-label',`Open ${name}`);
       card.caption.textContent=name;
       card.card.classList.toggle('is-bypassed',e.bypass||!e.plugin);card.bypass.setAttribute('aria-pressed',String(e.bypass));card.bypass.textContent=e.bypass?'Bypassed':'Active';card.bypass.title=e.routingStatus||'Toggle bypass';
-      if(this.activeId===e.id){this.bypass.textContent=e.bypass?'Bypass ON':'Bypass OFF';this.bypass.setAttribute('aria-pressed',String(e.bypass));}
     } this.syncEditorGains(); } finally {this.refreshing=false;}
   }
   close() {
