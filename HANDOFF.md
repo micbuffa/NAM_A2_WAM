@@ -1,5 +1,29 @@
 # NAM A2 WAM — Next-session handoff
 
+## 2026-10-06 — TONE3000 accordion correction after screenshot
+
+The screenshot showed the generic `.modelBrowser` asset-tree group “Downloaded on this device”, not only the separate `.tone3000Downloads` section. `buildAssetTree` automatically expands ancestors of the selected model on every render, which defeated the previous fix. NAM now overrides this specific group's open state in the TONE3000 source, resets it when presenting a new remote selection, and preserves explicit manual reopening through rerenders. Search can still expand matching results; Factory/Favorites behavior is unchanged. Validation: 143 Node tests and 13 browser checks with a mocked callback, seeded downloaded model and repeated browser renders; no browser exceptions. Distribution rebuilt.
+
+## 2026-10-06 — Accordion, route-hover grace and TONE3000 return
+
+- Backing player now has a full-width accordion heading. Collapsing hides transport, status and library/waveform controls; audio playback continues. This supersedes the previous compact transport layout.
+- Chain A route buttons remain clickable for 700 ms after pointer/focus leaves their slot. Reentry cancels the timer; keyboard focus and touch visibility remain supported. Single-chain mode still hides routing actions.
+- NAM's “Downloaded on this device” section is now a native details/summary accordion. A successful TONE3000 selection closes it and brings the selected-tone card into view; it remains manually reopenable. Error/cancel callbacks do not close it.
+- Validation: 143 Node tests passed, static distribution rebuilt, 9 browser interaction checks passed without exceptions. TONE3000 callback was mocked; no authenticated live flow was exercised.
+
+
+## 2026-10-05 — Backing track player (latest handoff)
+
+- Implemented the approved `ADD_BACKING_TRACK_PLAYER.md`: reusable `<backing-track-player>`, independent engine/library and final guitar/backing mixer in `examples/wam/backing-track-player/`.
+- 29 original MP3s copied unchanged into `examples/wam/assets/backingTracks/` (~170.5 MB compressed). Only selected media is fetched/decoded. Run `npm run backing-tracks` after additions/deletions, then `npm run dist`; `npm run backing-tracks -- --check` is read-only. Provenance hashes in the component's `SOURCE_MANIFEST.json`.
+- Panel below rack: searchable library, waveform, local import/drop, play/pause/stop, A–B loops, 70–130% pitch-preserving speed, non-destructive normalization, volume/mute, global guitar pan, balance and mix meter. Compact mode keeps playback. CSS responds to component width, tested at 360 px.
+- `BackingTrackMix` replaces the direct rack-to-destination connection. Accompaniment bypasses all guitar effects; the existing AudioContext/output-device selection serves both. Per-chain pans/gains stay independent. Guitar mix gain is unity when accompaniment is stopped/paused.
+- Session state keeps the existing rack format plus optional `backingTrack`. Restore never autoplays or activates input. Missing local media asks for reselecting the same file; pending settings then restore by filename/size/mtime identity. Local media is not persisted or uploaded.
+- Validation: **143 Node tests**, **60 real-audio browser checks** at 44.1/48 kHz plus **9 host UI/session checks**, no browser exceptions. Desktop/narrow UI inspected; distribution rebuilt. Reproducible page: `backing-track-player/validation.html`; numeric results in `VALIDATION.json`.
+- Still manual: physical interface listening, musical stretching artifacts and CPU/latency profiling. Native A–B loops do not have a dedicated endpoint crossfade. Backend, multitrack, ML separation and rack preset phase 7.2 remain out of scope.
+- Active branch remains **New-UI**. Prior implementation was committed/pushed as `be152ca`, merged/pushed to main as `7613551`, then New-UI reactivated. This backing-player work is uncommitted. Reference folders `examples/other_wam_host/` and `examples/WAP_amp_sims/` remain untouched and untracked.
+
+
 ## Current handoff — 2026-09-24
 
 ### Per-plugin meters, gains and Replace — latest update

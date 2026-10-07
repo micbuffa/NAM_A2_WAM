@@ -1,3 +1,5 @@
+import './backing-track-player/BackingTrackPlayerElement.js';
+import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import NamPlugin from '../../src/nam-wam/index.js';
 import CabinetPlugin from '../../src/cabinet-wam/index.js';
@@ -26,7 +28,7 @@ let selectedDeviceId = audioPreferences.inputDeviceId;
 let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
-let chain, chainView, rack;
+let chain, chainView, rack, backingPlayer, backingMix;
 
 
 function message(text, error = false) {
@@ -197,7 +199,10 @@ async function initialize() {
       nam.toneSession.identity='b-nam';cab.toneSession.identity='b-cabinet';return b;
     }catch(error){if(b)b.destroy();else{nam?.audioNode.destroy?.();cab?.audioNode.destroy?.();}throw error;}
   }});
-  rack.output.connect(context.destination);window.phase3Debug.rack=rack;
+  window.phase3Debug.rack=rack;
+  backingPlayer=document.createElement('backing-track-player');document.querySelector('.fx-rack').after(backingPlayer);
+  await backingPlayer.initialize({audioContext:context});backingMix=new BackingTrackMix(context,rack.output,backingPlayer);
+  Object.assign(window.phase3Debug,{backingPlayer,backingMix});
   chainView=new FxRackView(rack,message);
   await discoverFiles();
   await refreshDevices(false);
@@ -242,7 +247,7 @@ async function initialize() {
   $('#recoverAudio').onclick = recoverAudio;
   context.addEventListener('statechange', () => {
     if (context.state === 'running') { wasRunning = true; return; }
-    if (wasRunning && (liveInputEnabled || !$('#player').paused)) {
+    if (wasRunning && (liveInputEnabled || !$('#player').paused || backingPlayer?.engine.playing)) {
       message(`Audio engine ${context.state}. Attempting recovery…`, true);
       recoverAudio();
     }
@@ -330,13 +335,14 @@ async function initialize() {
   $('#seek').oninput = () => { if (Number.isFinite($('#player').duration)) $('#player').currentTime = Number($('#seek').value) * $('#player').duration; };
   $('#player').ontimeupdate = () => { if (Number.isFinite($('#player').duration) && $('#player').duration) $('#seek').value = $('#player').currentTime / $('#player').duration; };
   $('#saveState').onclick = async () => {
-    savedState = await rack.getState();
+    savedState = {...await rack.getState(),backingTrack:backingPlayer.getState()};
     $('#stateSize').textContent = `${new TextEncoder().encode(JSON.stringify(savedState)).byteLength.toLocaleString()} serialized bytes`;
   };
   $('#restoreState').onclick = async () => {
     if (!savedState) return message('Save state first', true);
     chainView.close();
-    await rack.setState(savedState);syncSourceTrim();
+    try{await rack.setState(savedState);syncSourceTrim();if(savedState.backingTrack)await backingPlayer.setState(savedState.backingTrack);}
+    catch(error){message(`Session restore: ${error.message}`,true);return;}
     message('WAM state restored');
   };
   message('Chain ready. Click a photo to edit, or + to insert an effect.');

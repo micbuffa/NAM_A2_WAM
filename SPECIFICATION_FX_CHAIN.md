@@ -372,3 +372,15 @@ Chaque WAM propose son propre menu de six presets d’usine (Default et les cinq
 - Après sélection, la chaîne est reconnectée avec la transition habituelle, les ressources de l’ancien plugin sont libérées et la GUI du nouveau plugin s’ouvre directement. Aucun retour préalable à la vue principale n’est nécessaire.
 
 Validation : **137 tests Node réussis**. Parcours navigateur sur la distribution : 22 vérifications, dont largeur des vu-mètres, absence d’agrandissement des cadres, écart audio mesuré de 6 dB, Reset, remplacement, conservation du split, annulation et restauration des gains dans une session. Aucune exception navigateur sur ce parcours. L’écoute sur interface physique reste à effectuer ; aucune gestion des presets du rack (7.2) n’est ajoutée.
+
+## 16. Accompagnement hors chaîne — 2026-10-05
+
+Le lecteur de backing tracks est un WebComponent sous le rack. Son moteur rejoint un mixeur commun **après** la sortie A/B : il ne passe jamais par les WAMs de guitare. Les faders et pans des chaînes restent indépendants des gains de balance et du pan guitare global de ce mixeur. Les sélections de sortie et le contexte audio existants sont conservés ; une seule connexion au périphérique reçoit la somme finale.
+
+La sauvegarde de session comporte un champ optionnel `backingTrack`, distinct du graphe et des états WAM. Les anciens états restent compatibles. Aucun démarrage de lecture ou de microphone à la restauration. La phase presets 7.2 reste différée. Voir `ADD_BACKING_TRACK_PLAYER.md` pour contrat, livraison, tests et limites.
+
+### Ajustements ergonomiques — 2026-10-06
+
+Le lecteur d’accompagnement se replie entièrement via un en-tête d’accordéon pleine largeur, sans arrêter le son. Le bouton de dérivation sous « + » reste cliquable 700 ms après sortie du pointeur, avec annulation du délai au retour et maintien pendant le focus clavier. Dans Models/TONE3000, la bibliothèque locale devient un accordéon fermé automatiquement lorsqu’une nouvelle sélection est affichée ; la carte sélectionnée est remise en vue. Validation : 143 tests Node et 9 contrôles navigateur, callback TONE3000 simulé.
+
+Correction complémentaire du 6 octobre : fermer aussi le groupe « Downloaded on this device » généré dans `.modelBrowser`, au-dessus du panneau TONE3000. La sélection active ne doit pas le rouvrir lors des rendus suivants. Conserver la réouverture manuelle et l’expansion des résultats de recherche ; ne pas changer les accordéons Factory/Favorites.

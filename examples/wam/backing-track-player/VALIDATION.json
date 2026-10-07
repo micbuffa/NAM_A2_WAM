@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-05",
+  "browser": "Chromium",
+  "audibleListening": false,
+  "checks": [
+    "29 factory tracks 44100",
+    "worklet ready 44100",
+    "second independent component",
+    "mount leaves guitar unity",
+    "normalization preserves original buffer",
+    "finite non-silent DSP 44100 0.7",
+    "finite non-silent DSP 44100 0.7",
+    "pitch and stereo retained 44100 0.7",
+    "natural end and duration at 0.7",
+    "finite non-silent DSP 44100 1",
+    "finite non-silent DSP 44100 1",
+    "pitch and stereo retained 44100 1",
+    "natural end and duration at 1",
+    "finite non-silent DSP 44100 1.3",
+    "finite non-silent DSP 44100 1.3",
+    "pitch and stereo retained 44100 1.3",
+    "natural end and duration at 1.3",
+    "reverse-selected loop wraps with stretching",
+    "pause freezes position",
+    "resume advances",
+    "stop returns to loop start",
+    "zero length loop rejected",
+    "state restored without autoplay",
+    "mix affects independent guitar branch",
+    "pause restores guitar unity",
+    "decode failure preserves previous track",
+    "continuous worklet retained across stretched rates",
+    "mono remains centered with stretching",
+    "compact mode",
+    "29 factory tracks 48000",
+    "worklet ready 48000",
+    "second independent component",
+    "mount leaves guitar unity",
+    "normalization preserves original buffer",
+    "finite non-silent DSP 48000 0.7",
+    "finite non-silent DSP 48000 0.7",
+    "pitch and stereo retained 48000 0.7",
+    "natural end and duration at 0.7",
+    "finite non-silent DSP 48000 1",
+    "finite non-silent DSP 48000 1",
+    "pitch and stereo retained 48000 1",
+    "natural end and duration at 1",
+    "finite non-silent DSP 48000 1.3",
+    "finite non-silent DSP 48000 1.3",
+    "pitch and stereo retained 48000 1.3",
+    "natural end and duration at 1.3",
+    "reverse-selected loop wraps with stretching",
+    "pause freezes position",
+    "resume advances",
+    "stop returns to loop start",
+    "zero length loop rejected",
+    "state restored without autoplay",
+    "mix affects independent guitar branch",
+    "pause restores guitar unity",
+    "decode failure preserves previous track",
+    "bundled MP3 decodes",
+    "latest selection wins",
+    "continuous worklet retained across stretched rates",
+    "mono remains centered with stretching",
+    "compact mode"
+  ],
+  "measurements": [
+    {
+      "sampleRate": 44100,
+      "rate": 0.7,
+      "frequencies": [
+        441.4306640625,
+        656.7626953125
+      ],
+      "duration": 2.2087981859410433
+    },
+    {
+      "sampleRate": 44100,
+      "rate": 1,
+      "frequencies": [
+        441.4306640625,
+        656.7626953125
+      ],
+      "duration": 1.535419501133787
+    },
+    {
+      "sampleRate": 44100,
+      "rate": 1.3,
+      "frequencies": [
+        441.4306640625,
+        667.529296875
+      ],
+      "duration": 1.230657596371882
+    },
+    {
+      "sampleRate": 48000,
+      "rate": 0.7,
+      "frequencies": [
+        445.3125,
+        667.96875
+      ],
+      "duration": 2.202666666666667
+    },
+    {
+      "sampleRate": 48000,
+      "rate": 1,
+      "frequencies": [
+        445.3125,
+        656.25
+      ],
+      "duration": 1.536
+    },
+    {
+      "sampleRate": 48000,
+      "rate": 1.3,
+      "frequencies": [
+        433.59375,
+        644.53125
+      ],
+      "duration": 1.2266666666666661
+    }
+  ],
+  "browserErrors": 0,
+  "hostIntegrationChecks": [
+    "library integrated",
+    "no autoplay",
+    "guitar starts at unity",
+    "text filter",
+    "factory selection loaded",
+    "UI time stretch",
+    "split changes preserve backing transport",
+    "collapse keeps playback",
+    "host session restores player without autoplay"
+  ]
+}
