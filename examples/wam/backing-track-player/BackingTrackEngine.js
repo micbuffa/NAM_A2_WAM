@@ -7,7 +7,7 @@ export class BackingTrackEngine extends EventTarget {
     super();this.context=context;this.library=library;this.outputNode=context.createGain();this.volumeNode=context.createGain();this.normalizer=context.createGain();
     this.normalizer.connect(this.volumeNode).connect(this.outputNode);
     this.rate=1;this.volumeDb=-12;this.muted=false;this.normalized=false;this.autoNormalize=true;this.mix=.5;this.guitarPan=0;
-    this.loop={enabled:true,startSeconds:0,endSeconds:0};this.offset=0;this.playing=false;this.generation=0;this.retiring=new Set();this.setVolumeDb(-12);
+    this.loop={enabled:true,startSeconds:0,endSeconds:0};this.offset=0;this.playing=false;this.loading=false;this.generation=0;this.retiring=new Set();this.setVolumeDb(-12);
   }
   emit(type,detail={}) {this.dispatchEvent(new CustomEvent(type,{detail}));}
   changed(){this.emit('transport-change',this.getState());}
@@ -37,7 +37,8 @@ export class BackingTrackEngine extends EventTarget {
   async load(track,file) {
     if(this.destroyed)throw Error('Player destroyed');
     const generation=++this.generation;this.abort?.abort();const abort=this.abort=new AbortController();
-    this.emit('load-progress',{title:track.title,progress:0});
+    this.loading=true;
+    this.emit('load-progress',{title:track.title,progress:0,phase:'transfer'});
     try {
       let bytes;
       if(file)bytes=await file.arrayBuffer();
@@ -45,9 +46,11 @@ export class BackingTrackEngine extends EventTarget {
         const response=await fetch(track.url,{signal:abort.signal});if(!response.ok)throw Error(`HTTP ${response.status}`);
         const total=Number(response.headers.get('content-length'));const reader=response.body?.getReader();
         if(!reader)bytes=await response.arrayBuffer();
-        else {let length=0;const chunks=[];while(true){const {value,done}=await reader.read();if(done)break;chunks.push(value);length+=value.length;this.emit('load-progress',{title:track.title,progress:total?length/total:null});}
+        else {let length=0;const chunks=[];while(true){const {value,done}=await reader.read();if(done)break;if(generation!==this.generation)return;chunks.push(value);length+=value.length;this.emit('load-progress',{title:track.title,progress:total?Math.min(1,length/total):null,phase:'transfer'});}
           const joined=new Uint8Array(length);let at=0;for(const chunk of chunks){joined.set(chunk,at);at+=chunk.length;}bytes=joined.buffer;}
       }
+      if(generation!==this.generation)return;
+      this.emit('load-progress',{title:track.title,progress:null,phase:'decode'});
       const buffer=await this.context.decodeAudioData(bytes);
       let peak=0;for(let ch=0;ch<buffer.numberOfChannels;ch++){
         const samples=buffer.getChannelData(ch);
@@ -56,8 +59,8 @@ export class BackingTrackEngine extends EventTarget {
       if(generation!==this.generation||this.destroyed)return;
       const resume=this.playing;this.pause();this.buffer=buffer;this.track={id:track.id,title:track.title,local:!!track.local};this.peak=peak;
       this.offset=0;this.loop={enabled:this.loop.enabled,startSeconds:0,endSeconds:buffer.duration};this.setNormalized(this.autoNormalize);
-      this.emit('track-change',this.track);this.emit('load-progress',{title:track.title,progress:1});this.changed();if(resume)await this.play();return true;
-    }catch(error){if(generation!==this.generation||error.name==='AbortError')return;this.emit('load-progress',{title:track.title,error:error.message});throw error;}
+      this.loading=false;this.emit('track-change',this.track);this.emit('load-progress',{title:track.title,progress:1,phase:'ready'});this.changed();if(resume)await this.play();return true;
+    }catch(error){if(generation!==this.generation)return;this.loading=false;this.emit('load-progress',{title:track.title,error:error.message});throw error;}
   }
   retireVoice(immediate=false) {
     const voice=this.voice;if(!voice)return;this.voice=null;voice.source.onended=null;
@@ -79,7 +82,7 @@ export class BackingTrackEngine extends EventTarget {
     source.onended=()=>{voice.endTimer=setTimeout(()=>{if(this.voice!==voice)return;this.offset=this.duration;this.playing=false;this.retireVoice();this.changed();},worklet?2048/this.context.sampleRate*1000:0);};
     source.start(t,this.offset);this.changed();
   }
-  async play(){if(this.destroyed||!this.buffer||this.playing)return;const request=this.playRequest=(this.playRequest||0)+1;await this.context.resume();if(this.destroyed||this.playing||request!==this.playRequest)return;
+  async play(){if(this.destroyed||this.loading||!this.buffer||this.playing)return;const request=this.playRequest=(this.playRequest||0)+1;await this.context.resume();if(this.destroyed||this.loading||this.playing||request!==this.playRequest)return;
     if(this.offset>=this.duration||(this.loop.enabled&&(this.offset<this.loop.startSeconds||this.offset>=this.loop.endSeconds)))this.offset=this.loop.enabled?this.loop.startSeconds:0;
     this.startVoice();
   }
@@ -109,5 +112,5 @@ export class BackingTrackEngine extends EventTarget {
     if(!state.track){this.buffer=null;this.track=null;this.offset=0;this.loop={enabled:true,startSeconds:0,endSeconds:0};this.emit('track-change',null);}
     this.autoNormalize=!!state.autoNormalize;this.setLoop(state.loop);this.setRate(state.rate);this.setVolumeDb(state.volumeDb);this.setMuted(state.muted);this.setNormalized(state.normalized);this.setMix(state.mix);this.setGuitarPan(state.guitarPan);this.seek(state.position);
   }
-  destroy(){if(this.destroyed)return;this.destroyed=true;++this.generation;this.abort?.abort();this.playing=false;this.retireVoice(true);for(const voice of this.retiring)voice.finish();this.buffer=null;this.normalizer.disconnect();this.volumeNode.disconnect();this.outputNode.disconnect();}
+  destroy(){if(this.destroyed)return;this.destroyed=true;this.loading=false;++this.generation;this.abort?.abort();this.playing=false;this.retireVoice(true);for(const voice of this.retiring)voice.finish();this.buffer=null;this.normalizer.disconnect();this.volumeNode.disconnect();this.outputNode.disconnect();}
 }

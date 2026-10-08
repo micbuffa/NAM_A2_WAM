@@ -115,7 +115,7 @@ async function setupRack(){
 test('two lanes share source and replace/remove the one junction without recreating instances',async()=>{
   const {rack,a,source,record}=await setupRack();await rack.setVisible(true);
   const b=rack.b;assert.equal(rack.enabledB,true);assert.ok(source.secondary.target===rack.physicalB);
-  await rack.setEnabledB(true);assert.equal(rack.mixDb,-6);
+  await rack.setEnabledB(true);assert.equal(rack.mixDb,0);
   const extra=await a.insert(record);await rack.connectRoute(1);
   const firstTap=a.entries[0].output;assert.ok(firstTap.connections.has(b.input));assert.equal(source.secondary.target,null);
   await rack.connectRoute(2);assert.ok(!firstTap.connections.has(b.input));assert.ok(a.entries[1].output.connections.has(b.input));
@@ -172,7 +172,7 @@ test('hide disconnects independent B input and output; show resumes the selected
   await rack.setVisible(true);
   assert.equal(rack.enabledB,true);assert.equal(source.secondary.channel,1);
   assert.ok(rack.physicalB.connections.has(b.input));assert.ok(b.output.connections.has(rack.gateB));
-  assert.deepEqual(b.entries,entries);assert.equal(b.outputDb,-9);assert.equal(rack.mixDb,-6);
+  assert.deepEqual(b.entries,entries);assert.equal(b.outputDb,-9);assert.equal(rack.mixDb,0);
 });
 
 test('hidden split roundtrip retains its junction but has no active B path until shown',async()=>{
@@ -182,7 +182,7 @@ test('hidden split roundtrip retains its junction but has no active B path until
   assert.equal(rack.visible,false);assert.equal(rack.enabledB,false);assert.equal(rack.route.index,1);
   assert.equal(rack.tap,null);assert.ok(!rack.b.output.connections.has(rack.gateB));
   await rack.setVisible(true);assert.equal(rack.enabledB,true);
-  assert.equal(rack.tap,a.entries[0].output);assert.equal(rack.mixDb,-6);
+  assert.equal(rack.tap,a.entries[0].output);assert.equal(rack.mixDb,0);
 });
 
 test('per-lane pan is independent, bounded, retained when hiding, and backwards compatible in state',async()=>{
@@ -262,7 +262,7 @@ test('beginner mode isolates both ends of B and restores the split without chang
   assert.equal(rack.activeB,false);assert.equal(rack.tap,null);assert.ok(!b.output.connections.has(rack.gateB));
   await rack.setUiMode('full');
   assert.equal(rack.b,b);assert.deepEqual(b.entries.map(e=>e.id),ids);assert.equal(rack.panB,.4);assert.equal(b.outputDb,-8);
-  assert.equal(rack.tap,a.entries[0].output);assert.ok(b.output.connections.has(rack.gateB));assert.equal(rack.mixDb,-6);
+  assert.equal(rack.tap,a.entries[0].output);assert.ok(b.output.connections.has(rack.gateB));assert.equal(rack.mixDb,0);
   await assert.rejects(rack.setUiMode('invalid'),/UI mode/);
 });
 
@@ -272,4 +272,30 @@ test('beginner mode suspends independent input B and preserves its mute state',a
   await rack.setUiMode('full');assert.equal(source.secondary.target,rack.physicalB);assert.equal(rack.enabledB,false);
   await rack.setVisible(false);await rack.setUiMode('beginner');await rack.setUiMode('full');
   assert.equal(rack.activeB,false);assert.equal(source.secondary.target,null);
+});
+
+
+test('each lane keeps its output level when the other lane is shown, enabled or muted',async()=>{
+  const {rack,a,source}=await setupRack();a.setOutputDb(-9);
+  const contribution=lane=>{
+    const chain=lane==='a'?a:rack.b,gate=lane==='a'?rack.gateA:rack.gateB;
+    return chain.output.gain.value*gate.gain.value*rack.mix.gain.value*rack.output.gain.value;
+  };
+  const initial=contribution('a');
+  await rack.setVisible(true);assert.equal(rack.route,null);assert.equal(contribution('a'),initial);
+  rack.b.setOutputDb(-12);const bLevel=contribution('b');
+  await rack.setMutedA(true);assert.equal(contribution('b'),bLevel);
+  await rack.setMutedA(false);assert.equal(contribution('b'),bLevel);
+  await rack.setEnabledB(false);assert.equal(contribution('a'),initial);
+  await rack.setEnabledB(true);assert.equal(contribution('a'),initial);
+  await rack.setUiMode('beginner');assert.equal(contribution('a'),initial);
+  await rack.setUiMode('full');assert.equal(contribution('a'),initial);
+  await rack.setVisible(false);assert.equal(contribution('a'),initial);
+  await rack.setVisible(true);assert.equal(contribution('a'),initial);
+  source.liveInput.channelCount=1;source.dispatchEvent(new Event('change'));
+  assert.equal(rack.enabledB,false);assert.equal(contribution('a'),initial);
+  await rack.connectRoute(1);assert.equal(contribution('a'),initial);
+  const saved=await rack.getState();await rack.setState(saved);
+  assert.equal(contribution('a'),initial);assert.equal(contribution('b'),bLevel);
+  rack.destroy();
 });
