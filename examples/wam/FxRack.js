@@ -110,7 +110,8 @@ export class FxRack extends EventTarget {
   syncMix(){
     const b=this.activeB&&this.enabledB,t=this.context.currentTime;
     this.gateA.gain.setTargetAtTime(this.mutedA?0:1,t,.008);this.gateB.gain.setTargetAtTime(b?1:0,t,.008);
-    this.mixDb=!this.mutedA&&b?-6:0;this.mix.gain.setTargetAtTime(10**(this.mixDb/20),t,.008);
+    // Adding or muting another lane must not change this lane's level.
+    this.mixDb=0;this.mix.gain.setTargetAtTime(1,t,.008);
   }
   destroy(){
     this.source.removeEventListener('change',this.sourceChanged);this.source.setSecondary(null,this.channelB);

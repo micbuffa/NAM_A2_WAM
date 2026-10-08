@@ -204,3 +204,8 @@ Limites mesurées/non mesurées : les validations audio sont muettes et ne rempl
 ### Ajustement du 6 octobre 2026
 
 À la demande de l’utilisateur, l’en-tête devient un bouton d’accordéon pleine largeur. Replier masque tous les contrôles, y compris la barre de transport, et laisse uniquement l’en-tête ; le transport audio continue. Ce comportement remplace le mode compact décrit initialement.
+
+
+### Progression du chargement — 2026-10-07
+
+La sélection d’une backing track affiche une barre de progression selon les octets reçus. Sans taille connue, puis pendant le décodage/préparation audio, la barre est indéterminée avec un statut explicite. Play reste grisé et désactivé jusqu’à ce que la piste soit prête, y compris si une piste précédente est disponible. Après erreur, la barre disparaît et l’ancienne piste reste utilisable. Les événements d’un chargement remplacé ne doivent pas modifier la progression du nouveau.

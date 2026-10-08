@@ -46,13 +46,13 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /\.plugin-tabs\s*\{[^}]*display:flex[^}]*justify-content:space-between/u);
   assert.match(gui, /\.plugin-tab\s*\{[^}]*flex:0 0 auto[^}]*padding:0 14px/u);
   assert.match(gui, /@media\(max-width:620px\)\{nam-a2-gui \.plugin-tabs\{justify-content:flex-start;overflow-x:auto\}/u);
-  for (const tab of ['main','models','amp','details','preferences','about']) assert.match(gui, new RegExp(`data-plugin-tab="${tab}"`,'u'));
+  for (const tab of ['main','models','details']) assert.match(gui, new RegExp(`data-plugin-tab="${tab}"`,'u'));
   assert.match(gui, /class="plugin-panel mainPanel"[^>]*data-plugin-panel="main"/u);
   assert.match(gui, /data-plugin-panel="main"><div class="signal-strip">[\s\S]*?<div class="signal-flow" role="img" aria-label="Signal path"><\/div><\/section>/u);
   assert.match(gui, /class="plugin-panel modelDrawer modelsPanel"[^>]*data-plugin-panel="models" hidden/u);
   assert.match(gui, /class="plugin-panel detailsDrawer detailsPanel"[^>]*data-plugin-panel="details" hidden/u);
   assert.match(gui, /class="plugin-panel aboutPanel"[^>]*data-plugin-panel="about" hidden/u);
-  assert.match(gui, /data-plugin-tab="about">Help<\/button>/u);
+  assert.match(gui, /data-editor-view="about">Help<\/button>/u);
   assert.match(gui, /href="https:\/\/github\.com\/micbuffa\/NAM_A2_WAM" target="_blank" rel="noopener noreferrer"/u);
   for (const heading of ['Main','Models','Amp settings','Model details','Preferences','Controls','State and storage']) assert.match(gui,new RegExp(`<h4>${heading}<\\/h4>`,'u'));
   assert.match(gui, /<article class="gettingStarted"><h4>Getting started with your guitar<\/h4><ol>/u);

@@ -1,5 +1,17 @@
 # NAM A2 WAM — Next-session handoff
 
+## 2026-10-08 — Stable per-chain volume
+
+Removed the automatic −6 dB mix attenuation when both lanes are enabled. The shared mix now stays at unity for independent inputs and splits, so showing, enabling or muting one lane does not alter the other lane’s contribution. Updated the specification and regression coverage for visibility, mute, UI mode, source loss, routing and state restoration. Validation: 146 Node tests passed; static distribution rebuilt. Physical guitar listening remains untested.
+
+## 2026-10-07 — Model-only navigation
+
+Preferences and Help are standalone buttons beside Change amp model in Amp settings, not model-browser tabs. Models navigation now contains Model overview, Models and Model details only. Overview keeps model artwork/captures/calibration and omits audio meters/gain/flow; Amp settings is reached with Back to amp settings. Global views retain that return action and accessible pressed buttons. Validation: 145 Node tests and 8 Chrome checks passed; desktop screenshot inspected. Distribution rebuilt.
+
+## 2026-10-07 — Backing-track loading progress
+
+Added a transfer progress bar and an explicit engine loading state. Play is greyed out/disabled through download, decode and peak analysis, including when a previous buffer exists; engine play() also guards pending loads. Unknown sizes and audio preparation use indeterminate progress. Superseded downloads cannot update current progress. Errors hide the bar and retain the previous playable buffer. Existing playback continuation behavior is preserved. Validation: 145 Node tests and 6 browser checks with throttled transfer/decode and network failure passed. Distribution rebuilt.
+
 ## 2026-10-07 — Gate in Amp settings and model CTA
 
 Moved the single NAM noise-gate control (enable + threshold) from Main artwork to Amp settings before the tone-stack knobs. Existing WAM parameter/automation bindings are unchanged. Change model is now Change amp model, centered below the model name with a larger accent-colored button. Help updated. Validation: 145 Node tests and 9 Chrome checks including gate enable/threshold parameters and model-browser navigation; desktop screenshot inspected. Distribution rebuilt.
