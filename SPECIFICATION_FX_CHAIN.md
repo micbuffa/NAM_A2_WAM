@@ -425,3 +425,11 @@ La sélection d’une backing track affiche une barre de progression selon les o
 
 
 Navigation NAM A2 (7 octobre) : **Preferences** et **Help** deviennent des boutons à côté de **Change amp model** dans Amp settings. Ils ouvrent leurs vues hors de la navigation des modèles. **Change amp model** ne présente que **Model overview**, **Models** et **Model details** ; l’overview conserve image, captures et calibration du modèle, sans contrôles audio. Le retour à Amp settings reste explicite dans ces vues.
+
+Navigation NAM A2 (8 octobre) : la calibration (Automatic model level, Calibrate level, Use metadata et correction appliquée) est directement dans **Amp settings**. Un volet repliable **Model details** y regroupe image, navigation entre captures et métadonnées. **Change amp model** ouvre directement le catalogue et ses filtres de sources, avec **Back to amp settings** ; les onglets Model overview / Models / Model details sont supprimés. Preferences ne conserve que le choix du rendu A2.
+
+Sélection de captures (8 octobre) : après chargement TONE3000 réussi, le host ferme l’éditeur et revient au rack ; les erreurs restent dans l’éditeur. Chaque carte NAM propose sous sa photo un menu de captures et des flèches précédente/suivante. Les flèches sont désactivées aux extrémités et pendant le chargement. La sélection est propre à chaque instance et suit la capture effectivement chargée.
+
+Navigation (9 octobre) : **Back to rack** sous les listes de captures Factory/Favorites permet de terminer la sélection depuis le modèle chargé ; les listes génériques et les téléchargements disposent également de ce retour direct. La calibration précise que sa normalisation de référence ne garantit pas le même volume entre amplis clean et saturés pour tout signal d’entrée.
+
+Calibration guitare (9 octobre) : le bouton Calibrate level utilise 12 secondes de Funky-Guitar (8–20 s, canal gauche), trim de référence −18 dB plus gain d’entrée NAM, mesure dans un Worker isolé. Cible −24 dBFS RMS, plafond de crête de référence −1 dBFS, correction mesurée ±36 dB. La correction remplace celle des métadonnées ; elle reste enregistrée par capture/variante dans l’état WAM. Aucun signal de test dans le graphe audible.

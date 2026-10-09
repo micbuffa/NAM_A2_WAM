@@ -37,10 +37,12 @@ test('TONE3000 capture list and arrows load the selected model directly', async 
   gui.upsertTone3000Asset = () => {};
   gui.renderTone3000Downloads = () => {};
   gui.setToneStatus = () => {};
+  const views=[],events=[];gui.setPluginTab=view=>views.push(view);gui.dispatchEvent=event=>events.push(event.type);
 
   gui.renderTone3000Selection();
   assert.equal(gui.controls.toneCapturePrevious.disabled, true);
   assert.equal(gui.controls.toneCaptureNext.disabled, false);
+  assert.ok(gui.controls.toneCaptureList.children.every(button=>!button.classList.contains('selected')));
   await gui.loadTone3000Model(1);
   assert.deepEqual(captured.map(({name}) => name), ['Lead.nam']);
   assert.equal(captured[0].provenance.identity, 'tone3000:19:102');
@@ -48,6 +50,9 @@ test('TONE3000 capture list and arrows load the selected model directly', async 
   assert.equal(gui.controls.toneCapturePrevious.disabled, false);
   assert.equal(gui.controls.toneCaptureList.children[1].classList.contains('loaded'), true);
   assert.equal(gui.controls.toneCounter.textContent, '2 / 2 · loaded');
+  assert.deepEqual(views,['amp']);assert.deepEqual(events,['nam-capture-loaded']);
+  gui.tone3000.downloadModel=async()=>{throw Error('Offline');};
+  await gui.loadTone3000Model(0);assert.deepEqual(events,['nam-capture-loaded']);
 });
 
 test('output border glow responds to level and decays toward idle', () => {
@@ -124,4 +129,30 @@ test('model hover details normalize Factory metadata for the delayed photo toolt
   assert.match(info.details, /Sample rate: 48000 Hz/u);
   assert.match(info.details, /Modeled by: Alice/u);
   assert.match(info.details, /Tone ID: 42/u);
+});
+
+
+test('Factory highlights only the loaded model and capture, including failed selections', async () => {
+  const previousDocument=globalThis.document,previousFrame=globalThis.requestAnimationFrame;
+  globalThis.document={createElement:()=>({...control(),dataset:{},children:[],append(...items){this.children.push(...items);}})};
+  globalThis.requestAnimationFrame=()=>{};
+  try {
+    const gui=new Gui();gui._selectedId='factory:a2';gui.isFavorite=()=>false;
+    const assets=prefix=>[1,2].map(n=>({id:`factory:${prefix}${n}`,filename:`${prefix}${n}.nam`,provenance:{toneId:prefix,title:prefix}}));
+    const build=prefix=>gui.createFactoryToneCard(prefix,assets(prefix),gui._selectedId,async()=>{throw Error('Load failed');});
+    const current=build('a'),other=build('b');
+    const captures=card=>card.children[1].children[1].children;
+    assert.equal(current.classList.contains('current-model-card'),true);
+    assert.deepEqual(captures(current).map(button=>button.classList.contains('selected')),[false,true]);
+    assert.equal(other.classList.contains('current-model-card'),false);
+    assert.equal(current.children[1].children[2].disabled,false);
+    assert.equal(other.children[1].children[2].disabled,true);
+    let returned=false;gui.returnToRack=()=>{returned=true;};current.children[1].children[2].onclick();assert.equal(returned,true);
+    assert.ok(captures(other).every(button=>!button.classList.contains('selected')));
+    await assert.rejects(captures(other)[1].onclick(),/Load failed/);
+    assert.ok(captures(other).every(button=>!button.classList.contains('selected')));
+    gui._selectedId='factory:b1';
+    assert.ok(captures(build('a')).every(button=>!button.classList.contains('selected')));
+    assert.deepEqual(captures(build('b')).map(button=>button.classList.contains('selected')),[true,false]);
+  } finally {globalThis.document=previousDocument;globalThis.requestAnimationFrame=previousFrame;}
 });

@@ -1,5 +1,29 @@
 # NAM A2 WAM — Next-session handoff
 
+## 2026-10-09 — Guitar-reference calibration
+
+Calibrate level now measures the bundled 8–20 s Funky-Guitar excerpt in an isolated Worker/WASM instance, without interrupting or injecting audio into the live graph. Fixed −18 dB reference trim plus NAM input gain; −24 dBFS RMS target, −1 dBFS reference peak ceiling, ±36 dB measured correction (metadata still ±12 dB). Results replace metadata correction, retain per-capture/variant WAM state and cancel on supersession/model changes. Inline progress/errors/limits. Real WASM validation: Bogner m689735 −4.19 dB and Deluxe Room m383454 +27.00 dB both reach −24 dBFS on the excerpt without peak limiting. 149 Node tests passed; static distribution rebuilt. Resumed validation: browser Worker completed on Deluxe Room (+27.0 dB) and rebuilt distribution Bogner m689735 (−4.2 dB); metadata reset clears measured status. Corrected details target display to use the measured target. Final 149 tests passed and distribution rebuilt.
+
+## 2026-10-09 — Button contrast and guitar-sample level comparison
+
+Back to rack now explicitly retains light background/dark text on hover and keyboard focus. Distribution rebuilt. Real WASM render of the full bundled Funky-Guitar.mp3 at −18 dB trim confirms a 19.98 dB RMS difference between Bogner m689735 and Deluxe Room m383454 after metadata normalization. This CAN be compensated using output correction measured on that sample; reference-sine calibration is insufficient. See docs/model-level-comparison-2026-10-09.md for peaks, protocol and balanced-gain example. No DSP policy or user settings changed.
+
+## 2026-10-09 — Finish model selection and diagnose unequal levels
+
+Added Back to rack below grouped Factory/Favorites capture lists (enabled on the loaded model) and below generic/downloaded lists. Uses the same host return event as TONE3000 success. Calibration copy now explains reference-level normalization and clean/driven differences. Real WASM probe comparison reproduced a 24.49 dB gap at low input between first Bogner and Deluxe Room captures, versus 0.84 dB at reference input; see docs/model-level-comparison-2026-10-09.md. No DSP/gain policy change. Validation: 147 Node tests passed; distribution rebuilt.
+
+## 2026-10-08 — Rack capture selector and TONE3000 return
+
+Successful TONE3000 capture loading requests closing its own host editor and returns to the rack. Failed loads keep the editor open. NAM cards now have a capture dropdown between previous/next arrows below the photo; Factory discovery works without creating a GUI, while an existing editor supplies its remote TONE3000 collection. Capture selection stays instance-local, with loading/boundary disabling. Rack rows reserve the selector height to keep cards aligned. Validation: 147 Node tests passed (including mocked TONE3000 success/failure navigation), browser verified Factory next/dropdown selection and card layout; distribution rebuilt. Live authenticated TONE3000 callback not exercised.
+
+## 2026-10-08 — Highlight only the loaded model and capture
+
+Factory cards now mark the loaded model with an accent border and Current model badge. Capture highlights follow the loaded asset identity, not each card’s preview index. TONE3000 uses the same loaded-only capture rule. Regression tests cover inactive cards, switching loaded identity and failed loads. Validation: 147 Node tests passed; distribution rebuilt.
+
+## 2026-10-08 — Direct amp calibration and simpler model navigation
+
+Amp settings now contains automatic model-level normalization, calibration, metadata reset and correction display. A collapsed Model details disclosure combines artwork/capture navigation and metadata. Change amp model opens the catalogue directly, with Back to amp settings; the overview/models/details tab bar is removed. Preferences retains A2 rendering mode. Validation: 146 Node tests passed; in-app browser verified measured calibration, metadata reset, catalogue/return navigation and details expansion; compact viewport visually inspected. Distribution rebuilt.
+
 ## 2026-10-08 — Stable per-chain volume
 
 Removed the automatic −6 dB mix attenuation when both lanes are enabled. The shared mix now stays at unity for independent inputs and splits, so showing, enabling or muting one lane does not alter the other lane’s contribution. Updated the specification and regression coverage for visibility, mute, UI mode, source loss, routing and state restoration. Validation: 146 Node tests passed; static distribution rebuilt. Physical guitar listening remains untested.
