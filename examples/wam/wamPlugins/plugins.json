@@ -156,6 +156,18 @@
     {
       "uri": "./WeirdPhaser/index.js",
       "category": "modulation"
+    },
+    {
+      "uri": "./bluesmachine/index.js",
+      "category": "amplifier"
+    },
+    {
+      "uri": "./cleanmachine/index.js",
+      "category": "amplifier"
+    },
+    {
+      "uri": "./metalmachine/index.js",
+      "category": "amplifier"
     }
   ]
 }

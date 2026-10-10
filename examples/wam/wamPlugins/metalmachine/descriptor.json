@@ -1,0 +1,29 @@
+{
+  "identifier": "fr.wasabi.wam2.modernmetal",
+  "name": "Modern Metal Machine",
+  "vendor": "Wasabi / Michel Buffa",
+  "description": "Native Web Audio amplifier migrated from WAP, with cabinet and reverb.",
+  "version": "1.0.0",
+  "apiVersion": "2.0.0",
+  "category": "amplifier",
+  "keywords": [
+    "amplifier",
+    "guitar",
+    "cabinet",
+    "reverb"
+  ],
+  "isInstrument": false,
+  "hasAudioInput": true,
+  "hasAudioOutput": true,
+  "hasMidiInput": false,
+  "hasMidiOutput": false,
+  "hasMpeInput": false,
+  "hasMpeOutput": false,
+  "hasOscInput": false,
+  "hasOscOutput": false,
+  "hasSysexInput": false,
+  "hasSysexOutput": false,
+  "hasAutomationInput": true,
+  "hasAutomationOutput": false,
+  "thumbnail": "assets/thumbnail.png"
+}

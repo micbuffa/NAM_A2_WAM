@@ -1,0 +1,437 @@
+<script>
+	WebAudioControlsOptions = {
+		useMidi: 1,
+	};
+</script>
+
+<style>
+	@font-face {
+		font-family: 'metalfont2';
+		src: url('./assets/fonts/Frijole-Regular.ttf') format('truetype');
+		font-weight: normal;
+		font-style: normal;
+
+	}
+</style>
+<script>
+function scriptLoaded(event) {
+}
+</script>
+<script src="../webaudio-controls.js" onload="scriptLoaded(event);">
+</script>
+<template id="modernmetalmachine">
+
+	<style>
+		:host {
+			background-color: rgb(255, 255, 255);
+			font: 'metalfont', 'Arial Black';
+			display: block;
+			width: 550px;
+			height: 150px;
+			user-select: none;
+			border-radius: 10px;
+			position: relative;
+			z-index: 9;
+			/* bring your own prefixes */
+			box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7),
+				inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2),
+				inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2),
+				1px 0px 1px 0px rgba(0, 0, 0, 0.9),
+				0 2px 1px 0 rgba(0, 0, 0, 0.9),
+				1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+		}
+
+	
+		#background-image {
+			width: 550px;
+			height: 150px;
+			opacity: 1;
+
+			box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7),
+				inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2),
+				inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2),
+				1px 0px 1px 0px rgba(0, 0, 0, 0.9),
+				0 2px 1px 0 rgba(0, 0, 0, 0.9),
+				1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+		}
+
+		.knob,
+		.switch,
+		.icon,
+		.label {
+			position: absolute;
+			cursor: pointer;
+		}
+		.label {
+			color: #933535;
+		}
+		.switch {
+			
+		}
+		.knob {
+			top: 23px;
+		}
+		.knob div {
+			color: #933535;
+			color: rgb(255, 255, 255);
+			text-shadow: #000000 1px 1px, #000000 -1px 1px, #000000 -1px -1px, #000000 1px -1px;
+			font-size: 15px;
+			font-family: "metalfont";
+		}
+
+		.knob span {
+			color: #000 !important;
+			font-family: "Arial Black" !important;
+			font-size: 11px !important;
+			text-shadow:none
+		}
+
+
+		#switch1 {
+			bottom: 13px;
+			right: 14px;
+		}
+
+		#switchpreamp {
+			top: 25px;
+			left: 425px;
+			display:none;
+		}
+
+		#preampswitchlabel {
+			font-family: "metalfont";
+			font-size: 15px;
+			top: 60px;
+			left: 435px;
+			display:none;
+		}
+
+		#switchfilter {
+			top: 25px;
+			left: 470px;
+			display:none;
+		}
+
+		#filterswitchlabel {
+			font-family: "metalfont";
+			font-size: 15px;
+			top: 60px;
+			left: 480px;
+			display:none
+		}
+
+
+		#presence {
+			left: 440px;
+		}
+
+		#presence div {
+		}
+
+
+		#reverb {
+			left: 385px;
+		}
+
+		#reverb div {
+		}
+
+		#treble {
+			left: 330px;
+		}
+
+		#treble div {
+		}
+
+		#middle {
+			left: 275px;
+		}
+
+		#middle div {
+		}
+
+		#bass {
+			left: 220px;
+		}
+
+		#bass div {
+		}
+
+		#drive {
+			left: 165px;
+		}
+
+		#drive div {
+		}
+
+		#master {
+			left: 110px;
+		}
+
+		#master div {
+		}
+
+		#volume {
+			left: 55px;
+		}
+
+		#volume div {
+		}
+
+		#label_713 {
+
+			left: 151px;
+			top: 103px;
+			color: #5b0d20;
+			font-family: "metalfont2";
+			font-size: 20px;
+			color:black;
+			color: rgb(255, 255, 255);
+			
+			text-shadow: #FFFFFF 1px 1px, #FFFFFF -1px 1px, #FFFFFF -1px -1px, #FFFFFF 1px -1px;
+			text-shadow: #000000 1px 1px, #000000 -1px 1px, #000000 -1px -1px, #000000 1px -1px;
+
+		}
+
+		#menuPresets {
+			border-style: solid;
+			border-width: 2px;
+			border-color: #000000;
+			background-color: rgb(255, 254, 254);
+			position: absolute;
+			width: 100px;
+			left: 38px;
+			top: 104px;
+			color: #000000;
+			font-family: "Arial Black";
+			font-size: 9px;
+		}
+	</style>
+	<img id="background-image">
+
+	<div class="switchCont" id="switch1">
+		<webaudio-switch class="switch" value="1" id="switch1" height="30" width="60"></webaudio-switch>
+	</div>
+	<div class="switch" id="switchpreamp">
+		<webaudio-switch class="switch" height="30" width="60" value=1></webaudio-switch>
+	</div>
+	<div id="preampswitchlabel" class="label">Bleedy</div>
+
+	<div class="switch" id="switchfilter">
+		<webaudio-switch class="switch" height="30" width="60" ></webaudio-switch>
+	</div>
+	<div id="filterswitchlabel" class="label">Smooth</div>
+
+
+	<div class="knob " id="presence">
+		<webaudio-knob height="46" width="46" sprites="100" min="0" max="10" step="0.1" value="6" midilearn="1"></webaudio-knob>
+		<div style="text-align:center">Presence</div>
+	</div>
+	<div class="knob  " id="reverb">
+		<webaudio-knob height="46" width="46" sprites="100" min="0" max="10" step="0.1" value="0.7" midilearn="1"></webaudio-knob>
+		<div style="text-align:center">Reverb</div>
+	</div>
+	<div class="knob " id="treble">
+		<webaudio-knob height="46" width="46" sprites="100" min="0" max="10" step="0.1" value="3.8" midilearn="1"></webaudio-knob>
+		<div style="text-align:center">Treble</div>
+	</div>
+	<div class="knob " id="middle">
+		<webaudio-knob height="46" width="46" sprites="100" min="0" max="10" step="0.1" value="8" midilearn="1"></webaudio-knob>
+		<div style="text-align:center">Middle</div>
+	</div>
+	<div class="knob " id="bass">
+		<webaudio-knob height="46" width="46" sprites="100" min="0" max="10" step="0.1" value="8.7" midilearn="1"></webaudio-knob>
+		<div style="text-align:center">Bass</div>
+	</div>
+	<div class="knob " id="drive">
+		<webaudio-knob height="46" width="46" sprites="100" min="0" max="10" step="0.1" value="5.9" midilearn="1"></webaudio-knob>
+		<div style="text-align:center">Drive</div>
+	</div>
+	<div class="knob " id="master">
+		<webaudio-knob height="46" width="46" sprites="100" min="0" max="10" step="0.1" value="6" midilearn="1"></webaudio-knob>
+		<div style="text-align:center">Master</div>
+	</div>
+	<div class="knob " id="volume">
+		<webaudio-knob height="46" width="46" sprites="100" min="0" max="10" step="0.1" value="3.9" midilearn="1"></webaudio-knob>
+		<div style="text-align:center">Volume</div>
+	</div>
+	<select id="menuPresets" >
+		<option value=11>Modern Etalon</option>
+		<option value=12>Metal Trip</option>
+		<option value=1>Metallic KO</option>
+		<option value=7>Mid Gain</option>
+		<option value=10>Hi Gain</option>
+		<option value=2>Dirty Harry</option>
+		<option value=3 >Mayday Maiden</option>
+		<option value=4>Black Iron</option>
+		<option value=9>Rusted Metal</option>
+		<option value=8 selected>Warm Clean</option>
+		<option value=6>Cold Clean</option>
+		<option value=13>Twangy Clean</option>
+	
+	</select>
+	<div class="label" id="label_713">Modern Metal Machine</div>
+</template>
+<script>
+	let ModernMetalMachineTemp = document.currentScript.ownerDocument.querySelector('#modernmetalmachine');
+	class ModernMetalMachineGui extends HTMLElement {
+
+
+		constructor(plug) {
+
+			super();
+			this._plug = plug;
+			this._plug.gui = this;
+			this._root = this.attachShadow({
+				mode: 'open'
+			});
+			this._root.appendChild(ModernMetalMachineTemp.content.cloneNode(true));
+			this.knobs = this._root.querySelectorAll(".knob");
+			this.isOn;
+			this.state = new Object();
+			this.menu = this._root.querySelector("#menuPresets");
+			this.index = this.menu.value;
+			this.setKnobs();
+			this.setSwitchListener();
+			this.setResources();
+			this.avoidDrag();
+
+			this.reactivate();
+		}
+
+		simulatePresetMenuChoice(val) {
+			this._root.querySelector("#menuPresets").value = val;
+			this._plug.setParam("preset", val);
+		}
+
+		get properties() {
+
+			this.boundingRect = {
+				dataWidth: {
+					type: Number,
+					value: 550
+				},
+				dataHeight: {
+					type: Number,
+					value: 150
+				}
+			};
+			return this.boundingRect;
+
+		}
+
+		static get observedAttributes() {
+
+			return ['state'];
+
+		}
+		
+		connectedCallback() {
+			this.simulatePresetMenuChoice(8);
+		}
+
+		attributeChangedCallback()  {
+			this.state = JSON.parse(this.getAttribute('state'));
+		
+			try {
+				if (this.state.status == "enable") {
+					this._root.querySelector("#switch1").querySelector("webaudio-switch").value = 1;
+					this.isOn = true;
+				} else {
+					this._root.querySelector("#switch1").querySelector("webaudio-switch").value = 0;
+					this.isOn = false;
+				}
+				if (this.state.preampPos == "after") {
+					this._root.querySelector("#switchpreamp").querySelector("webaudio-switch").value = 1;
+
+				} else {
+					this._root.querySelector("#switchpreamp").querySelector("webaudio-switch").value = 0;
+				}
+				if (this.state.filterstate === 1) {
+					this._root.querySelector("#switchfilter").querySelector("webaudio-switch").value = 1;
+				} else {
+					this._root.querySelector("#switchfilter").querySelector("webaudio-switch").value = 0;
+				}
+				this._plug.setParam("preampPos", this._root.querySelector("#switchpreamp").querySelector("webaudio-switch").value);
+				this._plug.setParam("filterstate", (this._root.querySelector("#switchfilter").querySelector("webaudio-switch").value));
+			
+			
+				this.knobs = this._root.querySelectorAll(".knob");
+				for (var i = 0; i < this.knobs.length; i++) {
+					this.knobs[i].querySelector("webaudio-knob").setValue(this.state[this.knobs[i].id], false);
+				}
+				if (this.state.preset) {
+					var preset = this._root.querySelector("#menuPresets");
+					preset.value = this.state.preset;
+				}
+			} catch(err) {
+			}
+		}
+
+		setResources() {
+			let menuPresets = this._root.querySelector("#menuPresets");
+			menuPresets.onchange = (e) => {
+				this.index = e.target.value;
+				this._plug.setParam("preset", this.index);
+			}
+			var background = this._root.querySelector("img");
+			background.src = this._plug.URL + '/assets/backgrounds/ModernMetalBackground1.png';
+			background.style = 'border-radius :10px;'
+			
+			this._root.querySelectorAll(".knob").forEach((knob) => {
+				knob.querySelector("webaudio-knob").setAttribute('src', this._plug.URL + '/assets/knobs/Jambalaya.png');
+			});
+			this._root.querySelector("#switch1").querySelector("webaudio-switch").setAttribute('src', this._plug.URL +
+				'/assets/switches/switch_2.png');
+			this._root.querySelector("#switchpreamp").querySelector("webaudio-switch").setAttribute('src', this._plug.URL +
+				'/assets/switches/switch_2.png');
+			this._root.querySelector("#switchfilter").querySelector("webaudio-switch").setAttribute('src', this._plug.URL +
+				'/assets/switches/switch_2.png');
+
+		}
+
+		eventToKnob(rank) {
+			this.knobs[rank].querySelector("webaudio-knob").addEventListener('input', (e) =>
+				this._plug.setParam(this.knobs[rank].id, e.target.value));
+		}
+
+		setKnobs() {
+			for (var i = 0; i < this.knobs.length; i++) {
+				this.eventToKnob(i);
+			}
+			this._root.querySelector("#switchpreamp").querySelector("webaudio-switch").addEventListener('change', (e) => this._plug
+				.setParam("preampPos", e.target.value));
+			this._root.querySelector("#switchfilter").querySelector("webaudio-switch").addEventListener('change', (e) => this._plug
+				.setParam("filterstate", e.target.value));
+		}
+
+		bypass() {
+			this._plug.setParam("status", "disable");
+		}
+
+		reactivate() {
+			this._plug.setParam("status", "enable");
+		}
+
+		setSwitchListener() {
+			this._root.querySelector("#switch1").querySelector("webaudio-switch").addEventListener('change', (e) => {
+				if (this.isOn) this.bypass()
+				else this.reactivate();
+				this.isOn = !this.isOn;
+			});
+		}
+
+		avoidDrag() {
+			this._root.querySelector("#background-image").draggable = false;
+		}
+
+	}
+	try {
+		customElements.define('wasabi-modernmetalmachine', ModernMetalMachineGui);
+	} catch (error) {
+	}
+	createModernMetalMachine = (plug) => {
+		let elem = new ModernMetalMachineGui(plug);
+		return elem;
+	}
+</script>

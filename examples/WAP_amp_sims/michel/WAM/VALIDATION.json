@@ -1,0 +1,1480 @@
+{
+  "protocol": "Native WAP/WAM DSP parity; original WAP scripts in isolated same-origin realms. Full WAM API tests run separately in real AudioContexts.",
+  "comparisons": [
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "index": 0,
+      "finite": true,
+      "rms": 0.008226743290038637,
+      "peak": 0.06468193978071213,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "index": 1,
+      "finite": true,
+      "rms": 0.05848110771108743,
+      "peak": 0.4576945900917053,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "index": 2,
+      "finite": true,
+      "rms": 0.08650371767644797,
+      "peak": 0.48593661189079285,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "index": 3,
+      "finite": true,
+      "rms": 0.19912742501956932,
+      "peak": 0.8046752214431763,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "index": 4,
+      "finite": true,
+      "rms": 0.07282711857044101,
+      "peak": 0.506278395652771,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "index": 5,
+      "finite": true,
+      "rms": 0.06293933376735023,
+      "peak": 0.3705710172653198,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "index": 6,
+      "finite": true,
+      "rms": 0.09058459845421436,
+      "peak": 0.6027865409851074,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "index": 7,
+      "finite": true,
+      "rms": 0.01746720196668172,
+      "peak": 0.17477060854434967,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "index": 8,
+      "finite": true,
+      "rms": 0.015468141298594648,
+      "peak": 0.1466117948293686,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "index": 9,
+      "finite": true,
+      "rms": 0.08496810227218268,
+      "peak": 0.5002709627151489,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "index": 0,
+      "finite": true,
+      "rms": 0.008189546700840326,
+      "peak": 0.06429930776357651,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "index": 1,
+      "finite": true,
+      "rms": 0.058242445863197816,
+      "peak": 0.45338207483291626,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "index": 2,
+      "finite": true,
+      "rms": 0.08597141078762732,
+      "peak": 0.48165810108184814,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "index": 3,
+      "finite": true,
+      "rms": 0.1981851125041791,
+      "peak": 0.7963931560516357,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "index": 4,
+      "finite": true,
+      "rms": 0.07268826875869994,
+      "peak": 0.5061540007591248,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "index": 5,
+      "finite": true,
+      "rms": 0.06273596346731579,
+      "peak": 0.370400071144104,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "index": 6,
+      "finite": true,
+      "rms": 0.09041219412211463,
+      "peak": 0.6022418737411499,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "index": 7,
+      "finite": true,
+      "rms": 0.01750612990649916,
+      "peak": 0.17403604090213776,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "index": 8,
+      "finite": true,
+      "rms": 0.015414727191018876,
+      "peak": 0.14556658267974854,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "index": 9,
+      "finite": true,
+      "rms": 0.0846935523211622,
+      "peak": 0.5000401139259338,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 0,
+      "finite": true,
+      "rms": 0.023004235119365682,
+      "peak": 0.155144602060318,
+      "maxError": 5.960464477539063e-8,
+      "relativeError": 1.3552629147302453e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 1,
+      "finite": true,
+      "rms": 0.01236234628758293,
+      "peak": 0.08415646851062775,
+      "maxError": 2.2351741790771484e-8,
+      "relativeError": 1.088942755136153e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 2,
+      "finite": true,
+      "rms": 0.022071259109145334,
+      "peak": 0.15365254878997803,
+      "maxError": 5.960464477539063e-8,
+      "relativeError": 1.6425836351692394e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 3,
+      "finite": true,
+      "rms": 0.00895808126588555,
+      "peak": 0.062386900186538696,
+      "maxError": 4.0978193283081055e-8,
+      "relativeError": 2.631251173068608e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 4,
+      "finite": true,
+      "rms": 0.03596422695606209,
+      "peak": 0.26744595170021057,
+      "maxError": 5.960464477539063e-8,
+      "relativeError": 1.085300164964738e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 5,
+      "finite": true,
+      "rms": 0.06613030322371155,
+      "peak": 0.5836231708526611,
+      "maxError": 1.7881393432617188e-7,
+      "relativeError": 1.352406844092541e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 6,
+      "finite": true,
+      "rms": 0.1751119741438474,
+      "peak": 1.3714358806610107,
+      "maxError": 3.5762786865234375e-7,
+      "relativeError": 1.4047436350102476e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 7,
+      "finite": true,
+      "rms": 0.09400864536325743,
+      "peak": 0.6603379845619202,
+      "maxError": 3.5762786865234375e-7,
+      "relativeError": 1.9185088379309539e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 8,
+      "finite": true,
+      "rms": 0.16503575147353144,
+      "peak": 1.125362515449524,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 9,
+      "finite": true,
+      "rms": 0.01612512013887704,
+      "peak": 0.11408084630966187,
+      "maxError": 6.705522537231445e-8,
+      "relativeError": 2.4172928211047985e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 10,
+      "finite": true,
+      "rms": 0.22377503668716253,
+      "peak": 1.49765145778656,
+      "maxError": 5.960464477539062e-7,
+      "relativeError": 2.0383104160330836e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 11,
+      "finite": true,
+      "rms": 0.009874271824086175,
+      "peak": 0.0587422214448452,
+      "maxError": 8.381903171539307e-8,
+      "relativeError": 4.0688449670102607e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "index": 12,
+      "finite": true,
+      "rms": 0.006651731836279112,
+      "peak": 0.05251746252179146,
+      "maxError": 3.166496753692627e-8,
+      "relativeError": 2.5877595058167205e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 0,
+      "finite": true,
+      "rms": 0.022976999325928022,
+      "peak": 0.15434077382087708,
+      "maxError": 5.21540641784668e-8,
+      "relativeError": 1.331838106221274e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 1,
+      "finite": true,
+      "rms": 0.012351620333619875,
+      "peak": 0.08413670212030411,
+      "maxError": 2.2351741790771484e-8,
+      "relativeError": 1.0758453146336933e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 2,
+      "finite": true,
+      "rms": 0.022076768200230024,
+      "peak": 0.15371990203857422,
+      "maxError": 5.21540641784668e-8,
+      "relativeError": 1.6116473670448222e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 3,
+      "finite": true,
+      "rms": 0.008957740452767884,
+      "peak": 0.06222426891326904,
+      "maxError": 3.91155481338501e-8,
+      "relativeError": 2.598750352666253e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 4,
+      "finite": true,
+      "rms": 0.03597969822493161,
+      "peak": 0.266083687543869,
+      "maxError": 5.960464477539063e-8,
+      "relativeError": 1.1073526257748749e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 5,
+      "finite": true,
+      "rms": 0.06619428991743558,
+      "peak": 0.5845776200294495,
+      "maxError": 1.1920928955078125e-7,
+      "relativeError": 1.1825304754330593e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 6,
+      "finite": true,
+      "rms": 0.17609537002443312,
+      "peak": 1.390439748764038,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 7,
+      "finite": true,
+      "rms": 0.09421993325327824,
+      "peak": 0.6623350381851196,
+      "maxError": 3.5762786865234375e-7,
+      "relativeError": 1.9734330762174606e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 8,
+      "finite": true,
+      "rms": 0.16523091991281408,
+      "peak": 1.126230001449585,
+      "maxError": 2.384185791015625e-7,
+      "relativeError": 8.898213755364437e-8,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 9,
+      "finite": true,
+      "rms": 0.0161234462953493,
+      "peak": 0.11409401893615723,
+      "maxError": 5.587935447692871e-8,
+      "relativeError": 1.9426177495088707e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 10,
+      "finite": true,
+      "rms": 0.22586339688968027,
+      "peak": 1.507369875907898,
+      "maxError": 5.960464477539062e-7,
+      "relativeError": 2.0101223206764484e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 11,
+      "finite": true,
+      "rms": 0.009871046354553475,
+      "peak": 0.058635879307985306,
+      "maxError": 7.35744833946228e-8,
+      "relativeError": 4.077813387025946e-7,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "index": 12,
+      "finite": true,
+      "rms": 0.006651676687895402,
+      "peak": 0.052297431975603104,
+      "maxError": 3.725290298461914e-8,
+      "relativeError": 2.84100074129299e-7,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 0,
+      "finite": true,
+      "rms": 0.11515523827278466,
+      "peak": 0.6699514389038086,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 1,
+      "finite": true,
+      "rms": 0.08539574902256045,
+      "peak": 0.4372154772281647,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 2,
+      "finite": true,
+      "rms": 0.08991441132871729,
+      "peak": 0.4705222249031067,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 3,
+      "finite": true,
+      "rms": 0.06361838870949756,
+      "peak": 0.3791908621788025,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 4,
+      "finite": true,
+      "rms": 0.04828423804764826,
+      "peak": 0.31342121958732605,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 5,
+      "finite": true,
+      "rms": 0.003784119294725593,
+      "peak": 0.04629583656787872,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 6,
+      "finite": true,
+      "rms": 0.009891495797072661,
+      "peak": 0.11913549900054932,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 7,
+      "finite": true,
+      "rms": 0.03651871748383476,
+      "peak": 0.31109845638275146,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 8,
+      "finite": true,
+      "rms": 0.0017439639804734102,
+      "peak": 0.017645524814724922,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 9,
+      "finite": true,
+      "rms": 0.07801416838714044,
+      "peak": 0.3663225769996643,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 10,
+      "finite": true,
+      "rms": 0.049111680312609596,
+      "peak": 0.3459187150001526,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 11,
+      "finite": true,
+      "rms": 0.07974321873052449,
+      "peak": 0.54669189453125,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 12,
+      "finite": true,
+      "rms": 0.06539070473911605,
+      "peak": 0.4361037313938141,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "index": 13,
+      "finite": true,
+      "rms": 0.0023414210628909297,
+      "peak": 0.033911172300577164,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 0,
+      "finite": true,
+      "rms": 0.12109372467739851,
+      "peak": 0.6751925945281982,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 1,
+      "finite": true,
+      "rms": 0.08927228907516618,
+      "peak": 0.5034569501876831,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 2,
+      "finite": true,
+      "rms": 0.09257729452560043,
+      "peak": 0.44651299715042114,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 3,
+      "finite": true,
+      "rms": 0.06655374419951961,
+      "peak": 0.4148426055908203,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 4,
+      "finite": true,
+      "rms": 0.05348041937956782,
+      "peak": 0.3894341289997101,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 5,
+      "finite": true,
+      "rms": 0.0039054161247198973,
+      "peak": 0.0407136008143425,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 6,
+      "finite": true,
+      "rms": 0.010596520511507916,
+      "peak": 0.1273113191127777,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 7,
+      "finite": true,
+      "rms": 0.04157642416866307,
+      "peak": 0.3045654296875,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 8,
+      "finite": true,
+      "rms": 0.0018862518534752029,
+      "peak": 0.020592039451003075,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 9,
+      "finite": true,
+      "rms": 0.08345758584960943,
+      "peak": 0.41365572810173035,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 10,
+      "finite": true,
+      "rms": 0.05663931045320096,
+      "peak": 0.31012505292892456,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 11,
+      "finite": true,
+      "rms": 0.08410093278244675,
+      "peak": 0.5222242474555969,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 12,
+      "finite": true,
+      "rms": 0.07040408375935854,
+      "peak": 0.48661044239997864,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "index": 13,
+      "finite": true,
+      "rms": 0.00261141699469951,
+      "peak": 0.04048322141170502,
+      "maxError": 0,
+      "relativeError": 0,
+      "pass": true
+    }
+  ],
+  "checks": [
+    {
+      "name": "blues/44100 full WAM vs original WAP audio (max 2.235e-8)",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 factory preset factory-0 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 factory preset factory-1 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 factory preset factory-2 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 factory preset factory-3 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 factory preset factory-4 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 factory preset factory-5 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 factory preset factory-6 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 factory preset factory-7 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 factory preset factory-8 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 factory preset factory-9 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 WAM parameters",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 createInstance initial state",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 modified preset round trip",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 GUI attach/reopen preserves state",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 GUI recreated",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 instance isolation",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 WAM scheduled automation",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 full WAM finite non-silent audio",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 bypass",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 reject invalid state",
+      "pass": true
+    },
+    {
+      "name": "blues/44100 destroyed",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 full WAM vs original WAP audio (max 1.173e-7)",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-0 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-1 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-2 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-3 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-4 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-5 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-6 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-7 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-8 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-9 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-10 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-11 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 factory preset factory-12 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 WAM parameters",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 createInstance initial state",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 modified preset round trip",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 GUI attach/reopen preserves state",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 GUI recreated",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 instance isolation",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 WAM scheduled automation",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 full WAM finite non-silent audio",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 bypass",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 reject invalid state",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/44100 destroyed",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 full WAM vs original WAP audio (max 1.863e-9)",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-0 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-1 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-2 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-3 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-4 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-5 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-6 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-7 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-8 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-9 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-10 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-11 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-12 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 factory preset factory-13 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 WAM parameters",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 createInstance initial state",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 modified preset round trip",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 GUI attach/reopen preserves state",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 GUI recreated",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 instance isolation",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 WAM scheduled automation",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 full WAM finite non-silent audio",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 bypass",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 reject invalid state",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/44100 destroyed",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 full WAM vs original WAP audio (max 2.235e-8)",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 factory preset factory-0 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 factory preset factory-1 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 factory preset factory-2 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 factory preset factory-3 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 factory preset factory-4 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 factory preset factory-5 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 factory preset factory-6 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 factory preset factory-7 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 factory preset factory-8 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 factory preset factory-9 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 WAM parameters",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 createInstance initial state",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 modified preset round trip",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 GUI attach/reopen preserves state",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 GUI recreated",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 instance isolation",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 WAM scheduled automation",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 full WAM finite non-silent audio",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 bypass",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 reject invalid state",
+      "pass": true
+    },
+    {
+      "name": "blues/48000 destroyed",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 full WAM vs original WAP audio (max 8.877e-8)",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-0 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-1 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-2 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-3 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-4 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-5 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-6 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-7 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-8 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-9 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-10 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-11 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 factory preset factory-12 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 WAM parameters",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 createInstance initial state",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 modified preset round trip",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 GUI attach/reopen preserves state",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 GUI recreated",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 instance isolation",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 WAM scheduled automation",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 full WAM finite non-silent audio",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 bypass",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 reject invalid state",
+      "pass": true
+    },
+    {
+      "name": "cleanfull/48000 destroyed",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 full WAM vs original WAP audio (max 1.863e-9)",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-0 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-1 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-2 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-3 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-4 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-5 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-6 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-7 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-8 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-9 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-10 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-11 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-12 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 factory preset factory-13 manager/DSP values",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 WAM parameters",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 createInstance initial state",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 modified preset round trip",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 GUI attach/reopen preserves state",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 GUI recreated",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 instance isolation",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 WAM scheduled automation",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 full WAM finite non-silent audio",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 bypass",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 reject invalid state",
+      "pass": true
+    },
+    {
+      "name": "modernmetal/48000 destroyed",
+      "pass": true
+    }
+  ],
+  "referenceFixes": [
+    {
+      "from": "http://127.0.0.1:8766/examples/WAP_amp_sims/michel/bluesassets/impulses/cabinet/FenderChampAxisStereo.wav",
+      "to": "http://127.0.0.1:8766/examples/WAP_amp_sims/michel/blues/assets/impulses/cabinet/FenderChampAxisStereo.wav"
+    },
+    {
+      "from": "http://127.0.0.1:8766/examples/WAP_amp_sims/michel/bluesassets/impulses/cabinet/FenderChampAxisStereo.wav",
+      "to": "http://127.0.0.1:8766/examples/WAP_amp_sims/michel/blues/assets/impulses/cabinet/FenderChampAxisStereo.wav"
+    }
+  ],
+  "fullGraphComparisons": [
+    {
+      "slug": "blues",
+      "rate": 44100,
+      "finite": true,
+      "rms": 0.021450866038236673,
+      "peak": 0.1388581097126007,
+      "maxError": 2.2351741790771484e-8,
+      "relativeError": 4.907094875673298e-8,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 44100,
+      "finite": true,
+      "rms": 0.011029784964915785,
+      "peak": 0.05874257907271385,
+      "maxError": 1.1734664440155029e-7,
+      "relativeError": 0.0000010696469764352039,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 44100,
+      "finite": true,
+      "rms": 0.002691633580584496,
+      "peak": 0.01694301888346672,
+      "maxError": 1.862645149230957e-9,
+      "relativeError": 5.176777129211645e-8,
+      "pass": true
+    },
+    {
+      "slug": "blues",
+      "rate": 48000,
+      "finite": true,
+      "rms": 0.021346499544860002,
+      "peak": 0.13717511296272278,
+      "maxError": 2.2351741790771484e-8,
+      "relativeError": 7.812085061910496e-8,
+      "pass": true
+    },
+    {
+      "slug": "cleanfull",
+      "rate": 48000,
+      "finite": true,
+      "rms": 0.011032288158680608,
+      "peak": 0.05863625556230545,
+      "maxError": 8.87666828930378e-8,
+      "relativeError": 0.0000011497177175201218,
+      "pass": true
+    },
+    {
+      "slug": "modernmetal",
+      "rate": 48000,
+      "finite": true,
+      "rms": 0.0027434617928955075,
+      "peak": 0.0199339110404253,
+      "maxError": 1.862645149230957e-9,
+      "relativeError": 4.871111568133783e-8,
+      "pass": true
+    }
+  ],
+  "pass": true,
+  "elapsedSeconds": 96.64560000000894,
+  "date": "2026-10-10T16:36:26.719Z"
+}

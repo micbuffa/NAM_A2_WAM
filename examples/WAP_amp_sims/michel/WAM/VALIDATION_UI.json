@@ -1,0 +1,270 @@
+{
+  "checks": [
+    {
+      "name": "blues original menu API/order/labels",
+      "pass": true
+    },
+    {
+      "name": "blues original menu GUI",
+      "pass": true
+    },
+    {
+      "name": "blues initial sound unchanged / reverb display",
+      "pass": true
+    },
+    {
+      "name": "blues factory-8 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "blues factory-6 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "blues factory-9 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "blues factory-1 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "blues factory-4 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "blues factory-5 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "blues reverb display 0 -> DSP 0",
+      "pass": true
+    },
+    {
+      "name": "blues reverb display 5 -> DSP 2",
+      "pass": true
+    },
+    {
+      "name": "blues reverb display 10 -> DSP 4",
+      "pass": true
+    },
+    {
+      "name": "blues restore original reverb",
+      "pass": true
+    },
+    {
+      "name": "blues legacy state/automation range preserved",
+      "pass": true
+    },
+    {
+      "name": "blues vertical cursor on all knobs",
+      "pass": true
+    },
+    {
+      "name": "blues original font files loaded",
+      "pass": true
+    },
+    {
+      "name": "blues title and knob label fonts applied",
+      "pass": true
+    },
+    {
+      "name": "blues original background corners",
+      "pass": true
+    },
+    {
+      "name": "blues original preset menu width",
+      "pass": true
+    },
+    {
+      "name": "blues footer horizontal/vertical alignment",
+      "pass": true
+    },
+    {
+      "name": "cleanfull original menu API/order/labels",
+      "pass": true
+    },
+    {
+      "name": "cleanfull original menu GUI",
+      "pass": true
+    },
+    {
+      "name": "cleanfull initial sound unchanged / reverb display",
+      "pass": true
+    },
+    {
+      "name": "cleanfull factory-1 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "cleanfull factory-2 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "cleanfull factory-3 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "cleanfull factory-9 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "cleanfull factory-11 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "cleanfull factory-12 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "cleanfull reverb display 0 -> DSP 0",
+      "pass": true
+    },
+    {
+      "name": "cleanfull reverb display 5 -> DSP 2",
+      "pass": true
+    },
+    {
+      "name": "cleanfull reverb display 10 -> DSP 4",
+      "pass": true
+    },
+    {
+      "name": "cleanfull restore original reverb",
+      "pass": true
+    },
+    {
+      "name": "cleanfull legacy state/automation range preserved",
+      "pass": true
+    },
+    {
+      "name": "cleanfull vertical cursor on all knobs",
+      "pass": true
+    },
+    {
+      "name": "cleanfull original font files loaded",
+      "pass": true
+    },
+    {
+      "name": "cleanfull title and knob label fonts applied",
+      "pass": true
+    },
+    {
+      "name": "cleanfull original background corners",
+      "pass": true
+    },
+    {
+      "name": "cleanfull original preset menu width",
+      "pass": true
+    },
+    {
+      "name": "cleanfull footer horizontal/vertical alignment",
+      "pass": true
+    },
+    {
+      "name": "modernmetal original menu API/order/labels",
+      "pass": true
+    },
+    {
+      "name": "modernmetal original menu GUI",
+      "pass": true
+    },
+    {
+      "name": "modernmetal initial sound unchanged / reverb display",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-11 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-12 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-1 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-7 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-10 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-2 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-3 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-4 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-9 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-8 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-6 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal factory-13 reverb and preset unchanged",
+      "pass": true
+    },
+    {
+      "name": "modernmetal reverb display 0 -> DSP 0",
+      "pass": true
+    },
+    {
+      "name": "modernmetal reverb display 5 -> DSP 2",
+      "pass": true
+    },
+    {
+      "name": "modernmetal reverb display 10 -> DSP 4",
+      "pass": true
+    },
+    {
+      "name": "modernmetal restore original reverb",
+      "pass": true
+    },
+    {
+      "name": "modernmetal legacy state/automation range preserved",
+      "pass": true
+    },
+    {
+      "name": "modernmetal vertical cursor on all knobs",
+      "pass": true
+    },
+    {
+      "name": "modernmetal original font files loaded",
+      "pass": true
+    },
+    {
+      "name": "modernmetal title and knob label fonts applied",
+      "pass": true
+    },
+    {
+      "name": "modernmetal original background corners",
+      "pass": true
+    },
+    {
+      "name": "modernmetal original preset menu width",
+      "pass": true
+    },
+    {
+      "name": "modernmetal footer horizontal/vertical alignment",
+      "pass": true
+    }
+  ],
+  "pass": true,
+  "date": "2026-10-10T18:25:50.466Z"
+}

@@ -1,0 +1,1 @@
+export default [{"id": "factory-8", "name": "Clean"}, {"id": "factory-6", "name": "Crunchy"}, {"id": "factory-9", "name": "Beefy"}, {"id": "factory-1", "name": "Jimmy"}, {"id": "factory-4", "name": "malcolm"}, {"id": "factory-5", "name": "Angus"}];
