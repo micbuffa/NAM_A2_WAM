@@ -1,5 +1,102 @@
 # NAM A2 WAM — Next-session handoff
 
+## 2026-10-09 — Guitar-reference calibration
+
+Calibrate level now measures the bundled 8–20 s Funky-Guitar excerpt in an isolated Worker/WASM instance, without interrupting or injecting audio into the live graph. Fixed −18 dB reference trim plus NAM input gain; −24 dBFS RMS target, −1 dBFS reference peak ceiling, ±36 dB measured correction (metadata still ±12 dB). Results replace metadata correction, retain per-capture/variant WAM state and cancel on supersession/model changes. Inline progress/errors/limits. Real WASM validation: Bogner m689735 −4.19 dB and Deluxe Room m383454 +27.00 dB both reach −24 dBFS on the excerpt without peak limiting. 149 Node tests passed; static distribution rebuilt. Resumed validation: browser Worker completed on Deluxe Room (+27.0 dB) and rebuilt distribution Bogner m689735 (−4.2 dB); metadata reset clears measured status. Corrected details target display to use the measured target. Final 149 tests passed and distribution rebuilt.
+
+## 2026-10-09 — Button contrast and guitar-sample level comparison
+
+Back to rack now explicitly retains light background/dark text on hover and keyboard focus. Distribution rebuilt. Real WASM render of the full bundled Funky-Guitar.mp3 at −18 dB trim confirms a 19.98 dB RMS difference between Bogner m689735 and Deluxe Room m383454 after metadata normalization. This CAN be compensated using output correction measured on that sample; reference-sine calibration is insufficient. See docs/model-level-comparison-2026-10-09.md for peaks, protocol and balanced-gain example. No DSP policy or user settings changed.
+
+## 2026-10-09 — Finish model selection and diagnose unequal levels
+
+Added Back to rack below grouped Factory/Favorites capture lists (enabled on the loaded model) and below generic/downloaded lists. Uses the same host return event as TONE3000 success. Calibration copy now explains reference-level normalization and clean/driven differences. Real WASM probe comparison reproduced a 24.49 dB gap at low input between first Bogner and Deluxe Room captures, versus 0.84 dB at reference input; see docs/model-level-comparison-2026-10-09.md. No DSP/gain policy change. Validation: 147 Node tests passed; distribution rebuilt.
+
+## 2026-10-08 — Rack capture selector and TONE3000 return
+
+Successful TONE3000 capture loading requests closing its own host editor and returns to the rack. Failed loads keep the editor open. NAM cards now have a capture dropdown between previous/next arrows below the photo; Factory discovery works without creating a GUI, while an existing editor supplies its remote TONE3000 collection. Capture selection stays instance-local, with loading/boundary disabling. Rack rows reserve the selector height to keep cards aligned. Validation: 147 Node tests passed (including mocked TONE3000 success/failure navigation), browser verified Factory next/dropdown selection and card layout; distribution rebuilt. Live authenticated TONE3000 callback not exercised.
+
+## 2026-10-08 — Highlight only the loaded model and capture
+
+Factory cards now mark the loaded model with an accent border and Current model badge. Capture highlights follow the loaded asset identity, not each card’s preview index. TONE3000 uses the same loaded-only capture rule. Regression tests cover inactive cards, switching loaded identity and failed loads. Validation: 147 Node tests passed; distribution rebuilt.
+
+## 2026-10-08 — Direct amp calibration and simpler model navigation
+
+Amp settings now contains automatic model-level normalization, calibration, metadata reset and correction display. A collapsed Model details disclosure combines artwork/capture navigation and metadata. Change amp model opens the catalogue directly, with Back to amp settings; the overview/models/details tab bar is removed. Preferences retains A2 rendering mode. Validation: 146 Node tests passed; in-app browser verified measured calibration, metadata reset, catalogue/return navigation and details expansion; compact viewport visually inspected. Distribution rebuilt.
+
+## 2026-10-08 — Stable per-chain volume
+
+Removed the automatic −6 dB mix attenuation when both lanes are enabled. The shared mix now stays at unity for independent inputs and splits, so showing, enabling or muting one lane does not alter the other lane’s contribution. Updated the specification and regression coverage for visibility, mute, UI mode, source loss, routing and state restoration. Validation: 146 Node tests passed; static distribution rebuilt. Physical guitar listening remains untested.
+
+## 2026-10-07 — Model-only navigation
+
+Preferences and Help are standalone buttons beside Change amp model in Amp settings, not model-browser tabs. Models navigation now contains Model overview, Models and Model details only. Overview keeps model artwork/captures/calibration and omits audio meters/gain/flow; Amp settings is reached with Back to amp settings. Global views retain that return action and accessible pressed buttons. Validation: 145 Node tests and 8 Chrome checks passed; desktop screenshot inspected. Distribution rebuilt.
+
+## 2026-10-07 — Backing-track loading progress
+
+Added a transfer progress bar and an explicit engine loading state. Play is greyed out/disabled through download, decode and peak analysis, including when a previous buffer exists; engine play() also guards pending loads. Unknown sizes and audio preparation use indeterminate progress. Superseded downloads cannot update current progress. Errors hide the bar and retain the previous playable buffer. Existing playback continuation behavior is preserved. Validation: 145 Node tests and 6 browser checks with throttled transfer/decode and network failure passed. Distribution rebuilt.
+
+## 2026-10-07 — Gate in Amp settings and model CTA
+
+Moved the single NAM noise-gate control (enable + threshold) from Main artwork to Amp settings before the tone-stack knobs. Existing WAM parameter/automation bindings are unchanged. Change model is now Change amp model, centered below the model name with a larger accent-colored button. Help updated. Validation: 145 Node tests and 9 Chrome checks including gate enable/threshold parameters and model-browser navigation; desktop screenshot inspected. Distribution rebuilt.
+
+## 2026-10-07 — Audio toolbar placement
+
+Enable/Disable live input now shares the device-selection toolbar. Change audio source appears only in full mode; switching to beginner closes the sidebar. The 1 / 2 chains toggle bolds only the current count, with an accessible label describing current and target counts; updates also follow state restoration.
+
+## 2026-10-07 — Hide route action at connected junction
+
+The small route action is hidden at the active A→B junction (and at the preview junction), including on hover/focus. Other insertion points retain the 700 ms hover grace. Moving/removing the route restores the old action; the existing route label remains the edit/remove control. Focus moves to the adjacent + when its route action becomes hidden.
+
+## 2026-10-07 — Main-host tuner popup
+
+- Added top-bar Tuner with SVG tuning fork, available in both UI modes. `TunerView.js` lazily instantiates the catalogue tuner on a silent parallel tap of chain A input (after source trim, before effects). No microphone activation, backing-track analysis or insert-menu entry.
+- Existing tuner GUI mounts after dialog visibility and powers on automatically. Close/Escape cancels pitch animation, disconnects/destroys the instance, and restores focus. Async opening is guarded against close/reopen; errors appear in the dialog. Static build now includes TunerView.js.
+- Validation: 145 Node tests; 10 Chrome checks passed without exceptions, including detection of synthetic 220 Hz as A, nonzero canvas dimensions, silent output branch, unchanged rack, close/reopen and cancellation during loading. Physical instrument/microphone not exercised. Desktop screenshot inspected. Distribution rebuilt.
+- Compact inline tuner UI remains deferred as requested.
+
+## 2026-10-07 — Detail editor header
+
+Removed the host-level Bypass ON/OFF button from all detailed card editors. The header retains Replace, Remove and Close. Card-level bypass and plugin-native controls remain available.
+
+## 2026-10-07 — Direct live-input shortcut
+
+- The existing Enable live input toggle moved from the sidebar to the rack header. It remains enabled in file-source mode and immediately selects Live input, stops the dry player and activates the selected input. It becomes Disable live input while monitoring. Busy clicks are disabled; capture errors open the sidebar to expose the status.
+- The adjacent panel icon now has the visible label Change audio source, retaining its expand/collapse behavior.
+- Validation: 145 Node tests and 10 Chrome checks passed, including file-to-live, stop, and permission failure using a simulated MediaStream (no physical microphone). Distribution rebuilt.
+
+## 2026-10-07 — Beginner/full UI and compact NAM editor
+
+- Host sidebar starts fully collapsed, toggled by the accessible panel icon in the rack header; Escape from inside closes it. Source selection and diagnostics remain there; live-input activation is now directly in the rack header.
+- Host defaults to beginner on every page load. Header toggle enables full mode. Beginner hides B and every dual-chain routing control. `FxRack.activeB` gates B’s physical/tap input, output connection and mix contribution, independently of the saved `visible`/mute/routing configuration. Returning to full restores the previous layout without recreating B. UI mode is not serialized; restoring a two-chain state while beginner keeps B disconnected. Core rack defaults to full for existing API consumers; host explicitly selects beginner before creating the view.
+- NAM GUI opens Amp settings when a model is loaded, with model name and Change model. Management UI is retained behind Change model; Back to amp settings returns to the compact view. Every reopening resets to amp (or Models if empty). Spectrum monitoring follows the active view. Other WAM GUIs unchanged.
+- Validation: 145 Node tests passed, including B isolation, restore under beginner, split recovery, independent-input mute preservation. 13 desktop Chrome interaction checks and 14 checks against the rebuilt distribution at 390 px passed with no exceptions or horizontal page overflow. Desktop and narrow screenshots inspected. Static distribution rebuilt. No live TONE3000 authentication or physical audio listening tested in this change.
+- Scope/spec: `SPECIFICATION_FX_CHAIN.md`, section Interface simplifiée. Presets 7.2 remains deferred.
+
+## 2026-10-06 — TONE3000 accordion correction after screenshot
+
+The screenshot showed the generic `.modelBrowser` asset-tree group “Downloaded on this device”, not only the separate `.tone3000Downloads` section. `buildAssetTree` automatically expands ancestors of the selected model on every render, which defeated the previous fix. NAM now overrides this specific group's open state in the TONE3000 source, resets it when presenting a new remote selection, and preserves explicit manual reopening through rerenders. Search can still expand matching results; Factory/Favorites behavior is unchanged. Validation: 143 Node tests and 13 browser checks with a mocked callback, seeded downloaded model and repeated browser renders; no browser exceptions. Distribution rebuilt.
+
+## 2026-10-06 — Accordion, route-hover grace and TONE3000 return
+
+- Backing player now has a full-width accordion heading. Collapsing hides transport, status and library/waveform controls; audio playback continues. This supersedes the previous compact transport layout.
+- Chain A route buttons remain clickable for 700 ms after pointer/focus leaves their slot. Reentry cancels the timer; keyboard focus and touch visibility remain supported. Single-chain mode still hides routing actions.
+- NAM's “Downloaded on this device” section is now a native details/summary accordion. A successful TONE3000 selection closes it and brings the selected-tone card into view; it remains manually reopenable. Error/cancel callbacks do not close it.
+- Validation: 143 Node tests passed, static distribution rebuilt, 9 browser interaction checks passed without exceptions. TONE3000 callback was mocked; no authenticated live flow was exercised.
+
+
+## 2026-10-05 — Backing track player (latest handoff)
+
+- Implemented the approved `ADD_BACKING_TRACK_PLAYER.md`: reusable `<backing-track-player>`, independent engine/library and final guitar/backing mixer in `examples/wam/backing-track-player/`.
+- 29 original MP3s copied unchanged into `examples/wam/assets/backingTracks/` (~170.5 MB compressed). Only selected media is fetched/decoded. Run `npm run backing-tracks` after additions/deletions, then `npm run dist`; `npm run backing-tracks -- --check` is read-only. Provenance hashes in the component's `SOURCE_MANIFEST.json`.
+- Panel below rack: searchable library, waveform, local import/drop, play/pause/stop, A–B loops, 70–130% pitch-preserving speed, non-destructive normalization, volume/mute, global guitar pan, balance and mix meter. Compact mode keeps playback. CSS responds to component width, tested at 360 px.
+- `BackingTrackMix` replaces the direct rack-to-destination connection. Accompaniment bypasses all guitar effects; the existing AudioContext/output-device selection serves both. Per-chain pans/gains stay independent. Guitar mix gain is unity when accompaniment is stopped/paused.
+- Session state keeps the existing rack format plus optional `backingTrack`. Restore never autoplays or activates input. Missing local media asks for reselecting the same file; pending settings then restore by filename/size/mtime identity. Local media is not persisted or uploaded.
+- Validation: **143 Node tests**, **60 real-audio browser checks** at 44.1/48 kHz plus **9 host UI/session checks**, no browser exceptions. Desktop/narrow UI inspected; distribution rebuilt. Reproducible page: `backing-track-player/validation.html`; numeric results in `VALIDATION.json`.
+- Still manual: physical interface listening, musical stretching artifacts and CPU/latency profiling. Native A–B loops do not have a dedicated endpoint crossfade. Backend, multitrack, ML separation and rack preset phase 7.2 remain out of scope.
+- Active branch remains **New-UI**. Prior implementation was committed/pushed as `be152ca`, merged/pushed to main as `7613551`, then New-UI reactivated. This backing-player work is uncommitted. Reference folders `examples/other_wam_host/` and `examples/WAP_amp_sims/` remain untouched and untracked.
+
+
 ## Current handoff — 2026-09-24
 
 ### Per-plugin meters, gains and Replace — latest update

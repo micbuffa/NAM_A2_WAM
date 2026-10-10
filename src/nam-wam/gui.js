@@ -127,7 +127,7 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .tone3000Auth { display:grid;justify-items:center;gap:12px;padding:15px 10px;text-align:center } nam-a2-gui .tone3000Logo { display:block;width:min(210px,80%);height:auto;margin:2px auto 3px } nam-a2-gui .tone3000AuthTitle { margin:0;color:#f3f0f7;font-size:14px;font-weight:750 } nam-a2-gui .tone3000AuthCopy { max-width:360px;margin:0;color:#aaa3b1;font-size:11px;line-height:1.5 }
         nam-a2-gui .tone3000Status,nam-a2-gui .tone3000Tone { margin:0;color:#9992a1;font-size:10px;white-space:pre-line } nam-a2-gui .tone3000Selection { display:grid;gap:8px } nam-a2-gui .tone3000Image { display:block;width:auto;max-width:100%;height:auto;max-height:320px;margin:0 auto;object-fit:contain;background:#0d0d11;border:1px solid #443d4d;border-radius:9px } nam-a2-gui .tone3000Selection select { width:100%;min-height:34px;padding:0 8px }
         nam-a2-gui .tone3000Catalog { display:grid;gap:9px } nam-a2-gui .tone3000CatalogTools { display:flex;gap:6px;flex-wrap:wrap } nam-a2-gui .tone3000CatalogTools button[aria-pressed=true] { color:#19151f;background:var(--nam-accent);border-color:var(--nam-accent);font-weight:800 } nam-a2-gui .tone3000Gear { display:flex;gap:5px;overflow:auto;padding-bottom:2px } nam-a2-gui .tone3000Gear button { min-height:27px;padding:0 9px;border-radius:999px;font-size:10px;white-space:nowrap } nam-a2-gui .tone3000Cards { display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px;max-height:330px;overflow:auto;padding:2px } nam-a2-gui .toneCard { display:grid;gap:6px;min-width:0;padding:7px;color:#eee;background:#0d0d11;border:1px solid #332f39;border-radius:9px;text-align:left } nam-a2-gui .toneCard:hover { border-color:#776b91;background:#191620 } nam-a2-gui .toneCard img { display:block;width:100%;height:92px;object-fit:contain;background:#08080b;border-radius:6px } nam-a2-gui .toneCard strong { overflow:hidden;font-size:11px;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .toneCard small { overflow:hidden;color:#928b9d;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .tone3000Pager { display:flex;justify-content:space-between;align-items:center;gap:8px;color:#8f8898;font-size:10px }
-        nam-a2-gui .tone3000Downloads { display:grid;gap:8px;margin-top:2px;padding-top:9px;border-top:1px solid #332f39 } nam-a2-gui .tone3000DownloadsHead { display:flex;align-items:center;justify-content:space-between;gap:8px } nam-a2-gui .tone3000DownloadsHead strong { font-size:10px;letter-spacing:.09em;text-transform:uppercase } nam-a2-gui .tone3000Clear { min-height:27px;color:#ffabb4;font-size:10px } nam-a2-gui .tone3000DownloadedList { display:grid;gap:6px;max-height:230px;overflow:auto } nam-a2-gui .tone3000DownloadedList:empty::after { content:'No model downloaded on this device';padding:9px;color:#756e7c;text-align:center;font-size:10px } nam-a2-gui .downloadedTone { display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px;background:#0d0d11;border:1px solid #332f39;border-radius:8px } nam-a2-gui .downloadedTone img,nam-a2-gui .downloadedToneVisual { width:52px;height:42px;object-fit:contain;background:#09090c;border-radius:5px } nam-a2-gui .downloadedToneVisual { display:grid;place-items:center;color:#d8c8ff;font-size:9px;font-weight:850 } nam-a2-gui .downloadedToneMeta { min-width:0 } nam-a2-gui .downloadedToneMeta strong,nam-a2-gui .downloadedToneMeta small { display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .downloadedToneMeta strong { font-size:10px } nam-a2-gui .downloadedToneMeta small { color:#8f8898;font-size:9px } nam-a2-gui .downloadedToneActions { display:flex;gap:5px } nam-a2-gui .downloadedToneActions button { min-height:28px;padding:0 8px;font-size:9px } nam-a2-gui .downloadedToneDelete { color:#ffabb4 }
+        nam-a2-gui .tone3000Downloads:not([open]) > :not(summary){display:none} nam-a2-gui .tone3000DownloadsHead{cursor:pointer} nam-a2-gui .tone3000DownloadsHead::before{content:"▸"} nam-a2-gui .tone3000Downloads[open]>.tone3000DownloadsHead::before{content:"▾"} nam-a2-gui .tone3000Downloads { display:grid;gap:8px;margin-top:2px;padding-top:9px;border-top:1px solid #332f39 } nam-a2-gui .tone3000DownloadsHead { display:flex;align-items:center;justify-content:space-between;gap:8px } nam-a2-gui .tone3000DownloadsHead strong { font-size:10px;letter-spacing:.09em;text-transform:uppercase } nam-a2-gui .tone3000Clear { min-height:27px;color:#ffabb4;font-size:10px } nam-a2-gui .tone3000DownloadedList { display:grid;gap:6px;max-height:230px;overflow:auto } nam-a2-gui .tone3000DownloadedList:empty::after { content:'No model downloaded on this device';padding:9px;color:#756e7c;text-align:center;font-size:10px } nam-a2-gui .downloadedTone { display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px;background:#0d0d11;border:1px solid #332f39;border-radius:8px } nam-a2-gui .downloadedTone img,nam-a2-gui .downloadedToneVisual { width:52px;height:42px;object-fit:contain;background:#09090c;border-radius:5px } nam-a2-gui .downloadedToneVisual { display:grid;place-items:center;color:#d8c8ff;font-size:9px;font-weight:850 } nam-a2-gui .downloadedToneMeta { min-width:0 } nam-a2-gui .downloadedToneMeta strong,nam-a2-gui .downloadedToneMeta small { display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap } nam-a2-gui .downloadedToneMeta strong { font-size:10px } nam-a2-gui .downloadedToneMeta small { color:#8f8898;font-size:9px } nam-a2-gui .downloadedToneActions { display:flex;gap:5px } nam-a2-gui .downloadedToneActions button { min-height:28px;padding:0 8px;font-size:9px } nam-a2-gui .downloadedToneDelete { color:#ffabb4 }
         nam-a2-gui .downloadedTone { grid-template-columns:minmax(0,1fr) auto } nam-a2-gui .downloadedToneSelect { display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:8px;min-width:0;padding:0;border:0;background:transparent;text-align:left } nam-a2-gui .downloadedToneSelect:hover { background:#211e27 }
         nam-a2-gui .factoryMaintainer { display:grid;gap:9px;margin-top:2px;padding:10px;background:#111018;border:1px dashed #8067a8;border-radius:8px } nam-a2-gui .factoryMaintainer h3 { margin:0;color:#decfff;font-size:11px;letter-spacing:.08em;text-transform:uppercase } nam-a2-gui .factoryMaintainer p { margin:0;color:#9f96aa;font-size:10px } nam-a2-gui .factoryMaintainerActions { display:flex;gap:6px;flex-wrap:wrap } nam-a2-gui .factoryMaintainerModels { display:grid;gap:5px;max-height:190px;overflow:auto } nam-a2-gui .factoryMaintainerModel { display:flex;align-items:flex-start;gap:7px;padding:6px;background:#0c0b10;border-radius:6px;color:#c8c0ce;font-size:10px } nam-a2-gui .factoryMaintainerModel input { margin-top:2px;accent-color:var(--nam-accent) } nam-a2-gui .factoryMaintainerExport { color:#1b1521;background:var(--nam-accent);border-color:var(--nam-accent);font-weight:800 } nam-a2-gui .factoryMaintainerStatus { color:#b7adbf!important;white-space:pre-line }
         nam-a2-gui .powered { color:#6f6877;font-size:9px } nam-a2-gui .status { min-height:50px;margin:0;padding:10px;color:#aaa3b1;background:#0d0d11;border-radius:8px;white-space:pre-line;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace }
@@ -200,25 +200,56 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .mainCaptureMedia .noise-side output { font-size:8px }
         @media(max-width:410px){nam-a2-gui .mainPanel .current-model{grid-template-columns:minmax(0,1fr)}}
         @media(prefers-reduced-motion:reduce){nam-a2-gui .signal-strip{transition:none}}
+        nam-a2-gui .editor-navigation { display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #34303b; }
+        nam-a2-gui .editor-model-name { max-width:100%;min-width:0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+        nam-a2-gui .editor-navigation button { flex-shrink:0; }
+        nam-a2-gui:not([data-editor-view="models"]) .plugin-tabs { display:none; }
+        nam-a2-gui .editor-actions { display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap; }
+        nam-a2-gui .editor-action[aria-pressed="true"] { border-color:var(--nam-accent);color:var(--nam-accent); }
+        nam-a2-gui[data-editor-view="models"] .mainPanel .meter-side,nam-a2-gui[data-editor-view="models"] .mainPanel .signal-flow { display:none; }
+        nam-a2-gui[data-editor-view="models"] .mainPanel .signal-strip { grid-template-columns:minmax(0,1fr); }
+        nam-a2-gui[data-editor-view="models"] .mainPanel .current-model { grid-column:1; }
+        nam-a2-gui .editor-navigation .change-model { min-height:42px;padding:0 24px;font-size:14px;font-weight:800;color:#191322;background:var(--nam-accent);border-color:var(--nam-accent);box-shadow:0 3px 12px #0004; }
+        nam-a2-gui .editor-navigation .change-model:hover { filter:brightness(1.12); }
+        nam-a2-gui .amp-controls .noise-side { display:flex;align-items:center;gap:12px;padding:6px 12px;border:1px solid #484052;border-radius:8px; }
+        nam-a2-gui .amp-controls .noise-switch { order:-1;max-width:none;font-size:9px; }
+        nam-a2-gui .amp-controls .noise-side .knob-shell { width:36px;height:36px; }
+        nam-a2-gui .amp-controls .noise-side .knob-pointer { top:4px;height:10px;transform-origin:50% 12px; }
+        nam-a2-gui .amp-controls .noise-side .knob-input { inset:-3px;width:42px;height:42px; }
+        nam-a2-gui .editor-navigation [hidden] { display:none; }
+        nam-a2-gui .modelCalibration { margin:12px 16px;padding:12px;border:1px solid #484052;border-radius:8px; }
+        nam-a2-gui .calibrationActions { display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px; }
+        nam-a2-gui .calibrationActions .level-actions { margin:0;flex-wrap:wrap; }
+        nam-a2-gui .calibrationActions button { min-height:34px;font-size:11px; }
+        nam-a2-gui .modelDetails { margin:0 16px 12px;border:1px solid #34303b;border-radius:8px;padding:10px; }
+        nam-a2-gui .modelDetails summary { cursor:pointer;font-size:12px;font-weight:700; }
+        nam-a2-gui .modelDetails .meter-side,nam-a2-gui .modelDetails .signal-flow { display:none; }
+        nam-a2-gui .modelDetails .signal-strip { grid-template-columns:minmax(0,1fr); }
+        nam-a2-gui .modelDetails .current-model { grid-column:1; }
+        nam-a2-gui .factoryToneCard.current-model-card { border-color:var(--nam-accent);box-shadow:inset 3px 0 var(--nam-accent); }
+        nam-a2-gui .factoryToneCard.current-model-card .factoryToneTitle::after { content:"Current model";display:inline-block;margin-left:8px;padding:3px 6px;border-radius:4px;background:#493b64;color:#e7dcff;font-size:9px; }
+        nam-a2-gui .return-to-rack { min-height:36px;margin-top:10px;padding:6px 14px;color:#191322;background:var(--nam-accent);border-color:var(--nam-accent);font-weight:700; }
+        nam-a2-gui .return-to-rack:hover:not(:disabled),nam-a2-gui .return-to-rack:focus-visible { color:#191322;background:#c9b2ff;border-color:#e0d2ff; }
+        nam-a2-gui .return-to-rack:focus-visible { outline:2px solid #e0d2ff;outline-offset:3px; }
+        nam-a2-gui .return-to-rack:disabled { opacity:.4;cursor:default; }
+        nam-a2-gui .browserReturn { display:flex;justify-content:flex-end; }
       </style>
       <section class="nam-module">
         <header class="module-head">
           ${neuralWampLogoMarkup}<div class="module-identity"><div class="module-name-row"><h2>NeuralWAMp</h2></div><span class="module-subtitle">NAM A2 neural amplifier</span><a class="module-author" href="https://github.com/micbuffa" target="_blank" rel="noopener noreferrer">by @micbuffa</a></div>
           <label class="bypass-label"><input class="bypass" type="checkbox"> Bypass</label>
         </header>
-        <nav class="plugin-tabs" role="tablist" aria-label="NeuralWAMp views"><button class="plugin-tab" id="namTabMain" type="button" role="tab" aria-selected="true" aria-controls="namPanelMain" data-plugin-tab="main">Main</button><button class="plugin-tab" id="namTabModels" type="button" role="tab" aria-selected="false" aria-controls="namPanelModels" data-plugin-tab="models">Models</button><button class="plugin-tab" id="namTabAmp" type="button" role="tab" aria-selected="false" aria-controls="namPanelAmp" data-plugin-tab="amp">Amp settings</button><button class="plugin-tab" id="namTabDetails" type="button" role="tab" aria-selected="false" aria-controls="namPanelDetails" data-plugin-tab="details">Model details</button><button class="plugin-tab" id="namTabPreferences" type="button" role="tab" aria-selected="false" aria-controls="namPanelPreferences" data-plugin-tab="preferences">Preferences</button><button class="plugin-tab" id="namTabAbout" type="button" role="tab" aria-selected="false" aria-controls="namPanelAbout" data-plugin-tab="about">Help</button></nav>
-        <section class="plugin-panel mainPanel" id="namPanelMain" role="tabpanel" aria-labelledby="namTabMain" data-plugin-panel="main"><div class="signal-strip">
-          <div class="meter-side input-meter-side"><div class="meter" data-meter="input"><span class="meter-label">IN</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>${knobMarkup('inputGain','Input gain',-48,24,.1,0,' dB','input-control')}
-          <div class="noise-side">${knobMarkup('noise','Threshold',-100,0,1,-80,' dB')}<label class="section-switch noise-switch"><input class="noiseEnabled" type="checkbox"> Noise gate</label></div></div>
-          <section class="current-model" aria-live="polite"><div class="currentModelArtwork"><img class="currentToneImage" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" hidden><div class="currentModelFallback"><strong>NAM</strong><small>Model capture</small></div></div><div class="currentModelInfo"><strong class="currentModel">No model loaded</strong><div class="model-chips"><span class="chip source modelSource">—</span><span class="chip modelMode">A2 —</span><span class="chip modelLevel inactive" title="Automatic model-level correction">LEVEL —</span></div><div class="level-actions"><button class="calibrateLevel" type="button" disabled>Calibrate level</button><button class="useMetadataLevel" type="button" hidden>Use metadata</button></div></div></section>
-          <div class="meter-side output-meter-side"><div class="meter" data-meter="output"><span class="meter-label">OUT</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>${knobMarkup('outputGain','Output gain',-24,12,.1,0,' dB','output-control')}</div>
-        </div><div class="signal-flow" role="img" aria-label="Signal path"></div></section>
-        <section class="plugin-panel amp-knobs ampPanel" id="namPanelAmp" role="tabpanel" aria-labelledby="namTabAmp" data-plugin-panel="amp" hidden><div class="amp-controls"><section class="eq-panel" id="namEqPanel">
-          <div class="eq-toolbar"><div class="eq-toolbar-group"><label><input class="eqEnabled" type="checkbox" checked> EQ enabled</label><label>Position <select class="eqPosition"><option value="0">POST NAM</option><option value="1">PRE NAM</option></select></label></div><section class="tone-strip" aria-label="Tone stack settings"><div class="amp-switches"><label class="section-switch"><input class="toneEnabled" type="checkbox" checked> Tone</label></div>${knobMarkup('bass','Bass',0,10,.1,5)}${knobMarkup('middle','Middle',0,10,.1,5)}${knobMarkup('treble','Treble',0,10,.1,5)}</section></div>
+        <div class="editor-navigation"><strong class="editor-model-name">Amp settings</strong><div class="editor-actions"><button class="change-model" type="button">Change amp model</button><button class="editor-action" id="namTabPreferences" type="button" aria-pressed="false" aria-controls="namPanelPreferences" data-editor-view="preferences">Preferences</button><button class="editor-action" id="namTabAbout" type="button" aria-pressed="false" aria-controls="namPanelAbout" data-editor-view="about">Help</button></div><button class="back-to-amp" type="button" hidden>Back to amp settings</button></div>
+        <section class="plugin-panel amp-knobs ampPanel" id="namPanelAmp" role="region" aria-label="Amp settings" data-plugin-panel="amp" hidden><section class="modelCalibration" aria-label="Model level calibration"><label class="preferenceRow"><span><strong>Automatic model level</strong><small>Normalizes the model at a reference level (−18 dB target, ±12 dB correction). Calibrate level measures a 12-second Funky-Guitar excerpt at −18 dB input trim, targeting −24 dBFS with peak protection. Other playing levels may still differ.</small></span><input class="autoLevel" type="checkbox" checked></label><div class="calibrationActions"><span class="chip modelLevel inactive" title="Automatic model-level correction">LEVEL —</span><div class="level-actions"><button class="calibrateLevel" type="button" disabled>Calibrate level</button><button class="useMetadataLevel" type="button" hidden>Use metadata</button></div></div><p class="calibrationStatus" role="status"></p></section>        <details class="mainPanel modelDetails"><summary>Model details</summary><div class="signal-strip">
+
+          <section class="current-model" aria-live="polite"><div class="currentModelArtwork"><img class="currentToneImage" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" hidden><div class="currentModelFallback"><strong>NAM</strong><small>Model capture</small></div></div><div class="currentModelInfo"><strong class="currentModel">No model loaded</strong><div class="model-chips"><span class="chip source modelSource">—</span><span class="chip modelMode">A2 —</span></div></div></section>
+
+        </div><div class="signal-flow" role="img" aria-label="Signal path"></div><p class="status">No model loaded</p></details><div class="amp-controls"><section class="eq-panel" id="namEqPanel">
+          <div class="eq-toolbar"><div class="eq-toolbar-group"><label><input class="eqEnabled" type="checkbox" checked> EQ enabled</label><label>Position <select class="eqPosition"><option value="0">POST NAM</option><option value="1">PRE NAM</option></select></label></div><div class="noise-side">${knobMarkup('noise','Threshold',-100,0,1,-80,' dB')}<label class="section-switch noise-switch"><input class="noiseEnabled" type="checkbox"> Noise gate</label></div><section class="tone-strip" aria-label="Tone stack settings"><div class="amp-switches"><label class="section-switch"><input class="toneEnabled" type="checkbox" checked> Tone</label></div>${knobMarkup('bass','Bass',0,10,.1,5)}${knobMarkup('middle','Middle',0,10,.1,5)}${knobMarkup('treble','Treble',0,10,.1,5)}</section></div>
           <div class="eq-subtoolbar"><span class="eq-spectrum-legend" aria-label="Spectrum legend"><span class="input">Input</span><span class="filtered">Filtered</span><span class="final">Final output</span></span><button class="eqReset" type="button">Reset EQ</button></div>
           <div class="eq-graph-wrap"><svg class="eqGraph" viewBox="0 0 720 250" preserveAspectRatio="none" role="application" aria-label="Six-band parametric EQ comparing input, filtered, and final output spectra"><defs><linearGradient id="namSpectrumInputFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8094b3" stop-opacity=".18"/><stop offset="1" stop-color="#27364d" stop-opacity=".04"/></linearGradient><linearGradient id="namSpectrumFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff455f" stop-opacity=".5"/><stop offset=".34" stop-color="#ff9e3d" stop-opacity=".42"/><stop offset=".68" stop-color="#a8ad28" stop-opacity=".3"/><stop offset="1" stop-color="#323bce" stop-opacity=".2"/></linearGradient><linearGradient id="namEqFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8c8ff" stop-opacity=".12"/><stop offset="1" stop-color="#3b2d66" stop-opacity=".02"/></linearGradient></defs><path class="eq-spectrum-input-fill" d="M0,230 L720,230 Z"></path><path class="eq-spectrum" d="M0,230 L720,230 Z"></path><g class="eqGrid"></g><path class="eq-spectrum-input-line"></path><path class="eq-spectrum-filtered-line"></path><path class="eq-spectrum-final-line"></path><g class="eqBandCurves"></g><path class="eq-curve-fill"></path><path class="eq-curve"></path><g class="eqNodes"></g></svg><div class="eq-readout"><strong class="eq-band-name">Low<small>Band 1 · Low shelf</small></strong><label class="eq-value">Frequency<input class="eqSelectedFreq" type="number" min="20" max="20000" step="1"></label><label class="eq-value">Gain<input class="eqSelectedGain" type="number" min="-15" max="15" step="0.1"></label><label class="eq-value">Q<input class="eqSelectedQ" type="number" min="0.1" max="10" step="0.01"></label><p class="eq-hint">Drag a point · wheel changes Q · Shift = fine · double-click resets gain</p></div></div>
         </section></div></section>
-        <section class="plugin-panel modelDrawer modelsPanel" id="namPanelModels" role="tabpanel" aria-labelledby="namTabModels" data-plugin-panel="models" hidden><div class="tab-content">
+        <section class="plugin-panel modelDrawer modelsPanel" id="namPanelModels" role="region" aria-label="Choose amp model" data-plugin-panel="models" hidden><div class="tab-content">
             <div class="source-tabs" role="group" aria-label="Model source">
               <button class="sourceTab" data-source="Factory" type="button" aria-pressed="true">Factory</button>
               <button class="sourceTab" data-source="Favorites" type="button" aria-pressed="false">★ Favorites</button>
@@ -227,7 +258,7 @@ class NamA2Gui extends HTMLElement {
             </div>
             <div class="factoryCategories" role="group" aria-label="Factory category"><button class="factoryCategory" data-category="all" type="button" aria-pressed="false">All</button><button class="factoryCategory" data-category="guitar" type="button" aria-pressed="true">Guitar</button><button class="factoryCategory" data-category="bass" type="button" aria-pressed="false">Bass</button><button class="factoryCategory" data-category="pedal" type="button" aria-pressed="false">Pedals</button></div>
             <div class="browser-tools"><input class="modelSearch" type="search" aria-label="Search models" placeholder="Search models…"><label class="file-action">Import .nam…<input class="model" type="file" accept=".nam,application/json"></label></div>
-            <div class="modelBrowser"></div>
+            <div class="modelBrowser"></div><div class="browserReturn"><button class="return-to-rack" type="button">Back to rack</button></div>
             <section class="tone3000-panel" aria-label="TONE3000" hidden>
               <section class="tone3000Auth" aria-labelledby="tone3000AuthTitle" hidden><img class="tone3000Logo" src="${tone3000LogoUrl}" alt="TONE3000"><h3 class="tone3000AuthTitle" id="tone3000AuthTitle">Access TONE3000 tones</h3><p class="tone3000AuthCopy">NeuralWAMp has partnered with TONE3000 to give you access to a library of NAM captures created by a global community of musicians.</p><button class="tone3000Authenticate" type="button">Continue to TONE3000</button></section>
               <div class="tone3000Browser" hidden><div class="tone3000-head"><div class="tone3000-head-actions"><button class="tone3000Browse" type="button">Browse TONE3000</button><button class="tone3000Back" type="button" hidden>Back to TONE3000 main view</button></div><small class="powered">Powered by TONE3000</small></div>
@@ -235,13 +266,14 @@ class NamA2Gui extends HTMLElement {
                 <section class="tone3000Catalog" hidden><div class="tone3000CatalogTools" role="group" aria-label="TONE3000 collections"><button type="button" data-tone-feed="trending" aria-pressed="true">Trending</button><button type="button" data-tone-feed="latest" aria-pressed="false">Latest</button><button type="button" data-tone-feed="downloaded" aria-pressed="false">Downloaded</button><button type="button" data-tone-feed="favorited" aria-pressed="false">Favorites</button><button type="button" data-tone-feed="created" aria-pressed="false">Created</button></div><div class="tone3000Gear" role="group" aria-label="Gear filter"><button type="button" data-tone-gear="" aria-pressed="true">All gear</button><button type="button" data-tone-gear="amp" aria-pressed="false">Amp</button><button type="button" data-tone-gear="amp-cab" aria-pressed="false">Amp + Cab</button><button type="button" data-tone-gear="pedal" aria-pressed="false">Pedal</button></div><div class="tone3000Cards" aria-live="polite"></div><div class="tone3000Pager"><button class="tone3000Prev" type="button">Previous</button><span class="tone3000Page">Page 1</span><button class="tone3000Next" type="button">Next</button></div></section>
                 <section class="tone3000Selection factoryToneCard" hidden><div class="factoryToneMedia"><strong class="factoryToneTitle tone3000Title"></strong><p class="tone3000Tone"></p><div class="factoryToneViewer"><button class="factoryToneNav tone3000CapturePrevious" type="button" aria-label="Previous TONE3000 capture">‹</button><button class="factoryTonePick tone3000CapturePick" type="button" aria-label="Load selected TONE3000 capture"><img class="tone3000Image" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" hidden><span class="factoryToneVisual tone3000Visual">NAM</span></button><button class="factoryToneNav tone3000CaptureNext" type="button" aria-label="Next TONE3000 capture">›</button></div><span class="factoryToneFilename tone3000Filename"></span><small class="factoryToneCounter tone3000Counter"></small></div><div class="factoryToneDetails"><span class="factoryCaptureLabel tone3000CaptureLabel"></span><div class="factoryCaptureList tone3000CaptureList" role="group" aria-label="Available TONE3000 captures"></div></div></section>
               </div>
-              <section class="tone3000Downloads" aria-label="TONE3000 models downloaded on this device"><div class="tone3000DownloadsHead"><strong>Downloaded on this device</strong><button class="tone3000Clear" type="button" hidden>Delete all</button></div><div class="tone3000DownloadedList"></div></section>
+              <details class="tone3000Downloads" aria-label="TONE3000 models downloaded on this device" open><summary class="tone3000DownloadsHead"><strong>Downloaded on this device</strong></summary><button class="tone3000Clear" type="button" hidden>Delete all</button><div class="tone3000DownloadedList"></div><button class="return-to-rack" type="button">Back to rack</button></details>
               <section class="factoryMaintainer" aria-label="Factory library maintainer" hidden><h3>Factory library maintainer</h3><p>Explicitly select one TONE3000 tone, choose its files, then export a repository-ready ZIP bundle. Verify redistribution rights before committing it.</p><div class="factoryMaintainerActions"><button type="button" data-maintainer-kind="nam">Select NAM A2 tone</button><button type="button" data-maintainer-kind="ir">Select IR tone</button></div><p class="factoryMaintainerStatus">No tone selected for export.</p><div class="factoryMaintainerModels"></div><button class="factoryMaintainerExport" type="button" hidden>Export selected Factory bundle</button></section>
             </section>
           </div></section>
-        <section class="plugin-panel detailsDrawer detailsPanel" id="namPanelDetails" role="tabpanel" aria-labelledby="namTabDetails" data-plugin-panel="details" hidden><div class="tab-content"><p class="status">No model loaded</p></div></section>
-        <section class="plugin-panel preferencesDrawer preferencesPanel" id="namPanelPreferences" role="tabpanel" aria-labelledby="namTabPreferences" data-plugin-panel="preferences" hidden><div class="tab-content preferencesBody"><label class="preferenceRow"><span><strong>Automatic model level</strong><small>Normalizes NAM loudness to −18 dB, limited to ±12 dB. Output gain remains independent.</small></span><input class="autoLevel" type="checkbox" checked></label><label class="preferenceRow"><span><strong>A2 rendering mode</strong><small>Used when a model contains both Lite and Full networks.</small></span><select class="a2Variant"><option value="full">Full — higher fidelity</option><option value="lite">Lite — lower CPU</option></select></label></div></section>
-        <section class="plugin-panel aboutPanel" id="namPanelAbout" role="tabpanel" aria-labelledby="namTabAbout" data-plugin-panel="about" hidden><div class="tab-content aboutBody"><header><h3>About NeuralWAMp</h3><p>NeuralWAMp is a Web Audio Module that runs Neural Amp Modeler A2 captures directly in an AudioWorklet. It is designed to behave like a reusable audio plugin while remaining entirely usable in a web browser.</p></header><article class="gettingStarted"><h4>Getting started with your guitar</h4><ol><li>Choose <strong>Live input</strong> from the Source menu in the host.</li><li>Select your audio input and output devices from the corresponding menus. For a multichannel interface, choose the physical input carrying the guitar (usually Input 1); do not choose a loopback channel. If your browser does not support output-device selection, audio uses the operating system's default output. After changing a system device, reload the page before continuing.</li><li>Click <strong>Enable live input</strong>. You should now hear your guitar through the processing chain. Click the red <strong>Disable live input</strong> button to stop the microphone stream and monitoring completely.</li><li>Open <strong>Models</strong> to load a Factory capture or browse TONE3000. A capture selected from TONE3000 is downloaded, loaded, and kept locally in the browser so it remains available later.</li><li>Open <strong>Amp settings</strong> to adjust Bass, Middle, Treble, and the graphical EQ.</li><li>For high-gain amplifiers, enable the <strong>Noise gate</strong> in the Main view and adjust its threshold as needed.</li></ol></article><div class="aboutFlow">Input → Noise gate → EQ PRE/POST → NAM A2 → Tone stack → Output</div><div class="aboutSections"><article><h4>Main</h4><p>Monitor input and output levels, adjust gain and the optional noise gate, inspect the active capture, calibrate its level, and read the live processing chain.</p></article><article><h4>Models</h4><p>Load Factory guitar, bass, and pedal captures; recall favorites; import local .nam files; or browse compatible TONE3000 captures. Selecting a capture loads it immediately.</p></article><article><h4>Amp settings</h4><p>Shape the sound with Bass, Middle, and Treble plus a six-band graphical EQ. Place the EQ before or after NAM and compare input, filtered, and final spectra.</p></article><article><h4>Model details</h4><p>Read architecture, available A2 rendering modes, sample rate, creator, loudness correction, capture metadata, source, and licensing information.</p></article><article><h4>Preferences</h4><p>Choose A2 Full for maximum fidelity or A2 Lite for lower CPU use, and enable or disable automatic model-level normalization.</p></article><article><h4>Controls</h4><p>Drag knobs vertically. Double-click a knob to restore its default. Hover over model artwork for one second to display a compact metadata card.</p></article></div><article class="aboutNotes"><h4>State and storage</h4><p>Audio parameters and the loaded model participate in the standard WAM state round trip. Favorites and explicitly downloaded TONE3000 models are stored locally in the browser. NeuralWAMp contains the amplifier stage; the host may connect a separate Cabinet WAM for impulse-response processing.</p></article></div></section>
+        <section class="plugin-panel preferencesDrawer preferencesPanel" id="namPanelPreferences" role="region" aria-labelledby="namTabPreferences" data-plugin-panel="preferences" hidden><div class="tab-content preferencesBody"><label class="preferenceRow"><span><strong>A2 rendering mode</strong><small>Used when a model contains both Lite and Full networks.</small></span><select class="a2Variant"><option value="full">Full — higher fidelity</option><option value="lite">Lite — lower CPU</option></select></label></div></section>
+        <section class="plugin-panel aboutPanel" id="namPanelAbout" role="region" aria-labelledby="namTabAbout" data-plugin-panel="about" hidden><div class="tab-content aboutBody"><header><h3>About NeuralWAMp</h3><p>NeuralWAMp is a Web Audio Module that runs Neural Amp Modeler A2 captures directly in an AudioWorklet. It is designed to behave like a reusable audio plugin while remaining entirely usable in a web browser.</p></header><article class="gettingStarted"><h4>Getting started with your guitar</h4><ol><li>Choose <strong>Live input</strong> from the Source menu in the host.</li><li>Select your audio input and output devices from the corresponding menus. For a multichannel interface, choose the physical input carrying the guitar (usually Input 1); do not choose a loopback channel. If your browser does not support output-device selection, audio uses the operating system's default output. After changing a system device, reload the page before continuing.</li><li>Click <strong>Enable live input</strong>. You should now hear your guitar through the processing chain. Click the red <strong>Disable live input</strong> button to stop the microphone stream and monitoring completely.</li><li>Click <strong>Change amp model</strong> to load a Factory capture or browse TONE3000. A capture selected from TONE3000 is downloaded, loaded, and kept locally in the browser so it remains available later.</li><li>Open <strong>Amp settings</strong> to adjust Bass, Middle, Treble, and the graphical EQ.</li><li>For high-gain amplifiers, enable the <strong>Noise gate</strong> in Amp settings and adjust its threshold as needed.</li></ol></article><div class="aboutFlow">Input → Noise gate → EQ PRE/POST → NAM A2 → Tone stack → Output</div><div class="aboutSections"><article><h4>Models</h4><p>Load Factory guitar, bass, and pedal captures; recall favorites; import local .nam files; or browse compatible TONE3000 captures. Selecting a capture loads it immediately.</p></article><article><h4>Amp settings</h4><p>Calibrate the model level or use its metadata, enable the noise gate and adjust its threshold, then shape the sound with Bass, Middle, and Treble plus a six-band graphical EQ. Place the EQ before or after NAM and compare input, filtered, and final spectra.</p></article><article><h4>Model details</h4><p>Expand Model details in Amp settings to inspect the artwork, navigate captures, and read model metadata and licensing information.</p></article><article><h4>Preferences</h4><p>Choose A2 Full for maximum fidelity or A2 Lite for lower CPU use.</p></article><article><h4>Controls</h4><p>Drag knobs vertically. Double-click a knob to restore its default. Hover over model artwork for one second to display a compact metadata card.</p></article></div><article class="aboutNotes"><h4>State and storage</h4><p>Audio parameters and the loaded model participate in the standard WAM state round trip. Favorites and explicitly downloaded TONE3000 models are stored locally in the browser. NeuralWAMp contains the amplifier stage; the host may connect a separate Cabinet WAM for impulse-response processing.</p></article></div></section>
+        <div hidden>          <div class="meter-side input-meter-side"><div class="meter" data-meter="input"><span class="meter-label">IN</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>${knobMarkup('inputGain','Input gain',-48,24,.1,0,' dB','input-control')}
+          </div>          <div class="meter-side output-meter-side"><div class="meter" data-meter="output"><span class="meter-label">OUT</span><div class="meter-track"><div class="meter-fill"></div></div><span class="clip">CLIP</span><div class="meter-values"><span class="peak">-∞ dBFS</span><span class="rms">RMS -∞</span></div></div>${knobMarkup('outputGain','Output gain',-24,12,.1,0,' dB','output-control')}</div></div>
       </section><aside class="modelHoverCard" role="tooltip" hidden><strong class="modelHoverTitle"></strong><pre class="modelHoverDetails"></pre></aside>`;
     this.querySelector('.aboutBody header').insertAdjacentHTML('beforeend', '<p><a href="https://github.com/micbuffa/NAM_A2_WAM" target="_blank" rel="noopener noreferrer">NeuralWAMp source code and project documentation on GitHub</a></p>');
     this.controls = {
@@ -265,9 +297,9 @@ class NamA2Gui extends HTMLElement {
       maintainerModels: this.querySelector('.factoryMaintainerModels'), maintainerExport: this.querySelector('.factoryMaintainerExport'),
       currentModel: this.querySelector('.currentModel'), modelSource: this.querySelector('.modelSource'),
       modelMode: this.querySelector('.modelMode'), modelLevel: this.querySelector('.modelLevel'), modelDrawer: this.querySelector('.modelDrawer'),
-      pluginTabs: [...this.querySelectorAll('.plugin-tab')], pluginPanels: [...this.querySelectorAll('.plugin-panel')],
+      pluginPanels: [...this.querySelectorAll('.plugin-panel')],
       modelHoverCard: this.querySelector('.modelHoverCard'), modelHoverTitle: this.querySelector('.modelHoverTitle'), modelHoverDetails: this.querySelector('.modelHoverDetails'),
-      calibrateLevel: this.querySelector('.calibrateLevel'), useMetadataLevel: this.querySelector('.useMetadataLevel'),
+      calibrationStatus:this.querySelector('.calibrationStatus'), calibrateLevel: this.querySelector('.calibrateLevel'), useMetadataLevel: this.querySelector('.useMetadataLevel'),
       a2Variant: this.querySelector('.a2Variant'),
       autoLevel: this.querySelector('.autoLevel'),
       tonePanel: this.querySelector('.tone3000-panel'), sourceTabs: [...this.querySelectorAll('.sourceTab')], signalFlow: this.querySelector('.signal-flow'),
@@ -287,7 +319,6 @@ class NamA2Gui extends HTMLElement {
     this.bindModelHover(this.controls.toneImage,()=>this.toneSelectionHoverData());
     for(const id of ['noiseEnabled','toneEnabled','eqEnabled'])this.controls[id].onchange=()=>{setParam(id,this.controls[id].checked?1:0);if(id==='noiseEnabled')this.syncNoiseGateVisual();if(id==='eqEnabled')this.syncEqEnabledVisual();this.renderSignalFlow();};
     this.controls.eqPosition.onchange=()=>{setParam('eqPre',Number(this.controls.eqPosition.value));this.renderSignalFlow();};
-    this.controls.pluginTabs.forEach((button)=>{button.onclick=()=>this.setPluginTab(button.dataset.pluginTab);button.onkeydown=(event)=>this.navigatePluginTabs(event,button);});
     this._eqBands=EQ_BANDS.map((band)=>({frequency:band.frequency,gain:0,q:band.q}));this._selectedEqBand=0;
     this.initializeEqGraph(setParam,setParams);
     this.renderSignalFlow();
@@ -329,7 +360,11 @@ class NamA2Gui extends HTMLElement {
     this.node.addSpectrumListener(this._spectrumListener);
     this.node.addEventListener('wam-automation', this._automation);
     this.syncParameters(await this.node.getParameterValues(false));
-    this.setPluginTab('main');
+    this.querySelectorAll('[data-editor-view]').forEach(button=>button.onclick=()=>this.setPluginTab(button.dataset.editorView));
+    this.querySelector('.change-model').onclick=()=>this.setPluginTab('models');
+    this.querySelector('.back-to-amp').onclick=()=>this.setPluginTab('amp');
+    this.querySelectorAll('.return-to-rack').forEach(button=>button.onclick=()=>this.returnToRack());
+    this.setPluginTab(this.node._metadata?'amp':'models');
     this.tone3000 = new Tone3000Client(plugin.constructor.tone3000Config || {});
     this._maintainerMode = new URL(window.location.href).searchParams.get('maintainer') === '1';
     this.controls.maintainer.hidden = !this._maintainerMode;
@@ -376,23 +411,26 @@ class NamA2Gui extends HTMLElement {
     return this;
   }
 
-  setEditorVisible(visible) {this._editorVisible=visible;this.node.setSpectrumEnabled(visible&&this._activePluginTab==='amp').catch(()=>{});if(!visible)this.hideModelHover();}
+  returnToRack() {
+    this.setPluginTab('amp');
+    this.dispatchEvent(new CustomEvent('nam-capture-loaded',{bubbles:true}));
+  }
 
-  setPluginTab(tabName, {focus=false}={}) {
-    const active=this.controls.pluginTabs.find((button)=>button.dataset.pluginTab===tabName)||this.controls.pluginTabs[0];
-    this._activePluginTab=active.dataset.pluginTab;
-    this.controls.pluginTabs.forEach((button)=>{const selected=button===active;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;});
+  setEditorVisible(visible) {this._editorVisible=visible;if(visible)this.setPluginTab(this.node._metadata?'amp':'models');this.node.setSpectrumEnabled(visible&&this._activePluginTab==='amp').catch(()=>{});if(!visible)this.hideModelHover();}
+
+  setPluginTab(tabName) {
+    const panel=this.controls.pluginPanels.find(panel=>panel.dataset.pluginPanel===tabName)||this.controls.pluginPanels[0];
+    this._activePluginTab=panel.dataset.pluginPanel;
+    const compact=this._activePluginTab==='amp';
+    const models=this._activePluginTab==='models';
+    this.dataset.editorView=models?'models':this._activePluginTab;
+    this.querySelector('.editor-actions').hidden=models;
+    this.querySelector('.back-to-amp').hidden=compact;
+    this.querySelector('.editor-model-name').textContent=this.controls.currentModel.textContent||'Amp settings';
+    this.querySelectorAll('[data-editor-view]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.editorView===this._activePluginTab)));
     this.controls.pluginPanels.forEach((panel)=>{panel.hidden=panel.dataset.pluginPanel!==this._activePluginTab;});
     this.hideModelHover();
     this.node.setSpectrumEnabled(this._editorVisible!==false&&this._activePluginTab==='amp').catch(()=>{});
-    if(focus)active.focus();
-  }
-
-  navigatePluginTabs(event, button) {
-    const keys=['ArrowLeft','ArrowRight','Home','End'];if(!keys.includes(event.key))return;
-    event.preventDefault();const tabs=this.controls.pluginTabs;let index=tabs.indexOf(button);
-    if(event.key==='Home')index=0;else if(event.key==='End')index=tabs.length-1;else index=(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
-    this.setPluginTab(tabs[index].dataset.pluginTab,{focus:true});
   }
 
   modelHoverInfo(value) {
@@ -616,10 +654,12 @@ class NamA2Gui extends HTMLElement {
       return;
     }
     const m = info.metadata;
+    this.controls.calibrationStatus.textContent=m.levelMode==='measured'&&m.measuredCalibration?.version>=2?(m.measuredCalibration.clamped?'Guitar calibration limited to preserve headroom.':'Calibrated with Funky-Guitar — target −24 dBFS.'):'';
     this.controls.autoLevel.checked=m.autoLevelEnabled!==false;
     if(m.modelVariant)this.controls.a2Variant.value=m.modelVariant;
     this.controls.status.classList.remove('error');
     this.controls.currentModel.textContent = m.provenance?.title || m.rawMetadata?.gear_model || m.rawMetadata?.name || m.name.replace(/\.nam$/iu, '');
+    this.querySelector('.editor-model-name').textContent=this.controls.currentModel.textContent;
     this.controls.modelMode.textContent = m.subtype || 'A2';
     const hasLoudness = Number.isFinite(m.loudness);
     const correction = Number(m.autoLevelCompensationDb);
@@ -630,7 +670,7 @@ class NamA2Gui extends HTMLElement {
     this.controls.modelLevel.classList.toggle('inactive', !levelAvailable);
     this.controls.modelLevel.title = !m.autoLevelEnabled ? 'Automatic model level is disabled' : levelAvailable
       ? measured
-        ? `Measured NAM correction: ${correction >= 0 ? '+' : ''}${correction.toFixed(1)} dB · probe output ${measured.outputRmsDb.toFixed(1)} dBFS · target −18 dBFS`
+        ? `Measured NAM correction: ${correction >= 0 ? '+' : ''}${correction.toFixed(1)} dB · ${measured.reference||'Sine reference'} · output ${measured.outputRmsDb.toFixed(1)} dBFS · target ${measured.targetRmsDb??-18} dBFS`
         : `Applied NAM correction: ${correction >= 0 ? '+' : ''}${correction.toFixed(1)} dB · model loudness ${m.loudness.toFixed(1)} dB · target −18 dB`
       : 'No usable loudness metadata in this NAM file';
     this.controls.calibrateLevel.disabled = false;
@@ -643,7 +683,7 @@ class NamA2Gui extends HTMLElement {
       `Modeled by: ${m.modeledBy==='Unknown'?(m.provenance?.creator||'Unknown'):m.modeledBy}`, `NAM format: ${m.version}`];
     if (m.availableVariants?.length) details.splice(2,0,'Available rendering modes: A2 Full, A2 Lite');
     if(Number.isFinite(m.loudness))details.push(`Model loudness: ${m.loudness.toFixed(1)} dB`);
-    if(measured)details.push(`Measured level: ${correction>=0?'+':''}${correction.toFixed(1)} dB (probe ${measured.outputRmsDb.toFixed(1)} dBFS → target −18 dBFS${measured.clamped?', limited':''})`);
+    if(measured)details.push(`Measured level: ${correction>=0?'+':''}${correction.toFixed(1)} dB (reference ${measured.outputRmsDb.toFixed(1)} dBFS → target ${measured.targetRmsDb??-18} dBFS${measured.clamped?', limited':''})`);
     else details.push(m.autoLevelEnabled?(Number.isFinite(m.loudness)?`Auto level: ${m.autoLevelCompensationDb>=0?'+':''}${m.autoLevelCompensationDb.toFixed(1)} dB (target −18 dB)`:'Auto level: unavailable — no loudness metadata'):'Auto level: off');
     if (m.source) details.push(`Source: ${m.source}`);
     if (raw.gear_make) details.push(`Gear make: ${raw.gear_make}`);
@@ -664,15 +704,18 @@ class NamA2Gui extends HTMLElement {
     this.controls.calibrateLevel.disabled = true;
     this.controls.useMetadataLevel.disabled = true;
     const previousText = this.controls.calibrateLevel.textContent;
-    this.controls.calibrateLevel.textContent = 'Measuring…';
+    this.controls.calibrateLevel.textContent = 'Measuring guitar…';
+    this.controls.calibrationStatus.textContent='Analysing the guitar reference in the background…';
     try {
       const result = await this.node.calibrateModelLevel();
       this.controls.autoLevel.checked = true;
       try { localStorage.setItem(autoLevelStorageKey, 'on'); } catch { /* Keep session state. */ }
-      if (result.clamped) this.controls.modelLevel.title += ' · correction limited for safety';
+      if (result.clamped) this.controls.modelLevel.title += ' · target not reached: correction or peak limit';
+      this.controls.calibrationStatus.textContent=result.clamped?'Calibration complete — level limited to preserve peak headroom.':'Calibrated with Funky-Guitar — target −24 dBFS.';
     } catch (error) {
       this.controls.status.classList.add('error');
       this.controls.status.textContent = `Level calibration failed: ${error.message}`;
+      this.controls.calibrationStatus.textContent=this.controls.status.textContent;
       this.controls.calibrateLevel.textContent = previousText;
     } finally {
       this.controls.calibrateLevel.disabled = false;
@@ -829,6 +872,8 @@ class NamA2Gui extends HTMLElement {
       this._toneModels = models.filter((model) => String(model.architecture ?? 2) === '2');
       this._toneModelIndex=0;this._toneModelLoading=false;this._tone=tone;this._toneId=toneId;
       this.controls.toneSelection.hidden = false;
+      this.querySelector('.tone3000Downloads').open=false;
+      this._toneDownloadedExpanded=false;this.renderBrowser();
       this.controls.toneCatalog.hidden = true;
       this.controls.toneBack.hidden = false;
       this.controls.toneCaptureLabel.textContent = captureCountLabel(this._toneModels.length);
@@ -842,6 +887,7 @@ class NamA2Gui extends HTMLElement {
       if (!this._toneModels.length) { this.setToneStatus('No compatible NAM A2 model is available for this tone.', true); return; }
       this.setToneStatus('Tone selected — loading the first A2 model…');
       if (autoLoad) await this.loadTone3000Model();
+      if(serial===this._toneSelectionSerial&&this._activePluginTab==='models')this.controls.toneSelection.scrollIntoView?.({block:'nearest'});
     } catch (error) { this.setToneStatus(error.message, true); }
   }
 
@@ -856,7 +902,7 @@ class NamA2Gui extends HTMLElement {
     const loaded=!!identity&&identity===this._selectedId;
     this.controls.toneCounter.textContent=model?`${index+1} / ${models.length}${loaded?' · loaded':''}`:'No compatible captures';
     this.controls.toneCapturePick.classList.toggle('selected',loaded);
-    [...this.controls.toneCaptureList.children].forEach((button,buttonIndex)=>{button.disabled=busy;button.classList.toggle('selected',buttonIndex===index);const active=`tone3000:${this._toneId}:${models[buttonIndex].id}`===this._selectedId;button.classList.toggle('loaded',active);button.setAttribute('aria-current',active?'true':'false');});
+    [...this.controls.toneCaptureList.children].forEach((button,buttonIndex)=>{button.disabled=busy;const active=`tone3000:${this._toneId}:${models[buttonIndex].id}`===this._selectedId;button.classList.toggle('selected',active);button.classList.toggle('loaded',active);button.setAttribute('aria-current',active?'true':'false');});
     const selected=this.controls.toneCaptureList.children[index];
     if(selected)this.controls.toneCaptureList.scrollTop=Math.max(0,selected.offsetTop-(this.controls.toneCaptureList.clientHeight-selected.offsetHeight)/2);
   }
@@ -871,8 +917,8 @@ class NamA2Gui extends HTMLElement {
       title: this._tone?.title || this._tone?.name, creator: this._tone?.creator?.name || this._tone?.creator_name,
       gear: this._tone?.gear || this._tone?.gear_type, format: this._tone?.format,
       license: this._tone?.license, imageUrl: getToneImageUrl(this._tone), source: 'TONE3000'};
-    try { this.setToneStatus('Downloading model…'); const downloaded = await this.tone3000.downloadModel(model);if(serial!==this._toneSelectionSerial)return;this.setToneStatus('Loading NAM model…'); await this.node.loadModelText(downloaded.text, downloaded.name, provenance); const record={...provenance,name:downloaded.name,text:downloaded.text,downloadedAt:new Date().toISOString()};try{await this.tone3000Downloads.save(record);this.upsertTone3000Asset(record);this.renderTone3000Downloads();this.setToneStatus('TONE3000 model loaded and saved on this device');}catch(cacheError){this.setToneStatus(`Model loaded, but local storage failed: ${cacheError.message}`,true);} }
-    catch (error) { if(serial===this._toneSelectionSerial)this.setToneStatus(error.message, true); }
+    try { this.setToneStatus('Downloading model…'); const downloaded = await this.tone3000.downloadModel(model);if(serial!==this._toneSelectionSerial)return;this.setToneStatus('Loading NAM model…'); await this.node.loadModelText(downloaded.text, downloaded.name, provenance); const record={...provenance,name:downloaded.name,text:downloaded.text,downloadedAt:new Date().toISOString()};try{await this.tone3000Downloads.save(record);this.upsertTone3000Asset(record);this.renderTone3000Downloads();this.setToneStatus('TONE3000 model loaded and saved on this device');}catch(cacheError){this.setToneStatus(`Model loaded, but local storage failed: ${cacheError.message}`,true);} if(serial===this._toneSelectionSerial){this.returnToRack();} return true; }
+    catch (error) { if(serial===this._toneSelectionSerial)this.setToneStatus(error.message, true); return false; }
     finally { if(serial===this._toneSelectionSerial){this._toneModelLoading=false;this.renderTone3000Selection();} }
   }
 
@@ -994,16 +1040,17 @@ class NamA2Gui extends HTMLElement {
     const star=document.createElement('button');star.type='button';star.className='favoriteToggle factoryToneFavorite';
     const footer=document.createElement('div');footer.className='factoryToneFooter';
     const captureLabel=document.createElement('span');captureLabel.className='factoryCaptureLabel';captureLabel.textContent=captureCountLabel(assets.length);
+    const done=document.createElement('button');done.type='button';done.className='return-to-rack';done.textContent='Back to rack';done.onclick=()=>this.returnToRack();
     const captureList=document.createElement('div');captureList.className='factoryCaptureList';captureList.setAttribute('role','group');captureList.setAttribute('aria-label',`Captures for ${title.textContent}`);
     const captureButtons=assets.map((asset)=>{const button=document.createElement('button');button.type='button';button.className='factoryCapture';button.dataset.assetId=asset.id;button.textContent=asset.filename;button.title=asset.filename;button.setAttribute('aria-label',`Load ${asset.filename}`);captureList.append(button);return button;});
     let index=Math.max(0,assets.findIndex((asset)=>asset.id===selectedId));
-    const update=()=>{const asset=assets[index];previous.disabled=index===0;next.disabled=index===assets.length-1;previous.setAttribute('aria-label',`Previous capture of ${title.textContent}`);next.setAttribute('aria-label',`Next capture of ${title.textContent}`);pick.dataset.assetId=asset.id;pick.classList.toggle('selected',asset.id===this._selectedId);pick.setAttribute('aria-label',`Load ${asset.filename}`);filename.textContent=asset.filename;filename.title=asset.filename;counter.textContent=`${index+1} / ${assets.length}${asset.id===this._selectedId?' · loaded':''}`;captureButtons.forEach((button,buttonIndex)=>{const loaded=assets[buttonIndex].id===this._selectedId;button.classList.toggle('selected',buttonIndex===index);button.classList.toggle('loaded',loaded);button.setAttribute('aria-current',loaded?'true':'false');});const favorite=this.isFavorite(asset);star.classList.toggle('active',favorite);star.textContent=favorite?'★':'☆';star.title=favorite?'Remove from favorites':'Add to favorites';star.setAttribute('aria-label',`${favorite?'Remove from':'Add to'} favorites: ${asset.filename}`);};
+    const update=()=>{const asset=assets[index];const current=assets.some(entry=>entry.id===this._selectedId);done.disabled=!current;card.classList.toggle('current-model-card',current);card.setAttribute('aria-label',`${title.textContent}${current?' — Current model':''}`);previous.disabled=index===0;next.disabled=index===assets.length-1;previous.setAttribute('aria-label',`Previous capture of ${title.textContent}`);next.setAttribute('aria-label',`Next capture of ${title.textContent}`);pick.dataset.assetId=asset.id;pick.classList.toggle('selected',asset.id===this._selectedId);pick.setAttribute('aria-label',`Load ${asset.filename}`);filename.textContent=asset.filename;filename.title=asset.filename;counter.textContent=`${index+1} / ${assets.length}${asset.id===this._selectedId?' · loaded':''}`;captureButtons.forEach((button,buttonIndex)=>{const loaded=assets[buttonIndex].id===this._selectedId;button.classList.toggle('selected',loaded);button.classList.toggle('loaded',loaded);button.setAttribute('aria-current',loaded?'true':'false');});const favorite=this.isFavorite(asset);star.classList.toggle('active',favorite);star.textContent=favorite?'★':'☆';star.title=favorite?'Remove from favorites':'Add to favorites';star.setAttribute('aria-label',`${favorite?'Remove from':'Add to'} favorites: ${asset.filename}`);};
     const revealSelected=()=>{const button=captureButtons[index];captureList.scrollTop=Math.max(0,button.offsetTop-(captureList.clientHeight-button.offsetHeight)/2);};
     const choose=async(newIndex)=>{index=newIndex;update();revealSelected();previous.disabled=true;next.disabled=true;pick.disabled=true;captureButtons.forEach((button)=>{button.disabled=true;});try{await onSelect(assets[index]);}finally{pick.disabled=false;captureButtons.forEach((button)=>{button.disabled=false;});update();}};
     previous.onclick=()=>choose(index-1);next.onclick=()=>choose(index+1);pick.onclick=()=>choose(index);
     captureButtons.forEach((button,buttonIndex)=>{button.onclick=()=>choose(buttonIndex);});
     star.onclick=()=>this.toggleFavorite(assets[index]);
-    update();viewer.append(previous,pick,next);footer.append(counter,star);media.append(title,meta,viewer,filename,footer);details.append(captureLabel,captureList);card.append(media,details);
+    update();viewer.append(previous,pick,next);footer.append(counter,star);media.append(title,meta,viewer,filename,footer);details.append(captureLabel,captureList,done);card.append(media,details);
     requestAnimationFrame(()=>{if(card.isConnected)revealSelected();});return card;
   }
 
@@ -1017,9 +1064,6 @@ class NamA2Gui extends HTMLElement {
     previous.disabled=next.disabled=true;
     const name=document.createElement('span');name.className='mainCaptureName';
     artwork.replaceWith(media);viewer.append(previous,artwork,next);media.append(viewer);
-    const noise=this.querySelector('.noise-side');
-    noise.prepend(noise.querySelector('.noise-switch'));
-    artwork.append(noise);
     this.querySelector('.currentModelInfo').append(name);
     this.querySelector('.level-actions').prepend(this.controls.modelLevel);
     this._mainCaptures={previous,next,name};
@@ -1050,20 +1094,25 @@ class NamA2Gui extends HTMLElement {
     ui.name.title=asset?.filename||'';
   }
 
-  async moveMainCapture(direction) {
+  moveMainCapture(direction) {
+    return this.selectMainCapture(this.mainCaptureCollection().index+direction);
+  }
+
+  async selectMainCapture(target) {
     if(this._mainCaptureLoading)return;
-    const {items,index,remote}=this.mainCaptureCollection(),target=index+direction,asset=items[target];
+    const {items,index,remote}=this.mainCaptureCollection(),asset=items[target];
     if(index<0||!asset)return;
     this._mainCaptureLoading=true;this.updateMainCaptureNavigation();
     try {
-      if(remote)await this.loadTone3000Model(target);
+      if(remote){if(!await this.loadTone3000Model(target))throw Error('Capture could not be loaded');}
       else {
         let text=asset.data;
         if(!text){const response=await fetch(factoryAssetUrl(manifestUrl,'models',asset.relativePath));if(!response.ok)throw Error(`HTTP ${response.status}`);text=await response.text();}
         await this.node.loadModelText(text,asset.filename,asset.id.startsWith('factory:')?factoryProvenance(asset):asset.provenance);
         this._selectedId=asset.id;this.renderBrowser();
       }
-    } catch(error){this.setModelStatus({status:'error',error:error.message});}
+      return true;
+    } catch(error){this.setModelStatus({status:'error',error:error.message});return false;}
     finally{this._mainCaptureLoading=false;this.updateMainCaptureNavigation();}
   }
 
@@ -1085,6 +1134,17 @@ class NamA2Gui extends HTMLElement {
         const response=await fetch(factoryAssetUrl(manifestUrl,'models',asset.relativePath));if(!response.ok)throw Error(`HTTP ${response.status} while loading ${asset.filename}`);await this.node.loadModelText(await response.text(),asset.filename,factoryProvenance(asset));this._selectedId=asset.id;this.controls.modelSource.textContent='Factory';this.renderBrowser();
       }catch(error){this.setModelStatus({status:'error',error:error.message});}}
     });
+    // The generic asset tree expands the selected model's ancestors. For local
+    // TONE3000 downloads, keep the user's accordion choice instead: the remote
+    // selection card below is the primary view after returning from Browse.
+    if(this._sourceFilter==='TONE3000')for(const group of this.controls.browser.querySelectorAll('details')){
+      if(group.querySelector(':scope > summary')?.textContent!=='Downloaded on this device')continue;
+      const searching=Boolean(this.controls.search.value.trim());
+      group.open=searching||Boolean(this._toneDownloadedExpanded);
+      group.addEventListener('toggle',()=>{
+        if(group.isConnected&&!searching)this._toneDownloadedExpanded=group.open;
+      });
+    }
     this.controls.browser.scrollTop=browserScrollTop;
   }
   async addExternal(text,name){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));const hash=[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');const asset=addExternalAsset(this._assets,{id:`external:${hash}`,filename:name,relativePath:name,groups:['External'],displayName:name.replace(/\.nam$/i,''),type:'nam',source:'External',data:text});asset.data=text;this._selectedId=asset.id;this.controls.modelSource.textContent='External';this.setSourceFilter('External');this.renderBrowser();}

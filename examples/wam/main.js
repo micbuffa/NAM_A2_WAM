@@ -1,3 +1,5 @@
+import './backing-track-player/BackingTrackPlayerElement.js';
+import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import NamPlugin from '../../src/nam-wam/index.js';
 import CabinetPlugin from '../../src/cabinet-wam/index.js';
@@ -9,6 +11,7 @@ import {readAudioDevicePreferences, saveAudioDevicePreferences, resolveInputPref
 import {FxChain} from './FxChain.js';
 import {FxRack} from './FxRack.js';
 import {FxRackView} from './FxRackView.js';
+import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
 import {setupAccount} from './account/index.js';
 const TONE3000_CALLBACK_CHANNEL = 'nam-a2-wam.tone3000.callback';
@@ -29,8 +32,20 @@ let selectedDeviceId = audioPreferences.inputDeviceId;
 let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
-let chain, chainView, rack;
+let chain, chainView, rack, backingPlayer, backingMix;
 
+
+const sidebarToggle = $('#toggleSidebar');
+sidebarToggle.onclick = () => {
+  const sidebar = $('#hostSidebar');
+  sidebar.hidden = !sidebar.hidden;
+  $('.host-shell').classList.toggle('sidebar-collapsed', sidebar.hidden);
+  sidebarToggle.setAttribute('aria-expanded', String(!sidebar.hidden));
+  sidebarToggle.setAttribute('aria-label', sidebar.hidden ? 'Change audio source' : 'Close audio source panel');
+};
+$('#hostSidebar').addEventListener('keydown', event => {
+  if (event.key === 'Escape') { sidebarToggle.click(); sidebarToggle.focus(); }
+});
 
 function message(text, error = false) {
   $('#hostStatus').textContent = text;
@@ -134,7 +149,7 @@ function setPlayerEnabled(enabled) {
   $('#playerPanel').hidden = !enabled;
   $('#inputDevice').disabled = enabled;
   $('#inputChannel').disabled = enabled;
-  $('#enableLive').disabled = enabled;
+
 }
 
 function syncLiveInputButton() {
@@ -221,8 +236,25 @@ async function initialize() {
       nam.toneSession.identity='b-nam';cab.toneSession.identity='b-cabinet';return b;
     }catch(error){if(b)b.destroy();else{nam?.audioNode.destroy?.();cab?.audioNode.destroy?.();}throw error;}
   }});
-  rack.output.connect(context.destination);window.phase3Debug.rack=rack;
+  await rack.setUiMode('beginner');
+  window.phase3Debug.rack=rack;
+  backingPlayer=document.createElement('backing-track-player');document.querySelector('.fx-rack').after(backingPlayer);
+  await backingPlayer.initialize({audioContext:context});backingMix=new BackingTrackMix(context,rack.output,backingPlayer);
+  Object.assign(window.phase3Debug,{backingPlayer,backingMix});
   chainView=new FxRackView(rack,message);
+  window.phase3Debug.tuner=new TunerView({context,registry,groupId,input:chain.input,button:$('#tunerButton')});
+  const modeButton=$('#uiMode');modeButton.disabled=false;
+  modeButton.onclick=async()=>{
+    modeButton.disabled=true;chainView.close();
+    try{
+      await rack.setUiMode(rack.uiMode==='beginner'?'full':'beginner');
+      if(rack.uiMode==='beginner'&&!$('#hostSidebar').hidden)sidebarToggle.click();
+      document.body.dataset.uiMode=rack.uiMode;
+      modeButton.textContent=`UI mode: ${rack.uiMode}`;
+      modeButton.setAttribute('aria-pressed',String(rack.uiMode==='full'));
+      modeButton.title=rack.uiMode==='beginner'?'Switch to full mode to use two chains':'Switch to beginner mode (chain A only)';
+    }catch(error){message(error.message,true);}finally{modeButton.disabled=false;}
+  };
   await discoverFiles();
   await refreshDevices(false);
   if (outputDeviceManager.supported) {
@@ -266,7 +298,7 @@ async function initialize() {
   $('#recoverAudio').onclick = recoverAudio;
   context.addEventListener('statechange', () => {
     if (context.state === 'running') { wasRunning = true; return; }
-    if (wasRunning && (liveInputEnabled || !$('#player').paused)) {
+    if (wasRunning && (liveInputEnabled || !$('#player').paused || backingPlayer?.engine.playing)) {
       message(`Audio engine ${context.state}. Attempting recovery…`, true);
       recoverAudio();
     }
@@ -302,17 +334,24 @@ async function initialize() {
     $('#chainOutputGain').value=0;
     $('#chainOutputGain').dispatchEvent(new Event('input',{bubbles:true}));
   };
+  $('#enableLive').disabled=false;
   $('#enableLive').onclick = async () => {
+    $('#enableLive').disabled=true;
     try {
       if (liveInputEnabled) {
         await disableLiveInput();
         return;
       }
-      await context.resume();
+      $('#audioSource').value='live';
+      setPlayerEnabled(false);
+      const resumed=context.resume();
+      await selectSource();
+      await resumed;
       selectedDeviceId=$('#inputDevice').value;
       await activateSelectedLiveInput();
     }
-    catch (error) { liveInputEnabled=false; syncLiveInputButton(); message(error.message, true); }
+    catch (error) { liveInputEnabled=false; syncLiveInputButton(); message(error.message, true); if($('#hostSidebar').hidden)sidebarToggle.click(); }
+    finally { $('#enableLive').disabled=false; }
   };
   $('#inputDevice').onchange = async () => {
     selectedDeviceId = $('#inputDevice').value;
@@ -353,13 +392,14 @@ async function initialize() {
   $('#seek').oninput = () => { if (Number.isFinite($('#player').duration)) $('#player').currentTime = Number($('#seek').value) * $('#player').duration; };
   $('#player').ontimeupdate = () => { if (Number.isFinite($('#player').duration) && $('#player').duration) $('#seek').value = $('#player').currentTime / $('#player').duration; };
   $('#saveState').onclick = async () => {
-    savedState = await rack.getState();
+    savedState = {...await rack.getState(),backingTrack:backingPlayer.getState()};
     $('#stateSize').textContent = `${new TextEncoder().encode(JSON.stringify(savedState)).byteLength.toLocaleString()} serialized bytes`;
   };
   $('#restoreState').onclick = async () => {
     if (!savedState) return message('Save state first', true);
     chainView.close();
-    await rack.setState(savedState);syncSourceTrim();
+    try{await rack.setState(savedState);syncSourceTrim();if(savedState.backingTrack)await backingPlayer.setState(savedState.backingTrack);}
+    catch(error){message(`Session restore: ${error.message}`,true);return;}
     message('WAM state restored');
   };
   // Presets saved before the FX rack hold only lane A's NAM and cabinet

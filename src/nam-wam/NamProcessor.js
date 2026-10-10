@@ -394,7 +394,7 @@ const getNamProcessor = (moduleId) => {
       try {
         if (data.namRequest === 'load') response.content = this._loadModel(data.modelData, data.name, data.variant, data.compensationDb);
         else if (data.namRequest === 'variant') response.content = this._setVariant(data.variant);
-        else if (data.namRequest === 'normalization') response.content = this._setNormalization(data.compensationDb);
+        else if (data.namRequest === 'normalization') response.content = this._setNormalization(data.compensationDb,false,data.measured);
         else if (data.namRequest === 'calibrate') response.content = this._calibrateLevel();
         else if (data.namRequest === 'spectrum/enabled') response.content = this._setSpectrumEnabled(data.enabled);
         else if (data.namRequest === 'diagnostic/start') {
@@ -439,8 +439,9 @@ const getNamProcessor = (moduleId) => {
       return {applied, variant: normalized};
     }
 
-    _setNormalization(compensationDb, immediate = false) {
-      const value = Number.isFinite(Number(compensationDb)) ? Math.max(-12, Math.min(12, Number(compensationDb))) : 0;
+    _setNormalization(compensationDb, immediate = false, measured = false) {
+      const limit=measured?36:12;
+      const value = Number.isFinite(Number(compensationDb)) ? Math.max(-limit, Math.min(limit, Number(compensationDb))) : 0;
       this._normalizationTarget = 10 ** (value / 20);
       if (immediate) this._normalizationCurrent = this._normalizationTarget;
       return {compensationDb:value,gain:this._normalizationTarget};

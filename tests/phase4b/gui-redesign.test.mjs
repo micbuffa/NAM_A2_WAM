@@ -22,7 +22,7 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(css, /grid-template-columns:\s*286px minmax\(0, 1fr\)/u);
   assert.match(css, /@media \(max-width: 720px\)/u);
   assert.match(main, /chain.initialize\(plugin,cabinetPlugin\)/u);
-  assert.match(main, /rack\.output\.connect\(context\.destination\)/u);
+  assert.match(main, /new BackingTrackMix\(context,rack.output,backingPlayer\)/u);
   assert.match(main, /\$\('#playerPanel'\)\.hidden = !enabled/u);
   assert.match(html, /id="enableLive"[^>]*aria-pressed="false"[^>]*>Enable live input/u);
   assert.match(css, /\.live-toggle\.live-active/u);
@@ -32,7 +32,7 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(main, /activateLive\(probingDevice, 0, \{monitor:false\}\)/u);
 });
 
-test('NAM GUI is container-scoped and exposes compact top-level tabs', async () => {
+test('NAM GUI keeps calibration in amp settings and opens the model catalogue directly', async () => {
   const gui = await read('src/nam-wam/gui.js');
   assert.match(gui, /const neuralWampLogoMarkup = `\s*<svg class="module-logo"/u);
   assert.match(gui, /role="img" aria-label="NeuralWAMp"/u);
@@ -42,19 +42,14 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /\.signal-flow\s*\{[^}]*padding:4px 8px/u);
   assert.match(gui, /\.flow-stage\s*\{[^}]*padding:2px 5px[^}]*font-size:7px/u);
   await access(new URL('../../src/nam-wam/neuralwamp-logo.svg', import.meta.url));
-  assert.match(gui, /class="plugin-tabs" role="tablist"/u);
-  assert.match(gui, /\.plugin-tabs\s*\{[^}]*display:flex[^}]*justify-content:space-between/u);
-  assert.match(gui, /\.plugin-tab\s*\{[^}]*flex:0 0 auto[^}]*padding:0 14px/u);
-  assert.match(gui, /@media\(max-width:620px\)\{nam-a2-gui \.plugin-tabs\{justify-content:flex-start;overflow-x:auto\}/u);
-  for (const tab of ['main','models','amp','details','preferences','about']) assert.match(gui, new RegExp(`data-plugin-tab="${tab}"`,'u'));
-  assert.match(gui, /class="plugin-panel mainPanel"[^>]*data-plugin-panel="main"/u);
-  assert.match(gui, /data-plugin-panel="main"><div class="signal-strip">[\s\S]*?<div class="signal-flow" role="img" aria-label="Signal path"><\/div><\/section>/u);
+  assert.doesNotMatch(gui, /data-plugin-tab=/u);
+  assert.match(gui, /data-plugin-panel="amp" hidden><section class="modelCalibration"/u);
+  assert.match(gui, /<details class="mainPanel modelDetails"><summary>Model details<\/summary>/u);
   assert.match(gui, /class="plugin-panel modelDrawer modelsPanel"[^>]*data-plugin-panel="models" hidden/u);
-  assert.match(gui, /class="plugin-panel detailsDrawer detailsPanel"[^>]*data-plugin-panel="details" hidden/u);
   assert.match(gui, /class="plugin-panel aboutPanel"[^>]*data-plugin-panel="about" hidden/u);
-  assert.match(gui, /data-plugin-tab="about">Help<\/button>/u);
+  assert.match(gui, /data-editor-view="about">Help<\/button>/u);
   assert.match(gui, /href="https:\/\/github\.com\/micbuffa\/NAM_A2_WAM" target="_blank" rel="noopener noreferrer"/u);
-  for (const heading of ['Main','Models','Amp settings','Model details','Preferences','Controls','State and storage']) assert.match(gui,new RegExp(`<h4>${heading}<\\/h4>`,'u'));
+  for (const heading of ['Models','Amp settings','Model details','Preferences','Controls','State and storage']) assert.match(gui,new RegExp(`<h4>${heading}<\\/h4>`,'u'));
   assert.match(gui, /<article class="gettingStarted"><h4>Getting started with your guitar<\/h4><ol>/u);
   assert.match(gui, /Choose <strong>Live input<\/strong>/u);
   assert.match(gui, /Click <strong>Enable live input<\/strong>/u);
@@ -157,7 +152,7 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /class="plugin-panel amp-knobs ampPanel"[^>]*data-plugin-panel="amp" hidden/u);
   assert.match(gui, /class="amp-switches"/u);
   assert.match(gui, /class="amp-controls"><section class="eq-panel"/u);
-  assert.match(gui, /class="eqPosition"[\s\S]*?<\/select><\/label><\/div><section class="tone-strip"/u);
+  assert.match(gui, /class="eqPosition"[\s\S]*?<\/select><\/label><\/div><div class="noise-side">[\s\S]*?<section class="tone-strip"/u);
   assert.match(gui, /class="amp-switches"><label class="section-switch"><input class="toneEnabled" type="checkbox" checked> Tone<\/label><\/div>\$\{knobMarkup\('bass'/u);
   assert.match(gui, /\.tone-strip \.knob-shell\s*\{ width:28px;height:28px \}/u);
   assert.match(gui, /\.amp-controls \.tone-strip\s*\{ display:grid;grid-template-columns:repeat\(4,43px\)/u);
@@ -165,14 +160,14 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /\.amp-controls \.section-switch\s*\{ display:flex;align-items:center;justify-content:center/u);
   const ampSettings=gui.match(/<section class="plugin-panel amp-knobs ampPanel"([\s\S]*?)<section class="plugin-panel modelDrawer/u)?.[1] || '';
   for (const id of ['bass','middle','treble']) assert.match(ampSettings,new RegExp(`knobMarkup\\('${id}'`,'u'));
-  assert.doesNotMatch(ampSettings,/knobMarkup\('(noise|inputGain|outputGain)'/u);
+  assert.doesNotMatch(ampSettings,/knobMarkup\('(inputGain|outputGain)'/u);
   assert.match(gui,/syncNoiseGateVisual\(\)/u);
   assert.doesNotMatch(gui,/syncToneEnabledVisual\(\)/u);
   assert.doesNotMatch(gui,/this\.controls\[id\]\.disabled=!enabled/u);
   assert.match(gui,/this\.controls\.noise\.disabled=!enabled/u);
   assert.match(ampSettings,/class="eq-panel"/u);
   assert.match(gui,/setPluginTab\(tabName/u);
-  assert.match(gui,/navigatePluginTabs\(event, button\)/u);
+  assert.doesNotMatch(gui,/navigatePluginTabs/u);
   assert.doesNotMatch(gui,/class="noiseEnabled" type="checkbox" checked/u);
   assert.match(gui, /className='factoryToneMedia'/u);
   assert.match(gui, /className='factoryToneDetails'/u);
@@ -181,7 +176,7 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /captureButtons\.forEach\(\(button,buttonIndex\)=>\{button\.onclick=\(\)=>choose\(buttonIndex\)/u);
   assert.match(gui, /captureList\.scrollTop=Math\.max/u);
   assert.match(gui, /\.factoryCaptureList\s*\{[^}]*overflow-y:auto/u);
-  assert.match(gui, /this\.setPluginTab\('main'\)/u);
+  assert.match(gui, /this\.setPluginTab\(this\.node\._metadata\?'amp':'models'\)/u);
   assert.match(gui, /this\._factoryCategory='guitar'/u);
   assert.match(gui, /data-category="guitar"[^>]*aria-pressed="true"/u);
   assert.match(gui, /class="tone3000Selection factoryToneCard"/u);
@@ -197,7 +192,7 @@ test('NAM GUI is container-scoped and exposes compact top-level tabs', async () 
   assert.match(gui, /const captureCountLabel = \(count\) =>/u);
   assert.match(gui, /captureLabel\.textContent=captureCountLabel\(assets\.length\)/u);
   assert.match(gui, /this\.controls\.toneCaptureLabel\.textContent = captureCountLabel\(this\._toneModels\.length\)/u);
-  assert.match(gui, /media\.append\(title,meta,viewer,filename,footer\);details\.append\(captureLabel,captureList\)/u);
+  assert.match(gui, /media\.append\(title,meta,viewer,filename,footer\);details\.append\(captureLabel,captureList,done\)/u);
   assert.match(gui, /this\.updateOutputGlow\(peakDb,rmsDb\)/u);
   assert.match(gui, /strip\.style\.boxShadow=/u);
   assert.match(gui, /syncEqEnabledVisual\(\)/u);

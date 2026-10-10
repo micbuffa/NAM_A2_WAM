@@ -49,7 +49,7 @@ Source → Overdrive → NAM → Cabinet → Chorus → Delay → Output
 - Give every instance a unique ID distinct from its catalogue ID. Multiple instances of the same WAM are a required host capability, with independent parameters, state, bypass and editors. A third-party plugin's own incompatibility must be reported as such; never impose one global instance per plugin or damage an existing instance.
 - Offer removal of every plugin, including Amp Sim and Cabinet, in its card and editor toolbar, with confirmation, safe reconnection and cleanup. Empty chains pass input to output; no minimum or maximum count of Amp Sim/Cabinet instances is imposed.
 - Drop a card onto another card to swap their positions (including first onto second). Drop onto a + insertion point to move before that position; the final insertion point appends. Auto-scroll near the strip edges. Provide Alt + Left/Right on focused cards as a keyboard equivalent. Move existing instances, preserving GUI, settings and bypass; serialize edits, validate IDs before changing the graph, and use the same short audio transitions as insertion/removal.
-- Keep the tuner out of insert menus. Its existing special analysis role is preserved; a dedicated top-bar tuner action is a follow-up, not a blocker for this increment.
+- Keep the tuner out of insert menus. Its special analysis role is preserved. The dedicated top-bar Tuner action is implemented as of 2026-10-07 (see below).
 
 ## 4. Plugin editor
 
@@ -189,7 +189,7 @@ Input 1 → [A gain/meter] → [NAM A] → [Cab A] → ● → [Delay A] → [A 
 - Arrange the rack as three columns: fixed input panels where applicable, one shared horizontally scrolling effects viewport containing BOTH rows, and fixed output panels. Both rows scroll together so cable anchors remain unambiguous. A narrow gutter between rows carries the route cable; do not draw it over photos or editor controls.
 - Keep the input device selector shared, labelled **Input device** in the rack header. Each lane head exposes **Input channel**, its gain/meter and monitoring status. In split mode B's entire input panel disappears (device/channel dialogue, gain, meter and Reset); its space stays empty. Put **From A — after [plugin]** on the junction/cable instead. Retain B's former physical selection and independent input trim for a return to independent mode.
 - Output device selection is also shared in the rack header: both lanes feed one AudioContext destination. Lane output panels control their own gain, meter and mute; no per-row device menu implying unsupported independent hardware destinations.
-- A compact common output strip below the rack shows the selected output and **Mix −6 dB** when two lanes are active, with a final post-sum clip indicator. Avoid a third large meter panel.
+- A compact common output strip below the rack shows the selected output and **Mix 0 dB** regardless of the number of active lanes, with a final post-sum clip indicator. Avoid a third large meter panel.
 - **Show chain B** enables its output using the selected available source. First opening uses independent inputs; subsequent openings restore the retained independent input or split. **Hide B** disconnects both its source and its output from the audio graph, so A alone receives and outputs the signal. Keep B instances, settings and the logical junction for reopening. No live capture is started by this toggle. No new preset actions.
 - New B starts with its own fresh NAM/Cabinet pair and lazy GUIs, preserving the current core-module affordances. Creating B must not change A's assets. In split mode the user can bypass B's NAM/Cabinet if the split already carries an amp/cab signal; do not guess a musical processing choice or automatically bypass NAM.
 
@@ -245,7 +245,7 @@ The same button toggles both ways; hiding is not deletion of B. Removing a route
 - In split mode, feed B through a unity-gain branch connection with no hidden independent-input trim. Preserve stereo from the tap through B's input; only NAM/Cabinet apply the established explicit mono downmix. A's source trim is applied once before the shared prefix. Save B's independent trim separately and restore it when returning to independent mode; use the visible B output fader to balance the branch. Physical live inputs reset to 0 dB; file input A to −18 dB.
 - Existing file playback can feed A and therefore an A → B split for testing and musical use. Independent mode initially supports two live channels, not two independent file players. An existing file does not silently become B's physical input.
 - The branch tap is upstream of A's lane output gain/mute: muting A's final output does not silence B. B lane mute at its output stops the audible branch without affecting A. Prefix bypass affects both descendants; suffix bypass affects only its own lane.
-- Sum the two stereo lane outputs exactly once into a shared mix node, then the chosen destination. With two enabled lanes, apply −6 dB at the mix node by default to limit the level increase from correlated signals. Keep user lane gains intact; ramp only the explicit mix compensation when enabling/disabling a lane. One enabled lane uses 0 dB mix compensation. Show compensation in the UI; it is not a limiter or a guarantee against clipping after boosted effects.
+- Sum the two stereo lane outputs exactly once into a shared mix node, then the chosen destination. Keep the mix node at unity (0 dB) regardless of lane visibility, routing, mute state or UI mode. Enabling/disabling one lane must not change the contribution of the other. User lane gains remain authoritative; the sum can increase when both lanes carry audio. Retain the final clip indicator.
 - Visible input meters remain post-input-gain in independent mode; B has no input meter panel in split mode. Output meters measure after lane output gain, mute and pan, before shared mix compensation. The final clip indicator observes the compensated sum. Retain green → orange halos and the one-second red peak indication.
 - Serialize topology and editing operations. Use short gain ramps and prepare/validate before commit. No duplicate dry routes, feedback, destroyed shared nodes, automatic source activation or output gain resets. On failure retain the working graph and report the lane/stage.
 
@@ -281,7 +281,7 @@ The same button toggles both ways; hiding is not deletion of B. Removing a route
 - Route between A2/A3: B1 aligns with A3, B2 shifts right, and the area below A1/A2 contains no B input panel, card or insertion button. Move the junction, resize, scroll, edit A prefix and disconnect; verify layout and DSP agree without losing B instances.
 - Independent-channel test: feed different deterministic signals to physical channels 1/2. A and B select and process the intended signal with no crosstalk or accidental duplicate monitoring. Switching A's channel leaves B's capture and DSP alive.
 - Shared-input test: split before the first effect, in the middle, and after the last effect. B receives exactly the upstream prefix once; A suffix remains audible only in A. Stereo taps remain stereo until an explicit mono core adapter.
-- Verify identical branches with the displayed −6 dB mix compensation, lane mutes, input/output resets and final clip indication. A output mute must leave B active.
+- Verify unchanged per-lane contribution with the displayed 0 dB mix gain, lane mutes, input/output resets and final clip indication. A output mute must leave B active.
 - Hover/focus/tap previews and cancellation never change audio. Connect/move/disconnect preserve running plugin instances, parameters, bypass, GUIs and unrelated lanes; stale async results cannot replace a newer topology.
 - Test marker-relative insertion, deletion of either neighbour, first/last movement, keyboard swaps and source labels after every edit. Ensure the cable stays anchored during resize and horizontal scrolling, including offscreen stubs.
 - Two independent NAM/Cabinet pairs must retain separate models, IRs and AUTO decisions. Check B inheriting A-prefix metadata in split mode and losing that inheritance in independent mode.
@@ -372,3 +372,64 @@ Chaque WAM propose son propre menu de six presets d’usine (Default et les cinq
 - Après sélection, la chaîne est reconnectée avec la transition habituelle, les ressources de l’ancien plugin sont libérées et la GUI du nouveau plugin s’ouvre directement. Aucun retour préalable à la vue principale n’est nécessaire.
 
 Validation : **137 tests Node réussis**. Parcours navigateur sur la distribution : 22 vérifications, dont largeur des vu-mètres, absence d’agrandissement des cadres, écart audio mesuré de 6 dB, Reset, remplacement, conservation du split, annulation et restauration des gains dans une session. Aucune exception navigateur sur ce parcours. L’écoute sur interface physique reste à effectuer ; aucune gestion des presets du rack (7.2) n’est ajoutée.
+
+## 16. Accompagnement hors chaîne — 2026-10-05
+
+Le lecteur de backing tracks est un WebComponent sous le rack. Son moteur rejoint un mixeur commun **après** la sortie A/B : il ne passe jamais par les WAMs de guitare. Les faders et pans des chaînes restent indépendants des gains de balance et du pan guitare global de ce mixeur. Les sélections de sortie et le contexte audio existants sont conservés ; une seule connexion au périphérique reçoit la somme finale.
+
+La sauvegarde de session comporte un champ optionnel `backingTrack`, distinct du graphe et des états WAM. Les anciens états restent compatibles. Aucun démarrage de lecture ou de microphone à la restauration. La phase presets 7.2 reste différée. Voir `ADD_BACKING_TRACK_PLAYER.md` pour contrat, livraison, tests et limites.
+
+### Ajustements ergonomiques — 2026-10-06
+
+Le lecteur d’accompagnement se replie entièrement via un en-tête d’accordéon pleine largeur, sans arrêter le son. Le bouton de dérivation sous « + » reste cliquable 700 ms après sortie du pointeur, avec annulation du délai au retour et maintien pendant le focus clavier. Dans Models/TONE3000, la bibliothèque locale devient un accordéon fermé automatiquement lorsqu’une nouvelle sélection est affichée ; la carte sélectionnée est remise en vue. Validation : 143 tests Node et 9 contrôles navigateur, callback TONE3000 simulé.
+
+Correction complémentaire du 6 octobre : fermer aussi le groupe « Downloaded on this device » généré dans `.modelBrowser`, au-dessus du panneau TONE3000. La sélection active ne doit pas le rouvrir lors des rendus suivants. Conserver la réouverture manuelle et l’expansion des résultats de recherche ; ne pas changer les accordéons Factory/Favorites.
+
+
+### Interface simplifiée — 2026-10-07
+
+- Au chargement, le panneau gauche complet est replié. Une icône dans l’en-tête du rack permet de l’ouvrir/fermer ; `aria-expanded`, un libellé accessible et Échap depuis le panneau accompagnent cette commande. Les sources audio et les diagnostics restent dans ce panneau ; l’activation du micro est directement accessible dans l’en-tête.
+- Le bouton **UI mode: beginner** passe à **UI mode: full** et inversement. Chaque chargement démarre en beginner. La chaîne A, son édition, les périphériques et le lecteur d’accompagnement restent disponibles.
+- Beginner masque le sélecteur 1/2 chaînes, B (entrée, cadres, sortie), les actions de dérivation, le câble et son édition. B est déconnectée en entrée et en sortie du graphe audio ; le mix ne tient plus compte de B. Les plugins, paramètres, panoramiques, mute, visibilité demandée et jonction sont conservés. Full rétablit la configuration précédente ; il ne crée pas automatiquement une seconde chaîne.
+- Le mode UI est une préférence de présentation de la session, indépendante de l’état WAM/rack. Restaurer un état à deux chaînes en beginner ne doit pas reconnecter B ; passer en full permet ensuite de retrouver cette configuration. Les règles existantes de restauration des entrées physiques restent applicables.
+- La GUI NAM A2 s’ouvre sur **Amp settings** lorsqu’un modèle est chargé, avec son nom et **Change model** en haut. La barre d’onglets est masquée dans cette vue compacte. **Change model** ouvre Models et donne accès aux vues actuelles (Main, Models, Model details, Preferences, Help). **Back to amp settings** revient aux réglages. Sans modèle, l’éditeur s’ouvre sur Models. Chaque réouverture d’un cadre chargé retrouve Amp settings ; les états audio et paramètres ne sont pas modifiés par cette navigation.
+- Aucun travail sur les presets de chaînes (7.2).
+
+
+Complément du 7 octobre — accès audio : l’en-tête expose **Enable live input** puis l’icône légendée **Change audio source**. Le premier bouton fonctionne aussi depuis une source fichier : sélection immédiate de Live input, arrêt du lecteur de guitare sèche, activation du périphérique/canal choisi. Il devient **Disable live input** pendant l’écoute. L’accès au lecteur d’accompagnement est indépendant. Le second bouton ouvre/ferme le panneau gauche. En cas d’échec du micro, le panneau s’ouvre sur le statut d’erreur. Aucun démarrage automatique de capture au chargement.
+
+
+En-tête des vues détaillées (7 octobre) : supprimer le bouton Bypass ON/OFF ajouté par l’hôte. Conserver Replace, Remove et Fermer. Le bypass reste accessible sur les cartes et dans les GUIs des plugins qui le proposent.
+
+
+### Accordeur dans l’en-tête — 2026-10-07
+
+- Bouton **Tuner** avec icône SVG en forme de diapason, disponible en beginner et full. Un clic ouvre un dialogue contenant la GUI existante de TunerMachine. La version compacte intégrée dans la barre reste une évolution ultérieure.
+- Chargement à la demande depuis le catalogue WAM ; l’accordeur n’est pas un insert de chaîne. Analyse du signal d’entrée A après le trim, avant tous les plugins. La chaîne B indépendante et le lecteur d’accompagnement ne sont pas analysés.
+- Une dérivation avec gain de sortie nul permet l’analyse sans ajouter de signal audible ni modifier les effets, le bypass ou le routage. Ouvrir l’accordeur ne demande pas l’accès au microphone : utiliser **Enable live input** pour activer la source.
+- Montage de la GUI après ouverture du dialogue pour dimensionner correctement les canvas ; activation automatique de son interrupteur. Fermer ou Échap arrête l’animation, déconnecte la dérivation, détruit l’instance et rend le focus au bouton. Une fermeture pendant le chargement annule l’ouverture et libère les ressources tardives. Erreur visible dans le dialogue, avec possibilité de réessayer.
+
+
+Correction du 7 octobre : masquer le petit bouton de création de dérivation au point déjà connecté, ainsi que sous le câble de prévisualisation, même au survol/focus. Les autres points restent disponibles ; supprimer ou déplacer le routage rétablit le bouton à son ancien emplacement. Le libellé du routage conserve les actions d’édition/suppression.
+
+
+Ajustement de barre audio (7 octobre) : **Change audio source** est visible uniquement en mode full ; le passage en beginner referme le panneau. **Enable/Disable live input** est placé sur la ligne des menus Input device / Output device (retour à la ligne possible sur petit écran). Le bouton **1 / 2 chains** met en gras uniquement le nombre de chaînes actuel et expose ce nombre ainsi que la cible aux lecteurs d’écran.
+
+
+NAM A2 (7 octobre) : la noise gate (interrupteur et seuil) est déplacée de Main vers **Amp settings**, avant les knobs du tonestack, sans duplication et avec les mêmes paramètres WAM. Le bouton de choix du modèle devient **Change amp model**, centré sous le nom du modèle, agrandi et coloré avec l’accent du plugin.
+
+
+### Progression du chargement — 2026-10-07
+
+La sélection d’une backing track affiche une barre de progression selon les octets reçus. Sans taille connue, puis pendant le décodage/préparation audio, la barre est indéterminée avec un statut explicite. Play reste grisé et désactivé jusqu’à ce que la piste soit prête, y compris si une piste précédente est disponible. Après erreur, la barre disparaît et l’ancienne piste reste utilisable. Les événements d’un chargement remplacé ne doivent pas modifier la progression du nouveau.
+
+
+Navigation NAM A2 (7 octobre) : **Preferences** et **Help** deviennent des boutons à côté de **Change amp model** dans Amp settings. Ils ouvrent leurs vues hors de la navigation des modèles. **Change amp model** ne présente que **Model overview**, **Models** et **Model details** ; l’overview conserve image, captures et calibration du modèle, sans contrôles audio. Le retour à Amp settings reste explicite dans ces vues.
+
+Navigation NAM A2 (8 octobre) : la calibration (Automatic model level, Calibrate level, Use metadata et correction appliquée) est directement dans **Amp settings**. Un volet repliable **Model details** y regroupe image, navigation entre captures et métadonnées. **Change amp model** ouvre directement le catalogue et ses filtres de sources, avec **Back to amp settings** ; les onglets Model overview / Models / Model details sont supprimés. Preferences ne conserve que le choix du rendu A2.
+
+Sélection de captures (8 octobre) : après chargement TONE3000 réussi, le host ferme l’éditeur et revient au rack ; les erreurs restent dans l’éditeur. Chaque carte NAM propose sous sa photo un menu de captures et des flèches précédente/suivante. Les flèches sont désactivées aux extrémités et pendant le chargement. La sélection est propre à chaque instance et suit la capture effectivement chargée.
+
+Navigation (9 octobre) : **Back to rack** sous les listes de captures Factory/Favorites permet de terminer la sélection depuis le modèle chargé ; les listes génériques et les téléchargements disposent également de ce retour direct. La calibration précise que sa normalisation de référence ne garantit pas le même volume entre amplis clean et saturés pour tout signal d’entrée.
+
+Calibration guitare (9 octobre) : le bouton Calibrate level utilise 12 secondes de Funky-Guitar (8–20 s, canal gauche), trim de référence −18 dB plus gain d’entrée NAM, mesure dans un Worker isolé. Cible −24 dBFS RMS, plafond de crête de référence −1 dBFS, correction mesurée ±36 dB. La correction remplace celle des métadonnées ; elle reste enregistrée par capture/variante dans l’état WAM. Aucun signal de test dans le graphe audible.

@@ -68,6 +68,7 @@ export default class NamNode extends WamNode {
   }
 
   async loadModelText(text, name = 'model.nam', provenance = null) {
+    this.cancelModelCalibration();
     provenance=structuredClone(provenance);
     this.assetRevision = (this.assetRevision || 0) + 1;
     this._measuredCalibration = null;
@@ -116,6 +117,7 @@ export default class NamNode extends WamNode {
   }
 
   async setModelVariant(variant) {
+    this.cancelModelCalibration();
     this._modelVariant = variant === 'lite' ? 'lite' : 'full';
     const result = await this._requestNam('variant', {variant: this._modelVariant});
     if (result.applied && this._metadata) {
@@ -133,6 +135,7 @@ export default class NamNode extends WamNode {
   }
 
   async setAutoLevel(enabled) {
+    this.cancelModelCalibration();
     this._autoLevel = Boolean(enabled);
     const requestedCompensationDb = modelLevelCompensationDb(this._metadata?.loudness, this._autoLevel);
     const result = await this._requestNam('normalization', {compensationDb:requestedCompensationDb});
@@ -146,22 +149,41 @@ export default class NamNode extends WamNode {
     return compensationDb;
   }
 
+  cancelModelCalibration() {
+    this._calibrationSerial=(this._calibrationSerial||0)+1;
+    this._cancelCalibration?.();
+  }
+
   async calibrateModelLevel() {
     if (!this._model || !this._metadata) throw new Error('Load a NAM model before calibrating its level');
-    const calibration = await this._requestNam('calibrate');
-    this._autoLevel = true;
-    this._measuredCalibration = calibration;
-    this._measuredLevels[this.calibrationKey()]=structuredClone(calibration);
-    this._metadata = {...this._metadata, autoLevelEnabled:true, autoLevelCompensationDb:calibration.compensationDb,
-      levelMode:'measured', measuredCalibration:calibration};
-    this._gui?.setModelStatus({status:'ready',metadata:this._metadata,loadMs:0});
-    return calibration;
+    this.cancelModelCalibration();
+    const key=this.calibrationKey(),revision=this.assetRevision,serial=this._calibrationSerial;
+    const parameters=await super.getParameterValues(false,'inputGain');
+    const inputGainDb=Number(parameters.inputGain?.value)||0;
+    const response=await fetch(new URL('./calibration/funky-guitar-reference.wav',import.meta.url));
+    if(!response.ok)throw Error(`Reference audio unavailable: HTTP ${response.status}`);
+    const audio=await this.context.decodeAudioData(await response.arrayBuffer());
+    if(serial!==this._calibrationSerial||key!==this.calibrationKey()||revision!==this.assetRevision)throw Error('Model changed; calibration cancelled');
+    const samples=audio.getChannelData(0).slice();
+    const calibration=await new Promise((resolve,reject)=>{
+      const worker=new Worker(new URL('./GuitarCalibrationWorker.js',import.meta.url),{type:'module'});
+      const cleanup=()=>{clearTimeout(timer);worker.terminate();this._cancelCalibration=null;};
+      const timer=setTimeout(()=>{cleanup();reject(Error('Calibration timed out'));},120000);
+      this._cancelCalibration=()=>{cleanup();reject(Error('Calibration cancelled'));};
+      worker.onmessage=({data})=>{cleanup();data.error?reject(Error(data.error)):resolve(data.result);};
+      worker.onerror=event=>{cleanup();reject(Error(event.message||'Calibration worker failed'));};
+      worker.postMessage({module:NamNode.wasmModule,model:this._model.data,samples,sampleRate:audio.sampleRate,variant:this._metadata.activeVariant,inputGainDb},[samples.buffer]);
+    });
+    if(serial!==this._calibrationSerial||key!==this.calibrationKey()||revision!==this.assetRevision)throw Error('Model changed; calibration cancelled');
+    const current=await super.getParameterValues(false,'inputGain');
+    if(Number(current.inputGain?.value)!==inputGainDb)throw Error('Input gain changed; please recalibrate');
+    return this.applyMeasuredModelLevel(calibration);
   }
 
   async applyMeasuredModelLevel(calibration) {
     if (!this._model || !this._metadata || !calibration || !Number.isFinite(Number(calibration.compensationDb)))
       throw new Error('Measured level calibration is unavailable');
-    const result = await this._requestNam('normalization', {compensationDb:Number(calibration.compensationDb)});
+    const result = await this._requestNam('normalization', {compensationDb:Number(calibration.compensationDb),measured:calibration.version>=2});
     this._autoLevel = true;
     this._measuredCalibration = {...calibration, compensationDb:result.compensationDb};
     this._measuredLevels[this.calibrationKey()]=structuredClone(this._measuredCalibration);
@@ -213,6 +235,7 @@ export default class NamNode extends WamNode {
   get gui() { return this._gui; }
 
   destroy() {
+    this.cancelModelCalibration();
     this.toneSession?.destroy();
     this._gui?.destroy();
     this._meterListeners.clear();

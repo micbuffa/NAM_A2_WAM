@@ -6,13 +6,13 @@ export class FxChainView {
     Object.assign(this,{chain,container,report,options});this.openSerial=0;this.activeId=null;
     this.cards=new Map();this.parking=element('div');this.parking.hidden=true;document.body.append(this.parking);
     this.dialog=element('dialog','fx-editor');
-    const bar=element('header','fx-editor-bar');this.title=element('strong');this.bypass=element('button');
+    const bar=element('header','fx-editor-bar');this.title=element('strong');
     this.replace=element('button','fx-replace','Replace');this.remove=element('button','','Remove');const close=element('button','','×');close.setAttribute('aria-label','Close editor');
-    bar.append(this.title,this.bypass,this.replace,this.remove,close);this.mount=element('div','fx-editor-mount');
+    bar.append(this.title,this.replace,this.remove,close);this.mount=element('div','fx-editor-mount');
     const body=element('div','fx-editor-body');this.editorSides={input:this.createEditorSide('input'),output:this.createEditorSide('output')};
     body.append(this.editorSides.input.root,this.mount,this.editorSides.output.root);this.dialog.append(bar,body);document.body.append(this.dialog);
+    this.mount.addEventListener('nam-capture-loaded',event=>{if(this.dialog.open&&event.target===this.chain.find(this.activeId)?.plugin?.audioNode?.gui)this.close();});
     close.onclick=()=>this.close();this.dialog.addEventListener('cancel',event=>{event.preventDefault();this.close();});
-    this.bypass.onclick=()=>this.toggle(this.activeId);
     this.remove.onclick=()=>this.confirmRemove(this.activeId);
     this.replace.onclick=()=>this.showMenu(null,this.replace,this.activeId);
     this.confirmation=element('dialog','fx-confirm');document.body.append(this.confirmation);
@@ -126,7 +126,12 @@ export class FxChainView {
     if(ids!==this.layout){
       this.layout=ids;this.container.replaceChildren();this.cards.clear();
       const add=before=>{const button=element('button','fx-add','+');button.setAttribute('aria-label',before?'Insert effect before '+(before.record?.name||before.kind):'Insert effect at end');button.onclick=()=>this.showMenu(before?.id||null,button);this.dropTarget(button,before?.id||null);const slot=element('span','fx-slot');slot.append(button);slot.dataset.index=String(before?this.chain.entries.indexOf(before):this.chain.entries.length);
-        if(this.options.onRoute){const route=element('button','fx-route-action','↳');route.title='Route to B here';route.setAttribute('aria-label','Route to B at this position');route.onclick=()=>this.options.onRoute(Number(slot.dataset.index),route);slot.append(route);}
+        if(this.options.onRoute){const route=element('button','fx-route-action','↳');route.title='Route to B here';route.setAttribute('aria-label','Route to B at this position');route.onclick=()=>this.options.onRoute(Number(slot.dataset.index),route);slot.append(route);
+          let hideTimer;
+          const showRoute=()=>{clearTimeout(hideTimer);slot.classList.add('route-visible');};
+          const delayHide=()=>{clearTimeout(hideTimer);hideTimer=setTimeout(()=>{if(!slot.matches(':hover,:focus-within'))slot.classList.remove('route-visible');},700);};
+          slot.addEventListener('pointerenter',showRoute);slot.addEventListener('pointerleave',delayHide);
+          slot.addEventListener('focusin',showRoute);slot.addEventListener('focusout',delayHide);}
         this.container.append(slot);};
       for(const entry of this.chain.entries){
         add(entry);const card=element('article','fx-card'),toolbar=element('div','fx-card-toolbar');
@@ -173,7 +178,7 @@ export class FxChainView {
         });
         this.dropTarget(card,entry.id);
         image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail({id:entry.id,name:entry.record?.name||entry.kind});};
-        card.append(toolbar,photo);this.container.append(card);this.cards.set(entry.id,{card,bypass,image,photo,caption,inputMeter,outputMeter});
+        card.append(toolbar,photo);const captures=entry.plugin?.getCaptureChoices?this.createCaptureSelector(entry):null;if(captures)card.append(captures.root);this.container.append(card);this.cards.set(entry.id,{card,bypass,image,photo,caption,inputMeter,outputMeter,captures});
       }add(null);
       const output=element('span','fx-output-link');
       const arrow=element('span','','→');arrow.setAttribute('aria-hidden','true');
@@ -196,9 +201,27 @@ export class FxChainView {
       if(card.image.dataset.source!==image){card.image.dataset.source=image;card.image.src=image;}
       card.image.alt=name;card.photo.title=e.error?`${name}: ${e.error}`:name;card.photo.setAttribute('aria-label',`Open ${name}`);
       card.caption.textContent=name;
+      if(card.captures)await this.refreshCaptureSelector(e,card.captures);
       card.card.classList.toggle('is-bypassed',e.bypass||!e.plugin);card.bypass.setAttribute('aria-pressed',String(e.bypass));card.bypass.textContent=e.bypass?'Bypassed':'Active';card.bypass.title=e.routingStatus||'Toggle bypass';
-      if(this.activeId===e.id){this.bypass.textContent=e.bypass?'Bypass ON':'Bypass OFF';this.bypass.setAttribute('aria-pressed',String(e.bypass));}
     } this.syncEditorGains(); } finally {this.refreshing=false;}
+  }
+  createCaptureSelector(entry) {
+    const root=element('div','fx-capture-selector'),previous=element('button','','‹'),select=element('select'),next=element('button','','›');
+    previous.type=next.type='button';previous.setAttribute('aria-label','Previous amp capture');next.setAttribute('aria-label','Next amp capture');select.setAttribute('aria-label','Amp capture');
+    root.append(previous,select,next);const ui={root,previous,select,next,items:[],index:-1,busy:false};
+    const choose=async index=>{const item=ui.items[index];if(ui.busy||!item)return;ui.busy=true;previous.disabled=next.disabled=select.disabled=true;
+      try{await entry.plugin.selectCapture(item.id);}catch(error){this.report(error.message,true);}finally{ui.busy=false;await this.refreshCaptureSelector(entry,ui);}};
+    select.onchange=()=>choose(select.selectedIndex);previous.onclick=()=>choose(ui.index-1);next.onclick=()=>choose(ui.index+1);return ui;
+  }
+  async refreshCaptureSelector(entry,ui) {
+    if(ui.busy)return;
+    const choices=await entry.plugin.getCaptureChoices();
+    const key=JSON.stringify(choices.items);
+    if(ui.key!==key){ui.key=key;ui.select.replaceChildren(...choices.items.map(item=>{const option=element('option','',item.name);option.value=item.id;return option;}));}
+    ui.items=choices.items;ui.index=choices.index;ui.select.selectedIndex=choices.index;
+    ui.select.title=choices.items[choices.index]?.name||'No capture loaded';
+    ui.select.disabled=!!choices.busy||choices.items.length<2;
+    ui.previous.disabled=!!choices.busy||choices.index<=0;ui.next.disabled=!!choices.busy||choices.index<0||choices.index>=choices.items.length-1;
   }
   close() {
     this.openSerial++;this.activeId=null;
