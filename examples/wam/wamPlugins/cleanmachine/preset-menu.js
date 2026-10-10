@@ -1,0 +1,1 @@
+export default [{"id": "factory-1", "name": "Clean 1"}, {"id": "factory-2", "name": "Clean 2"}, {"id": "factory-3", "name": "Clean 3"}, {"id": "factory-9", "name": "Light My Knob"}, {"id": "factory-11", "name": "Folk Metal String"}, {"id": "factory-12", "name": "Electro Acoustic"}];

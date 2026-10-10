@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Host that loads a plugin with its GUI</title>
+  <meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06"
+    content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
+</head>
+<script src="../webcomponents-lite.js"></script>
+
+<script src="../WebAudioSDK.js"></script>
+
+<script src="main.js"></script>
+<script src="../distofull/main.js"></script>
+<script src="../disto/main.js"></script>
+
+<script src="../cleanfull/main.js"></script>
+<script src="../clean/main.js"></script>
+
+<script src="../metalfull/main.js"></script>
+<script src="../metal/main.js"></script>
+
+<script src="../blues/main.js"></script>
+<script src="../modernmetal/main.js"></script>
+
+
+  <script src="../noisegateWithParams/main.js"></script>
+
+
+<body>
+  <audio src="./GuitarRiffDry.mp3" id="soundSample" controls loop></audio>
+  <button id="save">Save current state</button>
+  <button id="load">Load last saved state</button>
+  <p>
+    <button id="toggleGuitarIn" onclick="toggleGuitarInput(event)">Guitar input:
+      <span style='color:red;'>NOT ACTIVATED</span>, click to toggle on/off!</button>
+  </p>
+</body>
+<script>
+  var ctx = new AudioContext({ latencyHint: 0.00001 /* seconds */ });
+  var player = document.getElementById("soundSample");
+  player.onplay = () => {
+    ctx.resume().then(() => {
+      console.log('Playback resumed successfully');
+    });
+  }
+  var mediaSource = ctx.createMediaElementSource(player);
+
+
+  var pluginURL = ".";
+  var plugin = new WasabiAmpsimUtility(ctx, pluginURL);
+  var the_plugin;
+
+  plugin.load().then((node) => {
+    the_plugin = node;
+    plugin.loadGui().then((elem) => {
+      document.body.appendChild(elem);
+      document.querySelector("#save").addEventListener('click', () => {
+        node.getState()
+          .then((data) => {
+            state = data;
+            console.log("State saved :", data);
+          })
+      });
+      document.querySelector("#load").addEventListener('click', () => {
+        node.setState(state).then((data) => {
+          console.log("State restored :", data)
+        })
+      });
+      //console.log(node.getDescriptor());
+      mediaSource.connect(node);
+      //node.connect(ctx.destination)
+      
+      async function loadAmps() {
+        //let [ampNode1, elem1] = await loadPluginWithGUI(ctx, "../distofull", "WasabiDistoMachineFull");
+        //let [ampNode2, elem2] = await loadPluginWithGUI(ctx, "../distofull", "WasabiDistoMachineFull");
+        let [ampNode2, elem2] = await loadPluginWithGUI(ctx, "../modernmetal", "WasabiModernMetalMachine");
+       let [noisegateNode, noisegateElem] = await loadPluginWithGUI(ctx, "../noisegateWithParams", "FaustDeadGateWithParams");
+
+        //let [ampNode3, elem3] = await loadPluginWithGUI(ctx, "../metalfull", "WasabiMetalMachineFull");
+        //let [ampNode4, elem4] = await loadPluginWithGUI(ctx, "../metal", "WasabiMetalMachine");
+        //let [ampNode5, elem5] = await loadPluginWithGUI(ctx, "../metal", "WasabiMetalMachine");
+        //let [ampNode5, elem5] = await loadPluginWithGUI(ctx, "../metal", "WasabiMetalMachine");
+        //let [ampNode5, elem5] = await loadPluginWithGUI(ctx, "../disto", "WasabiDistoMachine");
+        //let [ampNode6, elem6] = await loadPluginWithGUI(ctx, "../disto", "WasabiDistoMachine");
+        //let [ampNode9, elem9] = await loadPluginWithGUI(ctx, "../clean", "WasabiCleanMachine");
+        //let [ampNode10, elem10] = await loadPluginWithGUI(ctx, "../clean", "WasabiCleanMachine");
+        let [ampNode9, elem9] = await loadPluginWithGUI(ctx, "../cleanfull", "WasabiCleanMachineFull");
+        let [ampNode10, elem10] = await loadPluginWithGUI(ctx, "../blues", "WasabiBluesMachine");
+        //let [ampNode10, elem10] = await loadPluginWithGUI(ctx, "../cleanfull", "WasabiCleanMachineFull");
+        the_plugin.connect(noisegateNode);
+        
+        noisegateNode.connect(ampNode2);
+
+        //the_plugin.connect(ampNode2);
+        //ampNode2.connect(ampNode10);
+        //ampNode10.connect(ampNode9)
+        ampNode2.connect(ampNode9);
+        ampNode9.connect(ampNode10);
+        ampNode10.connect(ctx.destination);
+        //ampNode2.connect(ampNode9);
+        //ampNode9.connect(ampNode1);
+        //ampNode9.connect(ampNode10);
+       // ampNode5.connect(ctx.destination);
+        //ampNode1.connect(ampNode2);
+        //ampNode2.connect(ampNode5);
+        //ampNode5.connect(ampNode6);
+        //ampNode4.connect(ampNode5);
+        //ampNode5.connect(ampNode2);
+        //ampNode2.connect(ampNode3);
+        //ampNode1.connect(ampNode10);
+        //ampNode10.connect(ctx.destination)
+
+        //userMedia.connect(ampNode1);
+        //ampNode1.connect(ampNode2);
+        //ampNode2.connesct(ampNode3);
+       // ampNode3.connect(ampNode4);
+       // ampNode4.connect(ctx.destination)
+      document.body.appendChild(noisegateElem); 
+
+       document.body.appendChild(elem10);
+       //document.body.appendChild(elem1);
+       document.body.appendChild(elem2);
+       //document.body.appendChild(elem3);
+        document.body.appendChild(elem9);
+        //document.body.appendChild(elem1);
+       //document.body.appendChild(elem2);
+        //document.body.appendChild(elem3);
+       //document.body.appendChild(elem3);
+       //document.body.appendChild(elem5);
+       //document.body.appendChild(elem5);
+       //document.body.appendChild(elem6);
+/*
+        document.body.appendChild(elem1);
+        document.body.appendChild(elem2);
+        document.body.appendChild(elem3);
+        document.body.appendChild(elem4);
+*/
+      }
+      loadAmps();
+
+    });
+
+
+
+
+
+  });
+
+  // live input
+  var guitarPluggedIn = false;
+
+  var constraints = {
+    audio: {
+      echoCancellation: false,
+      mozNoiseSuppression: false,
+      mozAutoGainControl: false,
+      //deviceId: id ? {exact: id} : undefined
+    }
+  };
+  // User input part 
+  navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+    window.stream = stream;
+    userMedia = ctx.createMediaStreamSource(stream);
+  });
+
+  function toggleGuitarInput(event) {
+    ctx.resume().then(() => {
+      console.log('Playback resumed successfully');
+    });
+    var button = document.querySelector("#toggleGuitarIn");
+
+    if (!guitarPluggedIn) {
+      userMedia.connect(the_plugin);
+      button.innerHTML = "Guitar input: <span style='color:green;'>ACTIVATED</span>, click to toggle on/off!";
+    } else {
+      userMedia.disconnect(the_plugin);
+      button.innerHTML = "Guitar input: <span style='color:red;'>NOT ACTIVATED</span>, click to toggle on/off!";
+    }
+    guitarPluggedIn = !guitarPluggedIn;
+  }
+
+  async function loadPluginWithGUI(ctx, url, className) {
+    console.log("loading plugin url = " + url + " className = " + className);
+    return new Promise((resolve, reject) => {
+      var plugin = new window[className](ctx, url);
+
+      plugin.load().then((node) => {
+        plugin.loadGui().then((elem) => {
+          resolve([node, elem]);
+        });
+
+      });
+    });
+  }
+</script>
+
+</html>

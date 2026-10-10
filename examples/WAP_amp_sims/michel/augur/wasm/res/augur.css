@@ -1,0 +1,195 @@
+* { box-sizing:border-box; }
+bodyx { font-family:sans-serif; user-select:none; background:#222; }
+#frontpanel { background:#000; border:none; padding-top:3px; padding:3px; line-height:normal; font-family:sans-serif; font-style:normal; text-align:left; }
+section { background:#1a1a1a; color:#999; border:1px solid #000; widthx:200px; margin-right:3px; padding:10px; }
+
+.grid { display:grid; }
+#grid { height:50px; }
+
+.row { display:flex; margin-bottom:3px; border:none; }
+.row section:last-child { margin-right:0; }
+#bottomrow { height:320px; }
+
+#mods { width:620px; backgroundx:#1a1a1a; colorx:#888; }
+#mod { display:flex; widthx:610px; }
+.selector { backgroundx:#2a2a2a; display:flex; padding:0px; padding-bottom:2px; border-bottom:1px solid #555; margin:0; margin-bottom:5px;  list-style:none; }
+.selector li { cursor:pointer; padding:0 10px 0 0; margin-rightx:5px; border-rightx:1px solid #000; }
+.selector li.selected { color:steelblue; }
+.selector li { font-weight:100; font-size:16px; }
+
+#selcontainerB { widthx:458px; height:275px; overflow:hidden; }
+.subsect { height:100%; border:none; }
+
+.flex { display:flex; borderx:none; }
+.flex-row { display:flex; flex-direction:row !important; }
+
+h1 { font-weight:100; color:steelblue; padding:0; margin:0; margin-left:10px; padding-top:12px; padding-bottom:7px; font-size:30px; }
+h2 { padding-bottom:2px; colorx:#aaa; margin:0; margin-bottom:7px; font-weight:100; font-size:16px; border-bottom:1px solid #555; }
+div { borderx:1px solid #000; }
+.knob { width:50px; height:50px; margin-right:5px; }
+
+.control { display:flex; flex-direction:column; }
+.control label { margin-bottom:4px; display:block; colorx:#999; font-size:10px; font-weight:100; text-align:center; }
+
+.knobx { border:1px solid #777; }
+select { cursor:pointer; background:#1a1a1a; color:#bbb; border:1px solid #777; outline:none; }
+
+
+/* toggle */
+  .toggle { margin-right:5px; cursor:pointer; background:rgba(70,130,180,0.2); width:50px; height:50px; border-radius:4px; }
+  .toggle .inner { border:2px solid #111; pointer-events:none; display:flex; flex-direction:column; margin:3px; width:44px; height:44px; border-radius:4px; background:#1a1a1a; }
+  .toggle .led { pointer-events:none; align-self:center; margin-top:5px; width:24px; height:6px; border:1px solid rgba(70,130,180,0.25); }
+  .toggle .led.active { background:steelblue; borderx:1px solid #111; box-shadow: 0px 0px 6px steelblue; }
+
+/* numeric */
+  .numeric { color:#bbb; font-weight:100; cursor:pointer; }
+  .numericControl { heightx:25px; widthx:135px; padding-bottom:2px; font-family:sans-serif; display:flex; border:none; border-bottomx:1px solid #000; }
+  .numericControl label { color:#999; padding-bottom:1px; align-self:flex-end; font-size:10px; margin-right:5px; }
+  .numericx { width:25px; heighx:25px; line-heightx:15px; borderx:1px solid #000; outline:none;
+    paddingx:5px; font-size:18px; cursor:pointer;
+    text-align:center; }
+  .numerics { align-self:flex-end; }
+  .label { color:#999; text-align:center; font-size:10px; margin-left:-1px; }
+
+/* osc */
+  #OSC { widthx:203px; }
+  #oscheader { margin:6 0 4 0; color:#999; font-size:10px; font-weight:100; text-align:center; }
+  .gridrow { display:grid; grid-template-columns: 20px 35px 54px 38px 43px; }
+  .osc.gridrow { margin-bottom:4px; }
+  .osc .label { color:#777; font-weight:100; font-size:16px; text-align:center; line-height:30px; cursor:pointer; }
+  .osc .numeric  { text-align:center;  align-self:center; font-size:16px; }
+  .wave.numeric { width:30px; }
+  .semi.numeric { width:34px; }
+  .fine.numeric { width:40px; }
+  .osc .waveform { width:47px; height:25px; border:1px solid #444; margin-left:4px; cursor:pointer; }
+  .osc .label.selected { color:steelblue; }
+
+/* filter */
+  #FILTER { widthx:173px; padding-leftx:7px; }
+  #FILTER .control:last-child .knob { margin-right:0; }
+  #FILTER .control { flex-direction:column; }
+  #FILTER label { width:45px; margin-top:2px; }
+  #FILTER select { margin:2 4; }
+  #filtermode { margin-top:10px; }
+
+/* amp */
+  #AMP { widthx:120px; padding-leftx:7px; }
+  #AMP h2 { backgroundx:yellow; borderx:none; }
+  #AMP .control { flex-direction:column; }
+  #AMP label { width:45px; margin-top:2px; }
+  #chorus { border-bottom:1px solid #555; margin-top:10px; height:19px; margin-bottom:7px; }
+  #chorustitle { margin:0; border:none; }
+  #chorusled { margin-right:5px; margin-top:1px; width:14px; height:14px;
+    border:1px solid #777; border-radius:3px; cursor:pointer; background:transparent; }
+  #chorusled.active { background:steelblue; border:1px solid #222; }
+
+/* global */
+  #global { width:301px; }
+  #global label { width:45px; margin-top:-5px; margin-bottom:0; }
+  #voices { flex-direction:row; margin:15px 15px; margin-top:73px; }
+  #voices label { text-align:left; margin-rightx:5px; margin-top:2px; }
+  #global .knob svg { transform:scale(0.75); }
+  .pan .control { width:40px; }
+
+/* mixeg */
+  #mixer { min-width:212px; heightx:250px; overflow:hidden; backgroundx:#2a2a2a; colorx:#888; }
+  #diamond { margin-left:7px; transform-origin:top left;  transform:scale(0.6); }
+  #diamondx g { transform-origin:top left;  transform:scale(0.626) translate(0,-8px); }
+  #diamond rect { fill:steelblue; transform:rotate(45deg); transform-origin:center; }
+  #backcircle { fill:#222; }
+  .gridcircle { fill:none; stroke:#777; stroke-dasharray:3; pointer-events:none; }
+  .gridline { fill:none; stroke:#777; stroke-dasharray:3; pointer-events:none; }
+  .mixpoint { cursor:pointer; fill:#ddd; stroke:#000; }
+  .mixpoint:hover { stroke-width:2; }
+  .mixline  { stroke:#aaa; stroke-width:1.5px; pointer-events:none; }
+  #diamond .eglabel  { font-family:sans-serif; font-size:18px; }
+  .mixosc { fill:#222; font-size:24px; font-weight:400; }
+  .mixpoint.disabled { pointer-events:none; opacity:0.2; }
+  .mixline.disabled { pointer-events:none; opacity:0.2; }
+
+  #mixeg-rates { margin:-108px 0 5px 6px; width:135px; padding-bottom:2px; font-family:sans-serif; display:flex; borderx:none; border-bottomx:1px solid #000; }
+  #mixeg-rates label { color:#888; font-weight:100; padding-bottom:4px; align-self:flex-end; font-size:10px; margin-right:5px; }
+  #mixeg-rates .label { color:#888; font-weight:100; }
+  #mixer .numeric { width:30px; heighx:25px; line-heightx:15px; borderx:1px solid #000; outline:none;
+    paddingx:5px; font-size:18px; cursor:pointer;
+    text-align:center; }
+
+  .controlrow { display:flex; justify-content:center; }
+  #loop { width:80px; }
+  #repeat { width:50px; }
+  #loop select { align-self:center; }
+  #repeat div { align-self:center; }
+
+  #joy { fill:#fff; opacity:0.83; cursor:pointer; display:none; }
+  #joy.active { display:inherit; }
+  #joy:hover { stroke:#000; }
+  #MIX { position:relative; }
+  #joytoggle { position:absolute; font-size:12px; cursor:pointer; z-index:1; }
+  #joytoggle.active { color:steelblue; }
+
+  #selcontainerA { height:270px; overflow:hidden; }
+
+/* LFO */
+  #LFO { padding:10px; }
+  #LFO .control { flex-direction:row; margin-bottom:6px; }
+  #LFO .control label { width:40px; text-align:left; margin-top:2px; }
+  #LFO .numeric { width:25px; font-size:16px; }
+  h3 { font-weight:100; font-size:16px; margin:0; margin-bottom:8px; padding-bottom:2px;border-bottom:1px dashed #555; }
+
+/* aeg and feg */
+  #egrowtmp { padding:4 0 0 4; }
+  svg.eg { margin-right:15px;border:1px solid #3a3a3a; backgroundx:#fefefe; width:456px; height:128px; margin-bottom:5px; }
+  .egpoint { cursor:pointer; fill:#ddd; stroke:#000; }
+  .egline  { stroke:#ccc; fill:none; pointer-events:none; }
+  .eglabel { font-family:sans-serif; font-size:14px; }
+  .susline  { stroke:#ccc; stroke-dasharray:2; pointer-events:none; }
+  #ENV .gridline { stroke:#555; stroke-dasharray:2; pointer-events:none; }
+  .egpoint:hover { stroke-width:2; fill:steelblue; }
+  .egpoint.selected { fill:steelblue; }
+
+  .egcontrols { align-self: center; }
+  .eglabelx { color:steelblue !important; }
+
+  #selcontainerB label { align-self:center; font-size:10px; font-weight:100; color:#888; }
+  #selcontainerB .numeric { display:flex; justify-content:center; width:25px; }
+  #selcontainerB .control { flex-direction:row; width:100%; margin-bottom:5px; }
+  #selcontainerB .control label { width:40px; text-align:left; margin-top:2px; }
+
+/* modmatrix */
+  #matrix { display:flex; }
+
+  #matrix svg { backgroundx:#2a2a2a; transform-origin:left top; transform:scale(1.6); }
+  #matrix text { fill:#666; font-family:sans-serif; font-size:8.5px; transform:rotate(-45deg); cursor:default; }
+  #matrix text.hilited { fill:#fff; }
+  #matrix circle { r:5; fill:#1a1a1a; stroke:#888; cursor:pointer; }
+  #matrix line { stroke:#666; pointer-events:none; }
+  #gdst { transform:translate(-37px,15px); }
+  #grid { transform:translate(-12px,48px); }
+  #matrix circle:hover { stroke:#eee; stroke-width:1; }
+  #matrix circle.selected { fill:steelblue; stroke:#2554C7; }
+  #matrix circle.selected:hover { stroke:#eee; }
+
+  #matrixsrc { margin:77px 0 0 15px; font-size:14px; }
+  #matrixsrc .control label { padding-right:5px; text-align:right;  width:80px; color:#777; font-size:12px; line-height:13px; }
+  #matrixsrc .numeric { font-size:16px; line-height:17px; margin-right:5px; }
+  #modwheel { width:107px !important; }
+
+/* waves */
+#waveforms { padding-top:2px; }
+.waverow { display:flex; margin-bottom:5px; height:45px; position:relative; }
+#wavegroup { list-style:none; margin:0; margin-top:5px; padding:0; display:flex; }
+#wavegroup li { width:60px; height:20px; font-size:12px; margin-top:10px; padding-bottom:5px; cursor:pointer; text-align:center; margin-right:5px; }
+#wavegroup li.selected { color:steelblue; border-bottom:1px solid steelblue; }
+#fft { position:absolute; right:0; border:1px solid #555; margin-left:10px; width:100%; height:45px; line-height:45px; font-size:11px; text-align:center; color:#777; }
+#waves { margin-top:10px; }
+.wavebox { border:1px solid #555; width:70px; height:50px; cursor:pointer; }
+.wavebox:hover { border:1px solid #999; }
+.wavebox:hover div { color:#eee; }
+.wavebox:not(:last-child) { margin-right:5px; }
+.wavebox canvas { width:70px; height:35px; border:1px solid transparent; }
+.wavebox div { padding-left:2px; font-size:10px; margin-top:-3px; }
+.wavebox.selected { border:1px solid steelblue; background:#2a2a2a; }
+.wavebox.selected div { color:#ddd; }
+
+.static { pointer-events:none; }
+

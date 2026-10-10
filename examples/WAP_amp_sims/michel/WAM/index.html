@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wasabi WAM v2 — Amplifier test host</title>
+<link rel="stylesheet" href="host.css">
+<main>
+<h1>Wasabi amplifiers · WAM v2</h1>
+<p>Choose an amp and a sound, then play the dry guitar sample or a local audio file.</p>
+<div class="toolbar">
+<label>Amplifier <select id="amp"><option value="blues">Blues Machine</option><option value="cleanfull">Clean Machine Full</option><option value="modernmetal">Modern Metal Machine</option></select></label>
+<button id="load">Load amplifier</button>
+<label>Audio file <input id="file" type="file" accept="audio/*"></label>
+<button id="sample">Use bundled guitar</button>
+</div>
+<audio id="player" controls loop src="../utility/GuitarRiffDry.mp3"></audio>
+<div class="toolbar">
+<label>Listening volume <input id="volume" type="range" min="-48" max="0" step="1" value="-18"><output id="volumeValue">−18 dB</output></label>
+<button id="save" disabled>Save state</button><button id="restore" disabled>Restore saved state</button>
+<button id="editor" disabled>Hide editor</button>
+</div>
+<p id="status" role="status">Click Load amplifier to start.</p>
+<div class="editor-scroll"><div id="mount"></div></div>
+<details><summary>About this test</summary><p>One amplifier at a time, with its original cabinet and reverb. The listening volume is a host output trim. Local files stay in your browser. There is no live input.</p><p><a href="validation.html">Open WAP / WAM comparison and validation</a> · <a href="gui-validation.html">Check editor controls and layout</a></p></details>
+</main><script type="module" src="host.js"></script></html>
