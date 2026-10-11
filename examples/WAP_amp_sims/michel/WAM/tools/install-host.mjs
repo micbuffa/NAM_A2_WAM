@@ -9,7 +9,7 @@ const root=resolve(source,'../../../..');
 const target=join(root,'examples/wam/wamPlugins');
 const build=spawnSync(process.execPath,[join(source,'tools/build-dist.mjs')],{stdio:'inherit'});
 if(build.error)throw build.error;if(build.status!==0)throw Error('Wasabi distribution build failed');
-for(const [slug,name] of [['modernmetal','metalmachine'],['cleanfull','cleanmachine'],['blues','bluesmachine']]){
+for(const [slug,name] of [['modernmetal','metalmachine'],['cleanfull','cleanmachine'],['blues','bluesmachine'],['utility','ampsimutility']]){
   // These folders are generated plugin copies; replace them to avoid stale files.
   const folder=join(target,name);
   await rm(folder,{recursive:true,force:true});

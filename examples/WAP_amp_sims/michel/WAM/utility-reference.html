@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><title>Original Utility WAP reference</title>
+<script src="../WebAudioSDK.js"></script><script src="../utility/main.js"></script>
+<script>
+window.createUtilityReference=async context=>{
+  const engine=new AmpsimUtility(context,new URL('../utility',location).href);
+  // The original routing setter requires a GUI meter even for headless processing.
+  engine.peakMeterInput={setActivatedInputs(){}};
+  const end=performance.now()+10000;
+  while(!engine.deadgateFaust){if(performance.now()>end)throw Error('Original WAP gate timeout');await new Promise(r=>setTimeout(r,10));}
+  return engine;
+};
+</script>

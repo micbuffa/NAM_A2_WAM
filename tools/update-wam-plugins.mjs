@@ -4,6 +4,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {normalizeCategory} from '../examples/wam/WamPluginRegistry.js';
 
 const categories = {
+  ampsimutility:'amplifier',
   BigMuff:'drive', Kpp_fuzz:'drive', OscTube:'drive', OverdriveRix:'drive', OwlDirty:'drive',
   kppdistorder:'drive', temper:'drive', CompressorGuitarix:'dynamics',
   DualPitchShifter:'modulation', Octaver:'modulation', StereoFreqShifter:'modulation',

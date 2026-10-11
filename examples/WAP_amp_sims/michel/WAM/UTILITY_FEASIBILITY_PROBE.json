@@ -1,0 +1,107 @@
+{
+  "rates": [
+    {
+      "sampleRate": 44100,
+      "headless": true,
+      "guiCreated": false,
+      "parameters": {
+        "/deathgate/NoiseGate": {
+          "id": "/deathgate/NoiseGate",
+          "label": "/deathgate/NoiseGate",
+          "type": "float",
+          "defaultValue": -120,
+          "minValue": -120,
+          "maxValue": 0,
+          "discreteStep": 0,
+          "exponent": 0,
+          "choices": [],
+          "units": ""
+        },
+        "/deathgate/DeadZone": {
+          "id": "/deathgate/DeadZone",
+          "label": "/deathgate/DeadZone",
+          "type": "float",
+          "defaultValue": -100,
+          "minValue": -120,
+          "maxValue": 0,
+          "discreteStep": 0,
+          "exponent": 0,
+          "choices": [],
+          "units": ""
+        }
+      },
+      "open": {
+        "finite": true,
+        "peak": 0.039950765669345856
+      },
+      "closed": {
+        "finite": true,
+        "peak": 1.1948694123020687e-07
+      },
+      "stateRoundTrip": true,
+      "secondInstance": true,
+      "paramMgrDestroyAcknowledged": false
+    },
+    {
+      "sampleRate": 48000,
+      "headless": true,
+      "guiCreated": false,
+      "parameters": {
+        "/deathgate/NoiseGate": {
+          "id": "/deathgate/NoiseGate",
+          "label": "/deathgate/NoiseGate",
+          "type": "float",
+          "defaultValue": -120,
+          "minValue": -120,
+          "maxValue": 0,
+          "discreteStep": 0,
+          "exponent": 0,
+          "choices": [],
+          "units": ""
+        },
+        "/deathgate/DeadZone": {
+          "id": "/deathgate/DeadZone",
+          "label": "/deathgate/DeadZone",
+          "type": "float",
+          "defaultValue": -100,
+          "minValue": -120,
+          "maxValue": 0,
+          "discreteStep": 0,
+          "exponent": 0,
+          "choices": [],
+          "units": ""
+        }
+      },
+      "open": {
+        "finite": true,
+        "peak": 0.039961036294698715
+      },
+      "closed": {
+        "finite": true,
+        "peak": 9.64070565601105e-08
+      },
+      "stateRoundTrip": true,
+      "secondInstance": true,
+      "paramMgrDestroyAcknowledged": false
+    }
+  ],
+  "date": "2026-10-10T19:19:50.130Z",
+  "protocol": {
+    "browser": "Codex in-app browser on macOS",
+    "source": "unchanged examples/wam/wamPlugins/deathgate/index.js",
+    "signal": "220 Hz oscillator, gain 0.02, mono connected to DeathGate stereo input; output monitored through an AnalyserNode; listening gain zero",
+    "thresholds": [
+      -120,
+      0
+    ],
+    "settlingMs": 400,
+    "destroyTimeoutMs": 300,
+    "scope": "Headless DeathGate feasibility only; Utility WAM not implemented; second instance creation checked, not independent audio/state isolation."
+  },
+  "sourceSHA256": {
+    "examples/wam/wamPlugins/deathgate/index.js": "c0974a0d3f86d8e8ef0324f1f4bd31d928a737bd1ac713a6d0a10e614e98a3f4",
+    "examples/wam/wamPlugins/deathgate/Node.js": "878830b9f17c0953a54d0687ae4eb810bab187424832f3a4fd47538d81cadebf",
+    "examples/wam/wamPlugins/deathgate/deathgate.wasm": "846167b06af8995537351b0aa13a2a684ae8d531326f2e65572159cd3956b32f",
+    "examples/wam/wamPlugins/utils/sdk-parammgr/src/ParamMgrProcessor.js": "a5c124f6d5405740aad0f154fbb4058903a12bc38ab89e5d8cbcc82fdfc6198e"
+  }
+}

@@ -34,7 +34,7 @@ Ouvrir ensuite :
 
 Choisir un ampli, cliquer sur **Load amplifier**, puis lancer le lecteur. Le gain de sortie du host est initialement réglé à −18 dB. Les fichiers locaux restent dans le navigateur.
 
-L’entrée guitare/micro en direct et le portage de `WasabiAmpsimUtility` ne font pas partie de cette étape.
+Le petit host reste un lecteur de fichiers audio sans entrée guitare/micro en direct. `WasabiAmpsimUtility` est désormais porté en WAM v2 ; voir la section Utility ci-dessous.
 
 ## Générer une distribution autonome
 
@@ -154,4 +154,16 @@ npm run install:wasabi-amps
 npm run dist
 ```
 
-`npm run dist:wasabi-amps` génère uniquement les trois plugins autonomes. `npm run install:wasabi-amps` les installe dans le host de développement. **`npm run dist` reconstruit le host complet**, avec son catalogue et ses plugins, dans `dist/NAM_A2_WAM/`. Le point d’entrée à servir est alors `dist/NAM_A2_WAM/index.html`.
+`npm run dist:wasabi-amps` génère les trois amplis et Utility en dossiers autonomes. `npm run install:wasabi-amps` les installe dans le host de développement. **`npm run dist` reconstruit le host complet**, avec son catalogue et ses plugins, dans `dist/NAM_A2_WAM/`. Le point d’entrée à servir est alors `dist/NAM_A2_WAM/index.html`.
+
+## Préparation du portage Wasabi Ampsim Utility
+
+Le [plan de portage WAM v2](WAM/UTILITY_WAM_PLAN.md) décrit la réutilisation headless de la DeathGate WAM existante, les corrections préparatoires et les critères de validation sonore. Les [résultats de la sonde](WAM/UTILITY_FEASIBILITY_PROBE.json) confirment son chargement sans GUI à 44,1 et 48 kHz. Le portage est désormais implémenté : [documentation Utility](WAM/utility/README.md).
+
+## Wasabi Ampsim Utility porté en WAM v2
+
+Utility est disponible dans `michel/WAM/utility/` et dans le petit host avec son lecteur audio. Il conserve son interface, le gain, la sélection L/R et les meters. Sa noise gate est **la DeathGate WAM existante**, créée sans GUI, avec une instance privée par Utility. Le WASM de DeathGate est inchangé ; son chargement, sa destruction et son animation de GUI ont été fiabilisés avec un runtime local, sans modifier le SDK partagé des autres plugins.
+
+Les commandes historiques `npm run dist:wasabi-amps` et `npm run install:wasabi-amps` incluent maintenant **les quatre plugins**. Utility est distribué dans `dist/wasabi-amps/utility/`, avec DeathGate et ses dépendances embarquées. La copie installée est `examples/wam/wamPlugins/ampsimutility/`, proposée dans **Amplifiers** via le menu +. Son descripteur référence une miniature réelle de l'interface. `npm run dist` reconstruit également le host complet avec ce plugin.
+
+Les validations audio/API/UI sont rejouables via `utility-validation.html` et `utility-validation.html?dist` dans le dossier WAM. Les rapports `UTILITY_VALIDATION.json` et `UTILITY_VALIDATION_DIST.json` donnent le protocole et les résultats à 44,1 et 48 kHz. Ils comparent le WAP original au portage et contrôlent séparément son routage avec la même DeathGate WAM. L'automation des paramètres est relayée à la cadence de contrôle ParamMgr (nominalement 30 Hz), sans promesse d'une précision à l'échantillon.

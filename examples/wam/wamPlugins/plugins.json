@@ -168,6 +168,10 @@
     {
       "uri": "./metalmachine/index.js",
       "category": "amplifier"
+    },
+    {
+      "uri": "./ampsimutility/index.js",
+      "category": "amplifier"
     }
   ]
 }

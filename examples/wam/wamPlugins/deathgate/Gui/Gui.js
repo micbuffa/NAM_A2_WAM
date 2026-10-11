@@ -149,7 +149,7 @@ export default class deathgateGui extends HTMLElement {
     //this.setImageBackground("/img/BigMuffBackground.png");
 
     // Monitor param changes in order to update the gui
-    window.requestAnimationFrame(this.handleAnimationFrame);
+
   }
 
   fixRelativeImagePathsInCSS() {
@@ -230,13 +230,19 @@ export default class deathgateGui extends HTMLElement {
       console.log(this.knobs[i].value);
     }
   }
+  connectedCallback() {
+    if (!this._destroyed) this._raf = requestAnimationFrame(this.handleAnimationFrame);
+  }
+  disconnectedCallback() { cancelAnimationFrame(this._raf); }
+  destroy() { this._destroyed = true; this.disconnectedCallback(); }
   handleAnimationFrame = () => {
+    if (this._destroyed || !this.isConnected) return;
     this._root.getElementById("/deathgate/DeadZone").value = this._plug.audioNode.getParamValue("/deathgate/DeadZone");
 
     this._root.getElementById("/deathgate/NoiseGate").value =
       this._plug.audioNode.getParamValue("/deathgate/NoiseGate");
 
-    window.requestAnimationFrame(this.handleAnimationFrame);
+    this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
   };
 
   get properties() {

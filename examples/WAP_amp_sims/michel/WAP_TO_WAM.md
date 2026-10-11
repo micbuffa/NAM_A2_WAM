@@ -338,3 +338,7 @@ Les numéros ci-dessous correspondent aux fichiers au moment de l'analyse et ser
 | `modernmetal/main.html:329` | Preset au rattachement et écritures DSP pendant le rafraîchissement |
 
 Ce document est le seul livrable de cette étape. Les versions WAP restent intactes.
+
+## Mise à jour — Utility WAM v2 (11 octobre 2026)
+
+Les trois amplis sont portés et Wasabi Ampsim Utility l’est désormais aussi. Il réutilise la DeathGate WAM existante comme enfant headless et dispose d’une distribution autonome. Voir [son README](WAM/utility/README.md), [le plan de composition](WAM/UTILITY_WAM_PLAN.md) et les rapports `WAM/UTILITY_VALIDATION.json` / `WAM/UTILITY_VALIDATION_DIST.json`. Les sections initiales ci-dessus décrivent le périmètre de l’analyse des trois amplis.
