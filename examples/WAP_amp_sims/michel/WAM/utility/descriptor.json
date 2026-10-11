@@ -1,0 +1,20 @@
+{
+  "identifier": "com.wimmics.wasabi.ampsimutility",
+  "name": "Wasabi Ampsim Utility",
+  "vendor": "Wimmics",
+  "version": "2.0.0",
+  "apiVersion": "2.0.0",
+  "description": "Input gain and channel selection with a headless DeathGate WAM multiband noise gate. Original utility by Michel Buffa; gate DSP by Oleg Kapitonov.",
+  "thumbnail": "assets/thumbnail.png",
+  "keywords": [
+    "utility",
+    "gain",
+    "noisegate",
+    "stereo"
+  ],
+  "hasAudioInput": true,
+  "hasAudioOutput": true,
+  "hasMidiInput": false,
+  "hasMidiOutput": false,
+  "category": "amplifier"
+}

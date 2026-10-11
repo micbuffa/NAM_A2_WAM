@@ -1,0 +1,1119 @@
+{
+  "date": "2026-10-11T13:36:30.541Z",
+  "dist": false,
+  "protocol": "Real-time synchronized source fed to all three active graphs, silent monitor plus difference recorders. Capture 0.65 s source + 0.15 s tail, 13 cases at 44100 and 48000 Hz; maximum error tolerance 1e-5, non-silence checked where expected. Original WAP in isolated iframe, GUI meter dependency stubbed; DSP unchanged.",
+  "checks": [
+    {
+      "name": "44100 headless no GUI dependencies",
+      "pass": true
+    },
+    {
+      "name": "44100 defaults/dead zone",
+      "pass": true
+    },
+    {
+      "name": "44100 normalized API",
+      "pass": true
+    },
+    {
+      "name": "44100 state round trip",
+      "pass": true
+    },
+    {
+      "name": "44100 hidden dead zone restoration",
+      "pass": true
+    },
+    {
+      "name": "44100 destroy during initialization",
+      "pass": true
+    },
+    {
+      "name": "44100 failed child load rejects",
+      "pass": true
+    },
+    {
+      "name": "44100 initialState applied",
+      "pass": true
+    },
+    {
+      "name": "44100 private child isolation",
+      "pass": true
+    },
+    {
+      "name": "44100 invalid state atomic",
+      "pass": true
+    },
+    {
+      "name": "44100 scheduled automation",
+      "pass": true
+    },
+    {
+      "name": "44100 child threshold automation",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference mono L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP mono L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference left L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP left L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference right L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP right L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference opposite L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP opposite L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference mono L0R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP mono L0R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference right L1R0 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP right L1R0 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference guitar L0R0 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP guitar L0R0 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference guitar L1R1 gain0.01 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP guitar L1R1 gain0.01 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference guitar L1R1 gain2 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP guitar L1R1 gain2 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference guitar L1R1 gain1 gate-48 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP guitar L1R1 gain1 gate-48 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference noise L1R1 gain1 gate-60 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP noise L1R1 gain1 gate-60 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference silence L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP silence L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 WAM-reference guitar L1R1 gain1 gate0 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 original-WAP guitar L1R1 gain1 gate0 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "44100 font and geometry",
+      "pass": true
+    },
+    {
+      "name": "44100 GUI L/R",
+      "pass": true
+    },
+    {
+      "name": "44100 meter taps released",
+      "pass": true
+    },
+    {
+      "name": "44100 reopen preserves state",
+      "pass": true
+    },
+    {
+      "name": "44100 GUI cleanup",
+      "pass": true
+    },
+    {
+      "name": "44100 standalone DeathGate GUI",
+      "pass": true
+    },
+    {
+      "name": "44100 awaited idempotent destroy",
+      "pass": true
+    },
+    {
+      "name": "44100 recreate after destroy",
+      "pass": true
+    },
+    {
+      "name": "48000 headless no GUI dependencies",
+      "pass": true
+    },
+    {
+      "name": "48000 defaults/dead zone",
+      "pass": true
+    },
+    {
+      "name": "48000 normalized API",
+      "pass": true
+    },
+    {
+      "name": "48000 state round trip",
+      "pass": true
+    },
+    {
+      "name": "48000 hidden dead zone restoration",
+      "pass": true
+    },
+    {
+      "name": "48000 destroy during initialization",
+      "pass": true
+    },
+    {
+      "name": "48000 failed child load rejects",
+      "pass": true
+    },
+    {
+      "name": "48000 initialState applied",
+      "pass": true
+    },
+    {
+      "name": "48000 private child isolation",
+      "pass": true
+    },
+    {
+      "name": "48000 invalid state atomic",
+      "pass": true
+    },
+    {
+      "name": "48000 scheduled automation",
+      "pass": true
+    },
+    {
+      "name": "48000 child threshold automation",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference mono L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP mono L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference left L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP left L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference right L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP right L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference opposite L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP opposite L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference mono L0R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP mono L0R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference right L1R0 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP right L1R0 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference guitar L0R0 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP guitar L0R0 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference guitar L1R1 gain0.01 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP guitar L1R1 gain0.01 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference guitar L1R1 gain2 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP guitar L1R1 gain2 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference guitar L1R1 gain1 gate-48 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP guitar L1R1 gain1 gate-48 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference noise L1R1 gain1 gate-60 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP noise L1R1 gain1 gate-60 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference silence L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP silence L1R1 gain1 gate-120 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 WAM-reference guitar L1R1 gain1 gate0 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 original-WAP guitar L1R1 gain1 gate0 max=0.000e+0",
+      "pass": true
+    },
+    {
+      "name": "48000 font and geometry",
+      "pass": true
+    },
+    {
+      "name": "48000 GUI L/R",
+      "pass": true
+    },
+    {
+      "name": "48000 meter taps released",
+      "pass": true
+    },
+    {
+      "name": "48000 reopen preserves state",
+      "pass": true
+    },
+    {
+      "name": "48000 GUI cleanup",
+      "pass": true
+    },
+    {
+      "name": "48000 standalone DeathGate GUI",
+      "pass": true
+    },
+    {
+      "name": "48000 awaited idempotent destroy",
+      "pass": true
+    },
+    {
+      "name": "48000 recreate after destroy",
+      "pass": true
+    }
+  ],
+  "comparisons": [
+    {
+      "rate": 44100,
+      "kind": "mono",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.021579475807585357,
+      "peak": 0.049142953008413315,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "mono",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.02157947596695804,
+      "peak": 0.049142953008413315,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "left",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.021579475807622928,
+      "peak": 0.049142953008413315,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "left",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.021580087638777973,
+      "peak": 0.049142953008413315,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "right",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.021580087480607874,
+      "peak": 0.049142953008413315,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "right",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.021579781796366392,
+      "peak": 0.049142953008413315,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "opposite",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "opposite",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "mono",
+      "leftInput": 0,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "mono",
+      "leftInput": 0,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "right",
+      "leftInput": 1,
+      "rightInput": 0,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "right",
+      "leftInput": 1,
+      "rightInput": 0,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "guitar",
+      "leftInput": 0,
+      "rightInput": 0,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "guitar",
+      "leftInput": 0,
+      "rightInput": 0,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 0.01,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.0006700515603921892,
+      "peak": 0.0038582710549235344,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 0.01,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.0006700592939309569,
+      "peak": 0.003858305513858795,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 2,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.1369410820707244,
+      "peak": 0.780941903591156,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 2,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.1369548941581808,
+      "peak": 0.7810825109481812,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -48,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.06666317687721801,
+      "peak": 0.38347846269607544,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -48,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.06666337554625308,
+      "peak": 0.38350677490234375,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "noise",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -60,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 4.454154782819947e-12,
+      "peak": 5.4100435936677016e-11,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "noise",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -60,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 4.038660401094241e-32,
+      "peak": 4.905310184314726e-31,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "silence",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "silence",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": 0,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 44100,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": 0,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "mono",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.021584786227559025,
+      "peak": 0.04915232956409454,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "mono",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.021584786408463244,
+      "peak": 0.04915232956409454,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "left",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.02158478625092744,
+      "peak": 0.04915232956409454,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "left",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.02158506746585902,
+      "peak": 0.04915232956409454,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "right",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.02158478625177698,
+      "peak": 0.04915232956409454,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "right",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.021584786408463244,
+      "peak": 0.04915232956409454,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "opposite",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "opposite",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "mono",
+      "leftInput": 0,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "mono",
+      "leftInput": 0,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "right",
+      "leftInput": 1,
+      "rightInput": 0,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "right",
+      "leftInput": 1,
+      "rightInput": 0,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "guitar",
+      "leftInput": 0,
+      "rightInput": 0,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "guitar",
+      "leftInput": 0,
+      "rightInput": 0,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 0.01,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.0006701346657224581,
+      "peak": 0.0038607525639235973,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 0.01,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.0006701422534602282,
+      "peak": 0.003861488774418831,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 2,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.13695338840165314,
+      "peak": 0.7816020846366882,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 2,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.13696803261241158,
+      "peak": 0.7814950942993164,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -48,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0.06667039577356314,
+      "peak": 0.3837113082408905,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -48,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0.06666959529114215,
+      "peak": 0.38371139764785767,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "noise",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -60,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 3.375932297496096e-12,
+      "peak": 4.669884964836335e-11,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "noise",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -60,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 3.112678033058988e-32,
+      "peak": 4.3057262509885425e-31,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "silence",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "silence",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": -120,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": 0,
+      "target": "WAM-reference",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    },
+    {
+      "rate": 48000,
+      "kind": "guitar",
+      "leftInput": 1,
+      "rightInput": 1,
+      "inputGain": 1,
+      "noiseGate": 0,
+      "target": "original-WAP",
+      "finite": true,
+      "rms": 0,
+      "peak": 0,
+      "maxError": 0,
+      "relativeError": 0
+    }
+  ],
+  "sourceSHA256": {
+    "examples/WAP_amp_sims/michel/WAM/utility-validation.js": "76de42ff6addab312a5c55a9dcc1a6ae8e73fdf4365d645fbc9d19853b307fda",
+    "examples/WAP_amp_sims/michel/WAM/utility-reference.html": "5bd982e7798ee5dfd258659d4cd4c8a2286286e2925870cfbc6c5320cb08e08f",
+    "examples/WAP_amp_sims/michel/WAM/../utility/main.js": "299ba96d699b54e860c429438ec100aa61eff177953608b4a36b4d2c219d9e9a",
+    "examples/WAP_amp_sims/michel/WAM/../utility/deadgate/FaustDeadGate.wasm": "baf2b3b2fffc872df0691707a62523a73fb94cfd12e92b9a12dbce678baed8a4",
+    "examples/WAP_amp_sims/michel/WAM/utility/index.js": "838c7e27fb3733f352d5d3d25991c224696e102f7facb30afaf8a4e8698c5878",
+    "examples/WAP_amp_sims/michel/WAM/utility/Node.js": "f2d424fa9d1bb35ed0a4f80e57c8b9fa035de2ac8b7dd46940ec93b8254d03b9",
+    "examples/WAP_amp_sims/michel/WAM/utility/gui.js": "264b9377eb9edbab137ebd69c1f77d4c27ae475c3e56092dc414d9f69cea2ebd",
+    "examples/wam/wamPlugins/deathgate/index.js": "03322524d93346e52a293d3dba7bba22329b446d7e1bfc7e281db3ee933ef604",
+    "examples/wam/wamPlugins/deathgate/Node.js": "654bdcc8670d64abbccd16713916d40ab094fd1983b03af3785426928bf526c7",
+    "examples/wam/wamPlugins/deathgate/deathgate.wasm": "846167b06af8995537351b0aa13a2a684ae8d531326f2e65572159cd3956b32f",
+    "examples/wam/wamPlugins/deathgate/runtime/sdk.js": "8088a3063feb8e1e6ee91fd3fb944a874d9c50e4b2886baef689ea43dd9f2c31",
+    "examples/wam/wamPlugins/deathgate/runtime/parammgr.js": "bef2536c2e8c9925e1217f8417810c5486eb8443796a780ff508fa21c76ee849"
+  }
+}

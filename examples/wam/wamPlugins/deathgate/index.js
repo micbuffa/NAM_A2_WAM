@@ -1,8 +1,6 @@
-import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
-import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
-import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
+import {WebAudioModule} from "./runtime/sdk.js";
+import {CompositeAudioNode, ParamMgrFactory} from "./runtime/parammgr.js";
 
-import { createElement } from "./Gui/index.js";
 
 class deathgateNode extends CompositeAudioNode {
   _wamNode;
@@ -15,8 +13,14 @@ class deathgateNode extends CompositeAudioNode {
   }
 
   destroy() {
-    super.destroy();
-    if (this._output) this._output.destroy();
+    if (!this._destroyPromise) {
+      this.module.destroyGui();
+      AudioNode.prototype.disconnect.call(this);
+      this._output?.disconnect();
+      this._output?.destroy();
+      this._destroyPromise = Promise.resolve(super.destroy());
+    }
+    return this._destroyPromise;
   }
 
   getParamValue(name) {
@@ -52,7 +56,9 @@ export default class deathgatePlugin extends WebAudioModule {
     await this._loadDescriptor();
     const imported = await import("./Node.js");
     this._PluginFactory = imported[Object.keys(imported)[0]];
-    return super.initialize(state);
+    this.audioNode = await this.createAudioNode(state);
+    this.initialized = true;
+    return this;
   }
 
   // The plugin redefines the async method createAudionode()
@@ -61,18 +67,32 @@ export default class deathgatePlugin extends WebAudioModule {
   async createAudioNode(initialState) {
     const factory = new this._PluginFactory(this.audioContext, this._baseURL);
     const faustNode = await factory.load();
-    const paramMgrNode = await ParamMgrFactory.create(this, {
-      internalParamsConfig: Object.fromEntries(faustNode.parameters),
-    });
+    if (!faustNode) throw Error('DeathGate audio initialization failed');
+    let paramMgrNode;
+    try {
+      paramMgrNode = await ParamMgrFactory.create(this, {
+        internalParamsConfig: Object.fromEntries(faustNode.parameters),
+      });
+    } catch (error) { faustNode.disconnect(); faustNode.destroy(); throw error; }
     const node = new deathgateNode(this.audioContext);
     node.setup(faustNode, paramMgrNode);
 
-    if (initialState) node.setState(initialState);
+    try { if (initialState) await node.setState(initialState); }
+    catch (error) { await node.destroy(); throw error; }
 
     return node;
   }
 
-  createGui() {
-    return createElement(this);
+  destroyGui(gui) {
+    for (const editor of gui ? [gui] : this._guis || []) {
+      editor.destroy?.(); editor.remove(); this._guis?.delete(editor);
+    }
+  }
+
+  async createGui() {
+    const {createElement} = await import("./Gui/index.js");
+    const gui = await createElement(this);
+    (this._guis ||= new Set()).add(gui);
+    return gui;
   }
 }

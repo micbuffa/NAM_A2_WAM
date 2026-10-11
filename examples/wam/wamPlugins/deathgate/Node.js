@@ -141,6 +141,9 @@ class deathgateNode extends AudioWorkletNode {
    * Destroy the node, deallocate resources.
    */
   destroy() {
+    if (this._destroyed) return;
+    this._destroyed = true;
+    this.disconnect();
     this.port.postMessage({ type: "destroy" });
     this.port.close();
   }
@@ -491,21 +494,22 @@ export default class deathgate {
       let json_object = JSON.parse(json);
       let options = { wasm_module: dspModule, json: json };
 
-      if (this.fWorkletProcessors.indexOf(name) === -1) {
-        try {
-          let re = /JSON_STR/g;
-          let deathgateProcessorString1 = deathgateProcessorString.replace(re, json);
-          let real_url = window.URL.createObjectURL(new Blob([deathgateProcessorString1], { type: "text/javascript" }));
-          await this.context.audioWorklet.addModule(real_url);
-          // Keep the DSP name
-          console.log("Keep the DSP name");
-          this.fWorkletProcessors.push(name);
-        } catch (e) {
-          console.error(e);
-          console.error("Faust " + this.name + " cannot be loaded or compiled");
-          return null;
-        }
+      // Share registration across standalone and vendored copies in this context.
+      const key = Symbol.for('com.wimmics.deathgate.workletRegistration');
+      const cache = globalThis[key] ||= new WeakMap();
+      if (!cache.has(this.context)) {
+        const context = this.context;
+        const registration = (async () => {
+          const url = URL.createObjectURL(new Blob([
+            deathgateProcessorString.replace(/JSON_STR/g, json)
+          ], {type: 'text/javascript'}));
+          try { await context.audioWorklet.addModule(url); }
+          finally { URL.revokeObjectURL(url); }
+        })();
+        cache.set(context, registration);
+        registration.catch(() => cache.delete(context));
       }
+      await cache.get(this.context);
       this.node = new deathgateNode(this.context, this.baseURL, {
         numberOfInputs: parseInt(json_object.inputs) > 0 ? 1 : 0,
         numberOfOutputs: parseInt(json_object.outputs) > 0 ? 1 : 0,
