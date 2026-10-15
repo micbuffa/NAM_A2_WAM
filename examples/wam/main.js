@@ -248,7 +248,6 @@ async function initialize() {
     modeButton.disabled=true;chainView.close();
     try{
       await rack.setUiMode(rack.uiMode==='beginner'?'full':'beginner');
-      if(rack.uiMode==='beginner'&&!$('#hostSidebar').hidden)sidebarToggle.click();
       document.body.dataset.uiMode=rack.uiMode;
       modeButton.textContent=`UI mode: ${rack.uiMode}`;
       modeButton.setAttribute('aria-pressed',String(rack.uiMode==='full'));

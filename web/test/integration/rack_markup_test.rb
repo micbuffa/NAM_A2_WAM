@@ -1,11 +1,14 @@
 require "test_helper"
 
-# app/views/rack/show.html.erb is the Rails port of examples/wam/index.html.
-# Guard against drift: every element id the host scripts rely on must exist.
+# app/views/rack/show.html.erb is generated from examples/wam/index.html by
+# bin/rack-sync (lib/rack_view.rb). Guard against a stale or hand-edited view.
 class RackMarkupTest < ActionDispatch::IntegrationTest
-  test "rack view keeps every id of examples/wam/index.html" do
-    source = Rails.root.join("../examples/wam/index.html").read
-    ids = source.scan(/\sid="([^"]+)"/).flatten
+  test "rack view is up to date with examples/wam/index.html" do
+    assert_equal RackView.generate, File.read(RackView::TARGET), "stale view: run bin/rack-sync"
+  end
+
+  test "rack page keeps every id of examples/wam/index.html" do
+    ids = File.read(RackView::SOURCE).scan(/\sid="([^"]+)"/).flatten
     assert_operator ids.size, :>, 20
 
     get "/rack/"

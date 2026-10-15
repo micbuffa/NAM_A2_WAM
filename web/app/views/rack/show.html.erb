@@ -4,15 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>NAM A2 WAM Rack</title>
+  <%# Generated from examples/wam/index.html by bin/rack-sync (lib/rack_view.rb); edit the source, not this file. %>
   <%= csrf_meta_tags %>
   <link rel="icon" href="./plugins/nam-wam/neuralwamp-logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./host.css">
   <script type="application/json" id="currentUser"><%= json_escape(@current_user_payload.to_json).html_safe %></script>
+  <link rel="stylesheet" href="./host.css">
   <link rel="stylesheet" href="./fx-chain.css">
 </head>
-<body>
+<body data-ui-mode="beginner">
   <div class="host-shell">
-    <aside class="host-sidebar" aria-label="Host controls">
+    <aside class="host-sidebar" id="hostSidebar" aria-label="Host controls">
       <header class="host-brand">
         <p class="host-kicker">WAM RACK</p>
         <h1>NAM A2</h1>
@@ -55,7 +56,6 @@
         <p class="host-help" id="outputSupport"></p>
         <button class="host-secondary" id="recoverAudio" type="button" hidden>Recover audio</button>
         <p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p>
-        <button class="host-secondary live-toggle" id="enableLive" type="button" aria-pressed="false">Enable live input</button>
         <p class="host-help" id="discovery"></p>
       </section>
 
@@ -89,11 +89,14 @@
 
     <main class="rack-stage">
       <header class="rack-header">
-        <div><p class="rack-kicker">SIGNAL CHAIN</p><h2>Amplifier rack</h2></div>
+        <div class="rack-heading"><div class="rack-source-actions"><button class="live-toggle" id="enableLive" type="button" aria-pressed="false" disabled>Enable live input</button><button id="toggleSidebar" type="button" aria-label="Close audio source panel" aria-controls="hostSidebar" aria-expanded="true" title="Change audio source"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M5.5 8h1M5.5 12h1M5.5 16h1"/></svg><span>Change audio source</span></button></div><div><p class="rack-kicker">SIGNAL CHAIN</p><h2>Amplifier rack</h2></div></div>
+        <button id="tunerButton" class="host-tuner-button" type="button" title="Open tuner" aria-haspopup="dialog" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 3v7a5 5 0 0 0 10 0V3M12 15v6M10 21h4"/></svg><span>Tuner</span></button>
+        <button id="uiMode" type="button" aria-pressed="false" title="Switch to full mode to use two chains" disabled>UI mode: beginner</button>
         <div class="chain-map" aria-label="Signal chain">
           <span>INPUT</span><i></i><strong>NAM</strong><i></i><strong>CABINET</strong><i></i><span>OUTPUT</span>
         </div>
       </header>
+      <p class="fx-help">Drop on a card to swap · Drop on + to insert at that position · Alt + ← / → to move. All plugins can be removed and added with +.</p>
       <section class="fx-rack" aria-label="Processing chain A">
         <aside class="fx-endpoint" aria-label="Chain A input">
           <strong>INPUT · A</strong>
@@ -123,7 +126,6 @@
           <label class="fx-pan"><span>L</span><input id="chainOutputPan" type="range" min="-1" max="1" step="0.01" value="0" aria-label="Chain A pan" title="Pan L/R — double-click to center"><span>R</span><output id="chainOutputPanValue">C</output></label>
         </aside>
       </section>
-      <p class="fx-help">Drop on a card to swap · Drop on + to insert at that position · Alt + ← / → to move. All plugins can be removed and added with +.</p>
     </main>
   </div>
 

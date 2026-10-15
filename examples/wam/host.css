@@ -105,7 +105,7 @@ button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity:
   .chain-map { flex-wrap: wrap; }
 }
 
-/* The host controls start closed; the rack retains all available width. */
+/* The host controls start open; collapsed, the rack takes all available width. */
 .host-shell.sidebar-collapsed { grid-template-columns: minmax(0, 1fr); }
 .host-sidebar[hidden] { display:none; }
 .rack-heading { display:flex;align-items:center;gap:16px;flex-wrap:wrap; }
@@ -126,4 +126,3 @@ body[data-ui-mode="beginner"] .fx-route-label { display:none!important; }
 .host-tuner header { display:flex;align-items:center;justify-content:space-between;gap:16px; }
 .host-tuner .tuner-mount { display:flex;justify-content:center;margin-top:14px;min-height:50px;font-size:12px; }
 
-body[data-ui-mode="beginner"] #toggleSidebar { display:none; }

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Copies the static rack distribution (dist/NAM_A2_WAM) into public/rack/.
-# index.html is excluded: Rails renders the rack page (RackController#show).
+# index.html is excluded: Rails renders the rack page (RackController#show)
+# from app/views/rack/show.html.erb, regenerated here from examples/wam/index.html.
 # Pass --full to also regenerate the factory manifests and rebuild the WASM.
 set -euo pipefail
 web_root="$(cd -- "$(dirname -- "$0")/.." && pwd)"
@@ -10,4 +11,5 @@ flags=(--no-regenerate --no-build)
 node "$repo_root/tools/build-static-dist.mjs" "${flags[@]}"
 mkdir -p "$web_root/public/rack"
 rsync -a --delete --exclude index.html "$repo_root/dist/NAM_A2_WAM/" "$web_root/public/rack/"
-echo "public/rack synced from dist/NAM_A2_WAM"
+ruby "$web_root/lib/rack_view.rb"
+echo "public/rack synced from dist/NAM_A2_WAM; app/views/rack/show.html.erb regenerated"

@@ -66,6 +66,11 @@ What it does:
 2. `rsync --delete`s that tree into `public/rack/`, **without `index.html`**:
    the page itself is rendered by `RackController#show`
    (`app/views/rack/show.html.erb`).
+3. Regenerates `app/views/rack/show.html.erb` from
+   `../examples/wam/index.html` (`lib/rack_view.rb`), adding only what Rails
+   needs: the CSRF meta tags, the favicon and the `currentUser` JSON payload.
+   The view is committed but **generated: never edit it by hand**
+   (`test/integration/rack_markup_test.rb` fails when it is stale).
 
 When to run it:
 
@@ -73,7 +78,7 @@ When to run it:
 | --- | --- |
 | `examples/wam/**` or `src/**` (JS, CSS, manifests) | `bin/rack-sync`, then reload the page |
 | C++ in `src/nam-wasm/`, or Factory models/IRs | `bin/rack-sync --full` |
-| `examples/wam/index.html` | port the change to `app/views/rack/show.html.erb` (`test/integration/rack_markup_test.rb` checks that every id still exists), then `bin/rack-sync` |
+| `examples/wam/index.html` | `bin/rack-sync` (regenerates `app/views/rack/show.html.erb`), then commit the view |
 | Only Rails code (`app/`, `config/`) | nothing |
 
 Notes:
