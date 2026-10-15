@@ -1,5 +1,6 @@
 import './backing-track-player/BackingTrackPlayerElement.js';
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
+import {toast} from './ui/components/tl-toast.js';
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import NamPlugin from '../../src/nam-wam/index.js';
 import CabinetPlugin from '../../src/cabinet-wam/index.js';
@@ -50,6 +51,7 @@ $('#hostSidebar').addEventListener('keydown', event => {
 function message(text, error = false) {
   $('#hostStatus').textContent = text;
   $('#hostStatus').classList.toggle('error', error);
+  if (error) toast(text, {tone: 'danger', duration: 6000});
 }
 
 async function discoverFiles() {

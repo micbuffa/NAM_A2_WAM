@@ -8,29 +8,36 @@
   <%= csrf_meta_tags %>
   <link rel="icon" href="./plugins/nam-wam/neuralwamp-logo.svg" type="image/svg+xml">
   <script type="application/json" id="currentUser"><%= json_escape(@current_user_payload.to_json).html_safe %></script>
+  <link rel="stylesheet" href="./ui/tokens.css">
+  <link rel="stylesheet" href="./ui/base.css">
+  <link rel="stylesheet" href="./ui/components.css">
   <link rel="stylesheet" href="./host.css">
   <link rel="stylesheet" href="./fx-chain.css">
 </head>
 <body data-ui-mode="beginner">
   <div class="host-shell">
+    <header class="host-topbar">
+      <div class="host-brand">
+        <span class="host-brand-mark"><tl-icon name="guitar" size="22"></tl-icon></span>
+        <div class="host-brand-text"><h1>NAM A2</h1><p>Neural amp &amp; cabinet rack</p></div>
+      </div>
+      <div class="host-topbar-actions">
+        <p id="hostStatus" class="host-status" role="status">Initializing…</p>
+        <span class="host-divider"></span>
+        <a class="host-lab-link" href="./fx-test/">WAM FX Registry Lab</a>
+      </div>
+    </header>
     <aside class="host-sidebar" id="hostSidebar" aria-label="Host controls">
-      <header class="host-brand">
-        <p class="host-kicker">WAM RACK</p>
-        <h1>NAM A2</h1>
-        <p>Neural amplifier and cabinet chain</p>
-        <a class="host-lab-link" href="./fx-test/">Open WAM FX Registry Lab</a>
-      </header>
-
       <section class="host-card host-account" id="accountPanel" aria-labelledby="account-title" hidden>
         <h2 id="account-title"><span class="host-dot rose"></span>Account</h2>
         <div id="accountSignedOut">
           <p class="host-help">Sign in to keep presets, favorites and preferences on every device.</p>
-          <button class="host-secondary" id="accountSignIn" type="button" aria-haspopup="dialog">Sign in / Sign up</button>
+          <tl-button class="host-secondary" id="accountSignIn" block icon="user" aria-haspopup="dialog">Sign in / Sign up</tl-button>
         </div>
         <div id="accountSignedIn" hidden>
           <p class="account-identity">Signed in as <strong id="accountEmail"></strong></p>
           <div class="host-session-actions">
-            <button id="accountSignOut" type="button">Sign out</button>
+            <tl-button id="accountSignOut" size="sm">Sign out</tl-button>
           </div>
         </div>
         <p class="host-help" id="accountStatus" role="status" aria-live="polite"></p>
@@ -38,7 +45,7 @@
 
       <section class="host-card" aria-labelledby="source-title">
         <h2 id="source-title"><span class="host-dot violet"></span>Audio source</h2>
-        <label>Source <select id="audioSource"><option>Live input</option></select></label>
+        <label>Source <tl-select icon="audio"><select id="audioSource"><option>Live input</option></select></tl-select></label>
         <div class="embedded-player" id="playerPanel" hidden>
           <p class="embedded-player-title"><span class="host-dot amber"></span>Audio player</p>
           <div class="transport" role="group" aria-label="Audio transport">
@@ -52,9 +59,9 @@
           </label>
           <audio id="player" preload="metadata"></audio>
         </div>
-        <button class="host-secondary" id="authorizeOutput" type="button">Choose output</button>
+        <tl-button class="host-secondary" id="authorizeOutput" block icon="headphones">Choose output</tl-button>
         <p class="host-help" id="outputSupport"></p>
-        <button class="host-secondary" id="recoverAudio" type="button" hidden>Recover audio</button>
+        <tl-button class="host-secondary" id="recoverAudio" block variant="danger" icon="power" hidden>Recover audio</tl-button>
         <p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p>
         <p class="host-help" id="discovery"></p>
       </section>
@@ -63,8 +70,8 @@
         <h2 id="presets-title"><span class="host-dot amber"></span>Presets</h2>
         <p class="host-help" id="presetScope">Stored in this browser.</p>
         <div class="preset-actions">
-          <button class="host-secondary" id="presetUpdate" type="button" hidden>Update preset</button>
-          <button class="host-secondary" id="presetSave" type="button" aria-haspopup="dialog">Save as new…</button>
+          <tl-button class="host-secondary" id="presetUpdate" block icon="save" hidden>Update preset</tl-button>
+          <tl-button class="host-secondary" id="presetSave" block variant="primary" icon="plus" aria-haspopup="dialog">Save as new…</tl-button>
         </div>
         <ul class="preset-list" id="presetList" aria-label="Saved presets"></ul>
         <p class="host-help" id="presetStatus" role="status" aria-live="polite"></p>
@@ -73,8 +80,8 @@
       <details class="host-card host-advanced">
         <summary>Session & diagnostics</summary>
         <div class="host-session-actions">
-          <button id="saveState" type="button">Save WAM state</button>
-          <button id="restoreState" type="button">Restore state</button>
+          <tl-button id="saveState" size="sm">Save WAM state</tl-button>
+          <tl-button id="restoreState" size="sm">Restore state</tl-button>
         </div>
         <span class="host-help" id="stateSize"></span>
         <details class="validation-panel">
@@ -84,52 +91,56 @@
         </details>
       </details>
 
-      <p id="hostStatus" class="host-status" role="status">Initializing…</p>
     </aside>
 
     <main class="rack-stage">
       <header class="rack-header">
-        <div class="rack-heading"><div class="rack-source-actions"><button class="live-toggle" id="enableLive" type="button" aria-pressed="false" disabled>Enable live input</button><button id="toggleSidebar" type="button" aria-label="Close audio source panel" aria-controls="hostSidebar" aria-expanded="true" title="Change audio source"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M5.5 8h1M5.5 12h1M5.5 16h1"/></svg><span>Change audio source</span></button></div><div><p class="rack-kicker">SIGNAL CHAIN</p><h2>Amplifier rack</h2></div></div>
-        <button id="tunerButton" class="host-tuner-button" type="button" title="Open tuner" aria-haspopup="dialog" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 3v7a5 5 0 0 0 10 0V3M12 15v6M10 21h4"/></svg><span>Tuner</span></button>
-        <button id="uiMode" type="button" aria-pressed="false" title="Switch to full mode to use two chains" disabled>UI mode: beginner</button>
+        <div class="rack-heading"><div class="rack-source-actions"><tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button><tl-button id="toggleSidebar" icon="panel" aria-label="Close audio source panel" aria-controls="hostSidebar" aria-expanded="true" title="Change audio source">Change audio source</tl-button></div><div><p class="rack-kicker">SIGNAL CHAIN</p><h2>Amplifier rack</h2></div></div>
+        <tl-button id="tunerButton" class="host-tuner-button" icon="tuner" title="Open tuner" aria-haspopup="dialog" disabled>Tuner</tl-button>
+        <tl-button id="uiMode" aria-pressed="false" title="Switch to full mode to use two chains" disabled>UI mode: beginner</tl-button>
         <div class="chain-map" aria-label="Signal chain">
           <span>INPUT</span><i></i><strong>NAM</strong><i></i><strong>CABINET</strong><i></i><span>OUTPUT</span>
         </div>
       </header>
+      <div class="rack-canvas">
       <p class="fx-help">Drop on a card to swap · Drop on + to insert at that position · Alt + ← / → to move. All plugins can be removed and added with +.</p>
       <section class="fx-rack" aria-label="Processing chain A">
         <aside class="fx-endpoint" aria-label="Chain A input">
           <strong>INPUT · A</strong>
-          <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Input device</span><select id="inputDevice" title="Input device"></select></label>
-            <label class="fx-select-label" id="inputChannelRow" hidden><span>Input channel</span><select id="inputChannel" title="Input channel"><option value="0">Input 1</option></select></label></div>
+          <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Input device</span><tl-select size="sm" icon="guitar"><select id="inputDevice" title="Input device"></select></tl-select></label>
+            <label class="fx-select-label" id="inputChannelRow" hidden><span>Input channel</span><tl-select size="sm"><select id="inputChannel" title="Input channel"><option value="0">Input 1</option></select></tl-select></label></div>
           <div class="fx-endpoint-controls">
             <div class="fx-meter-column">
-              <div class="fx-meter" id="chainInputMeter" role="meter" aria-label="Input level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></div>
+              <tl-meter class="fx-level" id="chainInputMeter" orientation="vertical" role="meter" aria-label="Input level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></tl-meter>
               <output id="chainInputLevel">−∞ dBFS</output>
-              <button class="fx-gain-reset" id="chainInputReset" aria-label="Reset input gain">Reset</button>
             </div>
-            <label class="fx-gain">Gain<input id="sourceTrim" aria-label="Input gain" aria-orientation="vertical" type="range" min="-48" max="12" step="0.5" value="0"><output id="sourceTrimValue">0.0 dB</output></label>
+            <div class="fx-gain-column">
+              <tl-knob class="fx-gain" label="Gain"><input id="sourceTrim" aria-label="Input gain" type="range" min="-48" max="12" step="0.5" value="0"><output slot="value" id="sourceTrimValue">0.0 dB</output></tl-knob>
+              <tl-button class="fx-gain-reset" id="chainInputReset" size="sm" variant="ghost" aria-label="Reset input gain">Reset</tl-button>
+            </div>
           </div>
         </aside>
         <section class="fx-chain" id="fxChain" aria-label="Effects — drag to swap cards, or Alt + arrow keys"></section>
         <aside class="fx-endpoint fx-output-strip" aria-label="Chain A output">
           <strong>OUTPUT · A</strong>
-          <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Output device</span><select id="outputDevice" title="Output device"><option value="">System default</option></select></label></div>
+          <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Output device</span><tl-select size="sm" icon="headphones"><select id="outputDevice" title="Output device"><option value="">System default</option></select></tl-select></label></div>
           <div class="fx-endpoint-controls">
             <div class="fx-meter-column">
-              <div class="fx-meter fx-meter-linear" id="chainOutputMeter" role="meter" aria-label="Output level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></div>
+              <tl-meter class="fx-level" id="chainOutputMeter" orientation="vertical" role="meter" aria-label="Output level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></tl-meter>
               <output id="chainOutputLevel">−∞ dBFS</output>
-              <button class="fx-gain-reset" id="chainOutputReset" aria-label="Reset output gain">Reset</button>
+              <tl-button class="fx-gain-reset" id="chainOutputReset" size="sm" variant="ghost" aria-label="Reset output gain">Reset</tl-button>
             </div>
-            <label class="fx-gain">Volume<input id="chainOutputGain" aria-label="Output gain" aria-orientation="vertical" type="range" min="-48" max="12" step="0.5" value="0"><output id="chainOutputGainValue">0.0 dB</output></label>
+            <tl-knob class="fx-gain" label="Volume"><input id="chainOutputGain" aria-label="Output gain" type="range" min="-48" max="12" step="0.5" value="0"><output slot="value" id="chainOutputGainValue">0.0 dB</output></tl-knob>
+            <tl-knob class="fx-pan" label="Pan" size="sm" title="Pan L/R — double-click to center"><input id="chainOutputPan" type="range" min="-1" max="1" step="0.01" value="0" aria-label="Chain A pan"><output slot="value" id="chainOutputPanValue">C</output></tl-knob>
           </div>
-          <label class="fx-pan"><span>L</span><input id="chainOutputPan" type="range" min="-1" max="1" step="0.01" value="0" aria-label="Chain A pan" title="Pan L/R — double-click to center"><span>R</span><output id="chainOutputPanValue">C</output></label>
         </aside>
       </section>
+      </div>
     </main>
   </div>
 
   <script src="./config.js"></script>
+  <script type="module" src="./ui/index.js"></script>
   <script type="module" src="./main.js"></script>
 </body>
 </html>

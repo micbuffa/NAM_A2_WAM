@@ -1,0 +1,6 @@
+/* TONELAB base: fonts and a few light-DOM utilities. Load after tokens.css. */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap");
+
+.tl-eyebrow { margin: 0; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); font-weight: 600; letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
+.tl-mono { font-family: var(--tl-font-mono); }
+.tl-muted { color: var(--tl-text-muted); }

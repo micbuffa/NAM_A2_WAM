@@ -15,7 +15,7 @@ export class FxChainView {
     close.onclick=()=>this.close();this.dialog.addEventListener('cancel',event=>{event.preventDefault();this.close();});
     this.remove.onclick=()=>this.confirmRemove(this.activeId);
     this.replace.onclick=()=>this.showMenu(null,this.replace,this.activeId);
-    this.confirmation=element('dialog','fx-confirm');document.body.append(this.confirmation);
+    this.confirmation=element('dialog','fx-confirm tl-modal');document.body.append(this.confirmation);
     this.menu=element('dialog','fx-menu');document.body.append(this.menu);
     chain.addEventListener('change',()=>this.render());chain.addEventListener('error',e=>report(e.detail.message,true));
     this.setupMeters();this.render();this.animateLevels();this.timer=setInterval(()=>this.refresh().catch(error=>report(error.message,true)),350);
@@ -78,8 +78,8 @@ export class FxChainView {
     if(this.confirmation.open)return;
     const title=element('h3','',`Remove ${entry.record?.name||entry.kind}?`);title.id='fx-remove-title';
     const message=element('p','','This instance and its settings will be removed from the chain.');
-    const cancel=element('button','','Cancel'),remove=element('button','fx-confirm-delete','Remove');
-    this.confirmation.setAttribute('aria-labelledby',title.id);this.confirmation.replaceChildren(title,message,cancel,remove);
+    const cancel=element('button','tl-btn','Cancel'),remove=element('button','tl-btn tl-btn-danger','Remove'),actions=element('div','tl-modal-actions');actions.append(cancel,remove);
+    this.confirmation.setAttribute('aria-labelledby',title.id);this.confirmation.replaceChildren(title,message,actions);
     const confirmed=await new Promise(resolve=>{
       const finish=value=>{this.confirmation.close();resolve(value);};
       cancel.onclick=()=>finish(false);remove.onclick=()=>finish(true);

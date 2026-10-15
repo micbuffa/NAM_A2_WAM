@@ -25,7 +25,7 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(main, /new BackingTrackMix\(context,rack.output,backingPlayer\)/u);
   assert.match(main, /\$\('#playerPanel'\)\.hidden = !enabled/u);
   assert.match(html, /id="enableLive"[^>]*aria-pressed="false"[^>]*>Enable live input/u);
-  assert.match(css, /\.live-toggle\.live-active/u);
+  assert.match(await read('examples/wam/ui/components/tl-button.js'), /:host\(\[aria-pressed="true"\]\)/u);
   assert.match(main, /liveInputEnabled \? 'Disable live input' : 'Enable live input'/u);
   assert.match(main, /if \(liveInputEnabled\) \{\s*await disableLiveInput\(\)/u);
   assert.match(main, /if \(\$\('#audioSource'\)\.value !== 'live'\) return/u);

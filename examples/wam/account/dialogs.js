@@ -1,37 +1,17 @@
 // Small promise-based wrappers around native <dialog> (focus trapping, Esc
-// and the top layer come for free). Styled by .host-dialog in host.css.
-let sequence = 0;
+// and the top layer come for free). Built on the TONELAB modal (ui/modal.js,
+// styled by .tl-modal in ui/components.css).
+import {createModal, modalActions, modalButton} from '../ui/modal.js';
 
 export function createDialog({title, className = ''}) {
-  const id = `host-dialog-${++sequence}`;
-  const dialog = document.createElement('dialog');
-  dialog.className = `host-dialog ${className}`.trim();
-  dialog.setAttribute('aria-labelledby', `${id}-title`);
-  const heading = document.createElement('h2');
-  heading.id = `${id}-title`;
-  heading.textContent = title;
-  const body = document.createElement('div');
-  body.className = 'host-dialog-body';
-  dialog.append(heading, body);
-  document.body.append(dialog);
-  dialog.addEventListener('close', () => dialog.remove(), {once: true});
+  const {dialog, heading, body, id} = createModal({title, className});
   return {dialog, heading, body, id};
 }
 
-export function actionsRow(...buttons) {
-  const row = document.createElement('div');
-  row.className = 'host-dialog-actions';
-  row.append(...buttons);
-  return row;
-}
+export const actionsRow = modalActions;
 
 export function button(label, {type = 'button', primary = false, value = ''} = {}) {
-  const element = document.createElement('button');
-  element.type = type;
-  element.textContent = label;
-  if (value) element.value = value;
-  if (primary) element.className = 'host-primary';
-  return element;
+  return modalButton(label, {type, value, variant: primary ? 'primary' : ''});
 }
 
 // Resolves with the trimmed text, or null when cancelled.
