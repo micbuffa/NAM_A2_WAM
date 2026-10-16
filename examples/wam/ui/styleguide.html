@@ -160,7 +160,7 @@
       ['tl-module', 'Signal-chain module frame. Fires module-edit / module-remove / module-toggle; active = on; body is a slot', `<tl-module kicker="Amplifier" heading="MKII British 50" icon="audio" active style="width:220px;height:200px"><div style="flex:1;display:grid;place-items:center;color:var(--tl-text-muted)">body slot</div></tl-module>
 <tl-module kicker="Cabinet" heading="4x12 Greenback" icon="device" style="width:220px;height:200px"><div style="flex:1;display:grid;place-items:center;color:var(--tl-text-muted)">bypassed</div></tl-module>
 <tl-module kicker="Effect" heading="Tuner" noedit active style="width:220px;height:200px"></tl-module>`],
-      ['.tl-modal', 'Native <dialog> + createModal() from ui/modal.js (light DOM: form method=dialog, returnValue, Esc, focus trap). Native submit buttons use .tl-btn', `<tl-button variant="primary" icon="plus" data-demo="modal">Open modal</tl-button>
+      ['.tl-modal', 'Native <dialog> + createModal() from ui/modal.js (light DOM: form method=dialog, returnValue, Esc, focus trap; a click outside acts as Esc, see ui/light-dismiss.js). Native submit buttons use .tl-btn', `<tl-button variant="primary" icon="plus" data-demo="modal">Open modal</tl-button>
 <tl-button data-demo="confirm">Open confirm</tl-button>
 <button class="tl-btn">.tl-btn</button>
 <button class="tl-btn tl-btn-primary">.tl-btn-primary</button>
