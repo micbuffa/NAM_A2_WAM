@@ -47,6 +47,7 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
 .host-card { margin: 0; padding: var(--tl-space-6) var(--tl-space-5); border-bottom: 1px solid var(--tl-border-subtle); }
 .host-card h2 { display: flex; align-items: center; gap: var(--tl-space-2); margin: 0 0 var(--tl-space-4); color: #c8ceca; font-size: var(--tl-fs-sm); font-weight: 700;
   letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
+.host-heading-action { margin-left: auto; letter-spacing: 0; text-transform: none; }
 .host-dot { width: 6px; height: 6px; flex: none; border-radius: 50%; background: currentColor; box-shadow: 0 0 9px currentColor; }
 .host-dot.violet { color: var(--tl-accent); }
 .host-dot.amber { color: var(--tl-warning); }

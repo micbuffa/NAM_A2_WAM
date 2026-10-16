@@ -5,8 +5,7 @@ export class FxRackView {
     Object.assign(this,{rack,report});this.root=document.querySelector('.fx-rack');this.root.setAttribute('aria-label','Processing chains');
     const input=this.root.querySelector('[aria-label="Chain A input"]'),output=this.root.querySelector('[aria-label="Chain A output"]'),strip=document.querySelector('#fxChain');
     const header=el('div','fx-rack-controls');this.toggle=el('tl-segmented');this.toggle.id='toggleChains';this.toggle.setAttribute('aria-label','Chains');this.toggle.setAttribute('aria-controls','fxChainB');this.toggle.append(new Option('1 Chain','1'),new Option('2 Chains','2'));
-    header.append(document.getElementById('enableLive'),this.toggle);
-    for(const id of ['inputDevice','outputDevice']){const label=document.getElementById(id).closest('label');label.className='fx-device-label';header.append(label);}
+    header.append(this.toggle); // Devices and live input live in the sidebar (Audio devices).
     output.querySelector('.fx-endpoint-routing').append(output.querySelector('#chainOutputReset'));
     this.status=el('span','fx-rack-status');header.append(this.status);this.root.before(header);
     this.left=el('div','fx-endpoints');this.right=el('div','fx-endpoints');

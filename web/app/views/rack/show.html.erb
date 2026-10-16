@@ -37,6 +37,17 @@
       </div>
     </header>
     <aside class="host-sidebar" id="hostSidebar" aria-label="Host controls">
+      <section class="host-card host-devices" aria-labelledby="devices-title">
+        <h2 id="devices-title"><span class="host-dot violet"></span>Audio devices<tl-button class="host-heading-action" id="refreshDevices" size="sm" variant="ghost" title="Look for connected audio devices again">Refresh</tl-button></h2>
+        <label>Input <tl-select icon="guitar"><select id="inputDevice" title="Input device"></select></tl-select></label>
+        <label>Output <tl-select icon="headphones"><select id="outputDevice" title="Output device"><option value="">System default</option></select></tl-select></label>
+        <tl-button class="host-secondary" id="authorizeOutput" block icon="headphones">Choose output</tl-button>
+        <p class="host-help" id="outputSupport"></p>
+        <tl-button class="host-secondary live-toggle" id="enableLive" block variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button>
+        <p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p>
+        <tl-button class="host-secondary" id="recoverAudio" block variant="danger" icon="power" hidden>Recover audio</tl-button>
+      </section>
+
       <section class="host-card" aria-labelledby="source-title">
         <h2 id="source-title"><span class="host-dot violet"></span>Audio source</h2>
         <label>Source <tl-select icon="audio"><select id="audioSource"><option>Live input</option></select></tl-select></label>
@@ -53,10 +64,6 @@
           </label>
           <audio id="player" preload="metadata"></audio>
         </div>
-        <tl-button class="host-secondary" id="authorizeOutput" block icon="headphones">Choose output</tl-button>
-        <p class="host-help" id="outputSupport"></p>
-        <tl-button class="host-secondary" id="recoverAudio" block variant="danger" icon="power" hidden>Recover audio</tl-button>
-        <p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p>
         <p class="host-help" id="discovery"></p>
       </section>
 
@@ -92,7 +99,7 @@
             <div class="preset-title-row"><h2 id="presetTitle">Untitled rack</h2><tl-icon-button id="presetRename" icon="edit" size="sm" variant="ghost" aria-label="Rename preset" title="Rename preset" hidden></tl-icon-button><tl-icon-button id="presetRevert" icon="undo" size="sm" variant="ghost" aria-label="Revert to saved preset" title="Reload the preset, discarding unsaved changes" hidden></tl-icon-button></div>
             <p class="preset-meta" id="presetMeta">Not saved as a preset</p>
           </div>
-          <div class="rack-source-actions"><tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button><tl-button id="toggleSidebar" icon="panel" aria-label="Close audio source panel" aria-controls="hostSidebar" aria-expanded="true" title="Change audio source">Change audio source</tl-button></div>
+          <div class="rack-source-actions"><tl-button id="toggleSidebar" icon="panel" aria-label="Close audio source panel" aria-controls="hostSidebar" aria-expanded="true" title="Change audio source">Change audio source</tl-button></div>
         </div>
         <tl-button id="uiMode" aria-pressed="false" title="Switch to full mode to use two chains" disabled>UI mode: beginner</tl-button>
         <div class="chain-map" aria-label="Signal chain">
@@ -108,7 +115,7 @@
       <section class="fx-rack" aria-label="Processing chain A">
         <aside class="fx-endpoint" aria-label="Chain A input">
           <div class="fx-endpoint-head"><span aria-hidden="true">IN</span><strong>INPUT · A</strong></div>
-          <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Input device</span><tl-select size="sm" icon="guitar"><select id="inputDevice" title="Input device"></select></tl-select></label>
+          <div class="fx-endpoint-routing">
             <label class="fx-select-label" id="inputChannelRow" hidden><span>Input channel</span><tl-select size="sm"><select id="inputChannel" title="Input channel"><option value="0">Input 1</option></select></tl-select></label></div>
           <div class="fx-endpoint-controls">
             <div class="fx-meter-column">
@@ -124,7 +131,7 @@
         <section class="fx-chain" id="fxChain" aria-label="Effects — drag to swap cards, or Alt + arrow keys"></section>
         <aside class="fx-endpoint fx-output-strip" aria-label="Chain A output">
           <div class="fx-endpoint-head"><span aria-hidden="true">OUT</span><strong>OUTPUT · A</strong></div>
-          <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Output device</span><tl-select size="sm" icon="headphones"><select id="outputDevice" title="Output device"><option value="">System default</option></select></tl-select></label></div>
+          <div class="fx-endpoint-routing"></div>
           <div class="fx-endpoint-controls">
             <div class="fx-meter-column">
               <tl-meter class="fx-level" id="chainOutputMeter" orientation="vertical" role="meter" aria-label="Output level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></tl-meter>

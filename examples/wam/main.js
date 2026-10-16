@@ -309,7 +309,8 @@ async function initialize() {
       recoverAudio();
     }
   });
-  navigator.mediaDevices?.addEventListener?.('devicechange', () => {
+  // A device change, or Refresh in the sidebar's Audio devices block.
+  const syncDevices = () => {
     deviceRefresh = deviceRefresh.catch(() => {}).then(async () => {
     const wasLive = liveInputEnabled;
     const old = selectedDeviceId;
@@ -321,7 +322,13 @@ async function initialize() {
     if (outputDeviceManager.supported) await refreshOutputs({includeAuthorized: false});
     if (wasRunning && context.state !== 'running') await recoverAudio();
     }).catch(async (error) => { message(`Audio device change failed: ${error.message}`, true); await recoverAudio(); });
-  });
+    return deviceRefresh;
+  };
+  navigator.mediaDevices?.addEventListener?.('devicechange', syncDevices);
+  $('#refreshDevices').onclick = async () => {
+    $('#refreshDevices').disabled = true;
+    try { await syncDevices(); message('Audio devices refreshed.'); } finally { $('#refreshDevices').disabled = false; }
+  };
   $('#audioSource').onchange = () => selectSource().catch((error) => message(error.message, true));
   $('#chainOutputGain').oninput=()=>{
     const db=chain.setOutputDb($('#chainOutputGain').value);

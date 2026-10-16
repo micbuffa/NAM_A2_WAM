@@ -21,6 +21,9 @@ const styles = `
   :host([variant="danger"]) { color: var(--tl-danger); }
   :host([variant="danger"]:hover) { border-color: var(--tl-danger); background: var(--tl-danger-tint); }
   :host([aria-pressed="true"]), :host([aria-expanded="true"]) { border-color: var(--tl-accent-border); background: var(--tl-accent-tint); color: var(--tl-accent); }
+  /* A latched primary (e.g. live input on) keeps the latched look on hover, not accent-on-accent. */
+  :host([variant="primary"][aria-pressed="true"]), :host([variant="primary"][aria-pressed="true"]:hover) { box-shadow: none;
+    border-color: var(--tl-accent-border); background: var(--tl-accent-tint-strong); color: var(--tl-accent); }
   [part="dot"] { display: none; position: absolute; top: 4px; right: 4px; width: 5px; height: 5px; border-radius: 50%; background: var(--tl-warning); }
   :host([dot]) [part="dot"] { display: block; }
   tl-icon:not([name]), tl-icon[name=""] { display: none; }

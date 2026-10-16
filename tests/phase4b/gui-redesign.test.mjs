@@ -12,8 +12,10 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(html, /href="\.\/host\.css"/u);
   assert.match(html, /class="embedded-player" id="playerPanel" hidden/u);
   assert.ok(html.indexOf('id="audioSource"') < html.indexOf('id="playerPanel"'));
-  assert.ok(html.indexOf('aria-label="Chain A input"') < html.indexOf('id="inputDevice"'));
-  assert.ok(html.indexOf('id="inputDevice"') < html.indexOf('id="inputChannel"'));
+  // Devices are global (sidebar Audio devices); each chain input keeps its channel.
+  assert.ok(html.indexOf('id="devices-title"') < html.indexOf('id="inputDevice"'));
+  assert.ok(html.indexOf('id="inputDevice"') < html.indexOf('aria-label="Chain A input"'));
+  assert.ok(html.indexOf('aria-label="Chain A input"') < html.indexOf('id="inputChannel"'));
   assert.ok(html.indexOf('id="inputChannel"') < html.indexOf('id="fxChain"'));
   assert.doesNotMatch(html, /<section class="host-card" aria-labelledby="(?:player|output)-title"/u);
   assert.match(html, /<summary>Automated test results<\/summary>/u);
