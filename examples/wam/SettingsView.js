@@ -1,12 +1,15 @@
 import {createModal, modalActions, modalButton} from './ui/modal.js';
 
 // Application settings (topbar gear), as in the TONELAB mockup: a modal with a
-// section nav on the left. Owners register their section and render it on
-// demand: account/AccountPanel.js adds "Account".
-// section: {id, label, icon, render(container)}
+// section nav on the left (Audio, General, Account). Owners register their
+// section: main.js adds Audio and General, account/AccountPanel.js Account.
+// section: {id, label, icon, order, render(container)} or, for markup whose ids
+// and handlers must survive (main.js binds them once), {…, element}: the
+// element moves into the dialog while shown, then back to its hidden home.
 export class SettingsView {
-  constructor({button}) {
+  constructor({button, home = document.getElementById('settingsPanels')}) {
     this.button = button;
+    this.home = home;
     this.sections = [];
     this.current = null;
     this.dialog = null;
@@ -16,7 +19,8 @@ export class SettingsView {
   }
 
   addSection(section) {
-    this.sections = [...this.sections.filter((existing) => existing.id !== section.id), section];
+    this.sections = [...this.sections.filter((existing) => existing.id !== section.id), section]
+      .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
     this.button.disabled = false;
   }
 
@@ -36,6 +40,7 @@ export class SettingsView {
     this.dialog = dialog;
     this.button.setAttribute('aria-expanded', 'true');
     dialog.addEventListener('close', () => {
+      this.park();
       this.dialog = null;
       this.button.setAttribute('aria-expanded', 'false');
       this.button.focus();
@@ -73,7 +78,14 @@ export class SettingsView {
   refresh(id = this.current) {
     if (!this.dialog || id !== this.current) return;
     const section = this.sections.find((candidate) => candidate.id === id);
+    this.park();
     this.content.replaceChildren();
-    section?.render(this.content);
+    if (section?.element) { section.element.hidden = false; this.content.append(section.element); }
+    else section?.render(this.content);
+  }
+
+  // Persistent section elements go back to their hidden home.
+  park() {
+    for (const section of this.sections) if (section.element && section.element.parentElement !== this.home) this.home?.append(section.element);
   }
 }

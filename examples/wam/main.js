@@ -38,6 +38,22 @@ let outputDeviceManager;
 let chain, chainView, rack, backingPlayer, backingMix;
 const settings = new SettingsView({button: $('#settingsButton')});
 const engine = new EngineStatus({element: $('#engineStatus'), context});
+// Settings > Audio: what the browser chose (it does not let a page set the buffer size).
+const milliseconds = (seconds) => Number.isFinite(seconds) && seconds > 0 ? `${(seconds * 1000).toFixed(1)} ms` : 'Not reported';
+settings.addSection({id: 'audio', label: 'Audio', icon: 'audio', order: 1, render: (container) => {
+  const facts = document.createElement('dl');
+  facts.className = 'settings-facts';
+  const latency = (context.baseLatency || 0) + (context.outputLatency || 0);
+  for (const [term, value] of [['Sample rate', `${context.sampleRate.toLocaleString()} Hz`], ['Engine', {running: 'Running', suspended: 'Idle (starts with live input or playback)'}[context.state] || 'Offline'],
+    ['Processing latency', milliseconds(context.baseLatency)], ['Output latency', milliseconds(context.outputLatency)],
+    ['Estimated output delay', milliseconds(latency)]]) {
+    facts.append(Object.assign(document.createElement('dt'), {textContent: term}), Object.assign(document.createElement('dd'), {textContent: value}));
+  }
+  const note = Object.assign(document.createElement('p'), {className: 'host-help',
+    textContent: 'The browser sets these values for the selected output device. NAM A2 models run at 48 kHz.'});
+  container.append(Object.assign(document.createElement('h3'), {textContent: 'Audio'}), note, facts);
+}});
+settings.addSection({id: 'general', label: 'General', icon: 'sliders', order: 2, element: $('#settingsGeneral')});
 
 
 const sidebarToggle = $('#toggleSidebar');

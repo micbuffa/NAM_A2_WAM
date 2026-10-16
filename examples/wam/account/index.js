@@ -36,7 +36,7 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
   if (!api.available) {
     return {account: null, attach: async ({settings, captureState, applyState, suggestName, report}) => {
       guestRack = await captureState();
-      settings?.addSection({id: 'account', label: 'Account', icon: 'user', render: (container) => {
+      settings?.addSection({id: 'account', label: 'Account', icon: 'user', order: 3, render: (container) => {
         const note = Object.assign(document.createElement('p'), {className: 'host-help',
           textContent: 'Accounts are available on the online rack. Here, presets and favorites are stored in this browser.'});
         container.append(Object.assign(document.createElement('h3'), {textContent: 'Account'}), note);

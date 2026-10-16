@@ -24,7 +24,6 @@
       <div class="host-topbar-actions">
         <tl-button id="tunerButton" class="host-tuner-button" icon="tuner" size="sm" title="Open tuner (T)" aria-haspopup="dialog" aria-keyshortcuts="T" disabled>Tuner<kbd class="host-kbd">T</kbd></tl-button>
         <tl-badge id="engineStatus" class="host-engine" dot role="status" tone="warning" data-state="starting">Starting audio engine…</tl-badge>
-        <a class="host-lab-link" href="./fx-test/">WAM FX Registry Lab</a>
         <div class="host-account" id="accountPanel" hidden>
           <span class="host-divider"></span>
           <tl-button id="accountSignIn" icon="user" size="sm" aria-haspopup="dialog" title="Keep presets, favorites and preferences on every device">Sign in</tl-button>
@@ -74,20 +73,6 @@
         <tl-button class="host-secondary" id="presetNew" block icon="plus" aria-haspopup="dialog">New preset</tl-button>
         <p class="host-help" id="presetStatus" role="status" aria-live="polite"></p>
       </section>
-
-      <details class="host-card host-advanced">
-        <summary>Session & diagnostics</summary>
-        <div class="host-session-actions">
-          <tl-button id="saveState" size="sm">Save WAM state</tl-button>
-          <tl-button id="restoreState" size="sm">Restore state</tl-button>
-        </div>
-        <span class="host-help" id="stateSize"></span>
-        <details class="validation-panel">
-          <summary>Automated test results</summary>
-          <p class="host-help">Diagnostic report generated only when this page is opened with <code>?auto=1</code>.</p>
-          <pre id="automatedResult"></pre>
-        </details>
-      </details>
 
     </aside>
 
@@ -142,6 +127,29 @@
       </section>
       </div>
     </main>
+  </div>
+
+  <!-- Settings > General (SettingsView moves it into the dialog while shown; main.js binds its controls once). -->
+  <div id="settingsPanels" hidden>
+    <div class="settings-panel" id="settingsGeneral">
+      <h3>General</h3>
+      <p class="host-help">Tools for testing the rack and the plugin catalogue.</p>
+      <h4 class="settings-subheading">Session</h4>
+      <p class="host-help">Keeps a snapshot of the whole rack in this tab, to compare with your changes. Presets are the lasting way to save a sound.</p>
+      <div class="host-session-actions">
+        <tl-button id="saveState" size="sm" icon="save">Save WAM state</tl-button>
+        <tl-button id="restoreState" size="sm">Restore state</tl-button>
+      </div>
+      <span class="host-help" id="stateSize"></span>
+      <h4 class="settings-subheading">Plugins</h4>
+      <a class="settings-link" href="./fx-test/"><strong>WAM FX Registry Lab</strong><span>Try each plugin of the catalogue on its own.</span></a>
+      <h4 class="settings-subheading">Diagnostics</h4>
+      <details class="validation-panel">
+        <summary>Automated test results</summary>
+        <p class="host-help">Diagnostic report generated only when this page is opened with <code>?auto=1</code>.</p>
+        <pre id="automatedResult"></pre>
+      </details>
+    </div>
   </div>
 
   <script src="./config.js"></script>

@@ -41,7 +41,7 @@ export default class AccountPanel {
     this.panel.hidden = false;
     this.$('accountSignIn').onclick = () => this.openSignIn();
     this.$('accountChip').onclick = () => this.settings.open('account');
-    this.settings.addSection({id: 'account', label: 'Account', icon: 'user', render: (container) => this.renderSection(container)});
+    this.settings.addSection({id: 'account', label: 'Account', icon: 'user', order: 3, render: (container) => this.renderSection(container)});
     this.account.addEventListener('change', () => {
       this.render();
       if (this.account.signedIn) this.signInDialog?.close();
