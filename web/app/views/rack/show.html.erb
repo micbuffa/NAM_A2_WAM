@@ -22,27 +22,20 @@
         <div class="host-brand-text"><h1>NAM A2</h1><p>Neural amp &amp; cabinet rack</p></div>
       </div>
       <div class="host-topbar-actions">
+        <tl-button id="tunerButton" class="host-tuner-button" icon="tuner" size="sm" title="Open tuner (T)" aria-haspopup="dialog" aria-keyshortcuts="T" disabled>Tuner<kbd class="host-kbd">T</kbd></tl-button>
         <p id="hostStatus" class="host-status" role="status">Initializing…</p>
-        <span class="host-divider"></span>
         <a class="host-lab-link" href="./fx-test/">WAM FX Registry Lab</a>
+        <div class="host-account" id="accountPanel" hidden>
+          <span class="host-divider"></span>
+          <tl-button id="accountSignIn" icon="user" size="sm" aria-haspopup="dialog" title="Keep presets, favorites and preferences on every device">Sign in</tl-button>
+          <button class="account-chip" id="accountChip" type="button" aria-haspopup="dialog" title="Account" hidden>
+            <span class="account-avatar" id="accountAvatar" aria-hidden="true"></span>
+            <span class="account-chip-text"><strong id="accountEmail"></strong><span class="account-sync"><i></i>Synced</span></span>
+          </button>
+        </div>
       </div>
     </header>
     <aside class="host-sidebar" id="hostSidebar" aria-label="Host controls">
-      <section class="host-card host-account" id="accountPanel" aria-labelledby="account-title" hidden>
-        <h2 id="account-title"><span class="host-dot rose"></span>Account</h2>
-        <div id="accountSignedOut">
-          <p class="host-help">Sign in to keep presets, favorites and preferences on every device.</p>
-          <tl-button class="host-secondary" id="accountSignIn" block icon="user" aria-haspopup="dialog">Sign in / Sign up</tl-button>
-        </div>
-        <div id="accountSignedIn" hidden>
-          <p class="account-identity">Signed in as <strong id="accountEmail"></strong></p>
-          <div class="host-session-actions">
-            <tl-button id="accountSignOut" size="sm">Sign out</tl-button>
-          </div>
-        </div>
-        <p class="host-help" id="accountStatus" role="status" aria-live="polite"></p>
-      </section>
-
       <section class="host-card" aria-labelledby="source-title">
         <h2 id="source-title"><span class="host-dot violet"></span>Audio source</h2>
         <label>Source <tl-select icon="audio"><select id="audioSource"><option>Live input</option></select></tl-select></label>
@@ -96,7 +89,6 @@
     <main class="rack-stage">
       <header class="rack-header">
         <div class="rack-heading"><div class="rack-source-actions"><tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button><tl-button id="toggleSidebar" icon="panel" aria-label="Close audio source panel" aria-controls="hostSidebar" aria-expanded="true" title="Change audio source">Change audio source</tl-button></div><div><p class="rack-kicker">SIGNAL CHAIN</p><h2>Amplifier rack</h2></div></div>
-        <tl-button id="tunerButton" class="host-tuner-button" icon="tuner" title="Open tuner" aria-haspopup="dialog" disabled>Tuner</tl-button>
         <tl-button id="uiMode" aria-pressed="false" title="Switch to full mode to use two chains" disabled>UI mode: beginner</tl-button>
         <div class="chain-map" aria-label="Signal chain">
           <span>INPUT</span><i></i><strong>NAM</strong><i></i><strong>CABINET</strong><i></i><span>OUTPUT</span>

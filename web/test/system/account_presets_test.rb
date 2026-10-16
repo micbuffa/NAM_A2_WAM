@@ -21,7 +21,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
     assert_text "Chain ready", wait: 40
     assert page.evaluate_script("window.crossOriginIsolated")
 
-    click_on "Sign in / Sign up"
+    click_on "Sign in"
     within("dialog[open]") do
       fill_in "Email", with: "player@example.com"
       perform_enqueued_jobs do # the server enqueues the mail while we wait
@@ -94,7 +94,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
     visit "/rack/"
     assert_text "Chain ready", wait: 40
     page.execute_script("window.__sameDocument = true")
-    within("#accountPanel") { assert_button "Sign in / Sign up" }
+    within("#accountPanel") { assert_button "Sign in" }
 
     token = SignInToken.issue!(email: "linker@example.com").token
     link_window = open_like_a_mail_client(confirm_sign_in_path(token:))
@@ -142,8 +142,13 @@ class AccountPresetsTest < ApplicationSystemTestCase
     JS
     assert_not_equal guest["params"], chain_snapshot["params"]
 
-    within("#accountPanel") { click_on "Sign out" }
-    within("#accountPanel") { assert_button "Sign in / Sign up" }
+    click_on "Account: leaver@example.com"
+    within("dialog[open]") do
+      assert_text "leaver@example.com"
+      click_on "Sign out"
+    end
+    assert_no_css "dialog[open]"
+    within("#accountPanel") { assert_button "Sign in" }
     assert_text "the rack is back to its default settings", wait: 20
     assert_equal guest, chain_snapshot
   end

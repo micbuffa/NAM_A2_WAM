@@ -20,6 +20,19 @@ export class TunerView {
     button.disabled = !registry.records.some(record => record.role === 'tuner');
     if (button.disabled) button.title = 'Tuner is unavailable in the plugin catalogue';
     button.onclick = () => this.open();
+    document.addEventListener('keydown', event => this.shortcut(event));
+  }
+
+  // T toggles the tuner, except while typing (composedPath reaches inputs inside plugin GUIs)
+  // or when another dialog is open.
+  shortcut(event) {
+    if (event.key.toLowerCase() !== 't' || event.metaKey || event.ctrlKey || event.altKey || event.repeat) return;
+    const target = event.composedPath()[0];
+    if (target?.closest?.('input, select, textarea, [contenteditable=""], [contenteditable="true"]')) return;
+    if (this.dialog.open) { event.preventDefault(); this.close(); return; }
+    if (this.button.disabled || document.querySelector('dialog[open]')) return;
+    event.preventDefault();
+    this.open();
   }
 
   release(resources) {

@@ -3,8 +3,8 @@
 // styled by .tl-modal in ui/components.css).
 import {createModal, modalActions, modalButton} from '../ui/modal.js';
 
-export function createDialog({title, className = ''}) {
-  const {dialog, heading, body, id} = createModal({title, className});
+export function createDialog({title, eyebrow = '', className = ''}) {
+  const {dialog, heading, body, id} = createModal({title, eyebrow, className});
   return {dialog, heading, body, id};
 }
 

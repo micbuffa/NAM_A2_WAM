@@ -1,5 +1,9 @@
 require "test_helper"
 
+# The rack's buttons are <tl-button role="button"> custom elements: let
+# click_on / assert_button find them by role.
+Capybara.enable_aria_role = true
+
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1000 ] do |options|
     # No microphone prompt or real devices during tests.
