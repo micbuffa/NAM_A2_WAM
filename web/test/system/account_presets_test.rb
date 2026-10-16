@@ -162,7 +162,84 @@ class AccountPresetsTest < ApplicationSystemTestCase
     within("#accountPanel") { assert_text "solo@example.com", wait: 10 }
   end
 
+  test "the rack reopens the account's last preset after a reload, until it is deleted" do
+    skip_unless_rack_synced
+    visit "/rack/"
+    wait_for_rack(wait: 40)
+    sign_in_as_by_link "returner@example.com"
+    set_input_gain(-7)
+    saved = chain_snapshot
+    click_on "New preset"
+    within("dialog[open]") do
+      fill_in "Preset name", with: "Reopened"
+      click_on "Create preset"
+    end
+    assert_selector "#presetTitle", exact_text: "Reopened"
+    user = User.find_by!(email: "returner@example.com")
+    wait_until("the account remembers the preset") { user.reload.preferences["lastPresetId"] == user.presets.sole.id }
+
+    visit "/rack/"
+    wait_for_rack(wait: 40)
+    assert_selector "#presetTitle", exact_text: "Reopened", wait: 20
+    assert_equal saved, chain_snapshot
+
+    find("#presetDelete").click
+    within("dialog[open]") { click_on "Delete" }
+    assert_selector "#presetTitle", exact_text: "Untitled rack"
+    visit "/rack/"
+    wait_for_rack(wait: 40)
+    assert_selector "#presetTitle", exact_text: "Untitled rack"
+  end
+
+  test "signing in reopens the account's last preset unless the rack has unsaved changes" do
+    skip_unless_rack_synced
+    visit "/rack/"
+    wait_for_rack(wait: 40)
+    guest = chain_snapshot
+    set_input_gain(-7)
+    state = JSON.parse(page.evaluate_async_script("const done = arguments[0]; phase3Debug.rack.getState().then((s) => done(JSON.stringify(s)));"))
+    user = User.create!(email: "comeback@example.com")
+    preset = user.presets.create!(name: "Account tone", state:)
+    user.update!(preferences: { "lastPresetId" => preset.id })
+    visit "/rack/"
+    wait_for_rack(wait: 40)
+    assert_equal guest, chain_snapshot
+
+    sign_in_as_by_link "comeback@example.com"
+    assert_selector "#presetTitle", exact_text: "Account tone", wait: 20
+    assert_equal(-7, chain_snapshot.dig("params", "inputGain"))
+
+    click_on "Account: comeback@example.com"
+    within("dialog[open]", text: "Settings") do
+      click_on "Sign out"
+      assert_text "Stored in this browser only", wait: 10
+      click_on "Done"
+    end
+    assert_selector "#presetTitle", exact_text: "Untitled rack"
+    wait_until("the rack is back to its default settings", timeout: 20) { chain_snapshot == guest }
+
+    set_input_gain(3)
+    sign_in_as_by_link "comeback@example.com"
+    assert_text "My presets are synced to comeback@example.com"
+    assert_selector "#presetTitle", exact_text: "Untitled rack"
+    assert_equal 3, chain_snapshot.dig("params", "inputGain"), "unsaved changes stay until the user saves them"
+  end
+
   private
+    def sign_in_as_by_link(email)
+      token = SignInToken.issue!(email:).token
+      within_window(open_like_a_mail_client(confirm_sign_in_path(token:))) { click_on "Sign in" }
+      within("#accountPanel") { assert_text email, wait: 10 }
+      click_on "Not now" if page.has_css?("dialog[open]", text: "Import", wait: 2)
+    end
+
+    def set_input_gain(value)
+      page.evaluate_async_script(<<~JS, value)
+        const [value, done] = arguments;
+        window.phase3Debug.node.setParameterValues({inputGain: {id: 'inputGain', value, normalized: false}}).then(() => done());
+      JS
+    end
+
     def select_preset(name)
       find("#presetSelect").find("option", exact_text: name).select_option
     end

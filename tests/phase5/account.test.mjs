@@ -4,6 +4,7 @@ import AccountApi, {ApiError} from '../../examples/wam/account/api.js';
 import AccountFavorites, {decodeAsset, encodeAsset} from '../../examples/wam/account/AccountFavorites.js';
 import {LocalPresetStore} from '../../examples/wam/account/PresetStore.js';
 import LocalDataImport from '../../examples/wam/account/LocalDataImport.js';
+import PresetsPanel from '../../examples/wam/account/PresetsPanel.js';
 import {importSummary, initials} from '../../examples/wam/account/AccountPanel.js';
 import {FACTORY_PRESETS, FactoryPresetStore, isFactoryPreset} from '../../examples/wam/account/FactoryPresets.js';
 
@@ -210,4 +211,91 @@ test('every Factory preset names a model of the shipped catalogue', async () => 
   const {readFile} = await import('node:fs/promises');
   const {assets} = JSON.parse(await readFile(new URL('../../src/nam-wam/models-manifest.json', import.meta.url), 'utf8'));
   for (const preset of FACTORY_PRESETS) assert.ok(assets.some((asset) => asset.id === preset.model), preset.name);
+});
+
+test('the active preset is remembered in the account when signed in, in the browser otherwise', async () => {
+  const values = new Map();
+  const storage = {getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: (key) => values.delete(key)};
+  const guest = new PresetsPanel({account: null, storage, root: {}});
+  assert.equal(guest.lastPresetId, null);
+  guest.setActive('local-1');
+  assert.deepEqual([guest.activeId, guest.lastPresetId], ['local-1', 'local-1']);
+  guest.setActive(null);
+  assert.equal(guest.lastPresetId, null);
+
+  const sent = [];
+  const account = {signedIn: true, user: {preferences: {lastPresetId: 7}},
+    updatePreference(key, value) { sent.push({[key]: value}); this.user.preferences[key] = value; return Promise.resolve(); }};
+  const member = new PresetsPanel({account, storage, root: {}});
+  assert.equal(member.lastPresetId, 7);
+  member.setActive('factory:twin-clean');
+  assert.deepEqual(sent, [{lastPresetId: 'factory:twin-clean'}]);
+  assert.equal(values.size, 0, 'an account preset is not written to the browser');
+
+  const throwing = {getItem: () => { throw new Error('denied'); }, setItem: () => { throw new Error('denied'); }};
+  const blocked = new PresetsPanel({account: null, storage: throwing, root: {}});
+  blocked.setActive('local-2');
+  assert.deepEqual([blocked.activeId, blocked.lastPresetId], ['local-2', null]);
+});
+
+// Just enough DOM for PresetsPanel.attach() and render().
+const fakePresetDom = () => {
+  const element = () => ({hidden: false, disabled: false, textContent: '', value: '', title: '', children: [],
+    classList: {toggle() {}}, append(...nodes) { this.children.push(...nodes); }, replaceChildren(...nodes) { this.children = nodes; }});
+  const elements = new Map();
+  globalThis.document ??= {createElement: element};
+  globalThis.Option ??= class { constructor(text, value) { Object.assign(this, {text, value}); } };
+  return {getElementById: (id) => elements.get(id) || elements.set(id, element()).get(id)};
+};
+
+const presetHarness = ({account = null, last = null, presets = [{id: 1, name: 'Lead'}, {id: 2, name: 'Clean'}]} = {}) => {
+  const values = new Map(last === null ? [] : [['nam-a2-wam.last-preset', String(last)]]);
+  const storage = {getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: (key) => values.delete(key)};
+  const rack = {state: {sound: 'default'}};
+  const store = {list: async () => presets, get: async (id) => ({state: {sound: `preset ${id}`}})};
+  const panel = new PresetsPanel({account, localStore: store, remoteStore: store, factoryStore: null, storage, root: fakePresetDom(),
+    captureState: async () => structuredClone(rack.state), applyState: async (state) => { rack.state = structuredClone(state); },
+    defaultState: () => ({sound: 'default'})});
+  return {panel, rack};
+};
+
+test('the rack reopens the last preset when the page loads', async () => {
+  const {panel, rack} = presetHarness({last: 2});
+  await panel.attach();
+  assert.equal(panel.activeId, 2);
+  assert.deepEqual(rack.state, {sound: 'preset 2'});
+  assert.equal(await panel.isModified(), false);
+
+  const gone = presetHarness({last: 'deleted'});
+  await gone.panel.attach();
+  assert.equal(gone.panel.activeId, null, 'a deleted preset leaves the rack untitled');
+  assert.deepEqual(gone.rack.state, {sound: 'default'});
+});
+
+test('signing in reopens the account preset unless the rack has unsaved changes', async () => {
+  const account = Object.assign(new EventTarget(), {signedIn: false, user: null,
+    updatePreference(key, value) { this.user.preferences[key] = value; return Promise.resolve(); }});
+  const signIn = () => {
+    Object.assign(account, {signedIn: true, user: {email: 'a@b.c', preferences: {lastPresetId: 1}}});
+    account.dispatchEvent(new CustomEvent('change', {detail: {previous: null, user: account.user}}));
+  };
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  const clean = presetHarness({account});
+  await clean.panel.attach();
+  signIn();
+  await settle();
+  assert.deepEqual([clean.panel.activeId, clean.rack.state], [1, {sound: 'preset 1'}]);
+
+  Object.assign(account, {signedIn: false, user: null});
+  account.dispatchEvent(new CustomEvent('change', {detail: {previous: {id: 1}, user: null}}));
+  await settle();
+  assert.deepEqual([clean.panel.activeId, clean.rack.state], [null, {sound: 'default'}], 'signing out goes back to the default rack');
+
+  const edited = presetHarness({account});
+  await edited.panel.attach();
+  edited.rack.state = {sound: 'tweaked'};
+  signIn();
+  await settle();
+  assert.deepEqual([edited.panel.activeId, edited.rack.state], [null, {sound: 'tweaked'}], 'unsaved changes stay until saved');
 });

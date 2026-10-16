@@ -16,9 +16,6 @@ class RackPresetsTest < ApplicationSystemTestCase
   setup do
     skip_unless_rack_synced
     visit "/rack/"
-    # Guest presets live in IndexedDB, which survives between tests.
-    page.evaluate_async_script("const done = arguments[0]; const r = indexedDB.deleteDatabase('nam-a2-wam-presets'); r.onsuccess = r.onerror = r.onblocked = () => done();")
-    visit "/rack/"
     wait_for_rack(wait: 40)
   end
 
