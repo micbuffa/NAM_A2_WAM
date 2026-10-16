@@ -102,7 +102,7 @@
       <p class="fx-help">Drop on a card to swap · Drop on + to insert at that position · Alt + ← / → to move. All plugins can be removed and added with +.</p>
       <section class="fx-rack" aria-label="Processing chain A">
         <aside class="fx-endpoint" aria-label="Chain A input">
-          <strong>INPUT · A</strong>
+          <div class="fx-endpoint-head"><span aria-hidden="true">IN</span><strong>INPUT · A</strong></div>
           <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Input device</span><tl-select size="sm" icon="guitar"><select id="inputDevice" title="Input device"></select></tl-select></label>
             <label class="fx-select-label" id="inputChannelRow" hidden><span>Input channel</span><tl-select size="sm"><select id="inputChannel" title="Input channel"><option value="0">Input 1</option></select></tl-select></label></div>
           <div class="fx-endpoint-controls">
@@ -118,7 +118,7 @@
         </aside>
         <section class="fx-chain" id="fxChain" aria-label="Effects — drag to swap cards, or Alt + arrow keys"></section>
         <aside class="fx-endpoint fx-output-strip" aria-label="Chain A output">
-          <strong>OUTPUT · A</strong>
+          <div class="fx-endpoint-head"><span aria-hidden="true">OUT</span><strong>OUTPUT · A</strong></div>
           <div class="fx-endpoint-routing"><label class="fx-select-label"><span>Output device</span><tl-select size="sm" icon="headphones"><select id="outputDevice" title="Output device"><option value="">System default</option></select></tl-select></label></div>
           <div class="fx-endpoint-controls">
             <div class="fx-meter-column">

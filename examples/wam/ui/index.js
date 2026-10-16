@@ -9,3 +9,4 @@ import './components/tl-select.js';
 import './components/tl-meter.js';
 import './components/tl-segmented.js';
 import './components/tl-toast.js';
+import './components/tl-module.js';

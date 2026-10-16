@@ -27,8 +27,8 @@ export class FxRackView {
       }
     };rename(this.inputB,'Input');rename(this.outputB,'Output');
     this.bLeft=cell(this.inputB);this.bRight=cell(this.outputB);this.left.append(this.bLeft);this.right.append(this.bRight);
-    this.muteA=el('button','fx-lane-enable','Mute');output.querySelector('.fx-endpoint-routing').append(this.muteA);
-    this.enableB=el('button','fx-lane-enable','Mute');this.outputB.querySelector('.fx-endpoint-routing').append(this.enableB);
+    this.muteA=el('tl-button','fx-lane-enable','Mute');this.muteA.setAttribute('size','sm');output.querySelector('.fx-endpoint-routing').append(this.muteA);
+    this.enableB=el('tl-button','fx-lane-enable','Mute');this.enableB.setAttribute('size','sm');this.outputB.querySelector('.fx-endpoint-routing').append(this.enableB);
     this.dialog=el('dialog','fx-confirm fx-routing-dialog tl-modal');document.body.append(this.dialog);
     this.aView=new FxChainView(rack.a,strip,report,{onRoute:(index,button)=>this.routeMenu(index,button),onLayout:()=>this.scheduleLayout(),onOpen:()=>this.bView?.close()});
     this.toggle.onchange=async()=>{

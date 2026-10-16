@@ -138,8 +138,5 @@ body[data-ui-mode="beginner"] .fx-route-cable,
 body[data-ui-mode="beginner"] .fx-route-label { display: none !important; }
 
 /* Tuner dialog (TunerView.js). */
-.host-tuner { width: 290px; max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); overflow: auto; padding: var(--tl-space-4); color: var(--tl-text);
-  background: var(--tl-surface-2); border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-xl); box-shadow: var(--tl-shadow-modal); }
-.host-tuner::backdrop { background: rgba(4, 6, 5, .74); backdrop-filter: blur(3px); }
-.host-tuner header { display: flex; align-items: center; justify-content: space-between; gap: var(--tl-space-4); }
-.host-tuner .tuner-mount { display: flex; justify-content: center; margin-top: 14px; min-height: 50px; font-size: 12px; }
+.host-tuner.tl-modal { width: min(340px, calc(100vw - 24px)); }
+.host-tuner .tuner-mount { display: flex; justify-content: center; min-height: 50px; color: var(--tl-text-2); font-size: var(--tl-fs-sm); }

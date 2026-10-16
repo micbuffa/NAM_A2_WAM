@@ -1,14 +1,23 @@
 import {fallbackThumbnail, PLUGIN_CATEGORIES} from './WamPluginRegistry.js';
+import {createModal} from './ui/modal.js';
 
 const element=(tag,className,text)=>{const e=document.createElement(tag);if(className)e.className=className;if(text)e.textContent=text;return e;};
+const attrs=(e,values)=>{for(const [name,value] of Object.entries(values))e.setAttribute(name,value);return e;};
+const icon=(name,size=13)=>attrs(document.createElement('tl-icon'),{name,size});
+const CATEGORY_LABELS={amplifier:'Amplifier',cabinet:'Cabinet / speaker'};
+const categoryLabel=category=>CATEGORY_LABELS[category]||category.replaceAll('-',' / ');
+const kindLabel=entry=>categoryLabel(entry.record?.category||(entry.kind==='nam'?'amplifier':entry.kind==='cabinet'?'cabinet':'effect'));
+let editorSequence=0;
 export class FxChainView {
   constructor(chain,container,report,options={}) {
     Object.assign(this,{chain,container,report,options});this.openSerial=0;this.activeId=null;
     this.cards=new Map();this.parking=element('div');this.parking.hidden=true;document.body.append(this.parking);
-    this.dialog=element('dialog','fx-editor');
-    const bar=element('header','fx-editor-bar');this.title=element('strong');
-    this.replace=element('button','fx-replace','Replace');this.remove=element('button','','Remove');const close=element('button','','×');close.setAttribute('aria-label','Close editor');
-    bar.append(this.title,this.replace,this.remove,close);this.mount=element('div','fx-editor-mount');
+    this.dialog=element('dialog','fx-editor tl-modal');
+    const bar=element('header','fx-editor-bar tl-modal-header'),titles=element('div','fx-editor-titles');
+    this.kicker=element('p','tl-eyebrow');this.title=element('h2','tl-modal-title');this.title.id=`fx-editor-title-${++editorSequence}`;this.dialog.setAttribute('aria-labelledby',this.title.id);titles.append(this.kicker,this.title);
+    this.replace=attrs(element('tl-button','fx-replace','Replace'),{size:'sm',icon:'copy'});this.remove=attrs(element('tl-button','','Remove'),{size:'sm',variant:'danger',icon:'trash'});
+    const close=attrs(element('tl-icon-button'),{icon:'close',variant:'ghost','aria-label':'Close editor'});
+    bar.append(titles,this.replace,this.remove,close);this.mount=element('div','fx-editor-mount');
     const body=element('div','fx-editor-body');this.editorSides={input:this.createEditorSide('input'),output:this.createEditorSide('output')};
     body.append(this.editorSides.input.root,this.mount,this.editorSides.output.root);this.dialog.append(bar,body);document.body.append(this.dialog);
     this.mount.addEventListener('nam-capture-loaded',event=>{if(this.dialog.open&&event.target===this.chain.find(this.activeId)?.plugin?.audioNode?.gui)this.close();});
@@ -16,9 +25,8 @@ export class FxChainView {
     this.remove.onclick=()=>this.confirmRemove(this.activeId);
     this.replace.onclick=()=>this.showMenu(null,this.replace,this.activeId);
     this.confirmation=element('dialog','fx-confirm tl-modal');document.body.append(this.confirmation);
-    this.menu=element('dialog','fx-menu');document.body.append(this.menu);
     chain.addEventListener('change',()=>this.render());chain.addEventListener('error',e=>report(e.detail.message,true));
-    this.setupMeters();this.render();this.animateLevels();this.timer=setInterval(()=>this.refresh().catch(error=>report(error.message,true)),350);
+    this.setupGainLabels();this.render();this.animateLevels();this.timer=setInterval(()=>this.refresh().catch(error=>report(error.message,true)),350);
   }
   createThinMeter(label) {
     const meter=element('span','fx-thin-meter');meter.setAttribute('role','meter');
@@ -36,10 +44,9 @@ export class FxChainView {
   }
   createEditorSide(side) {
     const name=side==='input'?'Input':'Output',root=element('aside','fx-editor-side fx-editor-'+side);
-    const button=element('button','fx-plugin-gain-toggle');button.title=name+' gain';button.setAttribute('aria-label',name+' gain');button.setAttribute('aria-expanded','false');
-    button.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 3v18M12 3v18M19 3v18M2 8h6M9 16h6M16 10h6"/></svg>';
+    const button=attrs(element('tl-icon-button','fx-plugin-gain-toggle'),{icon:'sliders',size:'sm',title:name+' gain','aria-label':name+' gain','aria-expanded':'false'});
     const panel=element('div','fx-plugin-gain-panel');panel.hidden=true;
-    const label=element('label','',name+' gain'),slider=element('input'),value=element('output'),reset=element('button','','Reset');
+    const label=element('label','',name+' gain'),slider=element('input'),value=element('output'),reset=attrs(element('tl-button','','Reset'),{size:'sm',variant:'ghost'});
     slider.type='range';slider.min='-48';slider.max='12';slider.step='.5';slider.setAttribute('aria-label',name+' gain in dB');label.append(slider);panel.append(label,value,reset);
     const set=db=>{try{this.chain.setEntryGain(this.activeId,side,db);this.syncEditorGains();}catch(error){this.report(error.message,true);}};
     slider.oninput=()=>set(slider.value);reset.onclick=()=>set(0);
@@ -52,22 +59,7 @@ export class FxChainView {
     const entry=this.chain.entries.find(e=>e.id===this.activeId);if(!entry)return;
     for(const side of ['input','output']){const ui=this.editorSides[side],db=entry[side+'Db'];ui.slider.value=String(db);ui.value.textContent=`${db.toFixed(1)} dB`;ui.slider.setAttribute('aria-valuetext',ui.value.textContent);ui.button.title=`${side==='input'?'Input':'Output'} gain: ${ui.value.textContent}`;}
   }
-  setupMeters() {
-    // Decorative analogue face; the surrounding ARIA meter exposes dBFS.
-    const point=(angle,radius)=>{
-      const radians=angle*Math.PI/180;return [60+Math.sin(radians)*radius,68-Math.cos(radians)*radius];
-    };
-    let ticks='';
-    for(let db=-60;db<=0;db+=6){
-      const angle=-52+(db+60)/60*104,[x1,y1]=point(angle,48),[x2,y2]=point(angle,db%12===0?42:45);
-      ticks+=`<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${db>=-6?'#b33c2a':'#554734'}"/>`;
-    }
-    for(const db of [-60,-30,-12,0]){
-      const [x,y]=point(-52+(db+60)/60*104,56);
-      ticks+=`<text x="${x}" y="${y}" text-anchor="middle">${db}</text>`;
-    }
-    for(const meter of document.querySelectorAll('.fx-meter:not(.fx-meter-linear)'))meter.innerHTML=`<svg viewBox="0 0 120 76" aria-hidden="true"><path class="vu-arc" d="M22 38 Q60 1 98 38"/>${ticks}<text x="60" y="47" text-anchor="middle" class="vu-unit">dBFS</text><circle class="vu-clip" cx="109" cy="9" r="3"/><g class="vu-needle"><path d="M60 68L60 22"/></g><circle cx="60" cy="68" r="3" fill="#554734"/></svg>`;
-    for(const meter of document.querySelectorAll('.fx-meter-linear'))meter.innerHTML='<span class="fx-meter-fill" aria-hidden="true"></span>';
+  setupGainLabels() {
     for(const input of document.querySelectorAll('.fx-gain input')){
       const sync=()=>input.setAttribute('aria-valuetext',`${Number(input.value).toFixed(1)} dB`);
       input.addEventListener('input',sync);input.addEventListener('change',sync);sync();
@@ -97,8 +89,7 @@ export class FxChainView {
         for(const [side,meter] of [['Input',this.chain.inputMeter],['Output',this.chain.outputMeter]]){
           const value=meter.read(),bar=document.getElementById(`${this.options.meterPrefix||'chain'}${side}Meter`),label=document.getElementById(`${this.options.meterPrefix||'chain'}${side}Level`);
           if(bar){
-            bar.style.setProperty('--meter-level',String(value.level));
-            bar.style.setProperty('--needle-angle',`${-52+value.level*104}deg`);bar.setAttribute('aria-valuenow',String(Math.max(-60,Math.min(0,value.db)).toFixed(1)));
+            bar.style.setProperty('--meter-level',String(value.level));bar.setAttribute('aria-valuenow',String(Math.max(-60,Math.min(0,value.db)).toFixed(1)));
             if(value.peak>=1)bar.dataset.clipUntil=String(now+1000);
             bar.classList.toggle('is-clipping',Number(bar.dataset.clipUntil)>now);
             label.textContent=Number(bar.dataset.clipUntil)>now?'CLIP':value.db<=-60?'−∞ dBFS':`${value.db.toFixed(1)} dBFS`;
@@ -125,7 +116,7 @@ export class FxChainView {
     const ids=this.chain.entries.map(e=>e.id+':'+(e.plugin?.instanceId||e.record?.entryUrl||'')).join('|');
     if(ids!==this.layout){
       this.layout=ids;this.container.replaceChildren();this.cards.clear();
-      const add=before=>{const button=element('button','fx-add','+');button.setAttribute('aria-label',before?'Insert effect before '+(before.record?.name||before.kind):'Insert effect at end');button.onclick=()=>this.showMenu(before?.id||null,button);this.dropTarget(button,before?.id||null);const slot=element('span','fx-slot');slot.append(button);slot.dataset.index=String(before?this.chain.entries.indexOf(before):this.chain.entries.length);
+      const add=before=>{const button=element('button','fx-add');button.append(icon('plus'));button.setAttribute('aria-label',before?'Insert effect before '+(before.record?.name||before.kind):'Insert effect at end');button.onclick=()=>this.showMenu(before?.id||null,button);this.dropTarget(button,before?.id||null);const slot=element('span','fx-slot');slot.append(element('i','fx-wire'),button);slot.dataset.index=String(before?this.chain.entries.indexOf(before):this.chain.entries.length);
         if(this.options.onRoute){const route=element('button','fx-route-action','↳');route.title='Route to B here';route.setAttribute('aria-label','Route to B at this position');route.onclick=()=>this.options.onRoute(Number(slot.dataset.index),route);slot.append(route);
           let hideTimer;
           const showRoute=()=>{clearTimeout(hideTimer);slot.classList.add('route-visible');};
@@ -134,14 +125,10 @@ export class FxChainView {
           slot.addEventListener('focusin',showRoute);slot.addEventListener('focusout',delayHide);}
         this.container.append(slot);};
       for(const entry of this.chain.entries){
-        add(entry);const card=element('article','fx-card'),toolbar=element('div','fx-card-toolbar');
-        const bypass=element('button','fx-bypass','Bypass');bypass.onclick=()=>this.toggle(entry.id);toolbar.append(bypass);
-        const remove=element('button','fx-delete');
-        remove.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg>';
-        remove.setAttribute('aria-label',`Remove ${entry.record?.name||entry.kind}`);
-        remove.title='Remove plugin';
-        remove.onclick=()=>this.confirmRemove(entry.id);toolbar.append(remove);
-        const photo=element('button','fx-photo'),image=element('img'),caption=element('span','fx-caption');const inputMeter=this.createThinMeter('Plugin input level'),outputMeter=this.createThinMeter('Plugin output level');inputMeter.classList.add('fx-card-input-meter');outputMeter.classList.add('fx-card-output-meter');photo.append(inputMeter,image,caption,outputMeter);image.draggable=false;
+        add(entry);const card=attrs(element('tl-module','fx-card'),{kicker:kindLabel(entry),heading:entry.record?.name||entry.kind});
+        card.addEventListener('module-toggle',()=>this.toggle(entry.id));card.addEventListener('module-remove',()=>this.confirmRemove(entry.id));
+        const photo=element('button','fx-photo'),image=element('img');const inputMeter=this.createThinMeter('Plugin input level'),outputMeter=this.createThinMeter('Plugin output level');inputMeter.classList.add('fx-card-input-meter');outputMeter.classList.add('fx-card-output-meter');photo.append(inputMeter,image,outputMeter);image.draggable=false;
+        card.addEventListener('module-edit',()=>this.open(entry.id,photo));
         photo.onclick=()=>{if(!this.suppressClick)this.open(entry.id,photo);};
         let pointer=null,drop=null,crossLane=false;
         const clearDrag=()=>{card.classList.remove('is-dragging');drop?.classList.remove('fx-drop-target');pointer=null;drop=null;};
@@ -178,11 +165,10 @@ export class FxChainView {
         });
         this.dropTarget(card,entry.id);
         image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail({id:entry.id,name:entry.record?.name||entry.kind});};
-        card.append(toolbar,photo);const captures=entry.plugin?.getCaptureChoices?this.createCaptureSelector(entry):null;if(captures)card.append(captures.root);this.container.append(card);this.cards.set(entry.id,{card,bypass,image,photo,caption,inputMeter,outputMeter,captures});
+        card.append(photo);const captures=entry.plugin?.getCaptureChoices?this.createCaptureSelector(entry):null;if(captures)card.append(captures.root);this.container.append(card);this.cards.set(entry.id,{card,image,photo,inputMeter,outputMeter,captures});
       }add(null);
       const output=element('span','fx-output-link');
-      const arrow=element('span','','→');arrow.setAttribute('aria-hidden','true');
-      output.append(arrow,element('span','','Output'));this.container.append(output);
+      output.append(attrs(element('i','fx-wire'),{'aria-hidden':'true'}),element('span','','Output'));this.container.append(output);
       const map=this.options.secondary?null:document.querySelector('.chain-map');
       if(map){map.replaceChildren(element('span','','INPUT'));for(const entry of this.chain.entries)map.append(element('i'),element('strong','',entry.record?.name||entry.kind.toUpperCase()));map.append(element('i'),element('span','','OUTPUT'));}
     }
@@ -200,15 +186,15 @@ export class FxChainView {
       image ||= fallbackThumbnail({id:e.id,name});
       if(card.image.dataset.source!==image){card.image.dataset.source=image;card.image.src=image;}
       card.image.alt=name;card.photo.title=e.error?`${name}: ${e.error}`:name;card.photo.setAttribute('aria-label',`Open ${name}`);
-      card.caption.textContent=name;
+      card.card.setAttribute('heading',name);
       if(card.captures)await this.refreshCaptureSelector(e,card.captures);
-      card.card.classList.toggle('is-bypassed',e.bypass||!e.plugin);card.bypass.setAttribute('aria-pressed',String(e.bypass));card.bypass.textContent=e.bypass?'Bypassed':'Active';card.bypass.title=e.routingStatus||'Toggle bypass';
+      card.card.classList.toggle('is-bypassed',e.bypass||!e.plugin);card.card.active=!e.bypass&&!!e.plugin;if(e.routingStatus)card.photo.title+=` · ${e.routingStatus}`;
     } this.syncEditorGains(); } finally {this.refreshing=false;}
   }
   createCaptureSelector(entry) {
-    const root=element('div','fx-capture-selector'),previous=element('button','','‹'),select=element('select'),next=element('button','','›');
+    const root=element('div','fx-capture-selector'),previous=element('button','','‹'),select=element('select'),next=element('button','','›'),skin=attrs(element('tl-select'),{size:'sm'});skin.append(select);
     previous.type=next.type='button';previous.setAttribute('aria-label','Previous amp capture');next.setAttribute('aria-label','Next amp capture');select.setAttribute('aria-label','Amp capture');
-    root.append(previous,select,next);const ui={root,previous,select,next,items:[],index:-1,busy:false};
+    root.append(previous,skin,next);const ui={root,previous,select,next,items:[],index:-1,busy:false};
     const choose=async index=>{const item=ui.items[index];if(ui.busy||!item)return;ui.busy=true;previous.disabled=next.disabled=select.disabled=true;
       try{await entry.plugin.selectCapture(item.id);}catch(error){this.report(error.message,true);}finally{ui.busy=false;await this.refreshCaptureSelector(entry,ui);}};
     select.onchange=()=>choose(select.selectedIndex);previous.onclick=()=>choose(ui.index-1);next.onclick=()=>choose(ui.index+1);return ui;
@@ -231,7 +217,7 @@ export class FxChainView {
   async open(id,trigger) {
     this.options.onOpen?.();
     if(this.dialog.open)this.close();const serial=++this.openSerial;this.activeId=id;this.returnFocus=trigger;
-    const e=this.chain.find(id);this.title.textContent=e.record?.name||(e.kind==='nam'?'NeuralWAMp':'NeuralWAMp Cabinet');this.remove.hidden=false;
+    const e=this.chain.find(id);this.title.textContent=e.record?.name||(e.kind==='nam'?'NeuralWAMp':'NeuralWAMp Cabinet');this.kicker.textContent=`Chain ${this.options.secondary?'B':'A'} · ${kindLabel(e)}`;this.remove.hidden=false;
     for(const ui of Object.values(this.editorSides)){ui.panel.hidden=true;ui.button.setAttribute('aria-expanded','false');}
     this.syncEditorGains();this.dialog.showModal();this.mount.textContent='Loading editor…';
     try {
@@ -243,31 +229,46 @@ export class FxChainView {
     }catch(error){if(serial===this.openSerial)this.mount.textContent=`Editor unavailable: ${error.message}`;this.report(error.message,true);}
   }
   showMenu(beforeId,trigger,replaceId=null) {
-    this.menu.replaceChildren();const close=element('button','','Close');close.onclick=()=>{this.menu.close();trigger.focus();};
-    const title=element('h3','',replaceId?'Replace current WAM':'Insert a WAM'),status=element('p');status.setAttribute('aria-live','polite');this.menu.append(close,title,status);
+    const index=beforeId?this.chain.entries.indexOf(this.chain.find(beforeId)):this.chain.entries.length,lane=this.options.secondary?'B':'A',replaced=replaceId&&this.chain.find(replaceId);
+    const {dialog,body}=createModal({title:replaceId?'Replace module':'Insert a WAM',eyebrow:replaced?`Chain ${lane} · ${replaced.record?.name||kindLabel(replaced)}`:`Chain ${lane} · Position ${index+1}`,className:'fx-menu',wide:true});
+    this.menu=dialog;
+    const intro=element('div','fx-menu-intro'),copy=element('div'),count=element('span','fx-menu-count'),status=element('p','fx-menu-status');status.setAttribute('aria-live','polite');
+    copy.append(element('strong','','Choose an audio module'),element('span','',replaceId?'It takes the place of the current module, with its gains.':'The module will be inserted exactly at the selected connector.'));
+    intro.append(copy,count);body.append(intro,status);
     let side=null;
-    const index=beforeId?this.chain.entries.indexOf(this.chain.find(beforeId)):this.chain.entries.length;
-    if(!replaceId&&this.chain.junction?.index===index){side=element('select');side.setAttribute('aria-label','Position relative to split');side.append(new Option('After split — A only','after'),new Option('Before split — A + B','before'));this.menu.append(side);}
-    const amps=element('div','fx-menu-amps');this.menu.append(amps);
-    const categories=['amplifier','cabinet',...PLUGIN_CATEGORIES.filter(c=>!['amplifier','cabinet'].includes(c))];
+    if(!replaceId&&this.chain.junction?.index===index){
+      side=element('select');side.append(new Option('After split — A only','after'),new Option('Before split — A + B','before'));
+      const label=element('label','fx-menu-side'),skin=attrs(element('tl-select'),{size:'sm'});skin.append(side);label.append(element('span','','Position relative to split'),skin);body.append(label);
+    }
+    const catalog=element('div','fx-menu-catalog');body.append(catalog);
+    const categories=['amplifier','cabinet',...PLUGIN_CATEGORIES.filter(c=>!['amplifier','cabinet'].includes(c))];let total=0;
     for(const category of categories){
       const records=this.chain.registry.records.filter(r=>r.category===category&&r.role!=='tuner'&&!r.isInstrument);
-      if(!records.length)continue;const section=element('section','fx-menu-category');section.dataset.category=category;
-      (['amplifier','cabinet'].includes(category)?amps:this.menu).append(section);
-      section.append(element('h4','',category==='amplifier'?'Amplifiers':category==='cabinet'?'Cabinets / Speakers':category.replaceAll('-',' / ')));
-      const group=element('div','fx-menu-group');section.append(group);
+      if(!records.length)continue;total+=records.length;
+      const section=element('section','fx-menu-category'),header=element('header'),heading=element('div');section.dataset.category=category;
+      heading.append(icon(category==='cabinet'?'device':'audio',15),element('h3','',category==='amplifier'?'Amplifiers':category==='cabinet'?'Cabinets / Speakers':categoryLabel(category)));
+      header.append(heading,element('span','fx-menu-count',String(records.length)));
+      const group=element('div','fx-menu-group');section.append(header,group);catalog.append(section);
       for(const record of records){
-        const button=element('button','fx-menu-item'),image=element('img');image.src=record.thumbnailUrl||fallbackThumbnail(record);image.alt='';image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail(record);};button.append(image,element('span','',record.name));const item=element('div','fx-menu-entry'),copy=element('button','fx-copy-uri','WAM URI');copy.title=record.entryUrl;copy.setAttribute('aria-label',`Copy WAM URI for ${record.name}`);copy.onclick=async()=>{try{await navigator.clipboard.writeText(record.entryUrl);status.textContent=`WAM URI copied: ${record.entryUrl}`;}catch{status.textContent=`Copy this WAM URI: ${record.entryUrl}`;}};item.append(button,copy);group.append(item);
+        const item=element('div','fx-menu-entry'),button=element('button','fx-menu-item'),image=element('img'),insert=element('span','fx-menu-insert');
+        image.src=record.thumbnailUrl||fallbackThumbnail(record);image.alt='';image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail(record);};
+        insert.append(icon('plus',12),replaceId?'Replace':'Insert module');button.append(image,element('strong','',record.name),insert);
+        const uri=element('button','fx-copy-uri');uri.append(icon('copy',11),element('span','',record.entryUrl));uri.title=`Copy ${record.entryUrl}`;uri.setAttribute('aria-label',`Copy WAM URI for ${record.name}`);
+        uri.onclick=async()=>{try{await navigator.clipboard.writeText(record.entryUrl);status.textContent=`WAM URI copied: ${record.entryUrl}`;}catch{status.textContent=`Copy this WAM URI: ${record.entryUrl}`;}};
+        item.append(button,uri);group.append(item);
         button.onclick=async()=>{
-          this.menu.querySelectorAll('button').forEach(b=>b.disabled=true);status.textContent=`Loading ${record.name}…`;
+          dialog.querySelectorAll('button').forEach(b=>b.disabled=true);status.textContent=`Loading ${record.name}…`;
           try{
-            if(replaceId){const entry=await this.chain.replace(replaceId,record);this.menu.close();await this.open(entry.id,this.cards.get(entry.id)?.photo);}
-            else{await this.chain.insert(record,beforeId,side?.value||'after');this.menu.close();this.container.querySelector('button')?.focus();}
+            if(replaceId){const entry=await this.chain.replace(replaceId,record);dialog.close();await this.open(entry.id,this.cards.get(entry.id)?.photo);}
+            else{await this.chain.insert(record,beforeId,side?.value||'after');dialog.close();this.container.querySelector('button')?.focus();}
           }
           catch(error){status.textContent=error.message;this.report(error.message,true);}
-          finally{this.menu.querySelectorAll('button').forEach(b=>b.disabled=false);}
+          finally{dialog.querySelectorAll('button').forEach(b=>b.disabled=false);}
         };
       }
-    }this.menu.showModal();
+    }
+    count.textContent=`${total} modules available`;
+    dialog.addEventListener('close',()=>{if(this.menu===dialog)this.menu=null;if(document.activeElement===document.body&&trigger?.isConnected)trigger.focus();});
+    dialog.showModal();
   }
 }
