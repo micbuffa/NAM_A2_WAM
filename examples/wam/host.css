@@ -98,8 +98,8 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
 .preset-item { display: grid; grid-template-columns: minmax(0, 1fr) 30px 30px; gap: 4px; }
 .preset-load { overflow: hidden; text-align: left; text-overflow: ellipsis; white-space: nowrap; font-size: var(--tl-fs-sm); }
 .preset-icon { padding: 0; color: var(--tl-text-muted); font-size: 12px; }
-.preset-item.active .preset-load { color: var(--tl-text); background: var(--tl-accent-tint); border-color: var(--tl-accent-border); box-shadow: inset 3px 0 0 var(--tl-accent); }
-.preset-item.active .preset-load::before { content: "● "; color: var(--tl-accent); }
+.preset-item.active .preset-load { color: var(--tl-text); background: var(--tl-accent-tint); border-color: var(--tl-accent-border); }
+.preset-item.active .preset-load::before { content: "\25CF  "; /* ● escaped: Rails serves this CSS without a charset */ color: var(--tl-accent); }
 .preset-item.loading .preset-load { border-style: dashed; border-color: var(--tl-accent-border); }
 .preset-list[aria-busy="true"] .preset-load:disabled { cursor: progress; }
 
