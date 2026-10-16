@@ -5,6 +5,8 @@ import './components/tl-icon-button.js';
 import './components/tl-badge.js';
 import './components/tl-switch.js';
 import './components/tl-knob.js';
+import './components/tl-slider.js';
+import './components/tl-checkbox.js';
 import './components/tl-select.js';
 import './components/tl-meter.js';
 import './components/tl-segmented.js';

@@ -36,6 +36,7 @@
     .sg-stage { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tl-space-4); padding: var(--tl-space-6) var(--tl-space-5); }
     .sg-demo pre { margin: 0; padding: 12px 16px; overflow-x: auto; color: var(--tl-text-2); background: var(--tl-surface-sunken); border-top: 1px solid var(--tl-border-subtle); font: 11px/1.6 var(--tl-font-mono); }
     @media (max-width: 760px) { .sg-shell { grid-template-columns: 1fr; } .sg-nav { position: static; height: auto; } main { padding: var(--tl-space-5) var(--tl-space-4); } }
+    .sg-check { display: inline-flex; align-items: center; gap: 8px; color: var(--tl-text-2); font-size: var(--tl-fs-sm); }
   </style>
 </head>
 <body>
@@ -135,6 +136,14 @@
 <tl-knob label="Treble"><input type="range" min="0" max="100" value="80" aria-label="Treble"></tl-knob>
 <tl-knob label="Pan" size="sm"><input type="range" min="-1" max="1" step="0.01" value="0" aria-label="Pan"><output slot="value">C</output></tl-knob>
 <tl-knob label="Mix" disabled><input type="range" min="0" max="100" value="30" aria-label="Mix"></tl-knob>`],
+      ['tl-slider', 'Horizontal fader around a native range input (id, value, oninput kept). Click/drag, shift = fine, arrows when focused; bipolar fills from centre', `<tl-slider style="width:220px"><input type="range" min="-60" max="6" step=".5" value="-12" aria-label="Volume"></tl-slider>
+<tl-slider bipolar style="width:220px"><input type="range" min="-1" max="1" step=".01" value="-.35" aria-label="Pan"></tl-slider>
+<tl-slider style="width:220px"><input type="range" min="0" max="1" step=".01" value=".4" disabled aria-label="Disabled"></tl-slider>`],
+      ['tl-checkbox', 'Skins a native checkbox (id, checked, onchange, label kept); variant="switch" for on/off options', `<label class="sg-check"><tl-checkbox><input type="checkbox" checked></tl-checkbox> EQ enabled</label>
+<label class="sg-check"><tl-checkbox><input type="checkbox"></tl-checkbox> Bypass</label>
+<label class="sg-check"><tl-checkbox variant="switch"><input type="checkbox" checked></tl-checkbox> Loop</label>
+<label class="sg-check"><tl-checkbox variant="switch"><input type="checkbox"></tl-checkbox> Normalize at load</label>
+<label class="sg-check"><tl-checkbox><input type="checkbox" disabled></tl-checkbox> Disabled</label>`],
       ['tl-select', 'Skins a native select (options, value, onchange kept)', `<label style="width:240px"><tl-select icon="device"><select aria-label="Input device"><option>Scarlett 2i2 USB</option><option>MacBook Pro Microphone</option></select></tl-select></label>
 <label style="width:200px"><tl-select><select aria-label="Preset"><optgroup label="Factory"><option>MKII British 50</option><option>US Clean 65</option></optgroup></select></tl-select></label>
 <label style="width:160px"><tl-select size="sm"><select aria-label="Channel"><option>Input 1</option><option>Input 2</option></select></tl-select></label>

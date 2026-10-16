@@ -121,7 +121,6 @@
 .fx-plugin-gain-panel[hidden] { display: none; }
 .fx-editor-output .fx-plugin-gain-panel { left: auto; right: 0; }
 .fx-plugin-gain-panel label { display: grid; gap: 8px; }
-.fx-plugin-gain-panel input { width: 100%; margin: 0; accent-color: var(--tl-accent); }
 .fx-plugin-gain-panel output { color: var(--tl-text); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
 .fx-plugin-gain-panel tl-button { justify-self: start; }
 

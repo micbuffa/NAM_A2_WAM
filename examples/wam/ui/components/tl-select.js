@@ -4,6 +4,7 @@ import './tl-icon.js';
 // <tl-select size="sm" icon="device"><select id="inputDevice">…</select></tl-select>
 // Skins a native <select> kept in the light DOM, so app code keeps .options, .value,
 // replaceChildren(new Option(…)), onchange and disabled. Wrap it in a <label> for its name.
+// Where `appearance: base-select` is supported the open list is styled too (see components.css).
 const styles = `
   :host { position: relative; display: inline-flex; align-items: center; min-width: 0; width: 100%; color: var(--tl-text-1); }
   ::slotted(select) { appearance: none !important; -webkit-appearance: none !important; width: 100% !important; min-width: 0 !important;
@@ -20,6 +21,13 @@ const styles = `
   [part="chevron"] { right: 10px; }
   [part="icon"] { left: 11px; }
   :host(:not([icon])) [part="icon"] { display: none; }
+  /* Customizable select (Chromium): the open list becomes stylable; its look lives in components.css
+     because ::picker() cannot be reached through ::slotted(). Other browsers keep the OS list. */
+  @supports (appearance: base-select) {
+    ::slotted(select) { appearance: base-select !important; display: block !important; overflow: clip !important; overflow-clip-margin: content-box; white-space: nowrap !important;
+      line-height: 36px !important; }  /* clip at the content box: long labels stop before the chevron */
+    :host([size="sm"]) ::slotted(select) { line-height: 28px !important; }
+  }
 `;
 // The !important flags let the skin win over legacy page rules (`button, select {…}`) while they still exist.
 

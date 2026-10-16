@@ -52,10 +52,10 @@
             <button class="player-control" id="play" type="button" aria-label="Play">▶</button>
             <button class="player-control" id="pause" type="button" aria-label="Pause">Ⅱ</button>
             <button class="player-control" id="stop" type="button" aria-label="Stop">■</button>
-            <label class="loop-control"><input class="player-control" id="loop" type="checkbox"> Loop</label>
+            <label class="loop-control"><tl-checkbox variant="switch"><input class="player-control" id="loop" type="checkbox"></tl-checkbox> Loop</label>
           </div>
           <label class="host-range">Position
-            <input class="player-control" id="seek" type="range" min="0" max="1" step="0.001" value="0">
+            <tl-slider><input class="player-control" id="seek" type="range" min="0" max="1" step="0.001" value="0"></tl-slider>
           </label>
           <audio id="player" preload="metadata"></audio>
         </div>

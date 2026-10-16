@@ -43,3 +43,27 @@
 /* A modal without header (confirm-style): content sits directly in the dialog. */
 .tl-modal:not(:has(> .tl-modal-header)) { padding: 20px; }
 .tl-modal:not(:has(> .tl-modal-header)) > h3 { margin-bottom: var(--tl-space-2); }
+
+/* ── tl-select open list ─────────────────────────────────────────────────────
+   Customizable select (appearance: base-select, Chromium). tl-select switches the slotted <select>
+   to base-select in its shadow styles; the picker pseudo-elements can only be styled from here.
+   Browsers without support keep the OS list. */
+@supports (appearance: base-select) {
+  tl-select > select::picker-icon { display: none; }
+  tl-select > select::picker(select) { appearance: base-select; box-sizing: border-box; min-width: anchor-size(width); max-height: min(360px, 60vh);
+    margin-block: 4px; padding: 4px; overflow-y: auto; color: var(--tl-text-2); background: var(--tl-surface-2);
+    border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); box-shadow: 0 16px 40px rgba(0, 0, 0, .55);
+    scrollbar-width: thin; scrollbar-color: var(--tl-border-strong) transparent; }
+  tl-select > select option { display: flex; align-items: center; gap: var(--tl-space-2); min-height: 32px; padding: 6px 10px;
+    border-radius: var(--tl-radius-sm); font: 500 var(--tl-fs-sm) var(--tl-font-ui); white-space: nowrap; cursor: pointer; outline: none; }
+  tl-select[size="sm"] > select option { min-height: 28px; font-size: var(--tl-fs-xs); }
+  tl-select > select option:hover, tl-select > select option:focus-visible { color: var(--tl-text); background: var(--tl-surface-5); }
+  tl-select > select option:checked { color: var(--tl-accent); background: var(--tl-accent-tint); }
+  tl-select > select option::checkmark { order: 1; margin-left: auto; color: var(--tl-accent); }
+  tl-select > select option:disabled { opacity: .4; cursor: not-allowed; }
+  /* The group label is the optgroup's own text: style the group, then reset its options. */
+  tl-select > select optgroup { padding: 6px 0 2px; color: var(--tl-text-muted); font: 600 var(--tl-fs-2xs) var(--tl-font-ui);
+    letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
+  tl-select > select optgroup option { margin-top: 2px; letter-spacing: normal; text-transform: none; }
+  tl-select > select optgroup option:not(:checked, :hover, :focus-visible) { color: var(--tl-text-2); }
+}

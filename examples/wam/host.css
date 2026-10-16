@@ -80,11 +80,11 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
   letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
 .embedded-player > .host-range { display: grid; gap: 5px; margin-top: var(--tl-space-3); color: var(--tl-text-muted); font-size: 10px; }
 .host-range { grid-template-columns: 1fr auto; align-items: center; }
-.host-range input { grid-column: 1 / -1; width: 100%; }
+.host-range tl-slider { grid-column: 1 / -1; }
 .host-range output { color: var(--tl-text-1); font: 500 10px var(--tl-font-mono); }
 .transport { display: grid; grid-template-columns: repeat(3, 36px) 1fr; gap: 6px; align-items: center; }
 .transport button { padding: 0; }
-.loop-control { justify-self: end; color: var(--tl-text-2); font-size: var(--tl-fs-sm); white-space: nowrap; }
+.loop-control { display: inline-flex; align-items: center; gap: 6px; justify-self: end; color: var(--tl-text-2); font-size: var(--tl-fs-sm); white-space: nowrap; }
 
 /* Account. */
 .account-identity { margin: 0; color: var(--tl-text-2); font-size: var(--tl-fs-sm); overflow-wrap: anywhere; }

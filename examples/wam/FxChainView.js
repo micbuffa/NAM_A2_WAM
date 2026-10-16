@@ -46,8 +46,8 @@ export class FxChainView {
     const name=side==='input'?'Input':'Output',root=element('aside','fx-editor-side fx-editor-'+side);
     const button=attrs(element('tl-icon-button','fx-plugin-gain-toggle'),{icon:'sliders',size:'sm',title:name+' gain','aria-label':name+' gain','aria-expanded':'false'});
     const panel=element('div','fx-plugin-gain-panel');panel.hidden=true;
-    const label=element('label','',name+' gain'),slider=element('input'),value=element('output'),reset=attrs(element('tl-button','','Reset'),{size:'sm',variant:'ghost'});
-    slider.type='range';slider.min='-48';slider.max='12';slider.step='.5';slider.setAttribute('aria-label',name+' gain in dB');label.append(slider);panel.append(label,value,reset);
+    const label=element('label','',name+' gain'),fader=element('tl-slider'),slider=element('input'),value=element('output'),reset=attrs(element('tl-button','','Reset'),{size:'sm',variant:'ghost'});
+    slider.type='range';slider.min='-48';slider.max='12';slider.step='.5';slider.setAttribute('aria-label',name+' gain in dB');fader.append(slider);label.append(fader);panel.append(label,value,reset);
     const set=db=>{try{this.chain.setEntryGain(this.activeId,side,db);this.syncEditorGains();}catch(error){this.report(error.message,true);}};
     slider.oninput=()=>set(slider.value);reset.onclick=()=>set(0);
     button.onclick=()=>{panel.hidden=!panel.hidden;button.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden)slider.focus();};
