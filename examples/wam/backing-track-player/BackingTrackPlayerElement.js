@@ -14,7 +14,7 @@ export class BackingTrackPlayerElement extends HTMLElement {
  <label>Guitar global pan <output id="panValue">C</output><tl-slider bipolar><input id="pan" type="range" min="-1" max="1" step=".01" value="0" aria-label="Guitar global pan"></tl-slider><button id="panReset">Reset</button></label>
  <label>Guitar ↔ Backing <output id="balanceValue">50 / 50</output><tl-slider bipolar><input id="balance" type="range" min="0" max="1" step=".01" value=".5" aria-label="Guitar to backing balance"></tl-slider><button id="balanceReset">Reset</button></label>
  <div class="loop"><label><tl-checkbox variant="switch"><input id="loop" type="checkbox" checked></tl-checkbox> Loop</label><label>A <input id="a" type="number" min="0" step=".01" value="0" aria-label="Loop start seconds"></label><label>B <input id="b" type="number" min="0" step=".01" value="0" aria-label="Loop end seconds"></label><button id="full">Full track</button></div>
- <div><button id="normalize" aria-pressed="false">Normalize</button><label><tl-checkbox variant="switch"><input id="auto" type="checkbox" checked></tl-checkbox> at load</label></div></div></main></div>
+ <div class="normalize"><button id="normalize" aria-pressed="false">Normalize</button><label><tl-checkbox variant="switch"><input id="auto" type="checkbox" checked></tl-checkbox> at load</label></div></div></main></div>
  <input id="file" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac" hidden></section>`;
  this.$=id=>this.shadowRoot.getElementById(id);this.observer=new ResizeObserver(()=>this.draw());
  }

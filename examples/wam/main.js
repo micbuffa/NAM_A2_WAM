@@ -15,6 +15,7 @@ import {FxRackView} from './FxRackView.js';
 import {EngineStatus} from './EngineStatus.js';
 import {SettingsView} from './SettingsView.js';
 import {Workspaces} from './Workspaces.js';
+import {TracksPanel} from './TracksPanel.js';
 import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
 import {setupAccount} from './account/index.js';
@@ -37,6 +38,7 @@ let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
 let chain, chainView, rack, backingPlayer, backingMix;
+let tracks, activeTone = {};
 const settings = new SettingsView({button: $('#settingsButton')});
 const engine = new EngineStatus({element: $('#engineStatus'), context});
 const workspaces = new Workspaces({control: $('#workspaceSwitch')});
@@ -155,6 +157,16 @@ function syncSourceTrim() {
   $('#sourceTrim').value = value;
   $('#sourceTrim').dispatchEvent(new Event('change'));
   $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
+  syncTracks();
+}
+
+// Tracks workspace cards: the active tone and what feeds the rack.
+function syncTracks() {
+  if (!tracks) return;
+  tracks.setTone({...activeTone, chains: rack?.visible ? 2 : 1});
+  const value = $('#audioSource').value;
+  tracks.setGuitar({source: value === 'live' ? 'live' : value.slice(5), live: liveInputEnabled, input: sourceManager.liveInput,
+    inputDb: sourceManager.activeTrimDb, outputDb: chain.outputDb});
 }
 
 function setPlayerEnabled(enabled) {
@@ -170,6 +182,7 @@ function syncLiveInputButton() {
   button.textContent = liveInputEnabled ? 'Disable live input' : 'Enable live input';
   button.setAttribute('aria-pressed', String(liveInputEnabled));
   button.classList.toggle('live-active', liveInputEnabled);
+  syncTracks();
 }
 
 async function activateSelectedLiveInput() {
@@ -254,6 +267,8 @@ async function initialize() {
   await backingPlayer.initialize({audioContext:context});backingMix=new BackingTrackMix(context,rack.output,backingPlayer);
   Object.assign(window.phase3Debug,{backingPlayer,backingMix});
   chainView=new FxRackView(rack,message);
+  tracks=new TracksPanel({onEditTone:()=>workspaces.show('tone'),onToggleLive:()=>$('#enableLive').click()});
+  rack.addEventListener('change',syncTracks);
   window.phase3Debug.tuner=new TunerView({context,registry,groupId,input:chain.input,button:$('#tunerButton')});
   await discoverFiles();
   await refreshDevices(false);
@@ -327,10 +342,12 @@ async function initialize() {
   $('#chainOutputGain').oninput=()=>{
     const db=chain.setOutputDb($('#chainOutputGain').value);
     $('#chainOutputGainValue').textContent=`${db.toFixed(1)} dB`;
+    syncTracks();
   };
   $('#sourceTrim').oninput = () => {
     const value = sourceManager.setTrimDb(Number($('#sourceTrim').value), $('#audioSource').value === 'live' ? 'live' : 'file');
     $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
+    syncTracks();
   };
   $('#chainInputReset').onclick=()=>{
     const mode=$('#audioSource').value==='live'?'live':'file';
@@ -426,7 +443,7 @@ async function initialize() {
   // favorites/preferences of whichever NAM and cabinet editors are open.
   const accountGuis = () => [rack.a, rack.b].filter(Boolean).flatMap((lane) => lane.entries)
     .filter((entry) => entry.kind === 'nam' || entry.kind === 'cabinet').map((entry) => entry.gui).filter(Boolean);
-  await accountIntegration.attach({settings, guis: accountGuis, report: message,
+  const presets = await accountIntegration.attach({settings, guis: accountGuis, report: message,
     // A preset is the whole rack, exactly what "Save WAM state" captures.
     captureState: () => rack.getState(),
     applyState: async (state) => {
@@ -435,6 +452,9 @@ async function initialize() {
       syncSourceTrim();
     },
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
+  presets?.addEventListener('change',({detail})=>{activeTone=detail;syncTracks();});
+  activeTone={name:$('#presetTitle').textContent,meta:$('#presetMeta').textContent};
+  syncTracks();
   engine.ready();
   message('Chain ready. Click a photo to edit, or + to insert an effect.');
   // Programmatic selection during refreshDevices does not fire onchange.

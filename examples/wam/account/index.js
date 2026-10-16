@@ -93,6 +93,7 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
     await presets.attach();
     // Signed in by a page load (magic link, then "Open the rack").
     if (account.signedIn) offerImport().catch((error) => report(`Import failed: ${error.message}`, true));
+    return presets;
   };
   return {account, attach};
 }

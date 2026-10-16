@@ -175,6 +175,19 @@ body[data-workspace="tone"] [data-workspace="tracks"], body[data-workspace="trac
 .rack-header h2 { margin: 7px 0 0; font-size: var(--tl-fs-xl); font-weight: 600; line-height: 1; letter-spacing: var(--tl-tracking-title); }
 .rack-canvas { flex: 1; min-width: 0; padding: var(--tl-space-7) 30px; }
 
+/* Tracks workspace (TracksPanel.js): Active tone and Guitar cards, then the backing tracks. */
+.tracks-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr)); gap: var(--tl-space-4); margin-bottom: var(--tl-space-4); }
+.tracks-card { display: flex; align-items: center; gap: var(--tl-space-4); min-width: 0; padding: var(--tl-space-4) var(--tl-space-5);
+  background: var(--tl-surface-1); border: 1px solid var(--tl-border); border-radius: var(--tl-radius-lg); }
+.tracks-card-icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; color: var(--tl-text-2);
+  background: var(--tl-surface-3); border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-md); }
+.tracks-card[data-state="live"] .tracks-card-icon { color: var(--tl-accent); background: var(--tl-accent-tint); border-color: var(--tl-accent-border); }
+.tracks-card-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.tracks-card-text strong { overflow: hidden; font-size: var(--tl-fs-lg); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.tracks-card-text .preset-meta { margin: 0; overflow-wrap: anywhere; }
+.tracks-levels { color: var(--tl-text-2); font-family: var(--tl-font-mono); font-size: var(--tl-fs-xs); }
+.tracks-canvas backing-track-player { margin-top: 0; }
+
 @media (max-width: 1060px) {
   .rack-header { gap: var(--tl-space-3); }
   .rack-heading { flex-basis: 100%; }

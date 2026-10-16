@@ -47,6 +47,23 @@ class WorkspacesTest < ApplicationSystemTestCase
     page.execute_script("phase3Debug.backingPlayer.engine.stop()")
   end
 
+  test "the Tracks cards follow the active preset and lead back to Tone" do
+    switch_to "tracks"
+    assert_selector "#activeToneName", text: "Untitled rack"
+    assert_selector "#guitarSourceDetail", text: "Monitoring is off"
+
+    switch_to "tone"
+    find("#presetSelect").find("option", exact_text: "British Edge · Crunch").select_option
+    assert_selector "#presetTitle", text: "British Edge"
+    switch_to "tracks"
+    assert_selector "#activeToneName", text: "British Edge"
+    assert_selector "#activeToneMeta", text: "Factory · Crunch · 1 chain"
+
+    click_on "Edit in Tone"
+    assert_selector "body[data-workspace=tone]"
+    assert_selector ".fx-rack", visible: true
+  end
+
   private
     def switch_to(workspace)
       page.execute_script("const s = document.getElementById('workspaceSwitch'); s.value = arguments[0]; s.dispatchEvent(new Event('change'))", workspace)

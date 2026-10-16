@@ -138,7 +138,29 @@
           </div>
         </div>
       </header>
-      <div class="rack-canvas tracks-canvas" id="tracksCanvas"></div>
+      <div class="rack-canvas tracks-canvas" id="tracksCanvas">
+        <div class="tracks-cards">
+          <section class="tracks-card" aria-labelledby="activeToneKicker">
+            <span class="tracks-card-icon"><tl-icon name="sliders" size="20"></tl-icon></span>
+            <div class="tracks-card-text">
+              <p class="rack-kicker" id="activeToneKicker">Active tone</p>
+              <strong id="activeToneName">Untitled rack</strong>
+              <span class="preset-meta" id="activeToneMeta">Not saved as a preset · 1 chain</span>
+            </div>
+            <tl-button id="editInTone" size="sm" icon="edit">Edit in Tone</tl-button>
+          </section>
+          <section class="tracks-card" id="guitarCard" data-state="off" aria-labelledby="guitarKicker">
+            <span class="tracks-card-icon"><tl-icon name="guitar" size="20"></tl-icon></span>
+            <div class="tracks-card-text">
+              <p class="rack-kicker" id="guitarKicker">Guitar</p>
+              <strong id="guitarSourceName">Live input</strong>
+              <span class="preset-meta" id="guitarSourceDetail">Monitoring is off</span>
+              <span class="tracks-levels" id="guitarLevels">Input 0.0 dB · Output 0.0 dB</span>
+            </div>
+            <tl-button id="guitarMonitor" size="sm" icon="headphones" aria-pressed="false">Enable live input</tl-button>
+          </section>
+        </div>
+      </div>
     </main>
   </div>
 

@@ -7,10 +7,12 @@ import {isFactoryPreset} from './FactoryPresets.js';
 // presets use the account store when signed in, IndexedDB otherwise; Factory
 // presets are read-only recipes (FactoryPresets.js). The preset last loaded
 // or saved is the active one: Save overwrites it, or creates a new preset
-// when it is a Factory one or there is none.
-export default class PresetsPanel {
+// when it is a Factory one or there is none. 'change' (detail {name, meta})
+// fires on every render: the Tracks workspace shows the active tone.
+export default class PresetsPanel extends EventTarget {
   constructor({account, localStore, remoteStore, factoryStore, captureState, applyState, defaultState, suggestName = () => '',
     report = () => {}, root = document}) {
+    super();
     Object.assign(this, {account, localStore, remoteStore, factoryStore, captureState, applyState, defaultState, suggestName, report});
     this.$ = (id) => root.getElementById(id);
     this.presets = [];
@@ -25,7 +27,7 @@ export default class PresetsPanel {
   get active() { return this.activeId === null ? null : this.find(this.activeId); }
   get busy() { return this.loadingId !== null; }
 
-  attach() {
+  async attach() {
     this.$('presetsPanel').hidden = false;
     this.$('presetHeaderActions').hidden = false;
     this.$('presetSelect').onchange = (event) => { const id = event.target.value; if (id) this.load(id); };
@@ -36,7 +38,8 @@ export default class PresetsPanel {
     this.$('presetRevert').onclick = () => this.active && this.load(this.active.id);
     // Signing out puts the rack back to its default (index.js): no preset is active.
     this.account?.addEventListener('change', () => { if (!this.account.signedIn) this.activeId = null; this.refresh(); });
-    return this.refresh();
+    await this.refresh();
+    return this;
   }
 
   status(text, error = false) {
@@ -82,9 +85,10 @@ export default class PresetsPanel {
 
     const active = this.active;
     const mine = active && !active.factory;
-    this.$('presetTitle').textContent = active?.name || 'Untitled rack';
-    this.$('presetMeta').textContent = !active ? 'Not saved as a preset'
-      : active.factory ? `Factory · ${active.category}` : `My preset · ${this.scopeText()}`;
+    const name = active?.name || 'Untitled rack';
+    const meta = !active ? 'Not saved as a preset' : active.factory ? `Factory · ${active.category}` : `My preset · ${this.scopeText()}`;
+    this.$('presetTitle').textContent = name;
+    this.$('presetMeta').textContent = meta;
     this.$('presetRename').hidden = !mine;
     const revert = this.$('presetRevert');
     revert.hidden = !active;
@@ -95,6 +99,7 @@ export default class PresetsPanel {
     const save = this.$('presetSaveButton');
     save.disabled = this.busy;
     save.title = mine ? `Save the current rack to “${active.name}”` : 'Save the current rack as a new preset';
+    this.dispatchEvent(new CustomEvent('change', {detail: {name, meta}}));
   }
 
   // Default names must not collide: two presets of the same amp would
