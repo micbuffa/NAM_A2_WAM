@@ -15,7 +15,7 @@ class MicrophonePermissionTest < ApplicationSystemTestCase
 
   test "the sound card picked in the startup permission prompt stays selected" do
     visit "/rack/"
-    assert_text "Chain ready", wait: 40
+    wait_for_rack(wait: 40)
     assert_select_value "Scarlett Solo USB", "Input 1, Input 2"
 
     click_on "Enable live input"
@@ -27,7 +27,7 @@ class MicrophonePermissionTest < ApplicationSystemTestCase
   test "the sound card picked when enabling live input after a dismissed prompt stays selected" do
     visit "/rack/"
     page.execute_script("window.name = 'dismiss-first-prompt'; location.reload()")
-    assert_text "Chain ready", wait: 40
+    wait_for_rack(wait: 40)
     assert_text "Cannot detect channels"
 
     click_on "Enable live input"

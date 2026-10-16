@@ -37,12 +37,8 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
 .host-lab-link { color: var(--tl-text-muted); font-size: var(--tl-fs-sm); text-decoration: none; white-space: nowrap; }
 .host-lab-link:hover { color: var(--tl-accent); }
 
-/* Status line (main.js message()): engine-status look, red when it reports an error. */
-.host-status { min-width: 0; max-width: 460px; margin: 0; overflow: hidden; color: var(--tl-text-2); font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
-.host-status::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: var(--tl-space-2); vertical-align: 1px; border-radius: 50%;
-  background: var(--tl-accent); box-shadow: var(--tl-glow-led); }
-.host-status.error { color: var(--tl-danger); }
-.host-status.error::before { background: var(--tl-danger); box-shadow: 0 0 9px var(--tl-danger); }
+/* Audio engine badge (EngineStatus.js); one-off messages are toasts. */
+.host-engine { font-size: 12px; }
 
 /* Sidebar: flat sections separated by rules, as in the mockup. */
 .host-sidebar { position: sticky; top: var(--tl-topbar-height); height: calc(100vh - var(--tl-topbar-height)); overflow-y: auto; display: flex; flex-direction: column;

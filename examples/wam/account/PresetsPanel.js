@@ -186,7 +186,6 @@ export default class PresetsPanel {
     this.loadingId = preset.id;
     this.render();
     this.status(`Loading “${preset.name}”…`);
-    this.report(`Loading preset “${preset.name}”…`);
     try {
       const {state} = await (isFactoryPreset(preset.id) ? this.factoryStore : this.store).get(preset.id);
       await this.applyState(state);

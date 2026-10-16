@@ -10,4 +10,9 @@ module RackAssets
   def skip_unless_rack_synced
     skip "public/rack is not synced: run bin/rack-sync" unless RackAssets.synced?
   end
+
+  # The rack is built once the topbar engine badge leaves "starting".
+  def wait_for_rack(wait: 40)
+    assert_selector "#engineStatus[data-state=ready], #engineStatus[data-state=idle]", wait:
+  end
 end

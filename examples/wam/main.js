@@ -12,6 +12,7 @@ import {readAudioDevicePreferences, saveAudioDevicePreferences, resolveInputPref
 import {FxChain} from './FxChain.js';
 import {FxRack} from './FxRack.js';
 import {FxRackView} from './FxRackView.js';
+import {EngineStatus} from './EngineStatus.js';
 import {SettingsView} from './SettingsView.js';
 import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
@@ -36,6 +37,7 @@ let liveInputEnabled = false;
 let outputDeviceManager;
 let chain, chainView, rack, backingPlayer, backingMix;
 const settings = new SettingsView({button: $('#settingsButton')});
+const engine = new EngineStatus({element: $('#engineStatus'), context});
 
 
 const sidebarToggle = $('#toggleSidebar');
@@ -51,10 +53,10 @@ $('#hostSidebar').addEventListener('keydown', event => {
   if (event.key === 'Escape' && !event.target.closest?.('select, tl-select')) { sidebarToggle.click(); sidebarToggle.focus(); }
 });
 
+// One-off host messages are toasts (the engine badge carries the lasting state);
+// long ones stay up long enough to be read.
 function message(text, error = false) {
-  $('#hostStatus').textContent = text;
-  $('#hostStatus').classList.toggle('error', error);
-  if (error) toast(text, {tone: 'danger', duration: 6000});
+  toast(text, {tone: error ? 'danger' : 'accent', duration: Math.max(error ? 6000 : 2400, text.length * 45)});
 }
 
 async function discoverFiles() {
@@ -432,6 +434,7 @@ async function initialize() {
       syncSourceTrim();
     },
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
+  engine.ready();
   message('Chain ready. Click a photo to edit, or + to insert an effect.');
   // Programmatic selection during refreshDevices does not fire onchange.
   // Probe the initially displayed device too, after all controls are ready.
@@ -547,5 +550,5 @@ if (tone3000PopupCallback && (tone3000HasOpener || tone3000PopupMode || !tone300
   // Some embedded browsers collapse window.open() into the current tab. In
   // that case sessionStorage survives and initialize() lets the plugin GUI
   // consume the callback directly from window.location.
-  initialize().catch((error) => { window.phase3Error = String(error.stack || error); message(window.phase3Error, true); document.documentElement.dataset.phase3 = 'error'; });
+  initialize().catch((error) => { window.phase3Error = String(error.stack || error); engine.fail(); message(window.phase3Error, true); document.documentElement.dataset.phase3 = 'error'; });
 }

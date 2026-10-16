@@ -19,7 +19,7 @@ class RackPresetsTest < ApplicationSystemTestCase
     # Guest presets live in IndexedDB, which survives between tests.
     page.evaluate_async_script("const done = arguments[0]; const r = indexedDB.deleteDatabase('nam-a2-wam-presets'); r.onsuccess = r.onerror = r.onblocked = () => done();")
     visit "/rack/"
-    assert_text "Chain ready", wait: 40
+    wait_for_rack(wait: 40)
   end
 
   test "pedals and gains belong to the preset that saved them" do
@@ -63,7 +63,7 @@ class RackPresetsTest < ApplicationSystemTestCase
       })();
     JS
     visit "/rack/"
-    assert_text "Chain ready", wait: 40
+    wait_for_rack(wait: 40)
     add_pedal_and_gains
 
     load_preset "Legacy"

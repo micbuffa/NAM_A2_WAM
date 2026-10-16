@@ -23,7 +23,7 @@
       </div>
       <div class="host-topbar-actions">
         <tl-button id="tunerButton" class="host-tuner-button" icon="tuner" size="sm" title="Open tuner (T)" aria-haspopup="dialog" aria-keyshortcuts="T" disabled>Tuner<kbd class="host-kbd">T</kbd></tl-button>
-        <p id="hostStatus" class="host-status" role="status">Initializing…</p>
+        <tl-badge id="engineStatus" class="host-engine" dot role="status" tone="warning" data-state="starting">Starting audio engine…</tl-badge>
         <a class="host-lab-link" href="./fx-test/">WAM FX Registry Lab</a>
         <div class="host-account" id="accountPanel" hidden>
           <span class="host-divider"></span>
