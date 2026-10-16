@@ -18,10 +18,17 @@ class MicrophonePermissionTest < ApplicationSystemTestCase
     wait_for_rack(wait: 40)
     assert_select_value "Scarlett Solo USB", "Input 1, Input 2"
 
+    page.execute_script(<<~JS)
+      window.__toasts = [];
+      const proto = customElements.get("tl-toast").prototype, show = proto.show;
+      proto.show = function (text, options) { window.__toasts.push(text); return show.call(this, text, options); };
+    JS
     click_on "Enable live input"
     assert_text "Live input active", wait: 10
     assert_select_value "Scarlett Solo USB", "Input 1, Input 2"
     assert_equal [ %(\"\" -> card (2 ch)), %(\"card\" -> card (2 ch)) ], page.evaluate_script("window.__gum")
+    assert_equal [ "Live input active" ], page.evaluate_script("window.__toasts.map(text => text.split(':')[0])"),
+      "enabling live input shows one message"
   end
 
   test "the sound card picked when enabling live input after a dismissed prompt stays selected" do

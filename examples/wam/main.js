@@ -211,14 +211,15 @@ async function disableLiveInput(status = 'Live input disabled') {
   await sourceManager.disconnectCurrent();
   liveInputEnabled = false;
   syncLiveInputButton();
-  message(status);
+  if (status) message(status);
 }
 
-async function selectSource() {
+// quiet: live input is being enabled right after, which has its own message.
+async function selectSource({quiet = false} = {}) {
   const value = $('#audioSource').value;
   if (value === 'live') {
     setPlayerEnabled(false);
-    await disableLiveInput('Live input ready. Click Enable live input to start monitoring.');
+    await disableLiveInput(quiet ? null : 'Live input ready. Click Enable live input to start monitoring.');
   } else {
     liveInputEnabled = false;
     syncLiveInputButton();
@@ -369,7 +370,7 @@ async function initialize() {
       $('#audioSource').value='live';
       setPlayerEnabled(false);
       const resumed=context.resume();
-      await selectSource();
+      await selectSource({quiet: true});
       await resumed;
       selectedDeviceId=$('#inputDevice').value;
       await activateSelectedLiveInput();
