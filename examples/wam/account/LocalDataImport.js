@@ -29,13 +29,19 @@ export default class LocalDataImport {
     return {presets, favorites, preferences: this.readLocalPreferences()};
   }
 
-  // Resolves with {presets, favorites} counts, or null when nothing was imported.
-  async offer() {
+  // Resolves with {presets, favorites, preferences} (counts and a boolean),
+  // or null when declined or, for the automatic offer, when there is nothing
+  // to import. force: asked from Settings > Account, even if offered before;
+  // an empty browser then resolves with zero counts.
+  async offer({force = false} = {}) {
     const user = this.account.user;
-    if (!user || this.offered(user)) return null;
+    if (!user || (!force && this.offered(user))) return null;
     const data = await this.collect();
     const hasPreferences = Object.keys(data.preferences).length > 0;
-    if (!data.presets.length && !data.favorites.length && !hasPreferences) { this.markOffered(user); return null; }
+    if (!data.presets.length && !data.favorites.length && !hasPreferences) {
+      this.markOffered(user);
+      return force ? {presets: 0, favorites: 0, preferences: false} : null;
+    }
 
     const parts = [data.presets.length && plural(data.presets.length, 'preset'), data.favorites.length && plural(data.favorites.length, 'favorite'),
       hasPreferences && 'your level preferences'].filter(Boolean);
@@ -51,6 +57,6 @@ export default class LocalDataImport {
     for (const batch of chunks(data.presets, PRESETS_PER_REQUEST)) {
       await api.importLocalData({presets: batch.map(({name, state}) => ({name, state}))});
     }
-    return {presets: data.presets.length, favorites: data.favorites.length};
+    return {presets: data.presets.length, favorites: data.favorites.length, preferences: hasPreferences};
   }
 }

@@ -1,19 +1,38 @@
 import {actionsRow, button, createDialog} from './dialogs.js';
 
 // Topbar account control (#accountPanel): "Sign in" for guests, an avatar
-// chip once signed in. The chip opens the account dialog (identity, what is
-// synced, sign out). Sign-in and sign-up are one flow: email -> link by mail.
-// The link, opened on this computer, signs in another tab which notifies this
-// one via BroadcastChannel.
+// chip once signed in, and the Account section of the settings dialog
+// (identity, what is synced, import of this browser's guest data, sign out),
+// which the chip opens. Sign-in and sign-up are one flow: email -> link by
+// mail. The link, opened on this computer, signs in another tab which
+// notifies this one via BroadcastChannel.
 export const initials = (email = '') => {
   const words = email.split('@')[0].split(/[._+-]+/u).filter(Boolean);
   return (words.length > 1 ? words[0][0] + words[1][0] : (words[0] || '?').slice(0, 2)).toUpperCase();
 };
 
+const SYNCED = [['Presets', 'Every rack you save, with both chains and their pedals.'],
+  ['Favorites', 'NAM models and impulse responses marked with a star.'],
+  ['Amp preferences', 'A2 rendering mode and automatic level.']];
+
+const element = (tag, className = '', text = '') => Object.assign(document.createElement(tag), {className, textContent: text});
+
+// {presets, favorites, preferences} from LocalDataImport -> one sentence.
+export function importSummary(result) {
+  if (!result) return '';
+  const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+  const parts = [result.presets && plural(result.presets, 'preset'), result.favorites && plural(result.favorites, 'favorite'),
+    result.preferences && 'your amp preferences'].filter(Boolean);
+  return parts.length ? `Imported ${parts.join(', ')}.` : 'This browser has no guest data to import.';
+}
+
 export default class AccountPanel {
-  constructor({account, root = document}) {
+  // importLocalData({force}) resolves with LocalDataImport#offer's result.
+  constructor({account, settings, importLocalData = async () => null, root = document}) {
     this.account = account;
     this.api = account.api;
+    this.settings = settings;
+    this.importLocalData = importLocalData;
     this.$ = (id) => root.getElementById(id);
     this.panel = this.$('accountPanel');
   }
@@ -21,11 +40,12 @@ export default class AccountPanel {
   attach() {
     this.panel.hidden = false;
     this.$('accountSignIn').onclick = () => this.openSignIn();
-    this.$('accountChip').onclick = () => this.openAccount();
+    this.$('accountChip').onclick = () => this.settings.open('account');
+    this.settings.addSection({id: 'account', label: 'Account', icon: 'user', render: (container) => this.renderSection(container)});
     this.account.addEventListener('change', () => {
       this.render();
       if (this.account.signedIn) this.signInDialog?.close();
-      else this.accountDialog?.close();
+      this.settings.refresh('account');
     });
     this.render();
   }
@@ -39,42 +59,78 @@ export default class AccountPanel {
     this.$('accountChip').title = user ? `Account: ${user.email}` : 'Account';
   }
 
-  // Focus goes back to whichever topbar control is visible after a dialog closes.
-  restoreFocus() { this.$(this.account.signedIn ? 'accountChip' : 'accountSignIn').focus(); }
+  // After the sign-in dialog closes, focus the visible topbar control, unless
+  // the settings dialog is still open underneath.
+  restoreFocus() {
+    if (document.querySelector('dialog[open]')) return;
+    this.$(this.account.signedIn ? 'accountChip' : 'accountSignIn').focus();
+  }
 
-  openAccount() {
+  renderSection(container) {
     const user = this.account.user;
-    if (!user) return;
-    const {dialog, body} = createDialog({title: 'Account', eyebrow: 'Signed in', className: 'account-dialog'});
-    this.accountDialog = dialog;
-    dialog.addEventListener('close', () => { if (this.accountDialog === dialog) this.accountDialog = null; this.restoreFocus(); }, {once: true});
+    const heading = element('h3', '', 'Account');
+    const intro = element('p', 'host-help', user
+      ? 'Your rack follows you: what is listed below is saved to your account and available on every device.'
+      : 'Sign in to keep presets, favorites and preferences on every device. No password: we email you a link.');
 
-    const identity = document.createElement('div');
-    identity.className = 'account-identity';
-    const avatar = Object.assign(document.createElement('span'), {className: 'account-avatar', textContent: initials(user.email)});
+    const identity = element('div', 'account-identity');
+    const avatar = element('span', 'account-avatar', user ? initials(user.email) : '');
     avatar.setAttribute('aria-hidden', 'true');
-    const email = Object.assign(document.createElement('strong'), {textContent: user.email});
-    const sync = Object.assign(document.createElement('span'), {className: 'account-sync'});
-    sync.append(document.createElement('i'), 'Synced');
+    if (!user) {
+      const icon = document.createElement('tl-icon');
+      icon.setAttribute('name', 'user');
+      avatar.append(icon);
+    }
     const text = document.createElement('span');
-    text.append(email, sync);
-    identity.append(avatar, text);
-
-    const synced = Object.assign(document.createElement('p'), {className: 'host-help',
-      textContent: 'Presets, NAM and IR favorites and amp preferences are saved to your account and follow you on every device.'});
-    const error = Object.assign(document.createElement('p'), {className: 'host-help error'});
+    const sync = element('span', `account-sync${user ? '' : ' local'}`);
+    sync.append(document.createElement('i'), user ? 'Synced' : 'Stored in this browser only');
+    text.append(element('strong', '', user ? user.email : 'Guest'), sync);
+    const error = element('p', 'host-help error');
     error.setAttribute('role', 'alert');
-    const close = button('Close');
-    close.onclick = () => dialog.close();
-    const signOut = button('Sign out', {primary: true});
-    signOut.onclick = async () => {
-      signOut.disabled = true; error.textContent = '';
-      // Closed by the account "change" listener once signed out.
-      try { await this.signOut(); } catch (failure) { error.textContent = failure.message; signOut.disabled = false; }
+    const action = document.createElement('tl-button');
+    action.setAttribute('size', 'sm');
+    if (user) {
+      action.textContent = 'Sign out';
+      action.onclick = async () => {
+        action.disabled = true; error.textContent = '';
+        try { await this.signOut(); } catch (failure) { error.textContent = failure.message; action.disabled = false; }
+      };
+    } else {
+      action.textContent = 'Sign in';
+      action.setAttribute('variant', 'primary');
+      action.setAttribute('icon', 'user');
+      action.onclick = () => this.openSignIn();
+    }
+    identity.append(avatar, text, action);
+    container.append(heading, intro, identity, error);
+    if (!user) return;
+
+    const list = element('ul', 'account-synced');
+    list.setAttribute('aria-label', 'Saved to your account');
+    list.append(...SYNCED.map(([title, detail]) => {
+      const item = document.createElement('li');
+      item.append(element('strong', '', title), element('span', '', detail));
+      return item;
+    }));
+
+    const browser = element('div', 'account-browser-data');
+    const browserText = document.createElement('div');
+    browserText.append(element('strong', '', 'This browser’s data'),
+      element('span', '', 'Copy the presets, favorites and preferences saved here before you signed in. Local copies are kept.'));
+    const importButton = document.createElement('tl-button');
+    importButton.setAttribute('size', 'sm');
+    importButton.setAttribute('icon', 'copy');
+    importButton.textContent = 'Import…';
+    const status = element('p', 'host-help');
+    status.setAttribute('role', 'status');
+    importButton.onclick = async () => {
+      importButton.disabled = true; status.textContent = ''; status.classList.remove('error');
+      try { status.textContent = importSummary(await this.importLocalData({force: true})); }
+      catch (failure) { status.textContent = `Import failed: ${failure.message}`; status.classList.add('error'); }
+      finally { importButton.disabled = false; }
     };
-    body.append(identity, synced, error, actionsRow(close, signOut));
-    dialog.showModal();
-    close.focus();
+    browser.append(browserText, importButton);
+    container.append(element('h4', 'settings-subheading', 'Saved to your account'), list, browser, status);
   }
 
   openSignIn() {

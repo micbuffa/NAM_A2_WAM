@@ -39,13 +39,13 @@ class AccountPresetsTest < ApplicationSystemTestCase
 
     saved = chain_snapshot
     assert saved["model"], "a default model should be loaded"
-    click_on "Save as new…"
+    click_on "New preset"
     within("dialog[open]") do
       fill_in "Preset name", with: "System test crunch"
-      click_on "Save preset"
+      click_on "Create preset"
     end
-    within("#presetList") { assert_button "System test crunch" }
-    assert_selector "#presetList li[aria-current=true]", text: "System test crunch"
+    assert_selector "#presetTitle", exact_text: "System test crunch"
+    assert_text "My preset · Synced to player@example.com"
     preset = User.find_by!(email: "player@example.com").presets.find_by!(name: "System test crunch")
     # A preset is the whole rack state (what "Save WAM state" captures).
     nam_entry = preset.state.dig("a", "entries").find { |entry| entry["kind"] == "nam" }
@@ -59,34 +59,34 @@ class AccountPresetsTest < ApplicationSystemTestCase
     JS
     assert_not_equal saved["params"], chain_snapshot["params"]
 
-    within("#presetList") { click_on "System test crunch" }
+    find("#presetRevert").click # the preset is still the active one: reload it
     assert_selector "#presetStatus", text: "Loaded “System test crunch”.", wait: 20
     assert_equal saved, chain_snapshot
-    assert_selector "#presetList li[aria-current=true]", count: 1, text: "System test crunch"
+    assert_selector "#presetTitle", exact_text: "System test crunch"
     assert_selector "#hostStatus", text: "Preset “System test crunch” active."
 
     # A second preset of the same chain gets a distinct default name and
     # becomes the active one; loading the first switches back to it.
     model_name = saved["model"].delete_suffix(".nam")
-    click_on "Save as new…"
+    click_on "New preset"
     within("dialog[open]") do
       assert_field "Preset name", with: model_name
-      click_on "Save preset"
+      click_on "Create preset"
     end
-    assert_selector "#presetList li[aria-current=true]", count: 1, text: model_name
-    click_on "Save as new…"
+    assert_selector "#presetTitle", exact_text: model_name
+    click_on "New preset"
     within("dialog[open]") do
       assert_field "Preset name", with: "#{model_name} 2"
       click_on "Cancel"
     end
-    within("#presetList") { click_on "System test crunch" }
-    assert_selector "#presetList li[aria-current=true]", count: 1, text: "System test crunch", wait: 20
+    select_preset "System test crunch"
+    assert_selector "#presetTitle", exact_text: "System test crunch", wait: 20
 
     # The account survives a reload; the preset is listed from the server.
     visit "/rack/"
     assert_text "Chain ready", wait: 40
     within("#accountPanel") { assert_text "player@example.com" }
-    within("#presetList") { assert_button "System test crunch" }
+    assert_selector "#presetSelect option", exact_text: "System test crunch"
   end
 
   test "confirming the magic link in another tab updates the open rack without reloading" do
@@ -143,11 +143,13 @@ class AccountPresetsTest < ApplicationSystemTestCase
     assert_not_equal guest["params"], chain_snapshot["params"]
 
     click_on "Account: leaver@example.com"
-    within("dialog[open]") do
+    within("dialog[open]", text: "Settings") do
       assert_text "leaver@example.com"
+      assert_text "NAM models and impulse responses"
       click_on "Sign out"
+      assert_text "Stored in this browser only", wait: 10 # the Account section re-renders as a guest
+      click_on "Done"
     end
-    assert_no_css "dialog[open]"
     within("#accountPanel") { assert_button "Sign in" }
     assert_text "the rack is back to its default settings", wait: 20
     assert_equal guest, chain_snapshot
@@ -163,6 +165,10 @@ class AccountPresetsTest < ApplicationSystemTestCase
   end
 
   private
+    def select_preset(name)
+      find("#presetSelect").find("option", exact_text: name).select_option
+    end
+
     # A new tab whose history starts at the link, like a webmail's
     # target=_blank rel=noopener (open_new_window starts at about:blank, which
     # forbids window.close()).

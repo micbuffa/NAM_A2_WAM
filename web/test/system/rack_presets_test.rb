@@ -39,8 +39,8 @@ class RackPresetsTest < ApplicationSystemTestCase
     load_preset "Clean"
     add_pedal_and_gains
 
-    click_on "Update “Clean”"
-    assert_selector "#presetStatus", text: "Updated “Clean”."
+    click_on "Save"
+    assert_selector "#presetStatus", text: "Saved “Clean”."
     load_preset "Other"
     assert_equal "nam>cabinet", rack["chain"]
     load_preset "Clean"
@@ -70,23 +70,60 @@ class RackPresetsTest < ApplicationSystemTestCase
     assert_equal({ "chain" => "nam>cabinet", "outputDbA" => 0, "inputGain" => 0 }, rack)
   end
 
+  test "a Factory preset loads its model, is read-only and saves as a new preset" do
+    add_pedal_and_gains
+    load_preset "Twin Clean · Clean"
+    assert_equal "Twin Clean", find("#presetTitle").text
+    assert_text "Factory · Clean"
+    nam = JSON.parse(page.evaluate_async_script(<<~JS))
+      const done = arguments[0];
+      phase3Debug.rack.getState().then((s) => {
+        const nam = s.a.entries.find((e) => e.kind === 'nam');
+        done(JSON.stringify({model: nam.state.model.name, bass: nam.state.parameterValues.bass.value}));
+      });
+    JS
+    assert_equal({ "model" => "Fender Twin Reverb.nam", "bass" => 5 }, nam)
+    assert_equal "nam>cabinet", rack["chain"], "a Factory preset starts from the default rack"
+    assert find("#presetDelete")[:disabled]
+    assert_no_selector "#presetRename", visible: true
+
+    click_on "Save"
+    within("dialog[open]") do
+      assert_field "Preset name", with: "Twin Clean"
+      fill_in "Preset name", with: "My twin"
+      click_on "Create preset"
+    end
+    assert_selector "#presetTitle", exact_text: "My twin"
+    assert_text "My preset · Stored in this browser"
+  end
+
+  test "a new preset can start from the default rack" do
+    add_pedal_and_gains
+    click_on "New preset"
+    within("dialog[open]") do
+      fill_in "Preset name", with: "Fresh"
+      choose "Default rack"
+      click_on "Create preset"
+    end
+    assert_selector "#presetTitle", exact_text: "Fresh"
+    assert_equal({ "chain" => "nam>cabinet", "outputDbA" => 0, "inputGain" => 0 }, rack)
+  end
+
   private
     def rack = JSON.parse(page.evaluate_async_script(RACK_JS))
 
     def save_as_new(name)
-      click_on "Save as new…"
+      click_on "New preset"
       within("dialog[open]") do
         fill_in "Preset name", with: name
-        click_on "Save preset"
+        click_on "Create preset"
       end
-      assert_selector "#presetList li[aria-current=true]", text: name
+      assert_selector "#presetTitle", exact_text: name
     end
 
-    def load_preset(name)
-      button = find("#presetList .preset-load", exact_text: name)
-      button.execute_script("this.scrollIntoView({block: 'center'})")
-      button.click
-      assert_selector "#presetStatus", exact_text: "Loaded “#{name}”.", wait: 20
+    def load_preset(label)
+      find("#presetSelect").find("option", exact_text: label).select_option
+      assert_selector "#presetStatus", exact_text: "Loaded “#{label.split(" · ").first}”.", wait: 30
     end
 
     def add_pedal_and_gains

@@ -12,6 +12,7 @@ import {readAudioDevicePreferences, saveAudioDevicePreferences, resolveInputPref
 import {FxChain} from './FxChain.js';
 import {FxRack} from './FxRack.js';
 import {FxRackView} from './FxRackView.js';
+import {SettingsView} from './SettingsView.js';
 import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
 import {setupAccount} from './account/index.js';
@@ -34,6 +35,7 @@ let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
 let chain, chainView, rack, backingPlayer, backingMix;
+const settings = new SettingsView({button: $('#settingsButton')});
 
 
 const sidebarToggle = $('#toggleSidebar');
@@ -45,7 +47,8 @@ sidebarToggle.onclick = () => {
   sidebarToggle.setAttribute('aria-label', sidebar.hidden ? 'Change audio source' : 'Close audio source panel');
 };
 $('#hostSidebar').addEventListener('keydown', event => {
-  if (event.key === 'Escape') { sidebarToggle.click(); sidebarToggle.focus(); }
+  // Escape inside a select closes its list, not the sidebar.
+  if (event.key === 'Escape' && !event.target.closest?.('select, tl-select')) { sidebarToggle.click(); sidebarToggle.focus(); }
 });
 
 function message(text, error = false) {
@@ -420,7 +423,7 @@ async function initialize() {
   // favorites/preferences of whichever NAM and cabinet editors are open.
   const accountGuis = () => [rack.a, rack.b].filter(Boolean).flatMap((lane) => lane.entries)
     .filter((entry) => entry.kind === 'nam' || entry.kind === 'cabinet').map((entry) => entry.gui).filter(Boolean);
-  await accountIntegration.attach({guis: accountGuis, report: message,
+  await accountIntegration.attach({settings, guis: accountGuis, report: message,
     // A preset is the whole rack, exactly what "Save WAM state" captures.
     captureState: () => rack.getState(),
     applyState: async (state) => {

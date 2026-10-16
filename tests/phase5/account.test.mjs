@@ -4,6 +4,8 @@ import AccountApi, {ApiError} from '../../examples/wam/account/api.js';
 import AccountFavorites, {decodeAsset, encodeAsset} from '../../examples/wam/account/AccountFavorites.js';
 import {LocalPresetStore} from '../../examples/wam/account/PresetStore.js';
 import LocalDataImport from '../../examples/wam/account/LocalDataImport.js';
+import {importSummary, initials} from '../../examples/wam/account/AccountPanel.js';
+import {FACTORY_PRESETS, FactoryPresetStore, isFactoryPreset} from '../../examples/wam/account/FactoryPresets.js';
 
 const fakeDocument = ({csrf = 'token-1', user = null} = {}) => {
   const meta = csrf === null ? null : {content: csrf, getAttribute() { return this.content; }, setAttribute(_, value) { this.content = value; }};
@@ -126,7 +128,7 @@ test('local data import is offered once per account and sent in batches', async 
     encodeAsset: (asset) => ({...asset, encoded: true}), confirm: async (options) => { prompts.push(options); return true; },
     storage: {getItem: (key) => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value)}});
 
-  assert.deepEqual(await importer.offer(), {presets: 4, favorites: 13});
+  assert.deepEqual(await importer.offer(), {presets: 4, favorites: 13, preferences: true});
   assert.match(prompts[0].message, /4 presets, 13 favorites, your level preferences/);
   assert.deepEqual(calls[0], {preferences: {autoLevel: false}});
   assert.deepEqual(calls.slice(1, 3).map((call) => call.favorites.length), [10, 3]);
@@ -136,6 +138,28 @@ test('local data import is offered once per account and sent in batches', async 
 
   assert.equal(await importer.offer(), null, 'offered only once per account');
   assert.equal(prompts.length, 1);
+
+  // Settings > Account asks again on demand.
+  assert.deepEqual(await importer.offer({force: true}), {presets: 4, favorites: 13, preferences: true});
+  assert.equal(prompts.length, 2);
+});
+
+test('a forced import of an empty browser reports zero counts without asking', async () => {
+  const prompts = [];
+  const importer = new LocalDataImport({account: {user: {id: 3, email: 'c@example.com'}, api: {importLocalData: async () => assert.fail('nothing to send')}},
+    localPresets: {available: true, all: async () => []}, localFavorites: {}, readLocalPreferences: () => ({}),
+    encodeAsset: (asset) => asset, confirm: async (options) => { prompts.push(options); return true; }, storage: null});
+  assert.deepEqual(await importer.offer({force: true}), {presets: 0, favorites: 0, preferences: false});
+  assert.equal(await importer.offer(), null);
+  assert.deepEqual(prompts, []);
+});
+
+test('the account section summarises an import in one sentence', () => {
+  assert.equal(importSummary(null), '');
+  assert.equal(importSummary({presets: 0, favorites: 0, preferences: false}), 'This browser has no guest data to import.');
+  assert.equal(importSummary({presets: 1, favorites: 2, preferences: true}), 'Imported 1 preset, 2 favorites, your amp preferences.');
+  assert.equal(initials('gui.besse@example.com'), 'GB');
+  assert.equal(initials('solo@example.com'), 'SO');
 });
 
 test('declining the import is remembered and sends nothing', async () => {
@@ -148,4 +172,42 @@ test('declining the import is remembered and sends nothing', async () => {
   assert.equal(await importer.offer(), null);
   assert.deepEqual(calls, []);
   assert.ok(storage.has('nam-a2-wam.account.import-offered.9'));
+});
+
+test('a Factory preset applies its model and parameters on top of the default rack', async () => {
+  const base = {version: 2, a: {entries: [
+    {id: 'n', kind: 'nam', bypass: true, state: {model: {data: 'old', name: 'old.nam'}, measuredCalibration: {compensationDb: 3}, metadata: {x: 1},
+      parameterValues: {bass: {id: 'bass', value: 5, normalized: false}, inputGain: {id: 'inputGain', value: 2, normalized: false}}}},
+    {id: 'c', kind: 'cabinet', state: {routingMode: 'auto'}}]}};
+  const manifestUrl = 'https://rack.test/plugins/nam-wam/models-manifest.json';
+  const requested = [];
+  const fetchImpl = async (url) => {
+    requested.push(String(url));
+    return String(url) === manifestUrl
+      ? {ok: true, json: async () => ({assets: [{id: 'factory:amp', filename: 'Amp A.nam', relativePath: 'Packs/Amp A.nam', displayName: 'Amp A'}]})}
+      : {ok: true, text: async () => 'MODEL'};
+  };
+  const store = new FactoryPresetStore({manifestUrl, baseState: () => base, fetchImpl,
+    presets: [{id: 'factory:test', name: 'Test', category: 'Clean', model: 'factory:amp', parameters: {bass: 7, noiseEnabled: 1}}]});
+
+  assert.deepEqual(await store.list(), [{id: 'factory:test', name: 'Test', category: 'Clean', factory: true}]);
+  const {state, name} = await store.get('factory:test');
+  assert.equal(name, 'Test');
+  assert.equal(requested[1], 'https://rack.test/plugins/nam-wam/models/Packs/Amp%20A.nam');
+  const nam = state.a.entries[0];
+  assert.deepEqual([nam.state.model.data, nam.state.model.name, nam.state.model.provenance.identity, nam.state.model.provenance.source],
+    ['MODEL', 'Amp A.nam', 'factory:amp', 'Factory']);
+  assert.equal(nam.state.measuredCalibration, null, 'the base model calibration is dropped');
+  assert.equal(nam.bypass, false);
+  assert.deepEqual(nam.state.parameterValues.bass, {id: 'bass', value: 7, normalized: false});
+  assert.equal(nam.state.parameterValues.inputGain.value, 2, 'other parameters keep the default rack values');
+  assert.equal(base.a.entries[0].state.model.data, 'old', 'the default rack is not modified');
+  await assert.rejects(store.get('factory:nope'), /Unknown Factory preset/);
+  assert.ok(isFactoryPreset('factory:test') && !isFactoryPreset('42'));
+});
+
+test('every Factory preset names a model of the shipped catalogue', async () => {
+  const {readFile} = await import('node:fs/promises');
+  const {assets} = JSON.parse(await readFile(new URL('../../src/nam-wam/models-manifest.json', import.meta.url), 'utf8'));
+  for (const preset of FACTORY_PRESETS) assert.ok(assets.some((asset) => asset.id === preset.model), preset.name);
 });

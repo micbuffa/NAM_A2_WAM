@@ -33,6 +33,7 @@
             <span class="account-chip-text"><strong id="accountEmail"></strong><span class="account-sync"><i></i>Synced</span></span>
           </button>
         </div>
+        <tl-icon-button id="settingsButton" icon="settings" aria-label="Settings" title="Settings" disabled></tl-icon-button>
       </div>
     </header>
     <aside class="host-sidebar" id="hostSidebar" aria-label="Host controls">
@@ -60,13 +61,10 @@
       </section>
 
       <section class="host-card host-presets" id="presetsPanel" aria-labelledby="presets-title" hidden>
-        <h2 id="presets-title"><span class="host-dot amber"></span>Presets</h2>
-        <p class="host-help" id="presetScope">Stored in this browser.</p>
-        <div class="preset-actions">
-          <tl-button class="host-secondary" id="presetUpdate" block icon="save" hidden>Update preset</tl-button>
-          <tl-button class="host-secondary" id="presetSave" block variant="primary" icon="plus" aria-haspopup="dialog">Save as new…</tl-button>
-        </div>
-        <ul class="preset-list" id="presetList" aria-label="Saved presets"></ul>
+        <h2 id="presets-title"><span class="host-dot amber"></span>Presets<span class="host-count" id="presetCount"></span></h2>
+        <tl-select class="preset-picker"><select id="presetSelect" aria-label="Preset"></select></tl-select>
+        <p class="host-help" id="presetScope"></p>
+        <tl-button class="host-secondary" id="presetNew" block icon="plus" aria-haspopup="dialog">New preset</tl-button>
         <p class="host-help" id="presetStatus" role="status" aria-live="polite"></p>
       </section>
 
@@ -88,10 +86,21 @@
 
     <main class="rack-stage">
       <header class="rack-header">
-        <div class="rack-heading"><div class="rack-source-actions"><tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button><tl-button id="toggleSidebar" icon="panel" aria-label="Close audio source panel" aria-controls="hostSidebar" aria-expanded="true" title="Change audio source">Change audio source</tl-button></div><div><p class="rack-kicker">SIGNAL CHAIN</p><h2>Amplifier rack</h2></div></div>
+        <div class="rack-heading">
+          <div class="preset-heading">
+            <p class="rack-kicker">Current preset</p>
+            <div class="preset-title-row"><h2 id="presetTitle">Untitled rack</h2><tl-icon-button id="presetRename" icon="edit" size="sm" variant="ghost" aria-label="Rename preset" title="Rename preset" hidden></tl-icon-button><tl-icon-button id="presetRevert" icon="undo" size="sm" variant="ghost" aria-label="Revert to saved preset" title="Reload the preset, discarding unsaved changes" hidden></tl-icon-button></div>
+            <p class="preset-meta" id="presetMeta">Not saved as a preset</p>
+          </div>
+          <div class="rack-source-actions"><tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button><tl-button id="toggleSidebar" icon="panel" aria-label="Close audio source panel" aria-controls="hostSidebar" aria-expanded="true" title="Change audio source">Change audio source</tl-button></div>
+        </div>
         <tl-button id="uiMode" aria-pressed="false" title="Switch to full mode to use two chains" disabled>UI mode: beginner</tl-button>
         <div class="chain-map" aria-label="Signal chain">
           <span>INPUT</span><i></i><strong>NAM</strong><i></i><strong>CABINET</strong><i></i><span>OUTPUT</span>
+        </div>
+        <div class="preset-header-actions" id="presetHeaderActions" hidden>
+          <tl-button id="presetDelete" icon="trash" disabled>Delete</tl-button>
+          <tl-button id="presetSaveButton" variant="primary" icon="save">Save</tl-button>
         </div>
       </header>
       <div class="rack-canvas">

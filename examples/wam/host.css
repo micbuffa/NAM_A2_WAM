@@ -98,33 +98,71 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
 .account-chip strong { max-width: 180px; overflow: hidden; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .account-sync { display: flex; align-items: center; gap: 5px; margin-top: 2px; color: var(--tl-text-muted); font-size: 10px; }
 .account-sync i { width: 5px; height: 5px; border-radius: 50%; background: var(--tl-success); }
-.account-identity { display: flex; align-items: center; gap: var(--tl-space-3); padding: var(--tl-space-3); background: var(--tl-surface-1);
-  border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-md); }
+.account-sync.local i { background: var(--tl-text-faint); }
+.account-identity { display: flex; align-items: center; gap: var(--tl-space-3); margin-top: var(--tl-space-4); padding: var(--tl-space-3);
+  background: var(--tl-surface-1); border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-md); }
+.account-identity > span:nth-child(2) { flex: 1; }
 .account-identity strong { color: var(--tl-text); font-size: var(--tl-fs-md); font-weight: 600; overflow-wrap: anywhere; }
-.account-dialog .host-help { font-size: var(--tl-fs-sm); }
+.account-synced { display: grid; gap: 1px; margin: 0; padding: 0; overflow: hidden; list-style: none; border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-md); }
+.account-synced li { display: grid; gap: 3px; padding: 10px var(--tl-space-3); background: var(--tl-surface-1); }
+.account-synced li + li { border-top: 1px solid var(--tl-border-subtle); }
+.account-synced strong, .account-browser-data strong { color: var(--tl-text-1); font-size: var(--tl-fs-sm); font-weight: 600; }
+.account-synced span, .account-browser-data span { color: var(--tl-text-muted); font-size: 10px; line-height: 1.45; }
+.account-browser-data { display: flex; align-items: center; justify-content: space-between; gap: var(--tl-space-4); margin-top: var(--tl-space-4);
+  padding: var(--tl-space-3); border: 1px dashed var(--tl-border); border-radius: var(--tl-radius-md); }
+.account-browser-data > div { display: grid; gap: 3px; }
+
+/* Settings dialog (SettingsView.js): section nav + content, as in the mockup. */
+.tl-modal-body > .settings-layout { display: grid; grid-template-columns: 160px minmax(0, 1fr); min-height: 340px; margin: -20px -20px 0; border-bottom: 1px solid var(--tl-border-subtle); }
+.settings-layout nav { display: grid; align-content: start; gap: 3px; padding: var(--tl-space-3); background: var(--tl-surface-0); border-right: 1px solid var(--tl-border-subtle); }
+.settings-nav-item { display: flex; align-items: center; gap: var(--tl-space-2); height: 36px; color: var(--tl-text-muted); background: none; border-color: transparent; text-align: left; font-size: var(--tl-fs-sm); }
+.settings-nav-item[aria-current="page"] { color: var(--tl-text); background: var(--tl-surface-5); border-color: var(--tl-border); }
+.settings-content { min-width: 0; padding: 20px; }
+.settings-content h3 { margin: 0; font-size: var(--tl-fs-lg); font-weight: 600; letter-spacing: var(--tl-tracking-title); }
+.settings-content > .host-help { font-size: var(--tl-fs-sm); }
+.settings-subheading { margin: var(--tl-space-6) 0 var(--tl-space-2); color: var(--tl-text-muted); font-size: 10px; font-weight: 600; letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
+@media (max-width: 560px) {
+  .tl-modal-body > .settings-layout { grid-template-columns: minmax(0, 1fr); }
+  .settings-layout nav { grid-auto-flow: column; border-right: 0; border-bottom: 1px solid var(--tl-border-subtle); }
+  .account-browser-data { flex-direction: column; align-items: stretch; }
+}
 
 /* Topbar tool shortcut hint (Tuner T). */
 .host-kbd { margin-left: 3px; padding: 2px 4px; color: var(--tl-text-faint); background: var(--tl-surface-sunken); border: 1px solid var(--tl-border);
   border-radius: 3px; font: 500 8px var(--tl-font-mono); }
 
-/* Presets list (rendered by account/PresetsPanel.js with native buttons). */
-.preset-actions { display: grid; gap: 6px; margin-top: var(--tl-space-3); }
-.preset-actions .host-secondary { margin-top: 0; }
-.preset-list { display: grid; gap: 5px; margin: var(--tl-space-3) 0 0; padding: 0; list-style: none; }
-.preset-list[hidden] { display: none; }
-.preset-item { display: grid; grid-template-columns: minmax(0, 1fr) 30px 30px; gap: 4px; }
-.preset-load { overflow: hidden; text-align: left; text-overflow: ellipsis; white-space: nowrap; font-size: var(--tl-fs-sm); }
-.preset-icon { padding: 0; color: var(--tl-text-muted); font-size: 12px; }
-.preset-item.active .preset-load { color: var(--tl-text); background: var(--tl-accent-tint); border-color: var(--tl-accent-border); }
-.preset-item.active .preset-load::before { content: "\25CF  "; /* ● escaped: Rails serves this CSS without a charset */ color: var(--tl-accent); }
-.preset-item.loading .preset-load { border-style: dashed; border-color: var(--tl-accent-border); }
-.preset-list[aria-busy="true"] .preset-load:disabled { cursor: progress; }
+/* Presets (account/PresetsPanel.js): sidebar picker + New preset, preset header, New preset dialog. */
+.host-count { margin-left: auto; padding: 1px 6px; color: var(--tl-text-muted); background: var(--tl-surface-3); border-radius: var(--tl-radius-pill);
+  font: 500 var(--tl-fs-xs) var(--tl-font-mono); letter-spacing: 0; }
+.host-count:empty { display: none; }
+.preset-picker { display: flex; }
+.preset-heading { min-width: 0; }
+.preset-title-row { display: flex; align-items: center; gap: var(--tl-space-2); margin-top: 7px; }
+.rack-header .preset-title-row h2 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preset-meta { margin: 6px 0 0; color: var(--tl-text-muted); font-size: var(--tl-fs-sm); }
+.preset-header-actions { display: flex; align-items: center; gap: var(--tl-space-2); }
+.preset-header-actions[hidden] { display: none; }
+.new-preset-dialog form { display: grid; gap: 7px; }
+.new-preset-dialog form > label { color: var(--tl-text-muted); font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.new-preset-dialog input:not([type]) { height: 38px; padding: 0 12px; color: var(--tl-text); background: var(--tl-surface-2); border: 1px solid var(--tl-border); border-radius: var(--tl-radius-md); }
+.preset-source-title { margin: var(--tl-space-3) 0 0; color: var(--tl-text-muted); font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.preset-sources { display: grid; grid-template-columns: 1fr 1fr; gap: var(--tl-space-2); }
+.preset-source { display: flex; align-items: flex-start; gap: 10px; padding: var(--tl-space-3); background: var(--tl-surface-1); border: 1px solid var(--tl-border); border-radius: var(--tl-radius-md); cursor: pointer; }
+.preset-source:has(input:checked) { background: var(--tl-accent-tint); border-color: var(--tl-accent-border); }
+.preset-source input { margin: 2px 0 0; }
+.preset-source span { display: grid; gap: 3px; min-width: 0; }
+.preset-source strong { color: var(--tl-text-1); font-size: var(--tl-fs-sm); }
+.preset-source small { color: var(--tl-text-muted); font-size: 10px; line-height: 1.4; }
+@media (max-width: 560px) { .preset-sources { grid-template-columns: minmax(0, 1fr); } }
 
 /* Main panel: preset-style header, then the canvas. */
 .rack-stage { min-width: 0; display: flex; flex-direction: column; }
 .rack-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--tl-space-5); min-height: 115px;
   padding: var(--tl-space-5) 30px; background: rgba(14, 16, 15, .7); border-bottom: 1px solid var(--tl-border-subtle); }
-.rack-heading { display: flex; align-items: center; gap: var(--tl-space-4); flex-wrap: wrap; }
+.rack-heading { flex: 1 1 auto; display: flex; align-items: center; gap: var(--tl-space-4); flex-wrap: wrap; min-width: 0; }
+/* Preset actions stay on the title row; the rack tools (UI mode, chain map) wrap below. */
+.preset-header-actions { order: 1; }
+#uiMode, .chain-map { order: 2; }
 .rack-source-actions { display: flex; align-items: center; gap: var(--tl-space-2); flex-wrap: wrap; }
 .rack-kicker { margin: 0; color: var(--tl-text-muted); font-size: 10px; font-weight: 600; letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
 .rack-header h2 { margin: 7px 0 0; font-size: var(--tl-fs-xl); font-weight: 600; line-height: 1; letter-spacing: var(--tl-tracking-title); }

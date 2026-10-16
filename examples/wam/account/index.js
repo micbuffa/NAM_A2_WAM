@@ -3,6 +3,7 @@ import Account from './Account.js';
 import AccountFavorites, {encodeAsset} from './AccountFavorites.js';
 import AccountPanel from './AccountPanel.js';
 import LocalDataImport from './LocalDataImport.js';
+import {FactoryPresetStore} from './FactoryPresets.js';
 import PresetsPanel from './PresetsPanel.js';
 import {LocalPresetStore, RemotePresetStore} from './PresetStore.js';
 
@@ -27,9 +28,21 @@ function readLocalPreferences(storage = globalThis.localStorage) {
 export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseResponseLibrary}) {
   const api = new AccountApi();
   const localPresets = new LocalPresetStore();
+  // The rack as it starts, before any preset (captured by attach): Factory
+  // presets build on it, "New preset > Default rack" restores it.
+  let guestRack = null;
+  const defaultState = () => structuredClone(guestRack);
+  const factoryStore = new FactoryPresetStore({manifestUrl: NamPlugin.factoryManifestUrl, baseState: defaultState});
   if (!api.available) {
-    return {account: null, attach: ({captureState, applyState, suggestName, report}) =>
-      new PresetsPanel({localStore: localPresets, captureState, applyState, suggestName, report}).attach()};
+    return {account: null, attach: async ({settings, captureState, applyState, suggestName, report}) => {
+      guestRack = await captureState();
+      settings?.addSection({id: 'account', label: 'Account', icon: 'user', render: (container) => {
+        const note = Object.assign(document.createElement('p'), {className: 'host-help',
+          textContent: 'Accounts are available on the online rack. Here, presets and favorites are stored in this browser.'});
+        container.append(Object.assign(document.createElement('h3'), {textContent: 'Account'}), note);
+      }});
+      return new PresetsPanel({localStore: localPresets, factoryStore, captureState, applyState, defaultState, suggestName, report}).attach();
+    }};
   }
 
   const account = new Account({api});
@@ -48,32 +61,35 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
   CabinetPlugin.configureAccount({favorites: new AccountFavorites({account, kind: 'ir', local: localFavorites.ir})});
 
   // guis(): the plugin editors currently open (FxChain creates them on demand).
-  const attach = async ({guis = () => [], captureState, applyState, suggestName, report = () => {}}) => {
-    // The rack as it starts, before any preset: what a guest gets. Signing
-    // out goes back to it, so the account's sound does not stay on screen.
-    const guestRack = await captureState();
-    const presets = new PresetsPanel({account, localStore: localPresets, remoteStore: new RemotePresetStore({api}),
-      captureState, applyState, suggestName, report});
+  // settings: the SettingsView that hosts the Account section.
+  const attach = async ({settings, guis = () => [], captureState, applyState, suggestName, report = () => {}}) => {
+    // What a guest gets. Signing out goes back to it, so the account's sound
+    // does not stay on screen.
+    guestRack = await captureState();
+    const presets = new PresetsPanel({account, localStore: localPresets, remoteStore: new RemotePresetStore({api}), factoryStore,
+      captureState, applyState, defaultState, suggestName, report});
     const importer = new LocalDataImport({account, localPresets, localFavorites, readLocalPreferences, encodeAsset});
     const reloadGuis = () => Promise.all(guis().map((gui) => gui.reloadAccountData?.()));
-    const offerImport = async () => {
-      const imported = await importer.offer();
-      if (!imported) return;
+    // force: asked from Settings > Account rather than offered after sign-in.
+    const offerImport = async ({force = false} = {}) => {
+      const imported = await importer.offer({force});
+      if (!imported || !(imported.presets || imported.favorites || imported.preferences)) return imported;
       await account.refresh(); // merged preferences
       await Promise.all([reloadGuis(), presets.refresh()]);
       report(`Imported ${imported.presets} preset(s) and ${imported.favorites} favorite(s) into your account.`);
+      return imported;
     };
     const resetToGuestRack = async () => {
-      await applyState(structuredClone(guestRack));
+      await applyState(defaultState());
       report('Signed out: the rack is back to its default settings.');
     };
     // PresetsPanel refreshes itself on change; the plugin GUIs need a nudge.
     account.addEventListener('change', ({detail: {previous, user}}) => {
       const signedOut = previous && !user;
-      (signedOut ? resetToGuestRack() : Promise.resolve()).then(reloadGuis).then(offerImport)
+      (signedOut ? resetToGuestRack() : Promise.resolve()).then(reloadGuis).then(() => offerImport())
         .catch((error) => report(`Account sync failed: ${error.message}`, true));
     });
-    new AccountPanel({account}).attach();
+    new AccountPanel({account, settings, importLocalData: offerImport}).attach();
     await presets.attach();
     // Signed in by a page load (magic link, then "Open the rack").
     if (account.signedIn) offerImport().catch((error) => report(`Import failed: ${error.message}`, true));

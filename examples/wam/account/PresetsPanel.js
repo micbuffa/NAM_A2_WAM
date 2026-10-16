@@ -1,26 +1,41 @@
-import {confirmDialog, promptDialog} from './dialogs.js';
+import {actionsRow, button, confirmDialog, createDialog, promptDialog} from './dialogs.js';
+import {isFactoryPreset} from './FactoryPresets.js';
 
-// Sidebar preset list (#presetsPanel): save the whole rack, load, rename,
-// delete. Uses the account store when signed in, IndexedDB otherwise.
-// The preset last loaded or saved is marked active (aria-current); changes
-// made after loading it are kept only by "Update" or "Save as new".
+// Presets, as in the TONELAB mockup: the sidebar picker (#presetsPanel, "My
+// presets" then "Factory") and "New preset", plus the preset header above
+// the rack (name, rename, Delete, Save). A preset is the whole rack. My
+// presets use the account store when signed in, IndexedDB otherwise; Factory
+// presets are read-only recipes (FactoryPresets.js). The preset last loaded
+// or saved is the active one: Save overwrites it, or creates a new preset
+// when it is a Factory one or there is none.
 export default class PresetsPanel {
-  constructor({account, localStore, remoteStore, captureState, applyState, suggestName = () => '', report = () => {},
-    root = document}) {
-    Object.assign(this, {account, localStore, remoteStore, captureState, applyState, suggestName, report});
+  constructor({account, localStore, remoteStore, factoryStore, captureState, applyState, defaultState, suggestName = () => '',
+    report = () => {}, root = document}) {
+    Object.assign(this, {account, localStore, remoteStore, factoryStore, captureState, applyState, defaultState, suggestName, report});
     this.$ = (id) => root.getElementById(id);
     this.presets = [];
+    this.factory = [];
     this.activeId = null;
     this.loadingId = null;
   }
 
   get store() { return this.account?.signedIn ? this.remoteStore : this.localStore; }
+  // Option values are strings; account preset ids are numbers.
+  find(id) { return [...this.presets, ...this.factory].find((preset) => String(preset.id) === String(id)) || null; }
+  get active() { return this.activeId === null ? null : this.find(this.activeId); }
+  get busy() { return this.loadingId !== null; }
 
   attach() {
     this.$('presetsPanel').hidden = false;
-    this.$('presetSave').onclick = () => this.save();
-    this.$('presetUpdate').onclick = () => this.update();
-    this.account?.addEventListener('change', () => this.refresh());
+    this.$('presetHeaderActions').hidden = false;
+    this.$('presetSelect').onchange = (event) => { const id = event.target.value; if (id) this.load(id); };
+    this.$('presetNew').onclick = () => this.create();
+    this.$('presetSaveButton').onclick = () => this.save();
+    this.$('presetDelete').onclick = () => this.active && this.remove(this.active);
+    this.$('presetRename').onclick = () => this.active && this.rename(this.active);
+    this.$('presetRevert').onclick = () => this.active && this.load(this.active.id);
+    // Signing out puts the rack back to its default (index.js): no preset is active.
+    this.account?.addEventListener('change', () => { if (!this.account.signedIn) this.activeId = null; this.refresh(); });
     return this.refresh();
   }
 
@@ -30,63 +45,56 @@ export default class PresetsPanel {
     element.classList.toggle('error', error);
   }
 
+  scopeText() {
+    return this.account?.signedIn ? `Synced to ${this.account.user.email}` : 'Stored in this browser';
+  }
+
   async refresh() {
     this.$('presetScope').textContent = this.account?.signedIn
-      ? `Saved to ${this.account.user.email}.` : 'Stored in this browser. Sign in to keep them on every device.';
+      ? `My presets are synced to ${this.account.user.email}.` : 'My presets are stored in this browser. Sign in to keep them on every device.';
+    this.factory = this.factoryStore ? await this.factoryStore.list() : [];
     try {
       this.presets = await this.store.list();
-      if (!this.presets.some((preset) => preset.id === this.activeId)) this.activeId = null;
-      this.render();
+      this.status('');
     } catch (error) {
       this.presets = [];
-      this.render();
       this.status(`Presets unavailable: ${error.message}`, true);
     }
+    if (!this.active) this.activeId = null;
+    this.render();
   }
 
   render() {
-    const list = this.$('presetList');
-    list.replaceChildren(...this.presets.map((preset) => {
-      const item = document.createElement('li');
-      const active = preset.id === this.activeId;
-      const loading = preset.id === this.loadingId;
-      item.className = `preset-item${active ? ' active' : ''}${loading ? ' loading' : ''}`;
-      if (active) item.setAttribute('aria-current', 'true');
-      const load = document.createElement('button');
-      load.type = 'button';
-      load.className = 'preset-load';
-      load.textContent = preset.name;
-      load.title = active ? `${preset.name} (active) — click to reload` : `Load ${preset.name}`;
-      load.disabled = this.loadingId !== null;
-      load.onclick = () => this.load(preset);
-      const rename = document.createElement('button');
-      rename.type = 'button';
-      rename.className = 'preset-icon';
-      rename.textContent = '✎';
-      rename.setAttribute('aria-label', `Rename ${preset.name}`);
-      rename.onclick = () => this.rename(preset);
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.className = 'preset-icon';
-      remove.textContent = '✕';
-      remove.setAttribute('aria-label', `Delete ${preset.name}`);
-      remove.onclick = () => this.remove(preset);
-      item.append(load, rename, remove);
-      return item;
-    }));
-    const empty = !this.presets.length;
-    list.hidden = empty;
-    list.setAttribute('aria-busy', String(this.loadingId !== null));
-    const active = this.presets.find((preset) => preset.id === this.activeId);
-    const update = this.$('presetUpdate');
-    update.hidden = !active;
-    update.disabled = this.loadingId !== null;
-    if (active) {
-      update.textContent = `Update “${active.name}”`;
-      update.title = `Replace “${active.name}” with the current rack`;
-    }
-    if (empty) this.status('No preset saved yet.');
-    else this.status(`${this.presets.length} preset${this.presets.length === 1 ? '' : 's'}.`);
+    const option = (preset) => new Option(preset.factory ? `${preset.name} · ${preset.category}` : preset.name, preset.id);
+    const group = (label, presets, empty) => {
+      const element = document.createElement('optgroup');
+      element.label = label;
+      element.append(...(presets.length ? presets.map(option) : [Object.assign(new Option(empty, ''), {disabled: true})]));
+      return element;
+    };
+    const select = this.$('presetSelect');
+    const placeholder = Object.assign(new Option('Untitled rack', ''), {disabled: true, hidden: true});
+    select.replaceChildren(placeholder, group('My presets', this.presets, 'No preset saved yet'), ...(this.factory.length ? [group('Factory', this.factory)] : []));
+    select.value = this.activeId === null ? '' : String(this.activeId);
+    select.disabled = this.busy;
+    this.$('presetCount').textContent = String(this.presets.length + this.factory.length);
+    this.$('presetNew').disabled = this.busy;
+
+    const active = this.active;
+    const mine = active && !active.factory;
+    this.$('presetTitle').textContent = active?.name || 'Untitled rack';
+    this.$('presetMeta').textContent = !active ? 'Not saved as a preset'
+      : active.factory ? `Factory · ${active.category}` : `My preset · ${this.scopeText()}`;
+    this.$('presetRename').hidden = !mine;
+    const revert = this.$('presetRevert');
+    revert.hidden = !active;
+    revert.disabled = this.busy;
+    const remove = this.$('presetDelete');
+    remove.disabled = !mine || this.busy;
+    remove.title = mine ? `Delete “${active.name}”` : active ? 'Factory presets cannot be deleted' : 'No preset selected';
+    const save = this.$('presetSaveButton');
+    save.disabled = this.busy;
+    save.title = mine ? `Save the current rack to “${active.name}”` : 'Save the current rack as a new preset';
   }
 
   // Default names must not collide: two presets of the same amp would
@@ -99,55 +107,98 @@ export default class PresetsPanel {
     return `${base} ${index}`;
   }
 
-  async save() {
-    const suggestion = (await Promise.resolve(this.suggestName()).catch(() => '')) || 'Preset';
-    const name = await promptDialog({title: 'Save as new preset', label: 'Preset name', value: this.uniqueName(suggestion.slice(0, 90)),
-      confirmLabel: 'Save preset'});
-    if (!name) return;
-    this.$('presetSave').disabled = true;
-    try {
-      const state = await this.captureState();
-      const created = await this.store.create(name, state);
-      this.activeId = created.id;
-      await this.refresh();
-      this.status(`Saved “${name}”.`);
-    } catch (error) { this.status(`Could not save the preset: ${error.message}`, true); }
-    finally { this.$('presetSave').disabled = false; }
+  async suggestedName() {
+    const base = this.active?.factory ? this.active.name : (await Promise.resolve(this.suggestName()).catch(() => '')) || 'Preset';
+    return this.uniqueName(base.slice(0, 90));
   }
 
-  // Overwrites the active preset with the current rack (pedals, gains, both lanes).
-  async update() {
-    const active = this.presets.find((preset) => preset.id === this.activeId);
-    if (!active) return;
-    this.$('presetUpdate').disabled = true;
+  // New preset dialog: a name, and what the preset starts from.
+  // Resolves with {name, source: 'current' | 'default'} or null.
+  async askNewPreset() {
+    const value = await this.suggestedName();
+    const currentLabel = this.active ? `${this.active.name}, with your changes` : 'The rack as it is now';
+    return new Promise((resolve) => {
+      const {dialog, body, id} = createDialog({title: 'New preset', eyebrow: 'Preset library', className: 'new-preset-dialog'});
+      const form = document.createElement('form');
+      form.method = 'dialog';
+      const label = Object.assign(document.createElement('label'), {htmlFor: `${id}-name`, textContent: 'Preset name'});
+      const name = Object.assign(document.createElement('input'), {id: `${id}-name`, required: true, maxLength: 100, value, autocomplete: 'off'});
+      const legend = Object.assign(document.createElement('p'), {className: 'preset-source-title', textContent: 'Start from'});
+      const choice = (source, title, detail, checked) => {
+        const card = Object.assign(document.createElement('label'), {className: 'preset-source'});
+        const radio = Object.assign(document.createElement('input'), {type: 'radio', name: `${id}-source`, value: source, checked});
+        const text = document.createElement('span');
+        text.append(Object.assign(document.createElement('strong'), {textContent: title}), Object.assign(document.createElement('small'), {textContent: detail}));
+        card.append(radio, text);
+        return card;
+      };
+      const sources = Object.assign(document.createElement('div'), {className: 'preset-sources', role: 'radiogroup'});
+      sources.setAttribute('aria-label', 'Start from');
+      sources.append(choice('current', 'Current rack', currentLabel, true),
+        choice('default', 'Default rack', 'NAM amp and cabinet, default settings', false));
+      const cancel = button('Cancel', {value: 'cancel'});
+      cancel.onclick = () => dialog.close('cancel');
+      form.append(label, name, legend, sources, actionsRow(cancel, button('Create preset', {type: 'submit', primary: true, value: 'ok'})));
+      body.append(form);
+      dialog.addEventListener('close', () => {
+        const source = form.querySelector('input[type=radio]:checked')?.value || 'current';
+        resolve(dialog.returnValue === 'ok' && name.value.trim() ? {name: name.value.trim(), source} : null);
+      }, {once: true});
+      dialog.showModal();
+      name.select();
+    });
+  }
+
+  async create() {
+    const request = await this.askNewPreset();
+    if (!request) return;
+    this.$('presetNew').disabled = true;
+    try {
+      const state = request.source === 'default' ? await this.defaultState() : await this.captureState();
+      if (request.source === 'default') await this.applyState(structuredClone(state));
+      const created = await this.store.create(request.name, state);
+      this.activeId = created.id;
+      await this.refresh();
+      this.status(`Created “${request.name}”.`);
+      this.report(`Preset “${request.name}” created.`);
+    } catch (error) { this.status(`Could not create the preset: ${error.message}`, true); }
+    finally { this.$('presetNew').disabled = this.busy; }
+  }
+
+  // Overwrites the active preset of mine with the current rack (pedals, gains,
+  // both lanes); otherwise saves the rack as a new preset.
+  async save() {
+    const active = this.active;
+    if (!active || active.factory) return this.create();
+    this.$('presetSaveButton').disabled = true;
     try {
       await this.store.update(active.id, {state: await this.captureState()});
       await this.refresh();
-      this.status(`Updated “${active.name}”.`);
-      this.report(`Preset “${active.name}” updated.`);
-    } catch (error) { this.status(`Could not update “${active.name}”: ${error.message}`, true); }
-    finally { this.$('presetUpdate').disabled = false; }
+      this.status(`Saved “${active.name}”.`);
+      this.report(`Preset “${active.name}” saved.`);
+    } catch (error) { this.status(`Could not save “${active.name}”: ${error.message}`, true); }
+    finally { this.$('presetSaveButton').disabled = this.busy; }
   }
 
-  async load(preset) {
-    if (this.loadingId !== null) return;
+  async load(id) {
+    const preset = this.find(id);
+    if (!preset || this.busy) return;
     this.loadingId = preset.id;
     this.render();
     this.status(`Loading “${preset.name}”…`);
     this.report(`Loading preset “${preset.name}”…`);
     try {
-      const {state} = await this.store.get(preset.id);
+      const {state} = await (isFactoryPreset(preset.id) ? this.factoryStore : this.store).get(preset.id);
       await this.applyState(state);
       this.activeId = preset.id;
-      this.loadingId = null;
-      this.render();
       this.status(`Loaded “${preset.name}”.`);
       this.report(`Preset “${preset.name}” active.`);
     } catch (error) {
-      this.loadingId = null;
-      this.render();
       this.status(`Could not load “${preset.name}”: ${error.message}`, true);
       this.report(`Could not load preset “${preset.name}”: ${error.message}`, true);
+    } finally {
+      this.loadingId = null;
+      this.render();
     }
   }
 
@@ -165,6 +216,7 @@ export default class PresetsPanel {
     if (!await confirmDialog({title: 'Delete preset', message: `Delete “${preset.name}”? This cannot be undone.`, confirmLabel: 'Delete'})) return;
     try {
       await this.store.delete(preset.id);
+      if (this.activeId === preset.id) this.activeId = null;
       await this.refresh();
       this.status(`Deleted “${preset.name}”.`);
     } catch (error) { this.status(`Could not delete: ${error.message}`, true); }
