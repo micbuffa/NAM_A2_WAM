@@ -14,6 +14,7 @@ import {FxRack} from './FxRack.js';
 import {FxRackView} from './FxRackView.js';
 import {EngineStatus} from './EngineStatus.js';
 import {SettingsView} from './SettingsView.js';
+import {Workspaces} from './Workspaces.js';
 import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
 import {setupAccount} from './account/index.js';
@@ -38,6 +39,7 @@ let outputDeviceManager;
 let chain, chainView, rack, backingPlayer, backingMix;
 const settings = new SettingsView({button: $('#settingsButton')});
 const engine = new EngineStatus({element: $('#engineStatus'), context});
+const workspaces = new Workspaces({control: $('#workspaceSwitch')});
 // Settings > Audio: what the browser chose (it does not let a page set the buffer size).
 const milliseconds = (seconds) => Number.isFinite(seconds) && seconds > 0 ? `${(seconds * 1000).toFixed(1)} ms` : 'Not reported';
 settings.addSection({id: 'audio', label: 'Audio', icon: 'audio', order: 1, render: (container) => {
@@ -56,18 +58,6 @@ settings.addSection({id: 'audio', label: 'Audio', icon: 'audio', order: 1, rende
 settings.addSection({id: 'general', label: 'General', icon: 'sliders', order: 2, element: $('#settingsGeneral')});
 
 
-const sidebarToggle = $('#toggleSidebar');
-sidebarToggle.onclick = () => {
-  const sidebar = $('#hostSidebar');
-  sidebar.hidden = !sidebar.hidden;
-  $('.host-shell').classList.toggle('sidebar-collapsed', sidebar.hidden);
-  sidebarToggle.setAttribute('aria-expanded', String(!sidebar.hidden));
-  sidebarToggle.setAttribute('aria-label', sidebar.hidden ? 'Change audio source' : 'Close audio source panel');
-};
-$('#hostSidebar').addEventListener('keydown', event => {
-  // Escape inside a select closes its list, not the sidebar.
-  if (event.key === 'Escape' && !event.target.closest?.('select, tl-select')) { sidebarToggle.click(); sidebarToggle.focus(); }
-});
 
 // One-off host messages are toasts (the engine badge carries the lasting state);
 // long ones stay up long enough to be read.
@@ -260,7 +250,7 @@ async function initialize() {
     }catch(error){if(b)b.destroy();else{nam?.audioNode.destroy?.();cab?.audioNode.destroy?.();}throw error;}
   }});
   window.phase3Debug.rack=rack;
-  backingPlayer=document.createElement('backing-track-player');document.querySelector('.fx-rack').after(backingPlayer);
+  backingPlayer=document.createElement('backing-track-player');$('#tracksCanvas').append(backingPlayer);
   await backingPlayer.initialize({audioContext:context});backingMix=new BackingTrackMix(context,rack.output,backingPlayer);
   Object.assign(window.phase3Debug,{backingPlayer,backingMix});
   chainView=new FxRackView(rack,message);
@@ -367,7 +357,7 @@ async function initialize() {
       selectedDeviceId=$('#inputDevice').value;
       await activateSelectedLiveInput();
     }
-    catch (error) { liveInputEnabled=false; syncLiveInputButton(); message(error.message, true); if($('#hostSidebar').hidden)sidebarToggle.click(); }
+    catch (error) { liveInputEnabled=false; syncLiveInputButton(); message(error.message, true); }
     finally { $('#enableLive').disabled=false; }
   };
   $('#inputDevice').onchange = async () => {
