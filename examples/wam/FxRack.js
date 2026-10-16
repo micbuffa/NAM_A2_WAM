@@ -4,7 +4,7 @@ const disconnect=(from,to)=>{try{from.disconnect(to);}catch{}};
 export class FxRack extends EventTarget {
   constructor({context,a,source,createLane}) {
     super();Object.assign(this,{context,a,source,createLane});
-    this.uiMode='full';this.pending=Promise.resolve();this.b=null;this.visible=false;this.enabledB=false;this.mutedA=false;
+    this.pending=Promise.resolve();this.b=null;this.visible=false;this.enabledB=false;this.mutedA=false;
     this.panA=0;this.panB=0;this.pannerA=context.createStereoPanner();this.pannerB=context.createStereoPanner();
     // Explicit stereo keeps a mono lane at its existing center level.
     for(const panner of [this.pannerA,this.pannerB]){panner.channelCount=2;panner.channelCountMode='explicit';}
@@ -47,12 +47,7 @@ export class FxRack extends EventTarget {
     b.outputMeter.destroy();b.outputMeter=new AudioLevel(this.context,this.pannerB);
     this.attach(b);return b;
   }
-  get activeB(){return this.uiMode==='full'&&this.visible;}
-  setUiMode(mode){return this.enqueue(async()=>{
-    if(!['beginner','full'].includes(mode))throw Error('Invalid UI mode');
-    await this.transition(()=>{this.uiMode=mode;this.syncTap();this.syncSource();this.syncMix();});
-    await this.a.applyRouting();this.changed();
-  });}
+  get activeB(){return this.visible;}
   setVisible(visible){return this.enqueue(async()=>{
     if(visible)await this.ensureB();
     await this.transition(()=>{this.visible=visible;this.enabledB=visible;this.syncTap();this.syncSource();this.syncMix();});

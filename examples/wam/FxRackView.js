@@ -5,7 +5,8 @@ export class FxRackView {
     Object.assign(this,{rack,report});this.root=document.querySelector('.fx-rack');this.root.setAttribute('aria-label','Processing chains');
     const input=this.root.querySelector('[aria-label="Chain A input"]'),output=this.root.querySelector('[aria-label="Chain A output"]'),strip=document.querySelector('#fxChain');
     const header=el('div','fx-rack-controls');this.toggle=el('tl-segmented');this.toggle.id='toggleChains';this.toggle.setAttribute('aria-label','Chains');this.toggle.setAttribute('aria-controls','fxChainB');this.toggle.append(new Option('1 Chain','1'),new Option('2 Chains','2'));
-    header.append(this.toggle); // Devices and live input live in the sidebar (Audio devices).
+    // 1 Chain / 2 Chains sits in the preset header; devices and live input in the sidebar.
+    (document.getElementById('chainToggleSlot')||header).append(this.toggle);
     output.querySelector('.fx-endpoint-routing').append(output.querySelector('#chainOutputReset'));
     this.status=el('span','fx-rack-status');header.append(this.status);this.root.before(header);
     this.left=el('div','fx-endpoints');this.right=el('div','fx-endpoints');
@@ -58,7 +59,6 @@ export class FxRackView {
   render(){
     const r=this.rack;
     if(!this.toggle.disabled)this.renderChainToggle();
-    this.toggle.hidden=r.uiMode==='beginner';
     if(r.b&&!this.bView)this.bView=new FxChainView(r.b,this.bStrip,this.report,{secondary:true,meterPrefix:'chainB',onLayout:()=>this.scheduleLayout(),onOpen:()=>this.aView.close()});
     this.bLeft.hidden=this.bRight.hidden=this.bStrip.hidden=this.gutter.hidden=!r.activeB;
     this.inputB.style.visibility=r.route?'hidden':'visible';

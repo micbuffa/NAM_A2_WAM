@@ -243,24 +243,12 @@ async function initialize() {
       nam.toneSession.identity='b-nam';cab.toneSession.identity='b-cabinet';return b;
     }catch(error){if(b)b.destroy();else{nam?.audioNode.destroy?.();cab?.audioNode.destroy?.();}throw error;}
   }});
-  await rack.setUiMode('beginner');
   window.phase3Debug.rack=rack;
   backingPlayer=document.createElement('backing-track-player');document.querySelector('.fx-rack').after(backingPlayer);
   await backingPlayer.initialize({audioContext:context});backingMix=new BackingTrackMix(context,rack.output,backingPlayer);
   Object.assign(window.phase3Debug,{backingPlayer,backingMix});
   chainView=new FxRackView(rack,message);
   window.phase3Debug.tuner=new TunerView({context,registry,groupId,input:chain.input,button:$('#tunerButton')});
-  const modeButton=$('#uiMode');modeButton.disabled=false;
-  modeButton.onclick=async()=>{
-    modeButton.disabled=true;chainView.close();
-    try{
-      await rack.setUiMode(rack.uiMode==='beginner'?'full':'beginner');
-      document.body.dataset.uiMode=rack.uiMode;
-      modeButton.textContent=`UI mode: ${rack.uiMode}`;
-      modeButton.setAttribute('aria-pressed',String(rack.uiMode==='full'));
-      modeButton.title=rack.uiMode==='beginner'?'Switch to full mode to use two chains':'Switch to beginner mode (chain A only)';
-    }catch(error){message(error.message,true);}finally{modeButton.disabled=false;}
-  };
   await discoverFiles();
   await refreshDevices(false);
   if (outputDeviceManager.supported) {

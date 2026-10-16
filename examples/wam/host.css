@@ -157,15 +157,11 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
 .rack-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--tl-space-5); min-height: 115px;
   padding: var(--tl-space-5) 30px; background: rgba(14, 16, 15, .7); border-bottom: 1px solid var(--tl-border-subtle); }
 .rack-heading { flex: 1 1 auto; display: flex; align-items: center; gap: var(--tl-space-4); flex-wrap: wrap; min-width: 0; }
-/* Preset actions stay on the title row; the rack tools (UI mode, chain map) wrap below. */
-.preset-header-actions { order: 1; }
-#uiMode, .chain-map { order: 2; }
+/* Chains toggle and preset actions sit on the title row, right-aligned. */
+.rack-chains, .preset-header-actions { display: flex; align-items: center; gap: var(--tl-space-2); }
 .rack-source-actions { display: flex; align-items: center; gap: var(--tl-space-2); flex-wrap: wrap; }
 .rack-kicker { margin: 0; color: var(--tl-text-muted); font-size: 10px; font-weight: 600; letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
 .rack-header h2 { margin: 7px 0 0; font-size: var(--tl-fs-xl); font-weight: 600; line-height: 1; letter-spacing: var(--tl-tracking-title); }
-.chain-map { display: flex; align-items: center; gap: var(--tl-space-2); color: var(--tl-text-muted); font-size: var(--tl-fs-xs); letter-spacing: .1em; }
-.chain-map strong { color: var(--tl-text-2); font-size: 10px; }
-.chain-map i { width: 22px; height: 1px; background: var(--tl-border-strong); }
 .rack-canvas { flex: 1; min-width: 0; padding: var(--tl-space-7) 30px; }
 
 @media (max-width: 1060px) {
@@ -180,14 +176,8 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
   .host-sidebar { position: static; height: auto; overflow: visible; border-right: 0; border-bottom: 1px solid var(--tl-border-subtle); }
   .rack-header { padding: var(--tl-space-4); min-height: 0; }
   .rack-canvas { padding: var(--tl-space-4) var(--tl-space-3) var(--tl-space-7); }
-  .chain-map { flex-wrap: wrap; }
-}
+  }
 
-body[data-ui-mode="beginner"] #toggleChains,
-body[data-ui-mode="beginner"] .fx-rack-status,
-body[data-ui-mode="beginner"] .fx-route-action,
-body[data-ui-mode="beginner"] .fx-route-cable,
-body[data-ui-mode="beginner"] .fx-route-label { display: none !important; }
 
 /* Tuner dialog (TunerView.js). */
 .host-tuner.tl-modal { width: min(340px, calc(100vw - 24px)); }

@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="./host.css">
   <link rel="stylesheet" href="./fx-chain.css">
 </head>
-<body data-ui-mode="beginner">
+<body>
   <div class="host-shell">
     <header class="host-topbar">
       <div class="host-brand">
@@ -101,10 +101,7 @@
           </div>
           <div class="rack-source-actions"><tl-button id="toggleSidebar" icon="panel" aria-label="Close audio source panel" aria-controls="hostSidebar" aria-expanded="true" title="Change audio source">Change audio source</tl-button></div>
         </div>
-        <tl-button id="uiMode" aria-pressed="false" title="Switch to full mode to use two chains" disabled>UI mode: beginner</tl-button>
-        <div class="chain-map" aria-label="Signal chain">
-          <span>INPUT</span><i></i><strong>NAM</strong><i></i><strong>CABINET</strong><i></i><span>OUTPUT</span>
-        </div>
+        <div class="rack-chains" id="chainToggleSlot"></div>
         <div class="preset-header-actions" id="presetHeaderActions" hidden>
           <tl-button id="presetDelete" icon="trash" disabled>Delete</tl-button>
           <tl-button id="presetSaveButton" variant="primary" icon="save">Save</tl-button>

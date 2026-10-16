@@ -3,7 +3,6 @@
    the junction buttons line up. FxRackView.layout() reads .fx-slot offsets, keep them in the flow. */
 
 .fx-help { margin: 0 0 var(--tl-space-3); color: var(--tl-text-muted); font-size: var(--tl-fs-xs); }
-.chain-map { flex-wrap: wrap; overflow-wrap: anywhere; }
 
 /* Rack controls above the canvas. */
 .fx-rack-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: var(--tl-space-3); font-size: var(--tl-fs-xs); }

@@ -169,8 +169,6 @@ export class FxChainView {
       }add(null);
       const output=element('span','fx-output-link');
       output.append(attrs(element('i','fx-wire'),{'aria-hidden':'true'}),element('span','','Output'));this.container.append(output);
-      const map=this.options.secondary?null:document.querySelector('.chain-map');
-      if(map){map.replaceChildren(element('span','','INPUT'));for(const entry of this.chain.entries)map.append(element('i'),element('strong','',entry.record?.name||entry.kind.toUpperCase()));map.append(element('i'),element('span','','OUTPUT'));}
     }
     this.options.onLayout?.();
     this.refresh().catch(error=>this.report(error.message,true));
