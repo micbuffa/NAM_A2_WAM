@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TONELAB Style Guide</title>
+  <link rel="stylesheet" href="./tokens.css">
+  <link rel="stylesheet" href="./base.css">
+  <link rel="stylesheet" href="./components.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--tl-text); background: var(--tl-app-gradient), var(--tl-bg); background-attachment: fixed; font-family: var(--tl-font-ui); font-size: var(--tl-fs-md); }
+    .sg-shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+    .sg-nav { position: sticky; top: 0; height: 100vh; padding: var(--tl-space-6) var(--tl-space-5); background: var(--tl-surface-0); border-right: 1px solid var(--tl-border-subtle); }
+    .sg-nav h1 { margin: 4px 0 var(--tl-space-6); font-size: var(--tl-fs-lg); letter-spacing: var(--tl-tracking-title); }
+    .sg-nav a { display: block; padding: 6px 8px; border-radius: var(--tl-radius-sm); color: var(--tl-text-2); text-decoration: none; }
+    .sg-nav a:hover { color: var(--tl-text); background: var(--tl-surface-3); }
+    main { padding: var(--tl-space-7) var(--tl-space-8); max-width: 1200px; }
+    section { margin-bottom: 48px; }
+    h2 { margin: 6px 0 var(--tl-space-5); font-size: var(--tl-fs-xl); letter-spacing: var(--tl-tracking-title); }
+    h3 { margin: var(--tl-space-6) 0 var(--tl-space-3); color: var(--tl-text-2); font-size: var(--tl-fs-sm); font-weight: 600; letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
+    .sg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--tl-space-3); }
+    .sg-token { overflow: hidden; background: var(--tl-surface-1); border: 1px solid var(--tl-border); border-radius: var(--tl-radius-md); }
+    .sg-swatch { height: 64px; border-bottom: 1px solid var(--tl-border-subtle); }
+    .sg-token div:last-child { padding: 8px 10px; }
+    .sg-token code { display: block; font-family: var(--tl-font-mono); font-size: 10px; }
+    .sg-token code + code { margin-top: 2px; color: var(--tl-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sg-row { display: flex; align-items: baseline; gap: var(--tl-space-5); padding: 10px 0; border-bottom: 1px solid var(--tl-border-subtle); }
+    .sg-row code { width: 170px; flex: none; color: var(--tl-text-muted); font-family: var(--tl-font-mono); font-size: 11px; }
+    .sg-box { height: 72px; background: var(--tl-surface-3); border: 1px solid var(--tl-border-strong); }
+    .sg-space { height: 12px; background: var(--tl-accent); border-radius: 2px; }
+    .sg-demo { margin-bottom: var(--tl-space-6); border: 1px solid var(--tl-border); border-radius: var(--tl-radius-lg); overflow: hidden; background: var(--tl-surface-1); }
+    .sg-demo header { display: flex; justify-content: space-between; gap: var(--tl-space-4); padding: 12px 16px; background: var(--tl-surface-4); border-bottom: 1px solid var(--tl-border-subtle); }
+    .sg-demo header strong { font-family: var(--tl-font-mono); font-size: var(--tl-fs-sm); color: var(--tl-accent); }
+    .sg-demo header span { color: var(--tl-text-muted); font-size: var(--tl-fs-sm); }
+    .sg-stage { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tl-space-4); padding: var(--tl-space-6) var(--tl-space-5); }
+    .sg-demo pre { margin: 0; padding: 12px 16px; overflow-x: auto; color: var(--tl-text-2); background: var(--tl-surface-sunken); border-top: 1px solid var(--tl-border-subtle); font: 11px/1.6 var(--tl-font-mono); }
+    @media (max-width: 760px) { .sg-shell { grid-template-columns: 1fr; } .sg-nav { position: static; height: auto; } main { padding: var(--tl-space-5) var(--tl-space-4); } }
+    .sg-check { display: inline-flex; align-items: center; gap: 8px; color: var(--tl-text-2); font-size: var(--tl-fs-sm); }
+  </style>
+</head>
+<body>
+  <div class="sg-shell">
+    <nav class="sg-nav" aria-label="Sections">
+      <p class="tl-eyebrow">TONELAB</p>
+      <h1>Style guide</h1>
+      <a href="#colors">Colors</a>
+      <a href="#type">Typography</a>
+      <a href="#radii">Radii</a>
+      <a href="#shadows">Shadows</a>
+      <a href="#spacing">Spacing</a>
+      <a href="#components">Components</a>
+      <a href="../">← Back to rack</a>
+    </nav>
+    <main>
+      <section id="colors">
+        <p class="tl-eyebrow">Foundations</p>
+        <h2>Colors</h2>
+        <div id="colorGroups"></div>
+      </section>
+      <section id="type">
+        <p class="tl-eyebrow">Foundations</p>
+        <h2>Typography</h2>
+        <div id="typeScale"></div>
+      </section>
+      <section id="radii">
+        <p class="tl-eyebrow">Foundations</p>
+        <h2>Radii</h2>
+        <div class="sg-grid" id="radiiList"></div>
+      </section>
+      <section id="shadows">
+        <p class="tl-eyebrow">Foundations</p>
+        <h2>Shadows</h2>
+        <div class="sg-grid" id="shadowList"></div>
+      </section>
+      <section id="spacing">
+        <p class="tl-eyebrow">Foundations</p>
+        <h2>Spacing</h2>
+        <div id="spaceList"></div>
+      </section>
+      <section id="components">
+        <p class="tl-eyebrow">Library</p>
+        <h2>Components</h2>
+        <p class="tl-muted">Each component is validated here before it replaces markup in the rack. Import <code class="tl-mono">ui/index.js</code> once per page.</p>
+        <div id="demos"></div>
+      </section>
+    </main>
+  </div>
+  <script type="module">
+    import './index.js';
+    import {icons} from './icons.js';
+    import {createModal, modalActions, modalButton} from './modal.js';
+    import {toast} from './components/tl-toast.js';
+    // Read every --tl-* declared on :root in tokens.css, so this page never drifts from the tokens.
+    const tokens = [...document.styleSheets].filter(s => s.href?.endsWith('/tokens.css'))
+      .flatMap(s => [...s.cssRules]).filter(r => r.selectorText === ':root')
+      .flatMap(r => [...r.style].filter(p => p.startsWith('--tl-')).map(p => [p, r.style.getPropertyValue(p).trim()]));
+    const el = (tag, attrs = {}, ...kids) => { const n = Object.assign(document.createElement(tag), attrs); n.append(...kids); return n; };
+    const card = (name, value, style) => el('div', {className: 'sg-token'}, el('div', {className: 'sg-swatch', style}), el('div', {}, el('code', {textContent: name}), el('code', {textContent: value, title: value})));
+    const groups = [['Surfaces', /^--tl-(bg|app-gradient|surface)/], ['Borders', /^--tl-border/], ['Text', /^--tl-text/], ['Accent', /^--tl-(accent|on-accent)/], ['Library', /^--tl-library/], ['States', /^--tl-(danger|warning|success|meter)/], ['Pedals', /^--tl-pedal/]];
+    const colors = document.getElementById('colorGroups');
+    for (const [label, re] of groups) colors.append(el('h3', {textContent: label}), el('div', {className: 'sg-grid'}, ...tokens.filter(([n]) => re.test(n)).map(([n, v]) => card(n, v, `background:var(${n})`))));
+    const sizes = tokens.filter(([n]) => n.startsWith('--tl-fs-'));
+    document.getElementById('typeScale').append(
+      ...sizes.map(([n, v]) => el('div', {className: 'sg-row'}, el('code', {textContent: `${n} · ${v}`}), el('span', {textContent: 'Signal chain · Gain 7.2', style: `font-size:var(${n})`}))),
+      el('div', {className: 'sg-row'}, el('code', {textContent: '--tl-font-mono'}), el('span', {className: 'tl-mono', textContent: 'wam://neuralwamp/amp · 48 kHz · 64 smp'})),
+      el('div', {className: 'sg-row'}, el('code', {textContent: '.tl-eyebrow'}), el('span', {className: 'tl-eyebrow', textContent: 'Unsaved changes'})));
+    document.getElementById('radiiList').append(...tokens.filter(([n]) => n.startsWith('--tl-radius-')).map(([n, v]) => card(n, v, `border-radius:var(${n});margin:12px;height:40px;background:var(--tl-surface-5);border:1px solid var(--tl-border-strong)`)));
+    document.getElementById('shadowList').append(...tokens.filter(([n]) => /^--tl-(shadow|glow)/.test(n)).map(([n, v]) => card(n, v, `box-shadow:var(${n});margin:14px;height:36px;border-radius:var(--tl-radius-md);background:var(--tl-surface-3)`)));
+    const demos = [
+      ['tl-button', 'Variants, icon, dirty dot, latched (aria-pressed), disabled, small', `<tl-button variant="primary" icon="save" dot>Save</tl-button>
+<tl-button icon="trash">Delete</tl-button>
+<tl-button variant="ghost">Cancel</tl-button>
+<tl-button variant="danger" icon="trash">Remove</tl-button>
+<tl-button aria-pressed="true" icon="audio">Live input on</tl-button>
+<tl-button disabled>Disabled</tl-button>
+<tl-button size="sm" icon="plus">Add</tl-button>`],
+      ['tl-icon-button', 'Square icon-only action; aria-label required', `<tl-icon-button icon="settings" aria-label="Settings"></tl-icon-button>
+<tl-icon-button icon="tuner" aria-label="Tuner" aria-expanded="true"></tl-icon-button>
+<tl-icon-button icon="trash" variant="danger" aria-label="Delete"></tl-icon-button>
+<tl-icon-button icon="edit" size="sm" variant="ghost" aria-label="Edit"></tl-icon-button>
+<tl-icon-button icon="close" disabled aria-label="Close"></tl-icon-button>`],
+      ['tl-badge', 'Status dot, live glow, tones, eyebrow variant', `<tl-badge dot live tone="accent">Audio engine ready</tl-badge>
+<tl-badge dot tone="success">Connected</tl-badge>
+<tl-badge dot tone="danger">Clipping</tl-badge>
+<tl-badge dot>Idle</tl-badge>
+<tl-badge variant="eyebrow" tone="warning" dot>Unsaved changes</tl-badge>
+<tl-badge variant="eyebrow" tone="library">NAM</tl-badge>`],
+      ['tl-switch', 'role=switch, fires input/change, form-associated; variant="led" for module bypass', `<tl-switch checked aria-label="Audio">Audio on</tl-switch>
+<tl-switch aria-label="Metronome">Metronome</tl-switch>
+<tl-switch variant="led" checked aria-label="Bypass amp"></tl-switch>
+<tl-switch variant="led" aria-label="Bypass cab"></tl-switch>
+<tl-switch disabled aria-label="Disabled"></tl-switch>`],
+      ['tl-knob', 'Wraps a native range input (id, value, oninput kept). Drag vertically, shift = fine, arrows/Home/End when focused', `<tl-knob label="Gain" unit="dB"><input type="range" min="-48" max="12" step="0.5" value="0" aria-label="Gain"></tl-knob>
+<tl-knob label="Bass"><input type="range" min="0" max="100" value="58" aria-label="Bass"></tl-knob>
+<tl-knob label="Treble"><input type="range" min="0" max="100" value="80" aria-label="Treble"></tl-knob>
+<tl-knob label="Pan" size="sm"><input type="range" min="-1" max="1" step="0.01" value="0" aria-label="Pan"><output slot="value">C</output></tl-knob>
+<tl-knob label="Mix" disabled><input type="range" min="0" max="100" value="30" aria-label="Mix"></tl-knob>`],
+      ['tl-slider', 'Horizontal fader around a native range input (id, value, oninput kept). Click/drag, shift = fine, arrows when focused; bipolar fills from centre', `<tl-slider style="width:220px"><input type="range" min="-60" max="6" step=".5" value="-12" aria-label="Volume"></tl-slider>
+<tl-slider bipolar style="width:220px"><input type="range" min="-1" max="1" step=".01" value="-.35" aria-label="Pan"></tl-slider>
+<tl-slider style="width:220px"><input type="range" min="0" max="1" step=".01" value=".4" disabled aria-label="Disabled"></tl-slider>`],
+      ['tl-checkbox', 'Skins a native checkbox (id, checked, onchange, label kept); variant="switch" for on/off options', `<label class="sg-check"><tl-checkbox><input type="checkbox" checked></tl-checkbox> EQ enabled</label>
+<label class="sg-check"><tl-checkbox><input type="checkbox"></tl-checkbox> Bypass</label>
+<label class="sg-check"><tl-checkbox variant="switch"><input type="checkbox" checked></tl-checkbox> Loop</label>
+<label class="sg-check"><tl-checkbox variant="switch"><input type="checkbox"></tl-checkbox> Normalize at load</label>
+<label class="sg-check"><tl-checkbox><input type="checkbox" disabled></tl-checkbox> Disabled</label>`],
+      ['tl-select', 'Skins a native select (options, value, onchange kept)', `<label style="width:240px"><tl-select icon="device"><select aria-label="Input device"><option>Scarlett 2i2 USB</option><option>MacBook Pro Microphone</option></select></tl-select></label>
+<label style="width:200px"><tl-select><select aria-label="Preset"><optgroup label="Factory"><option>MKII British 50</option><option>US Clean 65</option></optgroup></select></tl-select></label>
+<label style="width:160px"><tl-select size="sm"><select aria-label="Channel"><option>Input 1</option><option>Input 2</option></select></tl-select></label>
+<label style="width:160px"><tl-select size="sm"><select disabled aria-label="Disabled"><option>Unavailable</option></select></tl-select></label>`],
+      ['tl-meter', 'Driven by --meter-level (0…1) like the rack loop; value attr for static use; .is-clipping', `<tl-meter value="0.35" aria-label="Level"></tl-meter>
+<tl-meter value="0.85" channels="2" aria-label="Stereo level"></tl-meter>
+<tl-meter value="0.6" orientation="vertical" aria-label="Output"></tl-meter>
+<tl-meter value="0.7" orientation="vertical" channels="2" aria-label="Stereo"></tl-meter>
+<tl-meter value="1" orientation="vertical" class="is-clipping" aria-label="Clipping"></tl-meter>
+<tl-meter id="sgLiveMeter" orientation="vertical" channels="2" aria-label="Animated"></tl-meter>`],
+      ['tl-segmented', 'radiogroup, arrow keys, fires input/change', `<tl-segmented value="1" aria-label="Chains"><option value="1">1 Chain</option><option value="2">2 Chains</option></tl-segmented>
+<tl-segmented value="1" size="sm" aria-label="Chains"><option value="1">1 Chain</option><option value="2">2 Chains</option></tl-segmented>
+<tl-segmented disabled aria-label="Disabled"><option>A</option><option>B</option></tl-segmented>`],
+      ['tl-module', 'Signal-chain module frame. Fires module-edit / module-remove / module-toggle; active = on; body is a slot', `<tl-module kicker="Amplifier" heading="MKII British 50" icon="audio" active style="width:220px;height:200px"><div style="flex:1;display:grid;place-items:center;color:var(--tl-text-muted)">body slot</div></tl-module>
+<tl-module kicker="Cabinet" heading="4x12 Greenback" icon="device" style="width:220px;height:200px"><div style="flex:1;display:grid;place-items:center;color:var(--tl-text-muted)">bypassed</div></tl-module>
+<tl-module kicker="Effect" heading="Tuner" noedit active style="width:220px;height:200px"></tl-module>`],
+      ['.tl-modal', 'Native <dialog> + createModal() from ui/modal.js (light DOM: form method=dialog, returnValue, Esc, focus trap; a click outside acts as Esc, see ui/light-dismiss.js). Native submit buttons use .tl-btn', `<tl-button variant="primary" icon="plus" data-demo="modal">Open modal</tl-button>
+<tl-button data-demo="confirm">Open confirm</tl-button>
+<button class="tl-btn">.tl-btn</button>
+<button class="tl-btn tl-btn-primary">.tl-btn-primary</button>
+<button class="tl-btn tl-btn-danger">.tl-btn-danger</button>`],
+      ['tl-toast', 'toast(text, {tone, duration}) from components/tl-toast.js; top layer (popover), stacks up to 3', `<tl-button data-demo="toast">Preset saved</tl-button>
+<tl-button variant="danger" data-demo="toast-danger">Audio device lost</tl-button>`],
+      ['tl-icon', 'All icons (currentColor, size attribute)', Object.keys(icons).map(n => `<tl-icon name="${n}" title="${n}"></tl-icon>`).join('\n')],
+    ];
+    document.getElementById('demos').append(...demos.map(([tag, note, html]) => {
+      const stage = el('div', {className: 'sg-stage'}); stage.innerHTML = html;
+      return el('article', {className: 'sg-demo'}, el('header', {}, el('strong', {textContent: `<${tag}>`}), el('span', {textContent: note})), stage, el('pre', {textContent: html}));
+    }));
+    document.getElementById('demos').addEventListener('click', e => {
+      const demo = e.target.closest('[data-demo]')?.dataset.demo;
+      if (demo === 'toast') toast('Preset saved');
+      if (demo === 'toast-danger') toast('Audio device lost — check your interface', {tone: 'danger'});
+      if (demo === 'modal') {
+        const {dialog, body, id} = createModal({title: 'Create a new preset', eyebrow: 'Library', wide: true});
+        const form = Object.assign(document.createElement('form'), {method: 'dialog'});
+        const label = Object.assign(document.createElement('label'), {htmlFor: `${id}-name`, textContent: 'Preset name'});
+        const input = Object.assign(document.createElement('input'), {id: `${id}-name`, value: 'Crunch rhythm', required: true});
+        form.append(label, input, modalActions(modalButton('Cancel', {value: 'cancel'}), modalButton('Create preset', {type: 'submit', variant: 'primary', value: 'ok'})));
+        form.querySelector('button').onclick = () => dialog.close('cancel');
+        body.append(Object.assign(document.createElement('p'), {textContent: 'Start from the current chain or an empty one.'}), form);
+        dialog.addEventListener('close', () => toast(`returnValue: ${dialog.returnValue || '(none)'}`, {tone: 'neutral'}));
+        dialog.showModal(); input.select();
+      }
+      if (demo === 'confirm') {
+        const dialog = Object.assign(document.createElement('dialog'), {className: 'tl-modal'});
+        const cancel = modalButton('Cancel'), remove = modalButton('Remove', {variant: 'danger'});
+        dialog.append(Object.assign(document.createElement('h3'), {textContent: 'Remove TS9 Overdrive?'}), Object.assign(document.createElement('p'), {textContent: 'This instance and its settings will be removed from the chain.'}), modalActions(cancel, remove));
+        cancel.onclick = remove.onclick = () => dialog.close();
+        dialog.addEventListener('close', () => dialog.remove());
+        document.body.append(dialog); dialog.showModal(); cancel.focus();
+      }
+    });
+    document.getElementById('demos').addEventListener('change', e => console.log('[styleguide] change', e.target.localName, e.target.checked));
+    const live = document.getElementById('sgLiveMeter');
+    if (live) { const t0 = performance.now(); const tick = t => { const x = (t - t0) / 1000; live.style.setProperty('--meter-level', (.55 + .35 * Math.sin(x * 2.1) * Math.sin(x * .7)).toFixed(3)); live.style.setProperty('--meter-level-r', (.5 + .35 * Math.sin(x * 1.7 + 1)).toFixed(3)); requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
+    document.getElementById('spaceList').append(...tokens.filter(([n]) => n.startsWith('--tl-space-')).map(([n, v]) => el('div', {className: 'sg-row'}, el('code', {textContent: `${n} · ${v}`}), el('div', {className: 'sg-space', style: `width:var(${n})`}))));
+  </script>
+</body>
+</html>

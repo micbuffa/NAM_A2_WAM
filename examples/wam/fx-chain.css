@@ -1,139 +1,188 @@
-.fx-editor,.fx-menu{color:#eee;background:#121218;border:1px solid #66547d;border-radius:16px;padding:0;max-width:95vw;max-height:92vh}.fx-editor{width:900px}.fx-editor::backdrop,.fx-menu::backdrop{background:#0009}.fx-editor-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:12px 16px;background:#1c1925}.fx-editor-bar strong{flex:1}.fx-editor button,.fx-menu button{cursor:pointer}.fx-editor-bar button,.fx-menu>button{padding:8px 12px;border:1px solid #716184;border-radius:8px;background:#242030;color:#eee}.fx-editor-bar button[aria-pressed=true]{background:#612c40}.fx-editor-mount{padding:14px;overflow:auto;min-height:100px}.fx-editor-mount>*{max-width:100%}.fx-menu{padding:20px;width:620px}.fx-menu-group{display:flex;flex-wrap:wrap;gap:10px}.fx-menu-item{width:125px;background:#252031;color:#eee;border:1px solid #564867;border-radius:8px;padding:8px}.fx-menu-item img{width:100%;height:80px;object-fit:contain}.fx-menu h4{text-transform:capitalize}.fx-chain button:focus-visible{outline:3px solid #b294ff;outline-offset:4px}
-.fx-confirm{max-width:min(420px,90vw);padding:22px;color:#eee;background:#19151f;border:1px solid #66547d;border-radius:12px}.fx-confirm::backdrop{background:#0009}.fx-confirm h3{margin-top:0}.fx-confirm p{font-size:13px;line-height:1.5;color:#c2b7cf}.fx-confirm button{margin-right:8px}.fx-confirm-delete{color:#ffb7c2;border-color:#a34c62}
+/* Signal chain (FxRackView / FxChainView): TONELAB modules on design tokens (ui/tokens.css).
+   Geometry: a module is 262px tall; endpoint panels and lane rows match it so the A → B cable and
+   the junction buttons line up. FxRackView.layout() reads .fx-slot offsets, keep them in the flow. */
 
-/* Only effects scroll; both endpoints match a card including its toolbar. */
-.fx-rack{position:sticky;top:12px;display:grid;grid-template-columns:161px minmax(0,1fr) 161px;align-items:center;gap:8px;background:#101015f5;border:1px solid #302d39;border-radius:14px;max-width:100%;padding:0 10px;z-index:2}
-.fx-chain{display:flex;align-items:center;gap:8px;overflow-x:auto;min-height:225px;padding:16px 12px;overscroll-behavior-x:contain;scrollbar-width:thin}
-.fx-card{flex:0 0 161px;min-width:0;--halo:0}
-.fx-card-toolbar{display:flex;justify-content:flex-end;gap:5px;align-items:center;height:25px;margin-bottom:7px}
-.fx-card-toolbar button{min-height:25px;font-size:10px;padding:3px 8px;line-height:16px;color:#92e7ba;border:1px solid #46775c;border-radius:20px;background:#12251e}
-.fx-card-toolbar .fx-delete{display:grid;place-items:center;padding:4px 6px;border-radius:6px;color:#bcb2cc;border-color:#51465f;background:#201b29}
-.fx-card-toolbar .fx-delete:hover:not(:disabled){color:#ffb7c2;border-color:#c16479}
-.fx-photo{display:grid;grid-template-rows:minmax(0,1fr) 24px;gap:5px;position:relative;box-sizing:border-box;width:161px;height:161px;padding:12px;border:1px solid #66547d;border-radius:13px;cursor:grab;touch-action:none;background:#101014;box-shadow:0 8px 24px #0006;isolation:isolate}
-/* Fixed shadows + opacity avoid fragile computed color/shadow arithmetic.
-   An inner ring remains visible even near the scrolling viewport edges. */
-.fx-photo::after{content:"";pointer-events:none;position:absolute;inset:-1px;border-radius:inherit;color:var(--halo-color,#5ce49c);border:2px solid currentColor;box-shadow:0 0 9px 2px currentColor,0 0 20px currentColor,inset 0 0 10px currentColor;opacity:var(--halo);transition:opacity 60ms linear}
-.fx-photo img{display:block;min-height:0;width:100%;height:100%;object-fit:contain;border-radius:5px}
-.fx-caption{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;color:#c8bfce;font-size:10px;font-weight:400;line-height:12px;text-align:center;letter-spacing:normal;text-transform:none}
-.fx-card.is-bypassed .fx-photo img{opacity:.45;filter:saturate(.3)}
-.fx-card.is-bypassed .fx-bypass{color:#ffa1af;background:#361d25;border-color:#ae5266}
-.fx-add{flex:0 0 24px;width:24px;min-height:26px;height:26px;padding:0;border-radius:7px;border:1px solid #776389;background:#201c2b;color:#e0ceff;font-size:18px;margin-top:32px}
-.fx-drop-target{outline:2px dashed #c3a0ff;outline-offset:4px}.fx-card.is-dragging{opacity:.45}
-.fx-endpoint{height:193px;display:flex;flex-direction:column;gap:6px;min-width:0;border-radius:12px;padding:8px;background:#1b1823;border:1px solid #393043;font-size:10px}
-.fx-endpoint strong{font-size:10px;line-height:12px;letter-spacing:.1em;color:#c8b7e1}
-.fx-endpoint label{color:#bfb5cb;min-width:0}.fx-endpoint [hidden]{display:none}
-.fx-select-label{display:block;height:24px;flex-shrink:0}
-.fx-select-label>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-.fx-endpoint select{width:100%;height:24px;min-width:0;padding:3px 4px;font-size:10px}
-.fx-endpoint-routing{height:52px;display:flex;flex-direction:column;justify-content:center;gap:4px;flex-shrink:0}
-.fx-endpoint-controls{display:grid;grid-template-columns:minmax(0,1fr) 36px;align-items:start;gap:7px;margin-top:auto}
-.fx-meter-column{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
-.fx-meter-column output,.fx-gain output{font-size:8px;line-height:12px;font-variant-numeric:tabular-nums;color:#c7bdcf;white-space:nowrap}
-.fx-meter{width:100%;max-width:98px;height:63px;overflow:hidden;border:1px solid #8d7956;border-radius:7px;background:radial-gradient(ellipse at 50% 80%,#fff3ce,#d8c59b);box-shadow:inset 0 2px 7px #33271566,0 1px 3px #0008;--needle-angle:-52deg}
-.fx-meter svg{display:block;width:100%;height:100%}
-.fx-meter text{fill:#554734;font:7px ui-monospace,monospace}
-.fx-meter .vu-unit{font-size:9px;letter-spacing:1px}
-.vu-arc{fill:none;stroke:#766244;stroke-width:1}
-.vu-needle{transform-origin:60px 68px;transform:rotate(var(--needle-angle));transition:transform 140ms ease-out}
-.vu-needle path{stroke:#8f3026;stroke-width:1.6;stroke-linecap:round}
-.vu-clip{fill:#6d3c2d;opacity:.35}.is-clipping .vu-clip{fill:#ff2929;opacity:1}
-.fx-meter.is-clipping{border-color:#ff6155;box-shadow:0 0 6px #ff615588}
-.fx-gain{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;white-space:nowrap}
-.fx-gain input{writing-mode:vertical-lr;direction:rtl;width:24px;height:73px;margin:0;accent-color:#b7a0de;cursor:ns-resize}
-.fx-gain-reset{min-height:21px;height:21px;padding:0 10px;font-size:9px;line-height:19px;border-color:#53475f;color:#cfc2df}
-.fx-help{color:#958b9f;font-size:11px}.chain-map{flex-wrap:wrap;overflow-wrap:anywhere}
-@media(prefers-reduced-motion:reduce){.fx-photo::after,.vu-needle{transition:none}}
-@media(max-width:900px){.fx-rack{grid-template-columns:146px minmax(0,1fr) 146px;padding:0 6px;gap:4px}.fx-endpoint{padding:7px}.rack-stage{padding-left:10px;padding-right:10px}}
-@media(max-width:420px){.fx-rack{grid-template-columns:118px minmax(0,1fr) 118px}.fx-endpoint{padding:5px}.fx-endpoint-controls{grid-template-columns:minmax(0,1fr) 30px;gap:3px}.fx-meter{height:55px}.fx-gain input{height:65px}.fx-gain output{font-size:7px}}
+.fx-help { margin: 0 0 var(--tl-space-3); color: var(--tl-text-muted); font-size: var(--tl-fs-xs); }
 
-/* Two lanes share a single horizontal viewport. The side columns never scroll. */
-.fx-rack-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px}
-.fx-rack-controls>button:not(.live-toggle){color:#dfceff;border-color:#725490}
-.fx-device-label{display:flex;align-items:center;gap:6px;color:#a99cb8;font-size:10px;min-width:0}
-.fx-device-label select{max-width:200px;height:30px;font-size:10px}
-.fx-rack-status{color:#b4a3c7;font-size:10px}.fx-rack-status.is-clipping{color:#ff4a4a;text-shadow:0 0 8px red}
-.fx-rack{align-items:start}.fx-rack [hidden]{display:none!important}
-.fx-endpoint-cell{height:225px;display:flex;align-items:center}
-.fx-endpoints{display:flex;flex-direction:column;gap:40px;min-width:0}
-.fx-endpoint-cell>.fx-endpoint{width:100%}
-.fx-scroll{overflow-x:auto;min-width:0;scrollbar-width:thin;overscroll-behavior-x:contain}
-.fx-track{position:relative;width:max-content;min-width:100%}
-.fx-track>.fx-chain{position:relative;overflow:visible;width:max-content;height:225px;min-height:225px}
-.fx-slot{position:relative;display:inline-flex;flex:0 0 24px;width:24px;height:26px;margin-top:32px}
-.fx-slot>.fx-add{margin-top:0}
-.fx-output-link{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;margin-top:32px;height:26px;color:#c8b7e1;font-size:11px;white-space:nowrap}
-.fx-output-link>span:first-child{font-size:22px;line-height:1;color:#9eecbd}
-.fx-route-action{position:absolute;top:28px;left:0;min-height:22px;height:22px;width:24px;padding:0;border-color:#80709e;color:#c6a4ff;opacity:0;pointer-events:none;transition:opacity .15s}
-.fx-rack:not(.has-chain-b) .fx-route-action,.fx-route-action[hidden]{display:none}
-.fx-slot.route-visible>.fx-route-action,.fx-slot:hover>.fx-route-action,.fx-slot:focus-within>.fx-route-action{opacity:1;pointer-events:auto}
-@media(hover:none){.fx-route-action{opacity:1;pointer-events:auto}}
-.fx-route-gutter{position:relative;height:40px}
-.fx-route-cable{position:absolute;inset:0;overflow:visible;pointer-events:none}
-.fx-route-cable path{fill:none;stroke:#9eecbd;stroke-width:2.5;stroke-linecap:round}
-.fx-route-cable path.is-preview{stroke-dasharray:5 5;stroke:#bca3e3}
-.fx-route-label{position:absolute;z-index:1;top:3px;min-height:26px;font-size:10px;padding:3px 8px;color:#abefc5;border-color:#508264;white-space:nowrap;max-width:280px;overflow:hidden;text-overflow:ellipsis}
-.fx-lane-enable{font-size:10px;min-height:25px;color:#bde6c8}
-.fx-lane-enable[aria-pressed=true]{border-color:#bf7185}
-.fx-routing-dialog{max-width:420px}
+/* Rack controls above the canvas. */
+.fx-rack-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: var(--tl-space-3); font-size: var(--tl-fs-xs); }
+.fx-rack-status { color: var(--tl-text-muted); font: 500 var(--tl-fs-2xs) var(--tl-font-mono); letter-spacing: .04em; }
+.fx-rack-status.is-clipping { color: var(--tl-danger); text-shadow: 0 0 8px var(--tl-danger); }
 
-/* Compact mixer outputs; inputs retain their analogue meters. */
-.fx-output-strip{gap:5px}
-.fx-output-strip .fx-endpoint-routing{height:23px;flex-direction:row;justify-content:space-between;align-items:center}
-.fx-output-strip .fx-lane-enable{min-height:22px;height:22px;padding:1px 10px;font-size:9px}
-.fx-output-strip .fx-lane-enable[aria-pressed=true]{background:#632331;border-color:#f16f85;color:#ffe3e8}
-.fx-output-strip .fx-endpoint-controls{display:grid;grid-template-columns:48px 42px;justify-content:center;gap:9px;margin:0;height:100px}
-.fx-output-strip .fx-meter-column{gap:3px;padding-top:13px}
-.fx-output-strip .fx-meter-linear{position:relative;width:12px;height:73px;flex-shrink:0;border:1px solid #444b46;border-radius:2px;background:#0b100e;box-shadow:inset 0 0 3px #000;overflow:hidden}
-.fx-meter-fill{position:absolute;inset:0;background:repeating-linear-gradient(to top,transparent 0 4px,#101510 4px 6px),linear-gradient(to top,#4cda85 0 70%,#f2b449 85%,#ff4d5f 100%);clip-path:inset(calc((1 - var(--meter-level,0))*100%) 0 0);transition:clip-path 70ms linear}
-.fx-output-strip .fx-meter-linear.is-clipping{border-color:#ff4d5f;box-shadow:0 0 5px #ff4d5f}
-.fx-output-strip .fx-gain{gap:3px;font-size:9px;line-height:10px}
-.fx-output-strip .fx-gain input{appearance:none;-webkit-appearance:none;width:30px;height:73px;border:0;border-radius:2px;background:repeating-linear-gradient(to top,#706779 0 1px,transparent 1px 12px) center/20px 100% no-repeat;outline-offset:3px}
-.fx-output-strip .fx-gain input::-webkit-slider-runnable-track{width:4px;height:100%;background:#09090c;border:1px solid #49404f;border-radius:3px}
-.fx-output-strip .fx-gain input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:26px;height:12px;margin-left:-12px;border:1px solid #97909e;border-radius:2px;background:linear-gradient(to bottom,#e0dbe5,#948e9c 44%,#34303b 45% 55%,#b9b3c2 56%,#e1dce7);box-shadow:0 2px 3px #000b}
-.fx-output-strip .fx-gain input::-moz-range-track{width:4px;height:100%;background:#09090c;border:1px solid #49404f;border-radius:3px}
-.fx-output-strip .fx-gain input::-moz-range-thumb{width:26px;height:12px;border:1px solid #97909e;border-radius:2px;background:linear-gradient(to bottom,#e0dbe5,#948e9c 44%,#34303b 45% 55%,#b9b3c2 56%,#e1dce7);box-shadow:0 2px 3px #000b}
-.fx-pan{display:grid;grid-template-columns:9px minmax(0,1fr) 9px 26px;align-items:center;gap:3px;margin-top:auto;height:20px;font-size:9px;color:#bfb5cb}
-.fx-pan input{appearance:none;-webkit-appearance:none;min-width:0;width:100%;height:16px;margin:0;background:linear-gradient(#82758d,#82758d) center/1px 10px no-repeat;cursor:ew-resize}
-.fx-pan input::-webkit-slider-runnable-track{height:3px;background:#544760;border-radius:2px}
-.fx-pan input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:7px;height:13px;margin-top:-5px;border:1px solid #c0afcf;border-radius:2px;background:#9e89b3}
-.fx-pan input::-moz-range-track{height:3px;background:#544760;border-radius:2px}
-.fx-pan input::-moz-range-thumb{width:7px;height:13px;border:1px solid #c0afcf;border-radius:2px;background:#9e89b3}
-.fx-pan output{font-size:8px;text-align:right;font-variant-numeric:tabular-nums}
+/* The canvas: endpoints never scroll, only the lanes between them. */
+.fx-rack { position: sticky; top: calc(var(--tl-topbar-height) + 12px); z-index: 2; display: grid; grid-template-columns: 168px minmax(0, 1fr) 168px;
+  align-items: start; gap: 10px; max-width: 100%; padding: 0 12px; border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-xl);
+  background: linear-gradient(145deg, rgba(26, 30, 28, .96), rgba(12, 14, 13, .98)), repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255, 255, 255, .008) 4px);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .16), inset 0 1px rgba(255, 255, 255, .025); }
+.fx-rack [hidden] { display: none !important; }
+.fx-endpoints { display: flex; flex-direction: column; gap: 40px; min-width: 0; }
+.fx-endpoint-cell { display: flex; align-items: center; height: 294px; }
+.fx-endpoint-cell > .fx-endpoint { width: 100%; }
+.fx-scroll { min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--tl-border-strong) transparent; }
+.fx-track { position: relative; width: max-content; min-width: 100%; }
+.fx-chain { display: flex; align-items: center; gap: 0; min-height: 294px; padding: 16px 12px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.fx-track > .fx-chain { position: relative; width: max-content; height: 294px; overflow: visible; }
 
-.fx-menu-entry{display:flex;flex-direction:column;gap:4px;width:125px}.fx-menu-entry>.fx-copy-uri{min-height:23px;padding:2px 6px;font-size:9px;color:#bdb1ce}.fx-menu>p{overflow-wrap:anywhere}
+/* IN / OUT endpoint modules. */
+.fx-endpoint { display: flex; flex-direction: column; gap: var(--tl-space-2); box-sizing: border-box; height: 262px; min-width: 0; padding: 10px;
+  border: 1px solid var(--tl-border); border-radius: var(--tl-radius-lg); background: var(--tl-surface-1); box-shadow: var(--tl-shadow-module); font-size: var(--tl-fs-2xs); }
+.fx-endpoint-head { display: flex; align-items: center; gap: 7px; padding-bottom: 8px; border-bottom: 1px solid var(--tl-border-subtle); }
+.fx-endpoint-head > span { display: grid; place-items: center; flex: none; width: 26px; height: 26px; border-radius: var(--tl-radius-sm);
+  color: var(--tl-text-2); background: var(--tl-surface-6); font: 600 var(--tl-fs-2xs) var(--tl-font-mono); }
+.fx-endpoint strong { overflow: hidden; color: var(--tl-text); font-size: var(--tl-fs-xs); letter-spacing: .08em; white-space: nowrap; text-overflow: ellipsis; }
+.fx-endpoint label { min-width: 0; color: var(--tl-text-2); }
+.fx-endpoint [hidden] { display: none; }
+.fx-select-label > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.fx-endpoint-routing { display: flex; flex-direction: column; justify-content: center; gap: 4px; flex-shrink: 0; height: 52px; }
+.fx-endpoint-controls { display: flex; align-items: flex-start; justify-content: space-between; gap: 7px; margin-top: auto; }
+.fx-meter-column, .fx-gain-column { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.fx-meter-column output { color: var(--tl-text-2); font: 500 8px/12px var(--tl-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fx-level { height: 73px; }
+.fx-output-strip { gap: 6px; }
+.fx-output-strip .fx-endpoint-routing { flex-direction: row; justify-content: space-between; align-items: center; height: auto; flex-wrap: wrap; }
+.fx-output-strip .fx-endpoint-routing > label { flex: 1 1 100%; }
+.fx-lane-enable[aria-pressed="true"] { border-color: var(--tl-danger); background: var(--tl-danger-tint); color: var(--tl-danger); }
 
-.fx-menu-amps{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px;padding-bottom:18px;border-bottom:1px solid #4a3b59}.fx-menu-category{min-width:0}.fx-menu-amps>.fx-menu-category+section{border-left:1px solid #4a3b59;padding-left:16px}.fx-menu-amps .fx-menu-entry,.fx-menu-amps .fx-menu-item{width:120px;max-width:100%}.fx-menu-amps h4{margin-top:16px}.fx-menu-amps .fx-menu-item{font-size:11px}
-@media(max-width:500px){.fx-menu-amps{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.fx-menu-amps>.fx-menu-category+section{padding-left:10px}.fx-menu-amps .fx-menu-entry,.fx-menu-amps .fx-menu-item{width:100%}}
+/* Connector: a wire with the insert button on it (ChainConnector in the mock-up). */
+.fx-slot { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px; width: 44px; height: 26px; }
+.fx-wire { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--tl-accent-border); }
+.fx-add { position: relative; display: grid; place-items: center; width: 25px; height: 25px; min-height: 0; padding: 0; border: 1px solid var(--tl-accent-border);
+  border-radius: 50%; color: var(--tl-accent); background: var(--tl-accent-tint); box-shadow: 0 0 0 4px var(--tl-surface-1), 0 0 10px rgba(199, 246, 91, .12);
+  cursor: pointer; transition: background .18s, color .18s, border-color .18s, transform .18s, box-shadow .18s; }
+.fx-add:hover { color: var(--tl-on-accent); border-color: var(--tl-accent); background: var(--tl-accent); box-shadow: 0 0 0 4px var(--tl-surface-1), 0 0 14px rgba(199, 246, 91, .35); transform: scale(1.08); }
+.fx-add:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
+.fx-output-link { position: relative; display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; height: 26px; padding-left: 36px;
+  color: var(--tl-text-muted); font: 500 var(--tl-fs-2xs) var(--tl-font-mono); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+.fx-output-link > .fx-wire { right: auto; width: 30px; }
 
-/* Per-plugin metering fits inside the existing photo frame. */
-.fx-thin-meter{position:relative;display:block;width:4px;min-width:4px;background:#0a110e;border-radius:2px;overflow:hidden;pointer-events:none}
-.fx-thin-meter.is-clipping{box-shadow:0 0 5px #ff4d5f;background:#ff4d5f}
-.fx-thin-meter.is-clipping .fx-meter-fill{background:#ff4d5f;clip-path:none}
-.fx-card-input-meter,.fx-card-output-meter{position:absolute;top:10px;bottom:33px;z-index:1}
-.fx-card-input-meter{left:4px}.fx-card-output-meter{right:4px}
-.fx-editor{width:980px}
-.fx-editor-body{display:grid;grid-template-columns:34px minmax(0,1fr) 34px;align-items:stretch;padding:8px;gap:2px}
-.fx-editor-mount{min-width:0;padding:6px;overflow:auto}
-.fx-editor-side{position:relative;display:flex;align-items:center;flex-direction:column;gap:8px;padding:6px 0;min-height:160px}
-.fx-editor-side>.fx-thin-meter{flex:1;min-height:90px;width:5px}
-.fx-editor-side-label{font:9px system-ui;color:#c7bdcf}
-.fx-plugin-gain-toggle{display:grid;place-items:center;width:28px;height:28px;padding:4px;border:1px solid #716184;border-radius:6px;background:#242030;color:#eee}
-.fx-plugin-gain-toggle[aria-expanded=true]{background:#554167}
-.fx-plugin-gain-panel{position:absolute;top:40px;left:0;width:185px;padding:12px;background:#242030;border:1px solid #88739d;border-radius:8px;box-shadow:0 6px 20px #000a;z-index:8;color:#eee;font:12px system-ui}
-.fx-plugin-gain-panel[hidden]{display:none}.fx-editor-output .fx-plugin-gain-panel{left:auto;right:0}
-.fx-plugin-gain-panel label{display:block}.fx-plugin-gain-panel input{display:block;width:100%;margin:12px 0;accent-color:#b798e9}
-.fx-plugin-gain-panel output{display:inline-block;min-width:85px}.fx-plugin-gain-panel button{background:#393044;color:#eee;border:1px solid #88739d;border-radius:4px;padding:4px 8px}
-@media(max-width:520px){.fx-editor-bar{gap:5px;flex-wrap:wrap;padding:8px}.fx-editor-bar strong{flex-basis:100%}.fx-editor-body{padding:4px;grid-template-columns:28px minmax(0,1fr) 28px}.fx-editor-mount{padding:3px}}
+/* Effect modules (tl-module host). */
+.fx-card { --halo: 0; flex: 0 0 220px; width: 220px; height: 262px; box-sizing: border-box; }
+.fx-card.is-dragging { opacity: .45; }
+.fx-drop-target { outline: 2px dashed var(--tl-accent); outline-offset: 4px; }
+.fx-photo { position: relative; isolation: isolate; display: grid; flex: 1; min-height: 0; margin: 10px 10px 0; padding: 10px 14px; border: 1px solid var(--tl-border-subtle);
+  border-radius: var(--tl-radius-md); background: radial-gradient(circle at 50% 35%, var(--tl-surface-4), var(--tl-surface-sunken) 75%); cursor: grab; touch-action: none; }
+.fx-photo:last-child { margin-bottom: 10px; }
+.fx-photo:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
+.fx-photo img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; border-radius: var(--tl-radius-sm); }
+/* Level halo: fixed shadows + opacity avoid fragile computed colour arithmetic. */
+.fx-photo::after { content: ""; position: absolute; inset: -1px; border: 2px solid currentColor; border-radius: inherit; color: var(--halo-color, var(--tl-success));
+  box-shadow: 0 0 9px 2px currentColor, 0 0 20px currentColor, inset 0 0 10px currentColor; opacity: var(--halo); pointer-events: none; transition: opacity 60ms linear; }
+.fx-capture-selector { display: grid; grid-template-columns: 28px minmax(0, 1fr) 28px; gap: 4px; padding: 8px 10px 10px; }
+.fx-capture-selector > button { display: grid; place-items: center; height: 28px; min-height: 0; padding: 0; border: 1px solid var(--tl-border); border-radius: var(--tl-radius-sm);
+  color: var(--tl-text-2); background: var(--tl-surface-3); font-size: 16px; line-height: 1; cursor: pointer; }
+.fx-capture-selector > button:hover:not(:disabled) { border-color: var(--tl-border-hover); color: var(--tl-text); }
+.fx-capture-selector > button:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
+.fx-capture-selector :disabled { opacity: .4; cursor: default; }
 
-#toggleChains{font-weight:400}
-#toggleChains strong{font-weight:800}
+/* Per-plugin input/output meters inside the photo frame. */
+.fx-meter-fill { position: absolute; inset: 0; background: repeating-linear-gradient(to top, transparent 0 4px, var(--tl-surface-sunken) 4px 6px),
+  linear-gradient(to top, var(--tl-meter-ok) 0 77%, var(--tl-meter-warn) 77% 92%, var(--tl-meter-clip) 92%);
+  clip-path: inset(calc((1 - var(--meter-level, 0)) * 100%) 0 0); transition: clip-path 70ms linear; }
+.fx-thin-meter { position: relative; display: block; width: 4px; min-width: 4px; overflow: hidden; border-radius: 2px; background: var(--tl-surface-sunken); pointer-events: none; }
+.fx-thin-meter.is-clipping { background: var(--tl-meter-clip); box-shadow: 0 0 5px var(--tl-meter-clip); }
+.fx-thin-meter.is-clipping .fx-meter-fill { background: var(--tl-meter-clip); clip-path: none; }
+.fx-card-input-meter, .fx-card-output-meter { position: absolute; top: 10px; bottom: 10px; z-index: 1; }
+.fx-card-input-meter { left: 4px; }
+.fx-card-output-meter { right: 4px; }
 
-.fx-capture-selector{display:grid;grid-template-columns:23px minmax(0,1fr) 23px;gap:3px;width:161px;margin-top:6px}
-.fx-capture-selector button,.fx-capture-selector select{min-width:0;height:28px;padding:2px;border:1px solid #51465f;border-radius:5px;background:#17131e;color:#ddd3e8;font-size:10px}
-.fx-capture-selector button{font-size:18px}.fx-capture-selector :disabled{opacity:.45}
+/* A → B junction: route buttons, cable and label. */
+.fx-route-action { position: absolute; top: 34px; left: 10px; display: grid; place-items: center; width: 24px; height: 22px; min-height: 0; padding: 0;
+  border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-sm); color: var(--tl-accent); background: var(--tl-surface-3);
+  opacity: 0; pointer-events: none; cursor: pointer; transition: opacity .15s; }
+.fx-route-action:hover { border-color: var(--tl-accent-border); background: var(--tl-accent-tint); }
+.fx-rack:not(.has-chain-b) .fx-route-action, .fx-route-action[hidden] { display: none; }
+.fx-slot.route-visible > .fx-route-action, .fx-slot:hover > .fx-route-action, .fx-slot:focus-within > .fx-route-action { opacity: 1; pointer-events: auto; }
+@media (hover: none) { .fx-route-action { opacity: 1; pointer-events: auto; } }
+.fx-route-gutter { position: relative; height: 40px; }
+.fx-route-cable { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
+.fx-route-cable path { fill: none; stroke: var(--tl-accent); stroke-width: 2; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(199, 246, 91, .4)); }
+.fx-route-cable path.is-preview { stroke: var(--tl-text-muted); stroke-dasharray: 5 5; filter: none; }
+.fx-route-label { position: absolute; top: 5px; z-index: 1; max-width: 280px; height: 26px; min-height: 0; padding: 0 9px; overflow: hidden;
+  border: 1px solid var(--tl-accent-border); border-radius: var(--tl-radius-sm); color: var(--tl-accent); background: var(--tl-accent-tint);
+  font: 500 var(--tl-fs-2xs) var(--tl-font-mono); white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
+.fx-routing-dialog { max-width: 420px; }
 
-/* Reserve the capture row on every card to keep photos and routing aligned. */
-.fx-card{min-height:227px}
-.fx-endpoint-cell{height:259px;padding-bottom:34px}
-.fx-track>.fx-chain{height:259px;min-height:259px}
-.fx-slot,.fx-output-link{margin-top:0}
+/* Plugin editor dialog (tl-modal). */
+.fx-editor.tl-modal { width: min(980px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); }
+.fx-editor-bar { position: sticky; top: 0; z-index: 5; align-items: center; gap: var(--tl-space-2); }
+.fx-editor-titles { flex: 1; min-width: 0; }
+.fx-editor-titles .tl-modal-title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.fx-editor-body { display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: stretch; gap: 2px; padding: 10px; }
+.fx-editor-mount { min-width: 0; min-height: 100px; padding: 6px; overflow: auto; color: var(--tl-text-2); font-size: var(--tl-fs-sm); }
+.fx-editor-mount > * { max-width: 100%; }
+.fx-editor-side { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 160px; padding: 6px 0; }
+.fx-editor-side > .fx-thin-meter { flex: 1; width: 5px; min-height: 90px; }
+.fx-editor-side-label { color: var(--tl-text-muted); font: 500 var(--tl-fs-2xs) var(--tl-font-mono); letter-spacing: .08em; }
+.fx-plugin-gain-panel { position: absolute; top: 40px; left: 0; z-index: 8; display: grid; gap: 8px; width: 200px; padding: 12px; color: var(--tl-text-2);
+  border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); background: var(--tl-surface-4); box-shadow: var(--tl-shadow-panel); font-size: var(--tl-fs-sm); }
+.fx-plugin-gain-panel[hidden] { display: none; }
+.fx-editor-output .fx-plugin-gain-panel { left: auto; right: 0; }
+.fx-plugin-gain-panel label { display: grid; gap: 8px; }
+.fx-plugin-gain-panel output { color: var(--tl-text); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
+.fx-plugin-gain-panel tl-button { justify-self: start; }
+
+/* Insert / replace library (tl-modal wide, violet library accent as in the mock-up). */
+.fx-menu.tl-modal { border-color: var(--tl-library-border); }
+.fx-menu .tl-modal-header { background: var(--tl-library-tint); border-bottom-color: var(--tl-library-border); }
+.fx-menu .tl-modal-body { gap: 0; padding: 0; }
+.fx-menu-intro { display: flex; align-items: center; justify-content: space-between; gap: var(--tl-space-4); padding: 14px 20px; border-bottom: 1px solid var(--tl-library-border); }
+.fx-menu-intro > div { display: flex; flex-direction: column; gap: 4px; }
+.fx-menu-intro strong { font-size: var(--tl-fs-sm); }
+.fx-menu-intro div span { color: var(--tl-text-muted); font-size: var(--tl-fs-xs); }
+.fx-menu-count { flex: none; padding: 4px 8px; border-radius: var(--tl-radius-sm); color: var(--tl-library-strong); background: color-mix(in srgb, var(--tl-library) 18%, transparent);
+  font: 600 var(--tl-fs-2xs) var(--tl-font-mono); text-transform: uppercase; }
+.tl-modal .fx-menu-status { margin: 0; padding: 0 20px; color: var(--tl-text-2); font-size: var(--tl-fs-xs); overflow-wrap: anywhere; }
+.fx-menu-status:not(:empty) { padding-top: 10px; }
+.fx-menu-side { display: flex; align-items: center; gap: var(--tl-space-3); padding: 12px 20px 0; }
+.fx-menu-side tl-select { width: 220px; }
+.fx-menu-catalog { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 28px; padding: 20px; }
+.fx-menu-category { min-width: 0; }
+.fx-menu-category:nth-child(n+3) { grid-column: 1 / -1; padding-top: 20px; border-top: 1px solid var(--tl-library-border); }
+.fx-menu-category > header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.fx-menu-category > header > div { display: flex; align-items: center; gap: 8px; color: var(--tl-library); }
+.fx-menu-category h3 { margin: 0; color: var(--tl-text); font-size: var(--tl-fs-md); text-transform: capitalize; }
+.fx-menu-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.fx-menu-entry { display: flex; flex-direction: column; min-width: 0; overflow: hidden; border: 1px solid var(--tl-library-border); border-radius: var(--tl-radius-lg);
+  background: var(--tl-library-tint); transition: border-color .18s, transform .18s, box-shadow .18s; }
+.fx-menu-entry:hover, .fx-menu-entry:focus-within { border-color: var(--tl-library); transform: translateY(-2px); box-shadow: 0 9px 24px rgba(0, 0, 0, .28); }
+.fx-menu-item { display: flex; flex-direction: column; gap: 8px; padding: 8px 8px 0; border: 0; color: var(--tl-text); background: none; font: inherit; text-align: left; cursor: pointer; }
+.fx-menu-item:focus-visible, .fx-copy-uri:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
+.fx-menu-item img { width: 100%; height: 84px; object-fit: contain; border-radius: var(--tl-radius-sm); background: var(--tl-surface-sunken); }
+.fx-menu-item strong { min-height: 28px; font-size: var(--tl-fs-xs); line-height: 1.35; }
+.fx-menu-insert { display: flex; align-items: center; justify-content: center; gap: 5px; height: 27px; border: 1px solid var(--tl-library-border); border-radius: var(--tl-radius-sm);
+  color: var(--tl-text-muted); font-size: var(--tl-fs-2xs); letter-spacing: .06em; text-transform: uppercase; }
+.fx-menu-item:hover .fx-menu-insert, .fx-menu-item:focus-visible .fx-menu-insert { color: var(--tl-accent); border-color: var(--tl-accent-border); background: var(--tl-accent-tint); }
+.fx-copy-uri { display: flex; align-items: center; gap: 5px; min-width: 0; height: 26px; min-height: 0; margin: 4px 0 2px; padding: 0 8px; border: 0; color: var(--tl-text-faint);
+  background: none; font: 500 8px var(--tl-font-mono); cursor: copy; }
+.fx-copy-uri span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.fx-copy-uri:hover { color: var(--tl-library-strong); }
+.fx-menu button:disabled { opacity: .5; cursor: progress; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-photo::after, .fx-meter-fill, .fx-add, .fx-menu-entry { transition: none; }
+  .fx-menu-entry:hover, .fx-add:hover { transform: none; }
+}
+@media (max-width: 900px) {
+  .fx-rack { grid-template-columns: 150px minmax(0, 1fr) 150px; gap: 4px; padding: 0 6px; }
+  .fx-endpoint { padding: 7px; }
+  .rack-stage { padding-left: 10px; padding-right: 10px; }
+}
+/* Sticky would cover the page on phones, where the rack is most of the viewport. */
+@media (max-width: 720px) { .fx-rack { position: relative; top: auto; } }
+@media (max-width: 560px) {
+  .fx-menu-catalog { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  .fx-menu-category:nth-child(n+2) { grid-column: auto; padding-top: 16px; border-top: 1px solid var(--tl-library-border); }
+  .fx-menu-intro { padding: 12px 16px; }
+  .fx-menu-group { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .fx-editor-bar { flex-wrap: wrap; }
+  .fx-editor-titles { flex-basis: 100%; }
+  .fx-editor-body { grid-template-columns: 30px minmax(0, 1fr) 30px; padding: 4px; }
+  .fx-editor-mount { padding: 3px; }
+}
+@media (max-width: 420px) {
+  .fx-rack { grid-template-columns: 124px minmax(0, 1fr) 124px; }
+  .fx-endpoint { padding: 5px; }
+  .fx-endpoint-controls { gap: 3px; }
+}

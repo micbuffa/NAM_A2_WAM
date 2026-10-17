@@ -1,0 +1,11 @@
+alice_model:
+  user: alice
+  kind: nam_model
+  asset_ref: factory:alice-model
+  metadata: { "name": "Alice model" }
+
+bob_ir:
+  user: bob
+  kind: ir
+  asset_ref: factory:bob-ir
+  metadata: { "name": "Bob IR" }

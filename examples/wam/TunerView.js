@@ -6,13 +6,13 @@ export class TunerView {
     Object.assign(this, {context, registry, groupId, input, button});
     this.serial = 0;
     this.dialog = document.createElement('dialog');
-    this.dialog.className = 'host-tuner';
+    this.dialog.className = 'host-tuner tl-modal';
     this.dialog.id = 'tunerDialog';
     this.dialog.setAttribute('aria-labelledby', 'tunerTitle');
-    this.dialog.innerHTML = '<header><strong id="tunerTitle">Tuner</strong><button type="button" aria-label="Close tuner">×</button></header><p class="host-help">Input A · before effects. Use Enable live input to tune your instrument.</p><div class="tuner-mount" role="status"></div>';
+    this.dialog.innerHTML = '<header class="tl-modal-header"><div><p class="tl-eyebrow">Input A · before effects</p><h2 class="tl-modal-title" id="tunerTitle">Tuner</h2></div><tl-icon-button icon="close" variant="ghost" aria-label="Close tuner"></tl-icon-button></header><div class="tl-modal-body"><p class="host-help">Use Enable live input to tune your instrument.</p><div class="tuner-mount" role="status"></div></div>';
     document.body.append(this.dialog);
     this.mount = this.dialog.querySelector('.tuner-mount');
-    this.dialog.querySelector('button').onclick = () => this.close();
+    this.dialog.querySelector('tl-icon-button').onclick = () => this.close();
     this.dialog.addEventListener('cancel', event => {event.preventDefault(); this.close();});
     this.dialog.addEventListener('close', () => {if (!this.dialog.open && this.button.getAttribute('aria-expanded') === 'true') this.close();});
     button.setAttribute('aria-controls', this.dialog.id);
@@ -20,6 +20,19 @@ export class TunerView {
     button.disabled = !registry.records.some(record => record.role === 'tuner');
     if (button.disabled) button.title = 'Tuner is unavailable in the plugin catalogue';
     button.onclick = () => this.open();
+    document.addEventListener('keydown', event => this.shortcut(event));
+  }
+
+  // T toggles the tuner, except while typing (composedPath reaches inputs inside plugin GUIs)
+  // or when another dialog is open.
+  shortcut(event) {
+    if (event.key.toLowerCase() !== 't' || event.metaKey || event.ctrlKey || event.altKey || event.repeat) return;
+    const target = event.composedPath()[0];
+    if (target?.closest?.('input, select, textarea, [contenteditable=""], [contenteditable="true"]')) return;
+    if (this.dialog.open) { event.preventDefault(); this.close(); return; }
+    if (this.button.disabled || document.querySelector('dialog[open]')) return;
+    event.preventDefault();
+    this.open();
   }
 
   release(resources) {

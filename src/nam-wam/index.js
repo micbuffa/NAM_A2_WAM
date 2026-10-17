@@ -8,6 +8,10 @@ const baseUrl = new URL('.', import.meta.url).href.replace(/\/$/, '');
 
 export default class NamPlugin extends WebAudioModule {
   static tone3000Config = {};
+  // Optional host account integration: {favorites, preferences} (see gui.js).
+  static account = {};
+  // Factory model catalogue, for hosts that build presets from Factory assets.
+  static factoryManifestUrl = new URL('./models-manifest.json', import.meta.url).href;
   _descriptorUrl = `${baseUrl}/descriptor.json`;
 
   async initialize(state) {
@@ -52,4 +56,6 @@ export default class NamPlugin extends WebAudioModule {
   destroyGui(gui) { gui?.destroy?.(); gui?.remove(); this._guiPromise=null; }
 
   static configureTone3000(config) { NamPlugin.tone3000Config = {...config}; }
+
+  static configureAccount(config) { NamPlugin.account = {...config}; }
 }

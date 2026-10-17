@@ -79,6 +79,32 @@ their inactive state remains immediately visible.
 - The `third_party/NeuralAmpModelerCore` checkout. Third-party sources are intentionally ignored
   by Git.
 
+## Dev container
+
+[`.devcontainer/`](.devcontainer/) provides all of the above (Emscripten 6.0.9, CMake, Node 24,
+ffmpeg, Python with numpy) plus Ruby 4.0.1 for the Rails app, without installing them on the host.
+
+Prerequisites: a container runtime (Docker Desktop, OrbStack, Colima, Podman or Docker Engine on
+Linux) and VS Code with the Dev Containers extension, a recent JetBrains IDE, or the
+`@devcontainers/cli`. GitHub Codespaces also works and needs nothing locally.
+
+Open the project and choose **Reopen in Container**. On first creation the container runs
+`npm run setup` (fetches `third_party/` if it is missing and builds the WASM), then
+`web/bin/setup --skip-server` (gems and database) and `web/bin/rack-sync`. Then, in the container
+terminal:
+
+- `npm start` serves the static host on <http://127.0.0.1:8765/examples/wam/index.html>;
+- `cd web && bin/rails server` serves the Rails app on <http://localhost:3000/rack/>.
+
+Both ports are forwarded to the host browser, so audio devices work as usual. After changing
+`.devcontainer/`, run **Dev Containers: Rebuild Container**.
+
+Inside the container, `build-wasm/` and the gems are separate Docker volumes, so the container
+never shares a CMake cache or native gems with the host. The servers listen on `0.0.0.0` there
+through the `HOST` and `BINDING` environment variables; outside the container they keep their
+localhost defaults. The rest of the repository is shared, including `web/storage/*.sqlite3` and
+`web/tmp/pids/`: do not run Rails on the host and in the container at the same time.
+
 ## Run the host locally
 
 Install dependencies, fetch third-party sources, build the WASM, then start the static server:
@@ -111,6 +137,25 @@ diagnostic message and NAM model loading may be rejected by the core.
 
 An automated validation page is available at
 <http://127.0.0.1:8765/examples/wam/index.html?auto=1>.
+
+## Accounts, presets and sync (Rails app)
+
+[`web/`](web/) is a Rails 8 + SQLite app that serves the same rack on one origin and adds
+passwordless accounts (emailed magic link), server-side presets of the whole WAM chain,
+synced NAM/IR favorites and preferences. Without an account the rack works as above, with presets
+kept in the browser (IndexedDB); after sign-in the rack offers to import them.
+
+```sh
+npm run setup                 # once: third-party checkouts + WASM
+cd web && bin/setup --skip-server
+bin/rack-sync                 # copies dist/NAM_A2_WAM into web/public/rack
+bin/rails server              # http://localhost:3000/rack/
+```
+
+The page must be cross-origin isolated (`COOP: same-origin`, `COEP: require-corp`) because the
+WAM SDK uses `SharedArrayBuffer`; the Rails app sends these headers on the page and every static
+file. Installation, environment variables (SMTP via Brevo or Postmark), deployment with a
+persistent SQLite volume and Litestream backups are documented in [`web/README.md`](web/README.md).
 
 ## TONE3000 authentication
 

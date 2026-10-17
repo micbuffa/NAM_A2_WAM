@@ -4,9 +4,9 @@ export class FxRackView {
   constructor(rack,report){
     Object.assign(this,{rack,report});this.root=document.querySelector('.fx-rack');this.root.setAttribute('aria-label','Processing chains');
     const input=this.root.querySelector('[aria-label="Chain A input"]'),output=this.root.querySelector('[aria-label="Chain A output"]'),strip=document.querySelector('#fxChain');
-    const header=el('div','fx-rack-controls');this.toggle=el('button','','☷  1 / 2 chains');this.toggle.id='toggleChains';this.toggle.setAttribute('aria-expanded','false');
-    header.append(document.getElementById('enableLive'),this.toggle);
-    for(const id of ['inputDevice','outputDevice']){const label=document.getElementById(id).closest('label');label.className='fx-device-label';header.append(label);}
+    const header=el('div','fx-rack-controls');this.toggle=el('tl-segmented');this.toggle.id='toggleChains';this.toggle.setAttribute('aria-label','Chains');this.toggle.setAttribute('aria-controls','fxChainB');this.toggle.append(new Option('1 Chain','1'),new Option('2 Chains','2'));
+    // 1 Chain / 2 Chains sits in the preset header; devices and live input in the sidebar.
+    (document.getElementById('chainToggleSlot')||header).append(this.toggle);
     output.querySelector('.fx-endpoint-routing').append(output.querySelector('#chainOutputReset'));
     this.status=el('span','fx-rack-status');header.append(this.status);this.root.before(header);
     this.left=el('div','fx-endpoints');this.right=el('div','fx-endpoints');
@@ -27,13 +27,13 @@ export class FxRackView {
       }
     };rename(this.inputB,'Input');rename(this.outputB,'Output');
     this.bLeft=cell(this.inputB);this.bRight=cell(this.outputB);this.left.append(this.bLeft);this.right.append(this.bRight);
-    this.muteA=el('button','fx-lane-enable','Mute');output.querySelector('.fx-endpoint-routing').append(this.muteA);
-    this.enableB=el('button','fx-lane-enable','Mute');this.outputB.querySelector('.fx-endpoint-routing').append(this.enableB);
-    this.dialog=el('dialog','fx-confirm fx-routing-dialog');document.body.append(this.dialog);
+    this.muteA=el('tl-button','fx-lane-enable','Mute');this.muteA.setAttribute('size','sm');output.querySelector('.fx-endpoint-routing').append(this.muteA);
+    this.enableB=el('tl-button','fx-lane-enable','Mute');this.enableB.setAttribute('size','sm');this.outputB.querySelector('.fx-endpoint-routing').append(this.enableB);
+    this.dialog=el('dialog','fx-confirm fx-routing-dialog tl-modal');document.body.append(this.dialog);
     this.aView=new FxChainView(rack.a,strip,report,{onRoute:(index,button)=>this.routeMenu(index,button),onLayout:()=>this.scheduleLayout(),onOpen:()=>this.bView?.close()});
-    this.toggle.onclick=async()=>{
-      this.toggle.disabled=true;this.toggle.textContent='Loading…';
-      try{await this.act(()=>rack.setVisible(!rack.visible));}finally{this.toggle.disabled=false;this.renderChainToggle();}
+    this.toggle.onchange=async()=>{
+      this.toggle.disabled=true;
+      try{await this.act(()=>rack.setVisible(this.toggle.value==='2'));}finally{this.toggle.disabled=false;this.renderChainToggle();}
     };
     this.enableB.onclick=()=>this.act(()=>rack.setEnabledB(!rack.enabledB));
     this.muteA.onclick=()=>this.act(()=>rack.setMutedA(!rack.mutedA));
@@ -54,16 +54,12 @@ export class FxRackView {
   }
   async act(operation){try{await operation();}catch(error){this.report(error.message,true);}}
   renderChainToggle(){
-    const two=this.rack.visible;
-    this.toggle.replaceChildren('☷  ',el(two?'span':'strong','','1'),' / ',el(two?'strong':'span','','2'),' chains');
-    this.toggle.setAttribute('aria-label',`${two?'2':'1'} ${two?'chains':'chain'} active. Switch to ${two?'1 chain':'2 chains'}`);
+    this.toggle.value=this.rack.visible?'2':'1';
   }
   render(){
     const r=this.rack;
     if(!this.toggle.disabled)this.renderChainToggle();
-    this.toggle.hidden=r.uiMode==='beginner';
     if(r.b&&!this.bView)this.bView=new FxChainView(r.b,this.bStrip,this.report,{secondary:true,meterPrefix:'chainB',onLayout:()=>this.scheduleLayout(),onOpen:()=>this.aView.close()});
-    this.toggle.setAttribute('aria-expanded',String(r.visible));this.toggle.title=r.visible?'Hide chain B':'Show chain B';
     this.bLeft.hidden=this.bRight.hidden=this.bStrip.hidden=this.gutter.hidden=!r.activeB;
     this.inputB.style.visibility=r.route?'hidden':'visible';
     this.root.classList.toggle('has-chain-b',r.activeB);
@@ -115,13 +111,13 @@ export class FxRackView {
     this.preview={index};this.layout();this.dialog.replaceChildren();
     const title=el('h3','',existing?'A → B route':this.rack.route?'Replace A → B route':'Split A → B');
     const text=el('p','','A continues normally. B starts here; its physical input is disconnected. Existing B effects shift right.');
-    const cancel=el('button','','Cancel'),connect=el('button','',existing?'Keep route':'Connect');
+    const cancel=el('button','tl-btn','Cancel'),connect=el('button','tl-btn tl-btn-primary',existing?'Keep route':'Connect'),actions=el('div','tl-modal-actions');
     const close=()=>{this.preview=null;this.dialog.close();this.layout();trigger?.focus();};
     cancel.onclick=close;this.dialog.oncancel=event=>{event.preventDefault();close();};
     connect.onclick=()=>{close();if(!existing){if(this.rack.a.entries.map(e=>e.id).join('|')!==order)return this.report('Chain changed; choose the junction again.',true);this.act(()=>this.rack.connectRoute(index));}};
-    this.dialog.append(title,text,cancel,connect);
-    if(this.rack.route){const remove=el('button','','Remove route');remove.onclick=()=>{close();this.act(()=>this.rack.removeRoute());};this.dialog.append(remove);}
-    if(existing){const show=el('button','','Show junction');show.onclick=()=>{close();this.scroller.scrollTo({left:Math.max(0,(this.labelAnchor||0)-this.scroller.clientWidth/2),behavior:'smooth'});};this.dialog.append(show);}
+    actions.append(cancel,connect);this.dialog.append(title,text,actions);
+    if(this.rack.route){const remove=el('button','tl-btn tl-btn-danger','Remove route');remove.onclick=()=>{close();this.act(()=>this.rack.removeRoute());};actions.prepend(remove);}
+    if(existing){const show=el('button','tl-btn','Show junction');show.onclick=()=>{close();this.scroller.scrollTo({left:Math.max(0,(this.labelAnchor||0)-this.scroller.clientWidth/2),behavior:'smooth'});};actions.prepend(show);}
     this.dialog.showModal();cancel.focus();
   }
   close(){this.aView.close();this.bView?.close();}

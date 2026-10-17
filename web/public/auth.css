@@ -1,0 +1,21 @@
+/* Standalone sign-in pages; mirrors the rack palette from host.css. */
+:root {
+  color-scheme: dark;
+  --host-bg: #090a0d; --host-card: #1b1a21; --host-line: #302d39;
+  --host-text: #f1eef7; --host-muted: #8f8a9a; --host-accent: #9f82ff;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; color: var(--host-text); background: var(--host-bg); }
+.auth-shell { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+.auth-card { width: min(420px, 100%); padding: 24px; background: var(--host-card); border: 1px solid var(--host-line); border-radius: 12px; }
+.auth-kicker { margin: 0; color: #777180; font-size: 10px; font-weight: 800; letter-spacing: .2em; }
+.auth-card h1 { margin: 6px 0 10px; color: #b09aff; font-size: 21px; letter-spacing: -.02em; }
+.auth-help { color: var(--host-muted); font-size: 13px; line-height: 1.45; }
+.auth-error { color: #ffb4c0; font-size: 13px; }
+.auth-form { display: grid; gap: 8px; margin: 16px 0; }
+.auth-form label { color: #aaa4b4; font-size: 12px; }
+.auth-form input { min-height: 38px; padding: 0 10px; color: var(--host-text); background: #111116; border: 1px solid var(--host-line); border-radius: 8px; font: inherit; }
+.auth-form input[type=submit], .auth-button { min-height: 38px; margin-top: 6px; padding: 9px 16px; color: #0b0a10; background: var(--host-accent); border: 0; border-radius: 8px; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+a { color: #bcaeff; }
+:focus-visible { outline: 2px solid var(--host-accent); outline-offset: 2px; }

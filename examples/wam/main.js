@@ -1,16 +1,24 @@
 import './backing-track-player/BackingTrackPlayerElement.js';
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
+import {toast} from './ui/components/tl-toast.js';
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import NamPlugin from '../../src/nam-wam/index.js';
 import CabinetPlugin from '../../src/cabinet-wam/index.js';
+import ModelFavorites from '../../src/nam-wam/ModelFavorites.js';
+import ImpulseResponseLibrary from '../../src/cabinet-wam/ImpulseResponseLibrary.js';
 import SourceManager, {DEFAULT_SOURCE_TRIM_DB} from './SourceManager.js';
 import OutputDeviceManager from './OutputDeviceManager.js';
 import {readAudioDevicePreferences, saveAudioDevicePreferences, resolveInputPreference} from './AudioDevicePreferences.js';
 import {FxChain} from './FxChain.js';
 import {FxRack} from './FxRack.js';
 import {FxRackView} from './FxRackView.js';
+import {EngineStatus} from './EngineStatus.js';
+import {SettingsView} from './SettingsView.js';
+import {Workspaces} from './Workspaces.js';
+import {TracksPanel} from './TracksPanel.js';
 import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
+import {setupAccount} from './account/index.js';
 const TONE3000_CALLBACK_CHANNEL = 'nam-a2-wam.tone3000.callback';
 const TONE3000_CALLBACK_STORAGE_KEY = 'nam-a2-wam.tone3000.callback';
 
@@ -30,23 +38,33 @@ let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
 let chain, chainView, rack, backingPlayer, backingMix;
+let tracks, activeTone = {};
+const settings = new SettingsView({button: $('#settingsButton')});
+const engine = new EngineStatus({element: $('#engineStatus'), context});
+const workspaces = new Workspaces({control: $('#workspaceSwitch')});
+// Settings > Audio: what the browser chose (it does not let a page set the buffer size).
+const milliseconds = (seconds) => Number.isFinite(seconds) && seconds > 0 ? `${(seconds * 1000).toFixed(1)} ms` : 'Not reported';
+settings.addSection({id: 'audio', label: 'Audio', icon: 'audio', order: 1, render: (container) => {
+  const facts = document.createElement('dl');
+  facts.className = 'settings-facts';
+  const latency = (context.baseLatency || 0) + (context.outputLatency || 0);
+  for (const [term, value] of [['Sample rate', `${context.sampleRate.toLocaleString()} Hz`], ['Engine', {running: 'Running', suspended: 'Idle (starts with live input or playback)'}[context.state] || 'Offline'],
+    ['Processing latency', milliseconds(context.baseLatency)], ['Output latency', milliseconds(context.outputLatency)],
+    ['Estimated output delay', milliseconds(latency)]]) {
+    facts.append(Object.assign(document.createElement('dt'), {textContent: term}), Object.assign(document.createElement('dd'), {textContent: value}));
+  }
+  const note = Object.assign(document.createElement('p'), {className: 'host-help',
+    textContent: 'The browser sets these values for the selected output device. NAM A2 models run at 48 kHz.'});
+  container.append(Object.assign(document.createElement('h3'), {textContent: 'Audio'}), note, facts);
+}});
+settings.addSection({id: 'general', label: 'General', icon: 'sliders', order: 2, element: $('#settingsGeneral')});
 
 
-const sidebarToggle = $('#toggleSidebar');
-sidebarToggle.onclick = () => {
-  const sidebar = $('#hostSidebar');
-  sidebar.hidden = !sidebar.hidden;
-  $('.host-shell').classList.toggle('sidebar-collapsed', sidebar.hidden);
-  sidebarToggle.setAttribute('aria-expanded', String(!sidebar.hidden));
-  sidebarToggle.setAttribute('aria-label', sidebar.hidden ? 'Change audio source' : 'Close audio source panel');
-};
-$('#hostSidebar').addEventListener('keydown', event => {
-  if (event.key === 'Escape') { sidebarToggle.click(); sidebarToggle.focus(); }
-});
 
+// One-off host messages are toasts (the engine badge carries the lasting state);
+// long ones stay up long enough to be read.
 function message(text, error = false) {
-  $('#hostStatus').textContent = text;
-  $('#hostStatus').classList.toggle('error', error);
+  toast(text, {tone: error ? 'danger' : 'accent', duration: Math.max(error ? 6000 : 2400, text.length * 45)});
 }
 
 async function discoverFiles() {
@@ -97,6 +115,18 @@ function refreshInputChannels(channelCount=1,deviceLabel='') {
   $('#inputChannelStatus').textContent=count===1?'The browser opened a mono stream (1 channel). Check the interface and macOS audio configuration if you expect two inputs.':`${count} capture channels available. Each chain can select an available input channel.`;
 }
 
+// Before microphone permission every input is anonymous (deviceId ''), so
+// opening one shows the browser prompt, where the user may pick another
+// device (e.g. the sound card). Adopt the device the browser actually opened:
+// otherwise the devicechange refresh that follows the grant cannot find ''
+// and falls back to the system default (often a mono built-in microphone).
+async function adoptOpenedInput(deviceId) {
+  if (!deviceId || deviceId === selectedDeviceId) return;
+  selectedDeviceId = deviceId;
+  saveAudioDevicePreferences({inputDeviceId: deviceId, inputChannel: selectedInputChannel});
+  await refreshDevices(false);
+}
+
 async function detectSelectedInputChannels() {
   if (liveInputEnabled || $('#audioSource').value !== 'live' || !$('#inputDevice').options.length) return;
   const probingDevice = selectedDeviceId;
@@ -106,7 +136,11 @@ async function detectSelectedInputChannels() {
   $('#inputChannelStatus').textContent='Detecting input channels (monitoring off)…';
   try {
     const input = await sourceManager.activateLive(probingDevice, 0, {monitor:false});
-    if (input && selectedDeviceId === probingDevice && !liveInputEnabled && $('#audioSource').value === 'live') {
+    // An anonymous probe stays valid even if the post-permission refresh
+    // already replaced the '' device id meanwhile.
+    const stillSelected = selectedDeviceId === probingDevice || !probingDevice;
+    if (input && stillSelected && !liveInputEnabled && $('#audioSource').value === 'live') {
+      if (!probingDevice) await adoptOpenedInput(input.deviceId);
       refreshInputChannels(input.channelCount,input.label);
       $('#inputChannel').disabled = false;
     }
@@ -123,6 +157,16 @@ function syncSourceTrim() {
   $('#sourceTrim').value = value;
   $('#sourceTrim').dispatchEvent(new Event('change'));
   $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
+  syncTracks();
+}
+
+// Tracks workspace cards: the active tone and what feeds the rack.
+function syncTracks() {
+  if (!tracks) return;
+  tracks.setTone({...activeTone, chains: rack?.visible ? 2 : 1});
+  const value = $('#audioSource').value;
+  tracks.setGuitar({source: value === 'live' ? 'live' : value.slice(5), live: liveInputEnabled, input: sourceManager.liveInput,
+    inputDb: sourceManager.activeTrimDb, outputDb: chain.outputDb});
 }
 
 function setPlayerEnabled(enabled) {
@@ -138,14 +182,18 @@ function syncLiveInputButton() {
   button.textContent = liveInputEnabled ? 'Disable live input' : 'Enable live input';
   button.setAttribute('aria-pressed', String(liveInputEnabled));
   button.classList.toggle('live-active', liveInputEnabled);
+  syncTracks();
 }
 
 async function activateSelectedLiveInput() {
-  if (!selectedDeviceId) await refreshDevices(true);
-  if (!selectedDeviceId) throw new Error('No audio input device is available');
+  if (!$('#inputDevice').options.length) await refreshDevices(false);
+  if (!$('#inputDevice').options.length) throw new Error('No audio input device is available');
+  // selectedDeviceId may be '' (no permission yet): the prompt opens the device the user picks.
+  const requestedDeviceId = selectedDeviceId;
   const stream = await sourceManager.activateLive(selectedDeviceId, selectedInputChannel);
   if (!stream) return false;
   const activeInput = sourceManager.liveInput;
+  if (!requestedDeviceId) await adoptOpenedInput(activeInput?.deviceId);
   refreshInputChannels(activeInput?.channelCount, activeInput?.label);
   $('#inputChannel').disabled = false;
   if (activeInput?.channelCount === 1) {
@@ -163,14 +211,15 @@ async function disableLiveInput(status = 'Live input disabled') {
   await sourceManager.disconnectCurrent();
   liveInputEnabled = false;
   syncLiveInputButton();
-  message(status);
+  if (status) message(status);
 }
 
-async function selectSource() {
+// quiet: live input is being enabled right after, which has its own message.
+async function selectSource({quiet = false} = {}) {
   const value = $('#audioSource').value;
   if (value === 'live') {
     setPlayerEnabled(false);
-    await disableLiveInput('Live input ready. Click Enable live input to start monitoring.');
+    await disableLiveInput(quiet ? null : 'Live input ready. Click Enable live input to start monitoring.');
   } else {
     liveInputEnabled = false;
     syncLiveInputButton();
@@ -188,6 +237,8 @@ async function initialize() {
   }
   NamPlugin.configureTone3000(window.NAM_A2_WAM_CONFIG?.tone3000 || {});
   CabinetPlugin.configureTone3000(window.NAM_A2_WAM_CONFIG?.tone3000 || {});
+  // Before createGui(): the GUIs pick their favorites/preferences stores up here.
+  const accountIntegration = setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseResponseLibrary});
   const [groupId] = await initializeWamHost(context, 'nam-a2-phase3-host');
   plugin = await NamPlugin.createInstance(groupId, context, {});
   node = plugin.audioNode;
@@ -212,25 +263,14 @@ async function initialize() {
       nam.toneSession.identity='b-nam';cab.toneSession.identity='b-cabinet';return b;
     }catch(error){if(b)b.destroy();else{nam?.audioNode.destroy?.();cab?.audioNode.destroy?.();}throw error;}
   }});
-  await rack.setUiMode('beginner');
   window.phase3Debug.rack=rack;
-  backingPlayer=document.createElement('backing-track-player');document.querySelector('.fx-rack').after(backingPlayer);
+  backingPlayer=document.createElement('backing-track-player');$('#tracksCanvas').append(backingPlayer);
   await backingPlayer.initialize({audioContext:context});backingMix=new BackingTrackMix(context,rack.output,backingPlayer);
   Object.assign(window.phase3Debug,{backingPlayer,backingMix});
   chainView=new FxRackView(rack,message);
+  tracks=new TracksPanel({onEditTone:()=>workspaces.show('tone'),onToggleLive:()=>$('#enableLive').click()});
+  rack.addEventListener('change',syncTracks);
   window.phase3Debug.tuner=new TunerView({context,registry,groupId,input:chain.input,button:$('#tunerButton')});
-  const modeButton=$('#uiMode');modeButton.disabled=false;
-  modeButton.onclick=async()=>{
-    modeButton.disabled=true;chainView.close();
-    try{
-      await rack.setUiMode(rack.uiMode==='beginner'?'full':'beginner');
-      if(rack.uiMode==='beginner'&&!$('#hostSidebar').hidden)sidebarToggle.click();
-      document.body.dataset.uiMode=rack.uiMode;
-      modeButton.textContent=`UI mode: ${rack.uiMode}`;
-      modeButton.setAttribute('aria-pressed',String(rack.uiMode==='full'));
-      modeButton.title=rack.uiMode==='beginner'?'Switch to full mode to use two chains':'Switch to beginner mode (chain A only)';
-    }catch(error){message(error.message,true);}finally{modeButton.disabled=false;}
-  };
   await discoverFiles();
   await refreshDevices(false);
   if (outputDeviceManager.supported) {
@@ -279,7 +319,8 @@ async function initialize() {
       recoverAudio();
     }
   });
-  navigator.mediaDevices?.addEventListener?.('devicechange', () => {
+  // A device change, or Refresh in the sidebar's Audio devices block.
+  const syncDevices = () => {
     deviceRefresh = deviceRefresh.catch(() => {}).then(async () => {
     const wasLive = liveInputEnabled;
     const old = selectedDeviceId;
@@ -291,15 +332,23 @@ async function initialize() {
     if (outputDeviceManager.supported) await refreshOutputs({includeAuthorized: false});
     if (wasRunning && context.state !== 'running') await recoverAudio();
     }).catch(async (error) => { message(`Audio device change failed: ${error.message}`, true); await recoverAudio(); });
-  });
+    return deviceRefresh;
+  };
+  navigator.mediaDevices?.addEventListener?.('devicechange', syncDevices);
+  $('#refreshDevices').onclick = async () => {
+    $('#refreshDevices').disabled = true;
+    try { await syncDevices(); message('Audio devices refreshed.'); } finally { $('#refreshDevices').disabled = false; }
+  };
   $('#audioSource').onchange = () => selectSource().catch((error) => message(error.message, true));
   $('#chainOutputGain').oninput=()=>{
     const db=chain.setOutputDb($('#chainOutputGain').value);
     $('#chainOutputGainValue').textContent=`${db.toFixed(1)} dB`;
+    syncTracks();
   };
   $('#sourceTrim').oninput = () => {
     const value = sourceManager.setTrimDb(Number($('#sourceTrim').value), $('#audioSource').value === 'live' ? 'live' : 'file');
     $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
+    syncTracks();
   };
   $('#chainInputReset').onclick=()=>{
     const mode=$('#audioSource').value==='live'?'live':'file';
@@ -321,13 +370,12 @@ async function initialize() {
       $('#audioSource').value='live';
       setPlayerEnabled(false);
       const resumed=context.resume();
-      await selectSource();
+      await selectSource({quiet: true});
       await resumed;
-      if (!$('#inputDevice').value) await refreshDevices(true);
-      else selectedDeviceId=$('#inputDevice').value;
+      selectedDeviceId=$('#inputDevice').value;
       await activateSelectedLiveInput();
     }
-    catch (error) { liveInputEnabled=false; syncLiveInputButton(); message(error.message, true); if($('#hostSidebar').hidden)sidebarToggle.click(); }
+    catch (error) { liveInputEnabled=false; syncLiveInputButton(); message(error.message, true); }
     finally { $('#enableLive').disabled=false; }
   };
   $('#inputDevice').onchange = async () => {
@@ -379,6 +427,36 @@ async function initialize() {
     catch(error){message(`Session restore: ${error.message}`,true);return;}
     message('WAM state restored');
   };
+  // Presets saved before the FX rack hold only lane A's NAM and cabinet
+  // ({version: 1, nam, cabinet}). Rebuild a whole rack from them, so loading
+  // one also removes pedals, lane B and chain gains instead of keeping
+  // whatever the current rack has. Updating such a preset upgrades it.
+  const legacyPresetToRack = async ({nam, cabinet}) => {
+    const current = await rack.getState();
+    const entry = (kind, pluginState) => {
+      const existing = current.a.entries.find((candidate) => candidate.kind === kind);
+      return existing && pluginState ? {...existing, state: pluginState, bypass: Number(pluginState.parameterValues?.bypass?.value) >= .5} : null;
+    };
+    return {...current, a: {...current.a, entries: [entry('nam', nam), entry('cabinet', cabinet)].filter(Boolean)},
+      b: null, visible: false, route: null, enabledB: false, mutedA: false, panA: 0, panB: 0, inputDbB: 0, outputDbA: 0, outputDbB: 0};
+  };
+  // Plugin editors are created on demand by FxChain; the account reloads the
+  // favorites/preferences of whichever NAM and cabinet editors are open.
+  const accountGuis = () => [rack.a, rack.b].filter(Boolean).flatMap((lane) => lane.entries)
+    .filter((entry) => entry.kind === 'nam' || entry.kind === 'cabinet').map((entry) => entry.gui).filter(Boolean);
+  const presets = await accountIntegration.attach({settings, guis: accountGuis, report: message,
+    // A preset is the whole rack, exactly what "Save WAM state" captures.
+    captureState: () => rack.getState(),
+    applyState: async (state) => {
+      chainView.close();
+      await rack.setState(state.nam && !state.a && !state.entries ? await legacyPresetToRack(state) : state);
+      syncSourceTrim();
+    },
+    suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
+  presets?.addEventListener('change',({detail})=>{activeTone=detail;syncTracks();});
+  activeTone={name:$('#presetTitle').textContent,meta:$('#presetMeta').textContent};
+  syncTracks();
+  engine.ready();
   message('Chain ready. Click a photo to edit, or + to insert an effect.');
   // Programmatic selection during refreshDevices does not fire onchange.
   // Probe the initially displayed device too, after all controls are ready.
@@ -494,5 +572,5 @@ if (tone3000PopupCallback && (tone3000HasOpener || tone3000PopupMode || !tone300
   // Some embedded browsers collapse window.open() into the current tab. In
   // that case sessionStorage survives and initialize() lets the plugin GUI
   // consume the callback directly from window.location.
-  initialize().catch((error) => { window.phase3Error = String(error.stack || error); message(window.phase3Error, true); document.documentElement.dataset.phase3 = 'error'; });
+  initialize().catch((error) => { window.phase3Error = String(error.stack || error); engine.fail(); message(window.phase3Error, true); document.documentElement.dataset.phase3 = 'error'; });
 }

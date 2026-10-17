@@ -1,0 +1,23 @@
+# Continuous SQLite replication to S3-compatible storage (see README,
+# "Backups with Litestream"). Values come from LITESTREAM_* environment
+# variables; replication runs inside Puma when LITESTREAM_REPLICA_BUCKET is set.
+# The Solid Cache database is disposable and is not replicated.
+dbs:
+  - path: storage/production.sqlite3
+    replicas:
+      - type: s3
+        bucket: $LITESTREAM_REPLICA_BUCKET
+        path: production.sqlite3
+        endpoint: $LITESTREAM_REPLICA_ENDPOINT
+        region: $LITESTREAM_REPLICA_REGION
+        access-key-id: $LITESTREAM_ACCESS_KEY_ID
+        secret-access-key: $LITESTREAM_SECRET_ACCESS_KEY
+  - path: storage/production_queue.sqlite3
+    replicas:
+      - type: s3
+        bucket: $LITESTREAM_REPLICA_BUCKET
+        path: production_queue.sqlite3
+        endpoint: $LITESTREAM_REPLICA_ENDPOINT
+        region: $LITESTREAM_REPLICA_REGION
+        access-key-id: $LITESTREAM_ACCESS_KEY_ID
+        secret-access-key: $LITESTREAM_SECRET_ACCESS_KEY

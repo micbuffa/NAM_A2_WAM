@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const audioDirectory = join(root, 'examples/wam/assets/audio');
 const port = Number(process.env.PORT || 8765);
+const host = process.env.HOST || '127.0.0.1';
 const supported = new Set(['.wav', '.mp3', '.aac', '.m4a', '.ogg', '.flac']);
 const mime = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8',
   '.json':'application/json; charset=utf-8','.wasm':'application/wasm','.wav':'audio/wav','.mp3':'audio/mpeg',
@@ -41,4 +42,5 @@ const server = http.createServer(async (request, response) => {
   }
 });
 
-server.listen(port, '127.0.0.1', () => console.log(`NAM WAM host: http://127.0.0.1:${port}/examples/wam/`));
+const browseHost = host === '0.0.0.0' ? '127.0.0.1' : host;
+server.listen(port, host, () => console.log(`NAM WAM host: http://${browseHost}:${port}/examples/wam/ (listening on ${host})`));

@@ -1,0 +1,9 @@
+alice_clean:
+  user: alice
+  name: Alice clean
+  state: { "version": 1, "nam": { "parameterValues": {} }, "cabinet": { "parameterValues": {} } }
+
+bob_lead:
+  user: bob
+  name: Bob lead
+  state: { "version": 1, "nam": { "parameterValues": {} }, "cabinet": { "parameterValues": {} } }

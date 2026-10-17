@@ -1,0 +1,28 @@
+<script>
+  // Hands the sign-in over to the rack: an open rack tab refreshes its account
+  // and answers "rack-open", then this tab closes; with no rack open, this tab
+  // becomes the rack. Browsers refuse window.close() when the tab has other
+  // history (e.g. a mail viewer that opened the link in place): say plainly
+  // that the rack is signed in and offer it here.
+  window.handOffToRack = () => {
+    const status = document.getElementById('auth-status');
+    const cannotClose = () => {
+      document.title = 'Signed in · NAM A2 WAM';
+      document.getElementById('auth-title').textContent = 'You are signed in';
+      status.textContent = 'Your open rack tab is now signed in: switch back to it and close this tab.';
+      document.getElementById('auth-rack').hidden = false;
+    };
+    const openRack = () => location.replace('/rack/');
+    if (typeof BroadcastChannel !== 'function') return openRack();
+    const channel = new BroadcastChannel('nam-a2-wam.account');
+    const fallback = setTimeout(() => { channel.close(); openRack(); }, 600);
+    channel.onmessage = (event) => {
+      if (event.data?.type !== 'rack-open') return;
+      clearTimeout(fallback);
+      channel.close();
+      window.close(); // allowed while the tab has a single history entry
+      setTimeout(() => { if (!window.closed) cannotClose(); }, 150);
+    };
+    channel.postMessage({type: 'signed-in'});
+  };
+</script>

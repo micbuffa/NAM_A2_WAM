@@ -1,0 +1,7 @@
+alice:
+  email: alice@example.com
+  preferences: {}
+
+bob:
+  email: bob@example.com
+  preferences: {}

@@ -22,6 +22,9 @@ test('static distribution contains self-contained plugins and consistent Factory
   const host = await readFile(join(dist, 'main.js'), 'utf8');
   assert.match(host, /\.\/plugins\/nam-wam\/index\.js/);
   assert.match(host, /\.\/plugins\/cabinet-wam\/index\.js/);
+  assert.match(host, /\.\/plugins\/nam-wam\/ModelFavorites\.js/);
+  assert.match(host, /\.\/plugins\/cabinet-wam\/ImpulseResponseLibrary\.js/);
+  for (const file of ['account/index.js', 'account/api.js', 'account/PresetStore.js']) await stat(join(dist, file));
   assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /src="\.\/config\.js"/u);
   assert.match(await readFile(join(dist, 'config.js'), 'utf8'), /redirectUri/u);
   assert.doesNotMatch(host, /\.\.\/(?:src|examples|build)|\/api\/test-audio-files/);

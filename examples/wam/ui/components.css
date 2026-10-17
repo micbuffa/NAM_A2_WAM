@@ -1,0 +1,69 @@
+/* TONELAB light-DOM components: things that must stay native for platform behaviour.
+   - .tl-modal on a native <dialog>: top layer, focus trap, Esc, and <form method="dialog"> / returnValue
+     only work when the dialog, its form and its submit buttons share one DOM tree.
+   - .tl-btn on a native <button>: form submitters (type="submit", value → dialog.returnValue).
+   Everything else uses the tl-* custom elements. Load after tokens.css. */
+
+.tl-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--tl-space-2); height: 38px; min-height: 0; padding: 0 14px;
+  border: 1px solid var(--tl-border); border-radius: var(--tl-radius-md); background: var(--tl-surface-3); color: var(--tl-text-2);
+  font: 600 var(--tl-fs-sm)/1 var(--tl-font-ui); white-space: nowrap; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+.tl-btn:hover { border-color: var(--tl-border-hover); background: var(--tl-surface-3); color: var(--tl-text); }
+.tl-btn:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
+.tl-btn:disabled { opacity: .35; cursor: not-allowed; }
+.tl-btn-primary { border-color: var(--tl-accent); background: var(--tl-accent); color: var(--tl-on-accent); box-shadow: var(--tl-glow-accent); }
+.tl-btn-primary:hover { border-color: var(--tl-accent-hover); background: var(--tl-accent-hover); color: var(--tl-on-accent); }
+.tl-btn-danger { color: var(--tl-danger); }
+.tl-btn-danger:hover { border-color: var(--tl-danger); background: var(--tl-danger-tint); color: var(--tl-danger); }
+
+.tl-modal { width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; overflow: auto; color: var(--tl-text);
+  background: var(--tl-surface-2); border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-xl); box-shadow: var(--tl-shadow-modal);
+  font-family: var(--tl-font-ui); }
+.tl-modal, .tl-modal *, .tl-btn { box-sizing: border-box; }
+.tl-modal.tl-modal-wide { width: min(720px, calc(100vw - 32px)); }
+.tl-modal::backdrop { background: rgba(4, 6, 5, .74); backdrop-filter: blur(3px); }
+.tl-modal[open] { animation: tl-modal-in .16s ease-out; }
+@keyframes tl-modal-in { from { opacity: 0; transform: translateY(6px) scale(.985); } }
+@media (prefers-reduced-motion: reduce) { .tl-modal[open] { animation: none; } }
+.tl-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--tl-space-4); padding: 18px 20px 16px;
+  background: var(--tl-surface-4); border-bottom: 1px solid var(--tl-border-subtle); }
+.tl-modal-header .tl-eyebrow { margin-bottom: 5px; }
+.tl-modal-header .tl-eyebrow:empty { display: none; }
+.tl-modal-title, .tl-modal h2, .tl-modal h3 { margin: 0; color: var(--tl-text); font-size: var(--tl-fs-lg); font-weight: 600; letter-spacing: var(--tl-tracking-title); }
+.tl-modal-body { display: grid; gap: var(--tl-space-3); padding: 20px; }
+.tl-modal-body > :first-child { margin-top: 0; }
+.tl-modal p { margin: 0; color: var(--tl-text-2); font-size: var(--tl-fs-md); line-height: 1.5; }
+.tl-modal form { display: grid; gap: var(--tl-space-2); }
+.tl-modal form[hidden], .tl-modal [hidden] { display: none; }
+.tl-modal label { color: var(--tl-text-2); font-size: var(--tl-fs-sm); font-weight: 500; }
+.tl-modal input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) { width: 100%; height: 38px; min-height: 0; padding: 0 12px;
+  color: var(--tl-text); background: var(--tl-surface-sunken); border: 1px solid var(--tl-border); border-radius: var(--tl-radius-md);
+  font: 500 var(--tl-fs-md) var(--tl-font-ui); outline: none; }
+.tl-modal input:focus-visible { border-color: var(--tl-accent-border); box-shadow: var(--tl-focus-ring); }
+.tl-modal-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--tl-space-2); margin-top: var(--tl-space-2); }
+/* A modal without header (confirm-style): content sits directly in the dialog. */
+.tl-modal:not(:has(> .tl-modal-header)) { padding: 20px; }
+.tl-modal:not(:has(> .tl-modal-header)) > h3 { margin-bottom: var(--tl-space-2); }
+
+/* ── tl-select open list ─────────────────────────────────────────────────────
+   Customizable select (appearance: base-select, Chromium). tl-select switches the slotted <select>
+   to base-select in its shadow styles; the picker pseudo-elements can only be styled from here.
+   Browsers without support keep the OS list. */
+@supports (appearance: base-select) {
+  tl-select > select::picker-icon { display: none; }
+  tl-select > select::picker(select) { appearance: base-select; box-sizing: border-box; min-width: anchor-size(width); max-height: min(360px, 60vh);
+    margin-block: 4px; padding: 4px; overflow-y: auto; color: var(--tl-text-2); background: var(--tl-surface-2);
+    border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); box-shadow: 0 16px 40px rgba(0, 0, 0, .55);
+    scrollbar-width: thin; scrollbar-color: var(--tl-border-strong) transparent; }
+  tl-select > select option { display: flex; align-items: center; gap: var(--tl-space-2); min-height: 32px; padding: 6px 10px;
+    border-radius: var(--tl-radius-sm); font: 500 var(--tl-fs-sm) var(--tl-font-ui); white-space: nowrap; cursor: pointer; outline: none; }
+  tl-select[size="sm"] > select option { min-height: 28px; font-size: var(--tl-fs-xs); }
+  tl-select > select option:hover, tl-select > select option:focus-visible { color: var(--tl-text); background: var(--tl-surface-5); }
+  tl-select > select option:checked { color: var(--tl-accent); background: var(--tl-accent-tint); }
+  tl-select > select option::checkmark { order: 1; margin-left: auto; color: var(--tl-accent); }
+  tl-select > select option:disabled { opacity: .4; cursor: not-allowed; }
+  /* The group label is the optgroup's own text: style the group, then reset its options. */
+  tl-select > select optgroup { padding: 6px 0 2px; color: var(--tl-text-muted); font: 600 var(--tl-fs-2xs) var(--tl-font-ui);
+    letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
+  tl-select > select optgroup option { margin-top: 2px; letter-spacing: normal; text-transform: none; }
+  tl-select > select optgroup option:not(:checked, :hover, :focus-visible) { color: var(--tl-text-2); }
+}

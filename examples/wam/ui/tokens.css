@@ -1,0 +1,108 @@
+/* TONELAB design tokens — single source of truth for colors, type, radii, shadows and spacing.
+   Custom properties inherit through shadow roots, so tl-* components read these directly.
+   Values come from the Figma Make mockup (src/index.css). Name by role, never by value. */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces, darkest to lightest */
+  --tl-bg: #090b0b;
+  --tl-app-gradient: radial-gradient(circle at 55% -20%, #212822 0, #0b0e0d 36%, #080a0a 76%);
+  --tl-surface-sunken: #080a09;
+  --tl-surface-0: #0d100f;   /* sidebar */
+  --tl-surface-1: #131615;   /* modules, panels */
+  --tl-surface-2: #151817;   /* inputs, modal body */
+  --tl-surface-3: #171a19;   /* buttons */
+  --tl-surface-4: #191d1b;   /* titlebars, modal header */
+  --tl-surface-5: #202422;   /* hover */
+  --tl-surface-6: #2a2f2c;   /* active */
+
+  /* Borders */
+  --tl-border-subtle: #252928;
+  --tl-border: #303532;
+  --tl-border-strong: #3d433f;
+  --tl-border-hover: #4d5651;
+
+  /* Text */
+  --tl-text: #f3f5f1;
+  --tl-text-1: #e6eae7;
+  --tl-text-2: #aab1ad;
+  --tl-text-muted: #6f7773;
+  --tl-text-faint: #4f5652;
+
+  /* Accent (lime) */
+  --tl-accent: #c7f65b;
+  --tl-accent-hover: #d6ff76;
+  --tl-on-accent: #10150d;
+  --tl-accent-glow: rgba(199, 246, 91, .65);
+  --tl-accent-tint: #192017;
+  --tl-accent-tint-strong: #25301f;
+  --tl-accent-border: #63733e;
+
+  /* Library / modal accent (violet) */
+  --tl-library: #977ee8;
+  --tl-library-strong: #bea9ff;
+  --tl-library-tint: #1a1722;
+  --tl-library-border: #504763;
+
+  /* States */
+  --tl-danger: #d07a6a;
+  --tl-danger-tint: #2a1d1b;
+  --tl-warning: #d4b449;
+  --tl-success: #73d69b;
+  --tl-meter-ok: #83b94d;
+  --tl-meter-warn: #d4b449;
+  --tl-meter-clip: #d0674e;
+  --tl-meter-gradient: linear-gradient(90deg, var(--tl-meter-ok) 0 77%, var(--tl-meter-warn) 77% 92%, var(--tl-meter-clip) 92%);
+
+  /* Pedal faces */
+  --tl-pedal-gold: linear-gradient(145deg, #d7b848, #81671c);
+  --tl-pedal-blue: linear-gradient(145deg, #668cc0, #294c7c);
+  --tl-pedal-violet: linear-gradient(145deg, #9c82d4, #4f3c74);
+  --tl-pedal-cream: linear-gradient(145deg, #d7d2b6, #938b6d);
+  --tl-pedal-black: linear-gradient(145deg, #424745, #101211);
+  --tl-pedal-teal: linear-gradient(145deg, #79aaa5, #315e5b);
+  --tl-pedal-pink: linear-gradient(145deg, #d883bd, #8a3f75);
+  --tl-pedal-green: linear-gradient(145deg, #81bf75, #416e3e);
+
+  /* Typography */
+  --tl-font-ui: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --tl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --tl-fs-2xs: 8px;
+  --tl-fs-xs: 9px;
+  --tl-fs-sm: 11px;
+  --tl-fs-md: 13px;
+  --tl-fs-lg: 19px;
+  --tl-fs-xl: 25px;
+  --tl-tracking-label: .12em;
+  --tl-tracking-title: -.025em;
+
+  /* Radii */
+  --tl-radius-sm: 5px;
+  --tl-radius-md: 8px;
+  --tl-radius-lg: 10px;
+  --tl-radius-xl: 13px;
+  --tl-radius-pill: 999px;
+
+  /* Shadows */
+  --tl-shadow-module: 0 13px 28px rgba(0, 0, 0, .3);
+  --tl-shadow-panel: 0 18px 60px rgba(0, 0, 0, .16), inset 0 1px rgba(255, 255, 255, .025);
+  --tl-shadow-modal: 0 35px 90px rgba(0, 0, 0, .6);
+  --tl-shadow-knob: 0 4px 8px #050606, inset 0 1px rgba(255, 255, 255, .08);
+  --tl-glow-accent: 0 0 18px rgba(199, 246, 91, .08);
+  --tl-glow-led: 0 0 9px var(--tl-accent-glow);
+
+  /* Spacing (4px scale) */
+  --tl-space-1: 4px;
+  --tl-space-2: 8px;
+  --tl-space-3: 12px;
+  --tl-space-4: 16px;
+  --tl-space-5: 20px;
+  --tl-space-6: 24px;
+  --tl-space-7: 28px;
+  --tl-space-8: 32px;
+
+  /* Layout */
+  --tl-sidebar-width: 286px;
+  --tl-topbar-height: 72px;
+  --tl-focus-ring: 0 0 0 2px var(--tl-bg), 0 0 0 4px var(--tl-accent);
+}

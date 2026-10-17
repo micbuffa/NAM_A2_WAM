@@ -251,27 +251,25 @@ test('replacement prepares before removal, preserves slot, gains and split, and 
 });
 
 
-test('beginner mode isolates both ends of B and restores the split without changing its state',async()=>{
+test('hiding B isolates both ends of B and showing it again restores the split without changing its state',async()=>{
   const {rack,a,source}=await setupRack();await rack.setVisible(true);await rack.connectRoute(1);
   const b=rack.b,ids=b.entries.map(e=>e.id);rack.setPan('b',.4);b.setOutputDb(-8);
-  await rack.setUiMode('beginner');
-  assert.equal(rack.activeB,false);assert.equal(rack.visible,true);assert.equal(rack.enabledB,true);
+  await rack.setVisible(false);
+  assert.equal(rack.activeB,false);assert.equal(rack.enabledB,false);
   assert.equal(rack.tap,null);assert.equal(source.secondary.target,null);
   assert.ok(!b.output.connections.has(rack.gateB));assert.equal(rack.mixDb,0);
   const saved=await rack.getState();await rack.setState(saved);
   assert.equal(rack.activeB,false);assert.equal(rack.tap,null);assert.ok(!b.output.connections.has(rack.gateB));
-  await rack.setUiMode('full');
+  await rack.setVisible(true);
   assert.equal(rack.b,b);assert.deepEqual(b.entries.map(e=>e.id),ids);assert.equal(rack.panB,.4);assert.equal(b.outputDb,-8);
   assert.equal(rack.tap,a.entries[0].output);assert.ok(b.output.connections.has(rack.gateB));assert.equal(rack.mixDb,0);
-  await assert.rejects(rack.setUiMode('invalid'),/UI mode/);
 });
 
-test('beginner mode suspends independent input B and preserves its mute state',async()=>{
-  const {rack,source}=await setupRack();await rack.setVisible(true);await rack.setEnabledB(false);
-  await rack.setUiMode('beginner');assert.equal(source.secondary.target,null);
-  await rack.setUiMode('full');assert.equal(source.secondary.target,rack.physicalB);assert.equal(rack.enabledB,false);
-  await rack.setVisible(false);await rack.setUiMode('beginner');await rack.setUiMode('full');
-  assert.equal(rack.activeB,false);assert.equal(source.secondary.target,null);
+test('hiding B suspends its independent input',async()=>{
+  const {rack,source}=await setupRack();await rack.setVisible(true);
+  assert.equal(source.secondary.target,rack.physicalB);
+  await rack.setVisible(false);assert.equal(rack.activeB,false);assert.equal(source.secondary.target,null);
+  await rack.setVisible(true);assert.equal(source.secondary.target,rack.physicalB);
 });
 
 
@@ -288,8 +286,6 @@ test('each lane keeps its output level when the other lane is shown, enabled or 
   await rack.setMutedA(false);assert.equal(contribution('b'),bLevel);
   await rack.setEnabledB(false);assert.equal(contribution('a'),initial);
   await rack.setEnabledB(true);assert.equal(contribution('a'),initial);
-  await rack.setUiMode('beginner');assert.equal(contribution('a'),initial);
-  await rack.setUiMode('full');assert.equal(contribution('a'),initial);
   await rack.setVisible(false);assert.equal(contribution('a'),initial);
   await rack.setVisible(true);assert.equal(contribution('a'),initial);
   source.liveInput.channelCount=1;source.dispatchEvent(new Event('change'));

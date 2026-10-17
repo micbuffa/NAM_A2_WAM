@@ -1,6 +1,8 @@
 import initializeWamHost from '../../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import {PLUGIN_CATEGORIES,WamPluginRegistry,destroyPluginInstance} from '../WamPluginRegistry.js';
 import '../PluginCard.js';
+import {installLightDismiss} from '../ui/light-dismiss.js';
+installLightDismiss();
 
 const $=(selector)=>document.querySelector(selector);
 const context=new AudioContext({latencyHint:'interactive',sampleRate:48000});

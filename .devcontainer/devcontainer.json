@@ -1,0 +1,28 @@
+{
+  "name": "NAM A2 WAM",
+  "build": {"dockerfile": "Dockerfile"},
+
+  // The host's build-wasm/ CMake cache holds host paths; keep the container build separate.
+  // Gems live in a volume so rebuilding the container does not reinstall them.
+  "mounts": [
+    "source=${localWorkspaceFolderBasename}-build-wasm,target=${containerWorkspaceFolder}/build-wasm,type=volume",
+    "source=${localWorkspaceFolderBasename}-bundle,target=/usr/local/bundle,type=volume"
+  ],
+
+  // HOST: examples/wam/server.mjs — BINDING: rails server — LANG: Ruby reads files as UTF-8
+  "containerEnv": {"HOST": "0.0.0.0", "BINDING": "0.0.0.0", "BUNDLE_PATH": "/usr/local/bundle", "LANG": "C.UTF-8"},
+  "forwardPorts": [8765, 3000],
+  "portsAttributes": {
+    "8765": {"label": "NAM WAM host", "onAutoForward": "notify"},
+    "3000": {"label": "Rails", "onAutoForward": "notify"}
+  },
+
+  // third_party/ repos are bind-mounted with the host's owner; let git work on them as root.
+  "postCreateCommand": "git config --global --add safe.directory '*' && npm run setup && cd web && bin/setup --skip-server && bin/rack-sync",
+
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-vscode.cmake-tools", "llvm-vs-code-extensions.vscode-clangd"]
+    }
+  }
+}
