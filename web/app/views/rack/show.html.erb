@@ -96,32 +96,27 @@
       <p class="fx-help">Drop on a card to swap · Drop on + to insert at that position · Alt + ← / → to move. All plugins can be removed and added with +.</p>
       <section class="fx-rack" aria-label="Processing chain A">
         <aside class="fx-endpoint" aria-label="Chain A input">
-          <div class="fx-endpoint-head"><span aria-hidden="true">IN</span><strong>INPUT · A</strong></div>
+          <header class="fx-endpoint-head"><span class="fx-endpoint-badge" aria-hidden="true">IN</span><div class="fx-endpoint-titles"><small>Input</small><strong>Input A</strong></div><i class="fx-endpoint-dot" aria-hidden="true"></i></header>
           <div class="fx-endpoint-routing">
-            <label class="fx-select-label" id="inputChannelRow" hidden><span>Input channel</span><tl-select size="sm"><select id="inputChannel" title="Input channel"><option value="0">Input 1</option></select></tl-select></label></div>
-          <div class="fx-endpoint-controls">
-            <div class="fx-meter-column">
-              <tl-meter class="fx-level" id="chainInputMeter" orientation="vertical" role="meter" aria-label="Input level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></tl-meter>
-              <output id="chainInputLevel">−∞ dBFS</output>
-            </div>
-            <div class="fx-gain-column">
-              <tl-knob class="fx-gain" label="Gain"><input id="sourceTrim" aria-label="Input gain" type="range" min="-48" max="12" step="0.5" value="0"><output slot="value" id="sourceTrimValue">0.0 dB</output></tl-knob>
-              <tl-button class="fx-gain-reset" id="chainInputReset" size="sm" variant="ghost" aria-label="Reset input gain">Reset</tl-button>
-            </div>
+            <label class="fx-select-label" id="inputChannelRow" hidden><span>Input channel</span><tl-select size="sm" icon="guitar"><select id="inputChannel" title="Input channel"><option value="0">Input 1</option></select></tl-select></label></div>
+          <div class="fx-endpoint-meters" role="group" aria-label="Input stereo level">
+            <div><span aria-hidden="true">L</span><i class="fx-hbar" id="chainInputMeterL" role="meter" aria-label="Input left level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"><b></b></i><output id="chainInputLevelL">−∞</output></div>
+            <div><span aria-hidden="true">R</span><i class="fx-hbar" id="chainInputMeterR" role="meter" aria-label="Input right level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"><b></b></i><output id="chainInputLevelR">−∞</output></div>
           </div>
+          <tl-knob class="fx-gain" label="Input gain"><input id="sourceTrim" aria-label="Input gain" type="range" min="-48" max="12" step="0.5" value="0"><output slot="value" id="sourceTrimValue">0.0 dB</output></tl-knob>
+          <tl-button class="fx-endpoint-reset" id="chainInputReset" size="sm" aria-label="Reset input gain">Reset</tl-button>
         </aside>
         <section class="fx-chain" id="fxChain" aria-label="Effects — drag to swap cards, or Alt + arrow keys"></section>
         <aside class="fx-endpoint fx-output-strip" aria-label="Chain A output">
-          <div class="fx-endpoint-head"><span aria-hidden="true">OUT</span><strong>OUTPUT · A</strong></div>
-          <div class="fx-endpoint-routing"></div>
-          <div class="fx-endpoint-controls">
-            <div class="fx-meter-column">
-              <tl-meter class="fx-level" id="chainOutputMeter" orientation="vertical" role="meter" aria-label="Output level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"></tl-meter>
-              <output id="chainOutputLevel">−∞ dBFS</output>
-              <tl-button class="fx-gain-reset" id="chainOutputReset" size="sm" variant="ghost" aria-label="Reset output gain">Reset</tl-button>
-            </div>
-            <tl-knob class="fx-gain" label="Volume"><input id="chainOutputGain" aria-label="Output gain" type="range" min="-48" max="12" step="0.5" value="0"><output slot="value" id="chainOutputGainValue">0.0 dB</output></tl-knob>
-            <tl-knob class="fx-pan" label="Pan" size="sm" title="Pan L/R — double-click to center"><input id="chainOutputPan" type="range" min="-1" max="1" step="0.01" value="0" aria-label="Chain A pan"><output slot="value" id="chainOutputPanValue">C</output></tl-knob>
+          <header class="fx-endpoint-head"><span class="fx-endpoint-badge" aria-hidden="true">OUT</span><div class="fx-endpoint-titles"><small>Output</small><strong>Output A</strong></div><i class="fx-endpoint-dot" aria-hidden="true"></i></header>
+          <div class="fx-endpoint-meters" role="group" aria-label="Output stereo level">
+            <div><span aria-hidden="true">L</span><i class="fx-hbar" id="chainOutputMeterL" role="meter" aria-label="Output left level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"><b></b></i><output id="chainOutputLevelL">−∞</output></div>
+            <div><span aria-hidden="true">R</span><i class="fx-hbar" id="chainOutputMeterR" role="meter" aria-label="Output right level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"><b></b></i><output id="chainOutputLevelR">−∞</output></div>
+          </div>
+          <tl-knob class="fx-gain" label="Volume"><input id="chainOutputGain" aria-label="Output gain" type="range" min="-48" max="12" step="0.5" value="0"><output slot="value" id="chainOutputGainValue">0.0 dB</output></tl-knob>
+          <div class="fx-endpoint-pan" title="Pan L/R — double-click to center"><span>Pan</span><b aria-hidden="true">L</b><tl-slider bipolar><input id="chainOutputPan" type="range" min="-1" max="1" step="0.01" value="0" aria-label="Chain A pan"></tl-slider><b aria-hidden="true">R</b><output id="chainOutputPanValue" hidden>C</output></div>
+          <div class="fx-endpoint-actions">
+            <tl-button class="fx-endpoint-reset" id="chainOutputReset" size="sm" aria-label="Reset output gain">Reset</tl-button>
           </div>
         </aside>
       </section>

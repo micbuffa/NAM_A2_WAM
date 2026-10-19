@@ -7,7 +7,6 @@ export class FxRackView {
     const header=el('div','fx-rack-controls');this.toggle=el('tl-segmented');this.toggle.id='toggleChains';this.toggle.setAttribute('aria-label','Chains');this.toggle.setAttribute('aria-controls','fxChainB');this.toggle.append(new Option('1 Chain','1'),new Option('2 Chains','2'));
     // 1 Chain / 2 Chains sits in the preset header; devices and live input in the sidebar.
     (document.getElementById('chainToggleSlot')||header).append(this.toggle);
-    output.querySelector('.fx-endpoint-routing').append(output.querySelector('#chainOutputReset'));
     this.status=el('span','fx-rack-status');header.append(this.status);this.root.before(header);
     this.left=el('div','fx-endpoints');this.right=el('div','fx-endpoints');
     const cell=panel=>{const c=el('div','fx-endpoint-cell');c.append(panel);return c;};this.left.append(cell(input));this.right.append(cell(output));
@@ -20,15 +19,16 @@ export class FxRackView {
     this.root.replaceChildren(this.left,this.scroller,this.right);
     this.inputB=input.cloneNode(true);this.outputB=output.cloneNode(true);
     const rename=(panel,side)=>{
-      panel.setAttribute('aria-label',`Chain B ${side.toLowerCase()}`);panel.querySelector('strong').textContent=`${side.toUpperCase()} · B`;
+      panel.setAttribute('aria-label',`Chain B ${side.toLowerCase()}`);panel.querySelector('.fx-endpoint-titles strong').textContent=`${side} B`;
       for(const node of panel.querySelectorAll('[id]')){
         const old=node.id;node.id=old==='inputChannelRow'?'inputChannelRowB':old==='inputChannel'?'inputChannelB':old.startsWith('sourceTrim')?old.replace('sourceTrim','sourceTrimB'):old.replace('chain','chainB');
         if(node.hasAttribute('aria-label'))node.setAttribute('aria-label',`Chain B ${node.getAttribute('aria-label')}`);
       }
     };rename(this.inputB,'Input');rename(this.outputB,'Output');
     this.bLeft=cell(this.inputB);this.bRight=cell(this.outputB);this.left.append(this.bLeft);this.right.append(this.bRight);
-    this.muteA=el('tl-button','fx-lane-enable','Mute');this.muteA.setAttribute('size','sm');output.querySelector('.fx-endpoint-routing').append(this.muteA);
-    this.enableB=el('tl-button','fx-lane-enable','Mute');this.enableB.setAttribute('size','sm');this.outputB.querySelector('.fx-endpoint-routing').append(this.enableB);
+    // Mute · Off/On, as in the mock-up; render() sets the state word.
+    const mute=panel=>{const b=el('tl-button','fx-lane-enable');b.setAttribute('size','sm');b.setAttribute('icon','audio');b.append(el('span','','Mute'),el('strong'));panel.querySelector('.fx-endpoint-actions').append(b);return b;};
+    this.muteA=mute(output);this.enableB=mute(this.outputB);
     this.dialog=el('dialog','fx-confirm fx-routing-dialog tl-modal');document.body.append(this.dialog);
     this.aView=new FxChainView(rack.a,strip,report,{onRoute:(index,button)=>this.routeMenu(index,button),onLayout:()=>this.scheduleLayout(),onOpen:()=>this.bView?.close()});
     this.toggle.onchange=async()=>{
@@ -40,7 +40,7 @@ export class FxRackView {
     for(const [lane,id] of [['a','chainOutputPan'],['b','chainBOutputPan']]){
       const input=document.getElementById(id);input.setAttribute('aria-label',`Chain ${lane.toUpperCase()} pan`);
       input.oninput=()=>rack.setPan(lane,input.value);
-      input.ondblclick=()=>rack.setPan(lane,0);
+      input.closest('tl-slider').ondblclick=()=>rack.setPan(lane,0);
       input.onkeydown=event=>{if(event.key==='Home'){event.preventDefault();rack.setPan(lane,0);}};
     }
     this.inputB.querySelector('#inputChannelB').onchange=event=>this.act(()=>rack.setChannelB(Number(event.target.value)));
@@ -63,8 +63,10 @@ export class FxRackView {
     this.bLeft.hidden=this.bRight.hidden=this.bStrip.hidden=this.gutter.hidden=!r.activeB;
     this.inputB.style.visibility=r.route?'hidden':'visible';
     this.root.classList.toggle('has-chain-b',r.activeB);
-    this.muteA.textContent='Mute';this.muteA.setAttribute('aria-label','Mute chain A');this.muteA.setAttribute('aria-pressed',String(r.mutedA));
-    this.enableB.textContent='Mute';this.enableB.setAttribute('aria-label','Mute chain B');this.enableB.setAttribute('aria-pressed',String(!r.enabledB));
+    for(const [button,muted,lane] of [[this.muteA,r.mutedA,'A'],[this.enableB,!r.enabledB,'B']]){
+      button.querySelector('strong').textContent=muted?'On':'Off';button.setAttribute('aria-label',`Mute chain ${lane}`);button.setAttribute('aria-pressed',String(muted));
+      button.closest('.fx-endpoint').classList.toggle('is-muted',muted);
+    }
     this.status.textContent=`${r.visible?(r.route?'A → B split':'Independent inputs'):'One chain'} · Mix ${r.mixDb} dB`;
     const selector=this.inputB.querySelector('#inputChannelB'),aOptions=document.querySelector('#inputChannel').options;
     const options=[...aOptions].filter(o=>/^\d+$/.test(o.value));
@@ -94,7 +96,7 @@ export class FxRackView {
       if(button.hidden&&document.activeElement===button)slot.querySelector('.fx-add')?.focus();
     }
     this.inputB.style.visibility=route?'hidden':'visible';
-    this.bStrip.style.paddingLeft='12px';this.svg.replaceChildren();this.routeLabel.hidden=!route||!this.rack.activeB;
+    this.bStrip.style.paddingLeft='12px';this.bStrip.classList.toggle('is-routed',Boolean(route&&this.rack.activeB));this.svg.replaceChildren();this.routeLabel.hidden=!route||!this.rack.activeB;
     if(!route||!this.rack.activeB)return;
     const slot=slots[route.index];if(!slot)return;
     const offset=slot.offsetLeft-slots[0].offsetLeft;this.bStrip.style.paddingLeft=`${12+offset}px`;

@@ -89,6 +89,7 @@ test('meter detects opposite-phase stereo, clipping and suspended silence withou
   const context={state:'running',createChannelSplitter:()=>new Node(),createAnalyser(){const polarity=index++?-1:1;return Object.assign(new Node(),{getFloatTimeDomainData(data){data.fill(polarity*amplitude);}});}};
   const source=new Node(),meter=new AudioLevel(context,source);
   let value=meter.read();assert.ok(Math.abs(value.db+6.0206)<.001);assert.equal(value.peak,.5);
+  assert.equal(value.channels.length,2);assert.ok(value.channels.every(c=>Math.abs(c.db+6.0206)<.001&&c.peak===.5));
   amplitude=1.2;assert.ok(meter.read().peak>1);
   context.state='suspended';value=meter.read();assert.equal(value.peak,0);assert.equal(value.db,-120);
   for(let i=0;i<100;i++)value=meter.read();assert.ok(value.level<.000001);

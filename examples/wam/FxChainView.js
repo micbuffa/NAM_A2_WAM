@@ -128,13 +128,16 @@ export class FxChainView {
       if(!document.hidden&&(!this.lastMeterTime||now-this.lastMeterTime>=33)){
         this.lastMeterTime=now;
         for(const [side,meter] of [['Input',this.chain.inputMeter],['Output',this.chain.outputMeter]]){
-          const value=meter.read(),bar=document.getElementById(`${this.options.meterPrefix||'chain'}${side}Meter`),label=document.getElementById(`${this.options.meterPrefix||'chain'}${side}Level`);
-          if(bar){
-            bar.style.setProperty('--meter-level',String(value.level));bar.setAttribute('aria-valuenow',String(Math.max(-60,Math.min(0,value.db)).toFixed(1)));
-            if(value.peak>=1)bar.dataset.clipUntil=String(now+1000);
-            bar.classList.toggle('is-clipping',Number(bar.dataset.clipUntil)>now);
-            label.textContent=Number(bar.dataset.clipUntil)>now?'CLIP':value.db<=-60?'−∞ dBFS':`${value.db.toFixed(1)} dBFS`;
-          }
+          const value=meter.read(),id=`${this.options.meterPrefix||'chain'}${side}`;
+          value.channels.forEach((channel,index)=>{
+            const bar=document.getElementById(`${id}Meter${'LR'[index]}`),label=document.getElementById(`${id}Level${'LR'[index]}`);if(!bar)return;
+            bar.style.setProperty('--meter-level',String(channel.level));bar.setAttribute('aria-valuenow',String(Math.max(-60,Math.min(0,channel.db)).toFixed(1)));
+            if(channel.peak>=1)bar.dataset.clipUntil=String(now+1000);
+            const clipping=Number(bar.dataset.clipUntil)>now;
+            bar.classList.toggle('is-clipping',clipping);
+            label.textContent=clipping?'CLIP':channel.db<=-60?'−∞':channel.db.toFixed(1);
+          });
+          document.getElementById(`${id}MeterL`)?.closest('.fx-endpoint').classList.toggle('has-signal',value.db>-60);
         }
         for(const entry of this.chain.entries){
           const value=entry.meter.read(),out=entry.outputMeter.read(),view=this.cards.get(entry.id),card=view?.card;if(!card)continue;
@@ -209,7 +212,7 @@ export class FxChainView {
         card.append(photo);const captures=entry.plugin?.getCaptureChoices?this.createCaptureSelector(entry):null;if(captures)card.append(captures.root);this.container.append(card);this.cards.set(entry.id,{card,image,photo,inputMeter,outputMeter,captures});
       }add(null);
       const output=element('span','fx-output-link');
-      output.append(attrs(element('i','fx-wire'),{'aria-hidden':'true'}),element('span','','Output'));this.container.append(output);
+      output.setAttribute('aria-hidden','true');output.append(element('i','fx-wire'));this.container.append(output);
     }
     this.options.onLayout?.();
     this.refresh().catch(error=>this.report(error.message,true));

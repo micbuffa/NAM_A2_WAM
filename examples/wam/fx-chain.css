@@ -11,7 +11,7 @@
 
 /* The canvas: endpoints never scroll, only the lanes between them. */
 .fx-rack { position: sticky; top: calc(var(--tl-topbar-height) + 12px); z-index: 2; display: grid; grid-template-columns: 168px minmax(0, 1fr) 168px;
-  align-items: start; gap: 10px; max-width: 100%; padding: 0 12px; border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-xl);
+  --rack-gap: 10px; align-items: start; gap: var(--rack-gap); max-width: 100%; padding: 0 12px; border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-xl);
   background: linear-gradient(145deg, rgba(26, 30, 28, .96), rgba(12, 14, 13, .98)), repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255, 255, 255, .008) 4px);
   box-shadow: 0 18px 60px rgba(0, 0, 0, .16), inset 0 1px rgba(255, 255, 255, .025); }
 .fx-rack [hidden] { display: none !important; }
@@ -21,40 +21,72 @@
 .fx-scroll { min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--tl-border-strong) transparent; }
 .fx-track { position: relative; width: max-content; min-width: 100%; }
 .fx-chain { display: flex; align-items: center; gap: 0; min-height: 294px; padding: 16px 12px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
-.fx-track > .fx-chain { position: relative; width: max-content; height: 294px; overflow: visible; }
+.fx-track > .fx-chain { position: relative; box-sizing: border-box; width: max-content; min-width: 100%; height: 294px; overflow: visible; }
 
 /* IN / OUT endpoint modules. */
-.fx-endpoint { display: flex; flex-direction: column; gap: var(--tl-space-2); box-sizing: border-box; height: 262px; min-width: 0; padding: 10px;
+.fx-endpoint { position: relative; display: flex; flex-direction: column; gap: var(--tl-space-2); box-sizing: border-box; height: 262px; min-width: 0; --pad: 10px; padding: var(--pad);
   border: 1px solid var(--tl-border); border-radius: var(--tl-radius-lg); background: var(--tl-surface-1); box-shadow: var(--tl-shadow-module); font-size: var(--tl-fs-xs); }
-.fx-endpoint-head { display: flex; align-items: center; gap: 7px; padding-bottom: 8px; border-bottom: 1px solid var(--tl-border-subtle); }
-.fx-endpoint-head > span { display: grid; place-items: center; flex: none; width: 26px; height: 26px; border-radius: var(--tl-radius-sm);
-  color: var(--tl-text-2); background: var(--tl-surface-6); font: 600 var(--tl-fs-2xs) var(--tl-font-mono); }
-.fx-endpoint strong { overflow: hidden; color: var(--tl-text); font-size: var(--tl-fs-sm); letter-spacing: .08em; white-space: nowrap; text-overflow: ellipsis; }
+.fx-endpoint-head { display: grid; grid-template-columns: 28px minmax(0, 1fr) 7px; align-items: center; gap: 9px; flex: none; min-height: 48px; margin: calc(-1 * var(--pad)) calc(-1 * var(--pad)) 0; padding: 0 12px;
+  border-bottom: 1px solid var(--tl-border); border-radius: var(--tl-radius-lg) var(--tl-radius-lg) 0 0; background: var(--tl-surface-4); }
+.fx-endpoint-badge { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 6px; color: var(--tl-accent); background: var(--tl-accent-tint-strong); font: 600 8px var(--tl-font-mono); }
+.fx-endpoint-titles { display: flex; flex-direction: column; min-width: 0; }
+.fx-endpoint-titles small { color: var(--tl-text-muted); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+.fx-endpoint-titles strong { margin-top: 3px; overflow: hidden; color: var(--tl-text); font-size: var(--tl-fs-sm); white-space: nowrap; text-overflow: ellipsis; }
+/* Status LED: lit while the endpoint carries signal (above the -60 dBFS meter floor). */
+.fx-endpoint-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--tl-text-faint); transition: background .15s, box-shadow .15s; }
+.fx-endpoint.has-signal .fx-endpoint-dot { background: var(--tl-accent); box-shadow: 0 0 8px var(--tl-accent-glow); }
 .fx-endpoint label { min-width: 0; color: var(--tl-text-2); }
 .fx-endpoint [hidden] { display: none; }
 .fx-select-label > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.fx-endpoint-routing { display: flex; flex-direction: column; justify-content: center; gap: 4px; flex-shrink: 0; height: 52px; }
-.fx-endpoint-controls { display: flex; align-items: flex-start; justify-content: space-between; gap: 7px; margin-top: auto; }
-.fx-meter-column, .fx-gain-column { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
-/* Fixed width (longest label is "-59.9 dBFS") so the meter doesn't shift as the reading changes. */
-.fx-meter-column output { width: 10ch; color: var(--tl-text-2); font: 500 var(--tl-fs-2xs)/12px var(--tl-font-mono); font-variant-numeric: tabular-nums; text-align: center; white-space: nowrap; }
-.fx-level { height: 73px; }
-.fx-output-strip { gap: 6px; }
-.fx-output-strip .fx-endpoint-routing { flex-direction: row; justify-content: space-between; align-items: center; height: auto; flex-wrap: wrap; }
-.fx-output-strip .fx-endpoint-routing > label { flex: 1 1 100%; }
-.fx-lane-enable[aria-pressed="true"] { border-color: var(--tl-danger); background: var(--tl-danger-tint); color: var(--tl-danger); }
+.fx-endpoint-routing { display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; height: 30px; }
+/* Big centred knob: label above the dial, value below. */
+.fx-endpoint .fx-gain { align-self: center; gap: 4px; margin-top: auto; font-size: var(--tl-fs-2xs); }
+.fx-endpoint .fx-gain::part(label) { order: -1; font-weight: 500; }
+.fx-endpoint .fx-gain::part(dial) { width: 50px; height: 50px; }
+.fx-endpoint-reset { flex: none; margin-top: auto; border-color: var(--tl-border); color: var(--tl-text-muted); font-size: var(--tl-fs-2xs); }
+.fx-endpoint-reset:hover { border-color: var(--tl-border-hover); color: var(--tl-text-1); }
+/* Output: horizontal pan, then Reset + Mute. */
+.fx-endpoint-pan { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: center; gap: 5px; flex: none; padding: 0 2px; }
+.fx-endpoint-pan span { margin-right: 3px; color: var(--tl-text-muted); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+.fx-endpoint-pan b { color: var(--tl-text-faint); font: 500 8px var(--tl-font-mono); }
+.fx-endpoint-pan tl-slider { min-width: 0; }
+.fx-endpoint-actions { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 6px; flex: none; margin-top: auto; }
+.fx-endpoint-actions .fx-endpoint-reset { margin: 0; }
+.fx-endpoint-actions .fx-lane-enable { justify-content: flex-start; gap: 6px; padding: 0 8px; border-color: var(--tl-border); color: var(--tl-text-muted); font-size: var(--tl-fs-2xs); }
+.fx-lane-enable strong { margin-left: auto; font: 600 8px var(--tl-font-mono); text-transform: uppercase; }
+/* Stereo L/R meters: label, bar, reading. The reading column is fixed (longest is "-59.9") so bars don't shift. */
+.fx-endpoint-meters { display: grid; gap: 7px; flex: none; padding: 0 2px; }
+.fx-endpoint-meters > div { display: grid; grid-template-columns: 9px minmax(0, 1fr) 5ch; align-items: center; gap: 6px; }
+.fx-endpoint-meters span { color: var(--tl-text-faint); font: 500 8px var(--tl-font-mono); }
+.fx-endpoint-meters output { color: var(--tl-text-2); font: 500 var(--tl-fs-2xs) var(--tl-font-mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.fx-hbar { position: relative; height: 7px; overflow: hidden; border-radius: 4px; background: var(--tl-surface-sunken); }
+.fx-hbar b { position: absolute; inset: 0; border-radius: inherit; background: var(--tl-meter-gradient);
+  clip-path: inset(0 calc((1 - var(--meter-level, 0)) * 100%) 0 0 round 4px); transition: clip-path 70ms linear; }
+.fx-hbar.is-clipping { box-shadow: 0 0 5px var(--tl-meter-clip); }
+.fx-hbar.is-clipping b { background: var(--tl-meter-clip); }
+.fx-hbar.is-clipping + output { color: var(--tl-meter-clip); }
+.fx-output-strip .fx-endpoint-meters { margin-top: 4px; }
+.fx-endpoint-actions .fx-lane-enable[aria-pressed="true"] { border-color: color-mix(in srgb, var(--tl-danger) 50%, transparent); background: var(--tl-danger-tint); color: var(--tl-danger); }
 
 /* Connector: a wire with the insert button on it (ChainConnector in the mock-up). */
 .fx-slot { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px; width: 44px; height: 26px; }
 .fx-wire { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--tl-accent-border); }
+/* IN → first slot (and last slot → OUT): one continuous wire from the panel edge, across the column gap and the
+   chain's 12px left padding (first wire). Not on a routed B lane, which starts at the junction instead. */
+.fx-endpoints:first-child .fx-endpoint::after, .fx-endpoints:last-child .fx-endpoint::before { content: ""; position: absolute; top: 50%; width: var(--rack-gap);
+  height: 1px; background: var(--tl-accent-border); }
+/* Offsets are from the padding box: step over the 1px border so the stub meets the lane wire. */
+.fx-endpoints:first-child .fx-endpoint::after { left: calc(100% + 1px); }
+.fx-endpoints:last-child .fx-endpoint::before { right: calc(100% + 1px); }
+.fx-chain:not(.is-routed) > .fx-slot:first-child > .fx-wire { left: -12px; }
 .fx-add { position: relative; display: grid; place-items: center; width: 25px; height: 25px; min-height: 0; padding: 0; border: 1px solid var(--tl-accent-border);
-  border-radius: 50%; color: var(--tl-accent); background: var(--tl-accent-tint); box-shadow: 0 0 0 4px var(--tl-surface-1), 0 0 10px rgba(199, 246, 91, .12);
+  border-radius: 50%; color: var(--tl-accent); background: var(--tl-accent-tint); box-shadow: 0 0 10px rgba(199, 246, 91, .12);
   cursor: pointer; transition: background .18s, color .18s, border-color .18s, transform .18s, box-shadow .18s; }
-.fx-add:hover { color: var(--tl-on-accent); border-color: var(--tl-accent); background: var(--tl-accent); box-shadow: 0 0 0 4px var(--tl-surface-1), 0 0 14px rgba(199, 246, 91, .35); transform: scale(1.08); }
+.fx-add:hover { color: var(--tl-on-accent); border-color: var(--tl-accent); background: var(--tl-accent); box-shadow: 0 0 14px rgba(199, 246, 91, .35); transform: scale(1.08); }
 .fx-add:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
-.fx-output-link { position: relative; display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; height: 26px; padding-left: 36px;
-  color: var(--tl-text-muted); font: 500 var(--tl-fs-xs) var(--tl-font-mono); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
-.fx-output-link > .fx-wire { right: auto; width: 30px; }
+/* Last slot → OUT: the wire fills the rest of the lane, then crosses the chain's right padding and the column gap. */
+.fx-output-link { position: relative; flex: 1 0 30px; height: 26px; }
+.fx-output-link > .fx-wire { right: -12px; }
 
 /* Effect modules (tl-module host). */
 .fx-card { --halo: 0; flex: 0 0 220px; width: 220px; height: 262px; box-sizing: border-box; }
@@ -201,8 +233,8 @@
   .fx-add:hover { transform: none; }
 }
 @media (max-width: 900px) {
-  .fx-rack { grid-template-columns: 150px minmax(0, 1fr) 150px; gap: 4px; padding: 0 6px; }
-  .fx-endpoint { padding: 7px; }
+  .fx-rack { --rack-gap: 4px; grid-template-columns: 150px minmax(0, 1fr) 150px; padding: 0 6px; }
+  .fx-endpoint { --pad: 7px; }
   .rack-stage { padding-left: 10px; padding-right: 10px; }
 }
 /* Sticky would cover the page on phones, where the rack is most of the viewport. */
@@ -230,6 +262,10 @@
 }
 @media (max-width: 420px) {
   .fx-rack { grid-template-columns: 124px minmax(0, 1fr) 124px; }
-  .fx-endpoint { padding: 5px; }
-  .fx-endpoint-controls { gap: 3px; }
+  .fx-endpoint { --pad: 5px; }
+  .fx-endpoint-head { padding: 0 8px; }
+  .fx-endpoint-actions { grid-template-columns: 40px minmax(0, 1fr); gap: 4px; }
+  .fx-endpoint-actions .fx-lane-enable { padding: 0 6px; }
+  .fx-endpoint-actions .fx-lane-enable::part(icon) { display: none; }
+  .fx-endpoint-actions .fx-endpoint-reset { padding: 0; }
 }
