@@ -61,6 +61,8 @@
   tl-select > select option:checked { color: var(--tl-accent); background: var(--tl-accent-tint); }
   tl-select > select option::checkmark { order: 1; margin-left: auto; color: var(--tl-accent); }
   tl-select > select option:disabled { opacity: .4; cursor: not-allowed; }
+  /* display: flex above would show hidden options (placeholders such as "Untitled rack"). */
+  tl-select > select option[hidden] { display: none; }
   /* The group label is the optgroup's own text: style the group, then reset its options. */
   tl-select > select optgroup { padding: 6px 0 2px; color: var(--tl-text-muted); font: 600 var(--tl-fs-2xs) var(--tl-font-ui);
     letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }

@@ -32,6 +32,11 @@ class DialogLightDismissTest < ApplicationSystemTestCase
     assert_selector "#presetTitle", text: "Untitled rack"
   end
 
+  test "the Untitled rack placeholder is not listed in the open preset picker" do
+    placeholder = find("#presetSelect option[hidden]", text: "Untitled rack", visible: :all)
+    assert_equal "none", page.evaluate_script("getComputedStyle(arguments[0]).display", placeholder)
+  end
+
   private
     def click_outside
       page.driver.browser.action.move_to_location(8, 8).click.perform
