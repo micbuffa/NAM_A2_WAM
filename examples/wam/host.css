@@ -52,7 +52,6 @@ body[data-workspace="tone"] [data-workspace="tracks"], body[data-workspace="trac
 .host-dot { width: 6px; height: 6px; flex: none; border-radius: 50%; background: currentColor; box-shadow: 0 0 9px currentColor; }
 .host-dot.violet { color: var(--tl-accent); }
 .host-dot.amber { color: var(--tl-warning); }
-.host-dot.rose { color: var(--tl-library); }
 .host-card > label { display: grid; gap: 7px; margin-top: var(--tl-space-3); color: var(--tl-text-muted); font-size: var(--tl-fs-sm); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .host-card > label:first-of-type { margin-top: 0; }
 .host-secondary { margin-top: var(--tl-space-3); }

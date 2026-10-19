@@ -313,12 +313,13 @@ export class FxChainView {
       header.append(heading,element('span','fx-menu-count',String(records.length)));
       const group=element('div','fx-menu-group');section.append(header,group);catalog.append(section);
       for(const record of records){
-        const item=element('div','fx-menu-entry'),button=element('button','fx-menu-item'),image=element('img'),insert=element('span','fx-menu-insert');
+        const item=element('article','fx-menu-entry'),preview=element('div','fx-menu-item'),image=element('img'),button=element('button','fx-menu-insert');
         image.src=record.thumbnailUrl||fallbackThumbnail(record);image.alt='';image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail(record);};
-        insert.append(icon('plus',12),replaceId?'Replace':'Insert module');button.append(image,element('strong','',record.name),insert);
+        preview.append(image,element('strong','',record.name));
+        button.append(icon('plus',12),replaceId?'Replace':'Insert module');button.setAttribute('aria-label',`${replaceId?'Replace with':'Insert'} ${record.name}`);
         const uri=element('button','fx-copy-uri');uri.append(icon('copy',11),element('span','',record.entryUrl));uri.title=`Copy ${record.entryUrl}`;uri.setAttribute('aria-label',`Copy WAM URI for ${record.name}`);
         uri.onclick=async()=>{try{await navigator.clipboard.writeText(record.entryUrl);status.textContent=`WAM URI copied: ${record.entryUrl}`;}catch{status.textContent=`Copy this WAM URI: ${record.entryUrl}`;}};
-        item.append(button,uri);group.append(item);
+        item.append(preview,button,uri);group.append(item);
         button.onclick=async()=>{
           dialog.querySelectorAll('button').forEach(b=>b.disabled=true);status.textContent=`Loading ${record.name}…`;
           try{

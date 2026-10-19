@@ -97,7 +97,7 @@
       .flatMap(r => [...r.style].filter(p => p.startsWith('--tl-')).map(p => [p, r.style.getPropertyValue(p).trim()]));
     const el = (tag, attrs = {}, ...kids) => { const n = Object.assign(document.createElement(tag), attrs); n.append(...kids); return n; };
     const card = (name, value, style) => el('div', {className: 'sg-token'}, el('div', {className: 'sg-swatch', style}), el('div', {}, el('code', {textContent: name}), el('code', {textContent: value, title: value})));
-    const groups = [['Surfaces', /^--tl-(bg|app-gradient|surface)/], ['Borders', /^--tl-border/], ['Text', /^--tl-text/], ['Accent', /^--tl-(accent|on-accent)/], ['Library', /^--tl-library/], ['States', /^--tl-(danger|warning|success|meter)/], ['Pedals', /^--tl-pedal/]];
+    const groups = [['Surfaces', /^--tl-(bg|app-gradient|surface)/], ['Borders', /^--tl-border/], ['Text', /^--tl-text/], ['Accent', /^--tl-(accent|on-accent)/], ['States', /^--tl-(danger|warning|success|meter)/], ['Pedals', /^--tl-pedal/]];
     const colors = document.getElementById('colorGroups');
     for (const [label, re] of groups) colors.append(el('h3', {textContent: label}), el('div', {className: 'sg-grid'}, ...tokens.filter(([n]) => re.test(n)).map(([n, v]) => card(n, v, `background:var(${n})`))));
     const sizes = tokens.filter(([n]) => n.startsWith('--tl-fs-'));
@@ -124,8 +124,7 @@
 <tl-badge dot tone="success">Connected</tl-badge>
 <tl-badge dot tone="danger">Clipping</tl-badge>
 <tl-badge dot>Idle</tl-badge>
-<tl-badge variant="eyebrow" tone="warning" dot>Unsaved changes</tl-badge>
-<tl-badge variant="eyebrow" tone="library">NAM</tl-badge>`],
+<tl-badge variant="eyebrow" tone="warning" dot>Unsaved changes</tl-badge>`],
       ['tl-switch', 'role=switch, fires input/change, form-associated; variant="led" for module bypass', `<tl-switch checked aria-label="Audio">Audio on</tl-switch>
 <tl-switch aria-label="Metronome">Metronome</tl-switch>
 <tl-switch variant="led" checked aria-label="Bypass amp"></tl-switch>

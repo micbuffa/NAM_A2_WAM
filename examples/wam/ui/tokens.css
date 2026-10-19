@@ -38,11 +38,10 @@
   --tl-accent-tint-strong: #25301f;
   --tl-accent-border: #63733e;
 
-  /* Library / modal accent (violet) */
-  --tl-library: #977ee8;
-  --tl-library-strong: #bea9ff;
-  --tl-library-tint: #1a1722;
-  --tl-library-border: #504763;
+  /* Muted accent (sage): catalogue icons and count badges */
+  --tl-accent-muted: #91a675;
+  --tl-accent-muted-strong: #a7bd7e;
+  --tl-accent-muted-tint: #222b1d;
 
   /* States */
   --tl-danger: #d07a6a;
