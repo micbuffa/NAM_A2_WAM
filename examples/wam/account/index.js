@@ -5,7 +5,8 @@ import AccountPanel from './AccountPanel.js';
 import LocalDataImport from './LocalDataImport.js';
 import {FactoryPresetStore} from './FactoryPresets.js';
 import PresetsPanel from './PresetsPanel.js';
-import {LocalPresetStore, RemotePresetStore} from './PresetStore.js';
+import RackDraftStore from './RackDraft.js';
+import {LocalPresetStore, RemotePresetStore, deleteLocalPresets} from './PresetStore.js';
 
 const MODEL_VARIANT_KEY = 'nam-a2-wam.model-variant';
 const AUTO_LEVEL_KEY = 'nam-a2-wam.auto-level';
@@ -24,24 +25,26 @@ function readLocalPreferences(storage = globalThis.localStorage) {
 
 // Call before the plugin GUIs are created: they read their account stores
 // from NamPlugin.account / CabinetPlugin.account at initialization. Without
-// the Rails page (static distribution) only guest presets are enabled.
+// the Rails page (static distribution) there are no accounts and guests save
+// presets in this browser; the online rack saves them to the account only.
 export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseResponseLibrary}) {
   const api = new AccountApi();
-  const localPresets = new LocalPresetStore();
   // The rack as it starts, before any preset (captured by attach): Factory
   // presets build on it, "New preset > Default rack" restores it.
   let guestRack = null;
   const defaultState = () => structuredClone(guestRack);
   const factoryStore = new FactoryPresetStore({manifestUrl: NamPlugin.factoryManifestUrl, baseState: defaultState});
+  const draftStore = new RackDraftStore();
   if (!api.available) {
-    return {account: null, attach: async ({settings, captureState, applyState, suggestName, report}) => {
+    return {account: null, attach: async ({settings, captureState, applyState, watchRack, suggestName, report}) => {
       guestRack = await captureState();
       settings?.addSection({id: 'account', label: 'Account', icon: 'user', order: 3, render: (container) => {
         const note = Object.assign(document.createElement('p'), {className: 'host-help',
           textContent: 'Accounts are available on the online rack. Here, presets and favorites are stored in this browser.'});
         container.append(Object.assign(document.createElement('h3'), {textContent: 'Account'}), note);
       }});
-      return new PresetsPanel({localStore: localPresets, factoryStore, captureState, applyState, defaultState, suggestName, report}).attach();
+      return new PresetsPanel({localStore: new LocalPresetStore(), factoryStore, draftStore, watchRack, captureState, applyState, defaultState,
+        suggestName, report}).attach();
     }};
   }
 
@@ -62,28 +65,40 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
 
   // guis(): the plugin editors currently open (FxChain creates them on demand).
   // settings: the SettingsView that hosts the Account section.
-  const attach = async ({settings, guis = () => [], captureState, applyState, suggestName, report = () => {}}) => {
+  // watchRack(listener): calls listener whenever the rack changes (drafts).
+  const attach = async ({settings, guis = () => [], captureState, applyState, watchRack, suggestName, report = () => {}}) => {
     // What a guest gets. Signing out goes back to it (PresetsPanel).
     guestRack = await captureState();
-    const presets = new PresetsPanel({account, localStore: localPresets, remoteStore: new RemotePresetStore({api}), factoryStore,
-      captureState, applyState, defaultState, suggestName, report});
-    const importer = new LocalDataImport({account, localPresets, localFavorites, readLocalPreferences, encodeAsset});
+    let accountPanel = null;
+    let accountSync = Promise.resolve(); // GUI reload and import offer after the last account change
+    // Saving a preset needs an account. The New preset dialog waits for the
+    // import offer, so the two dialogs do not stack.
+    const requestSignIn = async (reason) => {
+      const signedIn = await accountPanel.openSignIn({reason});
+      if (signedIn) await accountSync;
+      return signedIn;
+    };
+    const presets = new PresetsPanel({account, remoteStore: new RemotePresetStore({api}), factoryStore, draftStore, watchRack,
+      captureState, applyState, defaultState, suggestName, requestSignIn, report});
+    deleteLocalPresets();
+    const importer = new LocalDataImport({account, localFavorites, readLocalPreferences, encodeAsset});
     const reloadGuis = () => Promise.all(guis().map((gui) => gui.reloadAccountData?.()));
     // force: asked from Settings > Account rather than offered after sign-in.
     const offerImport = async ({force = false} = {}) => {
       const imported = await importer.offer({force});
-      if (!imported || !(imported.presets || imported.favorites || imported.preferences)) return imported;
+      if (!imported || !(imported.favorites || imported.preferences)) return imported;
       await account.refresh(); // merged preferences
-      await Promise.all([reloadGuis(), presets.refresh()]);
-      report(`Imported ${imported.presets} preset(s) and ${imported.favorites} favorite(s) into your account.`);
+      await reloadGuis();
+      report(`Imported ${imported.favorites} favorite(s) into your account.`);
       return imported;
     };
     // PresetsPanel switches the rack on change (default when signing out, last
     // preset when signing in); the plugin GUIs need a nudge.
     account.addEventListener('change', () => {
-      reloadGuis().then(() => offerImport()).catch((error) => report(`Account sync failed: ${error.message}`, true));
+      accountSync = reloadGuis().then(() => offerImport()).catch((error) => report(`Account sync failed: ${error.message}`, true));
     });
-    new AccountPanel({account, settings, importLocalData: offerImport}).attach();
+    accountPanel = new AccountPanel({account, settings, importLocalData: offerImport});
+    accountPanel.attach();
     await presets.attach();
     // Signed in by a page load (magic link, then "Open the rack").
     if (account.signedIn) offerImport().catch((error) => report(`Import failed: ${error.message}`, true));

@@ -6,7 +6,8 @@ const LAST_PRESET_KEY = 'nam-a2-wam.last-preset';
 // Presets, as in the TONELAB mockup: the sidebar picker (#presetsPanel, "My
 // presets" then "Factory") and "New preset", plus the preset header above
 // the rack (name, rename, Delete, Save). A preset is the whole rack. My
-// presets use the account store when signed in, IndexedDB otherwise; Factory
+// presets use the account store when signed in; without accounts (static
+// distribution), IndexedDB. Factory
 // presets are read-only recipes (FactoryPresets.js). The preset last loaded
 // or saved is the active one: Save overwrites it, or creates a new preset
 // when it is a Factory one or there is none. 'change' (detail {name, meta})
@@ -14,19 +15,35 @@ const LAST_PRESET_KEY = 'nam-a2-wam.last-preset';
 // preset last loaded, created or deleted is remembered (account preference
 // when signed in, this browser otherwise) and reopened when the page loads,
 // and when signing in unless the rack has unsaved changes: those stay on
-// screen until the user saves them.
+// screen until the user saves them. With requestSignIn (the online rack),
+// saving needs an account: Save and New preset ask a guest to sign in, then
+// carry on with the rack as it is. With draftStore (RackDraft.js), unsaved
+// changes are kept as a draft a moment after the rack changes, and brought
+// back when the page loads; saving, loading or reverting drops the draft.
 export default class PresetsPanel extends EventTarget {
+  // requestSignIn(reason): resolves with true once signed in, false if cancelled.
+  // watchRack(listener): calls listener whenever the rack changes.
   constructor({account, localStore, remoteStore, factoryStore, captureState, applyState, defaultState, suggestName = () => '',
-    report = () => {}, root = document, storage = globalThis.localStorage}) {
+    requestSignIn = null, draftStore = null, watchRack = null, draftDelay = 1000, report = () => {}, root = document,
+    storage = globalThis.localStorage}) {
     super();
-    Object.assign(this, {account, localStore, remoteStore, factoryStore, captureState, applyState, defaultState, suggestName, report, storage});
+    Object.assign(this, {account, localStore, remoteStore, factoryStore, captureState, applyState, defaultState, suggestName, requestSignIn,
+      draftStore, watchRack, draftDelay, report, storage});
     this.$ = (id) => root.getElementById(id);
     this.presets = [];
     this.factory = [];
     this.activeId = null;
     this.loadingId = null;
     this.baseline = null; // the rack as last loaded or saved (JSON), to spot unsaved changes
+    this.syncing = Promise.resolve(); // the reaction to the last sign-in or sign-out
+    this.signingInToSave = false;
+    this.draftTimer = null;
   }
+
+  // Drafts never cross accounts.
+  get draftScope() { return this.account?.signedIn ? `user:${this.account.user.id}` : 'guest'; }
+
+  get needsSignIn() { return Boolean(this.requestSignIn && this.account && !this.account.signedIn); }
 
   get store() { return this.account?.signedIn ? this.remoteStore : this.localStore; }
   // Option values are strings; account preset ids are numbers.
@@ -62,12 +79,71 @@ export default class PresetsPanel extends EventTarget {
     this.$('presetDelete').onclick = () => this.active && this.remove(this.active);
     this.$('presetRename').onclick = () => this.active && this.rename(this.active);
     this.$('presetRevert').onclick = () => this.active && this.load(this.active.id);
-    this.account?.addEventListener('change', ({detail: {previous, user}}) => this.accountChanged({signedOut: Boolean(previous && !user)})
-      .catch((error) => this.report(`Presets not updated: ${error.message}`, true)));
+    this.account?.addEventListener('change', ({detail: {previous, user}}) => {
+      this.syncing = this.accountChanged({signedOut: Boolean(previous && !user)})
+        .catch((error) => this.report(`Presets not updated: ${error.message}`, true));
+    });
     await this.refresh();
     await this.markClean();
-    await this.reopenLast();
+    if (!await this.restoreDraft()) await this.reopenLast();
+    this.watchRack?.(() => this.scheduleDraft());
+    // A change made just before closing the page is not lost to the delay.
+    globalThis.addEventListener?.('pagehide', () => { if (this.draftTimer !== null) this.writeDraft().catch(() => {}); });
     return this;
+  }
+
+  scheduleDraft() {
+    if (!this.draftStore) return;
+    clearTimeout(this.draftTimer);
+    this.draftTimer = setTimeout(() => this.writeDraft().catch((error) => console.warn('Draft not saved', error)), this.draftDelay);
+  }
+
+  // Keeps the rack as a draft while it differs from the preset (or default
+  // rack) it started from; drops the draft once it no longer does.
+  async writeDraft() {
+    clearTimeout(this.draftTimer);
+    this.draftTimer = null;
+    if (this.busy) return this.scheduleDraft();
+    const scope = this.draftScope;
+    const state = await this.captureState();
+    if (this.baseline !== null && JSON.stringify(state) === this.baseline) return this.draftStore.delete(scope);
+    await this.draftStore.put(scope, {state, presetId: this.activeId, baseline: this.baseline});
+  }
+
+  async dropDraft() {
+    clearTimeout(this.draftTimer);
+    this.draftTimer = null;
+    await this.draftStore?.delete(this.draftScope).catch((error) => console.warn('Draft not deleted', error));
+  }
+
+  // The rack now matches a saved or loaded preset.
+  async settle() {
+    await this.markClean();
+    await this.dropDraft();
+  }
+
+  // Brings back the unsaved rack of this scope, still attached to the preset
+  // it started from when that one exists. Resolves with true if it did; the
+  // draft then replaces reopening the last preset.
+  async restoreDraft() {
+    if (!this.draftStore) return false;
+    let draft = null;
+    try { draft = await this.draftStore.get(this.draftScope); } catch { return false; }
+    if (!draft?.state) return false;
+    const from = draft.presetId === null ? null : this.find(draft.presetId);
+    try {
+      await this.applyState(structuredClone(draft.state));
+    } catch (error) {
+      this.report(`Could not restore your unsaved rack: ${error.message}`, true);
+      await this.dropDraft();
+      return false;
+    }
+    this.activeId = from ? from.id : null;
+    this.baseline = from || draft.presetId === null ? draft.baseline ?? null : null;
+    this.render();
+    this.status('Restored your unsaved changes.');
+    this.report('Restored your unsaved rack.');
+    return true;
   }
 
   async markClean() {
@@ -89,9 +165,9 @@ export default class PresetsPanel extends EventTarget {
 
   // Signing out puts the rack back to its default, so the account's sound
   // does not stay on screen. Signing in reopens the account's last preset,
-  // unless the rack has unsaved changes.
+  // unless the rack has unsaved changes or the guest signed in to save it.
   async accountChanged({signedOut}) {
-    const modified = !signedOut && await this.isModified();
+    const modified = !signedOut && (this.signingInToSave || await this.isModified());
     if (signedOut) {
       this.activeId = null;
       await this.applyState(this.defaultState());
@@ -99,7 +175,12 @@ export default class PresetsPanel extends EventTarget {
     }
     await this.refresh();
     if (signedOut) await this.markClean();
-    else if (!modified) await this.reopenLast();
+    else {
+      // The guest's draft is now this account's rack, or gone.
+      await this.draftStore?.delete('guest').catch(() => {});
+      if (modified) this.scheduleDraft();
+      else if (!await this.restoreDraft()) await this.reopenLast();
+    }
   }
 
   status(text, error = false) {
@@ -112,12 +193,14 @@ export default class PresetsPanel extends EventTarget {
     return this.account?.signedIn ? `Synced to ${this.account.user.email}` : 'Stored in this browser';
   }
 
+  // A guest who must sign in to save has no presets of their own: only Factory.
   async refresh() {
-    this.$('presetScope').textContent = this.account?.signedIn
-      ? `My presets are synced to ${this.account.user.email}.` : 'My presets are stored in this browser. Sign in to keep them on every device.';
+    this.$('presetScope').textContent = this.account?.signedIn ? `My presets are synced to ${this.account.user.email}.`
+      : this.needsSignIn ? 'Sign in to save your presets and find them on every device.'
+        : 'My presets are stored in this browser. Sign in to keep them on every device.';
     this.factory = this.factoryStore ? await this.factoryStore.list() : [];
     try {
-      this.presets = await this.store.list();
+      this.presets = this.needsSignIn ? [] : await this.store.list();
       this.status('');
     } catch (error) {
       this.presets = [];
@@ -137,7 +220,7 @@ export default class PresetsPanel extends EventTarget {
     };
     const select = this.$('presetSelect');
     const placeholder = Object.assign(new Option('Untitled rack', ''), {disabled: true, hidden: true});
-    select.replaceChildren(placeholder, group('My presets', this.presets, 'No preset saved yet'), ...(this.factory.length ? [group('Factory', this.factory)] : []));
+    select.replaceChildren(placeholder, group('My presets', this.presets, this.needsSignIn ? 'Sign in to save presets' : 'No preset saved yet'), ...(this.factory.length ? [group('Factory', this.factory)] : []));
     select.value = this.activeId === null ? '' : String(this.activeId);
     select.disabled = this.busy;
     this.$('presetCount').textContent = String(this.presets.length + this.factory.length);
@@ -158,7 +241,9 @@ export default class PresetsPanel extends EventTarget {
     remove.title = mine ? `Delete “${active.name}”` : active ? 'Factory presets cannot be deleted' : 'No preset selected';
     const save = this.$('presetSaveButton');
     save.disabled = this.busy;
-    save.title = mine ? `Save the current rack to “${active.name}”` : 'Save the current rack as a new preset';
+    save.title = this.needsSignIn ? 'Sign in to save the current rack'
+      : mine ? `Save the current rack to “${active.name}”` : 'Save the current rack as a new preset';
+    this.$('presetNew').title = this.needsSignIn ? 'Sign in to create a preset' : '';
     this.dispatchEvent(new CustomEvent('change', {detail: {name, meta}}));
   }
 
@@ -214,7 +299,20 @@ export default class PresetsPanel extends EventTarget {
     });
   }
 
+  // A guest signs in first; the rack stays as it is meanwhile. Resolves with
+  // true when the action can go on.
+  async signInToSave() {
+    if (!this.needsSignIn) return true;
+    this.signingInToSave = true;
+    try {
+      if (!await this.requestSignIn('Sign in to save this sound as a preset.')) return false;
+      await this.syncing;
+      return Boolean(this.account.signedIn);
+    } finally { this.signingInToSave = false; }
+  }
+
   async create() {
+    if (!await this.signInToSave()) return;
     const request = await this.askNewPreset();
     if (!request) return;
     this.$('presetNew').disabled = true;
@@ -223,7 +321,7 @@ export default class PresetsPanel extends EventTarget {
       if (request.source === 'default') await this.applyState(structuredClone(state));
       const created = await this.store.create(request.name, state);
       this.setActive(created.id);
-      await this.markClean();
+      await this.settle();
       await this.refresh();
       this.status(`Created “${request.name}”.`);
       this.report(`Preset “${request.name}” created.`);
@@ -234,12 +332,13 @@ export default class PresetsPanel extends EventTarget {
   // Overwrites the active preset of mine with the current rack (pedals, gains,
   // both lanes); otherwise saves the rack as a new preset.
   async save() {
+    if (!await this.signInToSave()) return;
     const active = this.active;
     if (!active || active.factory) return this.create();
     this.$('presetSaveButton').disabled = true;
     try {
       await this.store.update(active.id, {state: await this.captureState()});
-      await this.markClean();
+      await this.settle();
       await this.refresh();
       this.status(`Saved “${active.name}”.`);
       this.report(`Preset “${active.name}” saved.`);
@@ -257,7 +356,7 @@ export default class PresetsPanel extends EventTarget {
       const {state} = await (isFactoryPreset(preset.id) ? this.factoryStore : this.store).get(preset.id);
       await this.applyState(state);
       this.setActive(preset.id);
-      await this.markClean();
+      await this.settle();
       this.status(`Loaded “${preset.name}”.`);
       this.report(`Preset “${preset.name}” active.`);
     } catch (error) {

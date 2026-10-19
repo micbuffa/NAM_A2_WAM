@@ -3,6 +3,7 @@ require "application_system_test_case"
 # Every popup closes on a click outside it, like Esc (ui/light-dismiss.js).
 class DialogLightDismissTest < ApplicationSystemTestCase
   include RackAssets
+  include RackSignIn
 
   setup do
     skip_unless_rack_synced
@@ -22,6 +23,7 @@ class DialogLightDismissTest < ApplicationSystemTestCase
   end
 
   test "a click outside the new preset dialog cancels it" do
+    open_rack_signed_in "dismiss@example.com"
     click_on "New preset"
     assert_selector "dialog.new-preset-dialog[open]"
     click_outside

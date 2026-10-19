@@ -17,12 +17,11 @@ const SYNCED = [['Presets', 'Every rack you save, with both chains and their ped
 
 const element = (tag, className = '', text = '') => Object.assign(document.createElement(tag), {className, textContent: text});
 
-// {presets, favorites, preferences} from LocalDataImport -> one sentence.
+// {favorites, preferences} from LocalDataImport -> one sentence.
 export function importSummary(result) {
   if (!result) return '';
   const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
-  const parts = [result.presets && plural(result.presets, 'preset'), result.favorites && plural(result.favorites, 'favorite'),
-    result.preferences && 'your amp preferences'].filter(Boolean);
+  const parts = [result.favorites && plural(result.favorites, 'favorite'), result.preferences && 'your amp preferences'].filter(Boolean);
   return parts.length ? `Imported ${parts.join(', ')}.` : 'This browser has no guest data to import.';
 }
 
@@ -116,7 +115,7 @@ export default class AccountPanel {
     const browser = element('div', 'account-browser-data');
     const browserText = document.createElement('div');
     browserText.append(element('strong', '', 'This browser’s data'),
-      element('span', '', 'Copy the presets, favorites and preferences saved here before you signed in. Local copies are kept.'));
+      element('span', '', 'Copy the favorites and preferences saved here before you signed in. Local copies are kept.'));
     const importButton = document.createElement('tl-button');
     importButton.setAttribute('size', 'sm');
     importButton.setAttribute('icon', 'copy');
@@ -133,10 +132,16 @@ export default class AccountPanel {
     container.append(element('h4', 'settings-subheading', 'Saved to your account'), list, browser, status);
   }
 
-  openSignIn() {
+  // reason: why the rack asks (e.g. saving a preset), shown above the form.
+  // Resolves when the dialog closes: true once signed in, false if cancelled.
+  openSignIn({reason = ''} = {}) {
     const {dialog, body, id} = createDialog({title: 'Sign in or create an account', eyebrow: 'Account', className: 'sign-in-dialog'});
     this.signInDialog = dialog;
-    dialog.addEventListener('close', () => { if (this.signInDialog === dialog) this.signInDialog = null; this.restoreFocus(); }, {once: true});
+    const closed = new Promise((resolve) => dialog.addEventListener('close', () => {
+      if (this.signInDialog === dialog) this.signInDialog = null;
+      this.restoreFocus();
+      resolve(this.account.signedIn);
+    }, {once: true}));
     const message = document.createElement('p');
     message.className = 'host-help';
     message.setAttribute('role', 'status');
@@ -179,10 +184,11 @@ export default class AccountPanel {
 
     const intro = document.createElement('p');
     intro.className = 'host-help';
-    intro.textContent = 'No password: we email you a sign-in link. New addresses get an account automatically.';
+    intro.textContent = `${reason ? `${reason} ` : ''}No password: we email you a sign-in link. New addresses get an account automatically.`;
     body.append(intro, emailForm, waiting, message, error);
     dialog.showModal();
     email.focus();
+    return closed;
   }
 
   // The rack itself reports the sign-out (index.js resets it to the guest state).

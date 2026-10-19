@@ -3,6 +3,7 @@ require_relative "../config/environment"
 require "rails/test_help"
 require_relative "support/rack_assets"
 require_relative "support/sign_in_helper"
+require_relative "support/rack_sign_in"
 
 module ActiveSupport
   class TestCase

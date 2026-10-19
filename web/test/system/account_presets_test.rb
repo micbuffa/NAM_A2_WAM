@@ -225,7 +225,103 @@ class AccountPresetsTest < ApplicationSystemTestCase
     assert_equal 3, chain_snapshot.dig("params", "inputGain"), "unsaved changes stay until the user saves them"
   end
 
+  test "a guest signs in to save, and the rack on screen becomes the preset" do
+    skip_unless_rack_synced
+    visit "/rack/"
+    wait_for_rack(wait: 40)
+    assert_selector "#presetSelect option[disabled]", text: "Sign in to save presets", visible: :all
+    assert_text "Sign in to save your presets and find them on every device."
+    set_input_gain(-5)
+
+    click_on "Save"
+    within("dialog[open]") do
+      assert_text "Sign in to save this sound as a preset."
+      click_on "Cancel"
+    end
+    assert_no_css "dialog[open]"
+
+    click_on "New preset"
+    within("dialog[open]") { assert_text "Sign in to save this sound as a preset." }
+    token = SignInToken.issue!(email: "saver@example.com").token
+    within_window(open_like_a_mail_client(confirm_sign_in_path(token:))) { click_on "Sign in" }
+    within("#accountPanel") { assert_text "saver@example.com", wait: 10 }
+    within("dialog.new-preset-dialog[open]", wait: 10) do
+      fill_in "Preset name", with: "Signed-in save"
+      click_on "Create preset"
+    end
+    assert_selector "#presetTitle", exact_text: "Signed-in save"
+    preset = User.find_by!(email: "saver@example.com").presets.find_by!(name: "Signed-in save")
+    nam_entry = preset.state.dig("a", "entries").find { |entry| entry["kind"] == "nam" }
+    assert_equal(-5, nam_entry.dig("state", "parameterValues", "inputGain", "value"))
+  end
+
+  test "the online rack deletes the presets an earlier version stored in this browser" do
+    skip_unless_rack_synced
+    visit "/up"
+    page.evaluate_async_script(<<~JS)
+      const done = arguments[0];
+      const request = indexedDB.open('nam-a2-wam-presets', 1);
+      request.onupgradeneeded = () => request.result.createObjectStore('presets', {keyPath: 'id'});
+      request.onsuccess = () => {
+        const tx = request.result.transaction('presets', 'readwrite');
+        tx.objectStore('presets').put({id: 'old', name: 'Old guest preset', state: {version: 1}});
+        tx.oncomplete = () => { request.result.close(); done(); };
+      };
+    JS
+    visit "/rack/"
+    wait_for_rack(wait: 40)
+    assert_no_selector "#presetSelect option", text: "Old guest preset", visible: :all
+    wait_until("the guest preset database is deleted") do
+      page.evaluate_async_script("indexedDB.databases().then((list) => arguments[0](list.map((db) => db.name)))")
+        .exclude?("nam-a2-wam-presets")
+    end
+  end
+
+  test "a reload brings back the unsaved rack, saving a preset drops it" do
+    skip_unless_rack_synced
+    visit "/rack/"
+    wait_for_rack(wait: 40)
+    set_input_gain(-9)
+    wait_until("the draft is saved") { draft("guest") }
+
+    visit "/rack/"
+    wait_for_rack(wait: 40)
+    assert_selector "#presetStatus", text: "Restored your unsaved changes."
+    assert_equal(-9, chain_snapshot.dig("params", "inputGain"))
+    assert_selector "#presetTitle", exact_text: "Untitled rack"
+
+    user = User.create!(email: "drafter@example.com")
+    sign_in_as_by_link user.email
+    assert_equal(-9, chain_snapshot.dig("params", "inputGain"), "signing in keeps the rack on screen")
+    wait_until("the guest draft becomes the account's") { draft("user:#{user.id}") && !draft("guest") }
+    click_on "Save"
+    within("dialog.new-preset-dialog[open]") do
+      fill_in "Preset name", with: "Kept"
+      click_on "Create preset"
+    end
+    assert_selector "#presetTitle", exact_text: "Kept"
+    wait_until("saving drops the draft") { !draft("user:#{user.id}") }
+
+    visit "/rack/"
+    wait_for_rack(wait: 40)
+    assert_selector "#presetTitle", exact_text: "Kept"
+    assert_no_selector "#presetStatus", text: "Restored"
+  end
+
   private
+    # The draft stored for scope ('guest' or 'user:<id>'), or nil.
+    def draft(scope)
+      page.evaluate_async_script(<<~JS, scope)
+        const [scope, done] = arguments;
+        const request = indexedDB.open('nam-a2-wam-draft', 1);
+        request.onupgradeneeded = () => request.result.createObjectStore('drafts', {keyPath: 'scope'});
+        request.onsuccess = () => {
+          const get = request.result.transaction('drafts').objectStore('drafts').get(scope);
+          get.onsuccess = () => { request.result.close(); done(get.result ? true : null); };
+        };
+      JS
+    end
+
     def sign_in_as_by_link(email)
       token = SignInToken.issue!(email:).token
       within_window(open_like_a_mail_client(confirm_sign_in_path(token:))) { click_on "Sign in" }

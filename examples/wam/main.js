@@ -447,6 +447,7 @@ async function initialize() {
   const presets = await accountIntegration.attach({settings, guis: accountGuis, report: message,
     // A preset is the whole rack, exactly what "Save WAM state" captures.
     captureState: () => rack.getState(),
+    watchRack: (listener) => rack.addEventListener('change', listener),
     applyState: async (state) => {
       chainView.close();
       await rack.setState(state.nam && !state.a && !state.entries ? await legacyPresetToRack(state) : state);

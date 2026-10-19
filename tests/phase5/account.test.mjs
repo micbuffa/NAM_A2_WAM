@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import AccountApi, {ApiError} from '../../examples/wam/account/api.js';
 import AccountFavorites, {decodeAsset, encodeAsset} from '../../examples/wam/account/AccountFavorites.js';
-import {LocalPresetStore} from '../../examples/wam/account/PresetStore.js';
+import {LocalPresetStore, DATABASE_NAME, deleteLocalPresets} from '../../examples/wam/account/PresetStore.js';
 import LocalDataImport from '../../examples/wam/account/LocalDataImport.js';
 import PresetsPanel from '../../examples/wam/account/PresetsPanel.js';
+import RackDraftStore from '../../examples/wam/account/RackDraft.js';
 import {importSummary, initials} from '../../examples/wam/account/AccountPanel.js';
 import {FACTORY_PRESETS, FactoryPresetStore, isFactoryPreset} from '../../examples/wam/account/FactoryPresets.js';
 
@@ -23,7 +24,7 @@ const recordingFetch = (responses) => {
   return {calls, fetchImpl};
 };
 
-// IndexedDB fake with keyPath support and get(), enough for LocalPresetStore.
+// IndexedDB fake with keyPath support and get(), enough for LocalPresetStore and RackDraftStore.
 const fakeIndexedDB = () => {
   const stores = new Map();
   const database = {
@@ -38,8 +39,8 @@ const fakeIndexedDB = () => {
       transaction.objectStore = () => ({
         getAll: () => request(() => [...records.values()].map((value) => structuredClone(value))),
         get: (key) => request(() => structuredClone(records.get(key))),
-        put(value) { records.set(value[keyPath], structuredClone(value)); complete(); },
-        delete(key) { records.delete(key); complete(); },
+        put(value) { records.set(value[keyPath], structuredClone(value)); complete(); return request(() => value[keyPath]); },
+        delete(key) { records.delete(key); complete(); return request(() => undefined); },
       });
       return transaction;
     },
@@ -101,7 +102,7 @@ test('asset encoding round-trips binary fields', () => {
   assert.deepEqual(decoded.bytes, asset.bytes);
 });
 
-test('guest presets persist the whole chain in IndexedDB', async () => {
+test('static-distribution guest presets persist the whole chain in IndexedDB', async () => {
   let next = 0;
   const store = new LocalPresetStore({indexedDBImpl: fakeIndexedDB(), randomId: () => `p${++next}`});
   const state = {version: 1, nam: {parameterValues: {inputGain: {id: 'inputGain', value: 6}}, model: {name: 'A2', data: '{}'}},
@@ -122,43 +123,41 @@ test('local data import is offered once per account and sent in batches', async 
   const calls = [];
   const prompts = [];
   const account = {user: {id: 5, email: 'a@example.com'}, api: {importLocalData: async (data) => { calls.push(data); return {}; }}};
-  const localPresets = {available: true, all: async () => Array.from({length: 4}, (_, index) => ({id: `p${index}`, name: `P${index}`, state: {version: 1}}))};
   const localFavorites = {nam_model: {list: async () => Array.from({length: 12}, (_, index) => ({identity: `m${index}`, asset: {id: `m${index}`}}))},
     ir: {list: async () => [{identity: 'ir1', asset: {id: 'ir1'}}]}};
-  const importer = new LocalDataImport({account, localPresets, localFavorites, readLocalPreferences: () => ({autoLevel: false}),
+  const importer = new LocalDataImport({account, localFavorites, readLocalPreferences: () => ({autoLevel: false}),
     encodeAsset: (asset) => ({...asset, encoded: true}), confirm: async (options) => { prompts.push(options); return true; },
     storage: {getItem: (key) => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value)}});
 
-  assert.deepEqual(await importer.offer(), {presets: 4, favorites: 13, preferences: true});
-  assert.match(prompts[0].message, /4 presets, 13 favorites, your level preferences/);
+  assert.deepEqual(await importer.offer(), {favorites: 13, preferences: true});
+  assert.match(prompts[0].message, /has 13 favorites, your level preferences saved/);
   assert.deepEqual(calls[0], {preferences: {autoLevel: false}});
   assert.deepEqual(calls.slice(1, 3).map((call) => call.favorites.length), [10, 3]);
   assert.deepEqual(calls[1].favorites[0], {kind: 'nam_model', assetRef: 'm0', metadata: {id: 'm0', encoded: true}});
-  assert.deepEqual(calls.slice(3).map((call) => call.presets.length), [3, 1]);
-  assert.deepEqual(calls[3].presets[0], {name: 'P0', state: {version: 1}});
+  assert.equal(calls.length, 3, 'presets are never sent');
 
   assert.equal(await importer.offer(), null, 'offered only once per account');
   assert.equal(prompts.length, 1);
 
   // Settings > Account asks again on demand.
-  assert.deepEqual(await importer.offer({force: true}), {presets: 4, favorites: 13, preferences: true});
+  assert.deepEqual(await importer.offer({force: true}), {favorites: 13, preferences: true});
   assert.equal(prompts.length, 2);
 });
 
 test('a forced import of an empty browser reports zero counts without asking', async () => {
   const prompts = [];
   const importer = new LocalDataImport({account: {user: {id: 3, email: 'c@example.com'}, api: {importLocalData: async () => assert.fail('nothing to send')}},
-    localPresets: {available: true, all: async () => []}, localFavorites: {}, readLocalPreferences: () => ({}),
+    localFavorites: {}, readLocalPreferences: () => ({}),
     encodeAsset: (asset) => asset, confirm: async (options) => { prompts.push(options); return true; }, storage: null});
-  assert.deepEqual(await importer.offer({force: true}), {presets: 0, favorites: 0, preferences: false});
+  assert.deepEqual(await importer.offer({force: true}), {favorites: 0, preferences: false});
   assert.equal(await importer.offer(), null);
   assert.deepEqual(prompts, []);
 });
 
 test('the account section summarises an import in one sentence', () => {
   assert.equal(importSummary(null), '');
-  assert.equal(importSummary({presets: 0, favorites: 0, preferences: false}), 'This browser has no guest data to import.');
-  assert.equal(importSummary({presets: 1, favorites: 2, preferences: true}), 'Imported 1 preset, 2 favorites, your amp preferences.');
+  assert.equal(importSummary({favorites: 0, preferences: false}), 'This browser has no guest data to import.');
+  assert.equal(importSummary({favorites: 2, preferences: true}), 'Imported 2 favorites, your amp preferences.');
   assert.equal(initials('gui.besse@example.com'), 'GB');
   assert.equal(initials('solo@example.com'), 'SO');
 });
@@ -298,4 +297,108 @@ test('signing in reopens the account preset unless the rack has unsaved changes'
   signIn();
   await settle();
   assert.deepEqual([edited.panel.activeId, edited.rack.state], [null, {sound: 'tweaked'}], 'unsaved changes stay until saved');
+});
+
+test('saving asks a guest to sign in, then saves the rack as it is', async () => {
+  const account = Object.assign(new EventTarget(), {signedIn: false, user: null,
+    updatePreference(key, value) { this.user.preferences[key] = value; return Promise.resolve(); }});
+  const reasons = [];
+  let accept = false;
+  const requestSignIn = async (reason) => {
+    reasons.push(reason);
+    if (!accept) return false;
+    Object.assign(account, {signedIn: true, user: {email: 'a@b.c', preferences: {lastPresetId: 1}}});
+    account.dispatchEvent(new CustomEvent('change', {detail: {previous: null, user: account.user}}));
+    return true;
+  };
+  const created = [];
+  const store = {list: async () => [{id: 1, name: 'Lead'}, ...created.map(({name}) => ({id: 9, name}))],
+    get: async (id) => ({state: {sound: `preset ${id}`}}), create: async (name, state) => { created.push({name, state}); return {id: 9, name}; }};
+  const rack = {state: {sound: 'default'}};
+  const panel = new PresetsPanel({account, localStore: store, remoteStore: store, factoryStore: null, requestSignIn, root: fakePresetDom(),
+    storage: {getItem: () => null, setItem() {}, removeItem() {}},
+    captureState: async () => structuredClone(rack.state), applyState: async (state) => { rack.state = structuredClone(state); },
+    defaultState: () => ({sound: 'default'})});
+  panel.askNewPreset = async () => ({name: 'Mine', source: 'current'});
+  await panel.attach();
+  assert.equal(panel.needsSignIn, true);
+  assert.deepEqual(panel.presets, [], 'a guest has no presets of their own, only Factory ones');
+  const dom = panel.$('presetSelect').children[1].children[0];
+  assert.deepEqual([dom.text, dom.disabled], ['Sign in to save presets', true]);
+  assert.match(panel.$('presetScope').textContent, /^Sign in to save your presets/);
+
+  await panel.save();
+  await panel.create();
+  assert.equal(reasons.length, 2, 'Save and New preset both ask to sign in');
+  assert.deepEqual(created, [], 'nothing is saved when the guest cancels');
+
+  accept = true;
+  await panel.save();
+  assert.equal(panel.needsSignIn, false);
+  assert.deepEqual(created, [{name: 'Mine', state: {sound: 'default'}}], 'the rack on screen is saved, not the account\'s last preset');
+  assert.equal(panel.activeId, 9);
+  assert.deepEqual(panel.presets.map(({name}) => name), ['Lead', 'Mine'], 'signed in, the account presets are listed');
+
+  const guest = presetHarness();
+  assert.equal(guest.panel.needsSignIn, false, 'without accounts (static distribution) guests still save in this browser');
+});
+
+test('the online rack deletes the guest presets an earlier version stored in this browser', async () => {
+  const deleted = [];
+  const indexedDBImpl = {deleteDatabase(name) { deleted.push(name); const request = {}; setTimeout(() => request.onblocked()); return request; }};
+  await deleteLocalPresets({indexedDBImpl});
+  assert.deepEqual(deleted, [DATABASE_NAME]);
+  await deleteLocalPresets({indexedDBImpl: null}); // no IndexedDB: nothing to delete
+  await deleteLocalPresets({indexedDBImpl: {deleteDatabase() { throw new Error('SecurityError'); }}});
+});
+
+test('drafts are stored per scope in IndexedDB', async () => {
+  const drafts = new RackDraftStore({indexedDBImpl: fakeIndexedDB()});
+  assert.equal(await drafts.get('guest'), null);
+  await drafts.put('guest', {state: {sound: 'g'}, presetId: null});
+  await drafts.put('user:1', {state: {sound: 'u'}, presetId: 4, baseline: '{}'});
+  assert.deepEqual([(await drafts.get('guest')).state, (await drafts.get('user:1')).presetId], [{sound: 'g'}, 4]);
+  await drafts.delete('guest');
+  assert.equal(await drafts.get('guest'), null);
+  assert.equal((await drafts.get('user:1')).baseline, '{}');
+});
+
+test('unsaved changes are kept as a draft and brought back on the next page load', async () => {
+  const records = new Map();
+  const draftStore = {get: async (scope) => structuredClone(records.get(scope) ?? null),
+    put: async (scope, draft) => { records.set(scope, structuredClone({scope, ...draft})); }, delete: async (scope) => { records.delete(scope); }};
+  const store = {list: async () => [{id: 1, name: 'Lead'}], get: async (id) => ({state: {sound: `preset ${id}`}}),
+    update: async (id) => ({id, name: 'Lead'})};
+  const page = (last = null) => {
+    const rack = {state: {sound: 'default'}, listeners: []};
+    const values = new Map(last === null ? [] : [['nam-a2-wam.last-preset', String(last)]]);
+    const panel = new PresetsPanel({account: null, localStore: store, factoryStore: null, draftStore, draftDelay: 0, root: fakePresetDom(),
+      watchRack: (listener) => rack.listeners.push(listener),
+      storage: {getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: (key) => values.delete(key)},
+      captureState: async () => structuredClone(rack.state), applyState: async (state) => { rack.state = structuredClone(state); },
+      defaultState: () => ({sound: 'default'})});
+    const edit = async (sound) => { rack.state = {sound}; rack.listeners.forEach((listener) => listener()); await new Promise((resolve) => setTimeout(resolve, 5)); };
+    return {panel, rack, edit};
+  };
+
+  const first = page(1);
+  await first.panel.attach();
+  await first.edit('tweaked');
+  assert.deepEqual(records.get('guest').state, {sound: 'tweaked'});
+  assert.equal(records.get('guest').presetId, 1);
+  await first.edit('preset 1');
+  assert.equal(records.has('guest'), false, 'back to the preset: no draft');
+  await first.edit('tweaked again');
+
+  const reloaded = page(1);
+  await reloaded.panel.attach();
+  assert.deepEqual(reloaded.rack.state, {sound: 'tweaked again'}, 'the unsaved rack comes back');
+  assert.equal(reloaded.panel.activeId, 1, 'still attached to the preset it started from');
+  assert.equal(await reloaded.panel.isModified(), true);
+  await reloaded.panel.save();
+  assert.equal(records.has('guest'), false, 'saving drops the draft');
+
+  await reloaded.edit('yet another');
+  await reloaded.panel.load(1);
+  assert.equal(records.has('guest'), false, 'loading (or reverting) drops the draft');
 });

@@ -1,5 +1,6 @@
-// Preset storage with one interface for guests (IndexedDB in this browser)
-// and signed-in users (Rails API). A preset state is the whole WAM chain:
+// Preset storage with one interface for guests of the static distribution
+// (IndexedDB in this browser) and signed-in users of the online rack (Rails
+// API). A preset state is the whole WAM chain:
 // {version, nam: NamNode#getState(), cabinet: CabinetNode#getState()}.
 const DATABASE_NAME = 'nam-a2-wam-presets';
 const DATABASE_VERSION = 1;
@@ -80,6 +81,18 @@ export class LocalPresetStore {
     transaction.objectStore(STORE_NAME).delete(id);
     await transactionDone(transaction);
   }
+}
+
+// The online rack keeps presets in the account only: it deletes what an
+// earlier version stored in this browser for guests. Resolves either way.
+export function deleteLocalPresets({indexedDBImpl = globalThis.indexedDB} = {}) {
+  return new Promise((resolve) => {
+    if (!indexedDBImpl) return resolve();
+    try {
+      const request = indexedDBImpl.deleteDatabase(DATABASE_NAME);
+      request.onsuccess = request.onerror = request.onblocked = () => resolve();
+    } catch { resolve(); }
+  });
 }
 
 export class RemotePresetStore {

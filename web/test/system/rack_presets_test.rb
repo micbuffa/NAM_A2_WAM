@@ -3,6 +3,7 @@ require "application_system_test_case"
 # A preset is the whole rack: pedals, both lanes and gains belong to it.
 class RackPresetsTest < ApplicationSystemTestCase
   include RackAssets
+  include RackSignIn
 
   RACK_JS = <<~JS.freeze
     const done = arguments[arguments.length - 1];
@@ -15,8 +16,7 @@ class RackPresetsTest < ApplicationSystemTestCase
 
   setup do
     skip_unless_rack_synced
-    visit "/rack/"
-    wait_for_rack(wait: 40)
+    open_rack_signed_in "presets@example.com"
   end
 
   test "pedals and gains belong to the preset that saved them" do
@@ -45,20 +45,14 @@ class RackPresetsTest < ApplicationSystemTestCase
   end
 
   test "a preset saved before the FX rack does not keep the current pedals" do
-    page.evaluate_async_script(<<~JS)
+    state = JSON.parse(page.evaluate_async_script(<<~JS))
       const done = arguments[0];
       (async () => {
         const {node, cabinetNode} = phase3Debug;
-        const state = {version: 1, nam: await node.getState(), cabinet: await cabinetNode.getState()};
-        const request = indexedDB.open('nam-a2-wam-presets', 1);
-        request.onupgradeneeded = () => request.result.createObjectStore('presets', {keyPath: 'id'});
-        request.onsuccess = () => {
-          const tx = request.result.transaction('presets', 'readwrite');
-          tx.objectStore('presets').put({id: 'legacy', name: 'Legacy', state, createdAt: '2026-01-01', updatedAt: '2026-01-01'});
-          tx.oncomplete = () => done();
-        };
+        done(JSON.stringify({version: 1, nam: await node.getState(), cabinet: await cabinetNode.getState()}));
       })();
     JS
+    User.find_by!(email: "presets@example.com").presets.create!(name: "Legacy", state:)
     visit "/rack/"
     wait_for_rack(wait: 40)
     add_pedal_and_gains
@@ -91,7 +85,7 @@ class RackPresetsTest < ApplicationSystemTestCase
       click_on "Create preset"
     end
     assert_selector "#presetTitle", exact_text: "My twin"
-    assert_text "My preset · Stored in this browser"
+    assert_text "My preset · Synced to presets@example.com"
   end
 
   test "a new preset can start from the default rack" do

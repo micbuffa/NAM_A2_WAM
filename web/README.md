@@ -3,8 +3,13 @@
 Rails 8 + SQLite monolith that serves the rack on a single origin and adds
 passwordless accounts: sign in with an emailed link, then
 keep presets (the full WAM chain), NAM/IR favorites and preferences on every
-device. Visitors who do not sign in keep using the rack exactly as before,
-with their data in the browser.
+device. Visitors who do not sign in can play with the whole rack and load
+Factory presets, but saving a preset needs an account: Save and New preset
+open the sign-in dialog, then save the sound on screen. Unsaved changes are
+kept as a draft in the browser (one per account, plus one for guests), so a
+reload does not lose them. Guest favorites and preferences stay in the
+browser until imported after sign-in; presets are no longer stored there
+(the rack deletes the old `nam-a2-wam-presets` database).
 
 ## How it fits together
 
@@ -16,7 +21,7 @@ with their data in the browser.
 | `/api/me`, `/api/presets`, `/api/favorites`, `/api/preferences`, `/api/import` | JSON controllers | Session cookie + `X-CSRF-Token`. Every query is scoped to the current user. |
 
 The rack's account code lives in [`../examples/wam/account/`](../examples/wam/account/)
-(`api.js`, account block, presets, favorites sync, guest import). It only
+(`api.js`, account block, presets, drafts, favorites sync, guest import). It only
 enables itself when the page carries a CSRF meta tag, so the static
 distribution and `npm start` are unchanged.
 
@@ -97,7 +102,8 @@ Notes:
 ```sh
 bin/rails test          # models, auth flow, API scoping, isolation headers
 bin/rails test:system   # headless Chrome: crossOriginIsolated, WAM startup,
-                        # sign-in by link, preset save/alter/restore, cross-tab sign-in
+                        # sign-in by link, preset save/alter/restore, cross-tab sign-in,
+                        # sign-in to save as a guest, draft restore after a reload
 ```
 
 Tests that need the real rack tree skip with a hint when `public/rack/` has

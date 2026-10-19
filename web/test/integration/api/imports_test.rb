@@ -14,7 +14,8 @@ class Api::ImportsTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     alice = users(:alice).reload
-    assert alice.presets.exists?(name: "Local crunch")
+    assert_not alice.presets.exists?(name: "Local crunch"), "presets are not imported"
+    assert_not response.parsed_body.key?("presets")
     assert_equal 2, alice.favorites.count
     assert_equal({ "autoLevel" => false, "modelVariant" => "full" }, alice.preferences) # account wins
     assert_equal 1, users(:bob).presets.count
@@ -23,9 +24,9 @@ class Api::ImportsTest < ActionDispatch::IntegrationTest
   test "an invalid entry rolls the whole import back" do
     sign_in_as users(:alice)
     post api_import_path, as: :json, params: {
-      presets: [ { name: "ok", state: { nam: {} } }, { name: "", state: { nam: {} } } ]
+      favorites: [ { kind: "ir", assetRef: "local:ok", metadata: {} }, { kind: "unknown", assetRef: "local:bad", metadata: {} } ]
     }
     assert_response :unprocessable_content
-    assert_not users(:alice).presets.exists?(name: "ok")
+    assert_not users(:alice).favorites.exists?(asset_ref: "local:ok")
   end
 end

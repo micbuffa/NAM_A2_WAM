@@ -142,8 +142,11 @@ An automated validation page is available at
 
 [`web/`](web/) is a Rails 8 + SQLite app that serves the same rack on one origin and adds
 passwordless accounts (emailed magic link), server-side presets of the whole WAM chain,
-synced NAM/IR favorites and preferences. Without an account the rack works as above, with presets
-kept in the browser (IndexedDB); after sign-in the rack offers to import them.
+synced NAM/IR favorites and preferences. Without an account the rack works as above (amps, cabinets,
+pedals, Factory presets), but saving a preset asks to sign in first; the sound on screen is kept and
+saved once signed in. Unsaved changes survive a reload as a draft in the browser (IndexedDB). Favorites
+and preferences set as a guest stay in the browser, and the rack offers to import them after sign-in.
+The static distribution, which has no accounts, keeps user presets in the browser.
 
 ```sh
 npm run setup                 # once: third-party checkouts + WASM

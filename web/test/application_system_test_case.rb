@@ -23,14 +23,21 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
   # Every test starts as a fresh guest: Capybara only clears the storage of
   # the window a test ends on, and the rack reopens the guest's last preset
-  # (localStorage) from IndexedDB. /up is same-origin and loads no rack.
+  # (localStorage) and its unsaved rack (IndexedDB draft). /up is same-origin
+  # and loads no rack.
   setup do
     visit "/up"
     page.evaluate_async_script(<<~JS)
       const done = arguments[0];
       localStorage.clear();
-      const request = indexedDB.deleteDatabase('nam-a2-wam-presets');
-      request.onsuccess = request.onerror = request.onblocked = () => done();
+      // A deletion can stay pending while the previous rack page closes its
+      // connections: do not let it time the test out.
+      const remove = (name) => new Promise((resolve) => {
+        const request = indexedDB.deleteDatabase(name);
+        request.onsuccess = request.onerror = request.onblocked = () => resolve();
+        setTimeout(resolve, 3000);
+      });
+      Promise.all(['nam-a2-wam-presets', 'nam-a2-wam-draft'].map(remove)).then(() => done());
     JS
   end
 end
