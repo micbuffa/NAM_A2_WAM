@@ -20,15 +20,17 @@ const LAST_PRESET_KEY = 'nam-a2-wam.last-preset';
 // carry on with the rack as it is. With draftStore (RackDraft.js), unsaved
 // changes are kept as a draft a moment after the rack changes, and brought
 // back when the page loads; saving, loading or reverting drops the draft.
+// While the rack differs from that preset, the header shows "Unsaved
+// changes" and Save gets a dot (checked checkDelay after each change).
 export default class PresetsPanel extends EventTarget {
   // requestSignIn(reason): resolves with true once signed in, false if cancelled.
   // watchRack(listener): calls listener whenever the rack changes.
   constructor({account, localStore, remoteStore, factoryStore, captureState, applyState, defaultState, suggestName = () => '',
-    requestSignIn = null, draftStore = null, watchRack = null, draftDelay = 1000, report = () => {}, root = document,
+    requestSignIn = null, draftStore = null, watchRack = null, draftDelay = 1000, checkDelay = 250, report = () => {}, root = document,
     storage = globalThis.localStorage}) {
     super();
     Object.assign(this, {account, localStore, remoteStore, factoryStore, captureState, applyState, defaultState, suggestName, requestSignIn,
-      draftStore, watchRack, draftDelay, report, storage});
+      draftStore, watchRack, draftDelay, checkDelay, report, storage});
     this.$ = (id) => root.getElementById(id);
     this.presets = [];
     this.factory = [];
@@ -38,6 +40,8 @@ export default class PresetsPanel extends EventTarget {
     this.syncing = Promise.resolve(); // the reaction to the last sign-in or sign-out
     this.signingInToSave = false;
     this.draftTimer = null;
+    this.modified = false; // shown in the header; follows isModified()
+    this.checkTimer = null;
   }
 
   // Drafts never cross accounts.
@@ -86,10 +90,30 @@ export default class PresetsPanel extends EventTarget {
     await this.refresh();
     await this.markClean();
     if (!await this.restoreDraft()) await this.reopenLast();
-    this.watchRack?.(() => this.scheduleDraft());
+    this.watchRack?.(() => { this.scheduleDraft(); this.scheduleCheck(); });
     // A change made just before closing the page is not lost to the delay.
     globalThis.addEventListener?.('pagehide', () => { if (this.draftTimer !== null) this.writeDraft().catch(() => {}); });
     return this;
+  }
+
+  scheduleCheck() {
+    clearTimeout(this.checkTimer);
+    this.checkTimer = setTimeout(() => this.checkModified().catch((error) => console.warn('Unsaved state not checked', error)), this.checkDelay);
+  }
+
+  // A result computed against a baseline replaced meanwhile (load, save) is stale.
+  async checkModified() {
+    this.checkTimer = null;
+    if (this.busy) return this.scheduleCheck();
+    const baseline = this.baseline;
+    const modified = await this.isModified();
+    if (baseline === this.baseline && !this.busy) this.setModified(modified);
+  }
+
+  setModified(modified) {
+    if (this.modified === modified) return;
+    this.modified = modified;
+    this.render();
   }
 
   scheduleDraft() {
@@ -140,6 +164,7 @@ export default class PresetsPanel extends EventTarget {
     }
     this.activeId = from ? from.id : null;
     this.baseline = from || draft.presetId === null ? draft.baseline ?? null : null;
+    this.modified = true;
     this.render();
     this.status('Restored your unsaved changes.');
     this.report('Restored your unsaved rack.');
@@ -148,6 +173,9 @@ export default class PresetsPanel extends EventTarget {
 
   async markClean() {
     try { this.baseline = JSON.stringify(await this.captureState()); } catch { this.baseline = null; }
+    clearTimeout(this.checkTimer);
+    this.checkTimer = null;
+    this.setModified(this.baseline === null);
   }
 
   // Unreadable racks count as modified: nothing is overwritten on a doubt.
@@ -232,6 +260,7 @@ export default class PresetsPanel extends EventTarget {
     const meta = !active ? 'Not saved as a preset' : active.factory ? `Factory · ${active.category}` : `My preset · ${this.scopeText()}`;
     this.$('presetTitle').textContent = name;
     this.$('presetMeta').textContent = meta;
+    this.$('presetUnsaved').hidden = !this.modified;
     this.$('presetRename').hidden = !mine;
     const revert = this.$('presetRevert');
     revert.hidden = !active;
@@ -241,10 +270,11 @@ export default class PresetsPanel extends EventTarget {
     remove.title = mine ? `Delete “${active.name}”` : active ? 'Factory presets cannot be deleted' : 'No preset selected';
     const save = this.$('presetSaveButton');
     save.disabled = this.busy;
+    save.toggleAttribute('dot', this.modified);
     save.title = this.needsSignIn ? 'Sign in to save the current rack'
       : mine ? `Save the current rack to “${active.name}”` : 'Save the current rack as a new preset';
     this.$('presetNew').title = this.needsSignIn ? 'Sign in to create a preset' : '';
-    this.dispatchEvent(new CustomEvent('change', {detail: {name, meta}}));
+    this.dispatchEvent(new CustomEvent('change', {detail: {name, meta: this.modified ? `${meta} · Unsaved changes` : meta, modified: this.modified}}));
   }
 
   // Default names must not collide: two presets of the same amp would

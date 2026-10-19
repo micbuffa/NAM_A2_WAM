@@ -281,12 +281,15 @@ class AccountPresetsTest < ApplicationSystemTestCase
     skip_unless_rack_synced
     visit "/rack/"
     wait_for_rack(wait: 40)
+    assert_no_selector "#presetUnsaved"
     set_input_gain(-9)
+    assert_selector "#presetUnsaved", text: /unsaved changes/i
     wait_until("the draft is saved") { draft("guest") }
 
     visit "/rack/"
     wait_for_rack(wait: 40)
     assert_selector "#presetStatus", text: "Restored your unsaved changes."
+    assert_selector "#presetUnsaved", text: /unsaved changes/i
     assert_equal(-9, chain_snapshot.dig("params", "inputGain"))
     assert_selector "#presetTitle", exact_text: "Untitled rack"
 
@@ -300,6 +303,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
       click_on "Save preset"
     end
     assert_selector "#presetTitle", exact_text: "Kept"
+    assert_no_selector "#presetUnsaved"
     wait_until("saving drops the draft") { !draft("user:#{user.id}") }
 
     visit "/rack/"

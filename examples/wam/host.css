@@ -146,6 +146,8 @@ body[data-workspace="tone"] [data-workspace="tracks"], body[data-workspace="trac
 .preset-heading { min-width: 0; }
 .preset-title-row { display: flex; align-items: center; gap: var(--tl-space-2); margin-top: 7px; }
 .rack-header .preset-title-row h2 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preset-unsaved { flex: none; }
+.preset-unsaved[hidden] { display: none; }
 .preset-meta { margin: 6px 0 0; color: var(--tl-text-muted); font-size: var(--tl-fs-sm); }
 .preset-header-actions { display: flex; align-items: center; gap: var(--tl-space-2); }
 .preset-header-actions[hidden] { display: none; }

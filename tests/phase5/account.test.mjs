@@ -240,6 +240,7 @@ test('the active preset is remembered in the account when signed in, in the brow
 // Just enough DOM for PresetsPanel.attach() and render().
 const fakePresetDom = () => {
   const element = () => ({hidden: false, disabled: false, textContent: '', value: '', title: '', children: [],
+    attributes: new Set(), toggleAttribute(name, force) { if (force) this.attributes.add(name); else this.attributes.delete(name); },
     classList: {toggle() {}}, append(...nodes) { this.children.push(...nodes); }, replaceChildren(...nodes) { this.children = nodes; }});
   const elements = new Map();
   globalThis.document ??= {createElement: element};
@@ -401,4 +402,45 @@ test('unsaved changes are kept as a draft and brought back on the next page load
   await reloaded.edit('yet another');
   await reloaded.panel.load(1);
   assert.equal(records.has('guest'), false, 'loading (or reverting) drops the draft');
+});
+
+test('the header shows unsaved changes while the rack differs from its preset', async () => {
+  const records = new Map();
+  const draftStore = {get: async (scope) => structuredClone(records.get(scope) ?? null),
+    put: async (scope, draft) => { records.set(scope, structuredClone({scope, ...draft})); }, delete: async (scope) => { records.delete(scope); }};
+  const store = {list: async () => [{id: 1, name: 'Lead'}], get: async (id) => ({state: {sound: `preset ${id}`}}),
+    update: async (id) => ({id, name: 'Lead'})};
+  const page = () => {
+    const rack = {state: {sound: 'default'}, listeners: []}, root = fakePresetDom(), values = new Map([['nam-a2-wam.last-preset', '1']]);
+    const panel = new PresetsPanel({account: null, localStore: store, factoryStore: null, draftStore, draftDelay: 0, checkDelay: 0, root,
+      watchRack: (listener) => rack.listeners.push(listener),
+      storage: {getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: (key) => values.delete(key)},
+      captureState: async () => structuredClone(rack.state), applyState: async (state) => { rack.state = structuredClone(state); },
+      defaultState: () => ({sound: 'default'})});
+    const changes = [];
+    panel.addEventListener('change', ({detail}) => changes.push(detail));
+    const edit = async (sound) => { rack.state = {sound}; rack.listeners.forEach((listener) => listener()); await new Promise((resolve) => setTimeout(resolve, 5)); };
+    const shown = () => [!root.getElementById('presetUnsaved').hidden, root.getElementById('presetSaveButton').attributes.has('dot')];
+    return {panel, edit, shown, changes};
+  };
+
+  const first = page();
+  await first.panel.attach();
+  assert.deepEqual(first.shown(), [false, false], 'a loaded preset is clean');
+  await first.edit('tweaked');
+  assert.deepEqual(first.shown(), [true, true], 'an edit shows the badge and the Save dot');
+  assert.equal(first.changes.at(-1).meta, 'My preset · Stored in this browser · Unsaved changes');
+  await first.edit('preset 1');
+  assert.deepEqual(first.shown(), [false, false], 'back to the preset: clean again');
+  await first.edit('tweaked');
+  await first.panel.save();
+  assert.deepEqual(first.shown(), [false, false], 'saving clears it');
+  await first.edit('tweaked again');
+  await first.panel.load(1);
+  assert.deepEqual(first.shown(), [false, false], 'loading (or reverting) clears it');
+  await first.edit('kept as a draft');
+
+  const reloaded = page();
+  await reloaded.panel.attach();
+  assert.deepEqual(reloaded.shown(), [true, true], 'a restored draft is still unsaved');
 });
