@@ -63,6 +63,9 @@
 .fx-photo { position: relative; isolation: isolate; display: grid; flex: 1; min-height: 0; margin: 10px 10px 0; padding: 10px 14px; border: 1px solid var(--tl-border-subtle);
   border-radius: var(--tl-radius-md); background: radial-gradient(circle at 50% 35%, var(--tl-surface-4), var(--tl-surface-sunken) 75%); cursor: grab; touch-action: none; }
 .fx-photo:last-child { margin-bottom: 10px; }
+/* An active (not bypassed) module frames its photo in the accent colour. */
+.fx-card[active] .fx-photo { border: 3px solid var(--tl-accent); box-shadow: inset 0 0 0 2px var(--tl-border), 0 0 12px rgb(199 246 91 / .08); }
+.fx-card[active] .fx-photo:focus-visible { box-shadow: inset 0 0 0 2px var(--tl-border), var(--tl-focus-ring); }
 .fx-photo:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
 .fx-photo img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; border-radius: var(--tl-radius-sm); }
 /* Level halo: fixed shadows + opacity avoid fragile computed colour arithmetic. */
