@@ -78,13 +78,17 @@ class RackPresetsTest < ApplicationSystemTestCase
     assert find("#presetDelete")[:disabled]
     assert_no_selector "#presetRename", visible: true
 
+    add_pedal_and_gains
     click_on "Save"
     within("dialog[open]") do
       assert_field "Preset name", with: "Twin Clean"
+      assert_no_text "Start from"
+      assert_no_field "Default rack"
       fill_in "Preset name", with: "My twin"
-      click_on "Create preset"
+      click_on "Save preset"
     end
     assert_selector "#presetTitle", exact_text: "My twin"
+    assert_equal "effect>nam>cabinet", rack["chain"], "Save keeps the rack as it is"
     assert_text "My preset · Synced to presets@example.com"
   end
 

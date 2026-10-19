@@ -297,7 +297,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
     click_on "Save"
     within("dialog.new-preset-dialog[open]") do
       fill_in "Preset name", with: "Kept"
-      click_on "Create preset"
+      click_on "Save preset"
     end
     assert_selector "#presetTitle", exact_text: "Kept"
     wait_until("saving drops the draft") { !draft("user:#{user.id}") }

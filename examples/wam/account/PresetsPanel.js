@@ -262,13 +262,14 @@ export default class PresetsPanel extends EventTarget {
     return this.uniqueName(base.slice(0, 90));
   }
 
-  // New preset dialog: a name, and what the preset starts from.
+  // New preset dialog: a name and, with chooseSource, what the preset starts
+  // from (Save stores the rack as it is, so it only asks for the name).
   // Resolves with {name, source: 'current' | 'default'} or null.
-  async askNewPreset() {
+  async askNewPreset({chooseSource = true} = {}) {
     const value = await this.suggestedName();
     const currentLabel = this.active ? `${this.active.name}, with your changes` : 'The rack as it is now';
     return new Promise((resolve) => {
-      const {dialog, body, id} = createDialog({title: 'New preset', eyebrow: 'Preset library', className: 'new-preset-dialog'});
+      const {dialog, body, id} = createDialog({title: chooseSource ? 'New preset' : 'Save preset', eyebrow: 'Preset library', className: 'new-preset-dialog'});
       const form = document.createElement('form');
       form.method = 'dialog';
       const label = Object.assign(document.createElement('label'), {htmlFor: `${id}-name`, textContent: 'Preset name'});
@@ -288,7 +289,8 @@ export default class PresetsPanel extends EventTarget {
         choice('default', 'Default rack', 'NAM amp and cabinet, default settings', false));
       const cancel = button('Cancel', {value: 'cancel'});
       cancel.onclick = () => dialog.close('cancel');
-      form.append(label, name, legend, sources, actionsRow(cancel, button('Create preset', {type: 'submit', primary: true, value: 'ok'})));
+      const submit = button(chooseSource ? 'Create preset' : 'Save preset', {type: 'submit', primary: true, value: 'ok'});
+      form.append(label, name, ...(chooseSource ? [legend, sources] : []), actionsRow(cancel, submit));
       body.append(form);
       dialog.addEventListener('close', () => {
         const source = form.querySelector('input[type=radio]:checked')?.value || 'current';
@@ -311,9 +313,9 @@ export default class PresetsPanel extends EventTarget {
     } finally { this.signingInToSave = false; }
   }
 
-  async create() {
+  async create({chooseSource = true} = {}) {
     if (!await this.signInToSave()) return;
-    const request = await this.askNewPreset();
+    const request = await this.askNewPreset({chooseSource});
     if (!request) return;
     this.$('presetNew').disabled = true;
     try {
@@ -334,7 +336,7 @@ export default class PresetsPanel extends EventTarget {
   async save() {
     if (!await this.signInToSave()) return;
     const active = this.active;
-    if (!active || active.factory) return this.create();
+    if (!active || active.factory) return this.create({chooseSource: false});
     this.$('presetSaveButton').disabled = true;
     try {
       await this.store.update(active.id, {state: await this.captureState()});
