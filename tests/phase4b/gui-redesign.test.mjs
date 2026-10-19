@@ -42,7 +42,7 @@ test('NAM GUI keeps calibration in amp settings and opens the model catalogue di
   assert.match(gui, /\.module-head\s*\{[^}]*grid-template-columns:80px minmax\(0,1fr\) 80px[^}]*padding:7px 12px/u);
   assert.match(gui, /\.module-logo\s*\{[^}]*width:78px;height:25px/u);
   assert.match(gui, /\.signal-flow\s*\{[^}]*padding:4px 8px/u);
-  assert.match(gui, /\.flow-stage\s*\{[^}]*padding:2px 5px[^}]*font-size:7px/u);
+  assert.match(gui, /\.flow-stage\s*\{[^}]*padding:2px 5px[^}]*font-size:9px/u);
   await access(new URL('../../src/nam-wam/neuralwamp-logo.svg', import.meta.url));
   assert.doesNotMatch(gui, /data-plugin-tab=/u);
   assert.match(gui, /data-plugin-panel="amp" hidden><section class="modelCalibration"/u);

@@ -7,7 +7,7 @@ import './tl-icon.js';
 const styles = `
   :host { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--tl-space-2);
     height: 38px; padding: 0 14px; border: 1px solid var(--tl-border); border-radius: var(--tl-radius-md);
-    background: var(--tl-surface-3); color: var(--tl-text-2); font-size: var(--tl-fs-sm); font-weight: 600; line-height: 1;
+    background: var(--tl-surface-3); color: var(--tl-text-2); font-size: var(--tl-fs-control); font-weight: 600; line-height: 1;
     white-space: nowrap; cursor: pointer; user-select: none; outline: none; transition: background .15s, border-color .15s, color .15s; }
   :host(:hover) { border-color: var(--tl-border-hover); color: var(--tl-text); }
   :host(:focus-visible) { box-shadow: var(--tl-focus-ring); }

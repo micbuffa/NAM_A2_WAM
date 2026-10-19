@@ -17,7 +17,7 @@ const styles = `
     color: var(--tl-text-2); background: var(--tl-surface-6); }
   .icon:not(.filled) { display: none; }
   .titles { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-  small { overflow: hidden; color: var(--tl-text-muted); font-size: var(--tl-fs-2xs); letter-spacing: .08em; text-transform: uppercase;
+  small { overflow: hidden; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); letter-spacing: .08em; text-transform: uppercase;
     white-space: nowrap; text-overflow: ellipsis; }
   strong { overflow: hidden; margin-top: 2px; font-size: var(--tl-fs-sm); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
   .actions { display: flex; align-items: center; gap: 2px; flex: none; }

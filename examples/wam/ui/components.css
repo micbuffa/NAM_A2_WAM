@@ -6,7 +6,7 @@
 
 .tl-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--tl-space-2); height: 38px; min-height: 0; padding: 0 14px;
   border: 1px solid var(--tl-border); border-radius: var(--tl-radius-md); background: var(--tl-surface-3); color: var(--tl-text-2);
-  font: 600 var(--tl-fs-sm)/1 var(--tl-font-ui); white-space: nowrap; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+  font: 600 var(--tl-fs-control)/1 var(--tl-font-ui); white-space: nowrap; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
 .tl-btn:hover { border-color: var(--tl-border-hover); background: var(--tl-surface-3); color: var(--tl-text); }
 .tl-btn:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
 .tl-btn:disabled { opacity: .35; cursor: not-allowed; }
@@ -55,7 +55,7 @@
     border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); box-shadow: 0 16px 40px rgba(0, 0, 0, .55);
     scrollbar-width: thin; scrollbar-color: var(--tl-border-strong) transparent; }
   tl-select > select option { display: flex; align-items: center; gap: var(--tl-space-2); min-height: 32px; padding: 6px 10px;
-    border-radius: var(--tl-radius-sm); font: 500 var(--tl-fs-sm) var(--tl-font-ui); white-space: nowrap; cursor: pointer; outline: none; }
+    border-radius: var(--tl-radius-sm); font: 500 var(--tl-fs-control) var(--tl-font-ui); white-space: nowrap; cursor: pointer; outline: none; }
   tl-select[size="sm"] > select option { min-height: 28px; font-size: var(--tl-fs-xs); }
   tl-select > select option:hover, tl-select > select option:focus-visible { color: var(--tl-text); background: var(--tl-surface-5); }
   tl-select > select option:checked { color: var(--tl-accent); background: var(--tl-accent-tint); }
@@ -64,7 +64,7 @@
   /* display: flex above would show hidden options (placeholders such as "Untitled rack"). */
   tl-select > select option[hidden] { display: none; }
   /* The group label is the optgroup's own text: style the group, then reset its options. */
-  tl-select > select optgroup { padding: 6px 0 2px; color: var(--tl-text-muted); font: 600 var(--tl-fs-2xs) var(--tl-font-ui);
+  tl-select > select optgroup { padding: 6px 0 2px; color: var(--tl-text-muted); font: 600 var(--tl-fs-xs) var(--tl-font-ui);
     letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
   tl-select > select optgroup option { margin-top: 2px; letter-spacing: normal; text-transform: none; }
   tl-select > select optgroup option:not(:checked, :hover, :focus-visible) { color: var(--tl-text-2); }

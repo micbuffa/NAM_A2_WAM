@@ -67,9 +67,10 @@
   /* Typography */
   --tl-font-ui: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --tl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --tl-fs-2xs: 8px;
-  --tl-fs-xs: 9px;
-  --tl-fs-sm: 11px;
+  --tl-fs-2xs: 9px;     /* mono values, versions */
+  --tl-fs-xs: 10px;     /* uppercase labels, captions */
+  --tl-fs-sm: 11px;     /* body, titles */
+  --tl-fs-control: 12px; /* buttons, selects, segmented */
   --tl-fs-md: 13px;
   --tl-fs-lg: 19px;
   --tl-fs-xl: 25px;

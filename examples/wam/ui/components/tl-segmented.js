@@ -8,7 +8,7 @@ const styles = `
     background: var(--tl-surface-sunken); }
   :host([disabled]) { opacity: .45; pointer-events: none; }
   button { height: 31px; padding: 0 14px; border: 0; border-radius: var(--tl-radius-sm); background: none; color: var(--tl-text-muted);
-    font: 600 var(--tl-fs-sm) var(--tl-font-ui); white-space: nowrap; cursor: pointer; outline: none; transition: background .15s, color .15s; }
+    font: 600 var(--tl-fs-control) var(--tl-font-ui); white-space: nowrap; cursor: pointer; outline: none; transition: background .15s, color .15s; }
   button:hover { color: var(--tl-text); }
   button[aria-checked="true"] { background: var(--tl-surface-6); color: var(--tl-text); box-shadow: inset 0 1px rgba(255, 255, 255, .04); }
   button:focus-visible { box-shadow: var(--tl-focus-ring); }
