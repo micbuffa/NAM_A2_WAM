@@ -14,16 +14,25 @@ export class FxChainView {
     this.cards=new Map();this.parking=element('div');this.parking.hidden=true;document.body.append(this.parking);
     this.dialog=element('dialog','fx-editor tl-modal');
     const bar=element('header','fx-editor-bar tl-modal-header'),titles=element('div','fx-editor-titles');
-    this.kicker=element('p','tl-eyebrow');this.title=element('h2','tl-modal-title');this.title.id=`fx-editor-title-${++editorSequence}`;this.dialog.setAttribute('aria-labelledby',this.title.id);titles.append(this.kicker,this.title);
-    this.replace=attrs(element('tl-button','fx-replace','Replace'),{size:'sm',icon:'copy'});this.remove=attrs(element('tl-button','','Remove'),{size:'sm',variant:'danger',icon:'trash'});
-    const close=attrs(element('tl-icon-button'),{icon:'close',variant:'ghost','aria-label':'Close editor'});
-    bar.append(titles,this.replace,this.remove,close);this.mount=element('div','fx-editor-mount');
+    this.kicker=element('p','tl-eyebrow');this.title=element('h2','tl-modal-title');this.title.id=`fx-editor-title-${++editorSequence}`;this.dialog.setAttribute('aria-labelledby',this.title.id);
+    this.subtitle=element('p','fx-editor-subtitle');titles.append(this.kicker,this.title,this.subtitle);
+    const close=attrs(element('tl-icon-button','fx-editor-close'),{icon:'close','aria-label':'Close editor'});
+    this.state=attrs(element('tl-badge','fx-editor-state'),{tone:'warning',dot:'',role:'status'});this.state.hidden=true;
+    const actions=element('div','fx-editor-actions');actions.append(this.state,close);
+    bar.append(titles,actions);this.mount=element('div','fx-editor-mount');this.mount.id=`fx-editor-mount-${editorSequence}`;
+    this.tabs=attrs(element('nav','fx-editor-tabs'),{role:'tablist','aria-label':'Editor sections'});this.tabs.hidden=true;
     const body=element('div','fx-editor-body');this.editorSides={input:this.createEditorSide('input'),output:this.createEditorSide('output')};
-    body.append(this.editorSides.input.root,this.mount,this.editorSides.output.root);this.dialog.append(bar,body);document.body.append(this.dialog);
-    this.mount.addEventListener('nam-capture-loaded',event=>{if(this.dialog.open&&event.target===this.chain.find(this.activeId)?.plugin?.audioNode?.gui)this.close();});
+    body.append(this.editorSides.input.root,this.mount,this.editorSides.output.root);
+    const footer=element('footer','fx-editor-footer'),done=attrs(element('tl-button','','Done'),{variant:'primary'});
+    footer.append(element('span','fx-editor-status','Changes apply live to the rack'),done);done.onclick=()=>this.close();
+    this.dialog.append(bar,this.tabs,body,footer);document.body.append(this.dialog);
+    // The cabinet GUI asks the host to apply AUTO/ON/BYPASS (cancelable event):
+    // the chain decides the bypass and sends the new routing status back.
+    this.mount.addEventListener('cabinet-routing-mode',event=>{if(event.target!==this.gui)return;event.preventDefault();this.chain.enqueue(()=>this.chain.applyRouting()).catch(error=>this.report(error.message,true));});
+    // A click anywhere else in the editor closes the open IN/OUT panel.
+    this.dialog.addEventListener('pointerdown',event=>{for(const ui of Object.values(this.editorSides))if(!ui.panel.hidden&&!ui.root.contains(event.target))this.toggleSide(ui,false);});
+    this.mount.addEventListener('editor-tab-change',event=>{if(event.target===this.gui)this.syncTabs();});
     close.onclick=()=>this.close();this.dialog.addEventListener('cancel',event=>{event.preventDefault();this.close();});
-    this.remove.onclick=()=>this.confirmRemove(this.activeId);
-    this.replace.onclick=()=>this.showMenu(null,this.replace,this.activeId);
     this.confirmation=element('dialog','fx-confirm tl-modal');document.body.append(this.confirmation);
     chain.addEventListener('change',()=>this.render());chain.addEventListener('error',e=>report(e.detail.message,true));
     this.setupGainLabels();this.render();this.animateLevels();this.timer=setInterval(()=>this.refresh().catch(error=>report(error.message,true)),350);
@@ -42,18 +51,50 @@ export class FxChainView {
     meter.title=clipping?'CLIP':`${value.db.toFixed(1)} dBFS`;
     meter.setAttribute('aria-valuetext',meter.title);
   }
+  // IN / OUT: a button beside the plugin opens a floating panel with the
+  // live level and the gain of this plugin's input or output.
   createEditorSide(side) {
     const name=side==='input'?'Input':'Output',root=element('aside','fx-editor-side fx-editor-'+side);
-    const button=attrs(element('tl-icon-button','fx-plugin-gain-toggle'),{icon:'sliders',size:'sm',title:name+' gain','aria-label':name+' gain','aria-expanded':'false'});
-    const panel=element('div','fx-plugin-gain-panel');panel.hidden=true;
-    const label=element('label','',name+' gain'),fader=element('tl-slider'),slider=element('input'),value=element('output'),reset=attrs(element('tl-button','','Reset'),{size:'sm',variant:'ghost'});
-    slider.type='range';slider.min='-48';slider.max='12';slider.step='.5';slider.setAttribute('aria-label',name+' gain in dB');fader.append(slider);label.append(fader);panel.append(label,value,reset);
+    const button=attrs(element('tl-icon-button','fx-plugin-gain-toggle'),{icon:'sliders',title:name+' gain','aria-label':name+' gain','aria-expanded':'false'});
+    const panel=attrs(element('section','fx-plugin-gain-panel'),{role:'group','aria-label':name+' settings'});panel.hidden=true;
+    const head=element('header','fx-gain-panel-head'),heading=element('div');heading.append(element('p','tl-eyebrow','Signal controls'),element('h3','',name));
+    const hide=attrs(element('tl-icon-button'),{icon:'close',size:'sm',variant:'ghost','aria-label':`Close ${name.toLowerCase()} settings`});head.append(heading,hide);
+    const readout=element('div','fx-gain-readout'),levelText=element('strong','','−∞ dBFS'),meter=this.createThinMeter(name+' level');meter.classList.add('is-horizontal');
+    readout.append(element('span','',name+' level'),levelText,meter);
+    const label=element('label','fx-gain-control'),row=element('div','fx-gain-row'),fader=element('tl-slider'),slider=element('input'),value=element('output'),reset=attrs(element('tl-button','','Reset'),{size:'sm',variant:'ghost'});
+    slider.type='range';slider.min='-48';slider.max='12';slider.step='.5';slider.setAttribute('aria-label',name+' gain in dB');fader.append(slider);
+    row.append(fader,value);label.append(element('span','',name+' gain'),row);
+    const body=element('div','fx-gain-panel-body');body.append(readout,label,reset);panel.append(head,body);
     const set=db=>{try{this.chain.setEntryGain(this.activeId,side,db);this.syncEditorGains();}catch(error){this.report(error.message,true);}};
     slider.oninput=()=>set(slider.value);reset.onclick=()=>set(0);
-    button.onclick=()=>{panel.hidden=!panel.hidden;button.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden)slider.focus();};
-    panel.onkeydown=event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();panel.hidden=true;button.setAttribute('aria-expanded','false');button.focus();}};
-    const meter=this.createThinMeter(name+' level'),caption=element('span','fx-editor-side-label',side==='input'?'IN':'OUT');root.append(button,caption,meter,panel);
-    return {root,button,panel,slider,value,meter};
+    const ui={root,button,panel,slider,value,meter,levelText};
+    button.onclick=()=>this.toggleSide(ui,panel.hidden);hide.onclick=()=>{this.toggleSide(ui,false);button.focus();};
+    panel.onkeydown=event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();this.toggleSide(ui,false);button.focus();}};
+    root.append(button,element('span','fx-editor-side-label',side==='input'?'IN':'OUT'),panel);
+    return ui;
+  }
+  // Plugins that list their sections (editorTabs) get the host tab bar and
+  // hide their own navigation; others keep their GUI as is.
+  buildTabs() {
+    const gui=this.gui,tabs=gui?.editorTabs;this.tabs.replaceChildren();this.tabs.hidden=!tabs?.length;if(!tabs?.length)return;
+    gui.setAttribute('host-tabs','');
+    for(const {id,label} of tabs){
+      const tab=attrs(element('button','fx-editor-tab',label),{type:'button',role:'tab','aria-controls':this.mount.id});tab.dataset.tab=id;
+      tab.onclick=()=>{gui.showEditorTab(id);this.mount.scrollTop=0;};
+      tab.onkeydown=event=>{const step={ArrowRight:1,ArrowLeft:-1}[event.key];if(!step)return;event.preventDefault();
+        const all=[...this.tabs.children],next=all[(all.indexOf(tab)+step+all.length)%all.length];next.focus();next.click();};
+      this.tabs.append(tab);
+    }
+    this.syncTabs();
+  }
+  syncTabs() {
+    const active=this.gui?.activeEditorTab;
+    const all=[...this.tabs.children],current=all.find(tab=>tab.dataset.tab===active);
+    for(const tab of all){tab.setAttribute('aria-selected',String(tab===current));tab.tabIndex=tab===(current||all[0])?0:-1;}
+  }
+  toggleSide(ui,open) {
+    for(const other of Object.values(this.editorSides))if(other!==ui||!open){other.panel.hidden=true;other.button.setAttribute('aria-expanded','false');other.button.classList.remove('is-active');}
+    if(!open)return;ui.panel.hidden=false;ui.button.setAttribute('aria-expanded','true');ui.button.classList.add('is-active');ui.slider.focus();
   }
   syncEditorGains() {
     const entry=this.chain.entries.find(e=>e.id===this.activeId);if(!entry)return;
@@ -98,7 +139,7 @@ export class FxChainView {
         for(const entry of this.chain.entries){
           const value=entry.meter.read(),out=entry.outputMeter.read(),view=this.cards.get(entry.id),card=view?.card;if(!card)continue;
           this.updateThinMeter(view.inputMeter,value,now);this.updateThinMeter(view.outputMeter,out,now);
-          if(this.activeId===entry.id&&this.dialog.open){this.updateThinMeter(this.editorSides.input.meter,value,now);this.updateThinMeter(this.editorSides.output.meter,out,now);}
+          if(this.activeId===entry.id&&this.dialog.open)for(const [ui,level] of [[this.editorSides.input,value],[this.editorSides.output,out]]){if(ui.panel.hidden)continue;this.updateThinMeter(ui.meter,level,now);ui.levelText.textContent=ui.meter.classList.contains('is-clipping')?'CLIP':level.db<=-60?'−∞ dBFS':`${level.db.toFixed(1)} dBFS`;}
           // RMS controls normal colour; a full-scale peak overrides it for one second.
           if(value.peak>=1)card.dataset.clipUntil=String(now+1000);
           const clipping=Number(card.dataset.clipUntil)>now;
@@ -177,9 +218,7 @@ export class FxChainView {
     if(this.refreshing)return;this.refreshing=true;
     try { for(const e of this.chain.entries){
       const card=this.cards.get(e.id);if(!card)continue;
-      let name=e.record?.name||e.kind,image=e.record?.thumbnailUrl;
-      if(e.plugin&&e.kind==='nam'){const m=e.plugin.audioNode.getModelSnapshot();name=m?.provenance?.title||m?.name||'NeuralWAMp';image=m?.provenance?.imageUrl;}
-      if(e.plugin&&e.kind==='cabinet'){const ir=e.plugin.audioNode.getIrSnapshot();name=ir?.metadata?.title||ir?.name||'Cabinet';image=ir?.metadata?.imageUrl;}
+      let {name,image}=this.describe(e);
       if(e.plugin&&e.kind!=='effect'){const params=await e.plugin.audioNode.getParameterValues(false,'bypass');e.bypass=Number(params.bypass?.value)>=.5;}
       image ||= fallbackThumbnail({id:e.id,name});
       if(card.image.dataset.source!==image){card.image.dataset.source=image;card.image.src=image;}
@@ -187,7 +226,33 @@ export class FxChainView {
       card.card.setAttribute('heading',name);
       if(card.captures)await this.refreshCaptureSelector(e,card.captures);
       card.card.classList.toggle('is-bypassed',e.bypass||!e.plugin);card.card.active=!e.bypass&&!!e.plugin;if(e.routingStatus)card.photo.title+=` · ${e.routingStatus}`;
-    } this.syncEditorGains(); } finally {this.refreshing=false;}
+    } this.syncEditorGains();this.syncEditorHeader(); } finally {this.refreshing=false;}
+  }
+  // The loaded model or IR names the card; plain effects keep their plugin name.
+  describe(e) {
+    if(e.plugin&&e.kind==='nam'){const m=e.plugin.audioNode.getModelSnapshot();return {name:m?.provenance?.title||m?.name||'NeuralWAMp',image:m?.provenance?.imageUrl};}
+    if(e.plugin&&e.kind==='cabinet'){const ir=e.plugin.audioNode.getIrSnapshot();return {name:ir?.metadata?.title||ir?.name||'Cabinet',image:ir?.metadata?.imageUrl};}
+    return {name:e.record?.name||e.kind,image:e.record?.thumbnailUrl};
+  }
+  // Amp: the model is the title, as on the card. Cabinet: the plugin is the
+  // title and the IR the subtitle (the IR name is usually a long file name).
+  syncEditorHeader() {
+    const e=this.activeId&&this.chain.find(this.activeId);if(!e||!this.dialog.open)return;
+    const plugin=e.record?.name||(e.kind==='nam'?'NeuralWAMp':'NeuralWAMp Cabinet'),{name}=this.describe(e);
+    const [title,subtitle]=e.kind==='nam'&&e.plugin?[name,`${plugin} · Active model`]:e.kind==='cabinet'&&e.plugin?[plugin,`${name} · Active impulse response`]:[plugin,''];
+    if(this.title.textContent!==title)this.title.textContent=title;if(this.subtitle.textContent!==subtitle)this.subtitle.textContent=subtitle;
+    this.subtitle.hidden=!subtitle;this.syncEditorState(e);
+  }
+  // Bypass is shown once, beside the close button: why the module is silent
+  // (AUTO routing or a manual bypass), without colouring the editor content.
+  syncEditorState(e) {
+    let label='',title='';
+    if(e.plugin&&e.bypass&&e.kind==='cabinet'){
+      const auto=e.plugin.audioNode.routingMode==='auto',reason=(e.routingStatus||'').split(' — ')[1];
+      label=auto?'Bypassed · Auto':'Bypassed';
+      title=auto?`AUTO routing: the amp model already includes a cabinet${reason?` (${reason})`:''}`:'Cabinet bypassed manually';
+    }else if(e.plugin&&e.bypass)title=`${e.kind==='nam'?'Amp':'Module'} bypassed: the signal passes through unprocessed`,label='Bypassed';
+    if(this.state.textContent!==label)this.state.textContent=label;if(this.state.title!==title)this.state.title=title;this.state.hidden=!label;
   }
   createCaptureSelector(entry) {
     const root=element('div','fx-capture-selector'),previous=element('button','','‹'),select=element('select'),next=element('button','','›'),skin=attrs(element('tl-select'),{size:'sm'});skin.append(select);
@@ -215,13 +280,13 @@ export class FxChainView {
   async open(id,trigger) {
     this.options.onOpen?.();
     if(this.dialog.open)this.close();const serial=++this.openSerial;this.activeId=id;this.returnFocus=trigger;
-    const e=this.chain.find(id);this.title.textContent=e.record?.name||(e.kind==='nam'?'NeuralWAMp':'NeuralWAMp Cabinet');this.kicker.textContent=`Chain ${this.options.secondary?'B':'A'} · ${kindLabel(e)}`;this.remove.hidden=false;
-    for(const ui of Object.values(this.editorSides)){ui.panel.hidden=true;ui.button.setAttribute('aria-expanded','false');}
-    this.syncEditorGains();this.dialog.showModal();this.mount.textContent='Loading editor…';
+    const e=this.chain.find(id);this.kicker.textContent=`Chain ${this.options.secondary?'B':'A'} · ${kindLabel(e)}`;
+    this.toggleSide(null,false);this.gui=null;this.tabs.hidden=true;this.tabs.replaceChildren();
+    this.syncEditorGains();this.dialog.showModal();this.syncEditorHeader();this.mount.textContent='Loading editor…';
     try {
       const gui=await this.chain.getGui(id);
       if(serial!==this.openSerial){if(!gui.isConnected)this.parking.append(gui);return;}
-      this.mount.replaceChildren(gui);gui.setEditorVisible?.(true);
+      this.gui=gui;this.mount.replaceChildren(gui);gui.setEditorVisible?.(true);this.buildTabs();
       if(e.kind==='cabinet')gui.setRoutingStatus(e.plugin.audioNode.routingMode,e.routingStatus||'');
       await this.refresh();
     }catch(error){if(serial===this.openSerial)this.mount.textContent=`Editor unavailable: ${error.message}`;this.report(error.message,true);}

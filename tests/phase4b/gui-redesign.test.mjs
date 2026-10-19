@@ -46,12 +46,12 @@ test('NAM GUI keeps calibration in amp settings and opens the model catalogue di
   await access(new URL('../../src/nam-wam/neuralwamp-logo.svg', import.meta.url));
   assert.doesNotMatch(gui, /data-plugin-tab=/u);
   assert.match(gui, /data-plugin-panel="amp" hidden><section class="modelCalibration"/u);
-  assert.match(gui, /<details class="mainPanel modelDetails"><summary>Model details<\/summary>/u);
+  assert.match(gui, /data-plugin-panel="details" hidden><div class="tab-content detailsBody">[^]*<div class="mainPanel modelDetails">/u);
   assert.match(gui, /class="plugin-panel modelDrawer modelsPanel"[^>]*data-plugin-panel="models" hidden/u);
   assert.match(gui, /class="plugin-panel aboutPanel"[^>]*data-plugin-panel="about" hidden/u);
   assert.match(gui, /data-editor-view="about">Help<\/button>/u);
   assert.match(gui, /href="https:\/\/github\.com\/micbuffa\/NAM_A2_WAM" target="_blank" rel="noopener noreferrer"/u);
-  for (const heading of ['Models','Amp settings','Model details','Preferences','Controls','State and storage']) assert.match(gui,new RegExp(`<h4>${heading}<\\/h4>`,'u'));
+  for (const heading of ['Models','Amp settings','Amp details','Preferences','Controls','State and storage']) assert.match(gui,new RegExp(`<h4>${heading}<\\/h4>`,'u'));
   assert.match(gui, /<article class="gettingStarted"><h4>Getting started with your guitar<\/h4><ol>/u);
   assert.match(gui, /Choose <strong>Live input<\/strong>/u);
   assert.match(gui, /Click <strong>Enable live input<\/strong>/u);
@@ -194,7 +194,7 @@ test('NAM GUI keeps calibration in amp settings and opens the model catalogue di
   assert.match(gui, /const captureCountLabel = \(count\) =>/u);
   assert.match(gui, /captureLabel\.textContent=captureCountLabel\(assets\.length\)/u);
   assert.match(gui, /this\.controls\.toneCaptureLabel\.textContent = captureCountLabel\(this\._toneModels\.length\)/u);
-  assert.match(gui, /media\.append\(title,meta,viewer,filename,footer\);details\.append\(captureLabel,captureList,done\)/u);
+  assert.match(gui, /media\.append\(title,meta,viewer,filename,footer\);details\.append\(captureLabel,captureList\)/u);
   assert.match(gui, /this\.updateOutputGlow\(peakDb,rmsDb\)/u);
   assert.match(gui, /strip\.style\.boxShadow=/u);
   assert.match(gui, /syncEqEnabledVisual\(\)/u);

@@ -103,24 +103,53 @@
   font: 500 var(--tl-fs-2xs) var(--tl-font-mono); white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
 .fx-routing-dialog { max-width: 420px; }
 
-/* Plugin editor dialog (tl-modal). */
-.fx-editor.tl-modal { width: min(980px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); }
-.fx-editor-bar { position: sticky; top: 0; z-index: 5; align-items: center; gap: var(--tl-space-2); }
+/* Plugin editor dialog (tl-modal): header, IN | plugin | OUT, footer. Only the plugin scrolls. */
+.fx-editor.tl-modal { display: none; width: min(1080px, calc(100vw - 32px)); height: min(860px, calc(100dvh - 32px)); max-height: none; overflow: hidden; }
+.fx-editor.tl-modal[open] { display: flex; flex-direction: column; }
+.fx-editor-bar { flex: none; align-items: center; gap: var(--tl-space-3); padding: 16px 24px 14px; }
 .fx-editor-titles { flex: 1; min-width: 0; }
-.fx-editor-titles .tl-modal-title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.fx-editor-body { display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: stretch; gap: 2px; padding: 10px; }
-.fx-editor-mount { min-width: 0; min-height: 100px; padding: 6px; overflow: auto; color: var(--tl-text-2); font-size: var(--tl-fs-sm); }
+.fx-editor-titles .tl-modal-title { overflow: hidden; font-size: var(--tl-fs-xl); white-space: nowrap; text-overflow: ellipsis; }
+.fx-editor .fx-editor-subtitle { margin-top: 6px; overflow: hidden; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); white-space: nowrap; text-overflow: ellipsis; }
+.fx-editor-actions { display: flex; align-items: center; gap: var(--tl-space-2); }
+.fx-editor-close { border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); }
+.fx-editor-state { padding: 6px 11px; border: 1px solid color-mix(in srgb, var(--tl-warning) 45%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--tl-warning) 10%, transparent); color: var(--tl-warning); font-size: var(--tl-fs-xs); font-weight: 600; }
+.fx-editor-state[hidden] { display: none; }
+.fx-editor-tabs { flex: none; display: flex; gap: 8px; padding: 0 24px; overflow-x: auto; border-bottom: 1px solid var(--tl-border); scrollbar-width: none; }
+.fx-editor-tabs[hidden] { display: none; }
+.fx-editor-tab { position: relative; flex: none; min-height: 0; padding: 18px 14px 16px; color: var(--tl-text-muted); background: none; border: 0; border-radius: 0;
+  font: 600 var(--tl-fs-control) var(--tl-font-ui); white-space: nowrap; cursor: pointer; }
+.fx-editor-tab:hover { color: var(--tl-text); background: none; }
+.fx-editor-tab:focus-visible { outline: 2px solid var(--tl-accent); outline-offset: -2px; }
+.fx-editor-tab[aria-selected="true"] { color: var(--tl-text); }
+.fx-editor-tab[aria-selected="true"]::after { content: ""; position: absolute; right: 6px; bottom: -1px; left: 6px; height: 2px; border-radius: 2px; background: var(--tl-accent); }
+.fx-editor-body { position: relative; flex: 1; display: grid; grid-template-columns: 64px minmax(0, 1fr) 64px; min-height: 0; padding: 0 8px; }
+.fx-editor-mount { min-width: 0; min-height: 0; padding: 22px 14px; overflow: auto; color: var(--tl-text-2); font-size: var(--tl-fs-sm); }
 .fx-editor-mount > * { max-width: 100%; }
-.fx-editor-side { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 160px; padding: 6px 0; }
-.fx-editor-side > .fx-thin-meter { flex: 1; width: 5px; min-height: 90px; }
-.fx-editor-side-label { color: var(--tl-text-muted); font: 500 var(--tl-fs-2xs) var(--tl-font-mono); letter-spacing: .08em; }
-.fx-plugin-gain-panel { position: absolute; top: 40px; left: 0; z-index: 8; display: grid; gap: 8px; width: 200px; padding: 12px; color: var(--tl-text-2);
-  border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); background: var(--tl-surface-4); box-shadow: var(--tl-shadow-panel); font-size: var(--tl-fs-sm); }
+.fx-editor-side { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.fx-plugin-gain-toggle { width: 44px; height: 44px; border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); background: var(--tl-surface-3); }
+.fx-editor-side-label { color: var(--tl-text-muted); font: 500 var(--tl-fs-2xs) var(--tl-font-mono); letter-spacing: .14em; }
+.fx-plugin-gain-toggle.is-active + .fx-editor-side-label { color: var(--tl-accent); }
+.fx-plugin-gain-panel { position: absolute; top: 50%; left: calc(100% - 6px); z-index: 8; width: 320px; color: var(--tl-text-2); transform: translateY(-50%);
+  border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-lg); background: var(--tl-surface-3); box-shadow: var(--tl-shadow-modal); font-size: var(--tl-fs-sm); }
 .fx-plugin-gain-panel[hidden] { display: none; }
-.fx-editor-output .fx-plugin-gain-panel { left: auto; right: 0; }
-.fx-plugin-gain-panel label { display: grid; gap: 8px; }
-.fx-plugin-gain-panel output { color: var(--tl-text); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
-.fx-plugin-gain-panel tl-button { justify-self: start; }
+.fx-editor-output .fx-plugin-gain-panel { left: auto; right: calc(100% - 6px); }
+.fx-gain-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 16px 16px 12px; border-bottom: 1px solid var(--tl-border); }
+.fx-gain-panel-head .tl-eyebrow { margin-bottom: 4px; }
+.fx-editor .fx-gain-panel-head h3 { font-size: var(--tl-fs-lg); }
+.fx-gain-panel-body { display: grid; gap: 16px; padding: 16px; }
+.fx-gain-readout { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: baseline; }
+.fx-gain-readout span, .fx-gain-control > span { color: var(--tl-text-muted); font-size: var(--tl-fs-2xs); letter-spacing: .06em; text-transform: uppercase; }
+.fx-gain-readout strong { color: var(--tl-text); font: 600 var(--tl-fs-sm) var(--tl-font-mono); font-variant-numeric: tabular-nums; }
+.fx-thin-meter.is-horizontal { grid-column: 1 / -1; width: 100%; height: 6px; border-radius: var(--tl-radius-pill); }
+.fx-thin-meter.is-horizontal .fx-meter-fill { background: linear-gradient(to right, var(--tl-meter-ok) 0 77%, var(--tl-meter-warn) 77% 92%, var(--tl-meter-clip) 92%);
+  clip-path: inset(0 calc((1 - var(--meter-level, 0)) * 100%) 0 0); }
+.fx-gain-control { display: grid; gap: 10px; }
+.fx-gain-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.fx-gain-row output { min-width: 64px; padding: 6px 8px; color: var(--tl-text); text-align: center; border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-sm);
+  font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
+.fx-gain-panel-body > tl-button { justify-self: start; }
+.fx-editor-footer { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--tl-space-3); padding: 14px 24px; border-top: 1px solid var(--tl-border); }
+.fx-editor-status { color: var(--tl-text-muted); font-size: var(--tl-fs-xs); }
 
 /* Insert / replace library (tl-modal wide, violet library accent as in the mock-up). */
 .fx-menu.tl-modal { border-color: var(--tl-library-border); }
@@ -177,10 +206,19 @@
   .fx-menu-group { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 520px) {
-  .fx-editor-bar { flex-wrap: wrap; }
-  .fx-editor-titles { flex-basis: 100%; }
-  .fx-editor-body { grid-template-columns: 30px minmax(0, 1fr) 30px; padding: 4px; }
-  .fx-editor-mount { padding: 3px; }
+  .fx-editor-bar { padding: 14px 16px 12px; }
+  .fx-editor-tabs { padding: 0 8px; gap: 0; }
+  .fx-editor-tab { padding: 14px 10px 12px; }
+  /* IN and OUT share a row above the plugin, which keeps the full width. */
+  .fx-editor-body { grid-template-columns: 1fr 1fr; grid-template-rows: auto minmax(0, 1fr); padding: 0; }
+  .fx-editor-side { flex-direction: row; justify-content: flex-start; padding: 10px 16px 0; }
+  .fx-editor-input { grid-area: 1 / 1; }
+  .fx-editor-output { grid-area: 1 / 2; flex-direction: row-reverse; }
+  .fx-editor-mount { grid-area: 2 / 1 / 3 / 3; padding: 10px 6px; }
+  .fx-plugin-gain-toggle { width: 36px; height: 36px; }
+  .fx-plugin-gain-panel, .fx-editor-output .fx-plugin-gain-panel { top: calc(100% + 6px); left: 16px; right: auto; width: min(320px, calc(100vw - 64px)); transform: none; }
+  .fx-editor-output .fx-plugin-gain-panel { left: auto; right: 16px; }
+  .fx-editor-footer { padding: 12px 16px; }
 }
 @media (max-width: 420px) {
   .fx-rack { grid-template-columns: 124px minmax(0, 1fr) 124px; }

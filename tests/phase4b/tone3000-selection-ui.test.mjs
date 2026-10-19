@@ -50,9 +50,9 @@ test('TONE3000 capture list and arrows load the selected model directly', async 
   assert.equal(gui.controls.toneCapturePrevious.disabled, false);
   assert.equal(gui.controls.toneCaptureList.children[1].classList.contains('loaded'), true);
   assert.equal(gui.controls.toneCounter.textContent, '2 / 2 · loaded');
-  assert.deepEqual(views,['amp']);assert.deepEqual(events,['nam-capture-loaded']);
+  assert.deepEqual(views,['amp']);assert.deepEqual(events,[]);
   gui.tone3000.downloadModel=async()=>{throw Error('Offline');};
-  await gui.loadTone3000Model(0);assert.deepEqual(events,['nam-capture-loaded']);
+  await gui.loadTone3000Model(0);assert.deepEqual(events,[]);
 });
 
 test('output border glow responds to level and decays toward idle', () => {
@@ -145,9 +145,6 @@ test('Factory highlights only the loaded model and capture, including failed sel
     assert.equal(current.classList.contains('current-model-card'),true);
     assert.deepEqual(captures(current).map(button=>button.classList.contains('selected')),[false,true]);
     assert.equal(other.classList.contains('current-model-card'),false);
-    assert.equal(current.children[1].children[2].disabled,false);
-    assert.equal(other.children[1].children[2].disabled,true);
-    let returned=false;gui.returnToRack=()=>{returned=true;};current.children[1].children[2].onclick();assert.equal(returned,true);
     assert.ok(captures(other).every(button=>!button.classList.contains('selected')));
     await assert.rejects(captures(other)[1].onclick(),/Load failed/);
     assert.ok(captures(other).every(button=>!button.classList.contains('selected')));
