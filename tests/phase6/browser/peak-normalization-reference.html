@@ -1,0 +1,27 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>Normalisation · référence Web Audio native</title>
+<style>body{background:#172027;color:#eee;font:15px system-ui;padding:30px}button{padding:12px}pre{white-space:pre-wrap}</style>
+<h1>Normalisation : sortie du moteur Web Audio</h1><p>Compare le pic rendu par OfflineAudioContext à la cible calculée, via les vrais nœuds du lecteur. Aucun son n’est envoyé aux haut-parleurs.</p>
+<button id="compare">Comparer</button><pre id="result">Prêt</pre>
+<script type="module">
+import {MultitrackEngine} from '../../../examples/wam/source-separation/MultitrackEngine.js';
+import {MultitrackSession} from '../../../examples/wam/source-separation/MultitrackSession.js';
+import {PeakNormalization} from '../../../examples/wam/source-separation/PeakNormalization.js';
+document.querySelector('#compare').onclick=async()=>{
+ const result=document.querySelector('#result');result.textContent='Rendu en cours…';
+ try{
+  const cases=[['quiet stereo',[[.1,.2]]],['clipped coherent sum',[[.9,.9],[.9,.9]]],['opposite phase',[[.5,-.5],[-.5,.5]]],['mono plus stereo',[[.3],[.2,-.1]]],['right channel peak',[[.01,-.8]]],['silence',[[0,0]]]],results=[];
+  for(const [name,values] of cases){
+   const native=new OfflineAudioContext(2,22050,44100);
+   // The offline clock uses the same graph; resume is a no-op because
+   // startRendering, rather than the real-time transport, advances its clock.
+   const clock={get currentTime(){return native.currentTime;},state:'running',resume:async()=>{},createGain:()=>native.createGain(),createStereoPanner:()=>native.createStereoPanner(),createBufferSource:()=>native.createBufferSource()};
+   const tracks=values.map((channels,i)=>{const buffer=native.createBuffer(channels.length,8820,44100);channels.forEach((v,c)=>buffer.getChannelData(c).fill(v));return {id:String(i),buffer};});
+   const engine=new MultitrackEngine(clock);engine.load(tracks);engine.outputNode.gain.value=.7;engine.outputNode.connect(native.destination);engine.setLoop(false);
+   const session=new MultitrackSession(tracks);engine.sync(session.tracks);const normalization=new PeakNormalization(engine,session);const correction=await normalization.analyze();await engine.play();
+   const audio=await native.startRendering();let peak=0;for(let c=0;c<2;c++)for(const sample of audio.getChannelData(c)){if(!Number.isFinite(sample))throw Error('Non-finite render');peak=Math.max(peak,Math.abs(sample));}
+   const expected=correction.silent?0:correction.peak*correction.gain,error=Math.abs(peak-expected);results.push({name,peak,expected,error,pass:error<1e-5});normalization.destroy();engine.destroy();
+  }
+  result.textContent=JSON.stringify({pass:results.every(r=>r.pass),results},null,2);
+ }catch(error){result.textContent=JSON.stringify({pass:false,error:error.message});}
+};
+</script></html>

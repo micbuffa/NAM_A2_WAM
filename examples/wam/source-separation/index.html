@@ -47,6 +47,13 @@
           <label>Sortie <meter id="globalMixMeter" min="-60" max="0" value="-60" aria-label="Niveau du mix guitare backing"></meter><output id="globalMixLevel">−60 dBFS</output></label><strong id="globalMixClip" hidden role="status">Saturation</strong>
         </fieldset>
         <details class="guitar-preview"><summary>Guitare de test pour essayer la balance</summary><tl-button id="guitarPreviewLoad">Charger une guitare de test</tl-button><tl-button id="guitarPreviewPlay" disabled>Jouer la guitare</tl-button><tl-button id="guitarPreviewStop" disabled>Stop guitare</tl-button><span id="guitarPreviewStatus" role="status">Aucune guitare de test chargée. Dans le host, cette entrée reçoit la sortie du rack.</span></details>
+        <div id="normalizationControls" class="normalization-controls" aria-label="Normalisation audio du backing">
+          <tl-button id="normalizeButton" disabled>Normaliser le mix</tl-button>
+          <label>Cible <select id="normalizationTarget"><option value="-1">−1 dBFS</option><option value="-3">−3 dBFS</option><option value="-6">−6 dBFS</option></select></label>
+          <label><input id="normalizationEnabled" type="checkbox" disabled> Actif</label>
+          <tl-button id="normalizationReset" disabled>Retirer</tl-button>
+          <small id="normalizationStatus" role="status">Chargez un morceau.</small>
+        </div>
         <div id="transport" class="transport"><tl-button id="playButton" variant="primary" disabled>Play</tl-button><tl-button id="stopButton" disabled>Stop</tl-button><label class="transport-loop"><input id="loopToggle" type="checkbox" checked> Loop</label><span id="clock">0:00 / 0:00</span></div>
         <div class="loop-controls" aria-label="Boucle A/B">
           <label>A <input id="loopA" type="number" min="0" step="0.01" value="0" disabled> s</label>

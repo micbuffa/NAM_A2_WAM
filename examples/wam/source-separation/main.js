@@ -2,6 +2,7 @@ import {ModelCatalog} from './ModelCatalog.js';
 import {MultitrackSession} from './MultitrackSession.js';
 import {MultitrackEngine} from './MultitrackEngine.js';
 import {SeparationWorkflow} from './SeparationWorkflow.js';
+import {PeakNormalization} from './PeakNormalization.js';
 import {SeparationMixer} from './SeparationMixer.js';
 import {initializeDownloads} from './DownloadsView.js';
 import {DemucsRunner} from './DemucsRunner.js';
@@ -46,7 +47,7 @@ function getContext(){
   }
   return audioContext;
 }
-function effectiveBackingGain(){return (engine?.outputNode.gain.value??.7)*(globalMixer?.backingWaveformGain()??1);}
+function effectiveBackingGain(){return (engine?.outputNode.gain.value??.7)*(engine?.normalizationGain??1)*(globalMixer?.backingWaveformGain()??1);}
 function syncGlobalMix(){
   const state=globalMixer?.getState()||{volumeDb:0,muted:false,mix:.5,guitarPan:0};
   for(const [id,key] of [['backingVolume','volumeDb'],['guitarBalance','mix'],['globalGuitarPan','guitarPan']])if(document.activeElement!==$(id))$(id).value=state[key];
@@ -72,10 +73,13 @@ function createDeck(nextTracks,title,{progressive=false,totalFrames,roles}={}) {
   e.outputNode.gain.value=.7;
   if(progressive)e.startStream({roles,totalFrames});else e.load(nextTracks);
   const mix=new MultitrackSession(e.tracks),deck={engine:e,session:mix,title};
+  deck.normalization=new PeakNormalization(e,mix);
+  const normalized=()=>{if(workflow.active===deck){syncNormalization();compactPlayer.setOutputGain(effectiveBackingGain());}};
+  deck.normalization.addEventListener('change',normalized);
   const changed=()=>{if(workflow.active===deck){e.sync(mix.tracks);renderTracks();}};
   mix.addEventListener('change',changed);e.addEventListener('statechange',syncTransport);
   const error=event=>report(event.detail);e.addEventListener('player-error',error);
-  deck.cleanup=()=>{mix.removeEventListener('change',changed);e.removeEventListener('statechange',syncTransport);e.removeEventListener('player-error',error);};
+  deck.cleanup=()=>{deck.normalization.removeEventListener('change',normalized);deck.normalization.destroy();mix.removeEventListener('change',changed);e.removeEventListener('statechange',syncTransport);e.removeEventListener('player-error',error);};
   e.sync(mix.tracks);return deck;
 }
 function syncWorkflow() {
@@ -118,7 +122,25 @@ function syncProgressiveOptions() {
   for(const option of $('excerptSeconds').options) option.disabled = Number(option.value)>10 && !progressiveEnabled();
   if(!progressiveEnabled() && Number($('excerptSeconds').value)>10) $('excerptSeconds').value='10';
 }
+function syncNormalization(){
+  const n=workflow.active?.normalization;
+  $('normalizeButton').disabled=!n?.available;
+  $('normalizeButton').textContent=n?.busy?'Annuler l’analyse':'Normaliser le mix';
+  $('normalizationEnabled').disabled=!n?.result||n.result.silent;
+  $('normalizationEnabled').checked=!!n?.enabled;
+  $('normalizationReset').disabled=!n?.busy&&!n?.result;
+  $('normalizationTarget').disabled=!!n?.busy;
+  if(document.activeElement!==$('normalizationTarget'))$('normalizationTarget').value=String(n?.targetDb??-1);
+  $('normalizationControls').setAttribute('aria-busy',String(!!n?.busy));
+  let text=!n?'Chargez un morceau.':!n.available?'Disponible après la fin de la séparation.':'Pic du mix complet · avant volume global et balance guitare.';
+  if(n?.busy)text='Analyse du mix stéréo…';
+  else if(n?.status==='stale')text='Mix modifié · relancez Normaliser le mix.';
+  else if(n?.status==='error')text='Analyse impossible · vous pouvez réessayer.';
+  else if(n?.result){const r=n.result;text=r.silent?'Mix silencieux · aucun gain ajouté.':`${n.enabled?'Actif':'Désactivé'} · ${r.gainDb>=0?'+':''}${r.gainDb.toFixed(1)} dB · pic mesuré ${(20*Math.log10(r.peak)).toFixed(1)} dBFS · cible ${r.targetDb} dBFS${r.limited?' · amplification limitée à +24 dB':''}`;}
+  if($('normalizationStatus').textContent!==text)$('normalizationStatus').textContent=text;
+}
 function syncTransport() {
+  syncNormalization();
   const state = transportState(engine, {busy:false, installing});
   $('playButton').disabled = state.disabled;
   if ($('playButton').textContent !== state.label) $('playButton').textContent = state.label;
@@ -338,6 +360,10 @@ function applyLoopRegion(start,end){
   if(!engine)return;
   try{const result=engine.setLoopRegion(Number(start),Number(end));result?.catch(report);$('loopStatus').textContent='Boucle A/B · secondes';}catch(error){$('loopStatus').textContent=error.message;}
 }
+$('normalizeButton').onclick=()=>{const n=workflow.active?.normalization;if(n?.busy)n.reset();else n?.analyze({targetDb:Number($('normalizationTarget').value)}).catch(report);};
+$('normalizationEnabled').onchange=()=>workflow.active?.normalization.setEnabled($('normalizationEnabled').checked);
+$('normalizationReset').onclick=()=>workflow.active?.normalization.reset();
+$('normalizationTarget').onchange=()=>workflow.active?.normalization.setTargetDb(Number($('normalizationTarget').value));
 $('loopToggle').onchange=()=>{const result=engine?.setLoop($('loopToggle').checked);result?.catch(report);};
 for(const id of ['loopA','loopB'])$(id).oninput=()=>{if($('loopA').value!==''&&$('loopB').value!=='')applyLoopRegion($('loopA').value,$('loopB').value);};
 $('loopSetA').onclick=()=>applyLoopRegion(engine?.position||0,engine?.loopBounds.end||0);

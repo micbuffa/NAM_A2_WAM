@@ -127,3 +127,7 @@ Le diagnostic 6s a produit douze canaux GPU finis après extraction du réseau (
 ### P4.2 — GPU par défaut et boucle A/B
 
 Recommandation automatique du modèle ONNX 4 pistes lorsque WebGPU est détecté ; CPU explicite et repli conservés. Tests natifs et progressifs : boucles stéréo sur une frontière de blocs, horloge commune, attente de B, annulation partielle, édition invalide atomique, reset, transfert de région et gestes des poignées. La fenêtre progressive est copiée uniquement pour la région sélectionnée, puis bouclée nativement (coût PCM additionnel proportionnel à la durée A/B, deux canaux par piste). Le premier retour lorsque B arrive en cours de lecture conserve la latence planifiée de 30 ms. Suite complète : 306 tests réussis.
+
+### P4.3 — Normalisation réversible sur multitracks
+
+Pic de la somme PCM stéréo calculé avec le même pan que Web Audio ; analyse asynchrone coopérative sans copie du PCM. Gain commun sur un nœud distinct avant le volume global ; aucune réinitialisation des voix, de l’horloge ou des gains des stems. Cibles −1/−3/−6 dBFS, boost +24 dB maximum, seuil de silence 1e−8. Les réglages de mix invalident la correction ; annulation, remplacement et résultats tardifs sont testés. Les résultats restent par deck, pas copiés entre original et séparation. Normalisation de pics échantillonnés uniquement, pas de protection true peak/LUFS ou de saturation lorsque le master ou la guitare s’ajoutent après. Diagnostic natif : six cas, erreur maximale 8,94e−8. Total suite 318 tests.

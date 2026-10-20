@@ -8,7 +8,7 @@ export class ProgressiveMultitrackEngine extends MultitrackEngine {
   get ready(){return super.ready&&this.availableFrames>0;}
   startStream({roles,totalFrames,sampleRate=44100}) {
     if(!Number.isSafeInteger(totalFrames)||totalFrames<=0||sampleRate!==44100||!roles.length)throw Error('Session progressive invalide.');
-    this.stop();this.loopRegion=null;this.regionCache=null;this.chunks=[];this.availableFrames=0;this.totalFrames=totalFrames;this.sampleRate=sampleRate;this.complete=false;this.partial=false;
+    this.stop();this.loopRegion=null;this.regionCache=null;this.audioVersion++;this.chunks=[];this.availableFrames=0;this.totalFrames=totalFrames;this.sampleRate=sampleRate;this.complete=false;this.partial=false;
     this.tracks=roles.map((role,index)=>({id:`${role}-${index}`,role,label:role}));this.changed();
   }
   append(startFrame,tracks) {
@@ -65,7 +65,7 @@ export class ProgressiveMultitrackEngine extends MultitrackEngine {
     this.tracks.forEach((track,i)=>{
       const source=this.context.createBufferSource(),gain=this.context.createGain(),pan=this.context.createStereoPanner();
       source.buffer=this.regionCache.buffers[i];source.loop=true;source.loopStart=0;source.loopEnd=source.buffer.duration;
-      source.connect(gain).connect(pan).connect(this.outputNode);source.start(this.startedAt,this.offset-start);
+      source.connect(gain).connect(pan).connect(this.normalizationNode);source.start(this.startedAt,this.offset-start);
       this.voices.push({id:track.id,source,gain,pan});
     });this.sync(this.mixTracks||[]);
   }
@@ -77,7 +77,7 @@ export class ProgressiveMultitrackEngine extends MultitrackEngine {
     // blocks whose start is still ahead of the current playback boundary.
     for(let i=0;i<chunk.tracks.length;i++) {
       const track=chunk.tracks[i],source=this.context.createBufferSource(),gain=this.context.createGain(),pan=this.context.createStereoPanner();
-      source.buffer=track.buffer;source.connect(gain).connect(pan).connect(this.outputNode);
+      source.buffer=track.buffer;source.connect(gain).connect(pan).connect(this.normalizationNode);
       const voice={id:track.id,source,gain,pan};this.voices.push(voice);
       source.onended=()=>{
         source.disconnect();gain.disconnect();pan.disconnect();this.voices=this.voices.filter(v=>v!==voice);

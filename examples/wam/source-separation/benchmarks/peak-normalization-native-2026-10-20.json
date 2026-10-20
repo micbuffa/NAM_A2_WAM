@@ -1,0 +1,47 @@
+{
+  "pass": true,
+  "results": [
+    {
+      "name": "quiet stereo",
+      "peak": 0.8912509679794312,
+      "expected": 0.8912509381337456,
+      "error": 2.9845685589613424e-8,
+      "pass": true
+    },
+    {
+      "name": "clipped coherent sum",
+      "peak": 0.8912509679794312,
+      "expected": 0.8912509381337456,
+      "error": 2.9845685589613424e-8,
+      "pass": true
+    },
+    {
+      "name": "opposite phase",
+      "peak": 0,
+      "expected": 0,
+      "error": 0,
+      "pass": true
+    },
+    {
+      "name": "mono plus stereo",
+      "peak": 0.8912508487701416,
+      "expected": 0.8912509381337457,
+      "error": 8.936360407219013e-8,
+      "pass": true
+    },
+    {
+      "name": "right channel peak",
+      "peak": 0.8912509679794312,
+      "expected": 0.8912509381337456,
+      "error": 2.9845685589613424e-8,
+      "pass": true
+    },
+    {
+      "name": "silence",
+      "peak": 0,
+      "expected": 0,
+      "error": 0,
+      "pass": true
+    }
+  ]
+}

@@ -116,3 +116,8 @@ body { margin: 0; font-family: var(--tl-font-sans,system-ui,sans-serif); font-si
 /* Dim only the unselected waveform area; seek and faders stay interactive. */
 .loop-outside { position: absolute; top: 24px; bottom: 0; background: rgb(135 145 155 / 20%); pointer-events: none; z-index: 2; }
 .loop-outside-before { left: 0; } .loop-outside-after { right: 0; }
+
+.normalization-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 10px 0; font-size: 12px; }
+.normalization-controls label { display: flex; gap: 5px; align-items: center; }
+.normalization-controls select { padding: 5px; width: auto; }
+.normalization-controls small { color: #b7c2cc; }
