@@ -1,0 +1,12 @@
+{
+  "file": "slow-motion-dream.mp3",
+  "sha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507",
+  "size": 262867,
+  "source": "https://raw.githubusercontent.com/deezer/spleeter/c8854001ac8acad34a9bc2bd15f28475541828b1/audio_example.mp3",
+  "sourceRevision": "c8854001ac8acad34a9bc2bd15f28475541828b1",
+  "sampleRate": 44100,
+  "channels": 2,
+  "hasIsolatedReferences": false,
+  "license": "CC BY 3.0",
+  "notice": "./NOTICE.md"
+}

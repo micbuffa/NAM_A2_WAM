@@ -8,9 +8,10 @@
     "factory-assets": "./tools/regenerate-factory-assets.sh",
     "build-static": "./tools/build-static-distribution.sh",
     "dist": "./tools/build-static-distribution.sh",
-    "test": "node --test tests/phase3/*.test.mjs tests/phase4a/*.test.mjs tests/phase4a2/*.test.mjs tests/phase4a3/*.test.mjs tests/phase4b/*.test.mjs tests/phase5/*.test.mjs",
+    "test": "node --test tests/phase3/*.test.mjs tests/phase4a/*.test.mjs tests/phase4a2/*.test.mjs tests/phase4a3/*.test.mjs tests/phase4b/*.test.mjs tests/phase5/*.test.mjs tests/phase6/*.test.mjs",
     "wam-plugins": "node tools/update-wam-plugins.mjs",
     "backing-tracks": "node tools/update-backing-tracks.mjs",
+    "test:separation:wasm": "node tools/validate-demucs-wasm.cjs",
     "dist:wasabi-amps": "node examples/WAP_amp_sims/michel/WAM/tools/build-dist.mjs",
     "install:wasabi-amps": "node examples/WAP_amp_sims/michel/WAM/tools/install-host.mjs"
   }

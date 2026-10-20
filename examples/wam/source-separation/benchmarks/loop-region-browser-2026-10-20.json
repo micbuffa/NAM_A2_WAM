@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-20",
+  "browser": "Chrome",
+  "method": "UI actions via CUA; read-only DOM observations",
+  "source": {
+    "defaultModel": "htdemucs_4s_onnx",
+    "defaultBackend": "webgpu",
+    "realInput": "Slow Motion Dream excerpt 10s",
+    "separationCompleted": true,
+    "realLoop": {
+      "start": 3,
+      "end": 7,
+      "observedPositionAfterMultipleCycles": 3.93
+    },
+    "mixViewPreservesRegion": true
+  },
+  "distribution": {
+    "url": "http://127.0.0.1:8765/dist/NAM_A2_WAM/source-separation/",
+    "gpuDefaultConfirmed": true,
+    "explicitCpuPreservedAfterAudioLoad": true,
+    "numericAndKeyboardBounds": {
+      "start": 1.1,
+      "end": 3
+    },
+    "zoomResetPreservesBounds": true,
+    "consoleErrors": []
+  },
+  "pointerGestures": "Unit tested; browser verified keyboard equivalent.",
+  "testsPassed": 306
+}

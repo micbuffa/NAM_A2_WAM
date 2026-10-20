@@ -1,0 +1,41 @@
+{
+  "input": "CleanChords.mp3",
+  "inputSeconds": 30,
+  "summary": "Terminé en 11.9 s · WebGPU (pipeline hybride)",
+  "metrics": {
+    "backend": "webgpu",
+    "runtimeVersion": "1.22.0",
+    "loadMs": 773.6000000238419,
+    "blocks": [
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 2710.400000035763
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 2019.199999988079
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 2385
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 2061.699999988079
+      },
+      {
+        "inputSeconds": 6.6,
+        "publishedSeconds": 6.6,
+        "elapsedMs": 1974.800000011921
+      }
+    ],
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+MIT License
+
+Copyright (c) 2026 NAM A2 WAM contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of these fixture data files, to deal in the data without restriction, including use, copy, modification, distribution, sublicensing and sale, provided this notice is retained.
+
+THE DATA IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM USE OF THE DATA.

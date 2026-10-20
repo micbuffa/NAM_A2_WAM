@@ -1,0 +1,128 @@
+{
+  "browser": "Chrome",
+  "passed": true,
+  "maxError": 7.450580596923828e-09,
+  "cases": [
+    {
+      "channels": 1,
+      "pan": -1,
+      "muted": false,
+      "maxError": 3.725290298461914e-09
+    },
+    {
+      "channels": 1,
+      "pan": -1,
+      "muted": true,
+      "maxError": 3.725290298461914e-09
+    },
+    {
+      "channels": 1,
+      "pan": -0.5,
+      "muted": false,
+      "maxError": 7.450580596923828e-09
+    },
+    {
+      "channels": 1,
+      "pan": -0.5,
+      "muted": true,
+      "maxError": 3.725290298461914e-09
+    },
+    {
+      "channels": 1,
+      "pan": 0,
+      "muted": false,
+      "maxError": 3.725290298461914e-09
+    },
+    {
+      "channels": 1,
+      "pan": 0,
+      "muted": true,
+      "maxError": 3.725290298461914e-09
+    },
+    {
+      "channels": 1,
+      "pan": 0.5,
+      "muted": false,
+      "maxError": 7.450580596923828e-09
+    },
+    {
+      "channels": 1,
+      "pan": 0.5,
+      "muted": true,
+      "maxError": 3.725290298461914e-09
+    },
+    {
+      "channels": 1,
+      "pan": 1,
+      "muted": false,
+      "maxError": 3.725290298461914e-09
+    },
+    {
+      "channels": 1,
+      "pan": 1,
+      "muted": true,
+      "maxError": 3.725290298461914e-09
+    },
+    {
+      "channels": 2,
+      "pan": -1,
+      "muted": false,
+      "maxError": 7.450580596923828e-09
+    },
+    {
+      "channels": 2,
+      "pan": -1,
+      "muted": true,
+      "maxError": 7.450580596923828e-09
+    },
+    {
+      "channels": 2,
+      "pan": -0.5,
+      "muted": false,
+      "maxError": 7.450580596923828e-09
+    },
+    {
+      "channels": 2,
+      "pan": -0.5,
+      "muted": true,
+      "maxError": 7.450580596923828e-09
+    },
+    {
+      "channels": 2,
+      "pan": 0,
+      "muted": false,
+      "maxError": 7.450580596923828e-09
+    },
+    {
+      "channels": 2,
+      "pan": 0,
+      "muted": true,
+      "maxError": 3.725290298461914e-09
+    },
+    {
+      "channels": 2,
+      "pan": 0.5,
+      "muted": false,
+      "maxError": 7.450580596923828e-09
+    },
+    {
+      "channels": 2,
+      "pan": 0.5,
+      "muted": true,
+      "maxError": 7.450580596923828e-09
+    },
+    {
+      "channels": 2,
+      "pan": 1,
+      "muted": false,
+      "maxError": 7.450580596923828e-09
+    },
+    {
+      "channels": 2,
+      "pan": 1,
+      "muted": true,
+      "maxError": 7.450580596923828e-09
+    }
+  ],
+  "harness": "tests/phase6/browser/mix-waveform-reference.html"
+}

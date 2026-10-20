@@ -1,0 +1,15 @@
+{
+  "package": "wavesurfer.js",
+  "version": "7.12.4",
+  "gitHead": "ba798b3d6ea05e6c11d3a27ca8ebc8cedcb3338c",
+  "tarball": "https://registry.npmjs.org/wavesurfer.js/-/wavesurfer.js-7.12.4.tgz",
+  "files": {
+    "event-emitter.js": "5980d08cf2289d9bcc1fd0ef9465491c8f6942fc1de0ee59360f72e260f2470a",
+    "reactive/drag-stream.js": "889f5661eb9894617b99a8f515197b8aca4c31bfa3cdfdd832e853734e66ebb4",
+    "reactive/event-streams.js": "08551007e79789c0a47bb97aaa7658f0a85714d340b2e3c1506ac16adb6025b8",
+    "reactive/scroll-stream.js": "c0a1a226331304ba648486aceea21975f4190997c73b5a3c879cb9d96af966db",
+    "reactive/store.js": "f67dd78be83194662f3be71a6dcc9781c238f63297017b522c3515931d752820",
+    "renderer-utils.js": "cfd14a4de26a5b1aef013d18721605bbaaf00b033513e56fa13f3990749f76ec",
+    "renderer.js": "3863ca03a5be2d00d19e4cd2b40d06582ad0472116385f1a9b75f9f9606c981e"
+  }
+}

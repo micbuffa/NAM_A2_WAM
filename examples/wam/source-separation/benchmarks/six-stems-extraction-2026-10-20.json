@@ -1,0 +1,33 @@
+{
+  "sourceSha256": "7ce55792e2231c93fbf92de95f5fd5b3a5e6c89f7db690dfd693e8f1dce56869",
+  "onnxVersion": "1.19.1",
+  "doubleTensorsConverted": 342,
+  "sourceNodes": 24819,
+  "networkNodes": 3658,
+  "outputs": [
+    "/Pad_2_output_0",
+    "/Add_4_output_0"
+  ],
+  "outputBytes": 89488722,
+  "outputSha256": "f28aab2f35bea14fbd03d2228c6c199df0a4d2036507d4ed44a44edf145a5191",
+  "status": "diagnostic only; needs SixStemReconstruction.js; not enabled in catalog",
+  "nativeFullRealReference": {
+    "runtime": "1.23.1",
+    "runSeconds": 3.204613208770752,
+    "shape": [
+      1,
+      6,
+      2,
+      343980
+    ],
+    "finite": true,
+    "peak": 0.9756125211715698
+  },
+  "nativeCoreAndJsReconstruction": {
+    "maxAbsError": 0.00011177361011505127,
+    "relativeRmsError": 5.9830028466404535e-05,
+    "reconstructionMsNode": 839.368792
+  },
+  "gpuRealAccepted": false,
+  "reason": "Real-mix relative RMS 7.317% exceeds the prototype 1% numerical threshold. CPU STFT does not remove the error. No 6s GPU catalog activation."
+}

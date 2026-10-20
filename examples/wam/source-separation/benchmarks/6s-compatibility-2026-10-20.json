@@ -1,0 +1,29 @@
+{
+  "purpose": "Bounded compatibility research; not a supported production backend",
+  "model": "StemSplitio/htdemucs-6s-onnx/htdemucs_6s_fp16weights.onnx",
+  "sourceRevision": "49df9b6989cf2150840ea65b0bef77a2e471b678",
+  "sourceSha256": "7ce55792e2231c93fbf92de95f5fd5b3a5e6c89f7db690dfd693e8f1dce56869",
+  "browser": "Codex integrated Chromium browser",
+  "runtimeVersion": "1.22.0",
+  "backend": "webgpu",
+  "adapter": {"vendor": "apple", "architecture": "metal-3"},
+  "transform": {
+    "source": "https://github.com/Gerschwin/steminize/blob/22b57d6a9eb0dc93a4a6fdf32dd849edac0aeaf4/src/engine/fixfloat64.ts",
+    "license": "MIT",
+    "operation": "Convert ONNX double tensors to float32 in memory",
+    "changedTensors": 342,
+    "changedCasts": 0,
+    "changedTypes": 0,
+    "candidateBytes": 130857964,
+    "candidateSha256": "3ea644c47bf38fca6760c08844b0de9e83b91e03115553288293a640fa77a2d6"
+  },
+  "sessionOptions": {"graphOptimizationLevel": "disabled", "executionProviders": ["webgpu"]},
+  "sessionLoadMs": 8589.600000023842,
+  "inputNames": ["mix"],
+  "outputNames": ["stems"],
+  "testFrames": 343980,
+  "inferenceCompleted": false,
+  "pcmValidated": false,
+  "interruptedManuallyAfterMoreThan120Seconds": true,
+  "notes": "Session creation succeeded only in the combined transformed/no-optimization experiment. Inference did not return a validated result before manual interruption; the integrated browser became unresponsive. This does not establish which part caused the slowdown. No model or runtime switch is enabled in the production catalog. Candidate weights remain in the ignored local research folder."
+}

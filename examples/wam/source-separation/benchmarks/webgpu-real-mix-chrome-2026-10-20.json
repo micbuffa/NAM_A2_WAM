@@ -1,0 +1,180 @@
+{
+  "browser": "Chrome",
+  "modelId": "htdemucs_4s_onnx",
+  "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+  "input": "real-mix",
+  "inputLabel": "Mix stéréo — Slow Motion Dream",
+  "credits": "Steven M Bryant (2011), feat. CSoul, Alex Beroza & Robert Siekawitch · CC BY 3.0",
+  "inputSeconds": 10.880544217687074,
+  "sourceChannels": 2,
+  "sampleRate": 44100,
+  "runs": {
+    "webgpu": {
+      "type": "done",
+      "backend": "webgpu",
+      "elapsedMs": 15847.800000011921,
+      "loadMs": 3424.300000011921,
+      "blocks": [
+        {
+          "inputSeconds": 7.8,
+          "publishedSeconds": 5.85,
+          "elapsedMs": 6678.400000035763
+        },
+        {
+          "inputSeconds": 5.0305442176870745,
+          "publishedSeconds": 5.0305442176870745,
+          "elapsedMs": 5740.300000011921
+        }
+      ],
+      "adapterInfo": {
+        "vendor": "apple",
+        "architecture": "metal-3"
+      },
+      "gpuKernels": 3244,
+      "profilingEnabled": true,
+      "runtimeVersion": "1.22.0",
+      "fallbackReason": null
+    },
+    "wasm": {
+      "type": "done",
+      "backend": "wasm",
+      "elapsedMs": 71452.89999997616,
+      "loadMs": 2831.399999976158,
+      "blocks": [
+        {
+          "inputSeconds": 7.8,
+          "publishedSeconds": 5.85,
+          "elapsedMs": 33781.59999996424
+        },
+        {
+          "inputSeconds": 5.0305442176870745,
+          "publishedSeconds": 5.0305442176870745,
+          "elapsedMs": 34836.30000001192
+        }
+      ],
+      "adapterInfo": null,
+      "gpuKernels": 0,
+      "profilingEnabled": false,
+      "runtimeVersion": "1.22.0",
+      "fallbackReason": null
+    }
+  },
+  "comparison": {
+    "channels": [
+      {
+        "rmsError": 0.00007690749900260204,
+        "maxAbsError": 0.00058002769947052,
+        "referenceRms": 0.14119178549763953
+      },
+      {
+        "rmsError": 0.0000815359594069427,
+        "maxAbsError": 0.0008217096328735352,
+        "referenceRms": 0.14156250874565401
+      },
+      {
+        "rmsError": 0.00011471873524272347,
+        "maxAbsError": 0.0011938288807868958,
+        "referenceRms": 0.0939832741169877
+      },
+      {
+        "rmsError": 0.00011804349364211508,
+        "maxAbsError": 0.0012700259685516357,
+        "referenceRms": 0.09410406889680654
+      },
+      {
+        "rmsError": 0.00010446670176041879,
+        "maxAbsError": 0.0007531940937042236,
+        "referenceRms": 0.11582225309625616
+      },
+      {
+        "rmsError": 0.00010730439911797466,
+        "maxAbsError": 0.0007734596729278564,
+        "referenceRms": 0.10555557864693754
+      },
+      {
+        "rmsError": 0.000030128389948894556,
+        "maxAbsError": 0.0005046427249908447,
+        "referenceRms": 0.11759559371268383
+      },
+      {
+        "rmsError": 0.000030894934426980304,
+        "maxAbsError": 0.00048035383224487305,
+        "referenceRms": 0.10946722823452258
+      }
+    ],
+    "rmsError": 0.00008940586766755157,
+    "relativeRmsError": 0.0007693689780217226,
+    "maxAbsError": 0.0012700259685516357,
+    "withinTolerance": true
+  },
+  "analysis": {
+    "webgpu": {
+      "stems": [
+        {
+          "role": "drums",
+          "rms": 0.14137835361986004,
+          "peak": 1.0013657808303833,
+          "stereoDifferenceRms": 0.07200395406342752
+        },
+        {
+          "role": "bass",
+          "rms": 0.09399877848611304,
+          "peak": 0.3496094346046448,
+          "stereoDifferenceRms": 0.001981532339901931
+        },
+        {
+          "role": "other",
+          "rms": 0.11081075952953455,
+          "peak": 0.777754545211792,
+          "stereoDifferenceRms": 0.13745815670161807
+        },
+        {
+          "role": "vocals",
+          "rms": 0.11360430411360736,
+          "peak": 0.9778731465339661,
+          "stereoDifferenceRms": 0.08659950207234679
+        }
+      ],
+      "remixResidual": {
+        "rmsError": 0.008135116504752894,
+        "relativeRmsError": 0.032589174691235075,
+        "maxAbsError": 0.09121161699295044
+      },
+      "hasIsolatedReferences": false
+    },
+    "wasm": {
+      "stems": [
+        {
+          "role": "drums",
+          "rms": 0.14137726863675046,
+          "peak": 1.001190423965454,
+          "stereoDifferenceRms": 0.0720124601359655
+        },
+        {
+          "role": "bass",
+          "rms": 0.09404369090131783,
+          "peak": 0.3497455418109894,
+          "stereoDifferenceRms": 0.0019890836023612876
+        },
+        {
+          "role": "other",
+          "rms": 0.11080788441213384,
+          "peak": 0.7776991724967957,
+          "stereoDifferenceRms": 0.13746605536087797
+        },
+        {
+          "role": "vocals",
+          "rms": 0.11360413222675605,
+          "peak": 0.9778687953948975,
+          "stereoDifferenceRms": 0.08659724791567659
+        }
+      ],
+      "remixResidual": {
+        "rmsError": 0.008135653962340814,
+        "relativeRmsError": 0.032591327739591745,
+        "maxAbsError": 0.09128588438034058
+      },
+      "hasIsolatedReferences": false
+    }
+  }
+}

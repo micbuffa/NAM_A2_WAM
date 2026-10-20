@@ -1,0 +1,29 @@
+{
+  "browser": "Chrome",
+  "source": "Slow Motion Dream",
+  "inputSeconds": 10,
+  "status": "Terminé en 5.4 s · WebGPU (pipeline hybride)",
+  "metrics": {
+    "backend": "webgpu",
+    "runtimeVersion": "1.22.0",
+    "loadMs": 715.0999999642372,
+    "blocks": [
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 2645.899999976158
+      },
+      {
+        "inputSeconds": 4.15,
+        "publishedSeconds": 4.15,
+        "elapsedMs": 2044
+      }
+    ],
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3"
+    }
+  },
+  "playTest": "Play became Pause; Stop restored transport",
+  "url": "http://127.0.0.1:8765/dist/NAM_A2_WAM/source-separation/"
+}

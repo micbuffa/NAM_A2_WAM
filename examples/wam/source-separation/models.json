@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "models": [
+    {
+      "id": "htdemucs_6s",
+      "label": "Demucs v4 · htdemucs_6s",
+      "description": "Guitare et piano dédiés · 6 pistes · expérimental, extrait court.",
+      "roles": [
+        "drums",
+        "bass",
+        "other",
+        "vocals",
+        "guitar",
+        "piano"
+      ],
+      "files": [
+        {
+          "url": "https://raw.githubusercontent.com/bengfarrell/demucs-wasm/35c8bd5b74c56f630082058179cd8f57cb192fb2/models/htdemucs_6s.ort.gzipped",
+          "size": 40603166,
+          "sha256": "57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e"
+        }
+      ],
+      "targets": 6,
+      "version": "35c8bd5b74c56f630082058179cd8f57cb192fb2",
+      "kind": "neural",
+      "backends": [
+        "wasm"
+      ],
+      "sampleRate": 44100,
+      "maxDuration": 10,
+      "maxProgressiveDuration": 60,
+      "license": {
+        "name": "MIT · Demucs / demucs-wasm",
+        "url": "./vendor/demucs-wasm/NOTICE.md"
+      },
+      "recommendation": "Isoler la guitare séparément",
+      "runtime": "demucs-ort-wasm",
+      "sourceRevision": "35c8bd5b74c56f630082058179cd8f57cb192fb2"
+    },
+    {
+      "id": "htdemucs_ft",
+      "label": "Demucs v4 · htdemucs_ft",
+      "description": "4 modèles spécialisés · 4 pistes · guitare dans « Autres » · plus lent.",
+      "roles": [
+        "drums",
+        "bass",
+        "other",
+        "vocals"
+      ],
+      "files": [
+        {
+          "url": "https://raw.githubusercontent.com/bengfarrell/demucs-wasm/35c8bd5b74c56f630082058179cd8f57cb192fb2/models/htdemucs_ft_drums.ort.gzipped",
+          "size": 54471753,
+          "sha256": "224d5043faf8a900d6239e18515bbb0bed83ed3b5606a5b150f716bf32406964"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/bengfarrell/demucs-wasm/35c8bd5b74c56f630082058179cd8f57cb192fb2/models/htdemucs_ft_bass.ort.gzipped",
+          "size": 54464604,
+          "sha256": "b8923e06a7ba021eac9ece46ca11e0f62586e95439444d3165cf7b11af10510c"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/bengfarrell/demucs-wasm/35c8bd5b74c56f630082058179cd8f57cb192fb2/models/htdemucs_ft_other.ort.gzipped",
+          "size": 54464633,
+          "sha256": "8e9d687904b803650715bf2d1006efa99c430af59c5d361c10faa9853cf54392"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/bengfarrell/demucs-wasm/35c8bd5b74c56f630082058179cd8f57cb192fb2/models/htdemucs_ft_vocals.ort.gzipped",
+          "size": 54473534,
+          "sha256": "02c096d83f17c1d09ffcfd1bbe560017ae46469b2666d58030cecb737b1f5fcf"
+        }
+      ],
+      "targets": 4,
+      "version": "35c8bd5b74c56f630082058179cd8f57cb192fb2",
+      "kind": "neural",
+      "backends": [
+        "wasm"
+      ],
+      "sampleRate": 44100,
+      "maxDuration": 10,
+      "license": {
+        "name": "MIT · Demucs / demucs-wasm",
+        "url": "./vendor/demucs-wasm/NOTICE.md"
+      },
+      "recommendation": "Créer un backing en coupant Autres",
+      "runtime": "demucs-ort-wasm",
+      "sourceRevision": "35c8bd5b74c56f630082058179cd8f57cb192fb2"
+    },
+    {
+      "id": "htdemucs_4s_onnx",
+      "label": "Demucs v4 · 4 pistes ONNX · GPU expérimental",
+      "description": "4 pistes · guitare dans Autres · poids réservés à un usage personnel/recherche selon le fournisseur.",
+      "roles": [
+        "drums",
+        "bass",
+        "other",
+        "vocals"
+      ],
+      "files": [
+        {
+          "url": "https://media.githubusercontent.com/media/bakkot/demucs-js/45f990170d9571379a9dbd3bbdd1c7591b26864c/htdemucs.onnx",
+          "size": 174263526,
+          "sha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748"
+        }
+      ],
+      "targets": 4,
+      "version": "45f990170d9571379a9dbd3bbdd1c7591b26864c",
+      "kind": "neural",
+      "backends": [
+        "webgpu",
+        "wasm"
+      ],
+      "sampleRate": 44100,
+      "maxDuration": 60,
+      "license": {
+        "name": "Poids : personnel/recherche · code MIT",
+        "url": "./vendor/demucs-js/LICENSE.md"
+      },
+      "recommendation": "Essayer le GPU ; couper Autres pour retirer la guitare",
+      "runtime": "demucs-onnx-core",
+      "sourceRevision": "45f990170d9571379a9dbd3bbdd1c7591b26864c"
+    }
+  ]
+}

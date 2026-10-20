@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>Mix waveform / Web Audio reference</title>
+<h1>Mix waveform / native Web Audio reference</h1><button id="run">Compare</button><pre id="result">Ready</pre>
+<script type="module">
+import {buildMixPeaks} from '/examples/wam/source-separation/MixWaveform.js';
+document.querySelector('#run').onclick=async()=>{
+try{
+ const cases=[];
+ for(const channels of [1,2])for(const pan of [-1,-.5,0,.5,1])for(const muted of [false,true]){
+  const frames=128,ctx=new OfflineAudioContext(2,frames,44100),tracks=[],settings=[],bus=ctx.createGain();bus.gain.value=.7;bus.connect(ctx.destination);
+  for(let j=0;j<2;j++){
+   const buffer=ctx.createBuffer(channels,frames,44100);for(let c=0;c<channels;c++)for(let i=0;i<frames;i++)buffer.getChannelData(c)[i]=.1*Math.sin((i+1)*(j+1)*(c+1)*.2);
+   const source=ctx.createBufferSource(),gain=ctx.createGain(),panner=ctx.createStereoPanner();source.buffer=buffer;gain.gain.value=j===0&&muted?0:j===0?.4:.8;panner.pan.value=j===0?pan:-pan;source.connect(gain).connect(panner).connect(bus);source.start();
+   tracks.push({id:String(j),buffer});settings.push({id:String(j),volume:j===0?.4:.8,pan:j===0?pan:-pan,muted:j===0&&muted,solo:false});
+  }
+  const rendered=await ctx.startRendering(),mix=await buildMixPeaks({tracks,settings,outputGain:.7,totalFrames:frames,bins:frames});let maxError=0;
+  for(let i=0;i<frames;i++)maxError=Math.max(maxError,Math.abs(mix.peaks[i]-Math.max(Math.abs(rendered.getChannelData(0)[i]),Math.abs(rendered.getChannelData(1)[i]))));
+  cases.push({channels,pan,muted,maxError});
+ }
+ document.querySelector('#result').textContent=JSON.stringify({passed:cases.every(x=>x.maxError<1e-6),maxError:Math.max(...cases.map(x=>x.maxError)),cases},null,2);
+}catch(error){document.querySelector('#result').textContent=error.stack;}
+};
+</script>

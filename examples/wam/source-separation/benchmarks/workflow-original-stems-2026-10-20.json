@@ -1,0 +1,34 @@
+{
+  "browser": "Chrome",
+  "input": "Slow Motion Dream",
+  "originalSeconds": 10.880544217687074,
+  "excerptSeconds": 10,
+  "backend": "webgpu",
+  "scenarios": {
+    "playingOriginalToStems": {
+      "elapsedSecondsDisplayed": 5.2,
+      "originalTracks": 1,
+      "resultTracks": 4,
+      "playingAfter": true,
+      "volumeAfter": 0.99,
+      "zoomAfter": 2
+    },
+    "cancelBeforeFirstChunk": {
+      "status": "Séparation annulée.",
+      "originalAvailable": true,
+      "tracks": 1,
+      "playEnabled": true
+    },
+    "positionOutsideExcerpt": {
+      "elapsedSecondsDisplayed": 5.5,
+      "originalPositionAfter": 10.88,
+      "tracksAfter": 1,
+      "explicitAction": "Écouter l’extrait séparé depuis le début"
+    }
+  },
+  "limits": [
+    "Prototype URL only; Tracks integration is P4",
+    "Existing scheduled restart delay 30 ms; not sample-gapless",
+    "No UVR quality comparison in this test"
+  ]
+}

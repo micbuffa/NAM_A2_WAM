@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Source Separation · NAM A2</title>
+  <link rel="stylesheet" href="../ui/tokens.css"><link rel="stylesheet" href="../ui/base.css"><link rel="stylesheet" href="../ui/components.css">
+  <link rel="stylesheet" href="./source-separation.css">
+</head>
+<body>
+  <div class="host-shell source-shell">
+    <header class="host-topbar"><div class="host-brand"><span class="host-brand-mark">♫</span><div class="host-brand-text"><h1>NAM A2</h1><p>Source separation prototype</p></div></div><a class="back-link" href="../">Back to rack</a><tl-badge id="statusBadge" tone="accent" dot>Prototype</tl-badge></header>
+    <main class="source-main">
+      <aside id="runtimeNotice" class="host-card" role="alert" hidden>
+        <h2>Ouvrir l’application via le serveur local</h2>
+        <p>Cette page est ouverte depuis le disque (file://). Le navigateur bloque le chargement des modules et du catalogue de modèles dans ce mode.</p>
+        <p>Lancez <code>npm start</code> à la racine du projet, puis <a href="http://127.0.0.1:8765/examples/wam/source-separation/">ouvrez le prototype à cette adresse HTTP</a>.</p>
+        <p>Si votre serveur utilise un autre port, ouvrez la même page depuis son adresse HTTP. Le cache des modèles est propre à chaque origine (adresse et port).</p>
+      </aside>
+      <p id="startupError" role="alert" hidden></p>
+      <section class="host-card setup-card"><div class="section-heading"><div><p class="rack-kicker">Preparation</p><h2>Separate a backing track</h2></div><span class="host-dot violet"></span></div>
+        <div class="setup-grid"><label>Input audio<input id="fileInput" disabled type="file" accept="audio/*"></label><label>Use case<select id="useCase"><option value="guitar">Isolate guitar</option><option value="vocals">Isolate vocals</option><option value="remix">Remix / all stems</option></select></label><label>Model<select id="modelSelect"></select></label><label>Backend<select id="backendSelect"><option value="wasm">WASM / CPU</option><option value="webgpu" disabled>WebGPU (ONNX expérimental)</option></select></label></div>
+        <div id="selectedModelPanel" class="selected-model-panel" data-state="checking" aria-label="Disponibilité du modèle choisi">
+          <div><strong id="modelStatus" role="status" aria-live="polite">Chargement du catalogue…</strong><p id="selectedModelDetail">Le modèle doit être téléchargé une fois avant de pouvoir séparer un morceau.</p><a id="selectedModelLicense" target="_blank" rel="noopener" hidden>Licence et crédits du modèle</a></div>
+          <div class="selected-model-actions"><tl-button id="downloadSelectedModel" variant="primary" disabled>Télécharger le modèle</tl-button><tl-button id="cancelSelectedDownload" hidden>Annuler le téléchargement</tl-button></div>
+          <progress id="selectedModelBar" max="100" aria-label="Préparation du modèle sélectionné"></progress>
+        </div>
+        <p id="backendStatus" role="status"></p><label id="fallbackLabel" hidden><input id="allowCpuFallback" type="checkbox" checked> Repli automatique CPU si le GPU échoue avant le premier bloc</label>
+        <div class="model-meta"><span id="modelDescription">Choose a model</span><span id="modelRecommendation"></span></div>
+        <p id="fileStatus" class="file-status" role="status">Audio : aucun fichier sélectionné.</p>
+        <label>Début du fichier à traiter : <select id="excerptSeconds"><option value="1">1 seconde (test rapide)</option><option value="5" selected>5 secondes</option><option value="10">10 secondes</option><option value="30">30 secondes (progressif)</option><option value="60">60 secondes (progressif)</option></select></label>
+        <label><input id="progressiveMode" type="checkbox" checked> Lecture progressive (6s et ONNX 4 pistes)</label>
+        <tl-button id="progressiveTest" disabled size="sm">Utiliser CleanChords.mp3 (exemple guitare)</tl-button>
+        <tl-button id="realMixTest" disabled size="sm">Utiliser un mix multi-instruments (10 s)</tl-button> <a href="./fixtures/music/NOTICE.md">Crédits du mix · CC BY 3.0</a>
+        <tl-button id="testSignal" disabled size="sm">Utiliser le signal de test (1 s)</tl-button>
+        <p>Inférence locale expérimentale : CPU/WASM pour 6s et FT ; WebGPU hybride pour le modèle ONNX 4 pistes. Mémoire CPU observée supérieure à 2 Gio. Téléchargez le modèle choisi avant de séparer ; les poids ONNX sont distincts. La comparaison avec UVR reste à valider.</p>
+        <div class="setup-actions"><tl-button id="loadDemo" disabled variant="secondary">Load demo stems</tl-button><tl-button id="separateButton" variant="primary" disabled>Séparer l’extrait</tl-button><tl-button id="cancelSeparation" disabled>Annuler la séparation</tl-button><span id="progress" role="status" aria-live="polite"></span></div>
+        <p id="separationHint" role="status" aria-live="polite">Chargement du catalogue de modèles…</p>
+        <div id="separationProgress" class="separation-progress" hidden><label for="separationBar" id="separationPhase">Préparation</label><progress id="separationBar" max="100" value="0" aria-labelledby="separationPhase"></progress><output id="separationPercent" for="separationBar">0%</output><small>Progression par étapes. Le pourcentage avance à la fin de chaque segment calculé.</small><ul id="completedTracks" aria-label="Pistes terminées"></ul></div>
+      </section>
+      <section class="host-card player-card"><div class="section-heading"><div><p class="rack-kicker">Multitrack player</p><h2 id="sessionTitle">No stems loaded</h2></div><div class="zoom-actions"><tl-button id="zoomOut" size="sm">−</tl-button><output id="zoomValue">100%</output><tl-button id="zoomIn" size="sm">+</tl-button><tl-button id="zoomReset" size="sm">Reset zoom</tl-button></div></div>
+        <div class="player-workflow"><tl-button id="playerSeparateButton" variant="primary" disabled>Separate instruments</tl-button><tl-button id="playerCancelButton" hidden>Annuler la séparation</tl-button><tl-button id="toggleMixView" hidden aria-pressed="false">Réduire au mix</tl-button><tl-button id="showOriginal" hidden>Écouter l’original complet</tl-button><tl-button id="showSeparated" hidden>Écouter les instruments</tl-button><span id="playerWorkflowStatus" role="status"></span><span id="playerSeparationState" role="status" hidden></span></div>
+        <fieldset class="global-mix-controls"><legend>Mix guitare / backing</legend>
+          <label>Backing <output id="backingVolumeValue">0.0 dB</output><input id="backingVolume" aria-label="Volume global backing" type="range" min="-60" max="6" step=".5" value="0"></label>
+          <tl-button id="backingMute" aria-pressed="false">Mute backing</tl-button>
+          <label>Guitare ↔ Backing <output id="guitarBalanceValue">50 / 50</output><input id="guitarBalance" aria-label="Balance guitare backing" type="range" min="0" max="1" step=".01" value=".5"></label>
+          <label>Pan guitare <output id="globalGuitarPanValue">C</output><input id="globalGuitarPan" aria-label="Pan global guitare" type="range" min="-1" max="1" step=".01" value="0"></label>
+          <label>Sortie <meter id="globalMixMeter" min="-60" max="0" value="-60" aria-label="Niveau du mix guitare backing"></meter><output id="globalMixLevel">−60 dBFS</output></label><strong id="globalMixClip" hidden role="status">Saturation</strong>
+        </fieldset>
+        <details class="guitar-preview"><summary>Guitare de test pour essayer la balance</summary><tl-button id="guitarPreviewLoad">Charger une guitare de test</tl-button><tl-button id="guitarPreviewPlay" disabled>Jouer la guitare</tl-button><tl-button id="guitarPreviewStop" disabled>Stop guitare</tl-button><span id="guitarPreviewStatus" role="status">Aucune guitare de test chargée. Dans le host, cette entrée reçoit la sortie du rack.</span></details>
+        <div id="transport" class="transport"><tl-button id="playButton" variant="primary" disabled>Play</tl-button><tl-button id="stopButton" disabled>Stop</tl-button><label class="transport-loop"><input id="loopToggle" type="checkbox" checked> Loop</label><span id="clock">0:00 / 0:00</span></div>
+        <div class="loop-controls" aria-label="Boucle A/B">
+          <label>A <input id="loopA" type="number" min="0" step="0.01" value="0" disabled> s</label>
+          <label>B <input id="loopB" type="number" min="0" step="0.01" value="0" disabled> s</label>
+          <button id="loopSetA" disabled>A = position</button><button id="loopSetB" disabled>B = position</button><button id="loopReset" disabled>Toute la piste</button>
+          <small id="loopStatus" role="status">Déplacez A et B sur la forme d’onde · flèches au clavier</small>
+        </div>
+        <p id="bufferStatus" role="status" hidden></p>
+        <tl-button id="activateAudio" hidden>Activer la lecture audio</tl-button>
+        <label>Position <input id="seek" type="range" min="0" max="1" step="0.01" value="0" disabled></label>
+        <p><a href="./webgpu-benchmark.html">Diagnostic WebGPU : comparer les mêmes poids sur GPU et CPU</a></p>
+        <details><summary>Mesures du dernier traitement ONNX</summary><pre id="backendMetrics"></pre></details>
+        <div id="tracks" class="track-list" aria-live="polite"><p class="empty-state">Load the demo stems to test the multiptrack controls.</p></div>
+      </section>
+      <section class="host-card" aria-labelledby="modelsHeading">
+        <details><summary>Modèles, téléchargements et stockage local</summary><p class="rack-kicker">Modèles et stockage local</p><h2 id="modelsHeading">Gestionnaire de téléchargements</h2>
+        <p id="capabilities" role="status">Détection du moteur graphique…</p>
+        <p>Les poids des modèles musicaux sont téléchargés sur demande, vérifiés puis gardés dans ce navigateur. Aucun audio n’est envoyé au serveur. Les deux petits kits « sans IA » servent uniquement au diagnostic du cache.</p>
+        <div id="downloadModels"></div>
+        <p id="cacheUsage" role="status" aria-live="polite"></p>
+        <p id="downloadStatus" role="status" aria-live="polite"></p>
+        <details><summary>Quel modèle choisir ?</summary><p>htdemucs_ft : voix, batterie, basse et « autre » (souvent la guitare dans le rock). htdemucs_6s ajoute guitare et piano dédiés. Le modèle FT exécute quatre spécialistes successifs ; il est plus lent. Ces conversions expérimentales doivent encore être comparées à UVR sur de vrais morceaux.</p><a href="https://github.com/facebookresearch/demucs" target="_blank" rel="noopener">Documentation Demucs</a></details>
+        </details>
+      </section>
+    </main>
+  </div>
+  <script src="./bootstrap.js"></script>
+</body>
+</html>

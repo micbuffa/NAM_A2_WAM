@@ -1,0 +1,104 @@
+{
+  "modelId": "htdemucs_4s_onnx",
+  "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+  "input": "CleanChords.mp3",
+  "inputSeconds": 13.65,
+  "sampleRate": 44100,
+  "runs": {
+    "webgpu": {
+      "type": "done",
+      "backend": "webgpu",
+      "elapsedMs": 5826.300000011921,
+      "loadMs": 789.5999999642372,
+      "blocks": [
+        {
+          "inputSeconds": 7.8,
+          "publishedSeconds": 5.85,
+          "elapsedMs": 2901.899999976158
+        },
+        {
+          "inputSeconds": 7.8,
+          "publishedSeconds": 7.8,
+          "elapsedMs": 2131.600000023842
+        }
+      ],
+      "adapterInfo": {
+        "vendor": "apple",
+        "architecture": "metal-3"
+      },
+      "gpuKernels": 3244,
+      "runtimeVersion": "1.22.0",
+      "fallbackReason": null
+    },
+    "wasm": {
+      "type": "done",
+      "backend": "wasm",
+      "elapsedMs": 22507.899999976158,
+      "loadMs": 690.4000000357628,
+      "blocks": [
+        {
+          "inputSeconds": 7.8,
+          "publishedSeconds": 5.85,
+          "elapsedMs": 10449.5
+        },
+        {
+          "inputSeconds": 7.8,
+          "publishedSeconds": 7.8,
+          "elapsedMs": 11367.5
+        }
+      ],
+      "adapterInfo": null,
+      "gpuKernels": 0,
+      "runtimeVersion": "1.22.0",
+      "fallbackReason": null
+    }
+  },
+  "comparison": {
+    "channels": [
+      {
+        "rmsError": 8.599496218315414e-7,
+        "maxAbsError": 0.000011494150385260582,
+        "referenceRms": 0.000220915262920619
+      },
+      {
+        "rmsError": 7.71841076895462e-7,
+        "maxAbsError": 0.000009560724720358849,
+        "referenceRms": 0.00021095820489042304
+      },
+      {
+        "rmsError": 0.0000337433109905109,
+        "maxAbsError": 0.0002205967903137207,
+        "referenceRms": 0.0158071435863219
+      },
+      {
+        "rmsError": 0.000034399822720605435,
+        "maxAbsError": 0.00022157281637191772,
+        "referenceRms": 0.01581155833592901
+      },
+      {
+        "rmsError": 0.000027501943004294253,
+        "maxAbsError": 0.00019061565399169922,
+        "referenceRms": 0.08523352108056943
+      },
+      {
+        "rmsError": 0.00002767166825538288,
+        "maxAbsError": 0.00019051134586334229,
+        "referenceRms": 0.08516674808547706
+      },
+      {
+        "rmsError": 2.3798454770686723e-7,
+        "maxAbsError": 0.00000286824069917202,
+        "referenceRms": 0.00006812501137512002
+      },
+      {
+        "rmsError": 2.271954582966994e-7,
+        "maxAbsError": 0.000002998160198330879,
+        "referenceRms": 0.00006860752973670198
+      }
+    ],
+    "rmsError": 0.000021924530893727575,
+    "relativeRmsError": 0.0005060201134844917,
+    "maxAbsError": 0.00022157281637191772,
+    "withinTolerance": true
+  }
+}

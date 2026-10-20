@@ -1,5 +1,18 @@
 # NAM A2 WAM — Next-session handoff
 
+## 2026-10-20 — Source separation checkpoint; development moving to multitracks
+
+Prototype: `examples/wam/source-separation/`, URL `http://127.0.0.1:8765/examples/wam/source-separation/`; static build `dist/NAM_A2_WAM/source-separation/`. Specification: `SPECIFICATION_SOURCE_SEPARATION_MULTITRACK.md`. P1–P3, P4.1 (shared host mixer) and P4.2 (A/B loops) are delivered. 306 tests pass; source and dist verified in Chrome with real music; dist rebuilt with `npm run dist -- --no-regenerate --no-build`.
+
+WebGPU-capable machines prefer the validated ONNX four-stem model; guitar is in Other. Explicit CPU choices remain valid, with CPU fallback before the first published block. No automatic weight download. 6s and FT remain CPU/WASM: six-stem GPU diagnostic produces audio but fails numeric agreement on real music (7.317% RMS). See `examples/wam/source-separation/SIX_STEMS_GPU.md`; do not enable this experimental graph in the catalogue.
+
+A/B regions are editable via handles, keyboard, numeric inputs and position buttons; shared across stems and mix view, zoom independent. Progressive playback waits for unpublished B. Available selected windows loop natively; one window per track is cached. If B arrives during playback, the first return retains the existing 30 ms scheduling latency. Original/instrument switching copies compatible regions in seconds; an original region outside a shorter excerpt remains on the original deck.
+
+User requests this checkpoint on main then further development on branch `multitracks` to protect the main UI. Next: shade areas outside A/B, then P4.3 reversible common-gain audio normalization. P4.4 (actual Tracks host integration and state restore) remains pending: the prototype currently reuses the host mixer but is not the main host's multitrack player. Preserve one AudioContext, one destination, one shared clock; never sum original and separated output. Unit tests for each feature, full suite before user testing. Keep HANDOFF current.
+
+Unrelated pre-existing local changes excluded from this checkpoint: `examples/other_wam_host/`, `src/nam-wam/models-manifest.json`, `src/nam-wam/models/tone3000/madhatteramplab/`. Do not remove or accidentally stage them.
+
+
 ## 2026-10-09 — Guitar-reference calibration
 
 Calibrate level now measures the bundled 8–20 s Funky-Guitar excerpt in an isolated Worker/WASM instance, without interrupting or injecting audio into the live graph. Fixed −18 dB reference trim plus NAM input gain; −24 dBFS RMS target, −1 dBFS reference peak ceiling, ±36 dB measured correction (metadata still ±12 dB). Results replace metadata correction, retain per-capture/variant WAM state and cancel on supersession/model changes. Inline progress/errors/limits. Real WASM validation: Bogner m689735 −4.19 dB and Deluxe Room m383454 +27.00 dB both reach −24 dBFS on the excerpt without peak limiting. 149 Node tests passed; static distribution rebuilt. Resumed validation: browser Worker completed on Deluxe Room (+27.0 dB) and rebuilt distribution Bogner m689735 (−4.2 dB); metadata reset clears measured status. Corrected details target display to use the measured target. Final 149 tests passed and distribution rebuilt.

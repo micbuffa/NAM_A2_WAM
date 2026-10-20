@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "models": [
+    {
+      "id": "cache-test-4",
+      "version": "1.0.0",
+      "label": "Kit de validation 4 pistes (sans IA)",
+      "description": "Fichier de diagnostic : téléchargement, SHA-256 et persistance locale.",
+      "roles": [],
+      "backends": [],
+      "kind": "fixture",
+      "license": {
+        "name": "Données de test du projet — MIT",
+        "url": "./fixtures/LICENSE.txt"
+      },
+      "files": [
+        {
+          "url": "./fixtures/cache-test-4.json",
+          "size": 10903,
+          "sha256": "1564dded8b3483a95c5d1755a2d1406228f029182e5880b8eefd6a481e827df9"
+        }
+      ]
+    },
+    {
+      "id": "cache-test-5",
+      "version": "1.0.0",
+      "label": "Kit de validation 5 pistes (sans IA)",
+      "description": "Fichier de diagnostic : téléchargement, SHA-256 et persistance locale.",
+      "roles": [],
+      "backends": [],
+      "kind": "fixture",
+      "license": {
+        "name": "Données de test du projet — MIT",
+        "url": "./fixtures/LICENSE.txt"
+      },
+      "files": [
+        {
+          "url": "./fixtures/cache-test-5.json",
+          "size": 10907,
+          "sha256": "20c0b087cc34fef5d98cdccf926f84db0b6c0503db7b9cdfbc909ffba3e72985"
+        }
+      ]
+    }
+  ]
+}
