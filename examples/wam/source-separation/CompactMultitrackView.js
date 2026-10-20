@@ -18,6 +18,8 @@ export class CompactMultitrackView {
       if(event.key in positions){event.preventDefault();this.viewport.scrollLeft=positions[event.key];}
     };
     this.content=make('div','wave-content',this.viewport);this.ruler=make('div','shared-ruler',this.content);this.ruler.setAttribute('aria-hidden','true');
+    this.outsideBefore=make('div','loop-outside loop-outside-before',this.content);this.outsideBefore.hidden=true;
+    this.outsideAfter=make('div','loop-outside loop-outside-after',this.content);this.outsideAfter.hidden=true;
     this.region=make('div','loop-region',this.content);this.region.hidden=true;
     this.handles={};
     for(const key of ['start','end']){
@@ -131,6 +133,9 @@ export class CompactMultitrackView {
   setLoopRegion(bounds,enabled=true) {
     if(this.dragging&&bounds!==this.loopRegion)return;
     this.loopRegion={...bounds};this.loopEnabled=enabled;this.region.hidden=!this.duration;
+    this.outsideBefore.hidden=this.outsideAfter.hidden=!enabled||!this.duration;
+    this.outsideBefore.style.width=`${bounds.start/this.duration*100}%`;
+    this.outsideAfter.style.left=`${bounds.end/this.duration*100}%`;
     this.region.style.left=`${bounds.start/this.duration*100}%`;this.region.style.width=`${(bounds.end-bounds.start)/this.duration*100}%`;this.region.style.opacity=enabled?'1':'.45';
     for(const key of ['start','end'])this.handles[key].title=`${key==='start'?'A':'B'} : ${bounds[key].toFixed(2)} s`;
   }

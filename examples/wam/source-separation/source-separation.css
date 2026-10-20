@@ -112,3 +112,7 @@ body { margin: 0; font-family: var(--tl-font-sans,system-ui,sans-serif); font-si
 .loop-controls label { display: flex; gap: 4px; align-items: center; }
 .loop-controls input { width: 82px; padding: 5px; }
 .loop-controls button { padding: 5px 8px; background: #29333c; border: 1px solid #52616b; color: #e9f2e7; border-radius: 4px; cursor: pointer; }
+
+/* Dim only the unselected waveform area; seek and faders stay interactive. */
+.loop-outside { position: absolute; top: 24px; bottom: 0; background: rgb(135 145 155 / 20%); pointer-events: none; z-index: 2; }
+.loop-outside-before { left: 0; } .loop-outside-after { right: 0; }

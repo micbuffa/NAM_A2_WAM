@@ -114,3 +114,13 @@ test('A/B overlay follows zoom, accepts pointer drag and keyboard, and survives 
   f.view.handles.end.onkeydown({key:'ArrowLeft',shiftKey:true,preventDefault(){}});assert.ok(Math.abs(changes[1].end-.8)<1e-8);
   f.session.setViewMode('mix');f.view.updateControls();assert.equal(f.view.region.hidden,false);f.view.destroy();
 });
+
+
+test('outside A/B is lightly shaded in both views, scales with zoom, and clears when loop is disabled',()=>{
+  const f=fixture();f.view.setAudio(audio);f.view.setLoopRegion({start:.5,end:1.5});
+  assert.equal(f.view.outsideBefore.hidden,false);assert.equal(f.view.outsideAfter.hidden,false);
+  assert.equal(f.view.outsideBefore.style.width,'25%');assert.equal(f.view.outsideAfter.style.left,'75%');
+  f.session.setZoom(4);f.session.setViewMode('mix');f.view.updateControls();assert.equal(f.view.content.style.width,'400%');assert.equal(f.view.outsideBefore.style.width,'25%');
+  f.view.setLoopRegion({start:.5,end:1.5},false);assert.equal(f.view.outsideBefore.hidden,true);assert.equal(f.view.outsideAfter.hidden,true);
+  f.view.setLoopRegion({start:0,end:2},true);assert.equal(f.view.outsideBefore.style.width,'0%');assert.equal(f.view.outsideAfter.style.left,'100%');f.view.destroy();
+});

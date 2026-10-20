@@ -1,5 +1,9 @@
 # NAM A2 WAM — Next-session handoff
 
+## 2026-10-20 — multitracks branch: outside-loop shading; P4.3 next
+
+Main checkpoint `faa52c8` pushed to origin/main. Further prototype changes are on `multitracks`; do not merge them into main without instruction. Waveform-only overlays lightly gray areas outside A/B when Loop is enabled, disappear when disabled, follow zoom and instrument/mix views, and never intercept pointer input. Regression test added (307 total). Next work in this branch: P4.3 reversible peak normalization using a common gain for the complete current backing mix; no per-stem normalization, no modification of PCM, no automatic playback. Update docs, tests and dist before delivery.
+
 ## 2026-10-20 — Source separation checkpoint; development moving to multitracks
 
 Prototype: `examples/wam/source-separation/`, URL `http://127.0.0.1:8765/examples/wam/source-separation/`; static build `dist/NAM_A2_WAM/source-separation/`. Specification: `SPECIFICATION_SOURCE_SEPARATION_MULTITRACK.md`. P1–P3, P4.1 (shared host mixer) and P4.2 (A/B loops) are delivered. 306 tests pass; source and dist verified in Chrome with real music; dist rebuilt with `npm run dist -- --no-regenerate --no-build`.
