@@ -97,7 +97,21 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .mainCaptureMedia { min-width:0 }
         nam-a2-gui .mainCaptureViewer { display:grid;grid-template-columns:22px minmax(0,1fr) 22px;gap:4px;align-items:center }
         nam-a2-gui .mainCaptureViewer button { padding:0;min-width:0;height:40px;font-size:24px }
-        nam-a2-gui .mainCaptureName { display:block;min-width:0;margin:7px 0 0;font-size:10px;line-height:1.4;overflow-wrap:anywhere;color:var(--tl-text,#ddd3e8) }
+        nam-a2-gui .mainCaptureName { display:flex;align-items:center;gap:8px;min-width:0;margin:8px 0 0 }
+        /* Capture picker: same skin as the host's tl-select (styled open list where base-select exists), discreet focus. */
+        nam-a2-gui .mainCaptureSelect { flex:1 1 auto;min-width:0;max-width:420px;height:32px;padding:0 10px;color:var(--tl-text,#f3f0f7);background:var(--tl-surface-2,#151817);border:1px solid var(--tl-border,#34303b);border-radius:var(--tl-radius-md,8px);font:500 11px var(--tl-font-ui,Inter,system-ui,sans-serif);text-overflow:ellipsis;cursor:pointer;outline:none;transition:border-color .15s }
+        nam-a2-gui .mainCaptureSelect:hover { border-color:var(--tl-border-hover,#4d5651) } nam-a2-gui .mainCaptureSelect:focus-visible { outline:none;border-color:var(--tl-accent-border,#63733e) }
+        nam-a2-gui .mainCaptureSelect:disabled { opacity:1;cursor:default }
+        @supports (appearance:base-select) {
+          nam-a2-gui .mainCaptureSelect,nam-a2-gui .mainCaptureSelect::picker(select) { appearance:base-select }
+          nam-a2-gui .mainCaptureSelect { display:flex;align-items:center;overflow:clip;white-space:nowrap }
+          nam-a2-gui .mainCaptureSelect::picker-icon { margin-left:auto;color:var(--tl-text-muted,#6f7773) }
+          nam-a2-gui .mainCaptureSelect::picker(select) { box-sizing:border-box;min-width:anchor-size(width);max-height:min(360px,60vh);margin-block:4px;padding:4px;overflow-y:auto;color:var(--tl-text-2,#aaa3b4);background:var(--tl-surface-2,#151817);border:1px solid var(--tl-border-strong,#3a3642);border-radius:var(--tl-radius-md,8px);box-shadow:0 16px 40px rgba(0,0,0,.55);scrollbar-width:thin;scrollbar-color:var(--tl-border-strong,#3a3642) transparent }
+          nam-a2-gui .mainCaptureSelect option { display:flex;align-items:center;gap:8px;min-height:28px;padding:5px 10px;border-radius:var(--tl-radius-sm,5px);font:500 11px var(--tl-font-ui,Inter,system-ui,sans-serif);white-space:nowrap;cursor:pointer;outline:none }
+          nam-a2-gui .mainCaptureSelect option:hover,nam-a2-gui .mainCaptureSelect option:focus-visible { color:var(--tl-text,#f3f0f7);background:var(--tl-surface-5,#202422) }
+          nam-a2-gui .mainCaptureSelect option:checked { color:var(--nam-accent);background:var(--tl-accent-tint,#a688ff1a) }
+          nam-a2-gui .mainCaptureSelect option::checkmark { order:1;margin-left:auto;color:var(--nam-accent) }
+        } nam-a2-gui .mainCaptureCounter { flex:none;color:var(--tl-text-muted,#898391);font:600 10px var(--tl-font-mono,ui-monospace,monospace) }
         nam-a2-gui .currentModelInfo .level-actions { align-items:center;flex-wrap:wrap;gap:5px }
         nam-a2-gui .currentModelInfo .level-actions .modelLevel { font-size:9px;letter-spacing:.03em;padding:3px 6px;white-space:nowrap }
         nam-a2-gui .currentModelInfo .level-actions button { font-size:10px;min-height:23px;padding:0 6px;white-space:nowrap }
@@ -322,7 +336,10 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .detailsBody { display:grid;gap:12px } nam-a2-gui .detailsBody .panel-intro { margin-bottom:0 }
         nam-a2-gui .detailsBody .modelDetails { margin:0;padding:0;background:none;border:0 } nam-a2-gui .detailsBody .modelDetails>:not(summary) { margin-left:0;margin-right:0 }
         nam-a2-gui .detailsBody .signal-strip { margin:0;padding:12px;background:var(--tl-surface-3,#181b19);border-color:var(--tl-border-strong,#3a3642);border-radius:12px }
-        nam-a2-gui .detailsBody .current-model { display:block;padding:0;background:none;border:0 } nam-a2-gui .detailsBody .mainCaptureMedia { display:none }
+        /* No artwork here (it is the same photo for every capture): ‹ capture info › only. */
+        nam-a2-gui .detailsBody .current-model { grid-template-columns:36px minmax(0,1fr) 36px;gap:14px;padding:0;background:none;border:0 }
+        nam-a2-gui .detailsBody .mainCaptureMedia,nam-a2-gui .detailsBody .mainCaptureViewer { display:contents } nam-a2-gui .detailsBody .currentModelArtwork { display:none }
+        nam-a2-gui .detailsBody .mainCaptureViewer button { order:1;height:56px } nam-a2-gui .detailsBody .currentModelInfo { order:2 } nam-a2-gui .detailsBody .mainCaptureViewer button~button { order:3 }
         nam-a2-gui .detailsBody .status:empty { display:none }
         nam-a2-gui .model-facts { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px }
         nam-a2-gui .model-facts article { display:grid;gap:6px;align-content:start;min-width:0;padding:14px 16px;background:var(--tl-surface-3,#181b19);border:1px solid var(--tl-border-strong,#3a3642);border-radius:12px }
@@ -1212,12 +1229,17 @@ class NamA2Gui extends HTMLElement {
     previous.type=next.type='button';previous.textContent='‹';next.textContent='›';
     previous.setAttribute('aria-label','Previous capture');next.setAttribute('aria-label','Next capture');
     previous.disabled=next.disabled=true;
-    const name=document.createElement('span');name.className='mainCaptureName';
+    // Flat list of the tone's captures: pick one directly instead of stepping with ‹ ›.
+    const name=document.createElement('div');name.className='mainCaptureName';
+    const select=document.createElement('select');select.className='mainCaptureSelect';select.setAttribute('aria-label','Capture');select.disabled=true;
+    const counter=document.createElement('small');counter.className='mainCaptureCounter';
+    name.append(select,counter);
     artwork.replaceWith(media);viewer.append(previous,artwork,next);media.append(viewer);
     this.querySelector('.currentModelInfo').append(name);
     this.querySelector('.level-actions').prepend(this.controls.modelLevel);
-    this._mainCaptures={previous,next,name};
+    this._mainCaptures={previous,next,select,counter};
     previous.onclick=()=>this.moveMainCapture(-1);next.onclick=()=>this.moveMainCapture(1);
+    select.onchange=()=>this.selectMainCapture(Number(select.value));
   }
 
   mainCaptureCollection() {
@@ -1239,9 +1261,13 @@ class NamA2Gui extends HTMLElement {
     const {items,index}=this.mainCaptureCollection(),ui=this._mainCaptures;
     ui.previous.disabled=!!this._mainCaptureLoading||index<=0;
     ui.next.disabled=!!this._mainCaptureLoading||index<0||index>=items.length-1;
-    const asset=this._assets.find(entry=>entry.id===this._selectedId);
-    ui.name.textContent=asset?`${asset.filename}${items.length>1?` · ${index+1} / ${items.length}`:''}`:'';
-    ui.name.title=asset?.filename||'';
+    const label=(item)=>item.filename||item.name||`Model ${item.id}`;
+    const key=items.map(label).join('\n');
+    if(ui.select.dataset.key!==key){ui.select.dataset.key=key;ui.select.replaceChildren(...items.map((item,i)=>new Option(label(item),String(i))));}
+    if(index>=0)ui.select.value=String(index);
+    ui.select.disabled=!!this._mainCaptureLoading||items.length<2;
+    ui.select.title=index>=0?label(items[index]):'';
+    ui.counter.textContent=items.length>1&&index>=0?`${index+1} / ${items.length}`:'';
   }
 
   moveMainCapture(direction) {
