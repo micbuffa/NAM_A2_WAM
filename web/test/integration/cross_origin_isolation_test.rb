@@ -31,15 +31,15 @@ class CrossOriginIsolationTest < ActionDispatch::IntegrationTest
   end
 
   test "WASM is served statically as application/wasm with isolation headers" do
-    skip_unless_rack_synced
-    get "/rack/#{RackAssets::WASM_PATH}"
+    skip_unless_rack_built
+    get RackAssets::WASM_URL
     assert_response :success
     assert_equal "application/wasm", response.media_type
     assert_isolation_headers
   end
 
   test "rack ES modules are served statically" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     get "/rack/main.js"
     assert_response :success
     assert_equal "text/javascript", response.media_type

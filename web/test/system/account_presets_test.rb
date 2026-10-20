@@ -16,7 +16,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   JS
 
   test "sign in with the emailed link, save a preset, alter the chain and restore it" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
     wait_for_rack(wait: 40)
     assert page.evaluate_script("window.crossOriginIsolated")
@@ -89,7 +89,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   end
 
   test "confirming the magic link in another tab updates the open rack without reloading" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
     wait_for_rack(wait: 40)
     page.execute_script("window.__sameDocument = true")
@@ -108,7 +108,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   end
 
   test "a sign-in tab that cannot close says the rack is signed in" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
     wait_for_rack(wait: 40)
     token = SignInToken.issue!(email: "inplace@example.com").token
@@ -126,7 +126,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   end
 
   test "signing out puts the rack back to the guest default" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
     wait_for_rack(wait: 40)
     guest = chain_snapshot
@@ -154,7 +154,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   end
 
   test "confirming the magic link with no rack open opens the rack signed in" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     token = SignInToken.issue!(email: "solo@example.com").token
     visit confirm_sign_in_path(token:)
     click_on "Sign in"
@@ -163,7 +163,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   end
 
   test "the rack reopens the account's last preset after a reload, until it is deleted" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
     wait_for_rack(wait: 40)
     sign_in_as_by_link "returner@example.com"
@@ -192,7 +192,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   end
 
   test "signing in reopens the account's last preset unless the rack has unsaved changes" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
     wait_for_rack(wait: 40)
     guest = chain_snapshot
@@ -226,7 +226,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   end
 
   test "a guest signs in to save, and the rack on screen becomes the preset" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
     wait_for_rack(wait: 40)
     assert_selector "#presetSelect option[disabled]", text: "Sign in to save presets", visible: :all
@@ -256,7 +256,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   end
 
   test "the online rack deletes the presets an earlier version stored in this browser" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/up"
     page.evaluate_async_script(<<~JS)
       const done = arguments[0];
@@ -278,7 +278,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
   end
 
   test "a reload brings back the unsaved rack, saving a preset drops it" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
     wait_for_rack(wait: 40)
     assert_no_selector "#presetUnsaved"

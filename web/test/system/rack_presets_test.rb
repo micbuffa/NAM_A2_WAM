@@ -15,7 +15,7 @@ class RackPresetsTest < ApplicationSystemTestCase
   JS
 
   setup do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     open_rack_signed_in "presets@example.com"
   end
 

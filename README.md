@@ -90,10 +90,9 @@ Linux) and VS Code with the Dev Containers extension, a recent JetBrains IDE, or
 
 Open the project and choose **Reopen in Container**. On first creation the container runs
 `npm run setup` (fetches `third_party/` if it is missing and builds the WASM), then
-`web/bin/setup --skip-server` (gems and database) and `web/bin/rack-sync`. Then, in the container
-terminal:
+`web/bin/setup --skip-server` (gems and database). Then, in the container terminal:
 
-- `npm start` serves the static host on <http://127.0.0.1:8765/examples/wam/index.html>;
+- `npm start` serves the static host on <http://127.0.0.1:8765/rack/>;
 - `cd web && bin/rails server` serves the Rails app on <http://localhost:3000/rack/>.
 
 Both ports are forwarded to the host browser, so audio devices work as usual. After changing
@@ -115,10 +114,11 @@ npm run setup
 npm start
 ```
 
-Then open <http://127.0.0.1:8765/examples/wam/index.html>.
+Then open <http://127.0.0.1:8765/rack/> (the same URL as the Rails app; the older
+`/examples/wam/` path still works).
 
 The isolated WAM effect registry and compatibility lab is available at
-<http://127.0.0.1:8765/examples/wam/fx-test/>. It discovers the bundled catalogue, categorizes
+<http://127.0.0.1:8765/rack/fx-test/>. It discovers the bundled catalogue, categorizes
 effects from descriptors and catalogue overrides, and validates plugin loading, GUI creation,
 state round trips, bypass, and cleanup without changing the production NAM/Cabinet graph. See
 [`docs/WAM_PLUGIN_REGISTRY.md`](docs/WAM_PLUGIN_REGISTRY.md).
@@ -136,7 +136,7 @@ TONE3000 NAM A2 models. If the browser or audio device cannot provide 48 kHz, th
 diagnostic message and NAM model loading may be rejected by the core.
 
 An automated validation page is available at
-<http://127.0.0.1:8765/examples/wam/index.html?auto=1>.
+<http://127.0.0.1:8765/rack/index.html?auto=1>.
 
 ## Accounts, presets and sync (Rails app)
 
@@ -151,9 +151,11 @@ The static distribution, which has no accounts, keeps user presets in the browse
 ```sh
 npm run setup                 # once: third-party checkouts + WASM
 cd web && bin/setup --skip-server
-bin/rack-sync                 # copies dist/NAM_A2_WAM into web/public/rack
 bin/rails server              # http://localhost:3000/rack/
 ```
+
+In development Rails serves the rack straight from `examples/wam/` and `src/`: edit, reload, done.
+`web/bin/rack-sync` is only needed to build a production image.
 
 The page must be cross-origin isolated (`COOP: same-origin`, `COEP: require-corp`) because the
 WAM SDK uses `SharedArrayBuffer`; the Rails app sends these headers on the page and every static
@@ -173,6 +175,7 @@ not embedded in `index.html`. The configuration derives the redirect URI from th
 being opened, so the same source host works locally and on Mainline:
 
 ```text
+http://127.0.0.1:8765/rack/index.html
 http://127.0.0.1:8765/examples/wam/index.html
 ```
 

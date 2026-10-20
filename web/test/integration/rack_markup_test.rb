@@ -1,12 +1,7 @@
 require "test_helper"
 
-# app/views/rack/show.html.erb is generated from examples/wam/index.html by
-# bin/rack-sync (lib/rack_view.rb). Guard against a stale or hand-edited view.
+# The rack page is generated from examples/wam/index.html (lib/rack_view.rb).
 class RackMarkupTest < ActionDispatch::IntegrationTest
-  test "rack view is up to date with examples/wam/index.html" do
-    assert_equal RackView.generate, File.read(RackView::TARGET), "stale view: run bin/rack-sync"
-  end
-
   test "rack page keeps every id of examples/wam/index.html" do
     ids = File.read(RackView::SOURCE).scan(/\sid="([^"]+)"/).flatten
     assert_operator ids.size, :>, 20

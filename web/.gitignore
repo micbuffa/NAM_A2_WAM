@@ -15,4 +15,6 @@
 
 # Generated copy of dist/NAM_A2_WAM (bin/rack-sync); never edit by hand.
 /public/rack/
+# Generated from examples/wam/index.html (bin/rack-sync); dev and test render it on the fly.
+/app/views/rack/show.html.erb
 .hyperdrive/discover_cache.json

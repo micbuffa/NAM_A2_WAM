@@ -4,7 +4,7 @@ class RackIsolationTest < ApplicationSystemTestCase
   include RackAssets
 
   test "rack page is cross-origin isolated and the WAM chain initializes" do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
 
     assert_equal true, page.evaluate_script("window.crossOriginIsolated")

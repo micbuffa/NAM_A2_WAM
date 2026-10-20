@@ -5,7 +5,7 @@ class SettingsTest < ApplicationSystemTestCase
   include RackAssets
 
   setup do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
     wait_for_rack
   end

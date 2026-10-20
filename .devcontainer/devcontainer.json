@@ -18,7 +18,7 @@
   },
 
   // third_party/ repos are bind-mounted with the host's owner; let git work on them as root.
-  "postCreateCommand": "git config --global --add safe.directory '*' && npm run setup && cd web && bin/setup --skip-server && bin/rack-sync",
+  "postCreateCommand": "git config --global --add safe.directory '*' && npm run setup && cd web && bin/setup --skip-server",
 
   "customizations": {
     "vscode": {

@@ -47,9 +47,9 @@ RUN bundle install && \
 # Copy application code
 COPY . .
 
-# public/rack is generated outside the image (bin/rack-sync needs the WASM
-# toolchain and the third_party checkouts). Refuse to build without it.
-RUN test -f public/rack/plugins/nam-wam/nam-simd.wasm || \
+# public/rack and the rack view are generated outside the image (bin/rack-sync
+# needs the WASM toolchain and the third_party checkouts). Refuse to build without them.
+RUN test -f public/rack/plugins/nam-wam/nam-simd.wasm -a -f app/views/rack/show.html.erb || \
     (echo "public/rack is missing: run web/bin/rack-sync before building" >&2 && exit 1)
 
 # Precompile bootsnap code for faster boot times.

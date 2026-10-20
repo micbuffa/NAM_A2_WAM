@@ -18,6 +18,10 @@ Rails.application.configure do
   # Configure public file server for tests with cache-control for performance.
   config.public_file_server.headers = Web::CROSS_ORIGIN_ISOLATION_HEADERS.merge("cache-control" => "public, max-age=3600")
 
+  # Test the rack from its sources, like development (no bin/rack-sync).
+  require Rails.root.join("lib/dev_sources").to_s
+  config.middleware.insert_before ActionDispatch::Static, DevSources, headers: config.public_file_server.headers
+
   # Show full error reports.
   config.consider_all_requests_local = true
   config.cache_store = :memory_store # rate_limit needs a real store

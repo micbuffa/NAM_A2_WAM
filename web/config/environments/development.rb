@@ -23,9 +23,13 @@ Rails.application.configure do
     config.public_file_server.headers = Web::CROSS_ORIGIN_ISOLATION_HEADERS.merge("cache-control" => "public, max-age=#{2.days.to_i}")
   else
     config.action_controller.perform_caching = false
-    # public/rack is re-synced while developing; always revalidate.
+    # The rack is served from the sources while developing; always revalidate.
     config.public_file_server.headers = Web::CROSS_ORIGIN_ISOLATION_HEADERS.merge("cache-control" => "no-cache")
   end
+
+  # Serve the rack from examples/wam, src, third_party and build-wasm (no bin/rack-sync).
+  require Rails.root.join("lib/dev_sources").to_s
+  config.middleware.insert_before ActionDispatch::Static, DevSources, headers: config.public_file_server.headers
 
   # Change to :null_store to avoid any caching.
   config.cache_store = :memory_store

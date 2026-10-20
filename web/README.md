@@ -16,7 +16,8 @@ browser until imported after sign-in; presets are no longer stored there
 | Path | Served by | Notes |
 | --- | --- | --- |
 | `/rack/` (and `/rack/index.html`) | `RackController#show` | Port of `examples/wam/index.html` with `csrf_meta_tags` and the current user as JSON (`#currentUser`). `/` and `/rack` redirect here. |
-| `/rack/**` (JS, WASM, models, IRs) | `public/rack/`, static | Generated copy of `dist/NAM_A2_WAM/` without `index.html`. No Propshaft, no importmap: relative imports and `new URL('./x.wasm', import.meta.url)` keep working. |
+| `/rack/**`, `/src/**`, `/third_party/**`, `/build-wasm/**` (development, test) | `DevSources` middleware (`lib/dev_sources.rb`) | The sources themselves: `examples/wam/`, `src/`, `third_party/`, `build-wasm/`. The rack's `../../src/…` imports resolve from the URL root, so nothing is rewritten. Also answers `/api/test-audio-files`. |
+| `/rack/**` (production image) | `public/rack/`, static | Generated copy of `dist/NAM_A2_WAM/` without `index.html` (`bin/rack-sync`). No Propshaft, no importmap: relative imports and `new URL('./x.wasm', import.meta.url)` keep working. |
 | `/sign_in…`, `/session` | `SignInsController`, `SessionsController` | Magic link, sign-out. |
 | `/api/me`, `/api/presets`, `/api/favorites`, `/api/preferences`, `/api/import` | JSON controllers | Session cookie + `X-CSRF-Token`. Every query is scoped to the current user. |
 
@@ -29,7 +30,7 @@ distribution and `npm start` are unchanged.
 
 - Ruby 4.0.1 (see `.ruby-version`), Bundler, SQLite 3.
 - Node.js, CMake and Emscripten for the rack itself (see the root README):
-  `public/rack/` is built from `examples/wam/` and `src/`.
+  the WASM engine is built into `../build-wasm/`.
 - Chrome for the system tests (Selenium Manager downloads chromedriver).
 
 ## Install and run locally
@@ -40,23 +41,25 @@ npm run setup
 
 cd web
 bin/setup --skip-server   # gems + databases
-bin/rack-sync             # copies the rack into public/rack (see "Syncing the rack" below)
 bin/rails server          # http://localhost:3000/rack/
 ```
+
+Edit `../examples/wam/` or `../src/` and reload the page: development serves
+the sources directly and builds the page from `../examples/wam/index.html` on
+every request. No copy, no restart. Only C++ changes need a WASM rebuild
+(`cmake --build ../build-wasm`).
 
 In development, sign-in emails are opened by
 [letter_opener](https://github.com/ryanb/letter_opener) (files under
 `tmp/letter_opener/`) and jobs run in-process.
 
-## Syncing the rack into `public/rack` (`bin/rack-sync`)
+## Building the rack for a production image (`bin/rack-sync`)
 
-Rails does not serve the rack sources directly. `public/rack/` is a
-**generated copy** of the static distribution; the sources stay in
-[`../examples/wam/`](../examples/wam/) and [`../src/`](../src/). Never edit
-files under `public/rack/`: the next sync overwrites them.
+Development and test never need it. A production image only contains `web/`,
+so the rack must be copied into it before `docker build` / `kamal deploy`:
 
 ```sh
-bin/rack-sync            # fast: rebuild dist/NAM_A2_WAM from sources, copy it to public/rack
+bin/rack-sync            # rebuild dist/NAM_A2_WAM from sources, copy it to public/rack
 bin/rack-sync --full     # also regenerate the Factory manifests and rebuild the WASM
 bin/rails rack:sync      # same as bin/rack-sync (RACK_FULL=1 for --full)
 ```
@@ -69,33 +72,16 @@ What it does:
    `'./plugins/nam-wam/index.js'`, `nam-simd.wasm` is copied next to each
    plugin, the audio catalogue comes from `assets/audio/audioFiles.json`).
 2. `rsync --delete`s that tree into `public/rack/`, **without `index.html`**:
-   the page itself is rendered by `RackController#show`
-   (`app/views/rack/show.html.erb`).
-3. Regenerates `app/views/rack/show.html.erb` from
-   `../examples/wam/index.html` (`lib/rack_view.rb`), adding only what Rails
-   needs: the CSRF meta tags, the favicon and the `currentUser` JSON payload.
-   The view is committed but **generated: never edit it by hand**
-   (`test/integration/rack_markup_test.rb` fails when it is stale).
+   the page itself is rendered by `RackController#show`.
+3. Writes `app/views/rack/show.html.erb` from `../examples/wam/index.html`
+   (`lib/rack_view.rb`), adding only what Rails needs: the CSRF meta tags, the
+   favicon and the `currentUser` JSON payload. Development and test render the
+   same `RackView.generate` on the fly instead.
 
-When to run it:
-
-| You changed… | Run |
-| --- | --- |
-| `examples/wam/**` or `src/**` (JS, CSS, manifests) | `bin/rack-sync`, then reload the page |
-| C++ in `src/nam-wasm/`, or Factory models/IRs | `bin/rack-sync --full` |
-| `examples/wam/index.html` | `bin/rack-sync` (regenerates `app/views/rack/show.html.erb`), then commit the view |
-| Only Rails code (`app/`, `config/`) | nothing |
-
-Notes:
-
-- `public/rack/` is ignored by Git (`web/.gitignore`) and takes about 200 MB
-  (models and IRs), plus the same again in `../dist/`.
-- The server does not need a restart; in development the files are sent
-  with `Cache-Control: no-cache`, so a reload picks up the new copy.
-- Tests that need the rack tree (WASM MIME type, system tests) skip with a
-  hint when `public/rack/` has not been synced.
-- The Docker image copies `public/rack/` as it is on disk: sync before
-  building (the Dockerfile fails fast when it is missing).
+Both outputs are ignored by Git (`web/.gitignore`); never edit them. The
+Dockerfile fails fast when they are missing. When Kamal is set up, run
+`web/bin/rack-sync` from a `.kamal/hooks/pre-build` hook so every deploy ships
+the rack of the deployed commit.
 
 ## Tests
 
@@ -106,8 +92,9 @@ bin/rails test:system   # headless Chrome: crossOriginIsolated, WAM startup,
                         # sign-in to save as a guest, draft restore after a reload
 ```
 
-Tests that need the real rack tree skip with a hint when `public/rack/` has
-not been synced. The JavaScript modules are covered by `npm test` at the
+Tests serve the rack from the sources, like development. Tests that need the
+WASM engine skip with a hint when `../build-wasm/dist/nam-simd.wasm` has not
+been built (`npm run setup`). The JavaScript modules are covered by `npm test` at the
 repository root (`tests/phase5/`).
 
 ## Cross-origin isolation (required)

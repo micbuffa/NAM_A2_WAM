@@ -1,6 +1,7 @@
-# Generates app/views/rack/show.html.erb from examples/wam/index.html, so the
-# Rails page cannot drift from the static one. Run by bin/rack-sync; plain
-# Ruby (no Rails) so the script stays fast.
+# Builds the Rails rack page from examples/wam/index.html, so it cannot drift
+# from the static one. Development and test render generate on every request;
+# bin/rack-sync writes app/views/rack/show.html.erb (not committed) for a
+# production image. Plain Ruby (no Rails) so the script stays fast.
 module RackView
   WEB_ROOT = File.expand_path("..", __dir__)
   SOURCE = File.join(WEB_ROOT, "../examples/wam/index.html")

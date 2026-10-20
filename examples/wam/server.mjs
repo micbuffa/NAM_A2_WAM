@@ -28,7 +28,15 @@ const server = http.createServer(async (request, response) => {
       response.end(JSON.stringify(files));
       return;
     }
-    const pathname = url.pathname === '/' ? '/examples/wam/' : url.pathname;
+    // Same URLs as the Rails app: the rack lives at /rack/ (examples/wam), its
+    // imports resolve from the root (/src, /third_party, /build-wasm).
+    // /examples/wam/ keeps working for the TONE3000 redirect URI registered on it.
+    if (url.pathname === '/' || url.pathname === '/rack') {
+      response.writeHead(302, {location: `/rack/${url.search}`});
+      response.end();
+      return;
+    }
+    const pathname = url.pathname.startsWith('/rack/') ? `/examples/wam/${url.pathname.slice('/rack/'.length)}` : url.pathname;
     const relative = decodeURIComponent(pathname.endsWith('/') ? `${pathname}index.html` : pathname);
     const path = normalize(join(root, relative));
     if (path !== root && !path.startsWith(root + sep)) throw new Error('Forbidden path');
@@ -43,4 +51,4 @@ const server = http.createServer(async (request, response) => {
 });
 
 const browseHost = host === '0.0.0.0' ? '127.0.0.1' : host;
-server.listen(port, host, () => console.log(`NAM WAM host: http://${browseHost}:${port}/examples/wam/ (listening on ${host})`));
+server.listen(port, host, () => console.log(`NAM WAM host: http://${browseHost}:${port}/rack/ (listening on ${host})`));

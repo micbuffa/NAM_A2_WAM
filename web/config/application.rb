@@ -35,7 +35,7 @@ module Web
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets tasks])
+    config.autoload_lib(ignore: %w[assets tasks dev_sources.rb])
 
     config.action_dispatch.default_headers = config.action_dispatch.default_headers.merge(CROSS_ORIGIN_ISOLATION_HEADERS)
     config.public_file_server.headers = CROSS_ORIGIN_ISOLATION_HEADERS

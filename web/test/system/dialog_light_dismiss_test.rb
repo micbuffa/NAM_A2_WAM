@@ -6,7 +6,7 @@ class DialogLightDismissTest < ApplicationSystemTestCase
   include RackSignIn
 
   setup do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     visit "/rack/"
     wait_for_rack
   end
@@ -19,7 +19,7 @@ class DialogLightDismissTest < ApplicationSystemTestCase
 
     click_outside
     assert_no_selector "dialog[open]"
-    assert_equal "false", find("#settingsButton")["aria-expanded"]
+    assert_selector "#settingsButton[aria-expanded=false]" # set by the async close event
   end
 
   test "a click outside the new preset dialog cancels it" do

@@ -9,7 +9,7 @@ class MicrophonePermissionTest < ApplicationSystemTestCase
   MOCK = Rails.root.join("test/fixtures/files/microphone_permission_mock.js").read
 
   setup do
-    skip_unless_rack_synced
+    skip_unless_rack_built
     page.driver.browser.execute_cdp("Page.addScriptToEvaluateOnNewDocument", source: MOCK)
   end
 
