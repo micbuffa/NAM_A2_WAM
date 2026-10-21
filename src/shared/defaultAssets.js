@@ -24,3 +24,14 @@ export async function loadDefaultAsset(node, kind, manifestUrl, fetchImpl = glob
   if (kind === 'nam') await node.loadModelText(payload, asset.filename, provenance);
   else await node.loadImpulseResponse(payload.getChannelData(0), asset.filename, asset.id, provenance);
 }
+
+// Pictures of Factory assets come from the current manifest: URLs saved in presets go stale when the rack
+// is served from another place (absolute host or path). Downloads keep their own (remote) picture.
+const manifests = new Map();
+export async function factoryImageFor(manifestUrl, folder, {identity, filename} = {}, fetchImpl = globalThis.fetch.bind(globalThis)) {
+  const key = String(manifestUrl);
+  if (!manifests.has(key)) manifests.set(key, fetchImpl(manifestUrl).then(r => r.ok ? r.json() : {assets: []}).catch(() => (manifests.delete(key), {assets: []})));
+  const {assets = []} = await manifests.get(key);
+  const asset = (identity && assets.find(a => a.id === identity)) || (filename && assets.find(a => a.filename === filename));
+  return asset?.imagePath ? factoryAssetUrl(manifestUrl, folder, asset.imagePath).href : '';
+}

@@ -90,8 +90,16 @@ export default class deathgatePlugin extends WebAudioModule {
   }
 
   async createGui() {
-    const {createElement} = await import("./Gui/index.js");
-    const gui = await createElement(this);
+    const {createTonelabPedal} = await import("../utils/tonelab-pedal.js");
+    const gui = await createTonelabPedal(this, {
+      name: "DeathGate",
+      color: "#9aa5b1",
+      skin: { image: new URL("./Gui/img/background/psyche9.jpg", import.meta.url).href, background: "#222", ink: "#ffffff", vendorInk: "#1d2023", font: "Faster One" },
+      knobs: [
+        { id: "/deathgate/NoiseGate", label: "Gate", unit: "dB" },
+        { id: "/deathgate/DeadZone", label: "Dead zone", unit: "dB" },
+      ],
+    });
     (this._guis ||= new Set()).add(gui);
     return gui;
   }

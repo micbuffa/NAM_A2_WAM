@@ -348,6 +348,12 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .model-facts strong { overflow-wrap:anywhere;color:var(--tl-text,#f3f0f7);font:600 13px var(--tl-font-mono,ui-monospace,monospace) }
         nam-a2-gui .model-facts article.wide strong { font:500 11px/1.5 var(--tl-font-ui,Inter,system-ui,sans-serif) }
         @media(max-width:620px){nam-a2-gui .model-facts{grid-template-columns:minmax(0,1fr)}}
+        /* Knobs share the rack's TONELAB knob (tl-knob): dark dial, accent pointer, mono readout, no value arc. */
+        nam-a2-gui .knob-face::before { display:none }
+        nam-a2-gui .knob-face { border:1px solid var(--tl-border-strong,#3d433f);background:radial-gradient(circle at 40% 35%,#3a403d 0,#1b1f1d 52%,#0b0d0c 100%);box-shadow:var(--tl-shadow-knob,0 4px 8px #050606,inset 0 1px rgba(255,255,255,.08)) }
+        nam-a2-gui .knob-pointer { background:var(--tl-accent,#c7f65b);box-shadow:0 0 4px var(--tl-accent-glow,rgba(199,246,91,.65)) }
+        nam-a2-gui .knob-label { color:var(--tl-text-muted,#6f7773);font-weight:600 }
+        nam-a2-gui .knob-control output { color:var(--tl-text-1,#e6eae7);font:500 10px/1.2 var(--tl-font-mono,"JetBrains Mono",ui-monospace,Menlo,monospace);font-variant-numeric:tabular-nums }
       </style>
       <section class="nam-module">
         <header class="module-head">

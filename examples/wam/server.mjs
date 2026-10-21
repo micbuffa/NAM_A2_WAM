@@ -10,7 +10,7 @@ const host = process.env.HOST || '127.0.0.1';
 const supported = new Set(['.wav', '.mp3', '.aac', '.m4a', '.ogg', '.flac']);
 const mime = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8',
   '.json':'application/json; charset=utf-8','.wasm':'application/wasm','.wav':'audio/wav','.mp3':'audio/mpeg',
-  '.ogg':'audio/ogg','.flac':'audio/flac','.css':'text/css; charset=utf-8','.svg':'image/svg+xml',
+  '.ogg':'audio/ogg','.flac':'audio/flac','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.woff2':'font/woff2',
   '.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp'};
 
 async function discoverAudio() {

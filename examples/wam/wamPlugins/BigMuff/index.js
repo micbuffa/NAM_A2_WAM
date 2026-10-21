@@ -4,7 +4,7 @@
 import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
-import createElement from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 /**
  * @typedef {import('../sdk-parammgr').ParamMgrNode} ParamMgrNode
@@ -95,6 +95,18 @@ export default class BigMuffPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Big Muff",
+      color: "#e0483e",
+      // The original background is a photo of the whole pedal (knobs included): keep its colours only.
+      skin: { background: "linear-gradient(135deg, #e3e5e7 0%, #a7abaf 42%, #eef0f1 58%, #8d9195 100%)", ink: "#c0262d", vendorInk: "#2f3235", font: "Francois One" },
+      bypass: "/BigMuff/bypass",
+      knobs: [
+        { id: "/BigMuff/Input", label: "Input", unit: "dB" },
+        { id: "/BigMuff/Drive", label: "Sustain" },
+        { id: "/BigMuff/Tone", label: "Tone" },
+        { id: "/BigMuff/Output", label: "Volume", unit: "%" },
+      ],
+    });
   }
 }

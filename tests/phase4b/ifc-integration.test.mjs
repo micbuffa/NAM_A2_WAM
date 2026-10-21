@@ -18,8 +18,9 @@ test(`IFC${variant} is a generic amplifier WAM with a descriptor-relative PNG th
   const record=normalizeDescriptor(normalizeCatalogueEntry(source,'https://example.test/rack/wamPlugins/plugins.json'),JSON.parse(await readFile(new URL('descriptor.json',base))));
   assert.equal(record.category,'amplifier');assert.equal(record.role,null);
   assert.equal(record.entryUrl,`https://example.test/rack/wamPlugins/EndUserAmp${variant}/index.js`);
-  assert.equal(record.thumbnailUrl,`https://example.test/rack/wamPlugins/EndUserAmp${variant}/thumbnail.png`);
-  const png=await readFile(new URL('thumbnail.png',base));assert.equal(png.subarray(1,4).toString(),'PNG');
+  // The catalogue points the card at the captured TONELAB faceplate (tools/capture-plugin-thumbnails.rb).
+  assert.equal(record.thumbnailUrl,`https://example.test/rack/wamPlugins/EndUserAmp${variant}/tonelab-thumbnail.png`);
+  for(const name of ['tonelab-thumbnail.png','thumbnail.png']){const png=await readFile(new URL(name,base));assert.equal(png.subarray(1,4).toString(),'PNG');}
 });
 
 }

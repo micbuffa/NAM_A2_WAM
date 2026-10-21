@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class smoothDelayNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,18 @@ export default class smoothDelayPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Smooth Delay",
+      color: "#9ccf5c",
+      skin: { background: "linear-gradient(to top, #1c0c35, #3f1368)", ink: "#ffffff", font: "Galada" },
+      bypass: "/smoothDelay/bypass",
+      knobs: [
+        { id: "/smoothDelay/Delay", label: "Delay", unit: "ms" },
+        { id: "/smoothDelay/Feedback", label: "Feedback", unit: "%" },
+        { id: "/smoothDelay/Interpolation", label: "Smoothing", unit: "ms" },
+        { id: "/smoothDelay/Dry/Wet", label: "Dry/Wet" },
+        { id: "/smoothDelay/Super Wet", label: "Super wet" },
+      ],
+    });
   }
 }

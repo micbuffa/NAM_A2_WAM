@@ -1,6 +1,6 @@
 import WebAudioModule from '../../third_party/wam-examples/packages/sdk/src/WebAudioModule.js';
 import NamNode from './NamNode.js';
-import {loadDefaultAsset} from '../shared/defaultAssets.js';
+import {loadDefaultAsset, factoryImageFor} from '../shared/defaultAssets.js';
 import {factoryAssetUrl} from '../shared/assetBrowser.js';
 import {ToneCallbackSession} from '../shared/ToneCallbackSession.js';
 
@@ -30,6 +30,14 @@ export default class NamPlugin extends WebAudioModule {
     await node._initialize();
     if (initialState) await node.setState(initialState);
     return node;
+  }
+
+  // Picture of the loaded model for host cards (Factory models resolved from the manifest).
+  async resolveImageUrl() {
+    const model = this.audioNode.getModelSnapshot();
+    if (!model) return '';
+    const factory = await factoryImageFor(NamPlugin.factoryManifestUrl, 'models', {identity: model.provenance?.identity, filename: model.name});
+    return factory || model.provenance?.imageUrl || '';
   }
 
   async getCaptureChoices() {

@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class weirdPhaserNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,17 @@ export default class weirdPhaserPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Weird Phaser",
+      color: "#d4569b",
+      skin: { image: new URL("./Gui/img/background/bg.jpg", import.meta.url).href, background: "#222", ink: "#f0fff0", font: "Fruktur" },
+      bypass: "/weirdPhaser/bypass",
+      knobs: [
+        { id: "/weirdPhaser/Rate", label: "Rate" },
+        { id: "/weirdPhaser/RateScalar", label: "Rate scale" },
+        { id: "/weirdPhaser/Feedback", label: "Feedback" },
+        { id: "/weirdPhaser/L-ROffset", label: "L/R offset" },
+      ],
+    });
   }
 }

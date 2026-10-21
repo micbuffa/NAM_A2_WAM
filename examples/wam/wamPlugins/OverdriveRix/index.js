@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class OverdriveRixNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,15 @@ export default class OverdriveRixPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Overdrive Rix",
+      color: "#f0a13a",
+      skin: { background: "linear-gradient(to top, #5005ff, #9eb1ff)", ink: "#ffffff", font: "Skranji" },
+      bypass: "/OverdriveRix/bypass",
+      knobs: [
+        { id: "/OverdriveRix/Drive", label: "Drive" },
+        { id: "/OverdriveRix/Dry/Wet", label: "Dry/Wet", unit: "%" },
+      ],
+    });
   }
 }

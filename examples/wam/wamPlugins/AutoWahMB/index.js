@@ -11,7 +11,7 @@
 import { WebAudioModule } from './sdk/index.js';
 import { CompositeAudioNode, ParamMgrFactory } from './sdk-parammgr/index.js';
 import { FaustMonoDspGenerator, FaustPolyDspGenerator } from "./faustwasm/index.js";
- import { createElement } from './Gui/index.js';
+import { createTonelabPedal } from '../utils/tonelab-pedal.js';
 
 class FaustCompositeAudioNode extends CompositeAudioNode {
 	/**
@@ -186,6 +186,12 @@ export default class FaustPlugin extends WebAudioModule {
 	}
 
 	createGui() {
-		return createElement(this);
+		return createTonelabPedal(this, {
+			name: "Auto Wah",
+			color: "#3fbf8f",
+			skin: { background: "linear-gradient(to top, rgba(217, 127, 54, .9), rgba(12, 237, 200, .9))", ink: "#f01fff", font: "Freckle Face" },
+			bypass: "/AUtoWahMB/bypass",
+			knobs: [{ id: "/AUtoWahMB/Autowah_Level", label: "Level" }],
+		});
 	}
 }

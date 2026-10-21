@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class temperNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,20 @@ export default class temperPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Temper",
+      color: "#d860b4",
+      skin: { image: new URL("./Gui/img/background/metal6.jpg", import.meta.url).href, background: "#151515", ink: "#ffffff", font: "Galada" },
+      bypass: "/temper/99_bypass",
+      knobs: [
+        { id: "/temper/Drive", label: "Drive", unit: "dB" },
+        { id: "/temper/Curve", label: "Curve" },
+        { id: "/temper/Saturation", label: "Saturation" },
+        { id: "/temper/Cutoff", label: "Cutoff", unit: "Hz", log: true },
+        { id: "/temper/Resonance", label: "Resonance" },
+        { id: "/temper/Feedback", label: "Feedback", unit: "dB" },
+        { id: "/temper/Level", label: "Level", unit: "dB" },
+      ],
+    });
   }
 }

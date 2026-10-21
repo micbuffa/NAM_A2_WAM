@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class OwlDirtyNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,17 @@ export default class OwlDirtyPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Owl Dirty",
+      color: "#c9b458",
+      skin: { background: "linear-gradient(to top, #00ff59, #d400ff)", ink: "#ffffff", font: "Skranji" },
+      bypass: "/OwlDirty/bypass",
+      knobs: [
+        { id: "/OwlDirty/DRIVE", label: "Drive" },
+        { id: "/OwlDirty/TONE", label: "Tone", unit: "Hz", log: true },
+        { id: "/OwlDirty/DECAY", label: "Decay" },
+        { id: "/OwlDirty/MIX", label: "Mix" },
+      ],
+    });
   }
 }

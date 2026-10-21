@@ -19,8 +19,11 @@ import {TracksPanel} from './TracksPanel.js';
 import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
 import {setupAccount} from './account/index.js';
+import {installTonelabSkin} from './wamPlugins/utils/tonelab-skin.js';
 const TONE3000_CALLBACK_CHANNEL = 'nam-a2-wam.tone3000.callback';
 const TONE3000_CALLBACK_STORAGE_KEY = 'nam-a2-wam.tone3000.callback';
+
+installTonelabSkin();
 
 const $ = (selector) => document.querySelector(selector);
 // Factory and TONE3000 NAM A2 captures are published at 48 kHz. Request the

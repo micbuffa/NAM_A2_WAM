@@ -5,7 +5,7 @@
 /* eslint-disable no-underscore-dangle */
 import { WebAudioModule } from './sdk/index.js';
 import { CompositeAudioNode, ParamMgrFactory } from './sdk-parammgr/index.js';
-import { createElement } from './Gui/index.js';
+import { createTonelabPedal } from "../../utils/tonelab-pedal.js";
 import fetchModule from './fetchModule.js';
 
 /**
@@ -94,7 +94,17 @@ export default class FaustPingPongDelayPlugin extends WebAudioModule {
 		return node;
 	}
 
-	createGui() {
-		return createElement(this);
-	}
+  createGui() {
+    return createTonelabPedal(this, {
+      name: "Ping Pong Delay",
+      color: "#3aa0ff",
+      skin: { background: "linear-gradient(to top, #0b2a4a, #1f6fb5)", ink: "#ffffff", font: "Francois One" },
+      bypass: "/PingPongDelayFaust/bypass",
+      knobs: [
+        { id: "/PingPongDelayFaust/time", label: "Time", format: (v) => `${(v * 1000).toFixed(0)} ms` },
+        { id: "/PingPongDelayFaust/feedback", label: "Feedback" },
+        { id: "/PingPongDelayFaust/mix", label: "Mix" },
+      ],
+    });
+  }
 }

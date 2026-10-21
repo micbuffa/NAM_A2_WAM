@@ -3,7 +3,7 @@
       import CompositeAudioNode from '../utils/sdk-parammgr/src/CompositeAudioNode.js';
       import ParamMgrFactory from '../utils/sdk-parammgr/src/ParamMgrFactory.js';
       import fetchModule from './fetchModule.js';
-      import { createElement } from './Gui/index.js';
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
   
       class OctaverNode extends CompositeAudioNode {
           _wamNode;
@@ -73,6 +73,16 @@
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Octaver",
+      color: "#8e7cc3",
+      skin: { image: new URL("./Gui/img/background/flames1.jpg", import.meta.url).href, background: "#2a0d05", ink: "#ffffff", font: "Monoton" },
+      bypass: "/Octaver/bypass",
+      knobs: [
+        { id: "/Octaver/Down", label: "Down" },
+        { id: "/Octaver/Up", label: "Up" },
+        { id: "/Octaver/Dry/Wet", label: "Dry/Wet" },
+      ],
+    });
   }
  }

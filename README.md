@@ -271,6 +271,14 @@ node tools/analyze_ir_levels.mjs
   [`CabinetNode.js`](src/cabinet-wam/CabinetNode.js),
   [`CabinetProcessor.js`](src/cabinet-wam/CabinetProcessor.js), and [`gui.js`](src/cabinet-wam/gui.js).
 - C++/WASM interface: [`src/nam-wasm/`](src/nam-wasm/).
+- Bundled WAM pedals and amps ([`examples/wam/wamPlugins/`](examples/wam/wamPlugins/)): their editors share
+  the TONELAB template [`utils/tonelab-pedal.js`](examples/wam/wamPlugins/utils/tonelab-pedal.js); each
+  plugin's `createGui()` only lists its controls and its look (`skin`: picture, gradient, title font).
+
+After changing a bundled plugin's look, refresh the catalogue and chain card pictures: with `npm start`
+running, run `npm run thumbnails` (headless Chrome). It writes `<plugin>/tonelab-thumbnail.png` and the
+`thumbnail` entries of `plugins.json`; add folder names to capture only those plugins, e.g.
+`npm run thumbnails -- BigMuff temper`.
 
 After changing code or assets, run `npm test`, then `npm run dist` if the deployed distribution
 must be updated.

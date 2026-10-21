@@ -5,7 +5,7 @@
 import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 /**
  * @typedef {import('../sdk-parammgr').ParamMgrNode} ParamMgrNode
@@ -97,6 +97,18 @@ export default class TS9OverdriveFaustGeneratedPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    const p = "/TS9_OverdriveFaustGenerated";
+    return createTonelabPedal(this, {
+      name: "TS9 Overdrive",
+      vendor: "Guitarix",
+      color: "#4cb55e",
+      skin: { image: new URL("./Gui/img/background/psyche11.jpg", import.meta.url).href, background: "#2bb3a6", ink: "#ffffff", font: "Francois One" },
+      bypass: `${p}/bypass`,
+      knobs: [
+        { id: `${p}/TubeScreamer/drive`, label: "Drive" },
+        { id: `${p}/TubeScreamer/tone`, label: "Tone", unit: "Hz", log: true },
+        { id: `${p}/TubeScreamer/level`, label: "Level", unit: "dB" },
+      ],
+    });
   }
 }

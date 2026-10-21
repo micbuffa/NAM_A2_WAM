@@ -1,7 +1,45 @@
 import './controls.js';
 import {prepareFonts} from './fonts.js';
 
-export async function createGui(plugin, baseURL) {
+import {createTonelabAmp} from '../../utils/tonelab-pedal.js';
+
+// Each machine keeps its original faceplate picture and title font (assets of this plugin).
+const asset = path => new URL(`../assets/${path}`, import.meta.url).href;
+const LOOKS = {
+  blues: {name: 'Blues Machine', color: '#4f86c6',
+    skin: {image: asset('BluesMachine.png'), fit: 'stretch', background: '#3b3229', ink: '#2b1d10', vendorInk: '#4a3a22', font: 'Henny Penny'}},
+  cleanfull: {name: 'Clean Machine', color: '#e3a857',
+    skin: {image: asset('CleanMachine.png'), fit: 'stretch', background: '#f07a2a', ink: '#3b1f0a', vendorInk: '#5a3a1a',
+      font: 'Shady Lane', fontUrl: asset('shadylane-webfont.woff2')}},
+  modernmetal: {name: 'Modern Metal', color: '#b9c2cc',
+    skin: {image: asset('backgrounds/ModernMetalBackground1.png'), fit: 'stretch', background: '#6f6e73', ink: '#1a1a1a', vendorInk: '#333',
+      font: 'Frijole', fontUrl: asset('fonts/Frijole-Regular.ttf')}},
+};
+const KNOBS = [['volume','Volume'],['master','Master'],['drive','Drive'],['bass','Bass'],['middle','Middle'],['treble','Treble'],['presence','Presence'],['reverb','Reverb']];
+
+// TONELAB faceplate. The editor shows Reverb on 0..10 while the DSP/state range is 0..4 (as the original GUI did).
+export async function createGui(plugin) {
+  const node = plugin.audioNode;
+  const scale = id => id === 'reverb' ? 0.4 : 1;
+  return createTonelabAmp(plugin, {
+    ...LOOKS[plugin.slug],
+    vendor: 'WAP amp sim',
+    bypass: 'bypass',
+    read: id => node.values[id] / scale(id),
+    write: (id, value) => node.setParamValue(id, value * scale(id)),
+    knobs: KNOBS.map(([id, label]) => ({id, label, min: 0, max: 10, default: node.config[id].defaultValue / scale(id)})),
+    selects: [{
+      label: 'Preset', header: true,
+      options: node.getFactoryPresets().map(p => ({value: p.id, label: p.name})),
+      get: () => node.selectedPreset,
+      set: id => node.loadFactoryPreset(id),
+      disabled: () => Boolean(node.loading),
+    }],
+    status: () => node.loading ? 'Loading sound\u2026' : '',
+  });
+}
+
+export async function createLegacyGui(plugin, baseURL) {
   const gui = document.createElement('wap2-amp-editor');
   await gui.initialize(plugin,baseURL); return gui;
 }

@@ -3,7 +3,7 @@
       import CompositeAudioNode from '../utils/sdk-parammgr/src/CompositeAudioNode.js';
       import ParamMgrFactory from '../utils/sdk-parammgr/src/ParamMgrFactory.js';
       import fetchModule from './fetchModule.js';
-      import { createElement } from './Gui/index.js';
+      import { createTonelabPedal } from '../utils/tonelab-pedal.js';
   
       class CompressorGuitarixNode extends CompositeAudioNode {
           _wamNode;
@@ -73,6 +73,20 @@
   }
 
   createGui() {
-    return createElement(this);
+    const p = "/CompressorGuitarix";
+    return createTonelabPedal(this, {
+      name: "Compressor",
+      color: "#e8c547",
+      skin: { image: new URL("./Gui/img/background/metal6.jpg", import.meta.url).href, background: "#151515", ink: "#e2ff05", font: "Gloria Hallelujah" },
+      bypass: `${p}/bypass`,
+      knobs: [
+        { id: `${p}/Ratio`, label: "Ratio", format: (v) => `${v.toFixed(1)}:1` },
+        { id: `${p}/Threshold`, label: "Threshold", unit: "dB" },
+        { id: `${p}/Knee`, label: "Knee", unit: "dB" },
+        { id: `${p}/Attack`, label: "Attack", format: (v) => `${(v * 1000).toFixed(1)} ms` },
+        { id: `${p}/Release`, label: "Release", unit: "s" },
+        { id: `${p}/3-gain/Makeup_Gain`, label: "Makeup", unit: "dB" },
+      ],
+    });
   }
  }

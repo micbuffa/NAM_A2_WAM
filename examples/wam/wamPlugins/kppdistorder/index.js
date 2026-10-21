@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class compressorNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,19 @@ export default class compressorPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "KPP Distorder",
+      color: "#4a8ff0",
+      skin: { background: "linear-gradient(to top, #193482, #192588)", ink: "#ffffff", font: "Bungee Shade" },
+      bypass: "/compressor/99_bypass",
+      knobs: [
+        { id: "/compressor/drive", label: "Drive", unit: "%" },
+        { id: "/compressor/voice", label: "Voice" },
+        { id: "/compressor/volume", label: "Volume" },
+        { id: "/compressor/bass", label: "Bass", unit: "dB" },
+        { id: "/compressor/middle", label: "Middle", unit: "dB" },
+        { id: "/compressor/treble", label: "Treble", unit: "dB" },
+      ],
+    });
   }
 }

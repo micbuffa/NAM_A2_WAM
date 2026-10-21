@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class greyholeNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,20 @@ export default class greyholePlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Grey Hole",
+      color: "#8a96a8",
+      skin: { image: new URL("./Gui/img/background/flames1.jpg", import.meta.url).href, background: "#2a0d05", ink: "#ffffff", font: "Fruktur" },
+      bypass: "/greyhole/bypass",
+      knobs: [
+        { id: "/greyhole/delayTime", label: "Delay", format: (v) => `${(v * 1000).toFixed(0)} ms` },
+        { id: "/greyhole/size", label: "Size" },
+        { id: "/greyhole/feedback", label: "Feedback" },
+        { id: "/greyhole/damping", label: "Damping" },
+        { id: "/greyhole/diffusion", label: "Diffusion" },
+        { id: "/greyhole/modDepth", label: "Mod depth" },
+        { id: "/greyhole/modFreq", label: "Mod rate", unit: "Hz" },
+      ],
+    });
   }
 }

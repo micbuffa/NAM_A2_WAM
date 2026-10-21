@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class ThruZeroFlangerNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,17 @@ export default class ThruZeroFlangerPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "TZ Flanger",
+      color: "#6c8ef5",
+      skin: { image: new URL("./Gui/img/background/bg.jpg", import.meta.url).href, background: "#222", ink: "#ffffff", font: "Freckle Face" },
+      bypass: "/ThruZeroFlanger/bypass",
+      knobs: [
+        { id: "/ThruZeroFlanger/Rate", label: "Rate" },
+        { id: "/ThruZeroFlanger/Depth", label: "Depth" },
+        { id: "/ThruZeroFlanger/Delay", label: "Delay", unit: "ms" },
+        { id: "/ThruZeroFlanger/L-ROffset", label: "L/R offset" },
+      ],
+    });
   }
 }

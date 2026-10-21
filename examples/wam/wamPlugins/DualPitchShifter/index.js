@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class DualPitchShifterNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,17 @@ export default class DualPitchShifterPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Dual Pitch",
+      color: "#c9a227",
+      skin: { background: "linear-gradient(to top, #f2f2f2, #605415)", ink: "#ffffff", vendorInk: "#f6f1d9", font: "Galada" },
+      bypass: "/DualPitchShifter/bypass",
+      knobs: [
+        { id: "/DualPitchShifter/ShiftL", label: "Shift L", unit: "st" },
+        { id: "/DualPitchShifter/ShiftR", label: "Shift R", unit: "st" },
+        { id: "/DualPitchShifter/WindowSize", label: "Window", unit: "ms" },
+        { id: "/DualPitchShifter/Mix", label: "Mix" },
+      ],
+    });
   }
 }

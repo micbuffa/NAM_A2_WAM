@@ -11,7 +11,7 @@
 import { WebAudioModule } from './sdk/index.js';
 import { CompositeAudioNode, ParamMgrFactory } from './sdk-parammgr/index.js';
 import { FaustMonoDspGenerator, FaustPolyDspGenerator } from "./faustwasm/index.js";
- import { createElement } from './Gui/index.js';
+import { createTonelabAmp } from '../utils/tonelab-pedal.js';
 
 class FaustCompositeAudioNode extends CompositeAudioNode {
 	/**
@@ -186,6 +186,17 @@ export default class FaustPlugin extends WebAudioModule {
 	}
 
 	createGui() {
-		return createElement(this);
+		const p = "/VintageAmp60s";
+		// Every control runs 0..1 in the DSP; the faceplate shows it on 0..10.
+		const tenth = (v) => (v * 10).toFixed(1);
+		return createTonelabAmp(this, {
+			name: "Vintage 60s",
+			color: "#c8794a",
+			skin: { image: new URL("./Gui/img/background/psyche10.jpg", import.meta.url).href, background: "#222", ink: "#ffffff", font: "Gloria Hallelujah" },
+			knobs: ["Volume", "Bass", "Middle", "Treble", "Presence", "Master"].map((label) => ({
+				id: `${p}/${label === "Presence" ? "Presense" : label}`, label, format: tenth,
+			})),
+			switches: [{ id: `${p}/Bright`, label: "Bright" }],
+		});
 	}
 }

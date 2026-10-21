@@ -1,7 +1,52 @@
 import './shared/controls.js';
 const base = new URL('./',import.meta.url);
 let font;
+import {createTonelabAmp} from '../utils/tonelab-pedal.js';
+
+// TONELAB faceplate. Levels come from analysers tapped on the node input and output while the editor is
+// shown (as the original editor did); the input meter only counts the enabled channels.
 export async function createGui(plugin) {
+  const node = plugin.audioNode, ctx = node.context;
+  let taps = null, analysers = null;
+  const data = new Float32Array(256);
+  const peak = analyser => { analyser.getFloatTimeDomainData(data); let p = 0; for (const v of data) p = Math.max(p, Math.abs(v)); return p; };
+  const level = (side) => {
+    if (!analysers) return 0;
+    const pair = analysers[side === 'out' ? 1 : 0];
+    const p = Math.max(...pair.map((a, c) => side === 'out' || node.values[c ? 'rightInput' : 'leftInput'] ? peak(a) : 0));
+    return (20 * Math.log10(Math.max(p, 1e-6)) + 60) / 60;
+  };
+  return createTonelabAmp(plugin, {
+    name: 'Ampsim Utility',
+    color: '#9aa5b1',
+    skin: {image: new URL('assets/utility.png', base).href, fit: 'stretch', background: '#1b1b1b', ink: '#f8f8f8', font: 'Utility Metal', fontUrl: new URL('assets/metalfont.ttf', base).href},
+    read: id => node.values[id],
+    write: (id, value) => node.setParamValue(id, value),
+    knobs: [
+      {id: 'inputGain', label: 'Input', min: 0.01, max: 2, default: 1, log: true, format: v => `${(20 * Math.log10(v)).toFixed(1)} dB`},
+      {id: 'noiseGate', label: 'Gate', min: -120, max: 0, default: -120, step: 1, unit: 'dB'},
+    ],
+    switches: [{id: 'leftInput', label: 'Left in'}, {id: 'rightInput', label: 'Right in'}],
+    meters: [{label: 'In', level: () => level('in')}, {label: 'Out', level: () => level('out')}],
+    attach: () => {
+      if (taps || node.destroyed) return;
+      taps = [ctx.createChannelSplitter(2), ctx.createChannelSplitter(2)];
+      AudioNode.prototype.connect.call(node, taps[0]); node._output.connect(taps[1]);
+      analysers = taps.map(splitter => [0, 1].map(channel => {
+        const analyser = ctx.createAnalyser(); analyser.fftSize = 256; splitter.connect(analyser, channel); return analyser;
+      }));
+    },
+    detach: () => {
+      if (!taps) return;
+      try { AudioNode.prototype.disconnect.call(node, taps[0]); node._output.disconnect(taps[1]); } catch {}
+      for (const tap of taps) tap.disconnect();
+      for (const pair of analysers) for (const analyser of pair) analyser.disconnect();
+      taps = null; analysers = null;
+    },
+  });
+}
+
+export async function createLegacyGui(plugin) {
   font ||= new FontFace('wap2-utility-metalfont',`url("${new URL('assets/metalfont.ttf',base)}")`).load().then(face=>document.fonts.add(face));
   await font;
   const gui = document.createElement('wap2-utility-editor'); gui.initialize(plugin); return gui;

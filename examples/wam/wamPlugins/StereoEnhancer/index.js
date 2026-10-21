@@ -3,7 +3,7 @@
       import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
       import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
       import fetchModule from './fetchModule.js';
-      import { createElement } from './Gui/index.js';
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
   
       class StereoEnhancerNode extends CompositeAudioNode {
           _wamNode;
@@ -73,6 +73,15 @@
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Stereo Enhancer",
+      color: "#5ec3e0",
+      skin: { image: new URL("./Gui/img/background/psyche6.jpg", import.meta.url).href, background: "#222", ink: "#2bff00", font: "Monoton" },
+      bypass: "/StereoEnhancer/bypass",
+      knobs: [
+        { id: "/StereoEnhancer/Delay_width", label: "Delay" },
+        { id: "/StereoEnhancer/Frequency_width", label: "Freq" },
+      ],
+    });
   }
  }

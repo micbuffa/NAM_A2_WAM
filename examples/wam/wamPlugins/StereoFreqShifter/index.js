@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class StereoFreqShifterNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,17 @@ export default class StereoFreqShifterPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Freq Shifter",
+      color: "#4fb3bf",
+      skin: { background: "linear-gradient(to top, #427bff, #0b0a0a)", ink: "#ffffff", font: "Francois One" },
+      bypass: "/StereoFreqShifter/bypass",
+      knobs: [
+        { id: "/StereoFreqShifter/Shift", label: "Shift" },
+        { id: "/StereoFreqShifter/ShiftScalar", label: "Scale" },
+        { id: "/StereoFreqShifter/L-ROffset", label: "L/R offset" },
+        { id: "/StereoFreqShifter/Mix", label: "Mix" },
+      ],
+    });
   }
 }

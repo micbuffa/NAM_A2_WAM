@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class OscTubeNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,16 @@ export default class OscTubePlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "OscTube",
+      color: "#5cc8c0",
+      skin: { background: "linear-gradient(to top, #3b5b5e, #7aacb0)", ink: "#ffffff", font: "Vast Shadow" },
+      bypass: "/OscTube/bypass",
+      knobs: [
+        { id: "/OscTube/Fuzz", label: "Tube" },
+        { id: "/OscTube/Resonance", label: "Resonance" },
+        { id: "/OscTube/Vibrato", label: "Vibrato" },
+      ],
+    });
   }
 }

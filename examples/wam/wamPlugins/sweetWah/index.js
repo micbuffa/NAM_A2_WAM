@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class SweetNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,17 @@ export default class SweetPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Sweet Wah",
+      color: "#c0559f",
+      skin: { background: "linear-gradient(to top, #2a032b, #540d36)", ink: "#ffffff", font: "Galada" },
+      bypass: "/Sweet/bypass",
+      knobs: [
+        { id: "/Sweet/Frequency", label: "Frequency" },
+        { id: "/Sweet/Low", label: "Low" },
+        { id: "/Sweet/High", label: "High" },
+        { id: "/Sweet/Mix", label: "Mix" },
+      ],
+    });
   }
 }

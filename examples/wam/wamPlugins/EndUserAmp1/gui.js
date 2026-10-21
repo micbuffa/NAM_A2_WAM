@@ -1,3 +1,4 @@
+import { createTonelabAmp } from '../utils/tonelab-pedal.js';
 import './utils/webaudio-controls.js';
 
 /**
@@ -589,4 +590,58 @@ const createElement = async (plugin) => {
 	
 	return new (customElements.get(elementId))(wamNode, faustNode);
 };
-export default createElement;
+export { createElement as createLegacyElement };
+
+// TONELAB faceplate. Display ranges follow the original editor: EQ and reverb 0..10 for 0..1,
+// presence 0..10 for -15..+10 dB, master 0..10 for 0..4; input and gain are shown as is.
+const P = '/guitar_tube_amp_sim_100%_FAUST';
+const KNOBS = [
+	['Input', `${P}/Preamp_Guitarix/Preamp_Guitarix/Input_Volume`, v => v, v => v],
+	['Gain', `${P}/Preamp_Guitarix/Preamp_Guitarix/Interstage_gain`, v => v, v => v],
+	['Bass', `${P}/4_Tonestack/4_Tonestack/EQ/Bass`, v => v * 10, v => v / 10],
+	['Middle', `${P}/4_Tonestack/4_Tonestack/EQ/Middle`, v => v * 10, v => v / 10],
+	['Treble', `${P}/4_Tonestack/4_Tonestack/EQ/Treble`, v => v * 10, v => v / 10],
+	['Reverb', `${P}/6_Reverb/Mix`, v => v * 10, v => v / 10],
+	['Master', `${P}/5_Power_Amp/Master_Volume`, v => v / 0.4, v => v * 0.4],
+	['Presence', `${P}/5_Power_Amp/Presence`, v => (v + 15) / 2.5, v => v * 2.5 - 15],
+];
+const TUBES = ['12AX7', '12AU7', '6V6', '6L6', 'EL34', 'EL84', 'KT88'];
+const choices = labels => labels.map((label, value) => ({value, label}));
+const MENUS = [
+	['Stages', `${P}/Preamp_Guitarix/Preamp_Guitarix/Nb_Stages`, choices(['1', '2', '3', '4', '5'])],
+	...[1, 2, 3, 4, 5].map(n => [`Tube ${n}`, `${P}/Preamp_Guitarix/Preamp_Guitarix/Stage_${n}_Tube`, choices(TUBES)]),
+	['Tonestack', `${P}/4_Tonestack/4_Tonestack/tonestack_type/Model`, choices(['Mesa Boogie', 'JCM800', 'AC30', 'Fender Hot Rod'])],
+	['HP model', `${P}/Cabinet_Simulator/Cabinet_Select`, choices(['Fender Deluxe 1x12', 'Mesa OS Rectifier', 'EV MIX D'])],
+];
+const METERS = [['In', `${P}/Preamp_Guitarix/Preamp_Guitarix_Input`], ['Out', `${P}/Preamp_Guitarix/Preamp_Guitarix_Output`]];
+
+export default async function createTubeLab(plugin) {
+	const node = plugin.audioNode;
+	const faustNode = node._output;
+	const info = await node.getParameterInfo();
+	const scales = Object.fromEntries(KNOBS.map(([, id, toUi, toDsp]) => [id, {toUi, toDsp}]));
+	// Meter levels arrive as dB (-60..+10) through the Faust output params.
+	const levels = {};
+	return createTonelabAmp(plugin, {
+		name: 'TubeLab',
+		vendor: 'WAM \u00b7 Faust',
+		color: '#d4af37',
+		skin: {background: 'linear-gradient(to bottom, #d4af37, #997a00)', ink: '#111', vendorInk: '#3a2e00'},
+		read: id => scales[id] ? scales[id].toUi(node.getParamValue(id)) : node.getParamValue(id),
+		write: (id, value) => node.setParamValue(id, scales[id] ? scales[id].toDsp(value) : value),
+		knobs: KNOBS.map(([label, id, toUi]) => ({id, label, min: 0, max: 10, default: toUi(info[id]?.defaultValue ?? 0)})),
+		selects: [
+			{
+				label: 'Preset', header: true,
+				options: [{value: '', label: 'Current settings', disabled: true}, ...node.getFactoryPresets().map(p => ({value: p.id, label: p.name}))],
+				get: () => node.getFactoryPresetStatus().id || '',
+				set: id => node.loadFactoryPreset(id),
+			},
+			...MENUS.map(([label, id, options]) => ({label, options, get: () => Math.round(node.getParamValue(id)), set: v => node.setParamValue(id, Number(v))})),
+		],
+		meters: METERS.map(([label, path]) => ({label, level: () => ((levels[path] ?? -60) + 60) / 70})),
+		status: () => node.getFactoryPresetStatus().modified ? 'Preset modified' : '',
+		attach: () => faustNode.setOutputParamHandler((path, value) => { levels[path] = value; }),
+		detach: () => faustNode.setOutputParamHandler(null),
+	});
+}

@@ -5,7 +5,7 @@
 import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 /**
  * @typedef {import('../sdk-parammgr').ParamMgrNode} ParamMgrNode
@@ -96,6 +96,21 @@ export default class StonePhaserStereoPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Stone Phaser",
+      color: "#e07b39",
+      skin: { image: new URL("./Gui/img/background/psyche10.jpg", import.meta.url).href, background: "#222", ink: "#ffffff", font: "Francois One" },
+      bypass: "/StonePhaserStereo/Bypass",
+      knobs: [
+        { id: "/StonePhaserStereo/LFO", label: "Rate", unit: "Hz", log: true },
+        { id: "/StonePhaserStereo/Feedback", label: "Feedback", unit: "%" },
+        { id: "/StonePhaserStereo/Mix", label: "Mix", unit: "%" },
+        { id: "/StonePhaserStereo/Lo-cut", label: "Lo-cut", unit: "Hz", log: true },
+        { id: "/StonePhaserStereo/Stereo_phase", label: "Stereo", format: (v) => `${v.toFixed(0)}\u00b0` },
+      ],
+      switches: [
+        { id: "/StonePhaserStereo/Color", label: "Color" },
+      ],
+    });
   }
 }

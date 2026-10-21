@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class untitledNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,17 @@ export default class untitledPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "Owl Shimmer",
+      color: "#e6c35c",
+      skin: { image: new URL("./Gui/img/background/metal15.jpeg", import.meta.url).href, background: "#3a3a3a", ink: "#ffffff", font: "Skranji" },
+      bypass: "/untitled/bypass",
+      knobs: [
+        { id: "/untitled/SHIMMER", label: "Shimmer" },
+        { id: "/untitled/DECAY", label: "Decay" },
+        { id: "/untitled/TONE", label: "Tone", unit: "Hz", log: true },
+        { id: "/untitled/MIX", label: "Mix" },
+      ],
+    });
   }
 }

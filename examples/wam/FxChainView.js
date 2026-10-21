@@ -31,6 +31,11 @@ export class FxChainView {
     this.mount.addEventListener('cabinet-routing-mode',event=>{if(event.target!==this.gui)return;event.preventDefault();this.chain.enqueue(()=>this.chain.applyRouting()).catch(error=>this.report(error.message,true));});
     // A click anywhere else in the editor closes the open IN/OUT panel.
     this.dialog.addEventListener('pointerdown',event=>{for(const ui of Object.values(this.editorSides))if(!ui.panel.hidden&&!ui.root.contains(event.target))this.toggleSide(ui,false);});
+    // Many bundled GUIs (the Faust pedals) set their parameters straight on their own node, without the
+    // wam-automation event the chain listens to: a gesture in the editor counts as a possible change. The
+    // presets panel compares the real rack state, so a gesture that changed nothing leaves it clean.
+    const gesture=()=>{clearTimeout(this.gestureTimer);this.gestureTimer=setTimeout(()=>this.chain.changed(),150);};
+    for(const type of ['pointerup','keyup','wheel','input','change'])this.mount.addEventListener(type,gesture,{passive:true});
     this.mount.addEventListener('editor-tab-change',event=>{if(event.target===this.gui)this.syncTabs();});
     close.onclick=()=>this.close();this.dialog.addEventListener('cancel',event=>{event.preventDefault();this.close();});
     this.confirmation=element('dialog','fx-confirm tl-modal');document.body.append(this.confirmation);
@@ -61,9 +66,10 @@ export class FxChainView {
     const hide=attrs(element('tl-icon-button'),{icon:'close',size:'sm',variant:'ghost','aria-label':`Close ${name.toLowerCase()} settings`});head.append(heading,hide);
     const readout=element('div','fx-gain-readout'),levelText=element('strong','','−∞ dBFS'),meter=this.createThinMeter(name+' level');meter.classList.add('is-horizontal');
     readout.append(element('span','',name+' level'),levelText,meter);
-    const label=element('label','fx-gain-control'),row=element('div','fx-gain-row'),fader=element('tl-slider'),slider=element('input'),value=element('output'),reset=attrs(element('tl-button','','Reset'),{size:'sm',variant:'ghost'});
-    slider.type='range';slider.min='-48';slider.max='12';slider.step='.5';slider.setAttribute('aria-label',name+' gain in dB');fader.append(slider);
-    row.append(fader,value);label.append(element('span','',name+' gain'),row);
+    // Same control as the rack's Input/Output cards: a tl-knob around the range input, value under it.
+    const label=element('div','fx-gain-control'),knob=attrs(element('tl-knob','fx-gain'),{label:name+' gain'}),slider=element('input'),value=attrs(element('output'),{slot:'value'}),reset=attrs(element('tl-button','','Reset'),{size:'sm',variant:'ghost'});
+    slider.type='range';slider.min='-48';slider.max='12';slider.step='.5';slider.setAttribute('aria-label',name+' gain in dB');knob.append(slider,value);
+    label.append(knob);
     const body=element('div','fx-gain-panel-body');body.append(readout,label,reset);panel.append(head,body);
     const set=db=>{try{this.chain.setEntryGain(this.activeId,side,db);this.syncEditorGains();}catch(error){this.report(error.message,true);}};
     slider.oninput=()=>set(slider.value);reset.onclick=()=>set(0);
@@ -223,8 +229,11 @@ export class FxChainView {
       const card=this.cards.get(e.id);if(!card)continue;
       let {name,image}=this.describe(e);
       if(e.plugin&&e.kind!=='effect'){const params=await e.plugin.audioNode.getParameterValues(false,'bypass');e.bypass=Number(params.bypass?.value)>=.5;}
-      image ||= fallbackThumbnail({id:e.id,name});
-      if(card.image.dataset.source!==image){card.image.dataset.source=image;card.image.src=image;}
+      // NAM/Cabinet resolve Factory pictures from their manifest (saved URLs can be stale).
+      if(e.plugin?.resolveImageUrl)image=await e.plugin.resolveImageUrl().catch(()=>image)||image;
+      const fallback=fallbackThumbnail({id:e.id,name});image ||= fallback;
+      // Every new picture gets its own try: only a failing one falls back.
+      if(card.image.dataset.source!==image){card.image.dataset.source=image;card.image.onerror=()=>{card.image.onerror=null;card.image.src=fallback;};card.image.src=image;}
       card.image.alt=name;card.photo.title=e.error?`${name}: ${e.error}`:name;card.photo.setAttribute('aria-label',`Open ${name}`);
       card.card.setAttribute('heading',name);
       if(card.captures)await this.refreshCaptureSelector(e,card.captures);
@@ -237,12 +246,12 @@ export class FxChainView {
     if(e.plugin&&e.kind==='cabinet'){const ir=e.plugin.audioNode.getIrSnapshot();return {name:ir?.metadata?.title||ir?.name||'Cabinet',image:ir?.metadata?.imageUrl};}
     return {name:e.record?.name||e.kind,image:e.record?.thumbnailUrl};
   }
-  // Amp: the model is the title, as on the card. Cabinet: the plugin is the
-  // title and the IR the subtitle (the IR name is usually a long file name).
+  // Amp and cabinet: the loaded model / IR is the title, as on the card; the
+  // plugin moves to the subtitle (a long title is ellipsised).
   syncEditorHeader() {
     const e=this.activeId&&this.chain.find(this.activeId);if(!e||!this.dialog.open)return;
     const plugin=e.record?.name||(e.kind==='nam'?'NeuralWAMp':'NeuralWAMp Cabinet'),{name}=this.describe(e);
-    const [title,subtitle]=e.kind==='nam'&&e.plugin?[name,`${plugin} · Active model`]:e.kind==='cabinet'&&e.plugin?[plugin,`${name} · Active impulse response`]:[plugin,''];
+    const [title,subtitle]=e.kind==='nam'&&e.plugin?[name,`${plugin} · Active model`]:e.kind==='cabinet'&&e.plugin?[name,`${plugin} · Active impulse response`]:[plugin,''];
     if(this.title.textContent!==title)this.title.textContent=title;if(this.subtitle.textContent!==subtitle)this.subtitle.textContent=subtitle;
     this.subtitle.hidden=!subtitle;this.syncEditorState(e);
   }
@@ -285,6 +294,10 @@ export class FxChainView {
     if(this.dialog.open)this.close();const serial=++this.openSerial;this.activeId=id;this.returnFocus=trigger;
     const e=this.chain.find(id);this.kicker.textContent=`Chain ${this.options.secondary?'B':'A'} · ${kindLabel(e)}`;
     this.toggleSide(null,false);this.gui=null;this.tabs.hidden=true;this.tabs.replaceChildren();
+    // Amp and cabinet editors fill the large frame (WAM amp sims too: their GUIs are fluid and would
+    // collapse in a fit-content frame); a pedal GUI sizes the editor to itself.
+    const large=e.kind==='nam'||e.kind==='cabinet'||['amplifier','cabinet'].includes(e.record?.category);
+    this.dialog.classList.toggle('is-compact',!large);
     this.syncEditorGains();this.dialog.showModal();this.syncEditorHeader();this.mount.textContent='Loading editor…';
     try {
       const gui=await this.chain.getGui(id);

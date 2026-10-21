@@ -1,3 +1,4 @@
+import { createTonelabAmp } from '../utils/tonelab-pedal.js';
 import './utils/webaudio-controls.js';
 
 /**
@@ -740,4 +741,113 @@ const createElement = async (plugin) => {
 	
 	return new (customElements.get(elementId))(wamNode, faustNode);
 };
-export default createElement;
+export { createElement as createLegacyElement };
+
+// TONELAB faceplate. Display ranges follow the original editor: input 0..10 for -18..+18 dB, EQ and
+// reverb 0..10 for 0..1, presence 0..10 for -15..+10 dB, master 0..10 for 0..4; gain is shown as is.
+const P = '/guitar_tube_amp_sim_100%_FAUST';
+const LAB = `${P}/Preamp_v6/Preamp__Lab_Controls`, DYN = `${P}/Preamp_v6/Preamp__Dynamics`;
+const AMP_MODEL = `${P}/Preamp_v6/Preamp__Amp_Model/Amp`;
+const KNOBS = [
+	['Input', `${P}/Preamp_v6/Preamp__Controls/Input_Trim`, v => (v + 18) / 3.6, v => v * 3.6 - 18],
+	['Gain', `${P}/Preamp_v6/Preamp__Controls/Gain`, v => v, v => v],
+	['Bass', `${P}/4_Tonestack/4_Tonestack/EQ/Bass`, v => v * 10, v => v / 10],
+	['Middle', `${P}/4_Tonestack/4_Tonestack/EQ/Middle`, v => v * 10, v => v / 10],
+	['Treble', `${P}/4_Tonestack/4_Tonestack/EQ/Treble`, v => v * 10, v => v / 10],
+	['Reverb', `${P}/6_Reverb/Mix`, v => v * 10, v => v / 10],
+	['Master', `${P}/5_Power_Amp/Master_Volume`, v => v / 0.4, v => v * 0.4],
+	['Presence', `${P}/5_Power_Amp/Presence`, v => (v + 15) / 2.5, v => v * 2.5 - 15],
+];
+const TUBE = n => `${P}/Preamp_v6/Preamp__Tube_choices/Stage_${n}_Tube`;
+const STAGES = `${LAB}/NbStages`, GAIN_PLACEMENT = `${LAB}/GainPlacement`;
+const choices = (labels, first = 0) => labels.map((label, i) => ({value: i + first, label}));
+const TUBES = ['12AX7', '12AT7', '12AU7', '6V6', '6DJ8', '6C16'];
+const MODELS = ['Lab (manual)', 'Mesa Rectifier', 'Fender Deluxe', 'Marshall JCM 800', 'Soldano SLO-100', 'Vox AC30'];
+// Profile keys are the original editor ids.
+const PROFILE_PARAMS = {
+	'#sel-stages': STAGES, '#sel-gain-placement': GAIN_PLACEMENT, '#knob-tightness-hp': `${LAB}/Tightness_HP`,
+	'#knob-brightness-lp': `${LAB}/Brightness_LP`, '#knob-inter-trim': `${LAB}/Interstage_Trim`,
+	'#btn-cathode-sag': `${DYN}/Cathode_Sag`, '#knob-sag-time': `${DYN}/Sag_Time__ms_`, '#knob-sag-amount': `${DYN}/Sag_Amount`,
+	'#btn-bias-offset': `${DYN}/Bias_Offset__H2_`, '#knob-bias-amount': `${DYN}/Bias_Amount`,
+	'#sel-tonestack': `${P}/4_Tonestack/4_Tonestack/tonestack_type/Model`, '#sel-hp': `${P}/Cabinet_Simulator/Cabinet_Select`,
+};
+// Touching one of these leaves the amp model: the DSP is put back on "Lab" so it follows the controls.
+const PREAMP = new Set([STAGES, GAIN_PLACEMENT, `${LAB}/Tightness_HP`, `${LAB}/Brightness_LP`, `${LAB}/Interstage_Trim`, ...[1, 2, 3, 4, 5].map(TUBE)]);
+const METERS = [['In', `${P}/Preamp_v6/Preamp__Meters__Input`], ['Out', `${P}/Preamp_v6/Preamp__Meters__Output`]];
+
+export default async function createShredLab(plugin) {
+	const node = plugin.audioNode;
+	const faustNode = node._output;
+	const info = await node.getParameterInfo();
+	const scales = Object.fromEntries(KNOBS.map(([, id, toUi, toDsp]) => [id, {toUi, toDsp}]));
+	const levels = {};
+	const value = id => node.getParamValue(id);
+	const write = (id, v) => {
+		if (PREAMP.has(id)) node.setParamValue(AMP_MODEL, 0);
+		node.setParamValue(id, scales[id] ? scales[id].toDsp(v) : v);
+	};
+	// The model menu shows the DSP model, or the profile the controls still match (tubes back on 12AX7).
+	const currentModel = () => {
+		const model = Math.round(value(AMP_MODEL) || 0);
+		if (model) return model;
+		const match = Object.entries(AMP_PROFILES).find(([, profile]) =>
+			Object.entries(profile).every(([key, v]) => Math.abs(value(PROFILE_PARAMS[key]) - v) < .001)
+			&& [1, 2, 3, 4, 5].every(n => value(TUBE(n)) === 0));
+		return match ? Number(match[0]) : 0;
+	};
+	const loadModel = id => {
+		node.setParamValue(AMP_MODEL, 0);
+		const profile = AMP_PROFILES[id];
+		if (!profile) return;
+		for (const [key, v] of Object.entries(profile)) node.setParamValue(PROFILE_PARAMS[key], v);
+		for (const n of [1, 2, 3, 4, 5]) node.setParamValue(TUBE(n), 0);
+	};
+	const knob = (label, id, min, max, unit, extra = {}) => ({id, label, min, max, unit, default: info[id]?.defaultValue, ...extra});
+	const menu = (label, id, options) => ({label, options, get: () => Math.round(value(id)), set: v => write(id, Number(v))});
+	return createTonelabAmp(plugin, {
+		name: 'ShredLab',
+		vendor: 'WAM \u00b7 Faust',
+		color: '#3d8fa8',
+		skin: {background: 'linear-gradient(to bottom, #285666, #14343f)', ink: '#f1dfc8'},
+		read: id => scales[id] ? scales[id].toUi(value(id)) : value(id),
+		write,
+		knobs: KNOBS.map(([label, id, toUi]) => ({id, label, min: 0, max: 10, default: toUi(info[id]?.defaultValue ?? 0)})),
+		selects: [
+			{
+				label: 'Preset', header: true,
+				options: [{value: '', label: 'Current settings', disabled: true}, ...node.getFactoryPresets().map(p => ({value: p.id, label: p.name}))],
+				get: () => node.getFactoryPresetStatus().id || '',
+				set: id => node.loadFactoryPreset(id),
+			},
+			{label: 'Amp model', options: choices(MODELS), get: currentModel, set: v => loadModel(Number(v))},
+			menu('Stages', STAGES, choices(['1', '2', '3', '4', '5'], 1)),
+			...[1, 2, 3, 4, 5].map(n => menu(`Tube ${n}`, TUBE(n), choices(TUBES))),
+			menu('Tonestack', PROFILE_PARAMS['#sel-tonestack'], choices(['Mesa Mark', 'Mesa Rectifier', 'JCM800', 'AC30', 'Fender Hot Rod', 'Soldano'])),
+			menu('HP model', PROFILE_PARAMS['#sel-hp'], choices(['Fender Deluxe 1x12', 'Mesa OS Rectifier', 'EV MIX D'])),
+		],
+		sections: [
+			{
+				label: 'Preamp advanced',
+				knobs: [
+					knob('Trim', `${LAB}/Interstage_Trim`, -18, 12, 'dB'),
+					knob('Tight HP', `${LAB}/Tightness_HP`, 20, 320, 'Hz', {log: true}),
+					knob('Bright LP', `${LAB}/Brightness_LP`, 2500, 14000, 'Hz', {log: true}),
+				],
+				selects: [menu('Gain placement', GAIN_PLACEMENT, choices(['Between 1-2', 'Between 2-3', 'Between 3-4', 'All stages (mild)'], 1))],
+			},
+			{
+				label: 'Dynamics',
+				switches: [{id: `${DYN}/Cathode_Sag`, label: 'Cathode sag'}, {id: `${DYN}/Bias_Offset__H2_`, label: 'Bias offset'}],
+				knobs: [
+					knob('Sag time', `${DYN}/Sag_Time__ms_`, 5, 200, 'ms'),
+					knob('Sag amt', `${DYN}/Sag_Amount`, 0, 0.5),
+					knob('Bias', `${DYN}/Bias_Amount`, -0.3, 0.1),
+				],
+			},
+		],
+		meters: METERS.map(([label, path]) => ({label, level: () => ((levels[path] ?? -60) + 60) / 70})),
+		status: () => node.getFactoryPresetStatus().modified ? 'Preset modified' : '',
+		attach: () => faustNode.setOutputParamHandler((path, v) => { levels[path] = v; }),
+		detach: () => faustNode.setOutputParamHandler(null),
+	});
+}

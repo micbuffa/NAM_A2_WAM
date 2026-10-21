@@ -11,7 +11,7 @@
 import { WebAudioModule } from './sdk/index.js';
 import { CompositeAudioNode, ParamMgrFactory } from './sdk-parammgr/index.js';
 import { FaustMonoDspGenerator, FaustPolyDspGenerator } from "./faustwasm/index.js";
- import { createElement } from './Gui/index.js';
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class FaustCompositeAudioNode extends CompositeAudioNode {
 	/**
@@ -185,7 +185,18 @@ export default class FaustPlugin extends WebAudioModule {
 		return node;
 	}
 
-	createGui() {
-		return createElement(this);
-	}
+  createGui() {
+    return createTonelabPedal(this, {
+      name: "Chorus",
+      color: "#5aa9e6",
+      skin: { background: "linear-gradient(to top, #be1e1e, #9036ba)", ink: "#e1ff00", font: "Fontdiner Swanky" },
+      bypass: "/Chorus/bypass",
+      knobs: [
+        { id: "/Chorus/chorus/freq", label: "Rate", unit: "Hz" },
+        { id: "/Chorus/chorus/depth", label: "Depth" },
+        { id: "/Chorus/chorus/delay", label: "Delay", format: (v) => `${(v * 1000).toFixed(1)} ms` },
+        { id: "/Chorus/chorus/level", label: "Level" },
+      ],
+    });
+  }
 }

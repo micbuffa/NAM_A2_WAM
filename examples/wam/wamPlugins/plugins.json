@@ -3,11 +3,13 @@
   "plugins": [
     {
       "uri": "./deathgate/index.js",
-      "category": "dynamics"
+      "category": "dynamics",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./TS9_OverdriveFaustGenerated/index.js",
-      "category": "drive"
+      "category": "drive",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./AutoWahMB/index.js",
@@ -15,34 +17,41 @@
       "tags": [
         "wah",
         "auto-wah"
-      ]
+      ],
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./sweetWah/index.js",
-      "category": "filter-wah"
+      "category": "filter-wah",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./WAMChorusMB/index.js",
-      "category": "modulation"
+      "category": "modulation",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./StonePhaserStereo/index.js",
       "category": "modulation",
       "tags": [
         "phaser"
-      ]
+      ],
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./faustPingPongDelay/plugin/index.js",
-      "category": "delay"
+      "category": "delay",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./greyhole/index.js",
-      "category": "reverb"
+      "category": "reverb",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./StereoEnhancer/index.js",
-      "category": "stereo-utility"
+      "category": "stereo-utility",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./tuner_machine/src/index.js",
@@ -73,7 +82,8 @@
         "tube",
         "amp",
         "cabinet"
-      ]
+      ],
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./EndUserAmp2/index.js",
@@ -85,93 +95,115 @@
         "amp",
         "cabinet",
         "advanced"
-      ]
+      ],
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./BigMuff/index.js",
-      "category": "drive"
+      "category": "drive",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./CompressorGuitarix/index.js",
-      "category": "dynamics"
+      "category": "dynamics",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./DualPitchShifter/index.js",
-      "category": "modulation"
+      "category": "modulation",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./kbverb/index.js",
-      "category": "reverb"
+      "category": "reverb",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./Kpp_fuzz/index.js",
-      "category": "drive"
+      "category": "drive",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./kppdistorder/index.js",
-      "category": "drive"
+      "category": "drive",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./Octaver/index.js",
-      "category": "modulation"
+      "category": "modulation",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./OscTube/index.js",
-      "category": "drive"
+      "category": "drive",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./OverdriveRix/index.js",
-      "category": "drive"
+      "category": "drive",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./OwlDirty/index.js",
-      "category": "drive"
+      "category": "drive",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./OwlShimmer/index.js",
-      "category": "reverb"
+      "category": "reverb",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./SmoothDelay/index.js",
-      "category": "delay"
+      "category": "delay",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./StereoFreqShifter/index.js",
-      "category": "modulation"
+      "category": "modulation",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./temper/index.js",
-      "category": "drive"
+      "category": "drive",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./ThruZeroFlanger/index.js",
-      "category": "modulation"
+      "category": "modulation",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./VintageAmp60s/index.js",
       "category": "amplifier",
       "enabled": false,
-      "disabledReason": "DSP WASM traps (float unrepresentable in integer range) at 44.1/48 kHz, including without GUI. Requires DSP correction before enabling."
+      "disabledReason": "DSP WASM traps (float unrepresentable in integer range) at 44.1/48 kHz, including without GUI. Requires DSP correction before enabling.",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./WeirdPhaser/index.js",
-      "category": "modulation"
+      "category": "modulation",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./bluesmachine/index.js",
-      "category": "amplifier"
+      "category": "amplifier",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./cleanmachine/index.js",
-      "category": "amplifier"
+      "category": "amplifier",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./metalmachine/index.js",
-      "category": "amplifier"
+      "category": "amplifier",
+      "thumbnail": "./tonelab-thumbnail.png"
     },
     {
       "uri": "./ampsimutility/index.js",
-      "category": "amplifier"
+      "category": "amplifier",
+      "thumbnail": "./tonelab-thumbnail.png"
     }
   ]
 }

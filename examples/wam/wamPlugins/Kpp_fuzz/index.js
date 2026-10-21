@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class Kpp_fuzzNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,16 @@ export default class Kpp_fuzzPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "KPP Fuzz",
+      color: "#8bd450",
+      skin: { background: "linear-gradient(to top, #0ba300, #5df984)", ink: "#ffffff", font: "Skranji" },
+      bypass: "/Kpp_fuzz/99_bypass",
+      knobs: [
+        { id: "/Kpp_fuzz/fuzz", label: "Fuzz", unit: "%" },
+        { id: "/Kpp_fuzz/tone", label: "Tone", unit: "dB" },
+        { id: "/Kpp_fuzz/volume", label: "Volume" },
+      ],
+    });
   }
 }

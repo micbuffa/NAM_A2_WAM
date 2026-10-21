@@ -2,7 +2,7 @@ import WebAudioModule from "../utils/sdk/src/WebAudioModule.js";
 import CompositeAudioNode from "../utils/sdk-parammgr/src/CompositeAudioNode.js";
 import ParamMgrFactory from "../utils/sdk-parammgr/src/ParamMgrFactory.js";
 
-import { createElement } from "./Gui/index.js";
+import { createTonelabPedal } from "../utils/tonelab-pedal.js";
 
 class kbverbNode extends CompositeAudioNode {
   _wamNode;
@@ -73,6 +73,14 @@ export default class kbverbPlugin extends WebAudioModule {
   }
 
   createGui() {
-    return createElement(this);
+    return createTonelabPedal(this, {
+      name: "KB Verb",
+      color: "#7f6bd6",
+      skin: { image: new URL("./Gui/img/background/lego.jpg", import.meta.url).href, background: "#333", ink: "#ffffff", vendorInk: "#3a2e00", font: "Henny Penny" },
+      bypass: "/kbverb/bypass",
+      knobs: [
+        { id: "/kbverb/feedback", label: "Feedback" },
+      ],
+    });
   }
 }
