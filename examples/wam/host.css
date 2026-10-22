@@ -176,6 +176,11 @@ body[data-workspace="tone"] [data-workspace="projects"], body[data-workspace="pr
 .rack-kicker { margin: 0; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); font-weight: 600; letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
 .rack-header h2 { margin: 7px 0 0; font-size: var(--tl-fs-xl); font-weight: 600; line-height: 1; letter-spacing: var(--tl-tracking-title); }
 .rack-canvas { flex: 1; min-width: 0; padding: var(--tl-space-7) 30px; }
+/* Play along dock (backing-track-player/): stays at the bottom of the window while the rack scrolls. */
+.rack-stage > backing-track-player { position: sticky; bottom: 0; z-index: 5; }
+/* Toasts sit above the dock. */
+body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast-offset: 84px; }
+body[data-workspace="tone"]:has(.rack-stage > backing-track-player[expanded]) { --tl-toast-offset: 420px; }
 
 /* Projects workspace (projects/ProjectsWorkspace.js): sidebar picker, header, empty state, track list. */
 .project-stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--tl-space-2); margin-top: var(--tl-space-3); }

@@ -35,7 +35,7 @@ export async function runBackingValidation(){
  await e.loadFile(wav(sampleRate,1.5,1));e.setRate(.7);await e.play();await wait(250);
  const voice=e.voice;e.setRate(.8);await wait(100);check(e.voice===voice,'continuous worklet retained across stretched rates');
  const mono=analysers.map(a=>{const data=new Float32Array(a.fftSize);a.getFloatTimeDomainData(data);return Math.max(...data.map(Math.abs));});check(mono.every(v=>v>.001)&&Math.abs(mono[0]-mono[1])<.001,'mono remains centered with stretching');e.stop();
- player.$('expand').click();await wait(30);check(player.$('body').hidden,'compact mode');player.$('expand').click();await wait(30);
+ const collapsed=player.$('body').hidden;player.$('expand').click();await wait(30);check(player.$('body').hidden!==collapsed,'compact mode toggles');player.$('expand').click();await wait(30);
  }finally{mix?.destroy();player.destroy();player.remove();await context.close();}
  }
  log.textContent+='COMPLETE\n';return {checks,measurements};

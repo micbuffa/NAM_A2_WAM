@@ -5,10 +5,10 @@ import './tl-icon.js';
 //   toast('Preset saved'); toast('Audio device lost', {tone: 'danger', duration: 6000});
 // Messages are announced politely (role=status); danger ones assertively (role=alert).
 const styles = `
-  :host { position: fixed; left: 50%; bottom: 24px; z-index: 2147483000; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  :host { position: fixed; left: 50%; bottom: var(--tl-toast-offset, 24px); z-index: 2147483000; display: flex; flex-direction: column; align-items: center; gap: 8px;
     transform: translateX(-50%); pointer-events: none; }
   /* popover puts the stack in the top layer, above open modal dialogs; undo the UA popover box. */
-  :host([popover]) { inset: auto auto 24px 50%; margin: 0; padding: 0; border: 0; background: none; overflow: visible; color: inherit; }
+  :host([popover]) { inset: auto auto var(--tl-toast-offset, 24px) 50%; margin: 0; padding: 0; border: 0; background: none; overflow: visible; color: inherit; }
   .toast { --tone: var(--tl-accent); display: flex; align-items: center; gap: 10px; max-width: min(520px, calc(100vw - 32px)); padding: 10px 14px;
     color: var(--tl-text); background: var(--tl-surface-4); border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md);
     box-shadow: var(--tl-shadow-module); font-size: var(--tl-fs-sm); font-weight: 500; line-height: 1.35; pointer-events: auto;
