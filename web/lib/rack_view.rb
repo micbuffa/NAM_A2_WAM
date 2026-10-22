@@ -21,7 +21,9 @@ module RackView
     head + title + HEAD_ADDITIONS + rest
   end
 
+  # The view is not committed, so app/views/rack/ may not exist yet.
   def self.write
+    Dir.mkdir(File.dirname(TARGET)) unless Dir.exist?(File.dirname(TARGET))
     File.write(TARGET, generate)
   end
 end
