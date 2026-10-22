@@ -240,7 +240,7 @@ test('the active preset is remembered in the account when signed in, in the brow
 // Just enough DOM for PresetsPanel.attach() and render().
 const fakePresetDom = () => {
   const element = () => ({hidden: false, disabled: false, textContent: '', value: '', title: '', children: [],
-    attributes: new Set(), toggleAttribute(name, force) { if (force) this.attributes.add(name); else this.attributes.delete(name); },
+    attributes: new Set(), setAttribute(name, value) { this[`@${name}`] = value; }, toggleAttribute(name, force) { if (force) this.attributes.add(name); else this.attributes.delete(name); },
     classList: {toggle() {}}, append(...nodes) { this.children.push(...nodes); }, replaceChildren(...nodes) { this.children = nodes; }});
   const elements = new Map();
   globalThis.document ??= {createElement: element};
@@ -420,7 +420,13 @@ test('the header shows unsaved changes while the rack differs from its preset', 
     const changes = [];
     panel.addEventListener('change', ({detail}) => changes.push(detail));
     const edit = async (sound) => { rack.state = {sound}; rack.listeners.forEach((listener) => listener()); await new Promise((resolve) => setTimeout(resolve, 5)); };
-    const shown = () => [!root.getElementById('presetUnsaved').hidden, root.getElementById('presetSaveButton').attributes.has('dot')];
+    const shown = () => {
+      const save = root.getElementById('presetSaveButton');
+      const modified = !root.getElementById('presetUnsaved').hidden;
+      assert.equal(save.disabled, !modified, 'Save is disabled exactly when there is nothing to save');
+      assert.equal(save['@variant'], modified ? 'primary' : 'secondary');
+      return [modified, save.attributes.has('dot')];
+    };
     return {panel, edit, shown, changes};
   };
 

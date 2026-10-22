@@ -21,7 +21,8 @@ const LAST_PRESET_KEY = 'nam-a2-wam.last-preset';
 // changes are kept as a draft a moment after the rack changes, and brought
 // back when the page loads; saving, loading or reverting drops the draft.
 // While the rack differs from that preset, the header shows "Unsaved
-// changes" and Save gets a dot (checked checkDelay after each change).
+// changes" and Save gets a dot (checked checkDelay after each change);
+// otherwise Save is disabled.
 export default class PresetsPanel extends EventTarget {
   // requestSignIn(reason): resolves with true once signed in, false if cancelled.
   // watchRack(listener): calls listener whenever the rack changes.
@@ -269,7 +270,7 @@ export default class PresetsPanel extends EventTarget {
     remove.disabled = !mine || this.busy;
     remove.title = mine ? `Delete “${active.name}”` : active ? 'Factory presets cannot be deleted' : 'No preset selected';
     const save = this.$('presetSaveButton');
-    save.disabled = this.busy;
+    this.renderSave();
     save.toggleAttribute('dot', this.modified);
     save.title = this.needsSignIn ? 'Sign in to save the current rack'
       : mine ? `Save the current rack to “${active.name}”` : 'Save the current rack as a new preset';
@@ -375,7 +376,15 @@ export default class PresetsPanel extends EventTarget {
       this.status(`Saved “${active.name}”.`);
       this.report(`Preset “${active.name}” saved.`);
     } catch (error) { this.status(`Could not save “${active.name}”: ${error.message}`, true); }
-    finally { this.$('presetSaveButton').disabled = this.busy; }
+    finally { this.renderSave(); }
+  }
+
+  // Nothing to save while the rack matches its preset (or the default rack):
+  // Save then turns neutral and inactive; New preset still copies the rack.
+  renderSave() {
+    const save = this.$('presetSaveButton');
+    save.disabled = this.busy || !this.modified;
+    save.setAttribute('variant', this.modified ? 'primary' : 'secondary');
   }
 
   async load(id) {
