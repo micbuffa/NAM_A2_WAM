@@ -54,6 +54,20 @@ class PlayAlongTest < ApplicationSystemTestCase
     assert_not playing?
   end
 
+  test "space plays and pauses from the waveform, not while typing in the filter" do
+    shadow = find("backing-track-player").shadow_root
+    shadow.find("#title").click
+    shadow.find("#list button", text: "Born To Be Wild - Steppenwolf").click
+    shadow.assert_selector "#title", text: "Born To Be Wild - Steppenwolf", wait: 20
+    shadow.find("#wave").click
+    shadow.find("#wave").send_keys(:space)
+    shadow.assert_selector "#play[icon=pause]"
+    shadow.find("#wave").send_keys(:space)
+    shadow.assert_selector "#play[icon=play]"
+    shadow.find("#filter").send_keys(" ")
+    assert_not playing?
+  end
+
   private
     def playing? = page.evaluate_script("window.phase3Debug.playAlong.engine.playing")
 

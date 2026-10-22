@@ -9,7 +9,7 @@ const time=s=>`${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')
 export class BackingTrackPlayerElement extends HTMLElement {
  constructor(){super();this.attachShadow({mode:'open'});this.shadowRoot.innerHTML=`
  <link rel="stylesheet" href="${new URL('./backing-track-player.css',import.meta.url)}">
- <section aria-label="Play along">
+ <section aria-label="Play along" tabindex="-1">
  <header id="transport">
   <button id="expand" class="dock-toggle" aria-expanded="false" aria-controls="body"><tl-icon name="chevron" size="14"></tl-icon><span>Play along</span></button>
   <button id="title" class="track-title" aria-controls="body">Choose a backing track</button>
@@ -17,13 +17,13 @@ export class BackingTrackPlayerElement extends HTMLElement {
   <div id="miniWave" class="mini-wave" aria-hidden="true"><canvas></canvas><div id="miniRegion" class="region"></div><div id="miniHead" class="head"></div></div>
   <output id="clock" class="clock">0:00 / 0:00</output>
   <label class="header-control speed">Speed <tl-slider bipolar><input id="rate" type="range" min=".7" max="1.3" step=".01" value="1" disabled aria-label="Playback speed"></tl-slider><output id="rateValue">100%</output></label>
-  <label class="header-control volume">Volume <tl-slider><input id="volume" type="range" min="-60" max="6" step=".5" value="-12" aria-label="Backing track volume"></tl-slider><output id="volumeValue">\u221212 dB</output></label>
+  <label class="header-control volume"><span class="label-text">Volume</span> <tl-slider><input id="volume" type="range" min="-60" max="6" step=".5" value="-12" aria-label="Backing track volume"></tl-slider><output id="volumeValue">\u221212 dB</output></label>
   <tl-button id="mute" size="sm" aria-pressed="false">Mute</tl-button>
   <span id="mixMeter" class="meter" role="meter" aria-label="Combined output level" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"><i></i></span>
  </header>
  <div id="status" role="status" aria-live="polite">Loading library\u2026</div>
  <div id="body" hidden><aside><div class="library-head"><span id="count">Library</span><tl-button id="import" size="sm" variant="ghost" icon="plus">Import audio\u2026</tl-button></div><input id="filter" type="search" placeholder="Filter tracks" aria-label="Filter backing tracks"><div id="list" role="group" aria-label="Backing tracks"></div></aside>
- <main><div class="wave-container"><div id="wave" tabindex="0" role="slider" aria-label="Position in backing track" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><canvas></canvas><div id="region" class="region"></div><div id="head" class="head"></div><span class="hint">Click to seek \u00b7 Drag to loop \u00b7 Drop audio</span></div><div id="loadProgress" hidden><div id="loadRing" role="progressbar" aria-label="Audio download" aria-valuemin="0" aria-valuemax="100"><svg viewBox="0 0 80 80" aria-hidden="true"><circle class="load-track" cx="40" cy="40" r="33"/><circle id="loadArc" cx="40" cy="40" r="33" pathLength="100"/></svg><strong id="loadPercent">0%</strong></div><span id="loadPhase">Downloading\u2026</span></div></div>
+ <main><div class="wave-container"><div id="wave" tabindex="0" role="slider" aria-label="Position in backing track" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><canvas></canvas><div id="region" class="region"></div><div id="head" class="head"></div><span class="hint">Click to seek \u00b7 Drag to loop \u00b7 Drop audio \u00b7 Space to play</span></div><div id="loadProgress" hidden><div id="loadRing" role="progressbar" aria-label="Audio download" aria-valuemin="0" aria-valuemax="100"><svg viewBox="0 0 80 80" aria-hidden="true"><circle class="load-track" cx="40" cy="40" r="33"/><circle id="loadArc" cx="40" cy="40" r="33" pathLength="100"/></svg><strong id="loadPercent">0%</strong></div><span id="loadPhase">Downloading\u2026</span></div></div>
  <div class="tools">
   <div class="tool"><span class="tool-head">Guitar \u2194 Backing <output id="balanceValue">50 / 50</output></span><tl-slider bipolar><input id="balance" type="range" min="0" max="1" step=".01" value=".5" aria-label="Guitar to backing balance"></tl-slider><tl-button id="balanceReset" size="sm" variant="ghost">Reset</tl-button></div>
   <div class="tool"><span class="tool-head">Guitar pan <output id="panValue">C</output></span><tl-slider bipolar><input id="pan" type="range" min="-1" max="1" step=".01" value="0" aria-label="Guitar global pan"></tl-slider><tl-button id="panReset" size="sm" variant="ghost">Reset</tl-button></div>
@@ -73,6 +73,10 @@ export class BackingTrackPlayerElement extends HTMLElement {
   const mini=this.$('miniWave');mini.addEventListener('click',event=>{if(e.loading||!e.buffer)return;this.act(()=>e.seek(Math.max(0,Math.min(1,(event.clientX-mini.getBoundingClientRect().left)/mini.clientWidth))*e.duration));},{signal:this.listeners.signal});
   wave.addEventListener('pointercancel',()=>{this.drag=null;this.sync();});
   wave.addEventListener('keydown',event=>{if(e.loading)return;if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();this.act(()=>e.seek(event.key==='Home'?0:event.key==='End'?e.duration:e.position+(event.key==='ArrowRight'?1:-1)));}});
+  // Dock shortcuts, focus in the dock but not on a control: Space plays/pauses, arrows move 5 s (1 s on the waveform, above).
+  this.shadowRoot.addEventListener('keydown',event=>{if(e.loading||!e.buffer||event.altKey||event.ctrlKey||event.metaKey||event.target.closest?.('input,button,tl-button,tl-icon-button,tl-checkbox,tl-slider'))return;
+   if(event.key===' '){event.preventDefault();if(!event.repeat)this.act(()=>e.playing?e.pause():e.play());}
+   else if(['ArrowLeft','ArrowRight'].includes(event.key)&&event.target!==wave){event.preventDefault();this.act(()=>e.seek(e.position+(event.key==='ArrowRight'?5:-5)));}},{signal:this.listeners.signal});
   for(const type of ['dragover','drop'])wave.addEventListener(type,event=>{event.preventDefault();if(e.loading)return;if(type==='drop'&&event.dataTransfer.files[0])this.act(()=>e.loadFile(event.dataTransfer.files[0]));});
  }
  renderList(){const query=this.$('filter').value.toLocaleLowerCase();const tracks=[...(this.engine.track?.local?[this.engine.track]:[]),...this.library.tracks];this.$('count').textContent=`${tracks.length} tracks`;this.$('list').replaceChildren();

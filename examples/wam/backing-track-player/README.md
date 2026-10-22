@@ -1,5 +1,7 @@
 # Backing track player
 
+In the rack it is the **Play along** dock at the bottom of Tone (`main.js`): `PlayAlong.js` keeps one player at a time (it and the open project pause each other; leaving Tone pauses it) and `PlayAlongMemory.js` remembers the last bundled track and its settings (browser, plus the `playAlong` account preference when signed in). In the dock, Space plays/pauses and the arrows move 5 s (1 s on the waveform) when focus is not on a control.
+
 `<backing-track-player>` is a host-independent WebComponent. Initialize it with the host AudioContext and optionally a `BackingTrackLibrary` provider. Its engine exposes `outputNode`; it never connects itself to the destination. `BackingTrackMix` owns the host's final guitar/backing sum, after the A/B rack.
 
 The source UI/features and phase-vocoder algorithm came from `examples/other_wam_host/EndUserAmp2/host`. Source worklet credits (olvb/phaze and FFT inspiration) are retained. The copied source files remain unchanged in that reference host. The extracted worklet has a namespaced processor registration and an explicit disposal message.

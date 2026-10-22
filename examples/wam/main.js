@@ -283,6 +283,7 @@ async function initialize() {
   toneGate.connect(context.destination);
   // Play along (Tone): a backing track mixed with the guitar, before toneGate.
   playAlong=document.createElement('backing-track-player');$('.rack-stage').append(playAlong);
+  new ResizeObserver(()=>document.body.style.setProperty('--play-along-height',`${playAlong.offsetHeight}px`)).observe(playAlong);
   await playAlong.initialize({audioContext:context});
   const playAlongMix=new BackingTrackMix(context,rack.output,playAlong,{destination:toneGate});
   linkPlayAlong({engine:playAlong.engine,projectPlayer,workspaces});
