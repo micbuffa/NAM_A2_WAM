@@ -65,6 +65,22 @@ class ProjectsTest < ApplicationSystemTestCase
     assert_selector "#projectSelect optgroup[label='Shared with me'] option", text: "Bob jam", visible: :all
   end
 
+  test "a shared viewer leaves the project" do
+    open_rack_signed_in "alice@example.com"
+    switch_to_projects
+    assert_no_selector "#projectLeave", visible: true # Alice song is hers
+    find("#projectSelect").find("option", text: "Bob jam").select_option
+    click_on "Leave"
+    within("dialog[open]") do
+      assert_text "“Bob jam” will no longer be listed for you. bob@example.com can share it with you again."
+      click_on "Leave"
+    end
+    assert_text "You left “Bob jam”"
+    assert_selector "#projectTitle", text: "Alice song"
+    assert_no_selector "#projectSelect option", text: "Bob jam", visible: :all
+    assert_not projects(:bob_jam).shares.exists?(user: users(:alice))
+  end
+
   test "adds a track, mixes it, picks a preset and saves the project" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects

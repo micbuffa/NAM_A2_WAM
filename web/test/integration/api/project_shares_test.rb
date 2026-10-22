@@ -42,4 +42,18 @@ class Api::ProjectSharesTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
     assert ProjectShare.exists?(project_shares(:bob_jam_with_alice).id)
   end
+
+  test "a shared viewer leaves the project; the owner has nothing to leave" do
+    sign_in_as users(:alice)
+    project = projects(:bob_jam)
+    share = project_shares(:bob_jam_with_alice)
+    delete mine_api_project_shares_path(project), as: :json
+    assert_response :no_content
+    assert_not ProjectShare.exists?(share.id)
+    get api_project_path(project)
+    assert_response :not_found
+
+    delete mine_api_project_shares_path(projects(:alice_song)), as: :json
+    assert_response :not_found
+  end
 end

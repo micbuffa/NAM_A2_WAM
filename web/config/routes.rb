@@ -31,7 +31,9 @@ Rails.application.routes.draw do
         get :audio, on: :member, to: "track_audios#show"
         get :preset, on: :member, to: "track_presets#show"
       end
-      resources :shares, only: %i[index create destroy], module: :projects
+      resources :shares, only: %i[index create destroy], module: :projects do
+        delete :mine, on: :collection, action: :leave
+      end
     end
   end
 end

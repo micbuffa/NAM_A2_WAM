@@ -1,5 +1,5 @@
 # Read-only shares of a project, managed by its owner. A project is shared
-# with an existing account, found by email.
+# with an existing account, found by email. A shared viewer can leave it.
 class Api::Projects::SharesController < Api::BaseController
   include ProjectAccess
 
@@ -18,6 +18,12 @@ class Api::Projects::SharesController < Api::BaseController
 
   def destroy
     owned_project.shares.find(params[:id]).destroy!
+    head :no_content
+  end
+
+  # DELETE /api/projects/:project_id/shares/mine: the viewer's own access.
+  def leave
+    visible_project.shares.find_by!(user: current_user).destroy!
     head :no_content
   end
 end

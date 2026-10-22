@@ -59,6 +59,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectEdit').onclick = () => this.editProjectDialog();
     this.$('projectSave').onclick = () => this.save();
     this.$('projectShare').onclick = () => this.shareDialog();
+    this.$('projectLeave').onclick = () => this.leave();
     this.$('projectResetMix').onclick = () => this.setTracks(structuredClone(this.saved.tracks));
     this.$('projectAddTrack').onclick = () => this.addTrackDialog();
     this.$('projectsEmptyAction').onclick = () => this.emptyAction?.();
@@ -217,6 +218,22 @@ export class ProjectsWorkspace extends EventTarget {
     this.projects.unshift({...project, trackCount: 0});
     await this.open(project.id, {confirm: false});
     return project;
+  }
+
+  // A shared viewer stops seeing the project (the owner can share it again).
+  async leave() {
+    const {project} = this;
+    const owner = project.owner?.name || 'Its owner';
+    const confirmed = await confirmDialog({title: 'Leave project?', confirmLabel: 'Leave',
+      message: `“${project.name}” will no longer be listed for you. ${owner} can share it with you again.`});
+    if (!confirmed) return;
+    try {
+      await this.api.leaveProject(project.id);
+      this.report(`You left “${project.name}”`);
+      await this.load();
+    } catch (error) {
+      this.report(`Project not left: ${error.message}`, true);
+    }
   }
 
   async destroy() {
@@ -511,6 +528,7 @@ export class ProjectsWorkspace extends EventTarget {
     state.textContent = description?.saveState ?? '';
     state.setAttribute('tone', dirty ? 'warning' : owned ? 'success' : 'neutral');
     this.$('projectShare').hidden = !owned;
+    this.$('projectLeave').hidden = owned || !this.project;
     // A shared viewer's mix is never saved: it can go back to the owner's.
     this.$('projectResetMix').hidden = owned || !this.project || !trackChanges(this.saved?.tracks, this.project.tracks).length;
     this.$('projectShare').title = shareSummary(this.project?.shares) || 'Share this project read-only';

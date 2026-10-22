@@ -83,6 +83,8 @@ export default class AccountApi {
   listShares(projectId) { return this.request('GET', `${projectPath(projectId)}/shares`); }
   shareProject(projectId, email) { return this.request('POST', `${projectPath(projectId)}/shares`, {email}); }
   unshareProject(projectId, id) { return this.request('DELETE', `${projectPath(projectId)}/shares/${encodeURIComponent(id)}`); }
+  // A shared viewer removes their own access.
+  leaveProject(projectId) { return this.request('DELETE', `${projectPath(projectId)}/shares/mine`); }
 
   updatePreferences(values) { return this.request('PATCH', '/api/preferences', values); }
   importLocalData(data) { return this.request('POST', '/api/import', data); }
