@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {BackingTrackMix} from '../../examples/wam/backing-track-player/BackingTrackMix.js';
 import {linkPlayAlong} from '../../examples/wam/backing-track-player/PlayAlong.js';
+import {PlayAlongMemory, STORAGE_KEY, playAlongSettings} from '../../examples/wam/backing-track-player/PlayAlongMemory.js';
 
 function fakeContext() {
   const param = () => ({value: 0, setTargetAtTime(value) { this.value = value; }});
@@ -60,4 +61,79 @@ test('leaving Tone pauses the backing track, the open project keeps playing', ()
   workspaces.current = 'tone';
   workspaces.dispatchEvent(new Event('change'));
   assert.equal(projectPlayer.playing, true);
+});
+
+const memoryStorage = (initial = {}) => {
+  const values = new Map(Object.entries(initial));
+  return {getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), values};
+};
+
+// The dock and its engine, enough for the memory: state in, setState out.
+function fakeDock(state = {}) {
+  const engine = {loading: false, applied: null,
+    state: {version: 1, track: null, position: 0, loop: {enabled: true, startSeconds: 0, endSeconds: 0}, rate: 1, volumeDb: -12,
+      muted: false, normalized: false, autoNormalize: true, mix: .5, guitarPan: 0, ...state},
+    getState() { return structuredClone(this.state); },
+    async setState(next) { this.applied = next; this.state = structuredClone(next); }};
+  const dock = Object.assign(new EventTarget(), {engine, expanded: false, setExpanded(value) { this.expanded = value; }});
+  return dock;
+}
+const tick = (ms = 5) => new Promise((resolve) => setTimeout(resolve, ms));
+
+test('Play along settings are saved in this browser, without position or a local file', async () => {
+  const storage = memoryStorage(), dock = fakeDock();
+  const memory = new PlayAlongMemory({player: dock, storage, delay: 0});
+  await memory.restore();
+  dock.engine.state = {...dock.engine.state, track: {id: 'bt-e593dafe4c5eefe3', title: 'Cryin'}, position: 42, rate: .85,
+    loop: {enabled: true, startSeconds: 10, endSeconds: 20}};
+  dock.expanded = true;
+  dock.dispatchEvent(new Event('transport-change')); // the element forwards the engine's events
+  await tick();
+  const saved = JSON.parse(storage.values.get(STORAGE_KEY));
+  assert.equal(saved.trackId, 'bt-e593dafe4c5eefe3');
+  assert.equal(saved.rate, .85);
+  assert.equal(saved.expanded, true);
+  assert.deepEqual(saved.loop, {enabled: true, startSeconds: 10, endSeconds: 20});
+  assert.equal('position' in saved, false);
+  assert.equal(playAlongSettings({...dock.engine.state, track: {id: 'local:x', local: true}}, false).trackId, null, 'device files are not remembered');
+});
+
+test('restoring loads the remembered track at its loop start, without playing', async () => {
+  const settings = {trackId: 'bt-e593dafe4c5eefe3', rate: .9, volumeDb: -6, mix: .7, guitarPan: .2, expanded: true,
+    loop: {enabled: true, startSeconds: 12, endSeconds: 30}};
+  const dock = fakeDock();
+  await new PlayAlongMemory({player: dock, storage: memoryStorage({[STORAGE_KEY]: JSON.stringify(settings)})}).restore();
+  const applied = dock.engine.applied;
+  assert.deepEqual(applied.track, {id: 'bt-e593dafe4c5eefe3'});
+  assert.deepEqual([applied.rate, applied.volumeDb, applied.mix, applied.guitarPan, applied.position], [.9, -6, .7, .2, 12]);
+  assert.equal(applied.autoNormalize, true, 'missing keys keep the engine defaults');
+  assert.equal(dock.expanded, true);
+});
+
+test('signed in, the account settings win and changes are saved to the account', async () => {
+  const writes = [];
+  const account = {signedIn: true, user: {preferences: {playAlong: {trackId: null, mix: .3, expanded: false}}},
+    updatePreference: async (key, value) => { writes.push([key, value]); }};
+  const storage = memoryStorage({[STORAGE_KEY]: JSON.stringify({mix: .9})});
+  const dock = fakeDock();
+  await new PlayAlongMemory({player: dock, account, storage, delay: 0}).restore();
+  assert.equal(dock.engine.applied.mix, .3);
+  dock.engine.state.volumeDb = -3;
+  dock.dispatchEvent(new Event('transport-change'));
+  await tick();
+  assert.equal(writes.length, 1);
+  assert.equal(writes[0][0], 'playAlong');
+  assert.equal(writes[0][1].volumeDb, -3);
+  assert.equal(JSON.parse(storage.values.get(STORAGE_KEY)).volumeDb, -3, 'this browser keeps a copy');
+});
+
+test('a broken restore keeps the defaults and still remembers later changes', async () => {
+  const storage = memoryStorage({[STORAGE_KEY]: JSON.stringify({trackId: 'bt-0000000000000000'})}), dock = fakeDock();
+  dock.engine.setState = async () => { throw new Error('Track missing from library'); };
+  const warn = console.warn; console.warn = () => {};
+  try { await new PlayAlongMemory({player: dock, storage, delay: 0}).restore(); } finally { console.warn = warn; }
+  dock.engine.state.mix = .8;
+  dock.dispatchEvent(new Event('transport-change'));
+  await tick();
+  assert.equal(JSON.parse(storage.values.get(STORAGE_KEY)).mix, .8);
 });

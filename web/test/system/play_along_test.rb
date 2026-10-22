@@ -10,7 +10,11 @@ class PlayAlongTest < ApplicationSystemTestCase
     wait_for_rack
   end
 
-  teardown { switch_to "tone" if page.has_css?("#workspaceSwitch", wait: 0) }
+  teardown do
+    next unless page.has_css?("#workspaceSwitch", wait: 0)
+    switch_to "tone"
+    page.execute_script("localStorage.removeItem('nam-a2-wam.playAlong')") # the next test starts from the defaults
+  end
 
   test "the dock opens on the library, plays a track and pauses outside Tone" do
     dock = find("backing-track-player")
@@ -31,6 +35,23 @@ class PlayAlongTest < ApplicationSystemTestCase
     assert_not playing?, "leaving Tone pauses the backing track"
     switch_to "tone"
     assert_selector "backing-track-player", visible: true
+  end
+
+  test "the last track, its loop and the open dock come back after a reload, without playing" do
+    shadow = find("backing-track-player").shadow_root
+    shadow.find("#title").click
+    shadow.find("#list button", text: "Born To Be Wild - Steppenwolf").click
+    shadow.assert_selector "#title", text: "Born To Be Wild - Steppenwolf", wait: 20
+    page.execute_script("window.phase3Debug.playAlong.engine.setLoop({enabled: true, startSeconds: 10, endSeconds: 20})")
+    sleep 1 # the settings are saved 800 ms after the last change
+
+    visit "/rack/"
+    wait_for_rack
+    shadow = find("backing-track-player").shadow_root
+    shadow.assert_selector "#title", text: "Born To Be Wild - Steppenwolf", wait: 20
+    assert_equal "true", shadow.find("#expand")["aria-expanded"]
+    assert_equal "10", shadow.find("#a").value
+    assert_not playing?
   end
 
   private
