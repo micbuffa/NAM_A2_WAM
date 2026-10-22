@@ -281,7 +281,10 @@ async function initialize() {
   const createTrackRack=async()=>new FxRack({context,a:await createLane('',false),source:new TrackSource(),createLane:()=>createLane('b-',false)});
   trackTones=new TrackTones({context,player:projectPlayer,createRack:createTrackRack,
     resolvePreset:async(track,projectId)=>{
-      const {state}=track.factoryPreset?await accountIntegration.factoryStore.get(track.factoryPreset):await accountIntegration.account.api.getTrackPreset(projectId,track.id);
+      // The owner's own preset, even before the project is saved; a shared project's through its track.
+      const {api}=accountIntegration.account??{};
+      const {state}=track.factoryPreset?await accountIntegration.factoryStore.get(track.factoryPreset)
+        :projects.owned?await api.getPreset(track.presetId):await api.getTrackPreset(projectId,track.id);
       return state.nam&&!state.a&&!state.entries?legacyPresetToRack(state):state;
     }});
   const syncMonitoring=()=>{
@@ -291,6 +294,7 @@ async function initialize() {
   };
   projectPlayer.addEventListener('statechange',syncMonitoring);
   workspaces.addEventListener('change',syncMonitoring);
+  accountIntegration.presetStore?.addEventListener('change',({detail})=>void projects.presetChanged(detail));
   Object.assign(window.phase3Debug,{projectPlayer,trackTones});
   chainView=new FxRackView(rack,message);
   window.phase3Debug.tuner=new TunerView({context,registry,groupId,input:chain.input,button:$('#tunerButton')});

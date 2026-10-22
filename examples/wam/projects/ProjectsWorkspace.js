@@ -87,6 +87,22 @@ export class ProjectsWorkspace extends EventTarget {
     this.syncPlayer();
   }
 
+  // A preset of mine was created, saved, renamed or deleted in Tone: the
+  // inspector lists it again, and its tracks play it as saved. A deleted
+  // preset leaves its tracks without one, as the server does.
+  async presetChanged({action, id, state}) {
+    if (action === 'delete' && this.project) {
+      const unset = (tracks) => tracks.map((track) => (track.presetId === id ? {...track, presetId: null, presetName: null} : track));
+      this.saved.tracks = unset(this.saved.tracks);
+      if (this.project.tracks.some((track) => track.presetId === id)) this.setTracks(unset(this.project.tracks));
+    }
+    if (action === 'update' && state) this.tones?.refresh(`account:${id}`);
+    try { this.presets = await this.api.listPresets(); }
+    catch (error) { return this.report(`Presets not refreshed: ${error.message}`, true); }
+    for (const track of this.project?.tracks ?? []) this.timeline.update(track, track.id === this.selectedId);
+    this.renderInspector();
+  }
+
   get available() { return Boolean(this.api?.available && this.account); }
   get signedIn() { return Boolean(this.account?.signedIn); }
   get owned() { return Boolean(this.project?.owned); }

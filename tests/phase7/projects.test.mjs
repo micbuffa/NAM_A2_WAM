@@ -6,6 +6,7 @@ import {barBeat, clampBpm, initials, shareSummary, defaultTrackName, describePro
 import {ProjectPlayer} from '../../examples/wam/projects/ProjectPlayer.js';
 import {TrackTones, needsTone} from '../../examples/wam/projects/TrackTones.js';
 import AccountApi from '../../examples/wam/account/api.js';
+import {RemotePresetStore} from '../../examples/wam/account/PresetStore.js';
 
 test('tempo is clamped to whole BPM between 30 and 300', () => {
   assert.deepEqual([clampBpm('96'), clampBpm(12), clampBpm(999), clampBpm(120.6), clampBpm('abc')], [96, 30, 300, 121, 120]);
@@ -290,6 +291,43 @@ test('a preset that cannot be loaded leaves the track dry and is reported', asyn
   assert.equal(tones.status(4).state, 'error');
   assert.deepEqual(errors, [[4, 'HTTP 404']]);
   assert.deepEqual(log, ['destroy'], 'the rack built meanwhile is released');
+});
+
+test('a preset saved again in Tone rebuilds its tracks\' racks, swapping once the new one is ready', async () => {
+  const log = [], racks = [], inserts = [];
+  let version = 1;
+  const tones = new TrackTones({context: fakeContext(), player: {setInsert: (id, insert) => inserts.push([id, insert])},
+    createRack: async () => { const rack = fakeRack(log); racks.push(rack); return rack; },
+    resolvePreset: async () => ({version})});
+  const settled = () => new Promise((resolve) => setTimeout(resolve, 0));
+  const saved = {id: 1, instrument: 'guitar', presetId: 7, audio: {}};
+  tones.setTracks([saved, {id: 2, instrument: 'bass', presetId: 8, audio: {}}], 3);
+  await settled();
+  assert.equal(racks.length, 2);
+
+  version = 2;
+  tones.refresh('account:7');
+  assert.equal(tones.status(1).state, 'loading');
+  assert.ok(!racks[0].destroyed, 'the track keeps playing its previous rack meanwhile');
+  await settled();
+  assert.equal(tones.status(1).state, 'ready');
+  assert.deepEqual(racks[2].states, [{version: 2}]);
+  assert.equal(inserts.at(-1)[1].live, racks[2].a.input, 'the new rack replaces the previous one directly');
+  assert.ok(racks[0].destroyed);
+  assert.ok(!racks[1].destroyed, 'tracks with another preset keep their rack');
+});
+
+test('the account preset store reports its writes', async () => {
+  const api = {createPreset: async (name) => ({id: 5, name}), updatePreset: async (id) => ({id}), deletePreset: async () => null};
+  const store = new RemotePresetStore({api});
+  const changes = [];
+  store.addEventListener('change', ({detail}) => changes.push(detail));
+  await store.create('Clean', {a: {}});
+  await store.update(5, {state: {a: {}}});
+  await store.update(5, {name: 'Crunch'});
+  await store.delete(5);
+  assert.deepEqual(changes, [{action: 'create', id: 5, state: undefined}, {action: 'update', id: 5, state: {a: {}}},
+    {action: 'update', id: 5, state: undefined}, {action: 'delete', id: 5, state: undefined}]);
 });
 
 test('the owner sees who a project is shared with', () => {

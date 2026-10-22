@@ -28,7 +28,9 @@ export class TrackTones extends EventTarget {
   constructor({context, player, createRack, resolvePreset}) {
     super();
     Object.assign(this, {context, player, createRack, resolvePreset});
-    this.tones = new Map(); // track id -> {key, state: 'loading' | 'ready' | 'error', error, rack, insert}
+    this.tones = new Map(); // track id -> {key, preset, state: 'loading' | 'ready' | 'error', error, rack, insert, previous}
+    this.tracks = [];
+    this.projectId = null;
   }
 
   // {state, error} of a track's rack, or null when it plays dry.
@@ -39,6 +41,7 @@ export class TrackTones extends EventTarget {
 
   // After player.setTracks(tracks): builds, replaces or releases the racks.
   setTracks(tracks, projectId) {
+    Object.assign(this, {tracks, projectId});
     const wanted = new Map(tracks.filter(needsTone).map((track) => [track.id, {track, key: `${projectId}|${presetValue(track)}`}]));
     for (const [id, tone] of [...this.tones]) if (wanted.get(id)?.key !== tone.key) this.release(id);
     for (const [id, {track, key}] of wanted) {
@@ -60,9 +63,18 @@ export class TrackTones extends EventTarget {
     });
   }
 
-  async build(track, projectId, key) {
+  // A preset was saved again (value: presetValue()): its tracks rebuild their
+  // rack; each keeps playing through the previous one until the new one is ready.
+  refresh(value) {
+    for (const track of this.tracks.filter(needsTone)) {
+      const tone = this.tones.get(track.id);
+      if (tone?.preset === value) void this.build(track, this.projectId, tone.key, tone);
+    }
+  }
+
+  async build(track, projectId, key, previous = null) {
     const {id} = track;
-    const tone = {id, key, state: 'loading', variant: modelVariant(track)};
+    const tone = {id, key, preset: presetValue(track), state: 'loading', variant: modelVariant(track), previous};
     this.tones.set(id, tone);
     this.changed(id);
     const current = () => this.tones.get(id) === tone;
@@ -89,10 +101,13 @@ export class TrackTones extends EventTarget {
       tone.state = 'ready';
     } catch (error) {
       if (!current()) return;
+      if (tone.previous) this.player.setInsert(id, null);
       tone.state = 'error';
       tone.error = error;
       this.dispatchEvent(new CustomEvent('error', {detail: {id, error}}));
     }
+    this.dispose(tone.previous);
+    tone.previous = null;
     this.changed(id);
   }
 
@@ -101,10 +116,18 @@ export class TrackTones extends EventTarget {
     if (!tone) return;
     this.tones.delete(id);
     this.player.setInsert(id, null);
-    tone.insert?.input.disconnect();
-    // After a preset still being applied (the rack's queue), not in the middle of it.
-    if (tone.rack) void tone.rack.enqueue(() => tone.rack.destroy());
+    this.dispose(tone);
     this.changed(id);
+  }
+
+  // A rack no longer played, and the ones it was replacing.
+  dispose(tone) {
+    for (; tone; tone = tone.previous) {
+      const {insert, rack} = tone;
+      insert?.input.disconnect();
+      // After a preset still being applied (the rack's queue), not in the middle of it.
+      if (rack) void rack.enqueue(() => rack.destroy());
+    }
   }
 
   changed(id) { this.dispatchEvent(new CustomEvent('change', {detail: {id}})); }

@@ -229,6 +229,59 @@ class ProjectsTest < ApplicationSystemTestCase
     assert_nil page.evaluate_script("phase3Debug.trackTones.status(#{id})")
   end
 
+  test "a preset saved, renamed or deleted in Tone follows on its tracks" do
+    open_rack_signed_in "carol@example.com"
+    click_on "New preset"
+    within("dialog[open]") do
+      fill_in "Preset name", with: "Clean"
+      click_on "Create preset"
+    end
+    assert_selector "#presetTitle", exact_text: "Clean"
+    switch_to_projects
+    click_on "Import audio"
+    within("dialog[open]") do
+      find("input[type=file]", visible: :all).attach_file(file_fixture("tone.wav"))
+      click_on "Import project"
+    end
+    find("#inspectorPreset").find("option", exact_text: "Clean").select_option
+    assert_selector ".track-meta", text: /\AGuitar · Clean\z/, wait: 20
+    id = Project.last.tracks.sole.id
+    page.execute_script("phase3Debug.trackTones.tones.get(#{id}).rack.before = true")
+
+    switch_workspace "tone"
+    page.evaluate_async_script(<<~JS)
+      const done = arguments[0];
+      const {rack} = phase3Debug;
+      const pedal = rack.a.registry.records.find((r) => r.role !== 'nam' && r.role !== 'cabinet' && /overdrive|ts9/i.test(JSON.stringify(r)));
+      rack.a.insert(pedal, rack.a.entries[0].id).then(() => done());
+    JS
+    click_on "Save"
+    assert_selector "#presetStatus", text: "Saved “Clean”."
+    switch_to_projects
+    assert_selector ".track-meta", text: /\AGuitar · Clean\z/, wait: 20
+    assert_equal [ false, "effect>nam>cabinet" ], JSON.parse(page.evaluate_async_script(<<~JS))
+      const done = arguments[0];
+      const {rack} = phase3Debug.trackTones.tones.get(#{id});
+      rack.getState().then((state) => done(JSON.stringify([Boolean(rack.before), state.a.entries.map((e) => e.kind).join(">")])));
+    JS
+
+    switch_workspace "tone"
+    click_on "Rename preset"
+    within("dialog[open]") do
+      fill_in "Preset name", with: "Crisp"
+      click_on "Rename"
+    end
+    switch_to_projects
+    assert_selector ".track-meta", text: /\AGuitar · Crisp\z/
+
+    switch_workspace "tone"
+    find("#presetDelete").click
+    within("dialog[open]") { click_on "Delete" }
+    switch_to_projects
+    assert_selector ".track-meta", text: /\AGuitar · No preset\z/
+    assert_nil page.evaluate_script("phase3Debug.trackTones.status(#{id})")
+  end
+
   private
     def tone_of(id)
       page.evaluate_script("(t => t && [t.state, t.applied])(phase3Debug.trackTones.tones.get(#{id}))")

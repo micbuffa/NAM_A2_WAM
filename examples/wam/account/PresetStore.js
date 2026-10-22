@@ -95,15 +95,22 @@ export function deleteLocalPresets({indexedDBImpl = globalThis.indexedDB} = {}) 
   });
 }
 
-export class RemotePresetStore {
-  constructor({api}) { this.api = api; }
+// Fires "change" ({action: 'create' | 'update' | 'delete', id, state}) after
+// each write, so project tracks follow the presets they play through.
+export class RemotePresetStore extends EventTarget {
+  constructor({api}) { super(); this.api = api; }
   get available() { return true; }
   get scope() { return 'account'; }
   list() { return this.api.listPresets(); }
   get(id) { return this.api.getPreset(id); }
-  create(name, state) { return this.api.createPreset(name, state); }
-  update(id, attributes) { return this.api.updatePreset(id, attributes); }
-  delete(id) { return this.api.deletePreset(id); }
+  async create(name, state) { return this.changed('create', await this.api.createPreset(name, state)); }
+  async update(id, attributes) { return this.changed('update', await this.api.updatePreset(id, attributes), attributes.state); }
+  async delete(id) { return this.changed('delete', await this.api.deletePreset(id), undefined, id); }
+
+  changed(action, result, state, id = result?.id) {
+    this.dispatchEvent(new CustomEvent('change', {detail: {action, id, state}}));
+    return result;
+  }
 }
 
 export {DATABASE_NAME, STORE_NAME};

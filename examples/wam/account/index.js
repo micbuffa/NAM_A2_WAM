@@ -49,6 +49,7 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
   }
 
   const account = new Account({api});
+  const presetStore = new RemotePresetStore({api});
   const library = new ImpulseResponseLibrary();
   const localFavorites = {
     nam_model: new ModelFavorites(),
@@ -78,7 +79,7 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
       if (signedIn) await accountSync;
       return signedIn;
     };
-    const presets = new PresetsPanel({account, remoteStore: new RemotePresetStore({api}), factoryStore, draftStore, watchRack,
+    const presets = new PresetsPanel({account, remoteStore: presetStore, factoryStore, draftStore, watchRack,
       captureState, applyState, defaultState, suggestName, requestSignIn, report});
     deleteLocalPresets();
     const importer = new LocalDataImport({account, localFavorites, readLocalPreferences, encodeAsset});
@@ -104,5 +105,5 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
     if (account.signedIn) offerImport().catch((error) => report(`Import failed: ${error.message}`, true));
     return presets;
   };
-  return {account, factoryStore, attach};
+  return {account, factoryStore, presetStore, attach};
 }
