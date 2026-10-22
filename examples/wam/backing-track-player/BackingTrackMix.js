@@ -1,10 +1,11 @@
 import {AudioLevel} from '../AudioLevel.js';
 export class BackingTrackMix {
- constructor(context,rackOutput,player){
+ // destination: where the guitar/backing sum goes (the host's toneGate), the speakers by default.
+ constructor(context,rackOutput,player,{destination=context.destination}={}){
   this.context=context;this.rackOutput=rackOutput;this.player=player;
   this.guitarPan=context.createStereoPanner();this.guitarGain=context.createGain();this.backingGain=context.createGain();this.output=context.createGain();
   rackOutput.connect(this.guitarPan).connect(this.guitarGain).connect(this.output);
-  player.engine.outputNode.connect(this.backingGain).connect(this.output);this.output.connect(context.destination);
+  player.engine.outputNode.connect(this.backingGain).connect(this.output);this.output.connect(destination);
   this.meter=new AudioLevel(context,this.output);player.readMixLevel=()=>this.meter.read();
   this.abort=new AbortController();for(const type of ['transport-change','mix-change','guitar-pan-change'])player.addEventListener(type,()=>this.sync(),{signal:this.abort.signal});this.sync();
  }

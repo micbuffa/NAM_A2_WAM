@@ -1,6 +1,6 @@
 // Tone / Projects workspaces (topbar switch), as in the TONELAB mockup.
 // Switching only changes what is shown (body[data-workspace] + CSS): the rack
-// and the backing tracks keep playing. The choice is remembered in this browser.
+// and the open project keep playing (the Play along pauses outside Tone). The choice is remembered in this browser.
 export const WORKSPACES = ['tone', 'projects'];
 const STORAGE_KEY = 'nam-a2-wam.workspace';
 const RENAMED = {tracks: 'projects'}; // remembered before the Tracks tab became Projects

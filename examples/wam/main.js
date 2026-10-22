@@ -1,3 +1,6 @@
+import './backing-track-player/BackingTrackPlayerElement.js';
+import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
+import {linkPlayAlong} from './backing-track-player/PlayAlong.js';
 import {toast} from './ui/components/tl-toast.js';
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import NamPlugin from '../../src/nam-wam/index.js';
@@ -41,7 +44,7 @@ let selectedDeviceId = audioPreferences.inputDeviceId;
 let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
-let chain, chainView, rack, trackTones;
+let chain, chainView, rack, trackTones, playAlong;
 let projects;
 // The open project plays beside the rack's live guitar, in both workspaces.
 const projectPlayer = new ProjectPlayer(context);
@@ -276,7 +279,12 @@ async function initialize() {
   // While a project track monitors the input, the live guitar plays through
   // that track's preset instead of Tone's rack (toneGate).
   const toneGate=context.createGain();
-  rack.output.connect(toneGate).connect(context.destination);
+  toneGate.connect(context.destination);
+  // Play along (Tone): a backing track mixed with the guitar, before toneGate.
+  playAlong=document.createElement('backing-track-player');$('.rack-stage').append(playAlong);
+  await playAlong.initialize({audioContext:context});
+  const playAlongMix=new BackingTrackMix(context,rack.output,playAlong,{destination:toneGate});
+  linkPlayAlong({engine:playAlong.engine,projectPlayer,workspaces});
   projectPlayer.output.connect(context.destination);
   // A track rack is a whole preset rack (lanes A and B), fed by the player.
   const createTrackRack=async()=>new FxRack({context,a:await createLane('',false),source:new TrackSource(),createLane:()=>createLane('b-',false)});
@@ -296,7 +304,7 @@ async function initialize() {
   projectPlayer.addEventListener('statechange',syncMonitoring);
   workspaces.addEventListener('change',syncMonitoring);
   accountIntegration.presetStore?.addEventListener('change',({detail})=>void projects.presetChanged(detail));
-  Object.assign(window.phase3Debug,{projectPlayer,trackTones});
+  Object.assign(window.phase3Debug,{projectPlayer,trackTones,playAlong,playAlongMix});
   chainView=new FxRackView(rack,message);
   window.phase3Debug.tuner=new TunerView({context,registry,groupId,input:chain.input,button:$('#tunerButton')});
   await discoverFiles();
@@ -342,7 +350,7 @@ async function initialize() {
   $('#recoverAudio').onclick = recoverAudio;
   context.addEventListener('statechange', () => {
     if (context.state === 'running') { wasRunning = true; return; }
-    if (wasRunning && (liveInputEnabled || !$('#player').paused || projectPlayer.playing)) {
+    if (wasRunning && (liveInputEnabled || !$('#player').paused || projectPlayer.playing || playAlong?.engine.playing)) {
       message(`Audio engine ${context.state}. Attempting recovery…`, true);
       recoverAudio();
     }
