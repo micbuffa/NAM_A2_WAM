@@ -1,5 +1,6 @@
 # Read-only shares of a project, managed by its owner. A project is shared
-# with an existing account, found by email. A shared viewer can leave it.
+# with an existing account, found by email, who gets an email about it. A
+# shared viewer can leave it.
 class Api::Projects::SharesController < Api::BaseController
   include ProjectAccess
 
@@ -13,6 +14,7 @@ class Api::Projects::SharesController < Api::BaseController
     return render json: { error: "No account uses #{email.presence || 'this email'}" }, status: :unprocessable_content unless user
 
     share = owned_project.shares.create!(user:)
+    ProjectShareMailer.with(share:).shared.deliver_later
     render json: ProjectJson.share(share), status: :created
   end
 

@@ -17,6 +17,19 @@ import {AUDIO_ACCEPT, BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackNam
   trackChanges, twoDigits, usesPreset, withInstrument} from './ProjectsModel.js';
 
 const LAST_PROJECT_KEY = 'nam-a2-wam.project';
+
+// The shared-project email links to the rack with ?project=<id>: that project
+// becomes the one to open (after signing in too) and the URL drops the
+// parameter. Returns whether there was one.
+export function takeLinkedProject({location = globalThis.location, history = globalThis.history, storage = globalThis.localStorage} = {}) {
+  const url = new URL(location.href);
+  const id = url.searchParams.get('project');
+  if (!id) return false;
+  try { storage?.setItem(LAST_PROJECT_KEY, id); } catch { /* Opens the last project instead. */ }
+  url.searchParams.delete('project');
+  history.replaceState(history.state, '', url);
+  return true;
+}
 // The saved tracks, in the order of the current ones.
 const moveAll = (saved, current) => current.map((track) => saved.find((entry) => entry.id === track.id)).filter(Boolean);
 

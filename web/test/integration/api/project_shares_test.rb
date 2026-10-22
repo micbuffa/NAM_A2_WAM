@@ -5,7 +5,9 @@ class Api::ProjectSharesTest < ActionDispatch::IntegrationTest
     sign_in_as users(:alice)
     project = projects(:alice_song)
 
-    post api_project_shares_path(project), params: { email: " BOB@example.com " }, as: :json
+    assert_enqueued_email_with ProjectShareMailer, :shared, params: ->(params) { params[:share].user == users(:bob) } do
+      post api_project_shares_path(project), params: { email: " BOB@example.com " }, as: :json
+    end
     assert_response :created
     assert_equal "bob@example.com", response.parsed_body["email"]
     share_id = response.parsed_body["id"]
@@ -13,7 +15,7 @@ class Api::ProjectSharesTest < ActionDispatch::IntegrationTest
     get api_project_shares_path(project)
     assert_equal [ "bob@example.com" ], response.parsed_body.map { |share| share["email"] }
 
-    post api_project_shares_path(project), params: { email: "bob@example.com" }, as: :json
+    assert_no_enqueued_emails { post api_project_shares_path(project), params: { email: "bob@example.com" }, as: :json }
     assert_response :unprocessable_content
     assert_equal "User already has access to this project", response.parsed_body["error"]
 

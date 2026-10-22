@@ -65,6 +65,18 @@ class ProjectsTest < ApplicationSystemTestCase
     assert_selector "#projectSelect optgroup[label='Shared with me'] option", text: "Bob jam", visible: :all
   end
 
+  test "the link of the share email opens the shared project, after signing in too" do
+    url = URI(ProjectShareMailer.with(share: project_shares(:bob_jam_with_alice)).shared.text_part.body.to_s[%r{http://\S+}])
+    visit url.request_uri
+    wait_for_rack(wait: 40)
+    assert_selector "body[data-workspace=projects]"
+    assert_equal "/rack/", page.evaluate_script("location.pathname + location.search")
+
+    open_rack_signed_in "alice@example.com" # the magic link lands on /rack/
+    assert_selector "body[data-workspace=projects]"
+    assert_selector "#projectTitle", text: "Bob jam"
+  end
+
   test "a shared viewer leaves the project" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects

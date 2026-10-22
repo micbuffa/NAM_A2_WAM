@@ -13,7 +13,7 @@ import {FxRackView} from './FxRackView.js';
 import {EngineStatus} from './EngineStatus.js';
 import {SettingsView} from './SettingsView.js';
 import {Workspaces} from './Workspaces.js';
-import {ProjectsWorkspace} from './projects/ProjectsWorkspace.js';
+import {ProjectsWorkspace, takeLinkedProject} from './projects/ProjectsWorkspace.js';
 import {ProjectPlayer} from './projects/ProjectPlayer.js';
 import {TrackSource, TrackTones} from './projects/TrackTones.js';
 import Renderer from './source-separation/vendor/wavesurfer/renderer.js';
@@ -48,6 +48,7 @@ const projectPlayer = new ProjectPlayer(context);
 const settings = new SettingsView({button: $('#settingsButton')});
 const engine = new EngineStatus({element: $('#engineStatus'), context});
 const workspaces = new Workspaces({control: $('#workspaceSwitch')});
+if (takeLinkedProject()) workspaces.show('projects');
 // Settings > Audio: what the browser chose (it does not let a page set the buffer size).
 const milliseconds = (seconds) => Number.isFinite(seconds) && seconds > 0 ? `${(seconds * 1000).toFixed(1)} ms` : 'Not reported';
 settings.addSection({id: 'audio', label: 'Audio', icon: 'audio', order: 1, render: (container) => {

@@ -5,6 +5,7 @@ import {barBeat, clampBpm, initials, moveTrack, orderChanged, shareSummary, defa
   from '../../examples/wam/projects/ProjectsModel.js';
 import {ProjectPlayer} from '../../examples/wam/projects/ProjectPlayer.js';
 import {TrackTones, needsTone} from '../../examples/wam/projects/TrackTones.js';
+import {takeLinkedProject} from '../../examples/wam/projects/ProjectsWorkspace.js';
 import AccountApi from '../../examples/wam/account/api.js';
 import {RemotePresetStore} from '../../examples/wam/account/PresetStore.js';
 
@@ -338,6 +339,17 @@ test('tracks move to an index of the timeline; the order is saved when it change
   assert.equal(moveTrack(tracks, 7, 0), tracks);
   assert.equal(orderChanged(tracks, [...tracks]), false);
   assert.equal(orderChanged(tracks, moveTrack(tracks, 3, 0)), true);
+});
+
+test('a shared-project link opens that project and leaves the URL clean', () => {
+  const stored = new Map(), replaced = [];
+  const storage = {setItem: (key, value) => stored.set(key, value)};
+  const history = {state: null, replaceState: (state, title, url) => replaced.push(String(url))};
+  assert.equal(takeLinkedProject({location: {href: 'https://rack.test/rack/?project=12&auto'}, history, storage}), true);
+  assert.equal(stored.get('nam-a2-wam.project'), '12');
+  assert.deepEqual(replaced, ['https://rack.test/rack/?auto=']);
+  assert.equal(takeLinkedProject({location: {href: 'https://rack.test/rack/'}, history, storage}), false);
+  assert.equal(replaced.length, 1);
 });
 
 test('the owner sees who a project is shared with', () => {
