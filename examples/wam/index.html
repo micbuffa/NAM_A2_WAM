@@ -17,7 +17,7 @@
         <span class="host-brand-mark"><tl-icon name="guitar" size="22"></tl-icon></span>
         <div class="host-brand-text"><h1>NAM A2</h1><p>Neural amp &amp; cabinet rack</p></div>
       </div>
-      <tl-segmented class="host-workspaces" id="workspaceSwitch" value="tone" aria-label="Workspace"><option value="tone">Tone</option><option value="tracks">Tracks</option></tl-segmented>
+      <tl-segmented class="host-workspaces" id="workspaceSwitch" value="tone" aria-label="Workspace"><option value="tone">Tone</option><option value="projects">Projects</option></tl-segmented>
       <div class="host-topbar-actions">
         <tl-button id="tunerButton" class="host-tuner-button" icon="tuner" size="sm" title="Open tuner (T)" aria-haspopup="dialog" aria-keyshortcuts="T" disabled>Tuner<kbd class="host-kbd">T</kbd></tl-button>
         <tl-badge id="engineStatus" class="host-engine" dot role="status" tone="warning" data-state="starting">Starting audio engine…</tl-badge>
@@ -44,7 +44,24 @@
         <tl-button class="host-secondary" id="recoverAudio" block variant="danger" icon="power" hidden>Recover audio</tl-button>
       </section>
 
-      <section class="host-card" aria-labelledby="source-title" data-workspace="tracks">
+      <section class="host-card host-projects" id="projectsPanel" aria-labelledby="projects-title" data-workspace="projects">
+        <h2 id="projects-title"><span class="host-dot green"></span>Project<span class="host-count" id="projectCount"></span></h2>
+        <label>All projects <tl-select icon="audio"><select id="projectSelect" aria-label="Project"></select></tl-select></label>
+        <div class="project-stats"><span><small>Tracks</small><strong id="projectTrackCount">00</strong></span><span><small>Tempo</small><strong id="projectBpm">—</strong></span></div>
+        <tl-button class="host-secondary" id="projectNew" block icon="plus" aria-haspopup="dialog">New project</tl-button>
+        <tl-button class="host-secondary project-import" id="projectImport" block icon="audio" aria-haspopup="dialog">Import audio</tl-button>
+        <p class="host-help">Create a project from a WAV, MP3, M4A, AIFF, OGG or FLAC file.</p>
+      </section>
+
+      <section class="host-card host-track-inspector" id="trackInspector" aria-labelledby="inspectorTrackName" data-workspace="projects" hidden>
+        <h2><span class="host-dot violet"></span><span class="inspector-track-name" id="inspectorTrackName"></span><span class="host-count" id="inspectorTrackNumber"></span></h2>
+        <p class="host-help inspector-track-meta" id="inspectorTrackMeta"></p>
+        <label id="inspectorPresetField">Tone preset <tl-select icon="sliders"><select id="inspectorPreset" aria-label="Tone preset"></select></tl-select></label>
+        <tl-button class="host-secondary" id="inspectorEditPreset" block icon="edit">Edit preset in Tone</tl-button>
+        <p class="host-help" id="inspectorPresetHelp"></p>
+      </section>
+
+      <section class="host-card" aria-labelledby="source-title" data-workspace="tone">
         <h2 id="source-title"><span class="host-dot violet"></span>Guitar source</h2>
         <label>Source <tl-select icon="audio"><select id="audioSource"><option>Live input</option></select></tl-select></label>
         <div class="embedded-player" id="playerPanel" hidden>
@@ -119,38 +136,44 @@
       </div>
     </main>
 
-    <main class="tracks-stage" id="tracksWorkspace" data-workspace="tracks" aria-label="Tracks">
-      <header class="rack-header tracks-header">
+    <main class="tracks-stage projects-stage" id="projectsWorkspace" data-workspace="projects" aria-label="Projects">
+      <header class="rack-header projects-header">
         <div class="rack-heading">
           <div>
-            <p class="rack-kicker">Play-along workspace</p>
-            <h2>Tracks</h2>
-            <p class="preset-meta">Play your guitar through the active tone over a backing track.</p>
+            <p class="rack-kicker" id="projectKicker">Projects</p>
+            <div class="preset-title-row"><h2 id="projectTitle">Projects</h2><tl-icon-button id="projectEdit" icon="edit" size="sm" variant="ghost" aria-label="Edit project" title="Edit project" aria-haspopup="dialog" hidden></tl-icon-button></div>
+            <p class="preset-meta" id="projectMeta">Record and mix your ideas track by track.</p>
           </div>
+        </div>
+        <div class="preset-header-actions projects-header-actions">
+          <tl-badge id="projectSaveState" variant="eyebrow" dot role="status" hidden></tl-badge>
+          <tl-button id="projectResetMix" icon="undo" title="Back to the owner's mix" hidden>Reset mix</tl-button>
+          <tl-button id="projectShare" icon="share" aria-haspopup="dialog" hidden>Share</tl-button>
+          <tl-button id="projectSave" icon="save" hidden disabled>Save project</tl-button>
+          <tl-button id="projectAddTrack" variant="primary" icon="plus" aria-haspopup="dialog" hidden>Add track</tl-button>
         </div>
       </header>
       <div class="rack-canvas tracks-canvas" id="tracksCanvas">
-        <div class="tracks-cards">
-          <section class="tracks-card" aria-labelledby="activeToneKicker">
-            <span class="tracks-card-icon"><tl-icon name="sliders" size="20"></tl-icon></span>
-            <div class="tracks-card-text">
-              <p class="rack-kicker" id="activeToneKicker">Active tone</p>
-              <strong id="activeToneName">Untitled rack</strong>
-              <span class="preset-meta" id="activeToneMeta">Not saved as a preset · 1 chain</span>
+        <section class="projects-empty" id="projectsEmpty">
+          <span class="projects-empty-icon"><tl-icon name="audio" size="22"></tl-icon></span>
+          <h3 id="projectsEmptyTitle">Projects</h3>
+          <p id="projectsEmptyText"></p>
+          <tl-button id="projectsEmptyAction" variant="primary" hidden></tl-button>
+        </section>
+        <section class="project-timeline" id="projectTimeline" aria-label="Project timeline" hidden>
+          <header class="project-timeline-head">
+            <div class="project-transport" role="group" aria-label="Transport">
+              <tl-icon-button id="projectRewind" icon="rewind" size="sm" aria-label="Return to start" title="Return to start" disabled></tl-icon-button>
+              <tl-icon-button id="projectPlay" icon="play" size="sm" aria-label="Play" title="Play" aria-pressed="false" disabled></tl-icon-button>
             </div>
-            <tl-button id="editInTone" size="sm" icon="edit">Edit in Tone</tl-button>
-          </section>
-          <section class="tracks-card" id="guitarCard" data-state="off" aria-labelledby="guitarKicker">
-            <span class="tracks-card-icon"><tl-icon name="guitar" size="20"></tl-icon></span>
-            <div class="tracks-card-text">
-              <p class="rack-kicker" id="guitarKicker">Guitar</p>
-              <strong id="guitarSourceName">Live input</strong>
-              <span class="preset-meta" id="guitarSourceDetail">Monitoring is off</span>
-              <span class="tracks-levels" id="guitarLevels">Input 0.0 dB · Output 0.0 dB</span>
-            </div>
-            <tl-button id="guitarMonitor" size="sm" icon="headphones" aria-pressed="false">Enable live input</tl-button>
-          </section>
-        </div>
+            <strong class="project-clock" id="projectClock" role="timer" aria-label="Position">00:00.00</strong>
+            <span class="project-bar" id="projectBarBeat" title="Bar.beat">1.1</span>
+            <span class="project-tempo" id="projectTimelineTempo"></span>
+          </header>
+          <div class="project-ruler-row" aria-hidden="true"><span></span><div class="project-ruler-track"><div class="project-ruler" id="projectRuler"></div></div></div>
+          <ol class="project-tracks" id="projectTracks"></ol>
+          <p class="host-help project-tracks-empty" id="projectTracksEmpty">No tracks yet.</p>
+        </section>
       </div>
     </main>
   </div>

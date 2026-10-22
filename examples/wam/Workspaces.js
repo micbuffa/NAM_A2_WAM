@@ -1,8 +1,9 @@
-// Tone / Tracks workspaces (topbar switch), as in the TONELAB mockup. Switching
-// only changes what is shown (body[data-workspace] + CSS): the rack and the
-// backing tracks keep playing. The choice is remembered in this browser.
-export const WORKSPACES = ['tone', 'tracks'];
+// Tone / Projects workspaces (topbar switch), as in the TONELAB mockup.
+// Switching only changes what is shown (body[data-workspace] + CSS): the rack
+// and the backing tracks keep playing. The choice is remembered in this browser.
+export const WORKSPACES = ['tone', 'projects'];
 const STORAGE_KEY = 'nam-a2-wam.workspace';
+const RENAMED = {tracks: 'projects'}; // remembered before the Tracks tab became Projects
 
 export class Workspaces extends EventTarget {
   constructor({control, root = document.body, storage = globalThis.localStorage}) {
@@ -11,6 +12,7 @@ export class Workspaces extends EventTarget {
     control.addEventListener('change', () => this.show(control.value));
     let saved = null;
     try { saved = storage?.getItem(STORAGE_KEY); } catch { /* Storage can be unavailable in privacy modes. */ }
+    saved = RENAMED[saved] ?? saved;
     this.show(WORKSPACES.includes(saved) ? saved : 'tone', {remember: false});
   }
 

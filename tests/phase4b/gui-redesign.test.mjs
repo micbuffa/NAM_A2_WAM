@@ -24,7 +24,7 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(css, /grid-template-columns:\s*286px minmax\(0, 1fr\)/u);
   assert.match(css, /@media \(max-width: 720px\)/u);
   assert.match(main, /chain.initialize\(plugin,cabinetPlugin\)/u);
-  assert.match(main, /new BackingTrackMix\(context,rack.output,backingPlayer\)/u);
+  assert.match(main, /rack\.output\.connect\(toneGate\)\.connect\(context\.destination\)/u);
   assert.match(main, /\$\('#playerPanel'\)\.hidden = !enabled/u);
   assert.match(html, /id="enableLive"[^>]*aria-pressed="false"[^>]*>Enable live input/u);
   assert.match(await read('examples/wam/ui/components/tl-button.js'), /:host\(\[aria-pressed="true"\]\)/u);

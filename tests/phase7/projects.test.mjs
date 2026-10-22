@@ -1,0 +1,303 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {barBeat, clampBpm, initials, shareSummary, defaultTrackName, describeProject, formatClock, groupProjects, nameFromFile, panLabel, presetFields, presetValue,
+  projectOptionLabel, rulerBars, timelineLength, toggleMonitoring, trackChanges, trackGain, volumeLabel, withInstrument}
+  from '../../examples/wam/projects/ProjectsModel.js';
+import {ProjectPlayer} from '../../examples/wam/projects/ProjectPlayer.js';
+import {TrackTones, needsTone} from '../../examples/wam/projects/TrackTones.js';
+import AccountApi from '../../examples/wam/account/api.js';
+
+test('tempo is clamped to whole BPM between 30 and 300', () => {
+  assert.deepEqual([clampBpm('96'), clampBpm(12), clampBpm(999), clampBpm(120.6), clampBpm('abc')], [96, 30, 300, 121, 120]);
+});
+
+test('project names default to the imported file name', () => {
+  assert.equal(nameFromFile('late_night-take.wav'), 'late night-take');
+  assert.equal(nameFromFile('.wav'), 'Untitled project');
+});
+
+test('the picker groups my projects and the ones shared with me', () => {
+  const projects = [{id: 1, name: 'Mine', owned: true, trackCount: 1}, {id: 2, name: 'Theirs', owned: false, trackCount: 3}];
+  const {mine, shared} = groupProjects(projects);
+  assert.deepEqual([mine.map((p) => p.id), shared.map((p) => p.id)], [[1], [2]]);
+  assert.equal(projectOptionLabel(projects[0]), 'Mine · 1 track');
+  assert.equal(projectOptionLabel(projects[1]), 'Theirs · 3 tracks');
+});
+
+test('the header tells owned, dirty and shared projects apart', () => {
+  const owned = {name: 'Song', owned: true, tracks: [{}, {}]};
+  assert.equal(describeProject(owned).kicker, 'Recording project · 2 tracks');
+  assert.equal(describeProject(owned).saveState, 'Saved');
+  assert.equal(describeProject(owned, {dirty: true}).saveState, 'Unsaved changes');
+  const shared = {name: 'Jam', owned: false, owner: {name: 'bob@example.com'}, tracks: [{}]};
+  assert.equal(describeProject(shared).kicker, 'Shared by bob@example.com · 1 track');
+  assert.equal(describeProject(shared, {dirty: true}).saveState, 'Read-only');
+  assert.equal(describeProject(null), null);
+});
+
+test('tracks are sent as JSON, or multipart with their audio file', async () => {
+  const calls = [];
+  const document = {querySelector: () => ({getAttribute: () => 'token', setAttribute() {}})};
+  const fetchImpl = async (path, options) => { calls.push({path, options}); return {ok: true, status: 201, json: async () => ({id: 9})}; };
+  const api = new AccountApi({document, fetchImpl});
+
+  await api.updateTrack(3, 7, {volume: 55});
+  assert.equal(calls[0].path, '/api/projects/3/tracks/7');
+  assert.equal(calls[0].options.headers['Content-Type'], 'application/json');
+  assert.equal(calls[0].options.body, '{"volume":55}');
+
+  const audio = new File(['RIFF'], 'take.wav', {type: 'audio/wav'});
+  await api.createTrack(3, {name: 'Take', presetId: null}, audio);
+  const {options} = calls[1];
+  assert.equal(options.method, 'POST');
+  assert.equal(options.headers['Content-Type'], undefined, 'fetch sets the multipart boundary');
+  assert.equal(options.headers['X-CSRF-Token'], 'token');
+  assert.ok(options.body instanceof FormData);
+  assert.deepEqual([options.body.get('name'), options.body.get('presetId'), options.body.get('audio').name], ['Take', '', 'take.wav']);
+});
+
+test('volume is 0..100 with 80 at 0 dB, pan is -100..100', () => {
+  assert.deepEqual([volumeLabel(80), volumeLabel(100), volumeLabel(50), volumeLabel(0)], ['0.0 dB', '+6.0 dB', '−9.0 dB', '−∞ dB']);
+  assert.deepEqual([panLabel(0), panLabel(-30), panLabel(100)], ['Center', 'Left 30', 'Right 100']);
+});
+
+test('new tracks are numbered per instrument', () => {
+  const tracks = [{instrument: 'guitar'}, {instrument: 'bass'}, {instrument: 'guitar'}];
+  assert.equal(defaultTrackName('guitar', tracks), 'Guitar 3');
+  assert.equal(defaultTrackName('drums', tracks), 'Drums 1');
+});
+
+test('only guitar and bass keep a preset and can monitor the input, one track at a time', () => {
+  const track = {id: 1, instrument: 'guitar', presetId: 4, factoryPreset: null};
+  assert.deepEqual(withInstrument(track, 'bass'), {...track, instrument: 'bass'});
+  assert.deepEqual(withInstrument(track, 'vocals'), {id: 1, instrument: 'vocals', presetId: null, factoryPreset: null});
+
+  const tracks = [{id: 1, instrument: 'guitar', inputMonitoring: false}, {id: 2, instrument: 'bass', inputMonitoring: true},
+    {id: 3, instrument: 'drums', inputMonitoring: false}];
+  assert.deepEqual(toggleMonitoring(tracks, 1).map((t) => t.inputMonitoring), [true, false, false]);
+  assert.deepEqual(toggleMonitoring(tracks, 2).map((t) => t.inputMonitoring), [false, false, false]);
+  assert.deepEqual(toggleMonitoring(tracks, 3).map((t) => t.inputMonitoring), [false, false, false]);
+});
+
+test('the inspector preset value round-trips account and Factory presets', () => {
+  assert.equal(presetValue({presetId: 7, factoryPreset: null}), 'account:7');
+  assert.equal(presetValue({presetId: null, factoryPreset: 'factory:svt-bass'}), 'factory:svt-bass');
+  assert.equal(presetValue({presetId: null, factoryPreset: null}), '');
+  assert.deepEqual(presetFields('account:7'), {presetId: 7, factoryPreset: null});
+  assert.deepEqual(presetFields('factory:svt-bass'), {presetId: null, factoryPreset: 'factory:svt-bass'});
+  assert.deepEqual(presetFields(''), {presetId: null, factoryPreset: null});
+});
+
+test('only the changed fields of each track are saved', () => {
+  const saved = [{id: 1, name: 'Rhythm', volume: 80, pan: 0, audio: {filename: 'a.wav'}}, {id: 2, name: 'Bass', volume: 80}];
+  const current = [{...saved[0], volume: 60, pan: -20, audio: null}, {...saved[1]}, {id: 3, name: 'New'}];
+  assert.deepEqual(trackChanges(saved, current), [{id: 1, changes: {volume: 60, pan: -20}}]);
+});
+
+test('a track plays at its volume unless muted or another track is soloed', () => {
+  const tracks = [{id: 1, volume: 80, mute: false, solo: false}, {id: 2, volume: 60, mute: false, solo: false}, {id: 3, volume: 0, mute: false, solo: false}];
+  assert.deepEqual(tracks.map((track) => Number(trackGain(track, tracks).toFixed(3))), [1, 0.501, 0]);
+  assert.equal(trackGain({...tracks[0], mute: true}, tracks), 0);
+  const soloed = [{...tracks[0], solo: true}, tracks[1]];
+  assert.deepEqual(soloed.map((track) => trackGain(track, soloed)), [1, 0]);
+});
+
+test('the timeline counts 4/4 bars at the project tempo', () => {
+  assert.deepEqual(timelineLength(0, 120), {bars: 16, seconds: 32});
+  assert.deepEqual(timelineLength(70, 120), {bars: 35, seconds: 70});
+  assert.deepEqual(timelineLength(70.1, 120), {bars: 36, seconds: 72});
+  assert.deepEqual(rulerBars(16, 900).map(({bar}) => bar), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+  assert.deepEqual(rulerBars(16, 300).map(({bar}) => bar), [1, 5, 9, 13]);
+  assert.equal(rulerBars(16, 300)[1].fraction, 0.25);
+  assert.deepEqual([formatClock(0), formatClock(83.456), formatClock(-1)], ['00:00.00', '01:23.45', '00:00.00']);
+  assert.deepEqual([barBeat(0, 120), barBeat(0.5, 120), barBeat(2, 120), barBeat(2.49, 120)], ['1.1', '1.2', '2.1', '2.1']);
+});
+
+// A Web Audio stand-in: params record their targets, sources their start/stop.
+function fakeContext() {
+  const node = (extra = {}) => ({targets: new Set(), connect(target) { this.targets.add(target); return target; },
+    disconnect(target) { if (target) this.targets.delete(target); else { this.targets.clear(); this.disconnected = true; } }, ...extra});
+  const param = () => ({value: 0, setTargetAtTime(value) { this.value = value; }});
+  const context = {currentTime: 10, sources: [], resumed: 0,
+    createGain: () => node({gain: param()}), createStereoPanner: () => node({pan: param()}),
+    createBufferSource: () => { const source = node({start(when, offset) { Object.assign(this, {when, offset}); }, stop() { this.stopped = true; }});
+      context.sources.push(source); return source; },
+    resume: async () => { context.resumed += 1; },
+    decodeAudioData: async (data) => ({duration: data.byteLength, length: data.byteLength})};
+  return context;
+}
+const audioOf = (seconds) => ({url: `/audio/${seconds}`, byteSize: seconds, filename: `${seconds}.wav`});
+const fetchAudio = async (url) => ({ok: true, arrayBuffer: async () => new ArrayBuffer(Number(url.split('/').pop()))});
+const loaded = (player, count) => new Promise((resolve) => {
+  let seen = 0;
+  player.addEventListener('load', () => { if (++seen === count) resolve(); });
+});
+
+test('the project player starts every track on one clock and follows the mix', async () => {
+  const context = fakeContext();
+  const player = new ProjectPlayer(context, {fetchAudio});
+  const tracks = [{id: 1, volume: 80, pan: -50, mute: false, solo: false, audio: audioOf(4)},
+    {id: 2, volume: 80, pan: 0, mute: false, solo: false, audio: audioOf(6)}, {id: 3, volume: 80, pan: 0, mute: false, solo: false, audio: null}];
+  const ready = loaded(player, 2);
+  player.setTracks(tracks);
+  await ready;
+  assert.equal(player.duration, 6);
+  assert.equal(player.channels.get(1).pan.pan.value, -0.5);
+
+  await player.play();
+  assert.equal(context.resumed, 1);
+  assert.equal(context.sources.length, 2);
+  assert.ok(context.sources.every((source) => source.when === context.sources[0].when && source.offset === 0));
+  context.currentTime += 1.03;
+  assert.ok(Math.abs(player.position - 1) < 1e-9);
+
+  player.setTracks(tracks.map((track) => (track.id === 2 ? {...track, solo: true} : track)));
+  assert.deepEqual([player.channels.get(1).gain.gain.value, player.channels.get(2).gain.gain.value], [0, 1]);
+  assert.equal(context.sources.length, 2, 'a mix change does not restart playback');
+
+  await player.seek(5);
+  assert.equal(context.sources.length, 3, 'past its end, the 4 s track stays silent');
+  assert.equal(context.sources.at(-1).offset, 5);
+  player.pause();
+  assert.equal(player.playing, false);
+  assert.ok(context.sources.every((source) => source.stopped));
+  player.stop();
+  assert.equal(player.position, 0);
+});
+
+test('the project stops when its longest track ends, and a removed track stops at once', async () => {
+  const context = fakeContext();
+  const player = new ProjectPlayer(context, {fetchAudio});
+  const ready = loaded(player, 2);
+  player.setTracks([{id: 1, volume: 80, pan: 0, audio: audioOf(2)}, {id: 2, volume: 80, pan: 0, audio: audioOf(3)}]);
+  await ready;
+  await player.play();
+  const [short, long] = context.sources;
+  short.onended();
+  assert.equal(player.playing, true);
+  long.onended();
+  assert.equal(player.playing, false);
+  assert.equal(player.position, 3);
+
+  await player.play(); // from the start again
+  assert.equal(context.sources.at(-1).offset, 0);
+  player.setTracks([{id: 2, volume: 80, pan: 0, audio: audioOf(3)}]);
+  assert.ok(context.sources.at(-2).stopped);
+  assert.equal(player.channels.size, 1);
+  player.setTracks([]);
+  assert.equal(player.playing, false);
+});
+
+test('a file that cannot be loaded is reported for its track', async () => {
+  const player = new ProjectPlayer(fakeContext(), {fetchAudio: async () => ({ok: false, status: 404})});
+  const failed = new Promise((resolve) => player.addEventListener('error', ({detail}) => resolve(detail)));
+  player.setTracks([{id: 7, volume: 80, pan: 0, audio: audioOf(1)}]);
+  const {id, error} = await failed;
+  assert.equal(id, 7);
+  assert.match(error.message, /404/u);
+  assert.equal(player.duration, 0);
+});
+
+test('a track plays through its insert, and input monitoring replaces its recording with the live guitar', () => {
+  const context = fakeContext();
+  const player = new ProjectPlayer(context, {fetchAudio});
+  const track = {id: 1, instrument: 'guitar', volume: 80, pan: 0, audio: null, inputMonitoring: false};
+  player.setTracks([track]);
+  const channel = player.channels.get(1);
+  assert.ok(channel.playback.targets.has(channel.gain));
+
+  const insert = {input: context.createGain(), live: context.createGain(), output: context.createGain()};
+  player.setInsert(1, insert);
+  assert.ok(channel.playback.targets.has(insert.input) && !channel.playback.targets.has(channel.gain));
+  assert.ok(insert.output.targets.has(channel.gain));
+
+  const live = context.createGain();
+  player.setLiveInput(live);
+  assert.equal(live.targets.size, 0, 'no track monitors the input yet');
+  player.setTracks([{...track, inputMonitoring: true}]);
+  assert.equal(player.monitoredId, 1);
+  assert.ok(live.targets.has(insert.live));
+  assert.equal(channel.playback.gain.value, 0, 'the recording is replaced');
+
+  player.setInsert(1, null);
+  assert.ok(live.targets.has(channel.gain) && !live.targets.has(insert.live), 'without its preset, the guitar plays dry');
+  assert.ok(!insert.output.targets.has(channel.gain));
+  player.setTracks([{...track, inputMonitoring: false}]);
+  assert.equal(live.targets.size, 0);
+  assert.equal(channel.playback.gain.value, 1);
+});
+
+function fakeRack(log) {
+  const variants = [];
+  const gain = () => ({connect() {}, disconnect() {}});
+  const rack = {a: {input: gain(), entries: [{kind: 'nam', plugin: {audioNode: {setModelVariant: async (variant) => variants.push(variant)}}}]},
+    b: null, output: gain(), variants, states: [],
+    setState: async (state) => rack.states.push(state),
+    enqueue: (operation) => Promise.resolve().then(operation),
+    destroy() { rack.destroyed = true; log.push('destroy'); }};
+  return rack;
+}
+
+test('guitar and bass tracks with a preset get a rack, in the Lite variant unless monitoring', async () => {
+  assert.deepEqual([
+    needsTone({instrument: 'guitar', factoryPreset: 'factory:twin-clean', audio: {}}),
+    needsTone({instrument: 'guitar', factoryPreset: 'factory:twin-clean', audio: null, inputMonitoring: true}),
+    needsTone({instrument: 'guitar', factoryPreset: 'factory:twin-clean', audio: null}),
+    needsTone({instrument: 'drums', audio: {}}), needsTone({instrument: 'bass', presetId: null, audio: {}}),
+  ], [true, true, false, false, false]);
+
+  const log = [], racks = [], inserts = [];
+  const player = {setInsert: (id, insert) => inserts.push([id, insert])};
+  const tones = new TrackTones({context: fakeContext(), player, createRack: async () => { const rack = fakeRack(log); racks.push(rack); return rack; },
+    resolvePreset: async (track, projectId) => ({preset: presetValue(track), projectId, sourceTrim: {file: -12, live: 0}})});
+  const settled = () => new Promise((resolve) => setTimeout(resolve, 0));
+  const guitar = {id: 1, instrument: 'guitar', factoryPreset: 'factory:british-edge', audio: {}, inputMonitoring: false};
+  tones.setTracks([guitar, {id: 2, instrument: 'drums', audio: {}}], 9);
+  assert.equal(tones.status(1).state, 'loading');
+  assert.equal(tones.status(2), null);
+  await settled();
+  assert.equal(tones.status(1).state, 'ready');
+  assert.deepEqual(racks[0].states, [{preset: 'factory:british-edge', projectId: 9, sourceTrim: {file: -12, live: 0}}]);
+  assert.deepEqual(racks[0].variants, ['lite']);
+  const [[id, insert]] = inserts;
+  assert.equal(id, 1);
+  assert.ok(Math.abs(insert.input.gain.value - 10 ** (-12 / 20)) < 1e-9, 'the DI gets the preset file trim');
+  assert.equal(insert.live, racks[0].a.input);
+
+  tones.setTracks([{...guitar, inputMonitoring: true}], 9);
+  await settled();
+  assert.deepEqual(racks[0].variants, ['lite', 'full']);
+  assert.equal(racks.length, 1, 'the same preset keeps its rack');
+
+  tones.setTracks([{...guitar, factoryPreset: 'factory:twin-clean'}], 9);
+  await settled();
+  assert.equal(racks.length, 2);
+  assert.ok(racks[0].destroyed);
+  assert.deepEqual(inserts.at(-2), [1, null]);
+  tones.setTracks([], 9);
+  await settled();
+  assert.ok(racks[1].destroyed);
+  assert.equal(tones.status(1), null);
+});
+
+test('a preset that cannot be loaded leaves the track dry and is reported', async () => {
+  const errors = [], log = [];
+  const tones = new TrackTones({context: fakeContext(), player: {setInsert() { throw new Error('not expected'); }},
+    createRack: async () => fakeRack(log), resolvePreset: async () => { throw new Error('HTTP 404'); }});
+  tones.addEventListener('error', ({detail}) => errors.push([detail.id, detail.error.message]));
+  tones.setTracks([{id: 4, instrument: 'bass', presetId: 3, audio: {}}], 1);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(tones.status(4).state, 'error');
+  assert.deepEqual(errors, [[4, 'HTTP 404']]);
+  assert.deepEqual(log, ['destroy'], 'the rack built meanwhile is released');
+});
+
+test('the owner sees who a project is shared with', () => {
+  assert.equal(shareSummary([]), '');
+  assert.equal(shareSummary([{name: 'Ana Lima', email: 'ana@example.com'}]), 'Shared with Ana Lima');
+  assert.equal(shareSummary([{email: 'a@x.io'}, {email: 'b@x.io'}]), 'Shared with 2 people');
+  assert.equal(describeProject({owned: true, tracks: [], shares: [{email: 'bob@example.com', name: 'bob@example.com'}]}).kicker,
+    'Recording project · 0 tracks · Shared with bob@example.com');
+  assert.equal(describeProject({owned: false, owner: {name: 'Bob'}, tracks: [], shares: undefined}).kicker, 'Shared by Bob · 0 tracks');
+  assert.deepEqual([initials('Ana Lima'), initials('bob@example.com'), initials('jean-luc.picard@x.io'), initials('')], ['AL', 'BO', 'JL', '?']);
+});

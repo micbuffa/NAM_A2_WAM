@@ -1,0 +1,9 @@
+# Track audio files (Project tracks). Production keeps them on the persistent
+# web_storage volume mounted at /rails/storage (config/deploy.yml).
+test:
+  service: Disk
+  root: <%= Rails.root.join("tmp/storage") %>
+
+local:
+  service: Disk
+  root: <%= Rails.root.join("storage") %>

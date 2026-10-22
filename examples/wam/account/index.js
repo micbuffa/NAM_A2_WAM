@@ -36,7 +36,7 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
   const factoryStore = new FactoryPresetStore({manifestUrl: NamPlugin.factoryManifestUrl, baseState: defaultState});
   const draftStore = new RackDraftStore();
   if (!api.available) {
-    return {account: null, attach: async ({settings, captureState, applyState, watchRack, suggestName, report}) => {
+    return {account: null, factoryStore, attach: async ({settings, captureState, applyState, watchRack, suggestName, report}) => {
       guestRack = await captureState();
       settings?.addSection({id: 'account', label: 'Account', icon: 'user', order: 3, render: (container) => {
         const note = Object.assign(document.createElement('p'), {className: 'host-help',
@@ -104,5 +104,5 @@ export function setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseR
     if (account.signedIn) offerImport().catch((error) => report(`Import failed: ${error.message}`, true));
     return presets;
   };
-  return {account, attach};
+  return {account, factoryStore, attach};
 }

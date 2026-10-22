@@ -25,5 +25,13 @@ Rails.application.routes.draw do
     end
     resource :preferences, only: %i[show update]
     resource :import, only: :create
+    resources :projects, except: %i[new edit] do
+      resources :tracks, only: %i[create update destroy], module: :projects do
+        patch :order, on: :collection, action: :reorder
+        get :audio, on: :member, to: "track_audios#show"
+        get :preset, on: :member, to: "track_presets#show"
+      end
+      resources :shares, only: %i[index create destroy], module: :projects
+    end
   end
 end

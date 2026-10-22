@@ -28,12 +28,14 @@ export default class AccountApi {
     catch { return null; }
   }
 
+  // body: a JSON value, or FormData (multipart, for audio uploads).
   async request(method, path, body) {
     const headers = {'Accept': 'application/json'};
+    const multipart = typeof FormData !== 'undefined' && body instanceof FormData;
     if (method !== 'GET') headers['X-CSRF-Token'] = this.csrfToken;
-    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    if (body !== undefined && !multipart) headers['Content-Type'] = 'application/json';
     const response = await this.fetch(path, {method, headers, credentials: 'same-origin', cache: 'no-store',
-      body: body === undefined ? undefined : JSON.stringify(body)});
+      body: body === undefined || multipart ? body : JSON.stringify(body)});
     const data = response.status === 204 ? null : await response.json().catch(() => null);
     if (data?.csrfToken) this.csrfToken = data.csrfToken;
     if (!response.ok) {
@@ -59,6 +61,41 @@ export default class AccountApi {
     return this.request('DELETE', `/api/favorites?kind=${encodeURIComponent(kind)}&assetRef=${encodeURIComponent(assetRef)}`);
   }
 
+  // Projects: owned ones and those shared with the user (read-only).
+  listProjects() { return this.request('GET', '/api/projects'); }
+  getProject(id) { return this.request('GET', projectPath(id)); }
+  createProject(attributes) { return this.request('POST', '/api/projects', attributes); }
+  updateProject(id, attributes) { return this.request('PATCH', projectPath(id), attributes); }
+  deleteProject(id) { return this.request('DELETE', projectPath(id)); }
+
+  // attributes: camelCase track fields; audio: a File, sent as multipart.
+  createTrack(projectId, attributes, audio = null) {
+    return this.request('POST', `${projectPath(projectId)}/tracks`, trackBody(attributes, audio));
+  }
+  updateTrack(projectId, id, attributes, audio = null) {
+    return this.request('PATCH', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}`, trackBody(attributes, audio));
+  }
+  deleteTrack(projectId, id) { return this.request('DELETE', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}`); }
+  reorderTracks(projectId, ids) { return this.request('PATCH', `${projectPath(projectId)}/tracks/order`, {ids}); }
+  // The account preset of a track, {id, name, state}: shared viewers can read it too.
+  getTrackPreset(projectId, id) { return this.request('GET', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}/preset`); }
+
+  listShares(projectId) { return this.request('GET', `${projectPath(projectId)}/shares`); }
+  shareProject(projectId, email) { return this.request('POST', `${projectPath(projectId)}/shares`, {email}); }
+  unshareProject(projectId, id) { return this.request('DELETE', `${projectPath(projectId)}/shares/${encodeURIComponent(id)}`); }
+
   updatePreferences(values) { return this.request('PATCH', '/api/preferences', values); }
   importLocalData(data) { return this.request('POST', '/api/import', data); }
+}
+
+const projectPath = (id) => `/api/projects/${encodeURIComponent(id)}`;
+
+// Multipart only when a file is sent; null values become empty fields, which
+// Rails reads as nil.
+function trackBody(attributes, audio) {
+  if (!audio) return attributes;
+  const form = new FormData();
+  for (const [key, value] of Object.entries(attributes)) form.append(key, value ?? '');
+  form.append('audio', audio, audio.name);
+  return form;
 }

@@ -1,5 +1,3 @@
-import './backing-track-player/BackingTrackPlayerElement.js';
-import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
 import {toast} from './ui/components/tl-toast.js';
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import NamPlugin from '../../src/nam-wam/index.js';
@@ -15,7 +13,10 @@ import {FxRackView} from './FxRackView.js';
 import {EngineStatus} from './EngineStatus.js';
 import {SettingsView} from './SettingsView.js';
 import {Workspaces} from './Workspaces.js';
-import {TracksPanel} from './TracksPanel.js';
+import {ProjectsWorkspace} from './projects/ProjectsWorkspace.js';
+import {ProjectPlayer} from './projects/ProjectPlayer.js';
+import {TrackSource, TrackTones} from './projects/TrackTones.js';
+import Renderer from './source-separation/vendor/wavesurfer/renderer.js';
 import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
 import {setupAccount} from './account/index.js';
@@ -40,8 +41,10 @@ let selectedDeviceId = audioPreferences.inputDeviceId;
 let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
-let chain, chainView, rack, backingPlayer, backingMix;
-let tracks, activeTone = {};
+let chain, chainView, rack, trackTones;
+let projects;
+// The open project plays beside the rack's live guitar, in both workspaces.
+const projectPlayer = new ProjectPlayer(context);
 const settings = new SettingsView({button: $('#settingsButton')});
 const engine = new EngineStatus({element: $('#engineStatus'), context});
 const workspaces = new Workspaces({control: $('#workspaceSwitch')});
@@ -160,16 +163,6 @@ function syncSourceTrim() {
   $('#sourceTrim').value = value;
   $('#sourceTrim').dispatchEvent(new Event('change'));
   $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
-  syncTracks();
-}
-
-// Tracks workspace cards: the active tone and what feeds the rack.
-function syncTracks() {
-  if (!tracks) return;
-  tracks.setTone({...activeTone, chains: rack?.visible ? 2 : 1});
-  const value = $('#audioSource').value;
-  tracks.setGuitar({source: value === 'live' ? 'live' : value.slice(5), live: liveInputEnabled, input: sourceManager.liveInput,
-    inputDb: sourceManager.activeTrimDb, outputDb: chain.outputDb});
 }
 
 function setPlayerEnabled(enabled) {
@@ -185,7 +178,6 @@ function syncLiveInputButton() {
   button.textContent = liveInputEnabled ? 'Disable live input' : 'Enable live input';
   button.setAttribute('aria-pressed', String(liveInputEnabled));
   button.classList.toggle('live-active', liveInputEnabled);
-  syncTracks();
 }
 
 async function activateSelectedLiveInput() {
@@ -242,6 +234,17 @@ async function initialize() {
   CabinetPlugin.configureTone3000(window.NAM_A2_WAM_CONFIG?.tone3000 || {});
   // Before createGui(): the GUIs pick their favorites/preferences stores up here.
   const accountIntegration = setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseResponseLibrary});
+  projects = new ProjectsWorkspace({api: accountIntegration.account?.api ?? null, account: accountIntegration.account,
+    requestSignIn: () => $('#accountSignIn').click(), report: message,
+    player: projectPlayer, createRenderer: (options) => new Renderer(options), liveInputEnabled: () => liveInputEnabled,
+    // A track's preset opens in Tone through the presets picker ("factory:…" or an account preset id).
+    onEditPreset: (value) => {
+      const select = $('#presetSelect');
+      if (![...select.options].some((option) => option.value === String(value))) return message('This preset is not available in Tone.', true);
+      if (select.value !== String(value)) { select.value = String(value); select.dispatchEvent(new Event('change')); }
+      workspaces.show('tone');
+    }});
+  void projects.load();
   const [groupId] = await initializeWamHost(context, 'nam-a2-phase3-host');
   plugin = await NamPlugin.createInstance(groupId, context, {});
   node = plugin.audioNode;
@@ -256,23 +259,40 @@ async function initialize() {
   await Promise.all([plugin.toneSession.complete(),cabinetPlugin.toneSession.complete()]);
   sourceManager = new SourceManager({audioContext: context, wamNode: chain.input, player: $('#player')});
   outputDeviceManager = new OutputDeviceManager({audioContext: context});
-  window.phase3Debug = {context, node, plugin, cabinetNode, cabinetPlugin, sourceManager, outputDeviceManager, chain};
-  rack=new FxRack({context,a:chain,source:sourceManager,createLane:async()=>{
+  window.phase3Debug = {context, node, plugin, cabinetNode, cabinetPlugin, sourceManager, outputDeviceManager, chain, projects};
+  // A lane: NAM + cabinet + its pedals. prefix/identity: Tone's lane B.
+  const createLane=async(prefix='b-',identity=true)=>{
     let nam,cab,b;
     try{
       nam=await NamPlugin.createInstance(groupId,context,{});
       cab=await CabinetPlugin.createInstance(groupId,context,{});
-      b=new FxChain({context,registry,groupId});await b.initialize(nam,cab,'b-');
-      nam.toneSession.identity='b-nam';cab.toneSession.identity='b-cabinet';return b;
+      b=new FxChain({context,registry,groupId});await b.initialize(nam,cab,prefix);
+      if(identity){nam.toneSession.identity='b-nam';cab.toneSession.identity='b-cabinet';}return b;
     }catch(error){if(b)b.destroy();else{nam?.audioNode.destroy?.();cab?.audioNode.destroy?.();}throw error;}
-  }});
+  };
+  rack=new FxRack({context,a:chain,source:sourceManager,createLane:()=>createLane()});
   window.phase3Debug.rack=rack;
-  backingPlayer=document.createElement('backing-track-player');$('#tracksCanvas').append(backingPlayer);
-  await backingPlayer.initialize({audioContext:context});backingMix=new BackingTrackMix(context,rack.output,backingPlayer);
-  Object.assign(window.phase3Debug,{backingPlayer,backingMix});
+  // While a project track monitors the input, the live guitar plays through
+  // that track's preset instead of Tone's rack (toneGate).
+  const toneGate=context.createGain();
+  rack.output.connect(toneGate).connect(context.destination);
+  projectPlayer.output.connect(context.destination);
+  // A track rack is a whole preset rack (lanes A and B), fed by the player.
+  const createTrackRack=async()=>new FxRack({context,a:await createLane('',false),source:new TrackSource(),createLane:()=>createLane('b-',false)});
+  trackTones=new TrackTones({context,player:projectPlayer,createRack:createTrackRack,
+    resolvePreset:async(track,projectId)=>{
+      const {state}=track.factoryPreset?await accountIntegration.factoryStore.get(track.factoryPreset):await accountIntegration.account.api.getTrackPreset(projectId,track.id);
+      return state.nam&&!state.a&&!state.entries?legacyPresetToRack(state):state;
+    }});
+  const syncMonitoring=()=>{
+    const id=workspaces.current==='projects'?projectPlayer.monitoredId:null;
+    projectPlayer.setLiveInput(id===null?null:sourceManager.sourceTrim);
+    toneGate.gain.setTargetAtTime(id===null?1:0,context.currentTime,.01);
+  };
+  projectPlayer.addEventListener('statechange',syncMonitoring);
+  workspaces.addEventListener('change',syncMonitoring);
+  Object.assign(window.phase3Debug,{projectPlayer,trackTones});
   chainView=new FxRackView(rack,message);
-  tracks=new TracksPanel({onEditTone:()=>workspaces.show('tone'),onToggleLive:()=>$('#enableLive').click()});
-  rack.addEventListener('change',syncTracks);
   window.phase3Debug.tuner=new TunerView({context,registry,groupId,input:chain.input,button:$('#tunerButton')});
   await discoverFiles();
   await refreshDevices(false);
@@ -317,7 +337,7 @@ async function initialize() {
   $('#recoverAudio').onclick = recoverAudio;
   context.addEventListener('statechange', () => {
     if (context.state === 'running') { wasRunning = true; return; }
-    if (wasRunning && (liveInputEnabled || !$('#player').paused || backingPlayer?.engine.playing)) {
+    if (wasRunning && (liveInputEnabled || !$('#player').paused || projectPlayer.playing)) {
       message(`Audio engine ${context.state}. Attempting recovery…`, true);
       recoverAudio();
     }
@@ -346,12 +366,10 @@ async function initialize() {
   $('#chainOutputGain').oninput=()=>{
     const db=chain.setOutputDb($('#chainOutputGain').value);
     $('#chainOutputGainValue').textContent=`${db.toFixed(1)} dB`;
-    syncTracks();
   };
   $('#sourceTrim').oninput = () => {
     const value = sourceManager.setTrimDb(Number($('#sourceTrim').value), $('#audioSource').value === 'live' ? 'live' : 'file');
     $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
-    syncTracks();
   };
   $('#chainInputReset').onclick=()=>{
     const mode=$('#audioSource').value==='live'?'live':'file';
@@ -420,13 +438,13 @@ async function initialize() {
   $('#seek').oninput = () => { if (Number.isFinite($('#player').duration)) $('#player').currentTime = Number($('#seek').value) * $('#player').duration; };
   $('#player').ontimeupdate = () => { if (Number.isFinite($('#player').duration) && $('#player').duration) $('#seek').value = $('#player').currentTime / $('#player').duration; };
   $('#saveState').onclick = async () => {
-    savedState = {...await rack.getState(),backingTrack:backingPlayer.getState()};
+    savedState = await rack.getState();
     $('#stateSize').textContent = `${new TextEncoder().encode(JSON.stringify(savedState)).byteLength.toLocaleString()} serialized bytes`;
   };
   $('#restoreState').onclick = async () => {
     if (!savedState) return message('Save state first', true);
     chainView.close();
-    try{await rack.setState(savedState);syncSourceTrim();if(savedState.backingTrack)await backingPlayer.setState(savedState.backingTrack);}
+    try{await rack.setState(savedState);syncSourceTrim();}
     catch(error){message(`Session restore: ${error.message}`,true);return;}
     message('WAM state restored');
   };
@@ -457,9 +475,8 @@ async function initialize() {
       syncSourceTrim();
     },
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
-  presets?.addEventListener('change',({detail})=>{activeTone=detail;syncTracks();});
-  activeTone={name:$('#presetTitle').textContent,meta:$('#presetMeta').textContent};
-  syncTracks();
+  // Factory presets build on the default rack, known once the presets are attached.
+  projects.attachTones(trackTones);
   engine.ready();
   message('Chain ready. Click a photo to edit, or + to insert an effect.');
   // Programmatic selection during refreshDevices does not fire onchange.

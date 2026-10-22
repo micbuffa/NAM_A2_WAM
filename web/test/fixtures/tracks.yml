@@ -1,0 +1,19 @@
+alice_rhythm:
+  project: alice_song
+  position: 0
+  name: Rhythm
+  instrument: guitar
+  preset: alice_clean
+
+alice_drums:
+  project: alice_song
+  position: 1
+  name: Drums
+  instrument: drums
+
+bob_bass:
+  project: bob_jam
+  position: 0
+  name: Bass
+  instrument: bass
+  factory_preset: factory:svt-bass

@@ -5,7 +5,7 @@ require "rails"
 require "active_model/railtie"
 require "active_job/railtie"
 require "active_record/railtie"
-# require "active_storage/engine"
+require "active_storage/engine"
 require "action_controller/railtie"
 require "action_mailer/railtie"
 # require "action_mailbox/engine"
@@ -36,6 +36,10 @@ module Web
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks dev_sources.rb])
+
+    # Track audio is served by Api::Projects::TrackAudiosController, which checks
+    # the project access; the public /rails/active_storage routes are not drawn.
+    config.active_storage.draw_routes = false
 
     config.action_dispatch.default_headers = config.action_dispatch.default_headers.merge(CROSS_ORIGIN_ISOLATION_HEADERS)
     config.public_file_server.headers = CROSS_ORIGIN_ISOLATION_HEADERS

@@ -1,0 +1,9 @@
+alice_song:
+  user: alice
+  name: Alice song
+  bpm: 96
+
+bob_jam:
+  user: bob
+  name: Bob jam
+  bpm: 120
