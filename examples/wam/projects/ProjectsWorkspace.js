@@ -13,10 +13,13 @@ import {FACTORY_PRESETS} from '../account/FactoryPresets.js';
 import {buildWaveformPeaks} from '../source-separation/CompactWaveform.js';
 import {ProjectTimeline} from './ProjectTimeline.js';
 import {AUDIO_ACCEPT, BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, groupProjects,
-  initials, instrumentLabel, nameFromFile, shareSummary, plural, presetFields, presetValue, projectOptionLabel, timelineLength, toggleMonitoring,
+  initials, instrumentLabel, moveTrack, nameFromFile, orderChanged, shareSummary, plural, presetFields, presetValue, projectOptionLabel, timelineLength, toggleMonitoring,
   trackChanges, twoDigits, usesPreset, withInstrument} from './ProjectsModel.js';
 
 const LAST_PROJECT_KEY = 'nam-a2-wam.project';
+// The saved tracks, in the order of the current ones.
+const moveAll = (saved, current) => current.map((track) => saved.find((entry) => entry.id === track.id)).filter(Boolean);
+
 const element = (tag, properties = {}) => Object.assign(document.createElement(tag), properties);
 
 export class ProjectsWorkspace extends EventTarget {
@@ -41,6 +44,10 @@ export class ProjectsWorkspace extends EventTarget {
       onSelect: (id) => this.select(id),
       onChange: (id, fields) => this.updateTrack(id, fields),
       onEdit: (id) => this.editTrackDialog(id),
+      onMove: (id, index) => {
+        this.selectedId = id;
+        this.setTracks(moveTrack(this.project.tracks, id, index));
+      },
       onMonitor: (id) => {
         this.setTracks(toggleMonitoring(this.project.tracks, id));
         if (this.selectedTrack?.inputMonitoring && !liveInputEnabled()) this.report('Input monitoring: enable live input to play through this track.', true);
@@ -112,7 +119,7 @@ export class ProjectsWorkspace extends EventTarget {
   get dirty() {
     if (!this.owned || !this.saved) return false;
     return this.project.name !== this.saved.name || this.project.bpm !== this.saved.bpm
-      || trackChanges(this.saved.tracks, this.project.tracks).length > 0;
+      || orderChanged(this.saved.tracks, this.project.tracks) || trackChanges(this.saved.tracks, this.project.tracks).length > 0;
   }
 
   async load() {
@@ -172,6 +179,7 @@ export class ProjectsWorkspace extends EventTarget {
 
   setTracks(tracks) {
     this.project.tracks = tracks;
+    this.timeline.order(tracks);
     for (const track of tracks) this.timeline.update(track, track.id === this.selectedId);
     this.syncPlayer();
     this.renderHeader();
@@ -187,6 +195,10 @@ export class ProjectsWorkspace extends EventTarget {
       const {project, saved} = this;
       if (project.name !== saved.name || project.bpm !== saved.bpm) {
         Object.assign(saved, await this.api.updateProject(project.id, {name: project.name, bpm: project.bpm}), {tracks: saved.tracks});
+      }
+      if (orderChanged(saved.tracks, project.tracks)) {
+        await this.api.reorderTracks(project.id, project.tracks.map((track) => track.id));
+        saved.tracks = moveAll(saved.tracks, project.tracks);
       }
       for (const {id, changes} of trackChanges(saved.tracks, project.tracks)) {
         const track = await this.api.updateTrack(project.id, id, changes);

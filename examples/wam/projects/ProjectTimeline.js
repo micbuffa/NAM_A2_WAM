@@ -2,7 +2,8 @@
 // volume fader and pan knob on the left, the audio lane on the right. Rows are
 // built once per track list and updated in place, so a fader keeps its drag.
 // Each lane draws its file's waveform with the WaveSurfer renderer, on the
-// shared time axis of the bar ruler; the playhead crosses every lane.
+// shared time axis of the bar ruler; the playhead crosses every lane. The
+// owner reorders tracks by dragging their grip (or with its arrow keys).
 import {instrumentLabel, panLabel, rulerBars, usesPreset, volumeLabel} from './ProjectsModel.js';
 
 const element = (tag, className, properties = {}) => Object.assign(document.createElement(tag), {className, ...properties});
@@ -10,10 +11,20 @@ const element = (tag, className, properties = {}) => Object.assign(document.crea
 export class ProjectTimeline {
   // root: carries the playhead and bar grid variables; ruler: the bar numbers.
   // onSelect(id); onChange(id, fields); onEdit(id): rename dialog; onMonitor(id): toggle input monitoring;
-  // onSeek(seconds); createRenderer(options): a WaveSurfer renderer.
-  constructor(list, {root, ruler, onSelect, onChange, onEdit, onMonitor, onSeek, createRenderer}) {
-    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onMonitor, onSeek, createRenderer});
+  // onMove(id, index): reorder; onSeek(seconds); createRenderer(options): a WaveSurfer renderer.
+  constructor(list, {root, ruler, onSelect, onChange, onEdit, onMonitor, onMove, onSeek, createRenderer}) {
+    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onMonitor, onMove, onSeek, createRenderer});
     this.rows = new Map();
+    this.drag = null; // {id, index}: the track being dragged and where it would land
+    list.addEventListener('dragover', (event) => this.dragOver(event));
+    list.addEventListener('drop', (event) => {
+      if (!this.drag) return;
+      event.preventDefault();
+      const {id, index} = this.drag;
+      const from = this.ids().indexOf(id);
+      this.endDrag();
+      if (index !== from && index !== from + 1) this.onMove(id, index > from ? index - 1 : index);
+    });
     this.waves = new Map(); // track id -> {peaks, duration} or {state: 'loading' | 'error'}
     this.length = {bars: 16, seconds: 32};
     this.position = 0;
@@ -28,6 +39,46 @@ export class ProjectTimeline {
     this.list.replaceChildren(...[...this.rows.values()].map((row) => row.root));
     for (const track of tracks) this.update(track, track.id === selectedId);
     for (const id of this.rows.keys()) this.drawWave(id);
+  }
+
+  ids() { return [...this.list.children].map((row) => Number(row.dataset.trackId)); }
+
+  // Rows follow the tracks' order (moved, not rebuilt: waveforms stay drawn).
+  order(tracks) {
+    if (tracks.map((track) => track.id).join() === this.ids().join()) return;
+    const focused = document.activeElement;
+    this.list.append(...tracks.map((track) => this.rows.get(track.id)?.root).filter(Boolean));
+    if (focused && this.list.contains(focused)) focused.focus();
+  }
+
+  startDrag(event, id) {
+    this.drag = {id, index: null};
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', String(id));
+    const row = this.rows.get(id).root;
+    event.dataTransfer.setDragImage?.(row, 24, row.offsetHeight / 2);
+    requestAnimationFrame(() => row.classList.add('dragging'));
+  }
+
+  // The drop line goes between the rows the pointer is between.
+  dragOver(event) {
+    if (!this.drag) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    const rows = [...this.list.children];
+    let index = rows.findIndex((row) => { const rect = row.getBoundingClientRect(); return event.clientY < rect.top + rect.height / 2; });
+    if (index < 0) index = rows.length;
+    if (index === this.drag.index) return;
+    this.drag.index = index;
+    rows.forEach((row, position) => {
+      row.classList.toggle('drop-before', position === index);
+      row.classList.toggle('drop-after', index === rows.length && position === rows.length - 1);
+    });
+  }
+
+  endDrag() {
+    this.drag = null;
+    for (const row of this.list.children) row.classList.remove('dragging', 'drop-before', 'drop-after');
   }
 
   // The timeline's length ({bars, seconds}, from timelineLength()).
@@ -190,6 +241,25 @@ export class ProjectTimeline {
     volumeGroup.append(fader, volumeValue);
     controls.append(modeGroup, volumeGroup, knob);
     strip.append(title, meta, controls);
+    if (editable) {
+      const grip = element('button', 'track-grip', {type: 'button', draggable: true, title: 'Drag to reorder (or use the arrow keys)'});
+      const gripIcon = document.createElement('tl-icon');
+      gripIcon.setAttribute('name', 'grip');
+      gripIcon.setAttribute('size', '16');
+      grip.append(gripIcon);
+      labels.push([grip, 'Move']);
+      grip.onclick = (event) => event.stopPropagation();
+      grip.ondragstart = (event) => this.startDrag(event, id);
+      grip.ondragend = () => this.endDrag();
+      grip.onkeydown = (event) => {
+        const step = {ArrowUp: -1, ArrowDown: 1}[event.key];
+        if (!step) return;
+        event.preventDefault();
+        const index = this.ids().indexOf(id) + step;
+        if (index >= 0 && index < this.rows.size) this.onMove(id, index);
+      };
+      label.append(grip);
+    }
     label.append(badge, strip);
 
     const lane = element('div', 'track-lane');

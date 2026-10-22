@@ -6,6 +6,7 @@ export const icons = {
   copy: '<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
   device: '<rect x="5" y="2.5" width="14" height="19" rx="3"/><circle cx="12" cy="16" r="2.5"/><path d="M9 7h6"/>',
   edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>',
+  grip: '<circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/>',
   guitar: '<path d="m14.5 4.5 5-2 2 2-2 5"/><path d="m13 7 4 4"/><path d="M14.5 9.5 9 15"/><path d="M10.5 16.5c-2.8 2.8-6.2 3.8-8 2s-.8-5.2 2-8c2-2 4.5-1.5 6 .1l3.3 3.3c1.6 1.6 1.9 3.8.7 5.6"/><circle cx="7" cy="15" r="1.5"/>',
   headphones: '<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><path d="M18 19h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-1v6ZM6 19H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h1v6Z"/>',
   panel: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M5.5 8h1M5.5 12h1M5.5 16h1"/>',

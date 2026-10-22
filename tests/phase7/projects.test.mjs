@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {barBeat, clampBpm, initials, shareSummary, defaultTrackName, describeProject, formatClock, groupProjects, nameFromFile, panLabel, presetFields, presetValue,
+import {barBeat, clampBpm, initials, moveTrack, orderChanged, shareSummary, defaultTrackName, describeProject, formatClock, groupProjects, nameFromFile, panLabel, presetFields, presetValue,
   projectOptionLabel, rulerBars, timelineLength, toggleMonitoring, trackChanges, trackGain, volumeLabel, withInstrument}
   from '../../examples/wam/projects/ProjectsModel.js';
 import {ProjectPlayer} from '../../examples/wam/projects/ProjectPlayer.js';
@@ -328,6 +328,16 @@ test('the account preset store reports its writes', async () => {
   await store.delete(5);
   assert.deepEqual(changes, [{action: 'create', id: 5, state: undefined}, {action: 'update', id: 5, state: {a: {}}},
     {action: 'update', id: 5, state: undefined}, {action: 'delete', id: 5, state: undefined}]);
+});
+
+test('tracks move to an index of the timeline; the order is saved when it changed', () => {
+  const tracks = [{id: 1}, {id: 2}, {id: 3}];
+  assert.deepEqual(moveTrack(tracks, 3, 0).map((track) => track.id), [3, 1, 2]);
+  assert.deepEqual(moveTrack(tracks, 1, 2).map((track) => track.id), [2, 3, 1]);
+  assert.deepEqual(moveTrack(tracks, 2, 9).map((track) => track.id), [1, 3, 2]);
+  assert.equal(moveTrack(tracks, 7, 0), tracks);
+  assert.equal(orderChanged(tracks, [...tracks]), false);
+  assert.equal(orderChanged(tracks, moveTrack(tracks, 3, 0)), true);
 });
 
 test('the owner sees who a project is shared with', () => {

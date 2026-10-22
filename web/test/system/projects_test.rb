@@ -128,6 +128,29 @@ class ProjectsTest < ApplicationSystemTestCase
     assert_not Track.exists?(tracks(:alice_rhythm).id)
   end
 
+  test "the owner reorders tracks by dragging them or with the arrow keys" do
+    open_rack_signed_in "alice@example.com"
+    switch_to_projects
+    assert_equal %w[Rhythm Drums], all(".track-name").map(&:text)
+    find("button[aria-label='Move Drums']").drag_to(find("button[aria-label='Move Rhythm']"))
+    assert_equal %w[Drums Rhythm], all(".track-name").map(&:text)
+    assert_selector "#projectSaveState", text: /unsaved/i
+    click_on "Save project"
+    assert_selector "#projectSaveState", text: /\ASaved\z/i
+    assert_equal %w[Drums Rhythm], projects(:alice_song).tracks.reload.map(&:name)
+
+    find("button[aria-label='Move Drums']").send_keys(:arrow_down)
+    assert_equal %w[Rhythm Drums], all(".track-name").map(&:text)
+    assert_selector "#inspectorTrackNumber", text: /Track 02/i
+    click_on "Save project"
+    assert_selector "#projectSaveState", text: /\ASaved\z/i
+    assert_equal %w[Rhythm Drums], projects(:alice_song).tracks.reload.map(&:name)
+
+    find("#projectSelect").find("option", text: "Bob jam").select_option
+    assert_selector ".track-name", text: "Bass"
+    assert_no_selector ".track-grip"
+  end
+
   test "a shared project's mix can be tried but not saved" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects

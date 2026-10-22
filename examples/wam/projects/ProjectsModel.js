@@ -91,6 +91,17 @@ export function trackChanges(saved = [], current = []) {
   });
 }
 
+// Timeline order: a track moved to an index of the list; whether it differs from the saved one.
+export function moveTrack(tracks, id, index) {
+  const moved = tracks.find((track) => track.id === id);
+  if (!moved) return tracks;
+  const rest = tracks.filter((track) => track !== moved);
+  rest.splice(Math.max(0, Math.min(rest.length, index)), 0, moved);
+  return rest;
+}
+
+export const orderChanged = (saved = [], current = []) => saved.map((track) => track.id).join() !== current.map((track) => track.id).join();
+
 // Preset value of the inspector select: "" (none), "factory:…" or "account:<id>".
 export const presetValue = (track) => track.factoryPreset ?? (track.presetId ? `account:${track.presetId}` : '');
 export function presetFields(value) {
