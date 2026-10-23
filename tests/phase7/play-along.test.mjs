@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {BackingTrackMix} from '../../examples/wam/backing-track-player/BackingTrackMix.js';
-import {linkPlayAlong} from '../../examples/wam/backing-track-player/PlayAlong.js';
+import {linkPlayAlong, linkSpaceKey, spaceAction, typesSpace} from '../../examples/wam/backing-track-player/PlayAlong.js';
 import {PlayAlongMemory, STORAGE_KEY, playAlongSettings} from '../../examples/wam/backing-track-player/PlayAlongMemory.js';
 
 function fakeContext() {
@@ -136,4 +136,55 @@ test('a broken restore keeps the defaults and still remembers later changes', as
   dock.dispatchEvent(new Event('transport-change'));
   await tick();
   assert.equal(JSON.parse(storage.values.get(STORAGE_KEY)).mix, .8);
+});
+
+test('Space pauses whichever player plays, else plays the shown workspace\'s', () => {
+  const engine = {playing: false, buffer: {}, loading: false, play: () => 'engine play', pause: () => 'engine pause'};
+  const projectPlayer = {playing: false, duration: 10, play: () => 'project play', pause: () => 'project pause'};
+  const action = (workspace) => spaceAction({engine, projectPlayer, workspace})?.() ?? null;
+  assert.equal(action('tone'), 'engine play');
+  assert.equal(action('projects'), 'project play');
+  projectPlayer.playing = true;
+  assert.equal(action('tone'), 'project pause', 'the project playing in Tone pauses');
+  projectPlayer.playing = false;
+  engine.playing = true;
+  assert.equal(action('projects'), 'engine pause');
+  Object.assign(engine, {playing: false, buffer: null});
+  projectPlayer.duration = 0;
+  assert.equal(action('tone'), null, 'nothing to play');
+  assert.equal(action('projects'), null);
+});
+
+test('Space types in text fields but plays from buttons and sliders, not in a dialog', () => {
+  const element = (localName, extra = {}) => ({localName, closest: (selector) => (extra.inField && selector.includes('textarea') ? {} : null), ...extra});
+  assert.equal(typesSpace(element('input', {type: 'text'})), true);
+  assert.equal(typesSpace(element('input', {type: 'number'})), true);
+  assert.equal(typesSpace(element('input', {type: 'range'})), false);
+  assert.equal(typesSpace(element('button')), false);
+  assert.equal(typesSpace(element('div', {inField: true})), true);
+
+  const root = new EventTarget();
+  let open = null;
+  root.querySelector = () => open;
+  const played = [];
+  const engine = {playing: false, buffer: {}, play: () => played.push('engine')};
+  const projectPlayer = {playing: false, duration: 0};
+  const unlink = linkSpaceKey({engine, projectPlayer, workspaces: {current: 'tone'}, root, run: (operation) => operation()});
+  const press = (type = 'keydown', extra = {}) => {
+    const {target = element('button'), ...fields} = extra;
+    const event = Object.assign(new Event(type, {cancelable: true}), {key: ' ', composedPath: () => [target], ...fields});
+    root.dispatchEvent(event);
+    return event.defaultPrevented;
+  };
+  assert.equal(press(), true);
+  assert.equal(press('keyup'), true, 'the keyup would click a native button');
+  assert.equal(press('keydown', {repeat: true}), true, 'a held key plays once');
+  assert.equal(press('keydown', {target: element('input', {type: 'text'})}), false);
+  assert.equal(press('keydown', {metaKey: true}), false);
+  open = {};
+  assert.equal(press(), false, 'a dialog is open');
+  assert.deepEqual(played, ['engine']);
+  unlink();
+  open = null;
+  assert.equal(press(), false);
 });

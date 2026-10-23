@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {barBeat, clampBpm, initials, moveTrack, orderChanged, shareSummary, defaultTrackName, describeProject, formatClock, groupProjects, liveTrackId, nameFromFile, panLabel, presetFields, presetValue,
+import {barBeat, loopAround, loopFromBars, loopLabel, loopToBars, rememberLoop, rememberedLoop, snapLoop, clampBpm, initials, moveTrack, orderChanged, shareSummary, defaultTrackName, describeProject, formatClock, groupProjects, liveTrackId, nameFromFile, panLabel, presetFields, presetValue,
   projectOptionLabel, rulerBars, timelineLength, toggleMonitoring, trackChanges, trackGain, volumeLabel, withInstrument}
   from '../../examples/wam/projects/ProjectsModel.js';
 import {ProjectPlayer} from '../../examples/wam/projects/ProjectPlayer.js';
@@ -122,7 +122,7 @@ function fakeContext() {
   const param = () => ({value: 0, setTargetAtTime(value) { this.value = value; }});
   const context = {currentTime: 10, sources: [], resumed: 0,
     createGain: () => node({gain: param()}), createStereoPanner: () => node({pan: param()}),
-    createBufferSource: () => { const source = node({start(when, offset) { Object.assign(this, {when, offset}); }, stop() { this.stopped = true; }});
+    createBufferSource: () => { const source = node({start(when, offset) { Object.assign(this, {when, offset}); }, stop(until) { if (until === undefined) this.stopped = true; else this.until = until; }});
       context.sources.push(source); return source; },
     resume: async () => { context.resumed += 1; },
     decodeAudioData: async (data) => ({duration: data.byteLength, length: data.byteLength})};
@@ -133,6 +133,37 @@ const fetchAudio = async (url) => ({ok: true, arrayBuffer: async () => new Array
 const loaded = (player, count) => new Promise((resolve) => {
   let seen = 0;
   player.addEventListener('load', () => { if (++seen === count) resolve(); });
+});
+
+test('a loop drawn on the ruler covers whole bars, or exact positions with Alt', () => {
+  const length = {bars: 16, seconds: 32}; // 120 BPM: 2 s bars
+  assert.deepEqual(snapLoop(9, 3.5, length), {start: 2, end: 10}, 'drawn backwards: bars 2 to 5');
+  assert.deepEqual(snapLoop(4.2, 4.3, length), {start: 4, end: 6}, 'at least one bar');
+  assert.deepEqual(snapLoop(31.5, 40, length), {start: 30, end: 32}, 'within the timeline');
+  assert.deepEqual(snapLoop(3.5, 9, length, {free: true}), {start: 3.5, end: 9});
+  assert.deepEqual(loopAround(9, length), {start: 8, end: 16}, 'the loop button: 4 bars from the playhead bar');
+  assert.deepEqual(loopAround(31, length), {start: 24, end: 32});
+  assert.equal(loopLabel({start: 8, end: 16}, 120), 'Bars 5–8');
+  assert.equal(loopLabel({start: 8, end: 10}, 120), 'Bar 5');
+  assert.equal(loopLabel({start: 2.5, end: 9}, 120), '2.2–5.3');
+  assert.equal(loopLabel({start: 0, end: 0}, 120), '');
+});
+
+test('each project remembers its loop in bars, which follow a tempo change', () => {
+  const bars = loopToBars({enabled: true, start: 16, end: 24}, 120);
+  assert.deepEqual(bars, {enabled: true, start: 8, end: 12});
+  assert.deepEqual(loopFromBars(bars, 60), {enabled: true, start: 32, end: 48}, 'bars 9-12 at half the tempo');
+  for (const invalid of [undefined, {start: 3, end: 3}, {start: 'x', end: 4}, {start: -1, end: 2}]) {
+    assert.deepEqual(loopFromBars(invalid, 120), {enabled: false, start: 0, end: 0});
+  }
+  let loops = rememberLoop(null, 1, bars);
+  loops = rememberLoop(loops, 2, {enabled: false, start: 0, end: 4});
+  loops = rememberLoop(loops, 1, {enabled: false, start: 8, end: 12});
+  const ids = (list) => list.map((entry) => entry.id);
+  assert.deepEqual(ids(loops), [2, 1], 'the most recent last');
+  assert.deepEqual(rememberedLoop(loops, '1'), {id: 1, enabled: false, start: 8, end: 12});
+  assert.deepEqual(ids(rememberLoop(loops, 2, {enabled: false, start: 0, end: 0})), [1], 'a cleared loop is forgotten');
+  assert.deepEqual(ids(rememberLoop(loops, 3, bars, 2)), [1, 3], 'the oldest goes past the limit');
 });
 
 test('the project player starts every track on one clock and follows the mix', async () => {
@@ -188,6 +219,80 @@ test('the project stops when its longest track ends, and a removed track stops a
   assert.equal(player.channels.size, 1);
   player.setTracks([]);
   assert.equal(player.playing, false);
+});
+
+// Timers run by hand: run() fires the pending one.
+const near = (actual, expected) => assert.ok(actual.flat().every((value, index) => Math.abs(value - expected.flat()[index]) < 1e-9),
+  `${JSON.stringify(actual)} ≈ ${JSON.stringify(expected)}`);
+const scheduled = (sources) => sources.map(({when, offset, until}) => [when, offset, until]);
+
+function fakeTimers() {
+  const timers = {pending: null, setTimeout(callback, ms) { timers.pending = {callback, ms}; return 1; },
+    clearTimeout() { timers.pending = null; }, run() { const {callback} = timers.pending; timers.pending = null; callback(); }};
+  return timers;
+}
+
+test('a loop replays its region on every track together, each turn scheduled ahead', async () => {
+  const context = fakeContext();
+  const timers = fakeTimers();
+  const player = new ProjectPlayer(context, {fetchAudio, timers});
+  const ready = loaded(player, 2);
+  player.setTracks([{id: 1, volume: 80, pan: 0, audio: audioOf(10)}, {id: 2, volume: 80, pan: 0, audio: audioOf(3)}]);
+  await ready;
+  player.setLoop({enabled: true, start: 6, end: 2}); // drawn backwards
+  assert.deepEqual(player.loop, {enabled: true, start: 2, end: 6});
+  player.seek(1);
+  await player.play();
+  let start = context.currentTime + 0.03;
+  near(scheduled(context.sources), [[start, 2, start + 4], [start, 2, start + 4]]); // before the region: from its start
+  await player.seek(2.5);
+  start = context.currentTime + 0.03;
+  near(scheduled(context.sources.slice(-2)), [[start, 2.5, start + 3.5], [start, 2.5, start + 3.5]]); // within it: from there
+  await player.seek(1);
+  start = context.currentTime + 0.03;
+  context.sources.splice(0, context.sources.length - 2);
+  assert.ok(Math.abs(timers.pending.ms - (0.03 + 4 - 0.25) * 1000) < 1e-6, 'the next turn is scheduled a little before it starts');
+
+  timers.run();
+  const turn = start + 4;
+  near(scheduled(context.sources.slice(2)), [[turn, 2, turn + 4], [turn, 2, turn + 4]]); // the short track too
+  context.currentTime = turn + 1.5;
+  near([[player.position]], [[3.5]]);
+  context.sources[0].onended(); // the first turn ended: the loop plays on
+  context.sources[1].onended();
+  assert.equal(player.playing, true);
+
+  context.currentTime = turn + 4.5; // a late timer: the turn starts now, where it should be
+  timers.run();
+  near(scheduled(context.sources.slice(-1)), [[turn + 4.53, 2.53, turn + 8]]);
+
+  player.stop();
+  assert.equal(player.position, 2, 'Return to start goes to the loop start');
+  assert.equal(timers.pending, null);
+});
+
+test('with the loop on, playing from after it starts at its start; without it, playback runs to the end', async () => {
+  const context = fakeContext();
+  const timers = fakeTimers();
+  const player = new ProjectPlayer(context, {fetchAudio, timers});
+  const ready = loaded(player, 1);
+  player.setTracks([{id: 1, volume: 80, pan: 0, audio: audioOf(10)}]);
+  await ready;
+  player.setLoop({enabled: true, start: 2, end: 2.01});
+  assert.equal(player.loopActive, false, 'a region shorter than 50 ms does not loop');
+  player.setLoop({start: 2, end: 4});
+  player.seek(5);
+  await player.play();
+  assert.equal(context.sources.at(-1).offset, 2);
+  context.currentTime += 1;
+  await player.setLoop({enabled: false}); // while playing: restarts where it is
+  assert.equal(player.playing, true);
+  assert.equal(context.sources.at(-1).until, undefined);
+  assert.equal(timers.pending, null);
+  context.currentTime += 3;
+  assert.ok(player.position > 5, 'plays on past the region');
+  player.stop();
+  assert.equal(player.position, 0);
 });
 
 test('a file that cannot be loaded is reported for its track', async () => {

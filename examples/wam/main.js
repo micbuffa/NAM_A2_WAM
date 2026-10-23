@@ -1,6 +1,6 @@
 import './backing-track-player/BackingTrackPlayerElement.js';
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
-import {linkPlayAlong} from './backing-track-player/PlayAlong.js';
+import {linkPlayAlong, linkSpaceKey} from './backing-track-player/PlayAlong.js';
 import {PlayAlongMemory} from './backing-track-player/PlayAlongMemory.js';
 import {toast} from './ui/components/tl-toast.js';
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
@@ -287,6 +287,7 @@ async function initialize() {
   await playAlong.initialize({audioContext:context});
   const playAlongMix=new BackingTrackMix(context,rack.output,playAlong,{destination:toneGate});
   linkPlayAlong({engine:playAlong.engine,projectPlayer,workspaces});
+  linkSpaceKey({engine:playAlong.engine,projectPlayer,workspaces,run:(operation)=>playAlong.act(operation)});
   // The last track and settings come back without playing (the download does not hold up the rack).
   void new PlayAlongMemory({player:playAlong,account:accountIntegration.account}).restore();
   projectPlayer.output.connect(context.destination);

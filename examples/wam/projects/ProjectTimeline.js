@@ -4,16 +4,19 @@
 // Each lane draws its file's waveform with the WaveSurfer renderer, on the
 // shared time axis of the bar ruler; the playhead crosses every lane. The
 // owner reorders tracks by dragging their grip (or with its arrow keys).
-import {instrumentLabel, panLabel, rulerBars, usesPreset, volumeLabel} from './ProjectsModel.js';
+// Dragging on the ruler draws the loop region (whole bars, Alt: exact
+// positions), shown on the ruler and across every lane; a click seeks.
+import {instrumentLabel, panLabel, rulerBars, snapLoop, usesPreset, volumeLabel} from './ProjectsModel.js';
 
 const element = (tag, className, properties = {}) => Object.assign(document.createElement(tag), {className, ...properties});
 
 export class ProjectTimeline {
   // root: carries the playhead and bar grid variables; ruler: the bar numbers.
   // onSelect(id); onChange(id, fields); onEdit(id): rename dialog; onMonitor(id): toggle input monitoring;
-  // onMove(id, index): reorder; onSeek(seconds); createRenderer(options): a WaveSurfer renderer.
-  constructor(list, {root, ruler, onSelect, onChange, onEdit, onMonitor, onMove, onSeek, createRenderer}) {
-    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onMonitor, onMove, onSeek, createRenderer});
+  // onMove(id, index): reorder; onSeek(seconds); onLoop({start, end}): a drawn loop region;
+  // createRenderer(options): a WaveSurfer renderer.
+  constructor(list, {root, ruler, onSelect, onChange, onEdit, onMonitor, onMove, onSeek, onLoop, createRenderer}) {
+    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onMonitor, onMove, onSeek, onLoop, createRenderer});
     this.rows = new Map();
     this.drag = null; // {id, index}: the track being dragged and where it would land
     list.addEventListener('dragover', (event) => this.dragOver(event));
@@ -28,6 +31,29 @@ export class ProjectTimeline {
     this.waves = new Map(); // track id -> {peaks, duration} or {state: 'loading' | 'error'}
     this.length = {bars: 16, seconds: 32};
     this.position = 0;
+    this.loop = {enabled: false, start: 0, end: 0};
+    this.loopDrag = null; // {x, from, moved}: a loop being drawn on the ruler
+    ruler.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0) return;
+      ruler.setPointerCapture?.(event.pointerId);
+      this.loopDrag = {x: event.clientX, from: this.timeAt(event), moved: false};
+    });
+    ruler.addEventListener('pointermove', (event) => {
+      const drag = this.loopDrag;
+      if (!drag || (!drag.moved && Math.abs(event.clientX - drag.x) < 4)) return;
+      drag.moved = true;
+      this.showLoop({enabled: true, ...this.drawnLoop(event)});
+    });
+    ruler.addEventListener('pointerup', (event) => {
+      const drag = this.loopDrag;
+      this.loopDrag = null;
+      if (drag?.moved) this.onLoop(this.drawnLoop(event, drag));
+      else if (drag) this.onSeek(drag.from);
+    });
+    ruler.addEventListener('pointercancel', () => {
+      this.loopDrag = null;
+      this.showLoop(this.loop);
+    });
     if (typeof ResizeObserver === 'function') new ResizeObserver(() => this.renderRuler()).observe(ruler);
   }
 
@@ -81,6 +107,30 @@ export class ProjectTimeline {
     for (const row of this.list.children) row.classList.remove('dragging', 'drop-before', 'drop-after');
   }
 
+  // Seconds at a pointer event's position on the ruler.
+  timeAt(event) {
+    const rect = this.ruler.getBoundingClientRect();
+    return rect.width ? Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * this.length.seconds : 0;
+  }
+
+  drawnLoop(event, drag = this.loopDrag) {
+    return snapLoop(drag.from, this.timeAt(event), this.length, {free: event.altKey});
+  }
+
+  // The player's loop ({enabled, start, end}); a region being drawn stays shown.
+  setLoop(loop) {
+    this.loop = loop;
+    if (!this.loopDrag?.moved) this.showLoop(loop);
+  }
+
+  showLoop({enabled, start, end}) {
+    const {style, classList} = this.root;
+    style.setProperty('--loop-start', String(Math.min(1, start / this.length.seconds)));
+    style.setProperty('--loop-end', String(Math.min(1, end / this.length.seconds)));
+    classList.toggle('has-loop', end > start);
+    classList.toggle('loop-off', !enabled);
+  }
+
   // The timeline's length ({bars, seconds}, from timelineLength()).
   setLength(length) {
     if (length.seconds === this.length.seconds && this.ruler.childElementCount) return;
@@ -89,6 +139,7 @@ export class ProjectTimeline {
     this.renderRuler();
     for (const id of this.rows.keys()) this.placeClip(id);
     this.setPosition(this.position);
+    this.showLoop(this.loop);
   }
 
   // A track's decoded audio ({peaks, duration}), or {state: 'loading' | 'error'}.
@@ -109,7 +160,7 @@ export class ProjectTimeline {
 
   renderRuler() {
     const marks = rulerBars(this.length.bars, this.ruler.clientWidth || 600);
-    this.ruler.replaceChildren(...marks.map(({bar, fraction}) => {
+    this.ruler.replaceChildren(element('i', 'loop-region'), ...marks.map(({bar, fraction}) => {
       const mark = element('span', '', {textContent: bar});
       mark.style.left = `${fraction * 100}%`;
       return mark;

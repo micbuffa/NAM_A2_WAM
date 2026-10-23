@@ -196,7 +196,7 @@ body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast
 .projects-empty p { margin: 0; color: var(--tl-text-muted); font-size: var(--tl-fs-md); line-height: 1.5; }
 .projects-empty-icon { display: grid; place-items: center; width: 48px; height: 48px; color: var(--tl-accent); background: var(--tl-accent-tint);
   border: 1px solid var(--tl-accent-border); border-radius: var(--tl-radius-md); }
-.project-timeline { --bars: 16; --playhead: 0; overflow: hidden; margin-bottom: var(--tl-space-4); background: var(--tl-surface-1);
+.project-timeline { --bars: 16; --playhead: 0; --loop-start: 0; --loop-end: 0; overflow: hidden; margin-bottom: var(--tl-space-4); background: var(--tl-surface-1);
   border: 1px solid var(--tl-border); border-radius: var(--tl-radius-lg); }
 .project-timeline[hidden] { display: none; }
 .project-timeline-head { display: flex; align-items: center; gap: var(--tl-space-4); padding: 12px 18px;
@@ -204,13 +204,24 @@ body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast
 .project-transport { display: flex; gap: 5px; }
 .project-clock { min-width: 84px; color: var(--tl-text); font: 600 var(--tl-fs-md) var(--tl-font-mono); letter-spacing: .05em; font-variant-numeric: tabular-nums; }
 .project-bar { min-width: 40px; color: var(--tl-accent-muted); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
+.project-loop { color: var(--tl-accent); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
+.project-loop.off { color: var(--tl-text-muted); }
 .project-tempo { margin-left: auto; color: var(--tl-text-muted); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
 /* Ruler and lanes share the track rows' grid and the lanes' inset, so bar 1 lines up with the clips. */
 .project-ruler-row { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); height: 26px; background: var(--tl-bg);
   border-bottom: 1px solid var(--tl-border-subtle); }
 .project-ruler-row > span { border-right: 1px solid var(--tl-border-subtle); }
 .project-ruler-track { padding: 0 18px; }
-.project-ruler { position: relative; height: 100%; color: var(--tl-text-muted); font: 500 10px var(--tl-font-mono); }
+.project-ruler { position: relative; height: 100%; color: var(--tl-text-muted); font: 500 10px var(--tl-font-mono); cursor: pointer; touch-action: none;
+  user-select: none; }
+/* The loop region: a bar on the ruler, a tint across every lane; faded while the loop is off. */
+.loop-region, .track-lane-area::before { position: absolute; top: 0; bottom: 0; left: calc(var(--loop-start) * 100%);
+  width: calc((var(--loop-end) - var(--loop-start)) * 100%); display: none; pointer-events: none; }
+.project-ruler .loop-region { background: color-mix(in srgb, var(--tl-accent) 14%, transparent); border-top: 3px solid var(--tl-accent); }
+.track-lane-area::before { content: ""; z-index: 1; background: color-mix(in srgb, var(--tl-accent) 7%, transparent);
+  border-inline: 1px solid var(--tl-accent-border); }
+.project-timeline.has-loop .loop-region, .project-timeline.has-loop .track-lane-area::before { display: block; }
+.project-timeline.loop-off .loop-region, .project-timeline.loop-off .track-lane-area::before { opacity: .35; }
 .project-ruler span { position: absolute; top: 7px; padding-left: 4px; border-left: 1px solid var(--tl-border); line-height: 1; }
 .project-tracks { margin: 0; padding: 0; list-style: none; }
 .track-row { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); min-height: 92px; border-bottom: 1px solid var(--tl-border-subtle); cursor: pointer; }

@@ -13,10 +13,11 @@ import {FACTORY_PRESETS} from '../account/FactoryPresets.js';
 import {buildWaveformPeaks} from '../source-separation/CompactWaveform.js';
 import {ProjectTimeline} from './ProjectTimeline.js';
 import {AUDIO_ACCEPT, BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, groupProjects,
-  initials, instrumentLabel, liveTrackId, moveTrack, nameFromFile, orderChanged, shareSummary, plural, presetFields, presetValue, projectOptionLabel, timelineLength, toggleMonitoring,
+  initials, instrumentLabel, liveTrackId, loopAround, loopFromBars, loopLabel, loopToBars, moveTrack, rememberLoop, rememberedLoop, nameFromFile, orderChanged, shareSummary, plural, presetFields, presetValue, projectOptionLabel, timelineLength, toggleMonitoring,
   trackChanges, twoDigits, usesPreset, withInstrument} from './ProjectsModel.js';
 
 const LAST_PROJECT_KEY = 'nam-a2-wam.project';
+const LOOPS_KEY = 'nam-a2-wam.project-loops'; // each project's loop, in bars (this browser only)
 
 // The shared-project email links to the rack with ?project=<id>: that project
 // becomes the one to open (after signing in too) and the URL drops the
@@ -54,6 +55,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.timeline = new ProjectTimeline(this.$('projectTracks'), {
       root: this.$('projectTimeline'), ruler: this.$('projectRuler'), createRenderer,
       onSeek: (seconds) => this.player?.seek(seconds),
+      onLoop: (region) => this.setLoop({enabled: true, ...region}),
       onSelect: (id) => this.select(id),
       onChange: (id, fields) => this.updateTrack(id, fields),
       onEdit: (id) => this.editTrackDialog(id),
@@ -80,6 +82,14 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('inspectorEditPreset').onclick = () => this.editPresetInTone();
     this.$('projectPlay').onclick = () => (this.player?.playing ? this.player.pause() : this.player?.play());
     this.$('projectRewind').onclick = () => this.player?.stop();
+    this.$('projectLoop').onclick = () => this.toggleLoop();
+    // L toggles the loop while the timeline is shown, unless typing in a field.
+    root.addEventListener?.('keydown', (event) => {
+      if (event.key.toLowerCase() !== 'l' || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (event.target.closest?.('input, textarea, select, [contenteditable]') || !this.$('projectTimeline').offsetParent) return;
+      event.preventDefault();
+      this.toggleLoop();
+    });
     player?.addEventListener('statechange', () => this.renderTransport());
     player?.addEventListener('load', ({detail: {id, buffer}}) => {
       this.timeline.setWave(id, {peaks: buildWaveformPeaks([buffer], buffer.length), duration: buffer.duration});
@@ -167,7 +177,10 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   setProject(project) {
-    if (project?.id !== this.project?.id) this.player?.stop();
+    if (project?.id !== this.project?.id) {
+      this.player?.stop();
+      this.player?.setLoop(loopFromBars(project && rememberedLoop(this.loops(), project.id), project?.bpm));
+    }
     this.project = project;
     this.saved = project && structuredClone(project);
     if (!project?.tracks.some((track) => track.id === this.selectedId)) this.selectedId = project?.tracks[0]?.id ?? null;
@@ -175,7 +188,10 @@ export class ProjectsWorkspace extends EventTarget {
 
   // Local edit of the open project (name, bpm): saved by save().
   edit(attributes) {
+    const bars = loopToBars(this.player?.loop, this.project.bpm);
     Object.assign(this.project, attributes);
+    // The loop keeps its bars at the new tempo.
+    if (this.player && this.player.loop.end > this.player.loop.start) this.player.setLoop(loopFromBars(bars, this.project.bpm));
     this.render();
   }
 
@@ -496,6 +512,14 @@ export class ProjectsWorkspace extends EventTarget {
     play.setAttribute('aria-pressed', String(playing));
     play.title = playing ? 'Pause' : 'Play';
     this.$('projectRewind').disabled = !player?.duration;
+    const loop = player?.loop ?? {enabled: false, start: 0, end: 0};
+    const loopButton = this.$('projectLoop');
+    loopButton.disabled = !player?.duration;
+    loopButton.setAttribute('aria-pressed', String(loop.enabled));
+    const label = this.$('projectLoopLabel');
+    label.textContent = loopLabel(loop, this.project?.bpm ?? BPM_RANGE.default);
+    label.classList.toggle('off', !loop.enabled);
+    this.timeline.setLoop(loop);
     this.renderPosition();
     if (playing && !this.frame) {
       const tick = () => {
@@ -504,6 +528,26 @@ export class ProjectsWorkspace extends EventTarget {
       };
       this.frame = requestAnimationFrame(tick);
     }
+  }
+
+  // The loop button and L: on/off, or a 4-bar loop at the playhead when none is drawn.
+  toggleLoop() {
+    const {player} = this;
+    if (!player?.duration) return;
+    if (player.loop.end > player.loop.start) return this.setLoop({enabled: !player.loop.enabled});
+    return this.setLoop({enabled: true, ...loopAround(player.position, this.timeline.length)});
+  }
+
+  // Changes the player's loop and remembers it for the open project.
+  setLoop(changes) {
+    const playing = this.player.setLoop(changes);
+    const loops = rememberLoop(this.loops(), this.project.id, loopToBars(this.player.loop, this.project.bpm));
+    try { this.storage?.setItem(LOOPS_KEY, JSON.stringify(loops)); } catch { /* Not remembered. */ }
+    return playing;
+  }
+
+  loops() {
+    try { return JSON.parse(this.storage?.getItem(LOOPS_KEY) ?? '[]'); } catch { return []; }
   }
 
   renderPosition() {

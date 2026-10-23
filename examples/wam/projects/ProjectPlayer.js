@@ -9,10 +9,18 @@
 // The live guitar plays through one track (liveTrackId()): with input
 // monitoring it replaces the track's recorded part; the selected track plays
 // it over its recording, once its preset rack is in.
+//
+// A loop (setLoop) replays one region of every track: each turn restarts all
+// tracks together on the audio clock, scheduled slightly ahead, so tracks of
+// any length stay aligned (a track shorter than the region is silent until
+// the next turn). With the loop on, playing from outside the region starts
+// at the region's start.
 import {trackGain} from './ProjectsModel.js';
 
 const START_DELAY = 0.03; // seconds: lets every track start on the same sample
 const RAMP = 0.01;
+const LOOKAHEAD = 0.25; // seconds: the next loop turn is scheduled this early
+export const MIN_LOOP = 0.05; // seconds: a shorter region does not loop
 
 // Identifies a track's file: replacing the file reloads it, other edits do not.
 const disconnect = (from, to) => { try { from.disconnect(to); } catch { /* Not connected. */ } };
@@ -20,18 +28,22 @@ const disconnect = (from, to) => { try { from.disconnect(to); } catch { /* Not c
 const audioKey = (audio) => (audio ? [audio.url, audio.byteSize, audio.filename].join('|') : null);
 
 export class ProjectPlayer extends EventTarget {
-  // fetchAudio(url) -> Promise<Response>
-  constructor(context, {fetchAudio = (url) => fetch(url, {credentials: 'same-origin'})} = {}) {
+  // fetchAudio(url) -> Promise<Response>; timers: {setTimeout, clearTimeout} (tests).
+  constructor(context, {fetchAudio = (url) => fetch(url, {credentials: 'same-origin'}), timers = globalThis} = {}) {
     super();
-    Object.assign(this, {context, fetchAudio});
+    Object.assign(this, {context, fetchAudio, timers});
     this.output = context.createGain();
-    this.channels = new Map(); // track id -> {playback, gain, pan, insert, key, buffer, voice, monitoring}
+    this.channels = new Map(); // track id -> {playback, gain, pan, insert, key, buffer, voices, monitoring}
     this.liveInput = null; // the live guitar
     this.liveTrack = null; // the track it plays through (liveTrackId())
     this.offset = 0;
     this.startedAt = 0;
     this.playing = false;
     this.generation = 0;
+    this.loop = {enabled: false, start: 0, end: 0}; // seconds
+    this.looping = false; // this playback wraps at the loop's end
+    this.scheduledUntil = 0; // context time up to which loop turns are scheduled
+    this.timer = null;
   }
 
   get duration() {
@@ -39,8 +51,38 @@ export class ProjectPlayer extends EventTarget {
   }
 
   get position() {
-    if (!this.playing) return this.offset;
-    return Math.min(this.duration, this.offset + Math.max(0, this.context.currentTime - this.startedAt));
+    return this.playing ? this.positionAt(this.context.currentTime) : this.offset;
+  }
+
+  // Whether the loop is on and long enough to loop.
+  get loopActive() {
+    return this.loop.enabled && this.loop.end - this.loop.start >= MIN_LOOP;
+  }
+
+  // Position at a context time of the current playback, wrapped by the loop.
+  positionAt(time) {
+    const position = this.offset + Math.max(0, time - this.startedAt);
+    const {start, end} = this.loop;
+    if (this.looping && position >= end) return start + ((position - end) % (end - start));
+    return Math.min(this.duration, position);
+  }
+
+  // Context time at which the loop turn playing at `time` ends.
+  turnEnd(time) {
+    const {start, end} = this.loop;
+    const first = this.startedAt + end - this.offset;
+    return time < first ? first : first + (Math.floor((time - first) / (end - start)) + 1) * (end - start);
+  }
+
+  // The loop region {enabled, start, end} in seconds; while playing, playback
+  // restarts from where it is with the new region.
+  setLoop({enabled = this.loop.enabled, start = this.loop.start, end = this.loop.end} = {}) {
+    const [a, b] = [Number(start) || 0, Number(end) || 0].map((value) => Math.max(0, value)).sort((x, y) => x - y);
+    const playing = this.playing;
+    this.pause();
+    this.loop = {enabled: Boolean(enabled), start: a, end: b};
+    this.changed();
+    if (playing) return this.play();
   }
 
   // The track the live guitar plays through now, if any: a monitoring track
@@ -62,7 +104,7 @@ export class ProjectPlayer extends EventTarget {
       let channel = this.channels.get(track.id);
       if (!channel) {
         channel = {playback: this.context.createGain(), gain: this.context.createGain(), pan: this.context.createStereoPanner(),
-          insert: null, key: null, buffer: null, voice: null, monitoring: false};
+          insert: null, key: null, buffer: null, voices: new Set(), monitoring: false};
         channel.playback.connect(channel.gain).connect(channel.pan).connect(this.output);
         this.channels.set(track.id, channel);
       }
@@ -136,7 +178,7 @@ export class ProjectPlayer extends EventTarget {
       const buffer = await this.context.decodeAudioData(await response.arrayBuffer());
       if (this.channels.get(id) !== channel || channel.key !== key) return;
       channel.buffer = buffer;
-      if (this.playing) this.startVoice(channel, this.context.currentTime + START_DELAY, this.position + START_DELAY);
+      if (this.playing) this.joinPlayback(channel);
       this.dispatchEvent(new CustomEvent('load', {detail: {id, buffer}}));
       this.changed();
     } catch (error) {
@@ -150,26 +192,63 @@ export class ProjectPlayer extends EventTarget {
     const generation = ++this.generation;
     await this.context.resume();
     if (generation !== this.generation || this.playing) return;
-    if (this.offset >= this.duration) this.offset = 0;
+    const {start, end} = this.loop;
+    if (this.loopActive && (this.offset < start || this.offset >= end)) this.offset = start;
+    else if (this.offset >= this.duration) this.offset = 0;
     this.startedAt = this.context.currentTime + START_DELAY;
     this.playing = true;
-    for (const channel of this.channels.values()) this.startVoice(channel, this.startedAt, this.offset);
+    this.looping = this.loopActive;
+    if (this.looping) {
+      this.scheduledUntil = this.turnEnd(this.startedAt);
+      for (const channel of this.channels.values()) this.startVoice(channel, this.startedAt, this.offset, this.scheduledUntil);
+      this.armLoop();
+    } else {
+      for (const channel of this.channels.values()) this.startVoice(channel, this.startedAt, this.offset);
+    }
     this.changed();
+  }
+
+  // Schedules the next loop turn of every track LOOKAHEAD before it starts.
+  armLoop() {
+    const delay = Math.max(0, this.scheduledUntil - LOOKAHEAD - this.context.currentTime);
+    this.timer = this.timers.setTimeout(() => {
+      this.timer = null;
+      if (!this.playing || !this.looping) return;
+      const turn = this.scheduledUntil;
+      const end = turn + this.loop.end - this.loop.start;
+      // A late timer starts the turn now, at the position it should have reached.
+      const when = Math.max(turn, this.context.currentTime + START_DELAY);
+      for (const channel of this.channels.values()) this.startVoice(channel, when, this.loop.start + when - turn, end);
+      this.scheduledUntil = end;
+      this.armLoop();
+    }, delay * 1000);
+  }
+
+  // A track loaded during playback joins it in time (and its next loop turn if already scheduled).
+  joinPlayback(channel) {
+    const when = this.context.currentTime + START_DELAY;
+    if (!this.looping) return this.startVoice(channel, when, this.positionAt(when));
+    const end = Math.min(this.turnEnd(when), this.scheduledUntil);
+    this.startVoice(channel, when, this.positionAt(when), end);
+    if (end < this.scheduledUntil) this.startVoice(channel, end, this.loop.start, this.scheduledUntil);
   }
 
   pause() {
     ++this.generation;
+    if (this.timer !== null) this.timers.clearTimeout(this.timer);
+    this.timer = null;
     if (!this.playing) return;
     this.offset = this.position;
     this.playing = false;
+    this.looping = false;
     for (const channel of this.channels.values()) this.stopVoice(channel);
     this.changed();
   }
 
-  // Back to the start (the transport's "Return to start").
+  // Back to the start, or to the loop's start (the transport's "Return to start").
   stop() {
     this.pause();
-    this.offset = 0;
+    this.offset = this.loopActive ? this.loop.start : 0;
     this.changed();
   }
 
@@ -181,33 +260,34 @@ export class ProjectPlayer extends EventTarget {
     if (playing) return this.play();
   }
 
-  startVoice(channel, when, offset) {
-    if (!channel.buffer || offset >= channel.buffer.duration) return;
+  // Plays a track's buffer from `offset` at `when`, until `until` (a loop turn's end) if given.
+  startVoice(channel, when, offset, until) {
+    if (!channel.buffer || offset >= channel.buffer.duration || (until !== undefined && when >= until)) return;
     const source = this.context.createBufferSource();
     source.buffer = channel.buffer;
     source.connect(channel.playback);
     source.onended = () => {
-      if (channel.voice !== source) return;
-      channel.voice = null;
+      if (!channel.voices.delete(source)) return;
       source.disconnect();
       // The longest track has ended: the project stops at its end.
-      if (this.playing && ![...this.channels.values()].some((entry) => entry.voice)) {
+      if (this.playing && !this.looping && ![...this.channels.values()].some((entry) => entry.voices.size)) {
         this.offset = this.duration;
         this.playing = false;
         this.changed();
       }
     };
     source.start(when, offset);
-    channel.voice = source;
+    if (until !== undefined) source.stop(until);
+    channel.voices.add(source);
   }
 
   stopVoice(channel) {
-    const source = channel.voice;
-    if (!source) return;
-    channel.voice = null;
-    source.onended = null;
-    try { source.stop(); } catch { /* Not started yet. */ }
-    source.disconnect();
+    for (const source of channel.voices) {
+      source.onended = null;
+      try { source.stop(); } catch { /* Not started yet. */ }
+      source.disconnect();
+    }
+    channel.voices.clear();
   }
 
   remove(id, channel) {

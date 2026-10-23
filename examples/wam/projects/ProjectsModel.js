@@ -154,3 +154,54 @@ export function barBeat(seconds, bpm) {
   const beats = Math.floor(Math.max(0, Number(seconds) || 0) / (60 / clampBpm(bpm)) + 1e-9);
   return `${Math.floor(beats / BEATS_PER_BAR) + 1}.${(beats % BEATS_PER_BAR) + 1}`;
 }
+
+// A loop drawn from one position to another (either way), in seconds: whole
+// bars covering both ends (at least one), or exact positions when `free`;
+// within the timeline's `length` ({bars, seconds}).
+export function snapLoop(from, to, length, {free = false} = {}) {
+  const bar = length.seconds / length.bars;
+  const [a, b] = [from, to].map((value) => Math.max(0, Math.min(length.seconds, Number(value) || 0))).sort((x, y) => x - y);
+  if (free) return {start: a, end: b};
+  const start = Math.min(length.bars - 1, Math.floor(a / bar + 1e-9));
+  return {start: start * bar, end: Math.max(start + 1, Math.ceil(b / bar - 1e-9)) * bar};
+}
+
+// The loop over the bars around a position: from its bar, `bars` long (the
+// loop button's region when none is drawn).
+export function loopAround(seconds, length, bars = 4) {
+  const bar = length.seconds / length.bars;
+  const start = Math.max(0, Math.min(length.bars - bars, Math.floor((Number(seconds) || 0) / bar + 1e-9)));
+  return {start: start * bar, end: Math.min(length.bars, start + bars) * bar};
+}
+
+// What the transport says about a loop: "Bars 5–8" for whole bars, else
+// bar.beat positions ("3.2–5.1"); '' without a region.
+export function loopLabel({start = 0, end = 0} = {}, bpm) {
+  if (!(end > start)) return '';
+  const bar = barSeconds(bpm);
+  const whole = [start, end].every((value) => Math.abs(value / bar - Math.round(value / bar)) < 1e-6);
+  if (!whole) return `${barBeat(start, bpm)}–${barBeat(end, bpm)}`;
+  const [first, last] = [Math.round(start / bar) + 1, Math.round(end / bar)];
+  return first === last ? `Bar ${first}` : `Bars ${first}–${last}`;
+}
+
+// A loop is remembered in bars (so it follows a tempo change): {enabled, start, end}.
+export function loopToBars({enabled = false, start = 0, end = 0} = {}, bpm) {
+  const bar = barSeconds(bpm);
+  return {enabled: Boolean(enabled), start: start / bar, end: end / bar};
+}
+export function loopFromBars(bars, bpm) {
+  const bar = barSeconds(bpm);
+  const [start, end] = [bars?.start, bars?.end].map(Number);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || !(end > start) || start < 0) return {enabled: false, start: 0, end: 0};
+  return {enabled: Boolean(bars.enabled), start: start * bar, end: end * bar};
+}
+
+// The remembered loops ([{id, enabled, start, end}] in bars), the most recent
+// last, at most `limit`; a loop without a region is forgotten.
+export function rememberLoop(loops, id, bars, limit = 50) {
+  const rest = (Array.isArray(loops) ? loops : []).filter((entry) => String(entry?.id) !== String(id));
+  if (bars.end > bars.start) rest.push({id, ...bars});
+  return rest.slice(-limit);
+}
+export const rememberedLoop = (loops, id) => (Array.isArray(loops) ? loops : []).find((entry) => String(entry?.id) === String(id));
