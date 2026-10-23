@@ -81,6 +81,16 @@ export function toggleMonitoring(tracks, id) {
   return tracks.map((track) => ({...track, inputMonitoring: track.id === id ? !track.inputMonitoring && usesPreset(track.instrument) : false}));
 }
 
+// The track the live guitar plays through in Projects: the one monitoring the
+// input, else the selected guitar or bass track with a preset (over its
+// recording), else none (the guitar keeps Tone's sound).
+export function liveTrackId(tracks, selectedId) {
+  const monitored = tracks.find((track) => track.inputMonitoring);
+  if (monitored) return monitored.id;
+  const selected = tracks.find((track) => track.id === selectedId);
+  return selected && usesPreset(selected.instrument) && presetValue(selected) ? selected.id : null;
+}
+
 // The changed fields of each track, compared with the saved project.
 export function trackChanges(saved = [], current = []) {
   return current.flatMap((track) => {

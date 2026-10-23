@@ -13,7 +13,7 @@ import {FACTORY_PRESETS} from '../account/FactoryPresets.js';
 import {buildWaveformPeaks} from '../source-separation/CompactWaveform.js';
 import {ProjectTimeline} from './ProjectTimeline.js';
 import {AUDIO_ACCEPT, BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, groupProjects,
-  initials, instrumentLabel, moveTrack, nameFromFile, orderChanged, shareSummary, plural, presetFields, presetValue, projectOptionLabel, timelineLength, toggleMonitoring,
+  initials, instrumentLabel, liveTrackId, moveTrack, nameFromFile, orderChanged, shareSummary, plural, presetFields, presetValue, projectOptionLabel, timelineLength, toggleMonitoring,
   trackChanges, twoDigits, usesPreset, withInstrument} from './ProjectsModel.js';
 
 const LAST_PROJECT_KEY = 'nam-a2-wam.project';
@@ -179,10 +179,12 @@ export class ProjectsWorkspace extends EventTarget {
     this.render();
   }
 
+  // The live guitar follows the selection (liveTrackId()).
   select(id) {
     if (id === this.selectedId) return;
     this.selectedId = id;
     for (const track of this.project.tracks) this.timeline.update(track, track.id === id);
+    this.syncPlayer();
     this.renderInspector();
   }
 
@@ -473,8 +475,9 @@ export class ProjectsWorkspace extends EventTarget {
     const tracks = this.project?.tracks ?? [];
     for (const id of [...this.timeline.waves.keys()]) if (!tracks.some((track) => track.id === id)) this.timeline.setWave(id, null);
     for (const track of tracks) if (track.audio && !this.timeline.waves.has(track.id)) this.timeline.setWave(track.id, {state: 'loading'});
-    this.player?.setTracks(tracks);
-    this.tones?.setTracks(tracks, this.project?.id);
+    const liveId = liveTrackId(tracks, this.selectedId);
+    this.player?.setTracks(tracks, liveId);
+    this.tones?.setTracks(tracks, this.project?.id, liveId);
     this.renderLength();
     this.renderTransport();
   }
@@ -627,6 +630,10 @@ export class ProjectsWorkspace extends EventTarget {
     if (!presetValue(track)) return 'Without a preset, the track plays its recorded audio as is.';
     if (this.tones?.status(track.id)?.state === 'error') return 'This preset could not be loaded: the track plays dry.';
     if (track.inputMonitoring) return 'Input monitoring: your live guitar plays through this preset, in place of the recording.';
+    if (liveTrackId(this.project.tracks, this.selectedId) === track.id) {
+      return track.audio ? 'Your live guitar plays through this preset, over the recording (I: in place of it).'
+        : 'Your live guitar plays through this preset.';
+    }
     return this.owned ? 'The recorded DI plays through this preset.' : 'Preset chosen by the project owner; the DI plays through it.';
   }
 

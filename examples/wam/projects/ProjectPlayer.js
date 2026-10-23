@@ -6,7 +6,9 @@
 // A track can play through an insert (a guitar or bass track's preset rack):
 //   playback ─► insert.input ─┐
 //   live ─────► insert.live ──┴─► insert.output ─► gain ─► pan ─► output
-// With input monitoring, the live guitar replaces the track's recorded part.
+// The live guitar plays through one track (liveTrackId()): with input
+// monitoring it replaces the track's recorded part; the selected track plays
+// it over its recording, once its preset rack is in.
 import {trackGain} from './ProjectsModel.js';
 
 const START_DELAY = 0.03; // seconds: lets every track start on the same sample
@@ -24,7 +26,8 @@ export class ProjectPlayer extends EventTarget {
     Object.assign(this, {context, fetchAudio});
     this.output = context.createGain();
     this.channels = new Map(); // track id -> {playback, gain, pan, insert, key, buffer, voice, monitoring}
-    this.liveInput = null; // the live guitar, for input monitoring
+    this.liveInput = null; // the live guitar
+    this.liveTrack = null; // the track it plays through (liveTrackId())
     this.offset = 0;
     this.startedAt = 0;
     this.playing = false;
@@ -40,14 +43,18 @@ export class ProjectPlayer extends EventTarget {
     return Math.min(this.duration, this.offset + Math.max(0, this.context.currentTime - this.startedAt));
   }
 
-  // The track listening to the live guitar, if any.
-  get monitoredId() {
-    return [...this.channels].find(([, channel]) => channel.monitoring)?.[0] ?? null;
+  // The track the live guitar plays through now, if any: a monitoring track
+  // (dry without its preset), a selected one once its preset rack is in.
+  get liveId() {
+    const channel = this.channels.get(this.liveTrack);
+    return channel && (channel.insert || channel.monitoring) ? this.liveTrack : null;
   }
 
-  // The project's tracks (ids, audio and mix). Removed tracks stop; new or
-  // replaced files load in the background ("load" / "error" events).
-  setTracks(tracks) {
+  // The project's tracks (ids, audio and mix) and the track the live guitar
+  // plays through. Removed tracks stop; new or replaced files load in the
+  // background ("load" / "error" events).
+  setTracks(tracks, liveTrack = null) {
+    this.liveTrack = liveTrack;
     const ids = new Set(tracks.map((track) => track.id));
     for (const [id, channel] of this.channels) if (!ids.has(id)) this.remove(id, channel);
     const now = this.context.currentTime;
@@ -95,6 +102,7 @@ export class ProjectPlayer extends EventTarget {
       channel.playback.connect(channel.gain);
     }
     this.routeLive();
+    this.changed(); // liveId may have changed
   }
 
   // The live guitar node (SourceManager's trimmed input); null disconnects it.
@@ -107,7 +115,7 @@ export class ProjectPlayer extends EventTarget {
 
   // Connects the live guitar to the monitoring track (unchanged connections stay).
   routeLive() {
-    const channel = this.channels.get(this.monitoredId);
+    const channel = this.channels.get(this.liveId);
     const target = this.liveInput && channel ? channel.insert?.live ?? channel.gain : null;
     if (target === this.liveTarget) return;
     this.unrouteLive();
@@ -204,7 +212,7 @@ export class ProjectPlayer extends EventTarget {
 
   remove(id, channel) {
     this.stopVoice(channel);
-    if (channel.monitoring) this.unrouteLive();
+    if (id === this.liveId) this.unrouteLive();
     if (channel.insert) disconnect(channel.insert.output, channel.gain);
     channel.playback.disconnect();
     channel.gain.disconnect();

@@ -5,7 +5,7 @@
 // guitar (input monitoring) arrives already trimmed by the Tone input.
 // NAM A2 models run in their Lite variant on playback tracks (measured: four
 // Full racks beside Tone already underrun, eight Lite ones do not); the track
-// you play through live (input monitoring) gets the Full variant.
+// you play through live (input monitoring, or the selected track) gets the Full variant.
 import {DEFAULT_SOURCE_TRIM_DB} from '../SourceManager.js';
 import {presetValue, usesPreset} from './ProjectsModel.js';
 
@@ -18,10 +18,11 @@ export class TrackSource extends EventTarget {
   setTrimDb(db, mode = 'file') { this.trimDb[mode] = db; return db; }
 }
 
-// Tracks that need a rack: a guitar or bass track with a preset, and audio or input monitoring.
-export const modelVariant = (track) => (track.inputMonitoring ? 'full' : 'lite');
+// Tracks that need a rack: a guitar or bass track with a preset, and audio or
+// the live guitar (liveId: liveTrackId()), which gets the Full variant.
+export const modelVariant = (track, liveId = null) => (track.id === liveId ? 'full' : 'lite');
 
-export const needsTone = (track) => usesPreset(track.instrument) && Boolean(presetValue(track)) && Boolean(track.audio || track.inputMonitoring);
+export const needsTone = (track, liveId = null) => usesPreset(track.instrument) && Boolean(presetValue(track)) && Boolean(track.audio || track.id === liveId);
 
 export class TrackTones extends EventTarget {
   // createRack(): Promise<FxRack>; resolvePreset(track, projectId): Promise<rack state>.
@@ -31,6 +32,7 @@ export class TrackTones extends EventTarget {
     this.tones = new Map(); // track id -> {key, preset, state: 'loading' | 'ready' | 'error', error, rack, insert, previous}
     this.tracks = [];
     this.projectId = null;
+    this.liveId = null;
   }
 
   // {state, error} of a track's rack, or null when it plays dry.
@@ -39,16 +41,16 @@ export class TrackTones extends EventTarget {
     return tone ? {state: tone.state, error: tone.error ?? null} : null;
   }
 
-  // After player.setTracks(tracks): builds, replaces or releases the racks.
-  setTracks(tracks, projectId) {
-    Object.assign(this, {tracks, projectId});
-    const wanted = new Map(tracks.filter(needsTone).map((track) => [track.id, {track, key: `${projectId}|${presetValue(track)}`}]));
+  // After player.setTracks(tracks, liveId): builds, replaces or releases the racks.
+  setTracks(tracks, projectId, liveId = null) {
+    Object.assign(this, {tracks, projectId, liveId});
+    const wanted = new Map(tracks.filter((track) => needsTone(track, liveId)).map((track) => [track.id, {track, key: `${projectId}|${presetValue(track)}`}]));
     for (const [id, tone] of [...this.tones]) if (wanted.get(id)?.key !== tone.key) this.release(id);
     for (const [id, {track, key}] of wanted) {
       const tone = this.tones.get(id);
       if (!tone) void this.build(track, projectId, key);
-      else if (tone.state === 'ready') void this.setVariant(tone, modelVariant(track));
-      else tone.variant = modelVariant(track); // applied once the preset is loaded
+      else if (tone.state === 'ready') void this.setVariant(tone, modelVariant(track, liveId));
+      else tone.variant = modelVariant(track, liveId); // applied once the preset is loaded
     }
   }
 
@@ -66,7 +68,7 @@ export class TrackTones extends EventTarget {
   // A preset was saved again (value: presetValue()): its tracks rebuild their
   // rack; each keeps playing through the previous one until the new one is ready.
   refresh(value) {
-    for (const track of this.tracks.filter(needsTone)) {
+    for (const track of this.tracks.filter((entry) => needsTone(entry, this.liveId))) {
       const tone = this.tones.get(track.id);
       if (tone?.preset === value) void this.build(track, this.projectId, tone.key, tone);
     }
@@ -74,7 +76,7 @@ export class TrackTones extends EventTarget {
 
   async build(track, projectId, key, previous = null) {
     const {id} = track;
-    const tone = {id, key, preset: presetValue(track), state: 'loading', variant: modelVariant(track), previous};
+    const tone = {id, key, preset: presetValue(track), state: 'loading', variant: modelVariant(track, this.liveId), previous};
     this.tones.set(id, tone);
     this.changed(id);
     const current = () => this.tones.get(id) === tone;

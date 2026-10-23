@@ -277,8 +277,8 @@ async function initialize() {
   };
   rack=new FxRack({context,a:chain,source:sourceManager,createLane:()=>createLane()});
   window.phase3Debug.rack=rack;
-  // While a project track monitors the input, the live guitar plays through
-  // that track's preset instead of Tone's rack (toneGate).
+  // While the live guitar plays through a project track (the monitoring or
+  // selected one, liveTrackId()), Tone's rack is silenced (toneGate).
   const toneGate=context.createGain();
   toneGate.connect(context.destination);
   // Play along (Tone): a backing track mixed with the guitar, before toneGate.
@@ -301,7 +301,7 @@ async function initialize() {
       return state.nam&&!state.a&&!state.entries?legacyPresetToRack(state):state;
     }});
   const syncMonitoring=()=>{
-    const id=workspaces.current==='projects'?projectPlayer.monitoredId:null;
+    const id=workspaces.current==='projects'?projectPlayer.liveId:null;
     projectPlayer.setLiveInput(id===null?null:sourceManager.sourceTrim);
     toneGate.gain.setTargetAtTime(id===null?1:0,context.currentTime,.01);
   };

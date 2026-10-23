@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {barBeat, clampBpm, initials, moveTrack, orderChanged, shareSummary, defaultTrackName, describeProject, formatClock, groupProjects, nameFromFile, panLabel, presetFields, presetValue,
+import {barBeat, clampBpm, initials, moveTrack, orderChanged, shareSummary, defaultTrackName, describeProject, formatClock, groupProjects, liveTrackId, nameFromFile, panLabel, presetFields, presetValue,
   projectOptionLabel, rulerBars, timelineLength, toggleMonitoring, trackChanges, trackGain, volumeLabel, withInstrument}
   from '../../examples/wam/projects/ProjectsModel.js';
 import {ProjectPlayer} from '../../examples/wam/projects/ProjectPlayer.js';
@@ -216,8 +216,8 @@ test('a track plays through its insert, and input monitoring replaces its record
   const live = context.createGain();
   player.setLiveInput(live);
   assert.equal(live.targets.size, 0, 'no track monitors the input yet');
-  player.setTracks([{...track, inputMonitoring: true}]);
-  assert.equal(player.monitoredId, 1);
+  player.setTracks([{...track, inputMonitoring: true}], 1);
+  assert.equal(player.liveId, 1);
   assert.ok(live.targets.has(insert.live));
   assert.equal(channel.playback.gain.value, 0, 'the recording is replaced');
 
@@ -227,6 +227,31 @@ test('a track plays through its insert, and input monitoring replaces its record
   player.setTracks([{...track, inputMonitoring: false}]);
   assert.equal(live.targets.size, 0);
   assert.equal(channel.playback.gain.value, 1);
+});
+
+test('the live guitar follows the selected guitar or bass track with a preset, unless a track monitors the input', () => {
+  const tracks = [{id: 1, instrument: 'guitar', factoryPreset: 'factory:twin-clean'}, {id: 2, instrument: 'drums'},
+    {id: 3, instrument: 'bass', presetId: null}, {id: 4, instrument: 'bass', presetId: 5}];
+  assert.deepEqual([1, 2, 3, 4, null].map((id) => liveTrackId(tracks, id)), [1, null, null, 4, null]);
+  assert.equal(liveTrackId(toggleMonitoring(tracks, 3), 1), 3, 'the monitoring track wins over the selection');
+
+  const context = fakeContext();
+  const player = new ProjectPlayer(context, {fetchAudio});
+  const changes = [];
+  player.addEventListener('statechange', () => changes.push(player.liveId));
+  const live = context.createGain();
+  player.setLiveInput(live);
+  player.setTracks([{id: 1, instrument: 'guitar', volume: 80, pan: 0, audio: null}], 1);
+  assert.equal(player.liveId, null, 'Tone keeps the guitar until the preset rack is in');
+  assert.equal(live.targets.size, 0);
+  const insert = {input: context.createGain(), live: context.createGain(), output: context.createGain()};
+  player.setInsert(1, insert);
+  assert.equal(changes.at(-1), 1, 'the host hears that the guitar now plays through the track');
+  assert.ok(live.targets.has(insert.live));
+  assert.equal(player.channels.get(1).playback.gain.value, 1, 'the recording keeps playing');
+  player.setTracks([{id: 1, instrument: 'guitar', volume: 80, pan: 0, audio: null}], null);
+  assert.equal(player.liveId, null);
+  assert.equal(live.targets.size, 0);
 });
 
 function fakeRack(log) {
@@ -240,13 +265,14 @@ function fakeRack(log) {
   return rack;
 }
 
-test('guitar and bass tracks with a preset get a rack, in the Lite variant unless monitoring', async () => {
+test('guitar and bass tracks with a preset get a rack, in the Lite variant unless the live guitar plays through them', async () => {
   assert.deepEqual([
     needsTone({instrument: 'guitar', factoryPreset: 'factory:twin-clean', audio: {}}),
-    needsTone({instrument: 'guitar', factoryPreset: 'factory:twin-clean', audio: null, inputMonitoring: true}),
+    needsTone({id: 2, instrument: 'guitar', factoryPreset: 'factory:twin-clean', audio: null, inputMonitoring: true}, 2),
     needsTone({instrument: 'guitar', factoryPreset: 'factory:twin-clean', audio: null}),
+    needsTone({id: 3, instrument: 'guitar', factoryPreset: 'factory:twin-clean', audio: null}, 3),
     needsTone({instrument: 'drums', audio: {}}), needsTone({instrument: 'bass', presetId: null, audio: {}}),
-  ], [true, true, false, false, false]);
+  ], [true, true, false, true, false, false]);
 
   const log = [], racks = [], inserts = [];
   const player = {setInsert: (id, insert) => inserts.push([id, insert])};
@@ -266,7 +292,7 @@ test('guitar and bass tracks with a preset get a rack, in the Lite variant unles
   assert.ok(Math.abs(insert.input.gain.value - 10 ** (-12 / 20)) < 1e-9, 'the DI gets the preset file trim');
   assert.equal(insert.live, racks[0].a.input);
 
-  tones.setTracks([{...guitar, inputMonitoring: true}], 9);
+  tones.setTracks([{...guitar, inputMonitoring: true}], 9, 1);
   await settled();
   assert.deepEqual(racks[0].variants, ['lite', 'full']);
   assert.equal(racks.length, 1, 'the same preset keeps its rack');
