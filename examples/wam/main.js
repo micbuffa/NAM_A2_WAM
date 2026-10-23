@@ -1,5 +1,10 @@
 import './backing-track-player/BackingTrackPlayerElement.js';
+import './source-separation/MultitrackPlayerElement.js';
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
+import {WorkspaceAudioRouter} from './source-separation/WorkspaceAudioRouter.js';
+import {SeparationMixer} from './source-separation/SeparationMixer.js';
+import {MediaRepository} from './source-separation/MediaRepository.js';
+import {ExportTrackLibrary} from './source-separation/ExportTrackLibrary.js';
 import {toast} from './ui/components/tl-toast.js';
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import NamPlugin from '../../src/nam-wam/index.js';
@@ -37,7 +42,7 @@ let selectedDeviceId = audioPreferences.inputDeviceId;
 let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
-let chain, chainView, rack, backingPlayer, backingMix;
+let chain, chainView, rack, backingPlayer, backingMix, multitrackPlayer, workspaceAudio, ensureMultitracks;
 let tracks, activeTone = {};
 const settings = new SettingsView({button: $('#settingsButton')});
 const engine = new EngineStatus({element: $('#engineStatus'), context});
@@ -264,8 +269,22 @@ async function initialize() {
     }catch(error){if(b)b.destroy();else{nam?.audioNode.destroy?.();cab?.audioNode.destroy?.();}throw error;}
   }});
   window.phase3Debug.rack=rack;
+  const mediaRepository=new MediaRepository(),trackLibrary=new ExportTrackLibrary(mediaRepository);
   backingPlayer=document.createElement('backing-track-player');$('#tracksCanvas').append(backingPlayer);
-  await backingPlayer.initialize({audioContext:context});backingMix=new BackingTrackMix(context,rack.output,backingPlayer);
+  await backingPlayer.initialize({audioContext:context,library:trackLibrary});
+  workspaceAudio=new WorkspaceAudioRouter(context);
+  workspaceAudio.attach('tracks',{outputNode:backingPlayer.engine.outputNode,events:backingPlayer,state:()=>backingPlayer.engine,pause:()=>backingPlayer.engine.pause()});
+  backingMix=new BackingTrackMix(context,rack.output,workspaceAudio);backingPlayer.readMixLevel=()=>workspaceAudio.readMixLevel();
+  let multitracksReady;
+  ensureMultitracks=()=>{
+    if(!multitracksReady){multitrackPlayer=document.createElement('multitrack-player');$('#multitracksCanvas').append(multitrackPlayer);
+      multitracksReady=multitrackPlayer.initialize({audioContext:context,repository:mediaRepository,mixerFactory:ctx=>new SeparationMixer(ctx,{mixFactory:(_ctx,_guitar,player)=>workspaceAudio.attachMixer(player)})});
+      multitrackPlayer.addEventListener('export-to-tracks',async({detail})=>{try{await trackLibrary.list();backingPlayer.$('filter').value='';backingPlayer.renderList();workspaceAudio.select('tracks');backingPlayer.engine.pause();await backingPlayer.engine.loadTrack(detail.id);workspaces.show('tracks');message('MP3 mix added to Tracks');}catch(error){message(error.message,true);}});
+    }return multitracksReady;
+  };
+  workspaces.addEventListener('change',({detail})=>{if(detail.workspace==='multitracks'){workspaceAudio.select('multitracks');ensureMultitracks().catch(error=>message(error.message,true));}else if(detail.workspace==='tracks')workspaceAudio.select('tracks');});
+  if(workspaces.current==='multitracks'){workspaceAudio.select('multitracks');ensureMultitracks().catch(error=>message(error.message,true));}
+  backingPlayer.addEventListener('separate-stems',async({detail})=>{try{backingPlayer.engine.pause();await ensureMultitracks();await multitrackPlayer.importFromTracks(detail.buffer,detail.track);workspaces.show('multitracks');}catch(error){message(error.message,true);}});
   Object.assign(window.phase3Debug,{backingPlayer,backingMix});
   chainView=new FxRackView(rack,message);
   tracks=new TracksPanel({onEditTone:()=>workspaces.show('tone'),onToggleLive:()=>$('#enableLive').click()});
@@ -314,7 +333,7 @@ async function initialize() {
   $('#recoverAudio').onclick = recoverAudio;
   context.addEventListener('statechange', () => {
     if (context.state === 'running') { wasRunning = true; return; }
-    if (wasRunning && (liveInputEnabled || !$('#player').paused || backingPlayer?.engine.playing)) {
+    if (wasRunning && (liveInputEnabled || !$('#player').paused || backingPlayer?.engine?.playing)) {
       message(`Audio engine ${context.state}. Attempting recovery…`, true);
       recoverAudio();
     }
@@ -417,13 +436,14 @@ async function initialize() {
   $('#seek').oninput = () => { if (Number.isFinite($('#player').duration)) $('#player').currentTime = Number($('#seek').value) * $('#player').duration; };
   $('#player').ontimeupdate = () => { if (Number.isFinite($('#player').duration) && $('#player').duration) $('#seek').value = $('#player').currentTime / $('#player').duration; };
   $('#saveState').onclick = async () => {
-    savedState = {...await rack.getState(),backingTrack:backingPlayer.getState()};
+    try{savedState = {...await rack.getState(),backingTrack:backingPlayer.getState(),multitrack:multitrackPlayer?await multitrackPlayer.getState():null};}
+    catch(error){message(`Session save: ${error.message}`,true);return;}
     $('#stateSize').textContent = `${new TextEncoder().encode(JSON.stringify(savedState)).byteLength.toLocaleString()} serialized bytes`;
   };
   $('#restoreState').onclick = async () => {
     if (!savedState) return message('Save state first', true);
     chainView.close();
-    try{await rack.setState(savedState);syncSourceTrim();if(savedState.backingTrack)await backingPlayer.setState(savedState.backingTrack);}
+    try{await rack.setState(savedState);syncSourceTrim();if(savedState.backingTrack)await backingPlayer.setState(savedState.backingTrack);if(savedState.multitrack){await ensureMultitracks();await multitrackPlayer.setState(savedState.multitrack);}}
     catch(error){message(`Session restore: ${error.message}`,true);return;}
     message('WAM state restored');
   };

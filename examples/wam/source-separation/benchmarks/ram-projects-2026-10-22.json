@@ -1,0 +1,31 @@
+{
+  "input": "Slow Motion Dream · exemple CC BY 3.0",
+  "seconds": 5,
+  "model": "BS Roformer SW",
+  "projectsBefore": 14,
+  "afterSeparation": {
+    "projects": 14,
+    "status": "En RAM · projet non enregistré",
+    "pcmWrites": 0,
+    "availableSeconds": 5
+  },
+  "afterExport": {
+    "projects": 14,
+    "pcmWrites": 0,
+    "status": "En RAM · projet non enregistré",
+    "mp3VisibleInTracks": true
+  },
+  "afterExplicitSave": {
+    "projects": 15,
+    "pcmWrites": 1,
+    "status": "Projet enregistré"
+  },
+  "mixEditMarkedDirty": true,
+  "restored": {
+    "status": "Projet enregistré",
+    "pianoMuted": "false",
+    "paused": true,
+    "playEnabled": true
+  },
+  "note": "Nombre de projets et appels de sauvegarde observés dans la GUI et les métriques DOM ; aucune lecture directe du profil navigateur."
+}

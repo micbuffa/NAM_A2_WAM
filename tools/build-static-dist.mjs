@@ -78,7 +78,34 @@ console.log('Deployment: copy dist/NAM_A2_WAM/ to any static web server.');
 const backingCatalogue=JSON.parse(await readFile(join(dist,'assets/backingTracks/tracks.json'),'utf8'));
 for(const track of backingCatalogue.tracks)await required(join(dist,'assets/backingTracks',decodeURIComponent(track.url)));
 for(const file of ['BackingTrackPlayerElement.js','BackingTrackEngine.js','BackingTrackLibrary.js','BackingTrackMix.js','backing-track-player.css','phaze-processor.js'])await required(join(dist,'backing-track-player',file));
-for (const file of ['PeakNormalization.js', 'SixStemReconstruction.js', 'SeparationMixer.js', 'MixWaveform.js', 'SeparationWorkflow.js', 'CompactMultitrackView.js', 'CompactWaveform.js', 'vendor/wavesurfer/renderer.js', 'vendor/wavesurfer/renderer-utils.js', 'vendor/wavesurfer/event-emitter.js', 'vendor/wavesurfer/reactive/store.js', 'vendor/wavesurfer/reactive/drag-stream.js', 'vendor/wavesurfer/reactive/scroll-stream.js', 'vendor/wavesurfer/reactive/event-streams.js', 'vendor/wavesurfer/LICENSE', 'vendor/wavesurfer/NOTICE.md', 'vendor/wavesurfer/integrity.json', 'BenchmarkInputs.js', 'fixtures/music/slow-motion-dream.mp3', 'fixtures/music/slow-motion-dream.json', 'fixtures/music/NOTICE.md', 'OnnxRuntimeConfig.js', 'OnnxDemucsRunner.js', 'OnnxCoreModel.js', 'BackendPolicy.js', 'AudioComparison.js', 'onnx-worker.js', 'webgpu-benchmark.html', 'webgpu-benchmark.js', 'vendor/demucs-js/apply.js', 'vendor/demucs-js/LICENSE.md', 'vendor/demucs-js/NOTICE.md', 'vendor/onnxruntime-web/ort.webgpu.min.mjs', 'vendor/onnxruntime-web/ort-wasm-simd-threaded.jsep.mjs', 'vendor/onnxruntime-web/ort-wasm-simd-threaded.jsep.wasm', 'vendor/onnxruntime-web/LICENSE', 'vendor/onnxruntime-web/NOTICE.md', 'vendor/onnxruntime-web/integrity.json', 'ChunkTools.js', 'ProgressiveDemucsRunner.js', 'ProgressiveMultitrackEngine.js', 'progressive-worker.js', 'DemoWaveform.js', 'ModelCache.js', 'ModelDownloadManager.js', 'DownloadsView.js', 'Capabilities.js', 'DemucsRunner.js', 'demucs-worker.js', 'MultitrackEngine.js', 'AudioData.js', 'models.json', 'vendor/demucs-wasm/demucs_onnx_simd.js', 'vendor/demucs-wasm/demucs_onnx_simd.wasm', 'vendor/demucs-wasm/LICENSE', 'vendor/demucs-wasm/NOTICE.md', 'fixtures/catalog.json', 'fixtures/cache-test-4.json', 'fixtures/cache-test-5.json', 'fixtures/LICENSE.txt']) await required(join(dist, 'source-separation', file));
+for (const file of ['WorkspaceAudioRouter.js','MediaRepository.js','ExportTrackLibrary.js','Mp3ExportCore.js','Mp3Exporter.js','mp3-export-worker.js','vendor/lamejs/lame.min.js','vendor/lamejs/LICENSE','vendor/lamejs/NOTICE.md','MultitrackPlayerElement.js', 'SessionAudioStore.js', 'MultitrackState.js', 'PeakNormalization.js', 'SixStemReconstruction.js', 'SeparationMixer.js', 'MixWaveform.js', 'SeparationWorkflow.js', 'CompactMultitrackView.js', 'CompactWaveform.js', 'vendor/wavesurfer/renderer.js', 'vendor/wavesurfer/renderer-utils.js', 'vendor/wavesurfer/event-emitter.js', 'vendor/wavesurfer/reactive/store.js', 'vendor/wavesurfer/reactive/drag-stream.js', 'vendor/wavesurfer/reactive/scroll-stream.js', 'vendor/wavesurfer/reactive/event-streams.js', 'vendor/wavesurfer/LICENSE', 'vendor/wavesurfer/NOTICE.md', 'vendor/wavesurfer/integrity.json', 'BenchmarkInputs.js', 'fixtures/music/slow-motion-dream.mp3', 'fixtures/music/slow-motion-dream.json', 'fixtures/music/NOTICE.md', 'OnnxRuntimeConfig.js', 'OnnxDemucsRunner.js', 'OnnxCoreModel.js', 'BackendPolicy.js', 'AudioComparison.js', 'onnx-worker.js', 'webgpu-benchmark.html', 'webgpu-benchmark.js', 'vendor/demucs-js/apply.js', 'vendor/demucs-js/LICENSE.md', 'vendor/demucs-js/NOTICE.md', 'vendor/onnxruntime-web/ort.webgpu.min.mjs', 'vendor/onnxruntime-web/ort-wasm-simd-threaded.jsep.mjs', 'vendor/onnxruntime-web/ort-wasm-simd-threaded.jsep.wasm', 'vendor/onnxruntime-web/LICENSE', 'vendor/onnxruntime-web/NOTICE.md', 'vendor/onnxruntime-web/integrity.json', 'ChunkTools.js', 'ProgressiveDemucsRunner.js', 'ProgressiveMultitrackEngine.js', 'progressive-worker.js', 'DemoWaveform.js', 'ModelCache.js', 'ModelDownloadManager.js', 'DownloadsView.js', 'Capabilities.js', 'DemucsRunner.js', 'demucs-worker.js', 'MultitrackEngine.js', 'AudioData.js', 'models.json', 'vendor/demucs-wasm/demucs_onnx_simd.js', 'vendor/demucs-wasm/demucs_onnx_simd.wasm', 'vendor/demucs-wasm/LICENSE', 'vendor/demucs-wasm/NOTICE.md', 'fixtures/catalog.json', 'fixtures/cache-test-4.json', 'fixtures/cache-test-5.json', 'fixtures/LICENSE.txt']) await required(join(dist, 'source-separation', file));
 await required(join(dist, 'source-separation/SeparationProgress.js'));
 await required(join(dist, 'source-separation/bootstrap.js'));
 await required(join(dist, 'source-separation/ModelStatus.js'));
+
+// Preview deployment is self-contained; refuse a distribution with missing weights.
+for(const file of ['PreparedDemucsRunner.js','preview-worker.js','model-assets/htdemucs-2s-core.onnx','model-assets/NOTICE.md','model-assets/LICENSE'])await required(join(dist,'source-separation',file));
+
+for(const file of ['RoformerDSP.js','RoformerCoreModel.js','roformer-worker.js','roformer-benchmark.html','roformer-benchmark.js','model-assets/bs_roformer_sw_6stem_fp16.onnx','model-assets/ROFORMER_NOTICE.md','vendor/bs-roformer-web/fft-radix2.js','vendor/bs-roformer-web/LICENSE','vendor/bs-roformer-web/NOTICE.md'])await required(join(dist,'source-separation',file));
+
+for(const file of ['WaveformAnalysis.js','WaveformWorkerCore.js','waveform-worker.js'])await required(join(dist,'source-separation',file));
+
+await required(join(dist,'source-separation/ModelSelectionTransaction.js'));
+
+for(const file of ['StreamTransport.js','vendor/ringbuf/index.js','vendor/ringbuf/LICENSE','vendor/ringbuf/NOTICE.md'])await required(join(dist,'source-separation',file));
+
+await writeFile(join(dist,'_headers'),'/*\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Embedder-Policy: require-corp\n  Cross-Origin-Resource-Policy: same-origin\n');
+
+await required(join(dist,'source-separation/UiFrameMetrics.js'));
+
+await required(join(dist,'source-separation/TransportTimeline.js'));
+
+// Cooperative Roformer execution reconstructs stages from the verified cached ONNX.
+for(const file of ['CooperativeOnnxSession.js','research/roformer-stage-plan.json'])await required(join(dist,'source-separation',file));
+
+await required(join(dist,'source-separation/SessionAudioEncoding.js'));
+
+await required(join(dist,'source-separation/ProjectSaveState.js'));
+
+// Model comparisons and their pinned reference measurements ship with the host.
+for(const file of ['ModelBenchmark.js','BenchmarkRunnerFactory.js','ModelPerformanceData.js','ModelComparisonPanel.js','model-benchmark.html','model-benchmark.js','InstrumentComparison.js','instrument-comparison.html','instrument-comparison.js','INSTRUMENT_COMPARISON.md'])await required(join(dist,'source-separation',file));

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "source": "TONE3000",
+  "importedAt": "2026-10-20T13:21:27.455Z",
+  "tone": {
+    "id": 87866,
+    "title": "Mesa 90s Dual Rectifier RI - Red Modern FULL RIG",
+    "description": "A full rig (amp+cab) capture of the Red channel in Modern mode, set to Bold power and diode rectification. One models boosted with a Maxon OD808 and one without from a completely stock 2024 Mesa/Boogie 90s Dual Rectifier Reissue captured through a 4x12 v30s blended SM57 and e609 microphone setup.\n\nThis is the immediate, unapologetic Rectifier voice: tight low end, aggressive upper mids, saturated gain, and plenty of weight for modern metal, hard rock, punk, and everything in between. Load your preferred cab IR after NAM and make it your own.\n\nThis is one curated capture from the Mad Hatter 90s Dual Rectifier Resissue collection. The complete pack includes Red and Orange channels, Vintage and Modern voicings, plus both DI captures for your own IR workflow and full-rig captures for immediate use.\n\nThe complete collection includes 68 calibrate NAM A2 profiles: 34 DI captures and matching full-rig versions. It covers Orange Clean, Orange Vintage, Orange Modern, Red Vintage, and Red Modern, with Bold and Spongy power settings plus tube and diode rectification options.\n\nReamp chain: \nMotu M4 > Lehle P-Split III > Maxon OD808 > Mesa 90s Dual Rectifier > V30 > SM57/e609 mic blend > Motu M4\n\nAmp Specs:\nPower Tubes: Stock Mesa 6L6 445 RED\nPreamp Tubes: Stock Mesa 12AX7\n\nFull pack: https://shop.madhatteramplab.com/s/mesa-90s-dual-rec-t3k\nDI models are also available - \nOrange Vintage: https://www.tone3000.com/tones/mesa-90s-dual-rectifier-ri-orange-vintage-boosted-di-85782\nRed Modern: https://www.tone3000.com/tones/mesa-90s-dual-rectifier-ri-red-modern-boosted-di-84830",
+    "url": "https://www.tone3000.com/tones/mesa-90s-dual-rectifier-ri-red-modern-full-rig-87866",
+    "format": "nam",
+    "category": "guitar",
+    "gear": "amp-cab",
+    "license": "t3k",
+    "creator": {
+      "username": "madhatteramplab",
+      "displayName": null,
+      "url": "https://www.tone3000.com/madhatteramplab"
+    },
+    "makes": [
+      "Celestion V30",
+      "Maxon OD808",
+      "Mesa 90s Dual Rectifier Reissue",
+      "Mesa Boogie Dual Rectifier"
+    ],
+    "tags": [
+      "90s dual rectifier",
+      "celestion v30",
+      "crunch",
+      "distortion",
+      "dual rectifier",
+      "dual rectifier reissue",
+      "high-gain",
+      "mesa 90s dual rectifier reissue",
+      "mesa boogie",
+      "mesa boogie - dual rectifier",
+      "mesa boogie dual rectifier",
+      "mesa boogie mark v",
+      "mesa boogie rectifier",
+      "mesa dual rectifier",
+      "mesa rectifier",
+      "metal",
+      "nam",
+      "shure sm57",
+      "sm57",
+      "v30"
+    ],
+    "image": "cover.jpg",
+    "sourceImages": [
+      "https://api.tone3000.com/storage/v1/object/public/images/zh2y2owsyq.jpg"
+    ]
+  },
+  "assets": [
+    {
+      "id": 742074,
+      "file": "captures/90sDualRec-FullRig-Red-Modn-SweetSpot+808--m742074.nam",
+      "name": "90sDualRec-FullRig-Red-Modn-SweetSpot+808",
+      "architecture": "2",
+      "createdAt": "2026-09-02T00:10:45.469834+00:00",
+      "sha256": "81724f66c7db8348029a3fb09ed3f81a24ae0a35c882a0dc7c4c271811d67715"
+    }
+  ]
+}

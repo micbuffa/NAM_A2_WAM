@@ -1,0 +1,26 @@
+{
+  "pass": true,
+  "results": [
+    {
+      "mix": 0,
+      "expected": 0.1,
+      "error": 1.4901161138336505e-9,
+      "pausedBeforePlay": true,
+      "pass": true
+    },
+    {
+      "mix": 0.5,
+      "expected": 0.17016621270781812,
+      "error": 3.3677226007888805e-9,
+      "pausedBeforePlay": true,
+      "pass": true
+    },
+    {
+      "mix": 1,
+      "expected": 0.0701662127078181,
+      "error": 4.857838700744743e-9,
+      "pausedBeforePlay": true,
+      "pass": true
+    }
+  ]
+}

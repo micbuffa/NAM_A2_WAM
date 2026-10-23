@@ -1,0 +1,21 @@
+{
+    "identifier": "wimmics.chorusMB",
+    "name": "Chorus",
+    "vendor": "WIMMICS",
+    "description": "",
+    "version": "2.75.15",
+    "apiVersion": "2.0.0",
+    "keywords": ["chorus", "modulation", "effect"],
+    "isInstrument": false,
+    "website": "",
+    "hasAudioInput": true,
+    "hasAudioOutput": true,
+    "hasMidiInput": false,
+    "hasMidiOutput": false,
+    "thumbnail": "screenshot.png",
+    "faustMeta": {
+        "poly": false,
+        "fft": false,
+        "effect": null
+    }
+}

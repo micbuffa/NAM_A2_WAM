@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-22",
+  "source": "Slow Motion Dream CC BY 3.0 fixture, first 10 s",
+  "model": "htdemucs_4s_onnx",
+  "route": "/dist/NAM_A2_WAM/",
+  "method": "Chrome UI, sequential runs in order 1s,2s,Auto; each run creates its own session; not a repeated statistical benchmark",
+  "runs": [
+    {
+      "segmentSeconds": 1,
+      "status": "Terminé en 27.4 s · WebGPU (pipeline hybride)",
+      "ready": "Audio prêt : 10.0 / 10.0 s — calcul terminé.",
+      "backend": "webgpu",
+      "runtimeVersion": "1.22.0",
+      "loadMs": 946.1000000238419,
+      "blocks": [
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 2802.7999999523163
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 2066.2000000476837
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 2283.100000023842
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 1998.2999999523163
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 1892.8999999761581
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 1891
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 1925.1000000238419
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 1932.6000000238419
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 1912.7999999523163
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 1922.2999999523163
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 1903.2000000476837
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 0.75,
+          "elapsedMs": 1995.7999999523163
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 1,
+          "elapsedMs": 1921.7000000476837
+        }
+      ],
+      "adapter": {
+        "vendor": "apple",
+        "architecture": "metal-3"
+      }
+    },
+    {
+      "segmentSeconds": 2,
+      "status": "Terminé en 16.4 s · WebGPU (pipeline hybride)",
+      "ready": "Audio prêt : 10.0 / 10.0 s — calcul terminé.",
+      "backend": "webgpu",
+      "runtimeVersion": "1.22.0",
+      "loadMs": 797.8999999761581,
+      "blocks": [
+        {
+          "inputSeconds": 2,
+          "publishedSeconds": 1.5,
+          "elapsedMs": 2694.5
+        },
+        {
+          "inputSeconds": 2,
+          "publishedSeconds": 1.5,
+          "elapsedMs": 2042.8999999761581
+        },
+        {
+          "inputSeconds": 2,
+          "publishedSeconds": 1.5,
+          "elapsedMs": 2436.899999976158
+        },
+        {
+          "inputSeconds": 2,
+          "publishedSeconds": 1.5,
+          "elapsedMs": 2185.2000000476837
+        },
+        {
+          "inputSeconds": 2,
+          "publishedSeconds": 1.5,
+          "elapsedMs": 1933.0999999046326
+        },
+        {
+          "inputSeconds": 2,
+          "publishedSeconds": 1.5,
+          "elapsedMs": 1922.4000000953674
+        },
+        {
+          "inputSeconds": 1,
+          "publishedSeconds": 1,
+          "elapsedMs": 2403.4000000953674
+        }
+      ],
+      "adapter": {
+        "vendor": "apple",
+        "architecture": "metal-3"
+      }
+    },
+    {
+      "segmentSeconds": 0,
+      "status": "Terminé en 5.5 s · WebGPU (pipeline hybride)",
+      "ready": "Audio prêt : 10.0 / 10.0 s — calcul terminé.",
+      "backend": "webgpu",
+      "runtimeVersion": "1.22.0",
+      "loadMs": 838,
+      "blocks": [
+        {
+          "inputSeconds": 7.8,
+          "publishedSeconds": 5.85,
+          "elapsedMs": 2669.2999999523163
+        },
+        {
+          "inputSeconds": 4.15,
+          "publishedSeconds": 4.15,
+          "elapsedMs": 2004.2000000476837
+        }
+      ],
+      "adapter": {
+        "vendor": "apple",
+        "architecture": "metal-3"
+      }
+    }
+  ],
+  "tests": {
+    "passed": 350,
+    "failed": 0
+  },
+  "consoleErrors": [],
+  "limits": "No parallel execution or musical quality comparison measured."
+}

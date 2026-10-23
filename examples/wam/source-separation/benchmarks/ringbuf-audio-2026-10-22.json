@@ -1,0 +1,334 @@
+{
+  "input": "music",
+  "backend": "webgpu",
+  "frames": 264600,
+  "preparation": {
+    "type": "prepared",
+    "backend": "webgpu",
+    "loadMs": 9811.870000004768,
+    "warmMs": 3679.310000061989
+  },
+  "run": {
+    "type": "done",
+    "backend": "webgpu",
+    "elapsedMs": 5393.1849999427795,
+    "blocks": [
+      {
+        "index": 0,
+        "computeMs": 2844.979999899864,
+        "inputFrames": 176400,
+        "publishedFrames": 132300,
+        "elapsedMs": 2845.0749999284744
+      },
+      {
+        "index": 1,
+        "computeMs": 2505.4900000095367,
+        "inputFrames": 132300,
+        "publishedFrames": 132300,
+        "elapsedMs": 5374.754999995232
+      }
+    ],
+    "runtimeVersion": "1.22.0",
+    "transportMode": "shared-ringbuffer",
+    "profile": "quality",
+    "frames": 176400
+  },
+  "firstReadyMs": 2879.414999961853,
+  "comparison": {
+    "channels": [
+      {
+        "rmsError": 0.00000923246992690186,
+        "maxAbsError": 0.00008560717105865479,
+        "referenceRms": 0.11973400582463517
+      },
+      {
+        "rmsError": 0.000009768598454989224,
+        "maxAbsError": 0.00009305775165557861,
+        "referenceRms": 0.11896881528179828
+      },
+      {
+        "rmsError": 0.000005638152254103233,
+        "maxAbsError": 0.00006198883056640625,
+        "referenceRms": 0.1477901913388653
+      },
+      {
+        "rmsError": 0.000007369120205490069,
+        "maxAbsError": 0.00009819725528359413,
+        "referenceRms": 0.15630166653765878
+      },
+      {
+        "rmsError": 4.817400652944762e-9,
+        "maxAbsError": 6.446862244047225e-8,
+        "referenceRms": 0.000012322266419320748
+      },
+      {
+        "rmsError": 5.342205346964628e-9,
+        "maxAbsError": 1.0025996743934229e-7,
+        "referenceRms": 0.000013496868089074617
+      },
+      {
+        "rmsError": 0.0000024990973619358304,
+        "maxAbsError": 0.00004494190216064453,
+        "referenceRms": 0.11319721644425057
+      },
+      {
+        "rmsError": 0.0000024781478468983773,
+        "maxAbsError": 0.00005879998207092285,
+        "referenceRms": 0.1038843506232014
+      },
+      {
+        "rmsError": 0.00000702320679972858,
+        "maxAbsError": 0.00013796426355838776,
+        "referenceRms": 0.004757166005511343
+      },
+      {
+        "rmsError": 0.00000513259445639632,
+        "maxAbsError": 0.00009547080844640732,
+        "referenceRms": 0.002266121762427908
+      },
+      {
+        "rmsError": 0.000008474513172608959,
+        "maxAbsError": 0.00006446242332458496,
+        "referenceRms": 0.11188897192010225
+      },
+      {
+        "rmsError": 0.000008843995520723547,
+        "maxAbsError": 0.00007730722427368164,
+        "referenceRms": 0.10126826898086724
+      }
+    ],
+    "rmsError": 0.000006486177971786685,
+    "relativeRmsError": 0.00006454795164026663,
+    "maxAbsError": 0.00013796426355838776,
+    "withinTolerance": true
+  },
+  "perChannel": [
+    {
+      "role": "bass",
+      "channel": 0,
+      "channels": [
+        {
+          "rmsError": 0.00000923246992690186,
+          "maxAbsError": 0.00008560717105865479,
+          "referenceRms": 0.11973400582463517
+        }
+      ],
+      "rmsError": 0.00000923246992690186,
+      "relativeRmsError": 0.00007710816875553233,
+      "maxAbsError": 0.00008560717105865479,
+      "withinTolerance": true
+    },
+    {
+      "role": "bass",
+      "channel": 1,
+      "channels": [
+        {
+          "rmsError": 0.000009768598454989224,
+          "maxAbsError": 0.00009305775165557861,
+          "referenceRms": 0.11896881528179828
+        }
+      ],
+      "rmsError": 0.000009768598454989224,
+      "relativeRmsError": 0.00008211058025458692,
+      "maxAbsError": 0.00009305775165557861,
+      "withinTolerance": true
+    },
+    {
+      "role": "drums",
+      "channel": 0,
+      "channels": [
+        {
+          "rmsError": 0.000005638152254103233,
+          "maxAbsError": 0.00006198883056640625,
+          "referenceRms": 0.1477901913388653
+        }
+      ],
+      "rmsError": 0.000005638152254103233,
+      "relativeRmsError": 0.000038149705356126246,
+      "maxAbsError": 0.00006198883056640625,
+      "withinTolerance": true
+    },
+    {
+      "role": "drums",
+      "channel": 1,
+      "channels": [
+        {
+          "rmsError": 0.000007369120205490069,
+          "maxAbsError": 0.00009819725528359413,
+          "referenceRms": 0.15630166653765878
+        }
+      ],
+      "rmsError": 0.000007369120205490069,
+      "relativeRmsError": 0.00004714677948564662,
+      "maxAbsError": 0.00009819725528359413,
+      "withinTolerance": true
+    },
+    {
+      "role": "other",
+      "channel": 0,
+      "channels": [
+        {
+          "rmsError": 4.817400652944762e-9,
+          "maxAbsError": 6.446862244047225e-8,
+          "referenceRms": 0.000012322266419320748
+        }
+      ],
+      "rmsError": 4.817400652944762e-9,
+      "relativeRmsError": 0.00039095085993200884,
+      "maxAbsError": 6.446862244047225e-8,
+      "withinTolerance": true
+    },
+    {
+      "role": "other",
+      "channel": 1,
+      "channels": [
+        {
+          "rmsError": 5.342205346964628e-9,
+          "maxAbsError": 1.0025996743934229e-7,
+          "referenceRms": 0.000013496868089074617
+        }
+      ],
+      "rmsError": 5.342205346964628e-9,
+      "relativeRmsError": 0.00039581074007006195,
+      "maxAbsError": 1.0025996743934229e-7,
+      "withinTolerance": true
+    },
+    {
+      "role": "vocals",
+      "channel": 0,
+      "channels": [
+        {
+          "rmsError": 0.0000024990973619358304,
+          "maxAbsError": 0.00004494190216064453,
+          "referenceRms": 0.11319721644425057
+        }
+      ],
+      "rmsError": 0.0000024990973619358304,
+      "relativeRmsError": 0.00002207737469557506,
+      "maxAbsError": 0.00004494190216064453,
+      "withinTolerance": true
+    },
+    {
+      "role": "vocals",
+      "channel": 1,
+      "channels": [
+        {
+          "rmsError": 0.0000024781478468983773,
+          "maxAbsError": 0.00005879998207092285,
+          "referenceRms": 0.1038843506232014
+        }
+      ],
+      "rmsError": 0.0000024781478468983773,
+      "relativeRmsError": 0.000023854871614752252,
+      "maxAbsError": 0.00005879998207092285,
+      "withinTolerance": true
+    },
+    {
+      "role": "guitar",
+      "channel": 0,
+      "channels": [
+        {
+          "rmsError": 0.00000702320679972858,
+          "maxAbsError": 0.00013796426355838776,
+          "referenceRms": 0.004757166005511343
+        }
+      ],
+      "rmsError": 0.00000702320679972858,
+      "relativeRmsError": 0.0014763425938031068,
+      "maxAbsError": 0.00013796426355838776,
+      "withinTolerance": true
+    },
+    {
+      "role": "guitar",
+      "channel": 1,
+      "channels": [
+        {
+          "rmsError": 0.00000513259445639632,
+          "maxAbsError": 0.00009547080844640732,
+          "referenceRms": 0.002266121762427908
+        }
+      ],
+      "rmsError": 0.00000513259445639632,
+      "relativeRmsError": 0.0022649243926316175,
+      "maxAbsError": 0.00009547080844640732,
+      "withinTolerance": true
+    },
+    {
+      "role": "piano",
+      "channel": 0,
+      "channels": [
+        {
+          "rmsError": 0.000008474513172608959,
+          "maxAbsError": 0.00006446242332458496,
+          "referenceRms": 0.11188897192010225
+        }
+      ],
+      "rmsError": 0.000008474513172608959,
+      "relativeRmsError": 0.00007574037929904697,
+      "maxAbsError": 0.00006446242332458496,
+      "withinTolerance": true
+    },
+    {
+      "role": "piano",
+      "channel": 1,
+      "channels": [
+        {
+          "rmsError": 0.000008843995520723547,
+          "maxAbsError": 0.00007730722427368164,
+          "referenceRms": 0.10126826898086724
+        }
+      ],
+      "rmsError": 0.000008843995520723547,
+      "relativeRmsError": 0.00008733234615074202,
+      "maxAbsError": 0.00007730722427368164,
+      "withinTolerance": true
+    }
+  ],
+  "passed": true,
+  "analysis": {
+    "stems": [
+      {
+        "role": "bass",
+        "rms": 0.11935207393257745,
+        "peak": 0.4234847128391266,
+        "stereoDifferenceRms": 0.009907229396428224
+      },
+      {
+        "role": "drums",
+        "rms": 0.15210572278923373,
+        "peak": 1.1327588558197021,
+        "stereoDifferenceRms": 0.0880441339646486
+      },
+      {
+        "role": "other",
+        "rms": 0.00001292245219341658,
+        "peak": 0.000162333162734285,
+        "stereoDifferenceRms": 0.000017593653995491753
+      },
+      {
+        "role": "vocals",
+        "rms": 0.10864061165577656,
+        "peak": 0.8961729407310486,
+        "stereoDifferenceRms": 0.09429725140044799
+      },
+      {
+        "role": "guitar",
+        "rms": 0.0037282525217037714,
+        "peak": 0.040524911135435104,
+        "stereoDifferenceRms": 0.00370655252090067
+      },
+      {
+        "role": "piano",
+        "rms": 0.10670992944796436,
+        "peak": 0.8265272378921509,
+        "stereoDifferenceRms": 0.14839763062611597
+      }
+    ],
+    "remixResidual": {
+      "rmsError": 0.0058160806341961595,
+      "relativeRmsError": 0.0227067477148358,
+      "maxAbsError": 0.06186908483505249
+    },
+    "hasIsolatedReferences": false
+  }
+}

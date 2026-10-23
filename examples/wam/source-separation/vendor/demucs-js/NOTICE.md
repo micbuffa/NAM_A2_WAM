@@ -12,3 +12,5 @@ Les poids ONNX, téléchargés séparément, ont une restriction **usage personn
 L'adaptateur local utilise ONNX Runtime Web 1.22.0, backend WebGPU JSEP ou WASM,
 et le DSP JavaScript pour les FFT directe/inverse. Le backend GPU peut conserver
 certains opérateurs CPU : c'est un pipeline hybride, pas un calcul entièrement GPU.
+
+Correction locale du 22 octobre 2026 : `padReflect()` lit le tableau source pour le padding gauche (`arr[padLeft-i]`), pas le tableau de sortie dont cette partie était encore vide. Le défaut altérait les deux premières frames STFT. Validation contre `torch.stft` et test DFT déterministe : première frame non nulle reflétée correctement. Cette correction s’applique aussi au modèle ONNX de 7,8 s.

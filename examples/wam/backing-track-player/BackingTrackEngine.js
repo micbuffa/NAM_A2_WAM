@@ -7,7 +7,7 @@ export class BackingTrackEngine extends EventTarget {
     super();this.context=context;this.library=library;this.outputNode=context.createGain();this.volumeNode=context.createGain();this.normalizer=context.createGain();
     this.normalizer.connect(this.volumeNode).connect(this.outputNode);
     this.rate=1;this.volumeDb=-12;this.muted=false;this.normalized=false;this.autoNormalize=true;this.mix=.5;this.guitarPan=0;
-    this.loop={enabled:true,startSeconds:0,endSeconds:0};this.offset=0;this.playing=false;this.loading=false;this.generation=0;this.retiring=new Set();this.setVolumeDb(-12);
+    this.loop={enabled:true,startSeconds:0,endSeconds:0};this.offset=0;this.playing=false;this.loading=false;this.generation=0;this.trackRequest=0;this.retiring=new Set();this.setVolumeDb(-12);
   }
   emit(type,detail={}) {this.dispatchEvent(new CustomEvent(type,{detail}));}
   changed(){this.emit('transport-change',this.getState());}
@@ -27,8 +27,9 @@ export class BackingTrackEngine extends EventTarget {
     if(enabled&&b>a&&position>=b)position=a+(position-a)%(b-a);
     return clamp(position,0,this.duration);
   }
-  async loadTrack(id){return this.load(this.library.resolve(id));}
+  async loadTrack(id){const request=++this.trackRequest,track=this.library.resolve(id),file=track.generated?await this.library.loadFile(id):undefined;if(request!==this.trackRequest||this.destroyed)return false;return this.load(track,file);}
   async loadFile(file){
+    ++this.trackRequest;
     const id='local:'+encodeURIComponent(file.name)+':'+file.size+':'+file.lastModified;
     const loaded=await this.load({id,title:file.name,local:true},file);
     if(loaded&&this.pendingLocalState?.track.id===id){const state=this.pendingLocalState;this.pendingLocalState=null;await this.setState(state);}

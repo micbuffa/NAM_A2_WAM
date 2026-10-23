@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-22",
+  "route": "/dist/NAM_A2_WAM/",
+  "browser": "Chrome",
+  "source": "Are You Gonna Be My Girl - Jet",
+  "inputSeconds": 214.9,
+  "selectedSeconds": 0,
+  "backend": "webgpu",
+  "model": "htdemucs_4s_onnx",
+  "outputStems": 4,
+  "completedSeconds": 214.9,
+  "workerElapsedSeconds": 75.9,
+  "savedProject": true,
+  "autoplay": false,
+  "consoleErrors": [],
+  "automatedTests": {
+    "passed": 344,
+    "failed": 0
+  },
+  "scope": "GPU full song duration and UI verified; no new real full-song CPU/FT quality benchmark."
+}

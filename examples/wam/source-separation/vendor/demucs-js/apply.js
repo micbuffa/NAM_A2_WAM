@@ -70,7 +70,7 @@ function padReflect(arr, padLeft, padRight) {
   }
   for (let i = 0; i < padLeft; i++) {
     const srcIdx = padLeft - i;
-    result[i] = result[srcIdx];
+    result[i] = arr[srcIdx];
   }
   for (let i = 0; i < padRight; i++) {
     const dstIdx = padLeft + length + i;

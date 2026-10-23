@@ -23,7 +23,9 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
 /* Layout: topbar across, sidebar + main below. */
 .host-shell { min-height: 100vh; display: grid; grid-template-columns: 286px minmax(0, 1fr); grid-template-rows: var(--tl-topbar-height) minmax(0, 1fr); }
 /* Workspaces (Workspaces.js): only what belongs to the current one is shown; audio keeps running. */
-body[data-workspace="tone"] [data-workspace="tracks"], body[data-workspace="tracks"] [data-workspace="tone"] { display: none !important; }
+body[data-workspace="tone"] [data-workspace="tracks"], body[data-workspace="tone"] [data-workspace="multitracks"],
+body[data-workspace="tracks"] [data-workspace="tone"], body[data-workspace="tracks"] [data-workspace="multitracks"],
+body[data-workspace="multitracks"] [data-workspace="tone"], body[data-workspace="multitracks"] [data-workspace="tracks"] { display: none !important; }
 
 .host-topbar { grid-column: 1 / -1; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: var(--tl-space-6);
   padding: 0 var(--tl-space-7); background: rgba(12, 14, 14, .94); border-bottom: 1px solid var(--tl-border-subtle); backdrop-filter: blur(8px); }

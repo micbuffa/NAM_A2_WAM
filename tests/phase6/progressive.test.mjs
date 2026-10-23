@@ -120,5 +120,32 @@ test('old Worker cannot publish into a later run; unsupported lengths and rate a
   const seen=[];const second=runner.separate(model,channels(),{onChunk:x=>seen.push(x)});await flush();
   workers[0].send(block());assert.equal(seen.length,0);
   workers[1].send({...block(),sampleRate:48000});await assert.rejects(second,/invalide/);
-  await assert.rejects(runner.separate(model,[new Float32Array(60*44100+1),new Float32Array(60*44100+1)]),/maximum/);
+  const longer=runner.separate(model,[new Float32Array(60*44100+1),new Float32Array(60*44100+1)]);await flush();runner.cancel();await assert.rejects(longer,{name:'AbortError'});
+});
+function scheduledEngine(seconds=200,options={}){
+ const ctx=context(),timers=new Map();let next=0;
+ const e=new ProgressiveMultitrackEngine(ctx,{scheduleTask:fn=>{timers.set(++next,fn);return next;},cancelTask:id=>timers.delete(id),...options});
+ e.startStream({roles:['bass','guitar'],totalFrames:seconds*44100});e.sync([{id:'bass-0',volume:.3,pan:-.5},{id:'guitar-1',volume:1,pan:0}]);
+ for(let i=0;i<seconds;i++)e.append(i*44100,chunk(1));return {e,ctx,timers};
+}
+test('long buffered songs allocate only an eight-second horizon and extend it without duplicate voices',async()=>{
+ const {e,ctx,timers}=scheduledEngine();await e.play();assert.equal(e.voices.length,16);assert.equal(timers.size,1);
+ assert.equal(Math.max(...e.voices.map(v=>v.source.started[0])),7.03);
+ ctx.currentTime=4.03;for(const v of [...e.voices])if(v.source.started[0]+1<=ctx.currentTime)v.source.onended?.();
+ e.scheduleAhead();assert.equal(e.voices.length,16);assert.equal(timers.size,1);const voices=e.voices.slice();e.scheduleAhead();assert.deepEqual(e.voices,voices);
+ assert.equal(Math.max(...e.voices.map(v=>v.source.started[0])),11.03);e.pause();assert.equal(timers.size,0);assert.equal(e.voices.length,0);e.destroy();
+});
+test('late scheduling skips elapsed PCM and keeps all stems on the same clock',async()=>{
+ const {e,ctx,timers}=scheduledEngine(30,{lookAheadSeconds:2});await e.play();ctx.currentTime=5.53;
+ for(const v of [...e.voices])v.source.onended?.();e.scheduleAhead();const voice=e.voices.find(v=>v.source.started[0]===5.53);
+ assert.ok(voice);assert.ok(Math.abs(voice.source.started[1]-.5)<1e-9);
+ assert.equal(e.voices.filter(v=>v.source.started[0]===5.53).length,2);assert.equal(e.position,5.5);
+ e.destroy();assert.equal(timers.size,0);assert.equal(e.voices.length,0);
+});
+test('seek resets scheduled blocks and stale timer callbacks cannot recreate a paused graph',async()=>{
+ const {e,timers}=scheduledEngine();await e.play();const stale=[...timers.values()][0];await e.seek(40);assert.ok(e.voices.every(v=>v.source.started[1]===0));assert.equal(e.scheduledFrames.has(0),false);
+ e.pause();stale();assert.equal(e.voices.length,0);assert.equal(timers.size,0);e.destroy();
+});
+test('diagnostic unlimited scheduling recreates the baseline graph without changing PCM',async()=>{
+ const {e,timers}=scheduledEngine(100,{lookAheadSeconds:Infinity});await e.play();assert.equal(e.voices.length,200);e.destroy();assert.equal(timers.size,0);
 });

@@ -13,7 +13,7 @@ export function describeModelStatus(status = {state:'checking'}, model) {
   };
   return {
     label:labels[status.state] || 'Chargement du catalogue…',
-    detail:status.state === 'installed' ? 'Le chargement en mémoire commencera quand vous lancerez la séparation.' :
+    detail:status.state === 'installed' ? status.message || 'Le chargement en mémoire commencera quand vous lancerez la séparation.' :
       status.state === 'missing' ? `Téléchargez ce modèle (${modelSize(total)}) avec le bouton ci-contre. Il sera conservé pour les prochaines utilisations.` :
       status.message || (status.state === 'downloading' ? `${modelSize(status.received || 0)} / ${modelSize(total)}` : ''),
     percent:['installed','saving','inference'].includes(status.state) ? 100 : percent,
@@ -42,7 +42,7 @@ export function separationEligibility({modelState, audioReady, decoding = false,
   if (busy) return {enabled:false,reason:'Séparation en cours…'};
   if (decoding) return {enabled:false,reason:'Attendez la fin du décodage du fichier audio.'};
   if (modelState !== 'installed') {
-    const reasons = {checking:'Vérification du modèle en cours…',downloading:'Téléchargement du modèle en cours…',verifying:'Vérification SHA-256 du modèle en cours…',saving:'Enregistrement du modèle en cours…',error:'Le téléchargement a échoué : réessayez avec le bouton du modèle.',corrupt:'Le modèle doit être téléchargé à nouveau.'};
+    const reasons = {checking:'Vérification du modèle en cours…',loading:'Préparation du modèle en mémoire…',downloading:'Téléchargement du modèle en cours…',verifying:'Vérification SHA-256 du modèle en cours…',saving:'Enregistrement du modèle en cours…',error:'Le téléchargement a échoué : réessayez avec le bouton du modèle.',corrupt:'Le modèle doit être téléchargé à nouveau.'};
     return {enabled:false,reason:reasons[modelState] || 'Le fichier seul ne suffit pas : téléchargez le modèle sélectionné ci-dessus.'};
   }
   return audioReady ? {enabled:true,reason:'Fichier audio et modèle disponibles : vous pouvez séparer l’extrait.'} : {enabled:false,reason:'Modèle disponible. Choisissez maintenant un fichier audio.'};

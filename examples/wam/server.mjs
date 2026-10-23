@@ -20,6 +20,10 @@ async function discoverAudio() {
 }
 
 const server = http.createServer(async (request, response) => {
+  // Match Rails: required by WAM and separation shared ring buffers.
+  response.setHeader('Cross-Origin-Opener-Policy','same-origin');
+  response.setHeader('Cross-Origin-Embedder-Policy','require-corp');
+  response.setHeader('Cross-Origin-Resource-Policy','same-origin');
   try {
     const url = new URL(request.url, `http://${request.headers.host}`);
     if (url.pathname === '/api/test-audio-files') {

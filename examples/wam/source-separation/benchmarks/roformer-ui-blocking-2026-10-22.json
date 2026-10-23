@@ -1,0 +1,1075 @@
+{
+  "model": "bs_roformer_sw_6s",
+  "backend": "webgpu",
+  "input": "Jet60s",
+  "snapshot": {
+    "frames": 572,
+    "windowFrames": 572,
+    "frameP95Ms": 11.774999618530273,
+    "frameMaxMs": 2006.18505859375,
+    "framesOver50ms": 20,
+    "longTasks": 0,
+    "longTaskMaxMs": 0,
+    "stages": {
+      "controls": {
+        "calls": 54,
+        "totalMs": 4.409999847412109,
+        "maxMs": 0.2250000238418579
+      },
+      "audioPublication": {
+        "calls": 30,
+        "totalMs": 32.320000529289246,
+        "maxMs": 10.804999947547913
+      },
+      "waveformPublication": {
+        "calls": 16,
+        "totalMs": 16.59500002861023,
+        "maxMs": 1.7450000047683716
+      }
+    },
+    "heartbeatSamples": 494,
+    "heartbeatDelayP95Ms": 1.3049999475479126,
+    "heartbeatDelayMaxMs": 15.345000267028809,
+    "rafGaps": [
+      {
+        "startTime": 44662.420000076294,
+        "duration": 69.88499999046326
+      },
+      {
+        "startTime": 44745.89499998093,
+        "duration": 2006.1850000619888
+      },
+      {
+        "startTime": 47188.35000002384,
+        "duration": 67.64499998092651
+      },
+      {
+        "startTime": 47504.98000001907,
+        "duration": 1742.164999961853
+      },
+      {
+        "startTime": 49655.06500005722,
+        "duration": 60.11500000953674
+      },
+      {
+        "startTime": 49729.77499997616,
+        "duration": 1998.710000038147
+      },
+      {
+        "startTime": 52204.800000071526,
+        "duration": 1972.8799999952316
+      },
+      {
+        "startTime": 54596.675000071526,
+        "duration": 56.02999997138977
+      },
+      {
+        "startTime": 54663.14499998093,
+        "duration": 1970.25
+      },
+      {
+        "startTime": 57104.99500000477,
+        "duration": 1958.1100000143051
+      },
+      {
+        "startTime": 59480.14499998093,
+        "duration": 59.60000002384186
+      },
+      {
+        "startTime": 59563.330000042915,
+        "duration": 1964.9499999284744
+      },
+      {
+        "startTime": 61945.825000047684,
+        "duration": 61.09500002861023
+      },
+      {
+        "startTime": 62013.36500000954,
+        "duration": 1889.2300000190735
+      },
+      {
+        "startTime": 63921.52499997616,
+        "duration": 94.40500009059906
+      },
+      {
+        "startTime": 64438.49500000477,
+        "duration": 61.47000002861023
+      },
+      {
+        "startTime": 64499.96500003338,
+        "duration": 593.6399999856949
+      },
+      {
+        "startTime": 65112.36500000954,
+        "duration": 1377.25
+      },
+      {
+        "startTime": 66913.17500007153,
+        "duration": 64.87999999523163
+      },
+      {
+        "startTime": 67000.18000006676,
+        "duration": 1993.539999961853
+      }
+    ],
+    "workerTrace": [
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "end",
+        "at": 1792702817765,
+        "backend": "webgpu",
+        "receivedAt": 1792702817765
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "start",
+        "at": 1792702817765,
+        "backend": "webgpu",
+        "receivedAt": 1792702817765
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "end",
+        "at": 1792702818035,
+        "backend": "webgpu",
+        "receivedAt": 1792702818035
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "start",
+        "at": 1792702818066,
+        "backend": "webgpu",
+        "receivedAt": 1792702818164
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "end",
+        "at": 1792702818099,
+        "backend": "webgpu",
+        "receivedAt": 1792702818164
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "start",
+        "at": 1792702818099,
+        "backend": "webgpu",
+        "receivedAt": 1792702818164
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "end",
+        "at": 1792702820276,
+        "backend": "webgpu",
+        "receivedAt": 1792702820276
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "start",
+        "at": 1792702820276,
+        "backend": "webgpu",
+        "receivedAt": 1792702820276
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "end",
+        "at": 1792702820553,
+        "backend": "webgpu",
+        "receivedAt": 1792702820553
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "start",
+        "at": 1792702820591,
+        "backend": "webgpu",
+        "receivedAt": 1792702820801
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "end",
+        "at": 1792702820628,
+        "backend": "webgpu",
+        "receivedAt": 1792702820801
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "start",
+        "at": 1792702820628,
+        "backend": "webgpu",
+        "receivedAt": 1792702820801
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "end",
+        "at": 1792702822765,
+        "backend": "webgpu",
+        "receivedAt": 1792702822765
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "start",
+        "at": 1792702822765,
+        "backend": "webgpu",
+        "receivedAt": 1792702822765
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "end",
+        "at": 1792702823034,
+        "backend": "webgpu",
+        "receivedAt": 1792702823034
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "start",
+        "at": 1792702823059,
+        "backend": "webgpu",
+        "receivedAt": 1792702823157
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "end",
+        "at": 1792702823094,
+        "backend": "webgpu",
+        "receivedAt": 1792702823157
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "start",
+        "at": 1792702823094,
+        "backend": "webgpu",
+        "receivedAt": 1792702823157
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "end",
+        "at": 1792702825251,
+        "backend": "webgpu",
+        "receivedAt": 1792702825251
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "start",
+        "at": 1792702825251,
+        "backend": "webgpu",
+        "receivedAt": 1792702825251
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "end",
+        "at": 1792702825519,
+        "backend": "webgpu",
+        "receivedAt": 1792702825520
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "start",
+        "at": 1792702825545,
+        "backend": "webgpu",
+        "receivedAt": 1792702825644
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "end",
+        "at": 1792702825580,
+        "backend": "webgpu",
+        "receivedAt": 1792702825644
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "start",
+        "at": 1792702825580,
+        "backend": "webgpu",
+        "receivedAt": 1792702825644
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "end",
+        "at": 1792702827693,
+        "backend": "webgpu",
+        "receivedAt": 1792702827693
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "start",
+        "at": 1792702827693,
+        "backend": "webgpu",
+        "receivedAt": 1792702827693
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "end",
+        "at": 1792702827965,
+        "backend": "webgpu",
+        "receivedAt": 1792702827965
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "start",
+        "at": 1792702827999,
+        "backend": "webgpu",
+        "receivedAt": 1792702828100
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "end",
+        "at": 1792702828034,
+        "backend": "webgpu",
+        "receivedAt": 1792702828100
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "start",
+        "at": 1792702828034,
+        "backend": "webgpu",
+        "receivedAt": 1792702828100
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "end",
+        "at": 1792702830161,
+        "backend": "webgpu",
+        "receivedAt": 1792702830161
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "start",
+        "at": 1792702830161,
+        "backend": "webgpu",
+        "receivedAt": 1792702830161
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "end",
+        "at": 1792702830427,
+        "backend": "webgpu",
+        "receivedAt": 1792702830427
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "start",
+        "at": 1792702830451,
+        "backend": "webgpu",
+        "receivedAt": 1792702830555
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "end",
+        "at": 1792702830486,
+        "backend": "webgpu",
+        "receivedAt": 1792702830555
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "start",
+        "at": 1792702830486,
+        "backend": "webgpu",
+        "receivedAt": 1792702830555
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "end",
+        "at": 1792702832592,
+        "backend": "webgpu",
+        "receivedAt": 1792702832592
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "start",
+        "at": 1792702832592,
+        "backend": "webgpu",
+        "receivedAt": 1792702832592
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "end",
+        "at": 1792702832857,
+        "backend": "webgpu",
+        "receivedAt": 1792702832857
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "start",
+        "at": 1792702832882,
+        "backend": "webgpu",
+        "receivedAt": 1792702832981
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "end",
+        "at": 1792702832917,
+        "backend": "webgpu",
+        "receivedAt": 1792702832981
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "start",
+        "at": 1792702832917,
+        "backend": "webgpu",
+        "receivedAt": 1792702832981
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "end",
+        "at": 1792702835047,
+        "backend": "webgpu",
+        "receivedAt": 1792702835047
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "start",
+        "at": 1792702835047,
+        "backend": "webgpu",
+        "receivedAt": 1792702835047
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "end",
+        "at": 1792702835312,
+        "backend": "webgpu",
+        "receivedAt": 1792702835312
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "start",
+        "at": 1792702835351,
+        "backend": "webgpu",
+        "receivedAt": 1792702835446
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "end",
+        "at": 1792702835385,
+        "backend": "webgpu",
+        "receivedAt": 1792702835446
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "start",
+        "at": 1792702835385,
+        "backend": "webgpu",
+        "receivedAt": 1792702835446
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "end",
+        "at": 1792702837548,
+        "backend": "webgpu",
+        "receivedAt": 1792702837548
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "start",
+        "at": 1792702837548,
+        "backend": "webgpu",
+        "receivedAt": 1792702837548
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "end",
+        "at": 1792702837814,
+        "backend": "webgpu",
+        "receivedAt": 1792702837814
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "start",
+        "at": 1792702837842,
+        "backend": "webgpu",
+        "receivedAt": 1792702837954
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "end",
+        "at": 1792702837876,
+        "backend": "webgpu",
+        "receivedAt": 1792702837954
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "start",
+        "at": 1792702837876,
+        "backend": "webgpu",
+        "receivedAt": 1792702837954
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "end",
+        "at": 1792702840019,
+        "backend": "webgpu",
+        "receivedAt": 1792702840019
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "start",
+        "at": 1792702840019,
+        "backend": "webgpu",
+        "receivedAt": 1792702840019
+      },
+      {
+        "type": "diagnostic",
+        "phase": "istft",
+        "edge": "end",
+        "at": 1792702840290,
+        "backend": "webgpu",
+        "receivedAt": 1792702840290
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "start",
+        "at": 1792702840317,
+        "backend": "webgpu",
+        "receivedAt": 1792702840417
+      },
+      {
+        "type": "diagnostic",
+        "phase": "stft",
+        "edge": "end",
+        "at": 1792702840352,
+        "backend": "webgpu",
+        "receivedAt": 1792702840417
+      },
+      {
+        "type": "diagnostic",
+        "phase": "network",
+        "edge": "start",
+        "at": 1792702840352,
+        "backend": "webgpu",
+        "receivedAt": 1792702840417
+      }
+    ],
+    "longAnimationFrames": [
+      {
+        "startTime": 42457.77499997616,
+        "duration": 1797.0550000667572,
+        "blockingDuration": 0,
+        "renderStart": 44250.330000042915,
+        "styleAndLayoutStart": 44252.47500002384,
+        "scripts": []
+      },
+      {
+        "startTime": 44663.389999985695,
+        "duration": 72.4650000333786,
+        "blockingDuration": 0,
+        "renderStart": 44731.60000002384,
+        "styleAndLayoutStart": 44735.485000014305,
+        "scripts": []
+      },
+      {
+        "startTime": 44746.44500005245,
+        "duration": 2006.4850000143051,
+        "blockingDuration": 0,
+        "renderStart": 46751.825000047684,
+        "styleAndLayoutStart": 46752.40999996662,
+        "scripts": []
+      },
+      {
+        "startTime": 47188.825000047684,
+        "duration": 67.77999997138977,
+        "blockingDuration": 0,
+        "renderStart": 47255.700000047684,
+        "styleAndLayoutStart": 47256.15999996662,
+        "scripts": []
+      },
+      {
+        "startTime": 47506.37000000477,
+        "duration": 1741.7300000190735,
+        "blockingDuration": 0,
+        "renderStart": 49246.71000003815,
+        "styleAndLayoutStart": 49247.625,
+        "scripts": []
+      },
+      {
+        "startTime": 49656.14499998093,
+        "duration": 62.300000071525574,
+        "blockingDuration": 0,
+        "renderStart": 49714.72500002384,
+        "styleAndLayoutStart": 49718.110000014305,
+        "scripts": []
+      },
+      {
+        "startTime": 49730.71500003338,
+        "duration": 1998.75,
+        "blockingDuration": 0,
+        "renderStart": 51728.10000002384,
+        "styleAndLayoutStart": 51728.955000042915,
+        "scripts": []
+      },
+      {
+        "startTime": 52205.78499996662,
+        "duration": 1974.835000038147,
+        "blockingDuration": 0,
+        "renderStart": 54177.37999999523,
+        "styleAndLayoutStart": 54180.34000003338,
+        "scripts": []
+      },
+      {
+        "startTime": 54602.09000003338,
+        "duration": 51.080000042915344,
+        "blockingDuration": 0,
+        "renderStart": 54652.18000006676,
+        "styleAndLayoutStart": 54652.84500002861,
+        "scripts": []
+      },
+      {
+        "startTime": 54664.01999998093,
+        "duration": 1973.070000052452,
+        "blockingDuration": 0,
+        "renderStart": 56632.87999999523,
+        "styleAndLayoutStart": 56636.81000006199,
+        "scripts": []
+      },
+      {
+        "startTime": 57105.33500003815,
+        "duration": 1961.8450000286102,
+        "blockingDuration": 0,
+        "renderStart": 59062.74000000954,
+        "styleAndLayoutStart": 59066.78999996185,
+        "scripts": []
+      },
+      {
+        "startTime": 59481.03499996662,
+        "duration": 65.66500008106232,
+        "blockingDuration": 0,
+        "renderStart": 59539.19500005245,
+        "styleAndLayoutStart": 59546.28499996662,
+        "scripts": [
+          {
+            "duration": 6.414999961853027,
+            "sourceURL": "http://127.0.0.1:8765/examples/wam/source-separation/main.js",
+            "sourceFunctionName": "tick",
+            "invoker": "FrameRequestCallback",
+            "executionStart": 59539.74000000954,
+            "forcedStyleAndLayoutDuration": 2.91
+          }
+        ]
+      },
+      {
+        "startTime": 59564.37999999523,
+        "duration": 1965.1299999952316,
+        "blockingDuration": 0,
+        "renderStart": 61527.82000005245,
+        "styleAndLayoutStart": 61528.955000042915,
+        "scripts": []
+      },
+      {
+        "startTime": 61946.80500006676,
+        "duration": 60.894999980926514,
+        "blockingDuration": 0,
+        "renderStart": 62006.06000006199,
+        "styleAndLayoutStart": 62007.27499997616,
+        "scripts": []
+      },
+      {
+        "startTime": 62014.40999996662,
+        "duration": 1893.8250000476837,
+        "blockingDuration": 0,
+        "renderStart": 63901.96000003815,
+        "styleAndLayoutStart": 63907.795000076294,
+        "scripts": []
+      },
+      {
+        "startTime": 63922.55500006676,
+        "duration": 94.04999995231628,
+        "blockingDuration": 0,
+        "renderStart": 64015.47000002861,
+        "styleAndLayoutStart": 64016.22500002384,
+        "scripts": []
+      },
+      {
+        "startTime": 64439.06500005722,
+        "duration": 61.375,
+        "blockingDuration": 0,
+        "renderStart": 64499.16499996185,
+        "styleAndLayoutStart": 64500.14999997616,
+        "scripts": [
+          {
+            "duration": 11.054999947547913,
+            "sourceURL": "http://127.0.0.1:8765/examples/wam/source-separation/StreamTransport.js",
+            "sourceFunctionName": "",
+            "invoker": "TimerHandler:setTimeout",
+            "executionStart": 64466.08500003815,
+            "forcedStyleAndLayoutDuration": 0
+          }
+        ]
+      },
+      {
+        "startTime": 64501.47500002384,
+        "duration": 596.3149999380112,
+        "blockingDuration": 0,
+        "renderStart": 65093.09500002861,
+        "styleAndLayoutStart": 65097.43500006199,
+        "scripts": []
+      },
+      {
+        "startTime": 65112.55500006676,
+        "duration": 1378.1949999332428,
+        "blockingDuration": 0,
+        "renderStart": 66489.3600000143,
+        "styleAndLayoutStart": 66490.24000000954,
+        "scripts": []
+      }
+    ],
+    "transportMode": "shared-ringbuffer",
+    "isolated": true,
+    "availableSeconds": 39,
+    "position": 32.46866666666667,
+    "timeOrigin": 1792702773472.82,
+    "workerPhaseTracing": true,
+    "longAnimationFrameSupported": true,
+    "scheduledVoices": 42,
+    "audioLookAheadSeconds": 8,
+    "busy": true
+  },
+  "phases": [
+    {
+      "phase": "istft",
+      "start": 1792702817765,
+      "end": 1792702818035,
+      "duration": 270
+    },
+    {
+      "phase": "stft",
+      "start": 1792702818066,
+      "end": 1792702818099,
+      "duration": 33
+    },
+    {
+      "phase": "network",
+      "start": 1792702818099,
+      "end": 1792702820276,
+      "duration": 2177
+    },
+    {
+      "phase": "istft",
+      "start": 1792702820276,
+      "end": 1792702820553,
+      "duration": 277
+    },
+    {
+      "phase": "stft",
+      "start": 1792702820591,
+      "end": 1792702820628,
+      "duration": 37
+    },
+    {
+      "phase": "network",
+      "start": 1792702820628,
+      "end": 1792702822765,
+      "duration": 2137
+    },
+    {
+      "phase": "istft",
+      "start": 1792702822765,
+      "end": 1792702823034,
+      "duration": 269
+    },
+    {
+      "phase": "stft",
+      "start": 1792702823059,
+      "end": 1792702823094,
+      "duration": 35
+    },
+    {
+      "phase": "network",
+      "start": 1792702823094,
+      "end": 1792702825251,
+      "duration": 2157
+    },
+    {
+      "phase": "istft",
+      "start": 1792702825251,
+      "end": 1792702825519,
+      "duration": 268
+    },
+    {
+      "phase": "stft",
+      "start": 1792702825545,
+      "end": 1792702825580,
+      "duration": 35
+    },
+    {
+      "phase": "network",
+      "start": 1792702825580,
+      "end": 1792702827693,
+      "duration": 2113
+    },
+    {
+      "phase": "istft",
+      "start": 1792702827693,
+      "end": 1792702827965,
+      "duration": 272
+    },
+    {
+      "phase": "stft",
+      "start": 1792702827999,
+      "end": 1792702828034,
+      "duration": 35
+    },
+    {
+      "phase": "network",
+      "start": 1792702828034,
+      "end": 1792702830161,
+      "duration": 2127
+    },
+    {
+      "phase": "istft",
+      "start": 1792702830161,
+      "end": 1792702830427,
+      "duration": 266
+    },
+    {
+      "phase": "stft",
+      "start": 1792702830451,
+      "end": 1792702830486,
+      "duration": 35
+    },
+    {
+      "phase": "network",
+      "start": 1792702830486,
+      "end": 1792702832592,
+      "duration": 2106
+    },
+    {
+      "phase": "istft",
+      "start": 1792702832592,
+      "end": 1792702832857,
+      "duration": 265
+    },
+    {
+      "phase": "stft",
+      "start": 1792702832882,
+      "end": 1792702832917,
+      "duration": 35
+    },
+    {
+      "phase": "network",
+      "start": 1792702832917,
+      "end": 1792702835047,
+      "duration": 2130
+    },
+    {
+      "phase": "istft",
+      "start": 1792702835047,
+      "end": 1792702835312,
+      "duration": 265
+    },
+    {
+      "phase": "stft",
+      "start": 1792702835351,
+      "end": 1792702835385,
+      "duration": 34
+    },
+    {
+      "phase": "network",
+      "start": 1792702835385,
+      "end": 1792702837548,
+      "duration": 2163
+    },
+    {
+      "phase": "istft",
+      "start": 1792702837548,
+      "end": 1792702837814,
+      "duration": 266
+    },
+    {
+      "phase": "stft",
+      "start": 1792702837842,
+      "end": 1792702837876,
+      "duration": 34
+    },
+    {
+      "phase": "network",
+      "start": 1792702837876,
+      "end": 1792702840019,
+      "duration": 2143
+    },
+    {
+      "phase": "istft",
+      "start": 1792702840019,
+      "end": 1792702840290,
+      "duration": 271
+    },
+    {
+      "phase": "stft",
+      "start": 1792702840317,
+      "end": 1792702840352,
+      "duration": 35
+    }
+  ],
+  "gapOverlaps": [
+    {
+      "startTime": 44745.89499998093,
+      "duration": 2006.1850000619888,
+      "epochStart": 1792702818218.715,
+      "overlap": [
+        {
+          "phase": "network",
+          "ms": 2006.18505859375
+        }
+      ]
+    },
+    {
+      "startTime": 47504.98000001907,
+      "duration": 1742.164999961853,
+      "epochStart": 1792702820977.8,
+      "overlap": [
+        {
+          "phase": "network",
+          "ms": 1742.1650390625
+        }
+      ]
+    },
+    {
+      "startTime": 49729.77499997616,
+      "duration": 1998.710000038147,
+      "epochStart": 1792702823202.595,
+      "overlap": [
+        {
+          "phase": "network",
+          "ms": 1998.7099609375
+        }
+      ]
+    },
+    {
+      "startTime": 52204.800000071526,
+      "duration": 1972.8799999952316,
+      "epochStart": 1792702825677.62,
+      "overlap": [
+        {
+          "phase": "network",
+          "ms": 1972.8798828125
+        }
+      ]
+    },
+    {
+      "startTime": 54663.14499998093,
+      "duration": 1970.25,
+      "epochStart": 1792702828135.965,
+      "overlap": [
+        {
+          "phase": "network",
+          "ms": 1970.25
+        }
+      ]
+    },
+    {
+      "startTime": 57104.99500000477,
+      "duration": 1958.1100000143051,
+      "epochStart": 1792702830577.8152,
+      "overlap": [
+        {
+          "phase": "network",
+          "ms": 1958.110107421875
+        }
+      ]
+    },
+    {
+      "startTime": 59563.330000042915,
+      "duration": 1964.9499999284744,
+      "epochStart": 1792702833036.1501,
+      "overlap": [
+        {
+          "phase": "network",
+          "ms": 1964.949951171875
+        }
+      ]
+    },
+    {
+      "startTime": 62013.36500000954,
+      "duration": 1889.2300000190735,
+      "epochStart": 1792702835486.185,
+      "overlap": [
+        {
+          "phase": "network",
+          "ms": 1889.22998046875
+        }
+      ]
+    },
+    {
+      "startTime": 64499.96500003338,
+      "duration": 593.6399999856949,
+      "epochStart": 1792702837972.7852,
+      "overlap": [
+        {
+          "phase": "network",
+          "ms": 593.639892578125
+        }
+      ]
+    },
+    {
+      "startTime": 65112.36500000954,
+      "duration": 1377.25,
+      "epochStart": 1792702838585.185,
+      "overlap": [
+        {
+          "phase": "network",
+          "ms": 1377.25
+        }
+      ]
+    },
+    {
+      "startTime": 67000.18000006676,
+      "duration": 1993.539999961853,
+      "epochStart": 1792702840473,
+      "overlap": []
+    }
+  ],
+  "note": "Concurrent playback+inference, diagnostic enabled, snapshot while busy. Timers remain responsive while RAF gaps correlate with network phase. This is evidence of delayed rendering, not a GPU driver trace or proof of a specific kernel. No machine CPU utilization or memory pressure measurement."
+}

@@ -1,0 +1,193 @@
+{
+    "name": "Chorus",
+    "filename": "Chorus.dsp",
+    "version": "2.74.8",
+    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "include_pathnames": [
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 1310796,
+    "code": "WNu7",
+    "inputs": 2,
+    "outputs": 2,
+    "meta": [
+        {
+            "author": "Albert Graef"
+        },
+        {
+            "basics_lib_name": "Faust Basic Element Library"
+        },
+        {
+            "basics_lib_tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+        },
+        {
+            "basics_lib_version": "1.19.1"
+        },
+        {
+            "category": "Modulation"
+        },
+        {
+            "compile_options": "-single -scal -I /usr/share/project/"
+        },
+        {
+            "delays_lib_name": "Faust Delay Library"
+        },
+        {
+            "delays_lib_version": "1.1.0"
+        },
+        {
+            "filename": "Chorus.dsp"
+        },
+        {
+            "library_path0": "/usr/share/faust/stdfaust.lib"
+        },
+        {
+            "library_path1": "/usr/share/faust/basics.lib"
+        },
+        {
+            "library_path2": "/usr/share/faust/signals.lib"
+        },
+        {
+            "library_path3": "/usr/share/faust/maths.lib"
+        },
+        {
+            "library_path4": "/usr/share/faust/platform.lib"
+        },
+        {
+            "library_path5": "/usr/share/project/delays.lib"
+        },
+        {
+            "maths_lib_author": "GRAME"
+        },
+        {
+            "maths_lib_copyright": "GRAME"
+        },
+        {
+            "maths_lib_license": "LGPL with exception"
+        },
+        {
+            "maths_lib_name": "Faust Math Library"
+        },
+        {
+            "maths_lib_version": "2.8.0"
+        },
+        {
+            "name": "Chorus"
+        },
+        {
+            "platform_lib_name": "Generic Platform Library"
+        },
+        {
+            "platform_lib_version": "1.3.0"
+        },
+        {
+            "signals_lib_name": "Faust Signal Routing Library"
+        },
+        {
+            "signals_lib_version": "1.6.0"
+        },
+        {
+            "version": "2.75.15"
+        }
+    ],
+    "ui": [
+        {
+            "type": "vgroup",
+            "label": "Chorus",
+            "items": [
+                {
+                    "type": "checkbox",
+                    "label": "bypass",
+                    "shortname": "bypass",
+                    "address": "/Chorus/bypass",
+                    "index": 262156
+                },
+                {
+                    "type": "vgroup",
+                    "label": "chorus",
+                    "items": [
+                        {
+                            "type": "hslider",
+                            "label": "delay",
+                            "shortname": "delay",
+                            "address": "/Chorus/chorus/delay",
+                            "index": 786468,
+                            "meta": [
+                                {
+                                    "name": "Delay"
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 0.02,
+                            "min": 0,
+                            "max": 0.2,
+                            "step": 0.01
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "depth",
+                            "shortname": "depth",
+                            "address": "/Chorus/chorus/depth",
+                            "index": 786480,
+                            "meta": [
+                                {
+                                    "name": "Depth"
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 0.02,
+                            "min": 0,
+                            "max": 1,
+                            "step": 0.01
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "freq",
+                            "shortname": "freq",
+                            "address": "/Chorus/chorus/freq",
+                            "index": 786488,
+                            "meta": [
+                                {
+                                    "name": "Freq"
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 3,
+                            "min": 0,
+                            "max": 10,
+                            "step": 0.01
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "level",
+                            "shortname": "level",
+                            "address": "/Chorus/chorus/level",
+                            "index": 786460,
+                            "meta": [
+                                {
+                                    "name": "Level"
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 0.5,
+                            "min": 0,
+                            "max": 1,
+                            "step": 0.01
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

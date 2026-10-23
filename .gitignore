@@ -31,3 +31,6 @@
 
 # Local scratch file
 /H
+
+# Reproducible neural exports; included in the static deployment
+/examples/wam/source-separation/model-assets/*.onnx

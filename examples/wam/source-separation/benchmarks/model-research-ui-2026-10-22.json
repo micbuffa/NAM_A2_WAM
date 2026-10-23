@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-22",
+  "route": "/dist/NAM_A2_WAM/",
+  "checks": {
+    "segmentSelectorAbsent": true,
+    "durationSelectorPresent": true,
+    "chosenModelBackendPresent": true,
+    "researchPanelInSettings": true,
+    "researchCandidates": 8,
+    "runnableModels": 3,
+    "unvalidatedCandidatesCannotBeDownloadedOrSelected": true,
+    "consoleErrors": []
+  },
+  "automatedTests": {
+    "passed": 353,
+    "failed": 0
+  },
+  "scope": "UI and reference study only; no execution or quality validation of the new candidate models."
+}

@@ -1,0 +1,98 @@
+{
+  "scope": "CPU spectrogram parity vs supplied third-party PyTorch reference; no browser/audio quality validation",
+  "modelRevision": "a744f80957374e1735ad70fa122670b7961da8cc",
+  "runtime": "1.22.0",
+  "loadMs": 2868.8805830897763,
+  "inferMs": 11036.092624999583,
+  "inputs": {
+    "spec_real": [
+      1,
+      2,
+      1025,
+      345
+    ],
+    "spec_imag": [
+      1,
+      2,
+      1025,
+      345
+    ]
+  },
+  "comparison": [
+    {
+      "branch": "out_spec_real",
+      "maxAbsError": 1.043081283569336e-06,
+      "relativeRmsError": 6.108064143194431e-07,
+      "sources": [
+        {
+          "role": "bass",
+          "maxAbsError": 2.7907162802875973e-08,
+          "relativeRmsError": 7.57286905207911e-05
+        },
+        {
+          "role": "drums",
+          "maxAbsError": 2.176602720282972e-08,
+          "relativeRmsError": 2.2143583463639516e-05
+        },
+        {
+          "role": "other",
+          "maxAbsError": 1.043081283569336e-06,
+          "relativeRmsError": 6.104625339022272e-07
+        },
+        {
+          "role": "vocals",
+          "maxAbsError": 3.434251993894577e-08,
+          "relativeRmsError": 0.00023261989209082394
+        },
+        {
+          "role": "guitar",
+          "maxAbsError": 3.085523303525406e-08,
+          "relativeRmsError": 0.0001842512718567875
+        },
+        {
+          "role": "piano",
+          "maxAbsError": 2.5578174245310947e-08,
+          "relativeRmsError": 0.00013769609954594758
+        }
+      ]
+    },
+    {
+      "branch": "out_spec_imag",
+      "maxAbsError": 9.834766387939453e-07,
+      "relativeRmsError": 6.084160606769231e-07,
+      "sources": [
+        {
+          "role": "bass",
+          "maxAbsError": 3.153195393679198e-08,
+          "relativeRmsError": 6.869635850654422e-05
+        },
+        {
+          "role": "drums",
+          "maxAbsError": 2.308661350980401e-08,
+          "relativeRmsError": 3.825649285339283e-06
+        },
+        {
+          "role": "other",
+          "maxAbsError": 9.834766387939453e-07,
+          "relativeRmsError": 6.080726594512374e-07
+        },
+        {
+          "role": "vocals",
+          "maxAbsError": 2.5403551262570545e-08,
+          "relativeRmsError": 6.632585760973259e-06
+        },
+        {
+          "role": "guitar",
+          "maxAbsError": 3.146533344988711e-08,
+          "relativeRmsError": 4.483512657496296e-06
+        },
+        {
+          "role": "piano",
+          "maxAbsError": 3.4489858080632985e-08,
+          "relativeRmsError": 6.986227273687133e-05
+        }
+      ]
+    }
+  ],
+  "passed": true
+}

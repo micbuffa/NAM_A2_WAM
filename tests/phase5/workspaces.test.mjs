@@ -59,3 +59,7 @@ test('the Tracks cards describe the active tone and the guitar source', async ()
   const file = describeGuitar({source: 'clean-riff.wav', live: false});
   assert.deepEqual([file.name, file.detail, file.action], ['Dry guitar file', 'clean-riff.wav', null]);
 });
+
+test('Multitracks is a distinct remembered workspace without replacing Tracks',()=>{
+ const control=Object.assign(new EventTarget(),{value:'tone'}),root={dataset:{}},storage=memoryStorage();const w=new Workspaces({control,root,storage});w.show('multitracks');assert.equal(w.current,'multitracks');assert.equal(storage.getItem('nam-a2-wam.workspace'),'multitracks');w.show('tracks');assert.equal(w.current,'tracks');assert.equal(control.value,'tracks');
+});

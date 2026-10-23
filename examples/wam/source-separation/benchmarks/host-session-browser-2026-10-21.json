@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-21",
+  "browser": "Chrome",
+  "method": "UI actions via CUA, read-only DOM checks",
+  "developmentHost": {
+    "url": "http://127.0.0.1:8765/examples/wam/",
+    "libraryOriginalSeconds": 324.9,
+    "model": "htdemucs_4s_onnx",
+    "backend": "webgpu",
+    "stems": 4,
+    "excerptSeconds": 5,
+    "restoredAfterReload": {
+      "view": "mix",
+      "loopA": 1,
+      "loopB": 4,
+      "drumsVolume": 0.15,
+      "playing": false
+    },
+    "secondLibraryTrackSeconds": 236
+  },
+  "staticHost": {
+    "url": "http://127.0.0.1:8765/dist/NAM_A2_WAM/",
+    "restoredSharedOriginCache": true,
+    "view": "mix",
+    "loopA": 1,
+    "loopB": 4,
+    "playing": false,
+    "separateEnabledAfterRestore": true,
+    "consoleErrors": []
+  },
+  "standalone": {
+    "demoStems": 4,
+    "saveRestore": true,
+    "playingAfterRestore": false
+  },
+  "nativeRoutingReport": "host-routing-native-2026-10-21.json",
+  "nodeTestsPassed": 329
+}

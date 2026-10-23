@@ -1,0 +1,71 @@
+{
+  "protocol": "instrument-listening-v1",
+  "status": "completed",
+  "date": "2026-10-23T09:38:59.928Z",
+  "source": "Slow Motion Dream",
+  "sourceSha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507",
+  "sampleRate": 44100,
+  "frames": 264600,
+  "normalization": false,
+  "referenceStems": false,
+  "runs": [
+    {
+      "modelId": "htdemucs_4s_onnx",
+      "label": "Qualit\u00e9 \u00b7 Demucs v4 \u00b7 4 pistes ONNX \u00b7 GPU exp\u00e9rimental",
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "backend": "webgpu",
+      "status": "ok",
+      "outputs": [
+        {
+          "label": "Basse",
+          "peak": 0.3593645691871643,
+          "overRangeSamples": 0
+        },
+        {
+          "label": "Backing sans Basse",
+          "peak": 1.1137595176696777,
+          "overRangeSamples": 51
+        },
+        {
+          "label": "Autres (guitare non isol\u00e9e)",
+          "peak": 0.7619110345840454,
+          "overRangeSamples": 0
+        },
+        {
+          "label": "Backing sans Autres (guitare non isol\u00e9e)",
+          "peak": 1.060436487197876,
+          "overRangeSamples": 18
+        }
+      ]
+    },
+    {
+      "modelId": "bs_roformer_sw_6s",
+      "label": "BS Roformer SW \u00b7 6 instruments \u00b7 GPU exp\u00e9rimental",
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "backend": "webgpu",
+      "status": "ok",
+      "outputs": [
+        {
+          "label": "Basse",
+          "peak": 0.42314934730529785,
+          "overRangeSamples": 0
+        },
+        {
+          "label": "Backing sans Basse",
+          "peak": 1.1190603971481323,
+          "overRangeSamples": 64
+        },
+        {
+          "label": "Guitare",
+          "peak": 0.03218480572104454,
+          "overRangeSamples": 0
+        },
+        {
+          "label": "Backing sans Guitare",
+          "peak": 1.009871482849121,
+          "overRangeSamples": 7
+        }
+      ]
+    }
+  ]
+}

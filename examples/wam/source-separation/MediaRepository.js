@@ -1,0 +1,13 @@
+// Async repository boundary: replace with an HTTP adapter for a future backend.
+// Lists read ONLY entries, never Blob assets or decoded PCM sessions.
+export class MediaRepository {
+  constructor({indexedDB=globalThis.indexedDB}={}){this.indexedDB=indexedDB;}
+  async open(){if(!this.indexedDB)throw Error('Stockage local indisponible.');if(!this.pending)this.pending=new Promise((resolve,reject)=>{const r=this.indexedDB.open('nam-media-library',1);r.onupgradeneeded=()=>{r.result.createObjectStore('entries',{keyPath:'id'});r.result.createObjectStore('assets',{keyPath:'id'});};r.onsuccess=()=>{r.result.onversionchange=()=>{r.result.close();this.pending=null;};resolve(r.result);};r.onerror=r.onblocked=()=>{this.pending=null;reject(r.error||Error('Bibliothèque locale bloquée.'));};});return this.pending;}
+  async read(store,key){const db=await this.open();return new Promise((resolve,reject)=>{const r=key===undefined?db.transaction(store).objectStore(store).getAll():db.transaction(store).objectStore(store).get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
+  async list(kind){return (await this.read('entries')).filter(x=>x.kind===kind).sort((a,b)=>b.updatedAt-a.updatedAt);}
+  get(id){return this.read('entries',id);}
+  async write(entry,blob){const db=await this.open();return new Promise((resolve,reject)=>{const tx=db.transaction(blob?['entries','assets']:['entries'],'readwrite');if(blob)tx.objectStore('assets').put({id:entry.id,blob});tx.objectStore('entries').put(entry);tx.oncomplete=()=>resolve(entry);tx.onerror=tx.onabort=()=>reject(tx.error||Error('Bibliothèque pleine.'));});}
+  putProject({id=crypto.randomUUID(),title,state}){if(state?.version!==2||!state.result||!state.result.tracks?.length||!Number.isFinite(state.result.duration)||state.result.duration<=0||typeof title!=='string'||!title.trim())throw Error('Projet séparé incomplet.');return this.write({id,kind:'project',title,state,updatedAt:Date.now(),duration:state.result.duration,stems:state.result.tracks.length});}
+  putTrack({id='mix-'+crypto.randomUUID(),title,blob,duration,renderInfo=null}){if(typeof title!=='string'||!title.trim()||!Number.isFinite(duration)||duration<=0||!(blob instanceof Blob)||blob.type!=='audio/mpeg'||!blob.size)throw Error('Export MP3 invalide.');return this.write({id,kind:'track',title,duration,mime:'audio/mpeg',size:blob.size,renderInfo,updatedAt:Date.now()},blob);}
+  async getTrackFile(id){const entry=await this.get(id);if(entry?.kind!=='track')throw Error('Piste exportée introuvable.');const asset=await this.read('assets',id);if(!asset?.blob)throw Error('Audio exporté absent du cache.');return asset.blob;}
+}

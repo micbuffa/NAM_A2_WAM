@@ -1,0 +1,20 @@
+{
+    "identifier": "fr.grame.faust.guitar tube amp sim 100% faust",
+    "name": "guitar tube amp sim 100% FAUST",
+    "vendor": "Michel Buffa & Jerome Lebrun",
+    "description": "",
+    "version": "0.3",
+    "apiVersion": "2.0.0",
+    "keywords": [],
+    "isInstrument": false,
+    "website": "",
+    "hasAudioInput": true,
+    "hasAudioOutput": true,
+    "hasMidiInput": true,
+    "hasMidiOutput": false,
+    "faustMeta": {
+        "poly": false,
+        "fft": false,
+        "effect": null
+    }
+}

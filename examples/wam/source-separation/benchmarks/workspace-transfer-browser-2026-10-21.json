@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-21",
+  "branch": "multitracks",
+  "method": "Chrome UI via CUA; DOM observations and successful original-player decode",
+  "routes": [
+    "/examples/wam/",
+    "/dist/NAM_A2_WAM/"
+  ],
+  "automatedTests": {
+    "passed": 340,
+    "failed": 0
+  },
+  "checks": {
+    "originalTracksControlsRestored": true,
+    "waveformContextMenuTransferSwitchesWorkspace": true,
+    "realSeparation": {
+      "title": "Are You Gonna Be My Girl - Jet",
+      "backend": "webgpu",
+      "stems": 4,
+      "excerptSeconds": 5
+    },
+    "settingsClosedByDefault": true,
+    "testControlsHiddenUntilSettingsOpened": true,
+    "reloadLoadsProjectMetadataWithoutWaveforms": true,
+    "selectedProjectRestoredPaused": true,
+    "mixAndInstrumentViews": true,
+    "loopABSeconds": [
+      1,
+      4
+    ],
+    "mp3Export": {
+      "codec": "MP3",
+      "channels": 2,
+      "bitrateKbps": 192,
+      "originalTracksDecodedDurationSeconds": 5,
+      "selectedPaused": true,
+      "survivesReload": true
+    },
+    "consoleErrors": []
+  },
+  "scope": "Short excerpt feasibility, no claim of complete-song separation or listening quality equivalence."
+}

@@ -1,0 +1,33 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>Tracks · routage partagé</title>
+<style>body{font:14px system-ui;background:#182129;color:#eee;padding:24px}button{padding:12px}pre{white-space:pre-wrap}</style>
+<h1>Tracks : rack + backing, après sauvegarde/restauration</h1><p>Rendu Web Audio hors ligne, sans haut-parleurs. Un signal connu représente la sortie traitée du rack ; le lecteur et le mixeur utilisent le même contexte.</p><button id="compare">Comparer</button><pre id="result">Prêt</pre>
+<script type="module">
+import {SeparationMixer} from '../../../examples/wam/source-separation/SeparationMixer.js';
+import {SeparationWorkflow} from '../../../examples/wam/source-separation/SeparationWorkflow.js';
+import {MultitrackEngine} from '../../../examples/wam/source-separation/MultitrackEngine.js';
+import {MultitrackSession} from '../../../examples/wam/source-separation/MultitrackSession.js';
+import {PeakNormalization} from '../../../examples/wam/source-separation/PeakNormalization.js';
+import {saveSession,restoreSession} from '../../../examples/wam/source-separation/MultitrackState.js';
+document.querySelector('#compare').onclick=async()=>{
+ const output=document.querySelector('#result');output.textContent='Rendu…';
+ try{
+ const results=[];
+ for(const mix of [0,.5,1]){
+  const native=new OfflineAudioContext(2,22050,44100),context={get currentTime(){return native.currentTime;},state:'running',destination:native.destination,resume:async()=>{}};
+  for(const method of ['createGain','createStereoPanner','createBufferSource','createBuffer','createChannelSplitter','createAnalyser'])context[method]=native[method].bind(native);
+  const rackOutput=native.createGain(),mixer=new SeparationMixer(context,{guitarSource:rackOutput}),flow=new SeparationWorkflow({destination:mixer.backingInput,onActivate:deck=>mixer.setActiveEngine(deck.engine)});
+  const make=(tracks,title)=>{const engine=new MultitrackEngine(context);engine.load(tracks);engine.outputNode.gain.value=.7;const session=new MultitrackSession(tracks),normalization=new PeakNormalization(engine,session);engine.sync(session.tracks);return {engine,session,normalization,title,cleanup(){normalization.destroy();}};};
+  const track=()=>{const buffer=native.createBuffer(2,17640,44100);buffer.getChannelData(0).fill(.2);buffer.getChannelData(1).fill(.2);return [{id:'backing',role:'original',buffer}];};
+  flow.setOriginal(make(track(),'Original'));await flow.begin(make(track(),'Result'));await flow.showResult();mixer.update({volumeDb:-6,mix});
+  const store={async put(record){this.record=structuredClone(record);},async get(){return structuredClone(this.record);}};
+  const state=await saveSession({workflow:flow,mixer,store,key:'native'});await restoreSession(state,{context,store,createDeck:make,workflow:flow,mixer});
+  const pausedBeforePlay=!flow.active.engine.playing;
+  const guitar=native.createBufferSource(),guitarBuffer=native.createBuffer(2,17640,44100);guitarBuffer.getChannelData(0).fill(.1);guitarBuffer.getChannelData(1).fill(.1);guitar.buffer=guitarBuffer;guitar.connect(rackOutput);guitar.start(.03);await flow.active.engine.play();
+  const audio=await native.startRendering(),expected=.1*Math.min(1,2*(1-mix))+.2*.7*10**(-6/20)*Math.min(1,2*mix);
+  let error=0;for(let c=0;c<2;c++)for(let i=8820;i<13230;i++)error=Math.max(error,Math.abs(audio.getChannelData(c)[i]-expected));
+  results.push({mix,expected,error,pausedBeforePlay,pass:error<2e-5&&pausedBeforePlay});flow.destroy();mixer.destroy();
+ }
+ output.textContent=JSON.stringify({pass:results.every(r=>r.pass),results},null,2);
+ }catch(error){output.textContent=JSON.stringify({pass:false,error:error.message});}
+};
+</script></html>

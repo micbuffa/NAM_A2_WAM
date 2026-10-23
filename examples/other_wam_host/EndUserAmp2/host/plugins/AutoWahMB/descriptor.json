@@ -1,0 +1,20 @@
+{
+    "identifier": "fr.grame.faust.autowahmb",
+    "name": "AUtoWahMB",
+    "vendor": "Faust User",
+    "description": "",
+    "version": "2.75.15",
+    "apiVersion": "2.0.0",
+    "keywords": [],
+    "isInstrument": false,
+    "website": "",
+    "hasAudioInput": true,
+    "hasAudioOutput": true,
+    "hasMidiInput": true,
+    "hasMidiOutput": false,
+    "faustMeta": {
+        "poly": false,
+        "fft": false,
+        "effect": null
+    }
+}

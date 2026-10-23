@@ -40,9 +40,9 @@ test('6s reports all completed stems only after the joint inference result',asyn
   await runner.separate(model,channels(),data=>events.push(data));
   assert.deepEqual(events.filter(e=>e.phase==='track-complete').map(e=>e.trackRole),model.roles);
 });
-test('runner refuses missing models, overlong input and nonfinite model output',async()=>{
+test('runner refuses missing models, full-song input and nonfinite model output',async()=>{
   await assert.rejects(setup({status:'missing'}).runner.separate(model,channels()),/Téléchargez/);
-  await assert.rejects(setup().runner.separate(model,[new Float32Array(441001),new Float32Array(441001)]),/maximum/);
+  await assert.rejects(setup({status:'missing'}).runner.separate(model,[new Float32Array(441001),new Float32Array(441001)]),/Téléchargez/);
   await assert.rejects(setup().runner.separate(model,[new Float32Array([NaN]),new Float32Array([0])]),/requis/);
   const {runner,workers}=setup({respond:()=>({type:'result',stems:Array.from({length:12},()=>new Float32Array(10).fill(NaN))})});
   await assert.rejects(runner.separate(model,channels()),/invalides/);assert.equal(workers[0].terminated,true);
@@ -58,8 +58,8 @@ test('musical manifest pins immutable model files, specialist order and runtime 
   assert.deepEqual(six.roles,['drums','bass','other','vocals','guitar','piano']);
   assert.equal(ft.files.length,4);assert.equal(six.files.length,1);
   for(const model of manifest.models){
-    assert.equal(model.sampleRate,44100);assert.deepEqual(model.backends,model.runtime==='demucs-onnx-core'?['webgpu','wasm']:['wasm']);
-    for(const file of model.files){assert.ok(file.url.includes(model.sourceRevision));assert.match(file.sha256,/^[a-f0-9]{64}$/);assert.ok(file.size>1e6);}
+    assert.equal(model.sampleRate,44100);assert.deepEqual(model.backends,['demucs-onnx-core','bs-roformer-onnx'].includes(model.runtime)?['webgpu','wasm']:['wasm']);
+    for(const file of model.files){if(model.runtime==='bs-roformer-onnx')assert.equal(file.sha256,'d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444');else if(model.profile==='preview')assert.equal(file.url,'./model-assets/htdemucs-2s-core.onnx');else assert.ok(file.url.includes(model.sourceRevision));assert.match(file.sha256,/^[a-f0-9]{64}$/);assert.ok(file.size>1e6);}
   }
   const wasm=await readFile(new URL('vendor/demucs-wasm/demucs_onnx_simd.wasm',base));
   assert.equal(createHash('sha256').update(wasm).digest('hex'),'8dcb4329b49d1939a6691e008669feffadb40618b65f1bbd9929cea5880e935d');

@@ -1,0 +1,1590 @@
+{
+  "date": "2026-10-22",
+  "scope": "Numeric audio parity, not perceptual ranking or studio-stem SDR",
+  "modelRevision": "a744f80957374e1735ad70fa122670b7961da8cc",
+  "modelSha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444",
+  "runtime": "1.22.0",
+  "gpuDeviceFeatures": "No shader-f16 requested; fp32 compute with stored fp16 weights",
+  "runs": {
+    "gpuReference": {
+      "input": "reference",
+      "backend": "webgpu",
+      "frames": 176400,
+      "preparation": {
+        "type": "prepared",
+        "backend": "webgpu",
+        "loadMs": 10224.100000023842,
+        "warmMs": 4473.799999952316
+      },
+      "run": {
+        "type": "done",
+        "backend": "webgpu",
+        "elapsedMs": 2973.5,
+        "blocks": [
+          {
+            "index": 0,
+            "computeMs": 2973.399999976158,
+            "inputFrames": 176400,
+            "publishedFrames": 176400,
+            "elapsedMs": 2973.5
+          }
+        ],
+        "runtimeVersion": "1.22.0",
+        "profile": "quality",
+        "frames": 176400
+      },
+      "firstReadyMs": 3010.6999999284744,
+      "comparison": {
+        "channels": [
+          {
+            "rmsError": 3.010000970512254e-10,
+            "maxAbsError": 7.008139846220729e-09,
+            "referenceRms": 6.024468542313098e-07
+          },
+          {
+            "rmsError": 2.8729911556685795e-10,
+            "maxAbsError": 7.750649899662676e-09,
+            "referenceRms": 6.98253034148823e-07
+          },
+          {
+            "rmsError": 2.25515666721191e-09,
+            "maxAbsError": 1.1190559234819375e-07,
+            "referenceRms": 1.0982946612961646e-06
+          },
+          {
+            "rmsError": 2.158845214562304e-09,
+            "maxAbsError": 1.1720953807525802e-07,
+            "referenceRms": 7.598764518756154e-07
+          },
+          {
+            "rmsError": 3.0240406268228893e-07,
+            "maxAbsError": 8.322298526763916e-06,
+            "referenceRms": 0.005393750787457725
+          },
+          {
+            "rmsError": 3.161085507531353e-07,
+            "maxAbsError": 8.28609336167574e-06,
+            "referenceRms": 0.005387666232794301
+          },
+          {
+            "rmsError": 2.0585806520378987e-10,
+            "maxAbsError": 6.952056708087184e-09,
+            "referenceRms": 1.718325331310819e-07
+          },
+          {
+            "rmsError": 1.9173710131889444e-10,
+            "maxAbsError": 6.696069476674893e-09,
+            "referenceRms": 1.3577133645794474e-07
+          },
+          {
+            "rmsError": 8.449386272626931e-11,
+            "maxAbsError": 2.99689872917952e-09,
+            "referenceRms": 2.8706612835135644e-07
+          },
+          {
+            "rmsError": 8.985239105708121e-11,
+            "maxAbsError": 2.350162731090677e-09,
+            "referenceRms": 3.5456305019452304e-07
+          },
+          {
+            "rmsError": 2.1607789979305166e-10,
+            "maxAbsError": 9.305665571446298e-09,
+            "referenceRms": 2.6288288409912606e-07
+          },
+          {
+            "rmsError": 1.939170800435515e-10,
+            "maxAbsError": 5.587459384059912e-09,
+            "referenceRms": 2.699586127354072e-07
+          }
+        ],
+        "rmsError": 1.2628767791531642e-07,
+        "relativeRmsError": 5.738398093327738e-05,
+        "maxAbsError": 8.322298526763916e-06,
+        "withinTolerance": true
+      },
+      "perChannel": [
+        {
+          "role": "bass",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 3.010000970512254e-10,
+              "maxAbsError": 7.008139846220729e-09,
+              "referenceRms": 6.024468542313098e-07
+            }
+          ],
+          "rmsError": 3.010000970512254e-10,
+          "relativeRmsError": 0.0004996292949944696,
+          "maxAbsError": 7.008139846220729e-09,
+          "withinTolerance": true
+        },
+        {
+          "role": "bass",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 2.8729911556685795e-10,
+              "maxAbsError": 7.750649899662676e-09,
+              "referenceRms": 6.98253034148823e-07
+            }
+          ],
+          "rmsError": 2.8729911556685795e-10,
+          "relativeRmsError": 0.00041145415990505253,
+          "maxAbsError": 7.750649899662676e-09,
+          "withinTolerance": true
+        },
+        {
+          "role": "drums",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 2.25515666721191e-09,
+              "maxAbsError": 1.1190559234819375e-07,
+              "referenceRms": 1.0982946612961646e-06
+            }
+          ],
+          "rmsError": 2.25515666721191e-09,
+          "relativeRmsError": 0.002053325711836259,
+          "maxAbsError": 1.1190559234819375e-07,
+          "withinTolerance": true
+        },
+        {
+          "role": "drums",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 2.158845214562304e-09,
+              "maxAbsError": 1.1720953807525802e-07,
+              "referenceRms": 7.598764518756154e-07
+            }
+          ],
+          "rmsError": 2.158845214562304e-09,
+          "relativeRmsError": 0.002841047658778729,
+          "maxAbsError": 1.1720953807525802e-07,
+          "withinTolerance": true
+        },
+        {
+          "role": "other",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 3.0240406268228893e-07,
+              "maxAbsError": 8.322298526763916e-06,
+              "referenceRms": 0.005393750787457725
+            }
+          ],
+          "rmsError": 3.0240406268228893e-07,
+          "relativeRmsError": 5.606563495396924e-05,
+          "maxAbsError": 8.322298526763916e-06,
+          "withinTolerance": true
+        },
+        {
+          "role": "other",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 3.161085507531353e-07,
+              "maxAbsError": 8.28609336167574e-06,
+              "referenceRms": 0.005387666232794301
+            }
+          ],
+          "rmsError": 3.161085507531353e-07,
+          "relativeRmsError": 5.867263061490472e-05,
+          "maxAbsError": 8.28609336167574e-06,
+          "withinTolerance": true
+        },
+        {
+          "role": "vocals",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 2.0585806520378987e-10,
+              "maxAbsError": 6.952056708087184e-09,
+              "referenceRms": 1.718325331310819e-07
+            }
+          ],
+          "rmsError": 2.0585806520378987e-10,
+          "relativeRmsError": 0.0011980156577611045,
+          "maxAbsError": 6.952056708087184e-09,
+          "withinTolerance": true
+        },
+        {
+          "role": "vocals",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 1.9173710131889444e-10,
+              "maxAbsError": 6.696069476674893e-09,
+              "referenceRms": 1.3577133645794474e-07
+            }
+          ],
+          "rmsError": 1.9173710131889444e-10,
+          "relativeRmsError": 0.0014122060393674117,
+          "maxAbsError": 6.696069476674893e-09,
+          "withinTolerance": true
+        },
+        {
+          "role": "guitar",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 8.449386272626931e-11,
+              "maxAbsError": 2.99689872917952e-09,
+              "referenceRms": 2.8706612835135644e-07
+            }
+          ],
+          "rmsError": 8.449386272626931e-11,
+          "relativeRmsError": 0.000294335884249125,
+          "maxAbsError": 2.99689872917952e-09,
+          "withinTolerance": true
+        },
+        {
+          "role": "guitar",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 8.985239105708121e-11,
+              "maxAbsError": 2.350162731090677e-09,
+              "referenceRms": 3.5456305019452304e-07
+            }
+          ],
+          "rmsError": 8.985239105708121e-11,
+          "relativeRmsError": 0.00025341724414821486,
+          "maxAbsError": 2.350162731090677e-09,
+          "withinTolerance": true
+        },
+        {
+          "role": "piano",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 2.1607789979305166e-10,
+              "maxAbsError": 9.305665571446298e-09,
+              "referenceRms": 2.6288288409912606e-07
+            }
+          ],
+          "rmsError": 2.1607789979305166e-10,
+          "relativeRmsError": 0.0008219549954099503,
+          "maxAbsError": 9.305665571446298e-09,
+          "withinTolerance": true
+        },
+        {
+          "role": "piano",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 1.939170800435515e-10,
+              "maxAbsError": 5.587459384059912e-09,
+              "referenceRms": 2.699586127354072e-07
+            }
+          ],
+          "rmsError": 1.939170800435515e-10,
+          "relativeRmsError": 0.0007183215163192968,
+          "maxAbsError": 5.587459384059912e-09,
+          "withinTolerance": true
+        }
+      ],
+      "passed": true,
+      "analysis": {
+        "stems": [
+          {
+            "role": "bass",
+            "rms": 6.522644086385651e-07,
+            "peak": 3.210700697309221e-06,
+            "stereoDifferenceRms": 9.269402112567511e-07
+          },
+          {
+            "role": "drums",
+            "rms": 9.442911690690799e-07,
+            "peak": 4.808475750905927e-06,
+            "stereoDifferenceRms": 1.3374998120111968e-06
+          },
+          {
+            "role": "other",
+            "rms": 0.005390889625362742,
+            "peak": 0.025016359984874725,
+            "stereoDifferenceRms": 0.0076314887787772645
+          },
+          {
+            "role": "vocals",
+            "rms": 1.5488219380282432e-07,
+            "peak": 7.819421057320142e-07,
+            "stereoDifferenceRms": 2.1979398917833368e-07
+          },
+          {
+            "role": "guitar",
+            "rms": 3.2257797651955443e-07,
+            "peak": 1.5462035207747249e-06,
+            "stereoDifferenceRms": 4.5779642810727476e-07
+          },
+          {
+            "role": "piano",
+            "rms": 2.664927410779515e-07,
+            "peak": 1.368321477457357e-06,
+            "stereoDifferenceRms": 3.790280240355995e-07
+          }
+        ],
+        "remixResidual": {
+          "rmsError": 0.004616262803877622,
+          "relativeRmsError": 0.4614998453478799,
+          "maxAbsError": 0.02156570740044117
+        },
+        "hasIsolatedReferences": false
+      },
+      "stftComparison": {
+        "channels": [
+          {
+            "rmsError": 2.863990530804362e-08,
+            "maxAbsError": 1.7881393432617188e-07,
+            "referenceRms": 0.19635339048821956
+          },
+          {
+            "rmsError": 2.8598690052801735e-08,
+            "maxAbsError": 1.7881393432617188e-07,
+            "referenceRms": 0.19564129034385505
+          }
+        ],
+        "rmsError": 2.8619305099791695e-08,
+        "relativeRmsError": 1.4601860319355015e-07,
+        "maxAbsError": 1.7881393432617188e-07,
+        "withinTolerance": true
+      }
+    },
+    "gpuMusic": {
+      "input": "music",
+      "backend": "webgpu",
+      "frames": 264600,
+      "preparation": {
+        "type": "prepared",
+        "backend": "webgpu",
+        "loadMs": 10224.100000023842,
+        "warmMs": 4473.799999952316
+      },
+      "run": {
+        "type": "done",
+        "backend": "webgpu",
+        "elapsedMs": 5617.200000047684,
+        "blocks": [
+          {
+            "index": 0,
+            "computeMs": 3042.600000023842,
+            "inputFrames": 176400,
+            "publishedFrames": 132300,
+            "elapsedMs": 3042.600000023842
+          },
+          {
+            "index": 1,
+            "computeMs": 2574.4000000953674,
+            "inputFrames": 132300,
+            "publishedFrames": 132300,
+            "elapsedMs": 5617.200000047684
+          }
+        ],
+        "runtimeVersion": "1.22.0",
+        "profile": "quality",
+        "frames": 176400
+      },
+      "firstReadyMs": 3070.2000000476837,
+      "comparison": {
+        "channels": [
+          {
+            "rmsError": 9.23246992690186e-06,
+            "maxAbsError": 8.560717105865479e-05,
+            "referenceRms": 0.11973400582463517
+          },
+          {
+            "rmsError": 9.768598454989224e-06,
+            "maxAbsError": 9.305775165557861e-05,
+            "referenceRms": 0.11896881528179828
+          },
+          {
+            "rmsError": 5.638152254103233e-06,
+            "maxAbsError": 6.198883056640625e-05,
+            "referenceRms": 0.1477901913388653
+          },
+          {
+            "rmsError": 7.369120205490069e-06,
+            "maxAbsError": 9.819725528359413e-05,
+            "referenceRms": 0.15630166653765878
+          },
+          {
+            "rmsError": 4.817400652944762e-09,
+            "maxAbsError": 6.446862244047225e-08,
+            "referenceRms": 1.2322266419320748e-05
+          },
+          {
+            "rmsError": 5.342205346964628e-09,
+            "maxAbsError": 1.0025996743934229e-07,
+            "referenceRms": 1.3496868089074617e-05
+          },
+          {
+            "rmsError": 2.4990973619358304e-06,
+            "maxAbsError": 4.494190216064453e-05,
+            "referenceRms": 0.11319721644425057
+          },
+          {
+            "rmsError": 2.4781478468983773e-06,
+            "maxAbsError": 5.879998207092285e-05,
+            "referenceRms": 0.1038843506232014
+          },
+          {
+            "rmsError": 7.02320679972858e-06,
+            "maxAbsError": 0.00013796426355838776,
+            "referenceRms": 0.004757166005511343
+          },
+          {
+            "rmsError": 5.13259445639632e-06,
+            "maxAbsError": 9.547080844640732e-05,
+            "referenceRms": 0.002266121762427908
+          },
+          {
+            "rmsError": 8.474513172608959e-06,
+            "maxAbsError": 6.446242332458496e-05,
+            "referenceRms": 0.11188897192010225
+          },
+          {
+            "rmsError": 8.843995520723547e-06,
+            "maxAbsError": 7.730722427368164e-05,
+            "referenceRms": 0.10126826898086724
+          }
+        ],
+        "rmsError": 6.486177971786685e-06,
+        "relativeRmsError": 6.454795164026663e-05,
+        "maxAbsError": 0.00013796426355838776,
+        "withinTolerance": true
+      },
+      "perChannel": [
+        {
+          "role": "bass",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 9.23246992690186e-06,
+              "maxAbsError": 8.560717105865479e-05,
+              "referenceRms": 0.11973400582463517
+            }
+          ],
+          "rmsError": 9.23246992690186e-06,
+          "relativeRmsError": 7.710816875553233e-05,
+          "maxAbsError": 8.560717105865479e-05,
+          "withinTolerance": true
+        },
+        {
+          "role": "bass",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 9.768598454989224e-06,
+              "maxAbsError": 9.305775165557861e-05,
+              "referenceRms": 0.11896881528179828
+            }
+          ],
+          "rmsError": 9.768598454989224e-06,
+          "relativeRmsError": 8.211058025458692e-05,
+          "maxAbsError": 9.305775165557861e-05,
+          "withinTolerance": true
+        },
+        {
+          "role": "drums",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 5.638152254103233e-06,
+              "maxAbsError": 6.198883056640625e-05,
+              "referenceRms": 0.1477901913388653
+            }
+          ],
+          "rmsError": 5.638152254103233e-06,
+          "relativeRmsError": 3.8149705356126246e-05,
+          "maxAbsError": 6.198883056640625e-05,
+          "withinTolerance": true
+        },
+        {
+          "role": "drums",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 7.369120205490069e-06,
+              "maxAbsError": 9.819725528359413e-05,
+              "referenceRms": 0.15630166653765878
+            }
+          ],
+          "rmsError": 7.369120205490069e-06,
+          "relativeRmsError": 4.714677948564662e-05,
+          "maxAbsError": 9.819725528359413e-05,
+          "withinTolerance": true
+        },
+        {
+          "role": "other",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 4.817400652944762e-09,
+              "maxAbsError": 6.446862244047225e-08,
+              "referenceRms": 1.2322266419320748e-05
+            }
+          ],
+          "rmsError": 4.817400652944762e-09,
+          "relativeRmsError": 0.00039095085993200884,
+          "maxAbsError": 6.446862244047225e-08,
+          "withinTolerance": true
+        },
+        {
+          "role": "other",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 5.342205346964628e-09,
+              "maxAbsError": 1.0025996743934229e-07,
+              "referenceRms": 1.3496868089074617e-05
+            }
+          ],
+          "rmsError": 5.342205346964628e-09,
+          "relativeRmsError": 0.00039581074007006195,
+          "maxAbsError": 1.0025996743934229e-07,
+          "withinTolerance": true
+        },
+        {
+          "role": "vocals",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 2.4990973619358304e-06,
+              "maxAbsError": 4.494190216064453e-05,
+              "referenceRms": 0.11319721644425057
+            }
+          ],
+          "rmsError": 2.4990973619358304e-06,
+          "relativeRmsError": 2.207737469557506e-05,
+          "maxAbsError": 4.494190216064453e-05,
+          "withinTolerance": true
+        },
+        {
+          "role": "vocals",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 2.4781478468983773e-06,
+              "maxAbsError": 5.879998207092285e-05,
+              "referenceRms": 0.1038843506232014
+            }
+          ],
+          "rmsError": 2.4781478468983773e-06,
+          "relativeRmsError": 2.3854871614752252e-05,
+          "maxAbsError": 5.879998207092285e-05,
+          "withinTolerance": true
+        },
+        {
+          "role": "guitar",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 7.02320679972858e-06,
+              "maxAbsError": 0.00013796426355838776,
+              "referenceRms": 0.004757166005511343
+            }
+          ],
+          "rmsError": 7.02320679972858e-06,
+          "relativeRmsError": 0.0014763425938031068,
+          "maxAbsError": 0.00013796426355838776,
+          "withinTolerance": true
+        },
+        {
+          "role": "guitar",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 5.13259445639632e-06,
+              "maxAbsError": 9.547080844640732e-05,
+              "referenceRms": 0.002266121762427908
+            }
+          ],
+          "rmsError": 5.13259445639632e-06,
+          "relativeRmsError": 0.0022649243926316175,
+          "maxAbsError": 9.547080844640732e-05,
+          "withinTolerance": true
+        },
+        {
+          "role": "piano",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 8.474513172608959e-06,
+              "maxAbsError": 6.446242332458496e-05,
+              "referenceRms": 0.11188897192010225
+            }
+          ],
+          "rmsError": 8.474513172608959e-06,
+          "relativeRmsError": 7.574037929904697e-05,
+          "maxAbsError": 6.446242332458496e-05,
+          "withinTolerance": true
+        },
+        {
+          "role": "piano",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 8.843995520723547e-06,
+              "maxAbsError": 7.730722427368164e-05,
+              "referenceRms": 0.10126826898086724
+            }
+          ],
+          "rmsError": 8.843995520723547e-06,
+          "relativeRmsError": 8.733234615074202e-05,
+          "maxAbsError": 7.730722427368164e-05,
+          "withinTolerance": true
+        }
+      ],
+      "passed": true,
+      "analysis": {
+        "stems": [
+          {
+            "role": "bass",
+            "rms": 0.11935207393257745,
+            "peak": 0.4234847128391266,
+            "stereoDifferenceRms": 0.009907229396428224
+          },
+          {
+            "role": "drums",
+            "rms": 0.15210572278923373,
+            "peak": 1.1327588558197021,
+            "stereoDifferenceRms": 0.0880441339646486
+          },
+          {
+            "role": "other",
+            "rms": 1.292245219341658e-05,
+            "peak": 0.000162333162734285,
+            "stereoDifferenceRms": 1.7593653995491753e-05
+          },
+          {
+            "role": "vocals",
+            "rms": 0.10864061165577656,
+            "peak": 0.8961729407310486,
+            "stereoDifferenceRms": 0.09429725140044799
+          },
+          {
+            "role": "guitar",
+            "rms": 0.0037282525217037714,
+            "peak": 0.040524911135435104,
+            "stereoDifferenceRms": 0.00370655252090067
+          },
+          {
+            "role": "piano",
+            "rms": 0.10670992944796436,
+            "peak": 0.8265272378921509,
+            "stereoDifferenceRms": 0.14839763062611597
+          }
+        ],
+        "remixResidual": {
+          "rmsError": 0.0058160806341961595,
+          "relativeRmsError": 0.0227067477148358,
+          "maxAbsError": 0.06186908483505249
+        },
+        "hasIsolatedReferences": false
+      }
+    },
+    "wasmReference": {
+      "input": "reference",
+      "backend": "wasm",
+      "frames": 176400,
+      "preparation": {
+        "type": "prepared",
+        "backend": "wasm",
+        "loadMs": 1937.8999999761581,
+        "warmMs": 35135.39999997616
+      },
+      "run": {
+        "type": "done",
+        "backend": "wasm",
+        "elapsedMs": 34676.40000009537,
+        "blocks": [
+          {
+            "index": 0,
+            "computeMs": 34676.200000047684,
+            "inputFrames": 176400,
+            "publishedFrames": 176400,
+            "elapsedMs": 34676.40000009537
+          }
+        ],
+        "runtimeVersion": "1.22.0",
+        "profile": "quality",
+        "frames": 176400
+      },
+      "firstReadyMs": 34706.799999952316,
+      "comparison": {
+        "channels": [
+          {
+            "rmsError": 3.637400645662672e-11,
+            "maxAbsError": 1.772377800079994e-10,
+            "referenceRms": 6.024468542313098e-07
+          },
+          {
+            "rmsError": 3.713870601138716e-11,
+            "maxAbsError": 1.6927970136748627e-10,
+            "referenceRms": 6.98253034148823e-07
+          },
+          {
+            "rmsError": 2.1031870237458642e-11,
+            "maxAbsError": 1.0044232112704776e-10,
+            "referenceRms": 1.0982946612961646e-06
+          },
+          {
+            "rmsError": 2.0198864973429136e-11,
+            "maxAbsError": 9.909939535646117e-11,
+            "referenceRms": 7.598764518756154e-07
+          },
+          {
+            "rmsError": 1.8327634893083664e-09,
+            "maxAbsError": 9.313225746154785e-09,
+            "referenceRms": 0.005393750787457725
+          },
+          {
+            "rmsError": 1.811199447522054e-09,
+            "maxAbsError": 9.313225746154785e-09,
+            "referenceRms": 0.005387666232794301
+          },
+          {
+            "rmsError": 2.8402982867355042e-11,
+            "maxAbsError": 1.3153567124390975e-10,
+            "referenceRms": 1.718325331310819e-07
+          },
+          {
+            "rmsError": 2.7537030600095162e-11,
+            "maxAbsError": 1.2401812909956789e-10,
+            "referenceRms": 1.3577133645794474e-07
+          },
+          {
+            "rmsError": 4.274216082169334e-11,
+            "maxAbsError": 2.0051516003150027e-10,
+            "referenceRms": 2.8706612835135644e-07
+          },
+          {
+            "rmsError": 4.190979637336482e-11,
+            "maxAbsError": 1.8677326352189993e-10,
+            "referenceRms": 3.5456305019452304e-07
+          },
+          {
+            "rmsError": 3.042647589679887e-11,
+            "maxAbsError": 1.3181988833821379e-10,
+            "referenceRms": 2.6288288409912606e-07
+          },
+          {
+            "rmsError": 2.864099313813457e-11,
+            "maxAbsError": 1.3366907580802945e-10,
+            "referenceRms": 2.699586127354072e-07
+          }
+        ],
+        "rmsError": 7.444188197146938e-10,
+        "relativeRmsError": 3.382571923250158e-07,
+        "maxAbsError": 9.313225746154785e-09,
+        "withinTolerance": true
+      },
+      "perChannel": [
+        {
+          "role": "bass",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 3.637400645662672e-11,
+              "maxAbsError": 1.772377800079994e-10,
+              "referenceRms": 6.024468542313098e-07
+            }
+          ],
+          "rmsError": 3.637400645662672e-11,
+          "relativeRmsError": 6.037712073878785e-05,
+          "maxAbsError": 1.772377800079994e-10,
+          "withinTolerance": true
+        },
+        {
+          "role": "bass",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 3.713870601138716e-11,
+              "maxAbsError": 1.6927970136748627e-10,
+              "referenceRms": 6.98253034148823e-07
+            }
+          ],
+          "rmsError": 3.713870601138716e-11,
+          "relativeRmsError": 5.318803384314626e-05,
+          "maxAbsError": 1.6927970136748627e-10,
+          "withinTolerance": true
+        },
+        {
+          "role": "drums",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 2.1031870237458642e-11,
+              "maxAbsError": 1.0044232112704776e-10,
+              "referenceRms": 1.0982946612961646e-06
+            }
+          ],
+          "rmsError": 2.1031870237458642e-11,
+          "relativeRmsError": 1.9149569763580248e-05,
+          "maxAbsError": 1.0044232112704776e-10,
+          "withinTolerance": true
+        },
+        {
+          "role": "drums",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 2.0198864973429136e-11,
+              "maxAbsError": 9.909939535646117e-11,
+              "referenceRms": 7.598764518756154e-07
+            }
+          ],
+          "rmsError": 2.0198864973429136e-11,
+          "relativeRmsError": 2.6581775134065483e-05,
+          "maxAbsError": 9.909939535646117e-11,
+          "withinTolerance": true
+        },
+        {
+          "role": "other",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 1.8327634893083664e-09,
+              "maxAbsError": 9.313225746154785e-09,
+              "referenceRms": 0.005393750787457725
+            }
+          ],
+          "rmsError": 1.8327634893083664e-09,
+          "relativeRmsError": 3.3979387656733317e-07,
+          "maxAbsError": 9.313225746154785e-09,
+          "withinTolerance": true
+        },
+        {
+          "role": "other",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 1.811199447522054e-09,
+              "maxAbsError": 9.313225746154785e-09,
+              "referenceRms": 0.005387666232794301
+            }
+          ],
+          "rmsError": 1.811199447522054e-09,
+          "relativeRmsError": 3.361751395246842e-07,
+          "maxAbsError": 9.313225746154785e-09,
+          "withinTolerance": true
+        },
+        {
+          "role": "vocals",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 2.8402982867355042e-11,
+              "maxAbsError": 1.3153567124390975e-10,
+              "referenceRms": 1.718325331310819e-07
+            }
+          ],
+          "rmsError": 2.8402982867355042e-11,
+          "relativeRmsError": 0.0001652945594748808,
+          "maxAbsError": 1.3153567124390975e-10,
+          "withinTolerance": true
+        },
+        {
+          "role": "vocals",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 2.7537030600095162e-11,
+              "maxAbsError": 1.2401812909956789e-10,
+              "referenceRms": 1.3577133645794474e-07
+            }
+          ],
+          "rmsError": 2.7537030600095162e-11,
+          "relativeRmsError": 0.00020281917611251308,
+          "maxAbsError": 1.2401812909956789e-10,
+          "withinTolerance": true
+        },
+        {
+          "role": "guitar",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 4.274216082169334e-11,
+              "maxAbsError": 2.0051516003150027e-10,
+              "referenceRms": 2.8706612835135644e-07
+            }
+          ],
+          "rmsError": 4.274216082169334e-11,
+          "relativeRmsError": 0.00014889308281393197,
+          "maxAbsError": 2.0051516003150027e-10,
+          "withinTolerance": true
+        },
+        {
+          "role": "guitar",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 4.190979637336482e-11,
+              "maxAbsError": 1.8677326352189993e-10,
+              "referenceRms": 3.5456305019452304e-07
+            }
+          ],
+          "rmsError": 4.190979637336482e-11,
+          "relativeRmsError": 0.000118201251795335,
+          "maxAbsError": 1.8677326352189993e-10,
+          "withinTolerance": true
+        },
+        {
+          "role": "piano",
+          "channel": 0,
+          "channels": [
+            {
+              "rmsError": 3.042647589679887e-11,
+              "maxAbsError": 1.3181988833821379e-10,
+              "referenceRms": 2.6288288409912606e-07
+            }
+          ],
+          "rmsError": 3.042647589679887e-11,
+          "relativeRmsError": 0.0001157415630198498,
+          "maxAbsError": 1.3181988833821379e-10,
+          "withinTolerance": true
+        },
+        {
+          "role": "piano",
+          "channel": 1,
+          "channels": [
+            {
+              "rmsError": 2.864099313813457e-11,
+              "maxAbsError": 1.3366907580802945e-10,
+              "referenceRms": 2.699586127354072e-07
+            }
+          ],
+          "rmsError": 2.864099313813457e-11,
+          "relativeRmsError": 0.00010609401510818358,
+          "maxAbsError": 1.3366907580802945e-10,
+          "withinTolerance": true
+        }
+      ],
+      "passed": true,
+      "analysis": {
+        "stems": [
+          {
+            "role": "bass",
+            "rms": 6.521113619332192e-07,
+            "peak": 3.209338728993316e-06,
+            "stereoDifferenceRms": 9.26720180338485e-07
+          },
+          {
+            "role": "drums",
+            "rms": 9.443691355616883e-07,
+            "peak": 4.806153810932301e-06,
+            "stereoDifferenceRms": 1.3376155728773132e-06
+          },
+          {
+            "role": "other",
+            "rms": 0.00539070885739702,
+            "peak": 0.025015313178300858,
+            "stereoDifferenceRms": 0.0076312356181690065
+          },
+          {
+            "role": "vocals",
+            "rms": 1.5485804338836632e-07,
+            "peak": 7.818360927558388e-07,
+            "stereoDifferenceRms": 2.1975667533536378e-07
+          },
+          {
+            "role": "guitar",
+            "rms": 3.2258420785474913e-07,
+            "peak": 1.546312091704749e-06,
+            "stereoDifferenceRms": 4.5780515284099406e-07
+          },
+          {
+            "role": "piano",
+            "rms": 2.664460432586672e-07,
+            "peak": 1.3678107961823116e-06,
+            "stereoDifferenceRms": 3.789628498174435e-07
+          }
+        ],
+        "remixResidual": {
+          "rmsError": 0.004616443581680544,
+          "relativeRmsError": 0.4615179181768403,
+          "maxAbsError": 0.02156675234436989
+        },
+        "hasIsolatedReferences": false
+      },
+      "stftComparison": {
+        "channels": [
+          {
+            "rmsError": 2.863990530804362e-08,
+            "maxAbsError": 1.7881393432617188e-07,
+            "referenceRms": 0.19635339048821956
+          },
+          {
+            "rmsError": 2.8598690052801735e-08,
+            "maxAbsError": 1.7881393432617188e-07,
+            "referenceRms": 0.19564129034385505
+          }
+        ],
+        "rmsError": 2.8619305099791695e-08,
+        "relativeRmsError": 1.4601860319355015e-07,
+        "maxAbsError": 1.7881393432617188e-07,
+        "withinTolerance": true
+      }
+    }
+  },
+  "host": {
+    "sampleRate": 48000,
+    "stemSampleRate": 44100,
+    "short10s": {
+      "profile": "quality",
+      "firstReadyMs": 2715.2000000476837,
+      "backend": "webgpu",
+      "runtimeVersion": "1.22.0",
+      "blocks": [
+        {
+          "index": 0,
+          "computeMs": 2682.100000023842,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 2682.2000000476837
+        },
+        {
+          "index": 1,
+          "computeMs": 2530.899999976158,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 5214.5
+        },
+        {
+          "index": 2,
+          "computeMs": 2505.5,
+          "inputFrames": 176400,
+          "publishedFrames": 176400,
+          "elapsedMs": 7720.100000023842
+        }
+      ]
+    },
+    "whole214s": {
+      "profile": "quality",
+      "firstReadyMs": 3193.600000023842,
+      "backend": "webgpu",
+      "runtimeVersion": "1.22.0",
+      "blocks": [
+        {
+          "index": 0,
+          "computeMs": 2946.600000023842,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 2946.7000000476837
+        },
+        {
+          "index": 1,
+          "computeMs": 2558.4000000953674,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 5505.200000047684
+        },
+        {
+          "index": 2,
+          "computeMs": 2537.2000000476837,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 8042.5
+        },
+        {
+          "index": 3,
+          "computeMs": 2575.2000000476837,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 10617.700000047684
+        },
+        {
+          "index": 4,
+          "computeMs": 2570.600000023842,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 13188.5
+        },
+        {
+          "index": 5,
+          "computeMs": 2522.5,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 15711
+        },
+        {
+          "index": 6,
+          "computeMs": 2591.5,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 18302.600000023842
+        },
+        {
+          "index": 7,
+          "computeMs": 2558.600000023842,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 20861.399999976158
+        },
+        {
+          "index": 8,
+          "computeMs": 2530.899999976158,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 23392.299999952316
+        },
+        {
+          "index": 9,
+          "computeMs": 2569,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 25961.399999976158
+        },
+        {
+          "index": 10,
+          "computeMs": 2512.7999999523163,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 28474.299999952316
+        },
+        {
+          "index": 11,
+          "computeMs": 2516.7000000476837,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 30991.100000023842
+        },
+        {
+          "index": 12,
+          "computeMs": 2575.1999999284744,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 33566.39999997616
+        },
+        {
+          "index": 13,
+          "computeMs": 2498.899999976158,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 36065.5
+        },
+        {
+          "index": 14,
+          "computeMs": 2541.2000000476837,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 38606.700000047684
+        },
+        {
+          "index": 15,
+          "computeMs": 2550.6999999284744,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 41157.39999997616
+        },
+        {
+          "index": 16,
+          "computeMs": 2527.100000023842,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 43684.60000002384
+        },
+        {
+          "index": 17,
+          "computeMs": 2557.6999999284744,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 46242.299999952316
+        },
+        {
+          "index": 18,
+          "computeMs": 2549.100000023842,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 48791.39999997616
+        },
+        {
+          "index": 19,
+          "computeMs": 2586.7999999523163,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 51378.39999997616
+        },
+        {
+          "index": 20,
+          "computeMs": 2636.2000000476837,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 54014.700000047684
+        },
+        {
+          "index": 21,
+          "computeMs": 2666.3000000715256,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 56681.10000002384
+        },
+        {
+          "index": 22,
+          "computeMs": 2586.8000000715256,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 59268.10000002384
+        },
+        {
+          "index": 23,
+          "computeMs": 2590.399999976158,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 61858.5
+        },
+        {
+          "index": 24,
+          "computeMs": 2578.100000023842,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 64436.60000002384
+        },
+        {
+          "index": 25,
+          "computeMs": 2588.5999999046326,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 67025.29999995232
+        },
+        {
+          "index": 26,
+          "computeMs": 2606.2000000476837,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 69631.5
+        },
+        {
+          "index": 27,
+          "computeMs": 2764,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 72395.60000002384
+        },
+        {
+          "index": 28,
+          "computeMs": 2657.8000000715256,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 75053.60000002384
+        },
+        {
+          "index": 29,
+          "computeMs": 2628.5999999046326,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 77682.29999995232
+        },
+        {
+          "index": 30,
+          "computeMs": 2698.4000000953674,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 80380.70000004768
+        },
+        {
+          "index": 31,
+          "computeMs": 2706,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 83086.79999995232
+        },
+        {
+          "index": 32,
+          "computeMs": 2739.3000000715256,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 85826.10000002384
+        },
+        {
+          "index": 33,
+          "computeMs": 2754.6999999284744,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 88580.89999997616
+        },
+        {
+          "index": 34,
+          "computeMs": 2780.5,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 91361.60000002384
+        },
+        {
+          "index": 35,
+          "computeMs": 2768.600000023842,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 94130.20000004768
+        },
+        {
+          "index": 36,
+          "computeMs": 2834,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 96964.20000004768
+        },
+        {
+          "index": 37,
+          "computeMs": 2883,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 99847.29999995232
+        },
+        {
+          "index": 38,
+          "computeMs": 2901.5,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 102748.89999997616
+        },
+        {
+          "index": 39,
+          "computeMs": 2985.7000000476837,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 105734.70000004768
+        },
+        {
+          "index": 40,
+          "computeMs": 3178.899999976158,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 108913.79999995232
+        },
+        {
+          "index": 41,
+          "computeMs": 3133.5,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 112047.29999995232
+        },
+        {
+          "index": 42,
+          "computeMs": 3230.3000000715256,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 115277.70000004768
+        },
+        {
+          "index": 43,
+          "computeMs": 3325.5,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 118603.29999995232
+        },
+        {
+          "index": 44,
+          "computeMs": 3459.9000000953674,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 122063.20000004768
+        },
+        {
+          "index": 45,
+          "computeMs": 3556.0999999046326,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 125619.29999995232
+        },
+        {
+          "index": 46,
+          "computeMs": 3651.8000000715256,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 129271.20000004768
+        },
+        {
+          "index": 47,
+          "computeMs": 3747.399999976158,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 133018.60000002384
+        },
+        {
+          "index": 48,
+          "computeMs": 3866.2999999523163,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 136884.89999997616
+        },
+        {
+          "index": 49,
+          "computeMs": 4272.5,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 141157.39999997616
+        },
+        {
+          "index": 50,
+          "computeMs": 3939,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 145096.39999997616
+        },
+        {
+          "index": 51,
+          "computeMs": 4019.399999976158,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 149115.79999995232
+        },
+        {
+          "index": 52,
+          "computeMs": 4046.4000000953674,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 153162.20000004768
+        },
+        {
+          "index": 53,
+          "computeMs": 4176.099999904633,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 157338.29999995232
+        },
+        {
+          "index": 54,
+          "computeMs": 4188,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 161526.29999995232
+        },
+        {
+          "index": 55,
+          "computeMs": 4167.700000047684,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 165694
+        },
+        {
+          "index": 56,
+          "computeMs": 4142.799999952316,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 169836.89999997616
+        },
+        {
+          "index": 57,
+          "computeMs": 4303.200000047684,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 174140.10000002384
+        },
+        {
+          "index": 58,
+          "computeMs": 4182.199999928474,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 178322.29999995232
+        },
+        {
+          "index": 59,
+          "computeMs": 4058.100000023842,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 182380.5
+        },
+        {
+          "index": 60,
+          "computeMs": 4057.7000000476837,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 186438.20000004768
+        },
+        {
+          "index": 61,
+          "computeMs": 4052.1999999284744,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 190490.39999997616
+        },
+        {
+          "index": 62,
+          "computeMs": 4002,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 194492.5
+        },
+        {
+          "index": 63,
+          "computeMs": 3836.100000023842,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 198328.60000002384
+        },
+        {
+          "index": 64,
+          "computeMs": 3968.5,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 202297.10000002384
+        },
+        {
+          "index": 65,
+          "computeMs": 4127,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 206424.10000002384
+        },
+        {
+          "index": 66,
+          "computeMs": 4023.1999999284744,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 210447.29999995232
+        },
+        {
+          "index": 67,
+          "computeMs": 3613,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 214060.39999997616
+        },
+        {
+          "index": 68,
+          "computeMs": 3520.399999976158,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 217580.89999997616
+        },
+        {
+          "index": 69,
+          "computeMs": 3626.2999999523163,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 221207.29999995232
+        },
+        {
+          "index": 70,
+          "computeMs": 3592,
+          "inputFrames": 176400,
+          "publishedFrames": 132300,
+          "elapsedMs": 224799.29999995232
+        },
+        {
+          "index": 71,
+          "computeMs": 3518.2000000476837,
+          "inputFrames": 83819,
+          "publishedFrames": 83819,
+          "elapsedMs": 228317.5
+        }
+      ]
+    },
+    "wholeFrames": 9477119,
+    "checks": [
+      "Download progress, size/hash and browser cache",
+      "Six stems playback and guitar solo",
+      "Stereo MP3 export selected in Tracks",
+      "Whole song played after a head start while inference continued",
+      "Whole song project saved locally"
+    ],
+    "limits": [
+      "No isolated studio reference stems or human listening comparison",
+      "No physical guitar input validated",
+      "No peak memory recorded",
+      "Whole song slower than real time; no uninterrupted playback guarantee from first block"
+    ]
+  }
+}

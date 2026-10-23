@@ -10,7 +10,7 @@ export class SeparationProgress {
     if (phase === 'model-complete' || phase === 'track-complete') fraction = .05 + .9 * (index + 1) / total;
     if (phase === 'audio') fraction = .96;
     if (phase === 'ready') fraction = 1;
-    if(totalChunks&&phase==='inference')fraction=.05+.9*(chunkIndex+Math.max(0,Math.min(1,Number(progress)||0)))/totalChunks;
+    if(totalChunks&&phase==='inference')fraction=.05+.9*(index+(chunkIndex+Math.max(0,Math.min(1,Number(progress)||0)))/totalChunks)/total;
     if(phase==='chunk-ready')fraction=.05+.9*completedFrames/totalFrames;
     this.percent = Math.max(this.percent, Math.min(phase === 'ready' ? 100 : 99, Math.floor(fraction * 100)));
     return this.percent;

@@ -1,0 +1,1746 @@
+{
+  "date": "2026-10-22",
+  "scope": "Local feasibility lab, not enabled by default in main Multitracks",
+  "source": "Slow Motion Dream CC BY3, first6s, input PCM produced by ffmpeg",
+  "sampleRate": 44100,
+  "roles": [
+    "drums",
+    "bass",
+    "other",
+    "vocals"
+  ],
+  "exports": {
+    "1": {
+      "sha256": "ea0579d06763a065e7027a2103d2846f47d98a20eab705cf3fddc13895e290b8",
+      "bytes": 169312400,
+      "seconds": 1.0,
+      "frames": 44100,
+      "specShape": [
+        1,
+        4,
+        2048,
+        44
+      ],
+      "torchVersion": "2.6.0",
+      "onnxruntimeVersion": "1.22.0",
+      "cpuElapsedSeconds": 0.23687028884887695,
+      "comparison": [
+        {
+          "maxAbsError": 6.245449185371399e-06,
+          "relativeRmsError": 3.273335823905654e-05
+        },
+        {
+          "maxAbsError": 7.078051567077637e-08,
+          "relativeRmsError": 7.084599360496213e-07
+        }
+      ],
+      "coreReconstructionMaxError": 0.0,
+      "modelFile": "third_party/nam-latency-probe/htdemucs-1s-core.onnx"
+    },
+    "2": {
+      "seconds": 2.0,
+      "frames": 88200,
+      "specShape": [
+        1,
+        4,
+        2048,
+        87
+      ],
+      "torchVersion": "2.6.0",
+      "onnxruntimeVersion": "1.22.0",
+      "cpuElapsedSeconds": 0.4981260299682617,
+      "comparison": [
+        {
+          "maxAbsError": 2.3789703845977783e-05,
+          "relativeRmsError": 5.187112037674524e-05
+        },
+        {
+          "maxAbsError": 1.1734664440155029e-07,
+          "relativeRmsError": 1.5099044503585901e-06
+        }
+      ],
+      "coreReconstructionMaxError": 0.0,
+      "modelFile": "third_party/nam-latency-probe/htdemucs-2s-core.onnx",
+      "bytes": 170041680,
+      "sha256": "a7cb52498bd8b0fd6e61eaecafb12f2651ad995d9b49553caa8705c9d9367c93"
+    }
+  },
+  "nativeMusical": {
+    "1": {
+      "frames": 264600,
+      "sampleRate": 44100,
+      "windowSeconds": 1.0,
+      "shortReferenceSeconds": 2.9640519618988037,
+      "plans": [
+        {
+          "start": 0,
+          "end": 44100,
+          "commitFrames": 33075
+        },
+        {
+          "start": 33075,
+          "end": 77175,
+          "commitFrames": 33075
+        },
+        {
+          "start": 66150,
+          "end": 110250,
+          "commitFrames": 33075
+        },
+        {
+          "start": 99225,
+          "end": 143325,
+          "commitFrames": 33075
+        },
+        {
+          "start": 132300,
+          "end": 176400,
+          "commitFrames": 33075
+        },
+        {
+          "start": 165375,
+          "end": 209475,
+          "commitFrames": 33075
+        },
+        {
+          "start": 198450,
+          "end": 242550,
+          "commitFrames": 33075
+        },
+        {
+          "start": 231525,
+          "end": 264600,
+          "commitFrames": 33075
+        }
+      ],
+      "cpuAudioParity": [
+        {
+          "role": "drums",
+          "maxAbsError": 3.3937394618988037e-06,
+          "relativeRmsError": 6.062449756427668e-06
+        },
+        {
+          "role": "bass",
+          "maxAbsError": 3.5800039768218994e-06,
+          "relativeRmsError": 7.083664513629628e-06
+        },
+        {
+          "role": "other",
+          "maxAbsError": 5.424022674560547e-06,
+          "relativeRmsError": 4.791207175003365e-06
+        },
+        {
+          "role": "vocals",
+          "maxAbsError": 4.175817593932152e-07,
+          "relativeRmsError": 8.823211828712374e-05
+        }
+      ],
+      "differenceToFullContext": [
+        {
+          "role": "drums",
+          "relativeRmsError": 0.21500036120414734,
+          "maxAbsError": 0.5591977834701538,
+          "rmsShort": 0.1445695459842682,
+          "rmsFull": 0.14622746407985687
+        },
+        {
+          "role": "bass",
+          "relativeRmsError": 0.3972485065460205,
+          "maxAbsError": 0.2154209166765213,
+          "rmsShort": 0.09662441164255142,
+          "rmsFull": 0.09561135619878769
+        },
+        {
+          "role": "other",
+          "relativeRmsError": 0.34907764196395874,
+          "maxAbsError": 0.265836238861084,
+          "rmsShort": 0.1235227882862091,
+          "rmsFull": 0.11572939902544022
+        },
+        {
+          "role": "vocals",
+          "relativeRmsError": 0.19584088027477264,
+          "maxAbsError": 0.562938392162323,
+          "rmsShort": 0.10345455259084702,
+          "rmsFull": 0.10637897998094559
+        }
+      ]
+    },
+    "2": {
+      "frames": 264600,
+      "sampleRate": 44100,
+      "windowSeconds": 2.0,
+      "shortReferenceSeconds": 3.5134379863739014,
+      "plans": [
+        {
+          "start": 0,
+          "end": 88200,
+          "commitFrames": 44100
+        },
+        {
+          "start": 44100,
+          "end": 132300,
+          "commitFrames": 44100
+        },
+        {
+          "start": 88200,
+          "end": 176400,
+          "commitFrames": 44100
+        },
+        {
+          "start": 132300,
+          "end": 220500,
+          "commitFrames": 44100
+        },
+        {
+          "start": 176400,
+          "end": 264600,
+          "commitFrames": 88200
+        }
+      ],
+      "cpuAudioParity": [
+        {
+          "role": "drums",
+          "maxAbsError": 5.602836608886719e-06,
+          "relativeRmsError": 8.640035957796499e-06
+        },
+        {
+          "role": "bass",
+          "maxAbsError": 1.4368444681167603e-05,
+          "relativeRmsError": 1.7811862562666647e-05
+        },
+        {
+          "role": "other",
+          "maxAbsError": 9.059906005859375e-06,
+          "relativeRmsError": 9.575319381838199e-06
+        },
+        {
+          "role": "vocals",
+          "maxAbsError": 5.320180207490921e-07,
+          "relativeRmsError": 0.00012669072020798922
+        }
+      ],
+      "differenceToFullContext": [
+        {
+          "role": "drums",
+          "relativeRmsError": 0.15944570302963257,
+          "maxAbsError": 0.427890419960022,
+          "rmsShort": 0.14582480490207672,
+          "rmsFull": 0.14622746407985687
+        },
+        {
+          "role": "bass",
+          "relativeRmsError": 0.22731338441371918,
+          "maxAbsError": 0.2039094865322113,
+          "rmsShort": 0.09614887088537216,
+          "rmsFull": 0.09561135619878769
+        },
+        {
+          "role": "other",
+          "relativeRmsError": 0.1859661489725113,
+          "maxAbsError": 0.22450274229049683,
+          "rmsShort": 0.12028343975543976,
+          "rmsFull": 0.11572939902544022
+        },
+        {
+          "role": "vocals",
+          "relativeRmsError": 0.14952024817466736,
+          "maxAbsError": 0.4431954622268677,
+          "rmsShort": 0.10366042703390121,
+          "rmsFull": 0.10637897998094559
+        }
+      ]
+    }
+  },
+  "browser": {
+    "gpu1Warm": {
+      "runs": [
+        {
+          "mode": "modèle préparé",
+          "firstAudioMs": 435.7999999523163,
+          "totalMs": 2395.5,
+          "worker": {
+            "type": "done",
+            "elapsedMs": 2374.0999999046326,
+            "blocks": [
+              {
+                "index": 0,
+                "inputFrames": 44100,
+                "publishedFrames": 33075,
+                "computeMs": 414.2000000476837,
+                "elapsedMs": 414.2999999523163
+              },
+              {
+                "index": 1,
+                "inputFrames": 44100,
+                "publishedFrames": 33075,
+                "computeMs": 320.1999999284744,
+                "elapsedMs": 734.5999999046326
+              },
+              {
+                "index": 2,
+                "inputFrames": 44100,
+                "publishedFrames": 33075,
+                "computeMs": 281.40000009536743,
+                "elapsedMs": 1016
+              },
+              {
+                "index": 3,
+                "inputFrames": 44100,
+                "publishedFrames": 33075,
+                "computeMs": 278.2000000476837,
+                "elapsedMs": 1294.2999999523163
+              },
+              {
+                "index": 4,
+                "inputFrames": 44100,
+                "publishedFrames": 33075,
+                "computeMs": 269.10000002384186,
+                "elapsedMs": 1563.5
+              },
+              {
+                "index": 5,
+                "inputFrames": 44100,
+                "publishedFrames": 33075,
+                "computeMs": 266.89999997615814,
+                "elapsedMs": 1830.3999999761581
+              },
+              {
+                "index": 6,
+                "inputFrames": 44100,
+                "publishedFrames": 33075,
+                "computeMs": 271.8000000715256,
+                "elapsedMs": 2102.399999976158
+              },
+              {
+                "index": 7,
+                "inputFrames": 33075,
+                "publishedFrames": 33075,
+                "computeMs": 271.59999990463257,
+                "elapsedMs": 2374.0999999046326
+              }
+            ]
+          },
+          "parity": {
+            "channels": [
+              {
+                "rmsError": 1.7823548166664572e-07,
+                "maxAbsError": 2.641230821609497e-06,
+                "referenceRms": 0.14392310365229996
+              },
+              {
+                "rmsError": 1.7594607295732696e-07,
+                "maxAbsError": 1.86823308467865e-06,
+                "referenceRms": 0.14521312529123295
+              },
+              {
+                "rmsError": 1.2056212349899316e-07,
+                "maxAbsError": 9.275972843170166e-07,
+                "referenceRms": 0.09634913991160936
+              },
+              {
+                "rmsError": 1.1569085312835385e-07,
+                "maxAbsError": 9.164214134216309e-07,
+                "referenceRms": 0.09689890471510215
+              },
+              {
+                "rmsError": 1.6484511113230871e-07,
+                "maxAbsError": 2.387911081314087e-06,
+                "referenceRms": 0.12726447318453846
+              },
+              {
+                "rmsError": 1.6127112239233598e-07,
+                "maxAbsError": 2.1457672119140625e-06,
+                "referenceRms": 0.11966416376513427
+              },
+              {
+                "rmsError": 7.119640245981465e-08,
+                "maxAbsError": 1.601874828338623e-06,
+                "referenceRms": 0.10731364579068442
+              },
+              {
+                "rmsError": 6.845145549082021e-08,
+                "maxAbsError": 1.519918441772461e-06,
+                "referenceRms": 0.09944581640654766
+              }
+            ],
+            "rmsError": 1.3855563940983136e-07,
+            "relativeRmsError": 1.1689508702403958e-06,
+            "maxAbsError": 2.641230821609497e-06,
+            "withinTolerance": true
+          },
+          "analysis": {
+            "stems": [
+              {
+                "role": "drums",
+                "rms": 0.14456956380032257,
+                "peak": 1.0028913021087646,
+                "stereoDifferenceRms": 0.08755173197255307
+              },
+              {
+                "role": "bass",
+                "rms": 0.09662439025611112,
+                "peak": 0.3826391100883484,
+                "stereoDifferenceRms": 0.0055629502614221475
+              },
+              {
+                "role": "other",
+                "rms": 0.12352279735467375,
+                "peak": 0.774593710899353,
+                "stereoDifferenceRms": 0.14550733205120248
+              },
+              {
+                "role": "vocals",
+                "rms": 0.10345456125194502,
+                "peak": 0.9333143830299377,
+                "stereoDifferenceRms": 0.08406822920950772
+              }
+            ],
+            "remixResidual": {
+              "rmsError": 0.009122699710953973,
+              "relativeRmsError": 0.035616225744343914,
+              "maxAbsError": 0.1072264313697815
+            },
+            "hasIsolatedReferences": false
+          }
+        }
+      ],
+      "reference": "Slow Motion Dream (CC BY 3.0), first 6s",
+      "preparation": {
+        "type": "prepared",
+        "fetchMs": 140.5,
+        "loadMs": 3662.8000000715256,
+        "warmMs": 1353.9000000953674,
+        "totalMs": 5161.5,
+        "backend": "webgpu",
+        "precision": "FP32 · device sans shader-f16"
+      },
+      "mode": "modèle préparé",
+      "latest": {
+        "mode": "modèle préparé",
+        "firstAudioMs": 435.7999999523163,
+        "totalMs": 2395.5,
+        "worker": {
+          "type": "done",
+          "elapsedMs": 2374.0999999046326,
+          "blocks": [
+            {
+              "index": 0,
+              "inputFrames": 44100,
+              "publishedFrames": 33075,
+              "computeMs": 414.2000000476837,
+              "elapsedMs": 414.2999999523163
+            },
+            {
+              "index": 1,
+              "inputFrames": 44100,
+              "publishedFrames": 33075,
+              "computeMs": 320.1999999284744,
+              "elapsedMs": 734.5999999046326
+            },
+            {
+              "index": 2,
+              "inputFrames": 44100,
+              "publishedFrames": 33075,
+              "computeMs": 281.40000009536743,
+              "elapsedMs": 1016
+            },
+            {
+              "index": 3,
+              "inputFrames": 44100,
+              "publishedFrames": 33075,
+              "computeMs": 278.2000000476837,
+              "elapsedMs": 1294.2999999523163
+            },
+            {
+              "index": 4,
+              "inputFrames": 44100,
+              "publishedFrames": 33075,
+              "computeMs": 269.10000002384186,
+              "elapsedMs": 1563.5
+            },
+            {
+              "index": 5,
+              "inputFrames": 44100,
+              "publishedFrames": 33075,
+              "computeMs": 266.89999997615814,
+              "elapsedMs": 1830.3999999761581
+            },
+            {
+              "index": 6,
+              "inputFrames": 44100,
+              "publishedFrames": 33075,
+              "computeMs": 271.8000000715256,
+              "elapsedMs": 2102.399999976158
+            },
+            {
+              "index": 7,
+              "inputFrames": 33075,
+              "publishedFrames": 33075,
+              "computeMs": 271.59999990463257,
+              "elapsedMs": 2374.0999999046326
+            }
+          ]
+        },
+        "parity": {
+          "channels": [
+            {
+              "rmsError": 1.7823548166664572e-07,
+              "maxAbsError": 2.641230821609497e-06,
+              "referenceRms": 0.14392310365229996
+            },
+            {
+              "rmsError": 1.7594607295732696e-07,
+              "maxAbsError": 1.86823308467865e-06,
+              "referenceRms": 0.14521312529123295
+            },
+            {
+              "rmsError": 1.2056212349899316e-07,
+              "maxAbsError": 9.275972843170166e-07,
+              "referenceRms": 0.09634913991160936
+            },
+            {
+              "rmsError": 1.1569085312835385e-07,
+              "maxAbsError": 9.164214134216309e-07,
+              "referenceRms": 0.09689890471510215
+            },
+            {
+              "rmsError": 1.6484511113230871e-07,
+              "maxAbsError": 2.387911081314087e-06,
+              "referenceRms": 0.12726447318453846
+            },
+            {
+              "rmsError": 1.6127112239233598e-07,
+              "maxAbsError": 2.1457672119140625e-06,
+              "referenceRms": 0.11966416376513427
+            },
+            {
+              "rmsError": 7.119640245981465e-08,
+              "maxAbsError": 1.601874828338623e-06,
+              "referenceRms": 0.10731364579068442
+            },
+            {
+              "rmsError": 6.845145549082021e-08,
+              "maxAbsError": 1.519918441772461e-06,
+              "referenceRms": 0.09944581640654766
+            }
+          ],
+          "rmsError": 1.3855563940983136e-07,
+          "relativeRmsError": 1.1689508702403958e-06,
+          "maxAbsError": 2.641230821609497e-06,
+          "withinTolerance": true
+        },
+        "analysis": {
+          "stems": [
+            {
+              "role": "drums",
+              "rms": 0.14456956380032257,
+              "peak": 1.0028913021087646,
+              "stereoDifferenceRms": 0.08755173197255307
+            },
+            {
+              "role": "bass",
+              "rms": 0.09662439025611112,
+              "peak": 0.3826391100883484,
+              "stereoDifferenceRms": 0.0055629502614221475
+            },
+            {
+              "role": "other",
+              "rms": 0.12352279735467375,
+              "peak": 0.774593710899353,
+              "stereoDifferenceRms": 0.14550733205120248
+            },
+            {
+              "role": "vocals",
+              "rms": 0.10345456125194502,
+              "peak": 0.9333143830299377,
+              "stereoDifferenceRms": 0.08406822920950772
+            }
+          ],
+          "remixResidual": {
+            "rmsError": 0.009122699710953973,
+            "relativeRmsError": 0.035616225744343914,
+            "maxAbsError": 0.1072264313697815
+          },
+          "hasIsolatedReferences": false
+        }
+      }
+    },
+    "gpu1Cold": {
+      "latest": {
+        "analysis": {
+          "hasIsolatedReferences": false,
+          "remixResidual": {
+            "maxAbsError": 0.1072264313697815,
+            "relativeRmsError": 0.035616225744343914,
+            "rmsError": 0.009122699710953973
+          },
+          "stems": [
+            {
+              "peak": 1.0028913021087646,
+              "rms": 0.14456956380032257,
+              "role": "drums",
+              "stereoDifferenceRms": 0.08755173197255307
+            },
+            {
+              "peak": 0.3826391100883484,
+              "rms": 0.09662439025611112,
+              "role": "bass",
+              "stereoDifferenceRms": 0.0055629502614221475
+            },
+            {
+              "peak": 0.774593710899353,
+              "rms": 0.12352279735467377,
+              "role": "other",
+              "stereoDifferenceRms": 0.14550733205120248
+            },
+            {
+              "peak": 0.9333143830299376,
+              "rms": 0.10345456125194502,
+              "role": "vocals",
+              "stereoDifferenceRms": 0.08406822920950772
+            }
+          ]
+        },
+        "firstAudioMs": 1684.100000023842,
+        "mode": "session froide (chargement + chauffe inclus)",
+        "parity": {
+          "channels": [
+            {
+              "maxAbsError": 2.641230821609497e-06,
+              "referenceRms": 0.14392310365229996,
+              "rmsError": 1.7823548166664577e-07
+            },
+            {
+              "maxAbsError": 1.86823308467865e-06,
+              "referenceRms": 0.14521312529123295,
+              "rmsError": 1.7594607295732696e-07
+            },
+            {
+              "maxAbsError": 9.275972843170166e-07,
+              "referenceRms": 0.09634913991160936,
+              "rmsError": 1.2056212349899316e-07
+            },
+            {
+              "maxAbsError": 9.164214134216308e-07,
+              "referenceRms": 0.09689890471510217,
+              "rmsError": 1.1569085312835385e-07
+            },
+            {
+              "maxAbsError": 2.387911081314087e-06,
+              "referenceRms": 0.12726447318453846,
+              "rmsError": 1.6484511113230877e-07
+            },
+            {
+              "maxAbsError": 2.1457672119140625e-06,
+              "referenceRms": 0.11966416376513428,
+              "rmsError": 1.6127112239233598e-07
+            },
+            {
+              "maxAbsError": 1.601874828338623e-06,
+              "referenceRms": 0.10731364579068442,
+              "rmsError": 7.119640245981465e-08
+            },
+            {
+              "maxAbsError": 1.519918441772461e-06,
+              "referenceRms": 0.09944581640654766,
+              "rmsError": 6.845145549082022e-08
+            }
+          ],
+          "maxAbsError": 2.641230821609497e-06,
+          "relativeRmsError": 1.1689508702403958e-06,
+          "rmsError": 1.3855563940983136e-07,
+          "withinTolerance": true
+        },
+        "playback": {
+          "autoPlay": true,
+          "scheduledStartMs": 1714.5,
+          "underruns": 0
+        },
+        "totalMs": 3619.899999976158,
+        "worker": {
+          "blocks": [
+            {
+              "computeMs": 294.09999990463257,
+              "elapsedMs": 294.1999999284744,
+              "index": 0,
+              "inputFrames": 44100,
+              "publishedFrames": 33075
+            },
+            {
+              "computeMs": 273.60000002384186,
+              "elapsedMs": 567.7999999523163,
+              "index": 1,
+              "inputFrames": 44100,
+              "publishedFrames": 33075
+            },
+            {
+              "computeMs": 282.60000002384186,
+              "elapsedMs": 850.5,
+              "index": 2,
+              "inputFrames": 44100,
+              "publishedFrames": 33075
+            },
+            {
+              "computeMs": 272.7999999523163,
+              "elapsedMs": 1123.399999976158,
+              "index": 3,
+              "inputFrames": 44100,
+              "publishedFrames": 33075
+            },
+            {
+              "computeMs": 268.2999999523163,
+              "elapsedMs": 1391.6999999284744,
+              "index": 4,
+              "inputFrames": 44100,
+              "publishedFrames": 33075
+            },
+            {
+              "computeMs": 277.90000009536743,
+              "elapsedMs": 1669.600000023842,
+              "index": 5,
+              "inputFrames": 44100,
+              "publishedFrames": 33075
+            },
+            {
+              "computeMs": 274.10000002384186,
+              "elapsedMs": 1944,
+              "index": 6,
+              "inputFrames": 44100,
+              "publishedFrames": 33075
+            },
+            {
+              "computeMs": 286,
+              "elapsedMs": 2230.100000023842,
+              "index": 7,
+              "inputFrames": 33075,
+              "publishedFrames": 33075
+            }
+          ],
+          "elapsedMs": 2230.2999999523163,
+          "type": "done"
+        }
+      },
+      "mode": "session froide (chargement + chauffe inclus)",
+      "preparation": {
+        "backend": "webgpu",
+        "fetchMs": 179.5,
+        "loadMs": 686.2000000476837,
+        "precision": "FP32 · device sans shader-f16",
+        "totalMs": 1325.600000023842,
+        "type": "prepared",
+        "warmMs": 456.2999999523163
+      },
+      "reference": "Slow Motion Dream (CC BY 3.0), first 6s",
+      "runs": [
+        {
+          "analysis": {
+            "hasIsolatedReferences": false,
+            "remixResidual": {
+              "maxAbsError": 0.1072264313697815,
+              "relativeRmsError": 0.035616225744343914,
+              "rmsError": 0.009122699710953973
+            },
+            "stems": [
+              {
+                "peak": 1.0028913021087646,
+                "rms": 0.14456956380032257,
+                "role": "drums",
+                "stereoDifferenceRms": 0.08755173197255307
+              },
+              {
+                "peak": 0.3826391100883484,
+                "rms": 0.09662439025611112,
+                "role": "bass",
+                "stereoDifferenceRms": 0.0055629502614221475
+              },
+              {
+                "peak": 0.774593710899353,
+                "rms": 0.12352279735467377,
+                "role": "other",
+                "stereoDifferenceRms": 0.14550733205120248
+              },
+              {
+                "peak": 0.9333143830299376,
+                "rms": 0.10345456125194502,
+                "role": "vocals",
+                "stereoDifferenceRms": 0.08406822920950772
+              }
+            ]
+          },
+          "firstAudioMs": 1684.100000023842,
+          "mode": "session froide (chargement + chauffe inclus)",
+          "parity": {
+            "channels": [
+              {
+                "maxAbsError": 2.641230821609497e-06,
+                "referenceRms": 0.14392310365229996,
+                "rmsError": 1.7823548166664577e-07
+              },
+              {
+                "maxAbsError": 1.86823308467865e-06,
+                "referenceRms": 0.14521312529123295,
+                "rmsError": 1.7594607295732696e-07
+              },
+              {
+                "maxAbsError": 9.275972843170166e-07,
+                "referenceRms": 0.09634913991160936,
+                "rmsError": 1.2056212349899316e-07
+              },
+              {
+                "maxAbsError": 9.164214134216308e-07,
+                "referenceRms": 0.09689890471510217,
+                "rmsError": 1.1569085312835385e-07
+              },
+              {
+                "maxAbsError": 2.387911081314087e-06,
+                "referenceRms": 0.12726447318453846,
+                "rmsError": 1.6484511113230877e-07
+              },
+              {
+                "maxAbsError": 2.1457672119140625e-06,
+                "referenceRms": 0.11966416376513428,
+                "rmsError": 1.6127112239233598e-07
+              },
+              {
+                "maxAbsError": 1.601874828338623e-06,
+                "referenceRms": 0.10731364579068442,
+                "rmsError": 7.119640245981465e-08
+              },
+              {
+                "maxAbsError": 1.519918441772461e-06,
+                "referenceRms": 0.09944581640654766,
+                "rmsError": 6.845145549082022e-08
+              }
+            ],
+            "maxAbsError": 2.641230821609497e-06,
+            "relativeRmsError": 1.1689508702403958e-06,
+            "rmsError": 1.3855563940983136e-07,
+            "withinTolerance": true
+          },
+          "playback": {
+            "autoPlay": true,
+            "scheduledStartMs": 1714.5,
+            "underruns": 0
+          },
+          "totalMs": 3619.899999976158,
+          "worker": {
+            "blocks": [
+              {
+                "computeMs": 294.09999990463257,
+                "elapsedMs": 294.1999999284744,
+                "index": 0,
+                "inputFrames": 44100,
+                "publishedFrames": 33075
+              },
+              {
+                "computeMs": 273.60000002384186,
+                "elapsedMs": 567.7999999523163,
+                "index": 1,
+                "inputFrames": 44100,
+                "publishedFrames": 33075
+              },
+              {
+                "computeMs": 282.60000002384186,
+                "elapsedMs": 850.5,
+                "index": 2,
+                "inputFrames": 44100,
+                "publishedFrames": 33075
+              },
+              {
+                "computeMs": 272.7999999523163,
+                "elapsedMs": 1123.399999976158,
+                "index": 3,
+                "inputFrames": 44100,
+                "publishedFrames": 33075
+              },
+              {
+                "computeMs": 268.2999999523163,
+                "elapsedMs": 1391.6999999284744,
+                "index": 4,
+                "inputFrames": 44100,
+                "publishedFrames": 33075
+              },
+              {
+                "computeMs": 277.90000009536743,
+                "elapsedMs": 1669.600000023842,
+                "index": 5,
+                "inputFrames": 44100,
+                "publishedFrames": 33075
+              },
+              {
+                "computeMs": 274.10000002384186,
+                "elapsedMs": 1944,
+                "index": 6,
+                "inputFrames": 44100,
+                "publishedFrames": 33075
+              },
+              {
+                "computeMs": 286,
+                "elapsedMs": 2230.100000023842,
+                "index": 7,
+                "inputFrames": 33075,
+                "publishedFrames": 33075
+              }
+            ],
+            "elapsedMs": 2230.2999999523163,
+            "type": "done"
+          }
+        }
+      ]
+    },
+    "gpu2Warm": {
+      "latest": {
+        "analysis": {
+          "hasIsolatedReferences": false,
+          "remixResidual": {
+            "maxAbsError": 0.210855633020401,
+            "relativeRmsError": 0.03545183808214996,
+            "rmsError": 0.009080593641401688
+          },
+          "stems": [
+            {
+              "peak": 0.986422061920166,
+              "rms": 0.14582482033807204,
+              "role": "drums",
+              "stereoDifferenceRms": 0.08641876648484942
+            },
+            {
+              "peak": 0.35800981521606445,
+              "rms": 0.0961488676396554,
+              "role": "bass",
+              "stereoDifferenceRms": 0.001965180200181188
+            },
+            {
+              "peak": 0.7606421709060669,
+              "rms": 0.12028344836425647,
+              "role": "other",
+              "stereoDifferenceRms": 0.14576278572031137
+            },
+            {
+              "peak": 0.9292476177215576,
+              "rms": 0.10366043105234866,
+              "role": "vocals",
+              "stereoDifferenceRms": 0.08458062735141182
+            }
+          ]
+        },
+        "firstAudioMs": 767.6999999284744,
+        "mode": "modèle préparé",
+        "parity": {
+          "channels": [
+            {
+              "maxAbsError": 2.7418136596679688e-06,
+              "referenceRms": 0.14468822583813104,
+              "rmsError": 1.680775307022186e-07
+            },
+            {
+              "maxAbsError": 2.3245811462402344e-06,
+              "referenceRms": 0.14695260019989406,
+              "rmsError": 1.677195809675178e-07
+            },
+            {
+              "maxAbsError": 8.046627044677734e-07,
+              "referenceRms": 0.0962125646491785,
+              "rmsError": 9.805613237019397e-08
+            },
+            {
+              "maxAbsError": 7.82310962677002e-07,
+              "referenceRms": 0.09608512604382569,
+              "rmsError": 9.716033915235393e-08
+            },
+            {
+              "maxAbsError": 8.344650268554688e-07,
+              "referenceRms": 0.1239825727404714,
+              "rmsError": 1.3607893313954336e-07
+            },
+            {
+              "maxAbsError": 7.152557373046875e-07,
+              "referenceRms": 0.11646687790927156,
+              "rmsError": 1.3393292026511e-07
+            },
+            {
+              "maxAbsError": 2.9355287551879883e-06,
+              "referenceRms": 0.10741301543874876,
+              "rmsError": 8.29739432883574e-08
+            },
+            {
+              "maxAbsError": 3.0249357223510742e-06,
+              "referenceRms": 0.09976679029850818,
+              "rmsError": 8.282836592799396e-08
+            }
+          ],
+          "maxAbsError": 3.0249357223510742e-06,
+          "relativeRmsError": 1.061754561076063e-06,
+          "rmsError": 1.2531748052882242e-07,
+          "withinTolerance": true
+        },
+        "playback": {
+          "autoPlay": true,
+          "scheduledStartMs": 797.8999999761581,
+          "underruns": 0
+        },
+        "totalMs": 2912.5,
+        "windowSeconds": 2,
+        "worker": {
+          "blocks": [
+            {
+              "computeMs": 757.2000000476837,
+              "elapsedMs": 757.3999999761581,
+              "index": 0,
+              "inputFrames": 88200,
+              "publishedFrames": 44100
+            },
+            {
+              "computeMs": 556.5,
+              "elapsedMs": 1314.0999999046326,
+              "index": 1,
+              "inputFrames": 88200,
+              "publishedFrames": 44100
+            },
+            {
+              "computeMs": 531.5,
+              "elapsedMs": 1845.6999999284744,
+              "index": 2,
+              "inputFrames": 88200,
+              "publishedFrames": 44100
+            },
+            {
+              "computeMs": 524.7999999523163,
+              "elapsedMs": 2370.6999999284744,
+              "index": 3,
+              "inputFrames": 88200,
+              "publishedFrames": 44100
+            },
+            {
+              "computeMs": 529.0999999046326,
+              "elapsedMs": 2900.099999904633,
+              "index": 4,
+              "inputFrames": 88200,
+              "publishedFrames": 88200
+            }
+          ],
+          "elapsedMs": 2900.399999976158,
+          "type": "done"
+        }
+      },
+      "mode": "modèle préparé",
+      "preparation": {
+        "backend": "webgpu",
+        "fetchMs": 230.5,
+        "loadMs": 4272.399999976158,
+        "precision": "FP32 · device sans shader-f16",
+        "totalMs": 6890.700000047684,
+        "type": "prepared",
+        "warmMs": 2293.2000000476837,
+        "windowFrames": 88200
+      },
+      "reference": "Slow Motion Dream (CC BY 3.0), first 6s",
+      "runs": [
+        {
+          "analysis": {
+            "hasIsolatedReferences": false,
+            "remixResidual": {
+              "maxAbsError": 0.210855633020401,
+              "relativeRmsError": 0.03545183808214996,
+              "rmsError": 0.009080593641401688
+            },
+            "stems": [
+              {
+                "peak": 0.986422061920166,
+                "rms": 0.14582482033807204,
+                "role": "drums",
+                "stereoDifferenceRms": 0.08641876648484942
+              },
+              {
+                "peak": 0.35800981521606445,
+                "rms": 0.0961488676396554,
+                "role": "bass",
+                "stereoDifferenceRms": 0.001965180200181188
+              },
+              {
+                "peak": 0.7606421709060669,
+                "rms": 0.12028344836425647,
+                "role": "other",
+                "stereoDifferenceRms": 0.14576278572031137
+              },
+              {
+                "peak": 0.9292476177215576,
+                "rms": 0.10366043105234866,
+                "role": "vocals",
+                "stereoDifferenceRms": 0.08458062735141182
+              }
+            ]
+          },
+          "firstAudioMs": 767.6999999284744,
+          "mode": "modèle préparé",
+          "parity": {
+            "channels": [
+              {
+                "maxAbsError": 2.7418136596679688e-06,
+                "referenceRms": 0.14468822583813104,
+                "rmsError": 1.680775307022186e-07
+              },
+              {
+                "maxAbsError": 2.3245811462402344e-06,
+                "referenceRms": 0.14695260019989406,
+                "rmsError": 1.677195809675178e-07
+              },
+              {
+                "maxAbsError": 8.046627044677734e-07,
+                "referenceRms": 0.0962125646491785,
+                "rmsError": 9.805613237019397e-08
+              },
+              {
+                "maxAbsError": 7.82310962677002e-07,
+                "referenceRms": 0.09608512604382569,
+                "rmsError": 9.716033915235393e-08
+              },
+              {
+                "maxAbsError": 8.344650268554688e-07,
+                "referenceRms": 0.1239825727404714,
+                "rmsError": 1.3607893313954336e-07
+              },
+              {
+                "maxAbsError": 7.152557373046875e-07,
+                "referenceRms": 0.11646687790927156,
+                "rmsError": 1.3393292026511e-07
+              },
+              {
+                "maxAbsError": 2.9355287551879883e-06,
+                "referenceRms": 0.10741301543874876,
+                "rmsError": 8.29739432883574e-08
+              },
+              {
+                "maxAbsError": 3.0249357223510742e-06,
+                "referenceRms": 0.09976679029850818,
+                "rmsError": 8.282836592799396e-08
+              }
+            ],
+            "maxAbsError": 3.0249357223510742e-06,
+            "relativeRmsError": 1.061754561076063e-06,
+            "rmsError": 1.2531748052882242e-07,
+            "withinTolerance": true
+          },
+          "playback": {
+            "autoPlay": true,
+            "scheduledStartMs": 797.8999999761581,
+            "underruns": 0
+          },
+          "totalMs": 2912.5,
+          "windowSeconds": 2,
+          "worker": {
+            "blocks": [
+              {
+                "computeMs": 757.2000000476837,
+                "elapsedMs": 757.3999999761581,
+                "index": 0,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 556.5,
+                "elapsedMs": 1314.0999999046326,
+                "index": 1,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 531.5,
+                "elapsedMs": 1845.6999999284744,
+                "index": 2,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 524.7999999523163,
+                "elapsedMs": 2370.6999999284744,
+                "index": 3,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 529.0999999046326,
+                "elapsedMs": 2900.099999904633,
+                "index": 4,
+                "inputFrames": 88200,
+                "publishedFrames": 88200
+              }
+            ],
+            "elapsedMs": 2900.399999976158,
+            "type": "done"
+          }
+        }
+      ]
+    },
+    "gpu2ColdAndWarmRepeat": {
+      "latest": {
+        "analysis": {
+          "hasIsolatedReferences": false,
+          "remixResidual": {
+            "maxAbsError": 0.210855633020401,
+            "relativeRmsError": 0.03545183808214996,
+            "rmsError": 0.009080593641401688
+          },
+          "stems": [
+            {
+              "peak": 0.986422061920166,
+              "rms": 0.14582482033807204,
+              "role": "drums",
+              "stereoDifferenceRms": 0.08641876648484942
+            },
+            {
+              "peak": 0.35800981521606445,
+              "rms": 0.0961488676396554,
+              "role": "bass",
+              "stereoDifferenceRms": 0.001965180200181188
+            },
+            {
+              "peak": 0.7606421709060669,
+              "rms": 0.12028344836425647,
+              "role": "other",
+              "stereoDifferenceRms": 0.14576278572031137
+            },
+            {
+              "peak": 0.9292476177215576,
+              "rms": 0.10366043105234866,
+              "role": "vocals",
+              "stereoDifferenceRms": 0.08458062735141182
+            }
+          ]
+        },
+        "firstAudioMs": 951.399999976158,
+        "mode": "modèle préparé",
+        "parity": {
+          "channels": [
+            {
+              "maxAbsError": 2.7418136596679688e-06,
+              "referenceRms": 0.14468822583813104,
+              "rmsError": 1.680775307022186e-07
+            },
+            {
+              "maxAbsError": 2.3245811462402344e-06,
+              "referenceRms": 0.14695260019989406,
+              "rmsError": 1.677195809675178e-07
+            },
+            {
+              "maxAbsError": 8.046627044677734e-07,
+              "referenceRms": 0.0962125646491785,
+              "rmsError": 9.805613237019397e-08
+            },
+            {
+              "maxAbsError": 7.82310962677002e-07,
+              "referenceRms": 0.09608512604382569,
+              "rmsError": 9.716033915235393e-08
+            },
+            {
+              "maxAbsError": 8.344650268554688e-07,
+              "referenceRms": 0.1239825727404714,
+              "rmsError": 1.3607893313954336e-07
+            },
+            {
+              "maxAbsError": 7.152557373046875e-07,
+              "referenceRms": 0.11646687790927156,
+              "rmsError": 1.3393292026511e-07
+            },
+            {
+              "maxAbsError": 2.9355287551879883e-06,
+              "referenceRms": 0.10741301543874876,
+              "rmsError": 8.29739432883574e-08
+            },
+            {
+              "maxAbsError": 3.0249357223510742e-06,
+              "referenceRms": 0.09976679029850818,
+              "rmsError": 8.282836592799396e-08
+            }
+          ],
+          "maxAbsError": 3.0249357223510742e-06,
+          "relativeRmsError": 1.061754561076063e-06,
+          "rmsError": 1.2531748052882242e-07,
+          "withinTolerance": true
+        },
+        "playback": {
+          "autoPlay": true,
+          "scheduledStartMs": 981.7000000476849,
+          "underruns": 0
+        },
+        "totalMs": 3107.2000000476837,
+        "windowSeconds": 2,
+        "worker": {
+          "blocks": [
+            {
+              "computeMs": 940.399999976158,
+              "elapsedMs": 940.399999976158,
+              "index": 0,
+              "inputFrames": 88200,
+              "publishedFrames": 44100
+            },
+            {
+              "computeMs": 534.8999999761581,
+              "elapsedMs": 1475.399999976158,
+              "index": 1,
+              "inputFrames": 88200,
+              "publishedFrames": 44100
+            },
+            {
+              "computeMs": 559.1000000238419,
+              "elapsedMs": 2034.5,
+              "index": 2,
+              "inputFrames": 88200,
+              "publishedFrames": 44100
+            },
+            {
+              "computeMs": 535.3999999761581,
+              "elapsedMs": 2570.1999999284744,
+              "index": 3,
+              "inputFrames": 88200,
+              "publishedFrames": 44100
+            },
+            {
+              "computeMs": 523.5,
+              "elapsedMs": 3094,
+              "index": 4,
+              "inputFrames": 88200,
+              "publishedFrames": 88200
+            }
+          ],
+          "elapsedMs": 3094.2999999523163,
+          "type": "done"
+        }
+      },
+      "mode": "modèle préparé",
+      "preparation": {
+        "backend": "webgpu",
+        "fetchMs": 109.60000002384186,
+        "loadMs": 617.8999999761581,
+        "precision": "FP32 · device sans shader-f16",
+        "totalMs": 1616.399999976158,
+        "type": "prepared",
+        "warmMs": 886,
+        "windowFrames": 88200
+      },
+      "reference": "Slow Motion Dream (CC BY 3.0), first 6s",
+      "runs": [
+        {
+          "analysis": {
+            "hasIsolatedReferences": false,
+            "remixResidual": {
+              "maxAbsError": 0.210855633020401,
+              "relativeRmsError": 0.03545183808214996,
+              "rmsError": 0.009080593641401688
+            },
+            "stems": [
+              {
+                "peak": 0.986422061920166,
+                "rms": 0.14582482033807204,
+                "role": "drums",
+                "stereoDifferenceRms": 0.08641876648484942
+              },
+              {
+                "peak": 0.35800981521606445,
+                "rms": 0.0961488676396554,
+                "role": "bass",
+                "stereoDifferenceRms": 0.001965180200181188
+              },
+              {
+                "peak": 0.7606421709060669,
+                "rms": 0.12028344836425647,
+                "role": "other",
+                "stereoDifferenceRms": 0.14576278572031137
+              },
+              {
+                "peak": 0.9292476177215576,
+                "rms": 0.10366043105234866,
+                "role": "vocals",
+                "stereoDifferenceRms": 0.08458062735141182
+              }
+            ]
+          },
+          "firstAudioMs": 767.6999999284744,
+          "mode": "modèle préparé",
+          "parity": {
+            "channels": [
+              {
+                "maxAbsError": 2.7418136596679688e-06,
+                "referenceRms": 0.14468822583813104,
+                "rmsError": 1.680775307022186e-07
+              },
+              {
+                "maxAbsError": 2.3245811462402344e-06,
+                "referenceRms": 0.14695260019989406,
+                "rmsError": 1.677195809675178e-07
+              },
+              {
+                "maxAbsError": 8.046627044677734e-07,
+                "referenceRms": 0.0962125646491785,
+                "rmsError": 9.805613237019397e-08
+              },
+              {
+                "maxAbsError": 7.82310962677002e-07,
+                "referenceRms": 0.09608512604382569,
+                "rmsError": 9.716033915235393e-08
+              },
+              {
+                "maxAbsError": 8.344650268554688e-07,
+                "referenceRms": 0.1239825727404714,
+                "rmsError": 1.3607893313954336e-07
+              },
+              {
+                "maxAbsError": 7.152557373046875e-07,
+                "referenceRms": 0.11646687790927156,
+                "rmsError": 1.3393292026511e-07
+              },
+              {
+                "maxAbsError": 2.9355287551879883e-06,
+                "referenceRms": 0.10741301543874876,
+                "rmsError": 8.29739432883574e-08
+              },
+              {
+                "maxAbsError": 3.0249357223510742e-06,
+                "referenceRms": 0.09976679029850818,
+                "rmsError": 8.282836592799396e-08
+              }
+            ],
+            "maxAbsError": 3.0249357223510742e-06,
+            "relativeRmsError": 1.061754561076063e-06,
+            "rmsError": 1.2531748052882242e-07,
+            "withinTolerance": true
+          },
+          "playback": {
+            "autoPlay": true,
+            "scheduledStartMs": 797.8999999761581,
+            "underruns": 0
+          },
+          "totalMs": 2912.5,
+          "windowSeconds": 2,
+          "worker": {
+            "blocks": [
+              {
+                "computeMs": 757.2000000476837,
+                "elapsedMs": 757.3999999761581,
+                "index": 0,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 556.5,
+                "elapsedMs": 1314.0999999046326,
+                "index": 1,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 531.5,
+                "elapsedMs": 1845.6999999284744,
+                "index": 2,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 524.7999999523163,
+                "elapsedMs": 2370.6999999284744,
+                "index": 3,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 529.0999999046326,
+                "elapsedMs": 2900.099999904633,
+                "index": 4,
+                "inputFrames": 88200,
+                "publishedFrames": 88200
+              }
+            ],
+            "elapsedMs": 2900.399999976158,
+            "type": "done"
+          }
+        },
+        {
+          "analysis": {
+            "hasIsolatedReferences": false,
+            "remixResidual": {
+              "maxAbsError": 0.210855633020401,
+              "relativeRmsError": 0.03545183808214996,
+              "rmsError": 0.009080593641401688
+            },
+            "stems": [
+              {
+                "peak": 0.986422061920166,
+                "rms": 0.14582482033807204,
+                "role": "drums",
+                "stereoDifferenceRms": 0.08641876648484942
+              },
+              {
+                "peak": 0.35800981521606445,
+                "rms": 0.0961488676396554,
+                "role": "bass",
+                "stereoDifferenceRms": 0.001965180200181188
+              },
+              {
+                "peak": 0.7606421709060669,
+                "rms": 0.12028344836425647,
+                "role": "other",
+                "stereoDifferenceRms": 0.14576278572031137
+              },
+              {
+                "peak": 0.9292476177215576,
+                "rms": 0.10366043105234866,
+                "role": "vocals",
+                "stereoDifferenceRms": 0.08458062735141182
+              }
+            ]
+          },
+          "firstAudioMs": 2284.099999904633,
+          "mode": "session froide (chargement + chauffe inclus)",
+          "parity": {
+            "channels": [
+              {
+                "maxAbsError": 2.7418136596679688e-06,
+                "referenceRms": 0.14468822583813104,
+                "rmsError": 1.680775307022186e-07
+              },
+              {
+                "maxAbsError": 2.3245811462402344e-06,
+                "referenceRms": 0.14695260019989406,
+                "rmsError": 1.677195809675178e-07
+              },
+              {
+                "maxAbsError": 8.046627044677734e-07,
+                "referenceRms": 0.0962125646491785,
+                "rmsError": 9.805613237019397e-08
+              },
+              {
+                "maxAbsError": 7.82310962677002e-07,
+                "referenceRms": 0.09608512604382569,
+                "rmsError": 9.716033915235393e-08
+              },
+              {
+                "maxAbsError": 8.344650268554688e-07,
+                "referenceRms": 0.1239825727404714,
+                "rmsError": 1.3607893313954336e-07
+              },
+              {
+                "maxAbsError": 7.152557373046875e-07,
+                "referenceRms": 0.11646687790927156,
+                "rmsError": 1.3393292026511e-07
+              },
+              {
+                "maxAbsError": 2.9355287551879883e-06,
+                "referenceRms": 0.10741301543874876,
+                "rmsError": 8.29739432883574e-08
+              },
+              {
+                "maxAbsError": 3.0249357223510742e-06,
+                "referenceRms": 0.09976679029850818,
+                "rmsError": 8.282836592799396e-08
+              }
+            ],
+            "maxAbsError": 3.0249357223510742e-06,
+            "relativeRmsError": 1.061754561076063e-06,
+            "rmsError": 1.2531748052882242e-07,
+            "withinTolerance": true
+          },
+          "playback": {
+            "autoPlay": true,
+            "scheduledStartMs": 2314.399999976159,
+            "underruns": 0
+          },
+          "totalMs": 4554.799999952316,
+          "windowSeconds": 2,
+          "worker": {
+            "blocks": [
+              {
+                "computeMs": 628,
+                "elapsedMs": 628.2000000476837,
+                "index": 0,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 687.1000000238419,
+                "elapsedMs": 1315.399999976158,
+                "index": 1,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 530.1000000238419,
+                "elapsedMs": 1845.7000000476835,
+                "index": 2,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 519.2000000476837,
+                "elapsedMs": 2365.100000023842,
+                "index": 3,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 531.2999999523163,
+                "elapsedMs": 2896.7999999523163,
+                "index": 4,
+                "inputFrames": 88200,
+                "publishedFrames": 88200
+              }
+            ],
+            "elapsedMs": 2897.100000023842,
+            "type": "done"
+          }
+        },
+        {
+          "analysis": {
+            "hasIsolatedReferences": false,
+            "remixResidual": {
+              "maxAbsError": 0.210855633020401,
+              "relativeRmsError": 0.03545183808214996,
+              "rmsError": 0.009080593641401688
+            },
+            "stems": [
+              {
+                "peak": 0.986422061920166,
+                "rms": 0.14582482033807204,
+                "role": "drums",
+                "stereoDifferenceRms": 0.08641876648484942
+              },
+              {
+                "peak": 0.35800981521606445,
+                "rms": 0.0961488676396554,
+                "role": "bass",
+                "stereoDifferenceRms": 0.001965180200181188
+              },
+              {
+                "peak": 0.7606421709060669,
+                "rms": 0.12028344836425647,
+                "role": "other",
+                "stereoDifferenceRms": 0.14576278572031137
+              },
+              {
+                "peak": 0.9292476177215576,
+                "rms": 0.10366043105234866,
+                "role": "vocals",
+                "stereoDifferenceRms": 0.08458062735141182
+              }
+            ]
+          },
+          "firstAudioMs": 951.399999976158,
+          "mode": "modèle préparé",
+          "parity": {
+            "channels": [
+              {
+                "maxAbsError": 2.7418136596679688e-06,
+                "referenceRms": 0.14468822583813104,
+                "rmsError": 1.680775307022186e-07
+              },
+              {
+                "maxAbsError": 2.3245811462402344e-06,
+                "referenceRms": 0.14695260019989406,
+                "rmsError": 1.677195809675178e-07
+              },
+              {
+                "maxAbsError": 8.046627044677734e-07,
+                "referenceRms": 0.0962125646491785,
+                "rmsError": 9.805613237019397e-08
+              },
+              {
+                "maxAbsError": 7.82310962677002e-07,
+                "referenceRms": 0.09608512604382569,
+                "rmsError": 9.716033915235393e-08
+              },
+              {
+                "maxAbsError": 8.344650268554688e-07,
+                "referenceRms": 0.1239825727404714,
+                "rmsError": 1.3607893313954336e-07
+              },
+              {
+                "maxAbsError": 7.152557373046875e-07,
+                "referenceRms": 0.11646687790927156,
+                "rmsError": 1.3393292026511e-07
+              },
+              {
+                "maxAbsError": 2.9355287551879883e-06,
+                "referenceRms": 0.10741301543874876,
+                "rmsError": 8.29739432883574e-08
+              },
+              {
+                "maxAbsError": 3.0249357223510742e-06,
+                "referenceRms": 0.09976679029850818,
+                "rmsError": 8.282836592799396e-08
+              }
+            ],
+            "maxAbsError": 3.0249357223510742e-06,
+            "relativeRmsError": 1.061754561076063e-06,
+            "rmsError": 1.2531748052882242e-07,
+            "withinTolerance": true
+          },
+          "playback": {
+            "autoPlay": true,
+            "scheduledStartMs": 981.7000000476849,
+            "underruns": 0
+          },
+          "totalMs": 3107.2000000476837,
+          "windowSeconds": 2,
+          "worker": {
+            "blocks": [
+              {
+                "computeMs": 940.399999976158,
+                "elapsedMs": 940.399999976158,
+                "index": 0,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 534.8999999761581,
+                "elapsedMs": 1475.399999976158,
+                "index": 1,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 559.1000000238419,
+                "elapsedMs": 2034.5,
+                "index": 2,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 535.3999999761581,
+                "elapsedMs": 2570.1999999284744,
+                "index": 3,
+                "inputFrames": 88200,
+                "publishedFrames": 44100
+              },
+              {
+                "computeMs": 523.5,
+                "elapsedMs": 3094,
+                "index": 4,
+                "inputFrames": 88200,
+                "publishedFrames": 88200
+              }
+            ],
+            "elapsedMs": 3094.2999999523163,
+            "type": "done"
+          }
+        }
+      ]
+    }
+  },
+  "dspFix": {
+    "issue": "left reflect padding read uninitialized destination instead of source",
+    "beforeSpecRelativeRms": 0.0017962689,
+    "afterSpecRelativeRms": 1.6977765e-07
+  },
+  "limits": [
+    "No studio isolated stems or human perceptual listening score",
+    "Short-context fidelity is validated against short-context PyTorch, not equivalence to7.8s",
+    "Cold session includes local weight fetch and warmup; browser/driver caches not cleared",
+    "Playback timing is Web Audio scheduled start, not acoustic output latency"
+  ],
+  "tests": {
+    "passed": 357,
+    "failed": 0
+  },
+  "browserConsoleErrors": [],
+  "playbackLeftStopped": true
+}

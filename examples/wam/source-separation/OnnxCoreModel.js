@@ -5,13 +5,15 @@ export class OnnxCoreModel {
   audioChannels = 2;
   samplerate = 44100;
   segment = 7.8;
-  constructor(session, Tensor) {
+  constructor(session, Tensor, {frames=343980}={}) {
+    if(![44100,88200,176400,343980].includes(frames))throw Error('Contrat de fenêtre ONNX invalide.');
+    this.frames=frames;this.segment=frames/44100;
     if(session.inputNames.length!==2 || session.outputNames.length!==2)throw Error('Contrat ONNX incompatible.');
     this.session=session;this.Tensor=Tensor;
   }
   validLength(length) {
-    if(!Number.isSafeInteger(length)||length<=0||length>343980)throw Error('Fenêtre ONNX invalide.');
-    return 343980;
+    if(!Number.isSafeInteger(length)||length<=0||length>this.frames)throw Error('Fenêtre ONNX invalide.');
+    return this.frames;
   }
   async forward(mix,spec) {
     const inputs=[new this.Tensor('float32',mix.data,mix.shape),new this.Tensor('float32',spec.data,spec.shape)];

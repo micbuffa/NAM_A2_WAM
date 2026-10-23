@@ -17,7 +17,7 @@
         <span class="host-brand-mark"><tl-icon name="guitar" size="22"></tl-icon></span>
         <div class="host-brand-text"><h1>NAM A2</h1><p>Neural amp &amp; cabinet rack</p></div>
       </div>
-      <tl-segmented class="host-workspaces" id="workspaceSwitch" value="tone" aria-label="Workspace"><option value="tone">Tone</option><option value="tracks">Tracks</option></tl-segmented>
+      <tl-segmented class="host-workspaces" id="workspaceSwitch" value="tone" aria-label="Workspace"><option value="tone">Tone</option><option value="tracks">Tracks</option><option value="multitracks">Multitracks</option></tl-segmented>
       <div class="host-topbar-actions">
         <tl-button id="tunerButton" class="host-tuner-button" icon="tuner" size="sm" title="Open tuner (T)" aria-haspopup="dialog" aria-keyshortcuts="T" disabled>Tuner<kbd class="host-kbd">T</kbd></tl-button>
         <tl-badge id="engineStatus" class="host-engine" dot role="status" tone="warning" data-state="starting">Starting audio engine…</tl-badge>
@@ -153,6 +153,8 @@
         </div>
       </div>
     </main>
+    <main class="tracks-stage" id="multitracksWorkspace" data-workspace="multitracks" aria-label="Multitracks"><div class="workspace-heading"><h2>Multitracks</h2><p>Séparer les instruments, remixer et exporter vers Tracks.</p></div><div class="rack-canvas" id="multitracksCanvas"></div></main>
+
   </div>
 
   <!-- Settings > General (SettingsView moves it into the dialog while shown; main.js binds its controls once). -->

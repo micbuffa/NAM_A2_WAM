@@ -1,10 +1,11 @@
-import {buildWaveformPeaks,instrumentColors,timelineTicks} from './CompactWaveform.js';
-import {MixWaveformJob} from './MixWaveform.js';
+import {instrumentColors,timelineTicks} from './CompactWaveform.js';
+import {MixWaveformJob,buildMixPeaks} from './MixWaveform.js';
+import {WaveformWorkerClient,InstrumentWaveformJob} from './WaveformAnalysis.js';
 
 // One shared viewport, stable controls, and inert WaveSurfer renderers.
 // Audio scheduling remains exclusively in MultitrackEngine.
 export class CompactMultitrackView {
-  constructor(root,{createRenderer,onSeek,onLoopChange=()=>{},onChange=()=>{},onError=console.error,labels={},document=root.ownerDocument,observeResize=callback=>new ResizeObserver(callback)}={}) {
+  constructor(root,{createRenderer,onSeek,onLoopChange=()=>{},onChange=()=>{},onError=console.error,labels={},document=root.ownerDocument,observeResize=callback=>new ResizeObserver(callback),peakComputer=new WaveformWorkerClient()}={}) {
     Object.assign(this,{root,createRenderer,onSeek,onLoopChange,onChange,onError,labels,document});
     this.audioVersion=0;this.rows=new Map();this.duration=0;this.zoom=1;this.destroyed=false;
     const make=(tag,cls,parent)=>{const node=document.createElement(tag);node.className=cls;parent?.append(node);return node;};this.make=make;
@@ -36,7 +37,11 @@ export class CompactMultitrackView {
       handle.onpointercancel=()=>{this.dragging=null;this.onLoopChange(this.loopRegion);};
       handle.onkeydown=event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();const bounds={...this.loopRegion};bounds[key]+=(event.key==='ArrowLeft'?-1:1)*(event.shiftKey?1:.1);bounds[key]=key==='start'?Math.max(0,Math.min(bounds.end-.01,bounds[key])):Math.max(bounds.start+.01,Math.min(this.available,bounds[key]));this.onLoopChange(bounds);};
     }
+    this.peakComputer=peakComputer;this.mixCache=new WeakMap();
+    this.peakJob=new InstrumentWaveformJob({computer:peakComputer,onResult:peaks=>{if(this.destroyed)return;[...this.rows.values()].forEach((row,i)=>{if(peaks[i])this.setPeaks(row,peaks[i]);});},onError:this.onError});
+    this.playhead=make('div','shared-playhead',this.content);this.playhead.hidden=true;
     this.mixJob=new MixWaveformJob({
+      compute:(input,options)=>buildMixPeaks(input,{...options,computeBlock:block=>this.peakComputer.compute(block),cache:this.mixCache}),
       onStart:()=>{if(this.mixRow){this.mixRow.note.textContent='Calcul du mix…';this.mixRow.wave.setAttribute('aria-busy','true');}},
       onResult:result=>{if(!this.mixRow||this.destroyed)return;this.mixRow.note.textContent=result.peak?`${result.activeTracks} instrument(s) · pic ${(20*Math.log10(result.peak)).toFixed(1)} dBFS`:'Mix silencieux';this.mixRow.wave.setAttribute('aria-busy','false');this.setPeaks(this.mixRow,result.peaks);},
       onError:error=>{if(this.mixRow){this.mixRow.note.textContent='Calcul du mix impossible';this.mixRow.wave.setAttribute('aria-busy','false');}this.onError(error);},
@@ -56,7 +61,7 @@ export class CompactMultitrackView {
       const audible=this.session.isAudible(track);row.controls.dataset.audible=String(audible);row.wave.style.opacity=audible?'1':'.35';
       row.mute.setAttribute('aria-pressed',String(track.muted));row.solo.setAttribute('aria-pressed',String(track.solo));
       for(const key of ['volume','pan']) {
-        if(this.document.activeElement!==row[key])row[key].value=track[key];
+        if((this.root.getRootNode?.().activeElement||this.document.activeElement)!==row[key])row[key].value=track[key];
         row[`${key}Value`].textContent=key==='volume'?`${Math.round(track[key]*100)}%`:track[key]===0?'C':`${Math.round(Math.abs(track[key])*100)}${track[key]<0?'L':'R'}`;
       }
     }
@@ -84,7 +89,7 @@ export class CompactMultitrackView {
   }
   createWaveRow(label,color) {
     const wave=this.make('div','compact-wave',this.content);wave.tabIndex=0;wave.setAttribute('role','slider');wave.setAttribute('aria-label',`Position — ${label}`);wave.setAttribute('aria-valuemin','0');wave.setAttribute('aria-valuemax',String(this.duration));
-    const renderer=this.createRenderer({container:wave,height:44,waveColor:color,progressColor:color,cursorColor:'#fff',cursorWidth:1,fillParent:true,minPxPerSec:0,normalize:false,autoScroll:false,autoCenter:false,hideScrollbar:true,interact:false,dragToSeek:false,barWidth:2,barGap:1});
+    const renderer=this.createRenderer({container:wave,height:44,waveColor:color,progressColor:color,cursorColor:'#fff',cursorWidth:0,fillParent:true,minPxPerSec:0,normalize:false,autoScroll:false,autoCenter:false,hideScrollbar:true,interact:false,dragToSeek:false,barWidth:2,barGap:1});
     const row={wave,renderer,position:this.position||0};
     row.unsubscribe=renderer.on('click',fraction=>this.seek(fraction*this.duration));
     wave.onkeydown=event=>{const keys={ArrowRight:1,ArrowLeft:-1,Home:-Infinity,End:Infinity};if(!(event.key in keys))return;event.preventDefault();this.seek(event.key==='Home'?0:event.key==='End'?this.available:row.position+keys[event.key]);};
@@ -112,26 +117,26 @@ export class CompactMultitrackView {
     if(this.destroyed||!this.session||!totalFrames)return;
     this.duration=duration;this.available=availableDuration;
     this.audio={tracks,chunks,totalFrames,duration,outputGain};++this.audioVersion;
-    for(const [index,track] of tracks.entries()) {
-      const row=this.rows.get(track.id);if(!row)continue;
-      const buffers=chunks?chunks.map(chunk=>chunk.tracks[index].buffer):[track.buffer];
-      const peaks=buildWaveformPeaks(buffers,totalFrames);
-      this.setPeaks(row,peaks);
-    }
+    for(const row of this.rows.values())row.wave.setAttribute('aria-valuemax',String(this.available));
+    this.pendingWaveforms=this.peakJob.request({tracks,chunks,totalFrames});
     this.content.style.setProperty('--available',`${Math.min(100,availableDuration/duration*100)}%`);this.renderRuler();this.requestMix();
   }
   async draw(row) {
     if(row.drawing)return;row.drawing=true;
-    try {while(row.pending&&!this.destroyed&&!row.disposed){const data=row.pending;row.pending=null;await row.renderer.render(data);if(!this.destroyed&&!row.disposed)row.renderer.renderProgress(this.duration?row.position/this.duration:0,false);}}
+    try {while(row.pending&&!this.destroyed&&!row.disposed){const data=row.pending;row.pending=null;await row.renderer.render(data);if(!this.destroyed&&!row.disposed)row.renderer.renderProgress(0,false);}}
     catch(error){if(!this.destroyed&&!row.disposed)this.onError(error);}
     finally{row.drawing=false;}
   }
   renderRuler() {
+    this.contentWidth=(this.viewport.clientWidth||600)*this.zoom;
     const ticks=timelineTicks(this.duration,this.viewport.clientWidth||600,this.zoom);
+    this.updatePlayhead();
     this.ruler.replaceChildren(...ticks.map(tick=>{const node=this.make('span','');node.style.left=`${tick.fraction*100}%`;node.textContent=tick.label;return node;}));
   }
   setLoopRegion(bounds,enabled=true) {
     if(this.dragging&&bounds!==this.loopRegion)return;
+    const signature=JSON.stringify([bounds.start,bounds.end,enabled,this.duration]);
+    if(signature===this.regionSignature)return;this.regionSignature=signature;
     this.loopRegion={...bounds};this.loopEnabled=enabled;this.region.hidden=!this.duration;
     this.outsideBefore.hidden=this.outsideAfter.hidden=!enabled||!this.duration;
     this.outsideBefore.style.width=`${bounds.start/this.duration*100}%`;
@@ -139,11 +144,17 @@ export class CompactMultitrackView {
     this.region.style.left=`${bounds.start/this.duration*100}%`;this.region.style.width=`${(bounds.end-bounds.start)/this.duration*100}%`;this.region.style.opacity=enabled?'1':'.45';
     for(const key of ['start','end'])this.handles[key].title=`${key==='start'?'A':'B'} : ${bounds[key].toFixed(2)} s`;
   }
-  setPosition(seconds) {
-    if(this.destroyed)return;
-    this.position=seconds;
-    for(const row of [...this.rows.values(),...(this.mixRow?[this.mixRow]:[])]) {row.position=seconds;row.wave.setAttribute('aria-valuenow',seconds.toFixed(2));row.renderer.renderProgress(this.duration?Math.max(0,Math.min(1,seconds/this.duration)):0,false);}
+  updatePlayhead(){
+    if(!this.playhead)return;this.playhead.hidden=!this.duration;
+    const x=this.duration?Math.max(0,Math.min(1,(this.position||0)/this.duration))*(this.contentWidth||600):0;
+    const transform=`translate3d(${x}px,0,0)`;if(this.playhead.style.transform!==transform)this.playhead.style.transform=transform;
   }
-  clear(){this.mixJob?.cancel();for(const row of [...this.rows.values(),...(this.mixRow?[this.mixRow]:[])]){row.disposed=true;row.pending=null;row.unsubscribe?.();row.renderer.destroy();row.wave.remove();row.controls.remove();}this.rows.clear();this.mixRow=null;}
-  destroy(){this.destroyed=true;this.resize.disconnect();this.clear();this.shell.remove();}
+  setPosition(seconds) {
+    if(this.destroyed)return;this.position=seconds;this.updatePlayhead();
+    const now=performance.now(),updateAria=this.ariaAt===undefined||now-this.ariaAt>=100;if(updateAria)this.ariaAt=now;
+    for(const row of [...this.rows.values(),...(this.mixRow?[this.mixRow]:[])]){row.position=seconds;if(updateAria)row.wave.setAttribute('aria-valuenow',seconds.toFixed(2));}
+  }
+  reset(){this.clear();this.session=null;this.audio=null;this.duration=0;this.available=0;this.region.hidden=true;this.outsideBefore.hidden=this.outsideAfter.hidden=true;this.renderRuler();}
+  clear(){this.mixCache=new WeakMap();this.peakJob?.cancel();this.mixJob?.cancel();for(const row of [...this.rows.values(),...(this.mixRow?[this.mixRow]:[])]){row.disposed=true;row.pending=null;row.unsubscribe?.();row.renderer.destroy();row.wave.remove();row.controls.remove();}this.rows.clear();this.mixRow=null;}
+  destroy(){this.destroyed=true;this.resize.disconnect();this.clear();this.peakComputer.destroy?.();this.shell.remove();}
 }

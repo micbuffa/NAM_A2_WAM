@@ -8,6 +8,15 @@ export class SeparationWorkflow {
     this.original=deck;this.result=null;this.active=null;this.follow=false;
     deck.engine.outputNode.connect((this.destination||deck.engine.context.destination));this.active=deck;this.onActivate(deck);this.onChange();
   }
+  resetResult(candidate) {
+    if(!this.original||candidate.engine.context!==this.original.engine.context)throw Error('Un original et un AudioContext commun sont nécessaires.');
+    // A new model exposes empty lanes immediately; playback waits for fresh PCM.
+    for(const deck of new Set([this.original,this.result,this.active]))if(deck){deck.engine.pause();deck.engine.outputNode.disconnect();}
+    if(this.result)this.dispose(this.result);
+    this.original.engine.seek(0);this.result=candidate;this.active=candidate;this.follow=false;
+    candidate.engine.outputNode.connect(this.destination||candidate.engine.context.destination);
+    this.onActivate(candidate);this.onChange();
+  }
   async begin(candidate) {
     if(!this.original)throw Error('Chargez d’abord une piste originale.');
     if(candidate.engine.context!==this.original.engine.context)throw Error('Un AudioContext commun est nécessaire.');

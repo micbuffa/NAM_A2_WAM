@@ -1,0 +1,80 @@
+{
+  "model": "htdemucs_4s_onnx",
+  "backend": "webgpu",
+  "samples": [
+    {
+      "max": 60,
+      "value": 8.45,
+      "availableSeconds": 41
+    },
+    {
+      "max": 60,
+      "value": 28.38,
+      "availableSeconds": 60
+    }
+  ],
+  "run": {
+    "profile": "quality",
+    "firstReadyMs": 3415,
+    "backend": "webgpu",
+    "runtimeVersion": "1.22.0",
+    "loadMs": 707.1200000047684,
+    "blocks": [
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 2389.149999976158
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 2170.435000061989
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 2262.0599999427795
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 2045.7450000047684
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 1976.1349999904633
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 1958.0899999141693
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 1961.4399999380112
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 1961.0550000667572
+      },
+      {
+        "inputSeconds": 7.8,
+        "publishedSeconds": 5.85,
+        "elapsedMs": 1958.170000076294
+      },
+      {
+        "inputSeconds": 7.35,
+        "publishedSeconds": 7.35,
+        "elapsedMs": 1968.460000038147
+      }
+    ],
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3"
+    }
+  },
+  "note": "First sample while native playback and inference active, second after completion. Full duration denominator stays60. No quantitative before/after FPS claim."
+}

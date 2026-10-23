@@ -75,3 +75,15 @@ test('A/B transfers in seconds to a compatible excerpt and preserves original bo
   const result=deck(ctx);await flow.begin(result);await flow.showResult();assert.deepEqual(result.engine.loopBounds,{start:2,end:6});
   await flow.showOriginal();original.engine.setLoopRegion(20,25);await flow.showResult();assert.deepEqual(original.engine.loopBounds,{start:20,end:25});assert.ok(result.engine.loopBounds.end<=result.engine.duration);flow.destroy();
 });
+
+test('confirmed model change replaces active stems by empty lanes, disposes old result and preserves original',async()=>{
+ const {ctx,flow,original}=fixture(),old=deck(ctx,{progressive:true});
+ await flow.begin(old);old.engine.append(0,tracks(3));await flow.tryActivate();await old.engine.play();
+ const roles=['drums','bass','other','vocals','guitar','piano'],next=deck(ctx,{progressive:true,duration:30,roles});
+ flow.resetResult(next);
+ assert.equal(flow.original,original);assert.equal(flow.active,next);assert.equal(flow.result,next);
+ assert.equal(old.engine.destroyed,true);assert.equal(next.engine.availableFrames,0);assert.equal(next.engine.playing,false);
+ assert.equal(next.engine.position,0);assert.deepEqual(next.session.tracks.map(t=>t.role),roles);
+ assert.equal(transportState(next.engine).disabled,true);assert.equal(ctx.routes.size,1);assert.ok(ctx.routes.has(next.engine.outputNode));
+ assert.equal(await flow.tryActivate(),false);await flow.showOriginal();assert.equal(flow.active,original);flow.destroy();
+});

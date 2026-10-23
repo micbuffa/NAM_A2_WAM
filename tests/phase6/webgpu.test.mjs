@@ -29,9 +29,9 @@ test('GPU runner publishes aligned four-stem blocks without mutating input, term
 });
 test('GPU failure before publishing falls back to a fresh CPU worker with the same model',async()=>{
   const {runner,workers}=setup({respond:(w,i)=>i===0?w.send({type:'error',message:'device lost'}):success(w)}),events=[];
-  const result=await runner.separate(model,input(),{onProgress:x=>events.push(x)});
+  const result=await runner.separate(model,input(),{segmentSeconds:2,onProgress:x=>events.push(x)});
   assert.equal(result.backend,'wasm');assert.equal(result.fallbackReason,'device lost');
-  assert.deepEqual(workers.map(w=>w.message.backend),['webgpu','wasm']);assert.equal(events.filter(e=>e.phase==='fallback').length,1);
+  assert.deepEqual(workers.map(w=>w.message.backend),['webgpu','wasm']);assert.deepEqual(workers.map(w=>w.message.segmentSeconds),[2,2]);assert.equal(events.filter(e=>e.phase==='fallback').length,1);
 });
 test('no silent fallback when disabled, on CPU, or after any audio was published',async()=>{
   for(const options of [{fallback:false},{backend:'wasm'},{}]) {
@@ -56,7 +56,7 @@ test('unresponsive initialization hits a deadline and releases the worker',async
 test('invalid backend, model, excessive duration or absent cache never starts inference',async()=>{
   await assert.rejects(setup().runner.separate({...model,runtime:'legacy'},input()),/invalide/);
   await assert.rejects(setup().runner.separate(model,input(),{backend:'cuda'}),/invalide/);
-  await assert.rejects(setup().runner.separate(model,[new Float32Array(2646001),new Float32Array(2646001)]),/maximum/);
+  await assert.rejects(setup({status:'missing'}).runner.separate(model,[new Float32Array(2646001),new Float32Array(2646001)]),/Téléchargez/);
   const {runner,workers}=setup({status:'missing'});await assert.rejects(runner.separate(model,input()),/Téléchargez/);assert.equal(workers.length,0);
 });
 test('invalid, incomplete, nonfinite and out-of-order output never reaches the player',async()=>{

@@ -1,7 +1,9 @@
 import {MultitrackEngine} from './MultitrackEngine.js';
 
 export class ProgressiveMultitrackEngine extends MultitrackEngine {
-  constructor(context) { super(context);this.progressive=true;this.chunks=[];this.availableFrames=0;this.totalFrames=0;this.sampleRate=44100; }
+  constructor(context,{lookAheadSeconds=8,scheduleTask=(fn,delay)=>setTimeout(fn,delay),cancelTask=id=>clearTimeout(id)}={}) {
+    if(!(lookAheadSeconds>0))throw Error('Avance audio invalide.');
+    super(context);this.lookAheadSeconds=lookAheadSeconds;this.scheduleTask=scheduleTask;this.cancelTask=cancelTask;this.scheduledFrames=new Set();this.progressive=true;this.chunks=[];this.availableFrames=0;this.totalFrames=0;this.sampleRate=44100; }
   get duration(){return this.totalFrames/this.sampleRate;}
   get availableDuration(){return this.availableFrames/this.sampleRate;}
   get position(){return this.regionPlaying?super.position:Math.min(this.availableDuration,this.offset+(this.playing?Math.max(0,this.context.currentTime-this.startedAt):0));}
@@ -18,7 +20,7 @@ export class ProgressiveMultitrackEngine extends MultitrackEngine {
     // so the new block gets a fresh clock rather than a start in the past.
     if(this.playing && this.position>=this.availableDuration)this.boundary(this.availableDuration);
     const chunk={startFrame,length,tracks};this.chunks.push(chunk);this.availableFrames+=length;
-    if(this.playing&&!this.regionPlaying)this.schedule(chunk);
+    if(this.playing&&!this.regionPlaying)this.scheduleAhead();
     else if(this.waiting&&this.playRequested)this.play().catch(error=>{this.waiting=false;this.playRequested=false;this.dispatchEvent(new CustomEvent('player-error',{detail:error}));this.changed();});
     this.changed();
   }
@@ -45,7 +47,7 @@ export class ProgressiveMultitrackEngine extends MultitrackEngine {
       await this.prepare();if(generation!==this.generation||this.destroyed)return;
       this.startedAt=this.context.currentTime+.03;this.playing=true;this.waiting=false;
       this.regionPlaying=!!(region&&region.end<=this.availableDuration);
-      if(this.regionPlaying)this.scheduleRegion(region);else for(const chunk of this.chunks)this.schedule(chunk);
+      if(this.regionPlaying)this.scheduleRegion(region);else this.scheduleAhead();
     } finally {this.starting=false;this.changed();}
   }
   // Compile only an explicitly selected, fully published interval. Native loops
@@ -69,10 +71,30 @@ export class ProgressiveMultitrackEngine extends MultitrackEngine {
       this.voices.push({id:track.id,source,gain,pan});
     });this.sync(this.mixTracks||[]);
   }
+  clearSchedule(){if(this.scheduleTimer!==undefined)this.cancelTask(this.scheduleTimer);this.scheduleTimer=undefined;}
+  releaseVoices(){this.clearSchedule();this.scheduledFrames?.clear();super.releaseVoices();}
+  scheduleAhead(){
+    this.clearSchedule();if(!this.playing||this.regionPlaying||this.destroyed)return;
+    const position=this.offset+Math.max(0,this.context.currentTime-this.startedAt),horizon=position+this.lookAheadSeconds;
+    for(const chunk of this.chunks){
+      const start=chunk.startFrame/this.sampleRate,end=start+chunk.length/this.sampleRate;
+      if(start>=horizon)break;
+      if(end>position&&!this.scheduledFrames.has(chunk.startFrame)){
+        this.scheduledFrames.add(chunk.startFrame);this.schedule(chunk);
+      }
+    }
+    if(position<this.availableDuration){
+      this.scheduleTimer=this.scheduleTask(()=>{this.scheduleTimer=undefined;try{this.scheduleAhead();}catch(error){this.pause();this.dispatchEvent(new CustomEvent('player-error',{detail:error}));}},250);
+      this.scheduleTimer?.unref?.();
+    }
+  }
   schedule(chunk) {
     const start=chunk.startFrame/this.sampleRate,end=(chunk.startFrame+chunk.length)/this.sampleRate;
-    if(end<=this.offset||(this.loop&&this.loopRegion&&start>=this.loopRegion.end))return;
-    const when=this.startedAt+Math.max(0,start-this.offset),offset=Math.max(0,this.offset-start);
+    const position=this.offset+Math.max(0,this.context.currentTime-this.startedAt);
+    if(end<=position||(this.loop&&this.loopRegion&&start>=this.loopRegion.end))return;
+    // If a UI stall delayed the scheduler, skip elapsed PCM rather than replaying
+    // the start of a late block. All stems still share exactly the same clock.
+    const from=Math.max(start,position),when=Math.max(this.startedAt,this.context.currentTime,this.startedAt+start-this.offset),offset=from-start;
     // This path is called only for already-ready blocks or newly appended
     // blocks whose start is still ahead of the current playback boundary.
     for(let i=0;i<chunk.tracks.length;i++) {
@@ -84,7 +106,7 @@ export class ProgressiveMultitrackEngine extends MultitrackEngine {
         if(i===0)this.boundary(this.loop&&this.loopRegion?Math.min(end,this.loopRegion.end):end);
       };
       const limit=this.loop&&this.loopRegion?Math.min(end,this.loopRegion.end):end;
-      if(limit<end)source.start(when,offset,Math.max(0,limit-Math.max(start,this.offset)));else source.start(when,offset);
+      if(limit<end)source.start(when,offset,Math.max(0,limit-from));else source.start(when,offset);
     }
     this.sync(this.mixTracks||[]);
   }

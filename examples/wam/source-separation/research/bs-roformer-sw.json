@@ -1,0 +1,36 @@
+{
+  "githubRevision": "c6047cd28c41f803339e9b8a5775a56932de7157",
+  "modelRevision": "a744f80957374e1735ad70fa122670b7961da8cc",
+  "files": [
+    {
+      "rfilename": "bs_roformer_sw_6stem_fp16.onnx",
+      "blobId": "aedeacff8033ce8ee09e85b53b1d0cee1299ab79",
+      "size": 352778874,
+      "lfs": {
+        "sha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444",
+        "size": 352778874,
+        "pointerSize": 134
+      }
+    },
+    {
+      "rfilename": "bs_roformer_sw_6stem_fp32.onnx",
+      "blobId": "311e1e65d5bfbef013095d7b9768bc55e350d753",
+      "size": 701010313,
+      "lfs": {
+        "sha256": "224f5f54a7ff9ff0e487aabca0a365d94513d51a6cdb7778152f2371716f2b68",
+        "size": 701010313,
+        "pointerSize": 134
+      }
+    },
+    {
+      "rfilename": "reference.npz",
+      "blobId": "94e94f3428cf2731870e23fc58ff66e0df11904a",
+      "size": 49486196,
+      "lfs": {
+        "sha256": "43f7c13fe0dfec3755748643d7d08308259948619eb88c418a51e96590c94307",
+        "size": 49486196,
+        "pointerSize": 133
+      }
+    }
+  ]
+}

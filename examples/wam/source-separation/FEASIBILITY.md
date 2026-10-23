@@ -131,3 +131,29 @@ Recommandation automatique du modèle ONNX 4 pistes lorsque WebGPU est détecté
 ### P4.3 — Normalisation réversible sur multitracks
 
 Pic de la somme PCM stéréo calculé avec le même pan que Web Audio ; analyse asynchrone coopérative sans copie du PCM. Gain commun sur un nœud distinct avant le volume global ; aucune réinitialisation des voix, de l’horloge ou des gains des stems. Cibles −1/−3/−6 dBFS, boost +24 dB maximum, seuil de silence 1e−8. Les réglages de mix invalident la correction ; annulation, remplacement et résultats tardifs sont testés. Les résultats restent par deck, pas copiés entre original et séparation. Normalisation de pics échantillonnés uniquement, pas de protection true peak/LUFS ou de saturation lorsque le master ou la guitare s’ajoutent après. Diagnostic natif : six cas, erreur maximale 8,94e−8. Total suite 318 tests.
+
+### 21 octobre — P4.4 : Tracks et état
+
+Le contrôleur du prototype est montable dans un root DOM et accepte le contexte et la sortie de rack fournis par le host. `MultitrackPlayerElement` réutilise son template local sans exécuter les scripts HTML. Les réglages sont JSON v2 ; le PCM reste dans un autre store IndexedDB, publié atomiquement. Un snapshot complet copie le PCM dans IndexedDB : coût de stockage proportionnel à la durée originale, pas à la seule durée séparée. Pas d’autosave du PCM ni de sauvegarde serveur. Vérification réelle Chrome d’une originale de 324,9 s + quatre stems de 5 s : restauration des buffers et paramètres après reload, sans lecture. Onze tests de codec/cache/état ajoutés (329 total). Un test natif rack/backing sur le même contexte, après restauration des deux decks, montre 4,86e−9 d’écart maximum aux trois balances. La guitare synthétique de ce diagnostic représente une sortie de rack connue ; elle ne prétend pas valider le DSP NAM lui-même.
+
+## Morceau entier (22 octobre 2026)
+
+Le choix par défaut est désormais le morceau entier. Dans Chrome, ONNX WebGPU a séparé les 214,9 s de « Are You Gonna Be My Girl - Jet » en quatre stems complets en 75,9 s de calcul Worker, puis sauvegardé le projet localement. Lecture restée en pause, aucune erreur console. [Compte rendu](benchmarks/full-song-browser-2026-10-22.json). Les plafonds historiques 10/60 s sont retirés ; le DSP travaille par fenêtres mais les stems sont conservés en RAM. Les chemins CPU acceptent les morceaux entiers ; leur qualité et performance sur un morceau long restent à mesurer réellement.
+
+## Nouveaux modèles et retrait du découpage manuel (P4.8)
+
+Le host impose désormais Auto et ignore les anciennes tailles manuelles enregistrées ; le choix entier/extrait est conservé. [MODEL_CANDIDATES.md](MODEL_CANDIDATES.md) distingue le contrat Demucs 7,8 s de la capacité générale d’ONNX à exporter d’autres longueurs. L’étude des huit familles identifie un export WebGPU tiers de BS Roformer SW comme premier candidat de portage, sans le déclarer validé dans le host. Les modèles étudiés sont présentés dans Settings séparément des moteurs exécutables.
+
+## Exports courts et premier Play (P4.10)
+
+Faisabilité démontrée après préparation sur signal nul, sans pré-calcul du morceau : un export réel2s publie1s et rend Play disponible en768–951ms sur cette machine. Quatre sources stéréo validées contre PyTorch court, max3,02e−6 ; aucune sous-alimentation pendant le test6s. Nouvelles sessions avec chauffe : délai supérieur à1s. La différence au rendu7,8s reste importante et doit être distinguée d’une erreur d’export. [Protocole et données](LOW_LATENCY.md). La chaîne de production reste en Auto, avec la correction de padding FFT issue de cette validation.
+
+### P4.11 — Aperçu rapide intégré (22 octobre 2026)
+
+Le catalogue exécutable contient désormais un quatrième modèle : `htdemucs_4s_preview`, vrai export 2 s et publication par seconde, préparé sur silence avec session persistante. Qualité reste le défaut. Download/cache/hash, morceau entier, sauvegarde/restauration et export MP3 sont intégrés au lecteur du host. Validation réelle : premier bloc 0,643 s en autonome / 0,803 s dans le host sur 10 s ; 1,114 s sur 214,9 s, séparées en 115,1 s. CPU/WASM vérifié dans la dist sur 1 s : 2,324 s, donc pas une garantie temps réel. 363 tests verts. [Détails et limites](LOW_LATENCY.md).
+
+BS Roformer SW reste hors du menu exécutable : sources et poids épinglés, référence de spectrogramme CPU validée sur six sources ; adaptateur DSP navigateur et WebGPU à faire. [Priorités et audit](MODEL_CANDIDATES.md).
+
+### P4.9 — SW six sources porté
+
+BS Roformer SW est maintenant le cinquième modèle exécutable, avec adaptateur DSP dédié et comparaison audio douze canaux CPU/WebGPU réussie. Téléchargement/cache, préparation, lecture six pistes, MP3 vers Tracks et sauvegarde du morceau entier testés. GPU : 214,9 s en 228,32 s, premier bloc3,19s ; CPU/WASM : 4s en34,68s. Pas de garantie de streaming temps réel. 371 tests réussis. [Protocole, limites et provenance](ROFORMER_VALIDATION.md). MDX-Net Inst HQ4/5 est la priorité suivante.

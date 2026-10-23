@@ -1,0 +1,72 @@
+{
+  "model": "htdemucs_4s_onnx",
+  "backend": "webgpu",
+  "audio": "Jet60s",
+  "reference": {
+    "frames": 1833,
+    "windowFrames": 1833,
+    "frameP95Ms": 9.354999542236328,
+    "frameMaxMs": 122.80500030517578,
+    "framesOver50ms": 2,
+    "longTasks": 1,
+    "longTaskMaxMs": 116,
+    "stages": {
+      "controls": {
+        "calls": 146,
+        "totalMs": 13.95500123500824,
+        "maxMs": 0.16999995708465576
+      },
+      "audioPublication": {
+        "calls": 26,
+        "totalMs": 9.565000534057617,
+        "maxMs": 0.7000000476837158
+      },
+      "waveformPublication": {
+        "calls": 5,
+        "totalMs": 4.754999876022339,
+        "maxMs": 1.3650000095367432
+      }
+    },
+    "transportMode": "shared-ringbuffer",
+    "isolated": true,
+    "availableSeconds": 60,
+    "position": 25.892666666666663,
+    "scheduledVoices": 144,
+    "audioLookAheadSeconds": "all",
+    "busy": false
+  },
+  "bounded": {
+    "frames": 4455,
+    "windowFrames": 4455,
+    "frameP95Ms": 9.359999656677246,
+    "frameMaxMs": 145.63499450683594,
+    "framesOver50ms": 1,
+    "longTasks": 1,
+    "longTaskMaxMs": 136,
+    "stages": {
+      "controls": {
+        "calls": 354,
+        "totalMs": 34.2050017118454,
+        "maxMs": 0.2099999189376831
+      },
+      "audioPublication": {
+        "calls": 20,
+        "totalMs": 4.899999976158142,
+        "maxMs": 0.34999990463256836
+      },
+      "waveformPublication": {
+        "calls": 4,
+        "totalMs": 4.379999995231628,
+        "maxMs": 1.559999942779541
+      }
+    },
+    "transportMode": "shared-ringbuffer",
+    "isolated": true,
+    "availableSeconds": 60,
+    "position": 53.14266666666666,
+    "scheduledVoices": 32,
+    "audioLookAheadSeconds": 8,
+    "busy": false
+  },
+  "limitations": "Sequential runs, different sampling windows/reset times. RAF includes browser automation and deferred rendering; no machine CPU measurement. Node-count reduction is verified; not a controlled proof of FPS/CPU improvement."
+}

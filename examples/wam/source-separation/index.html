@@ -27,13 +27,13 @@
         <p id="backendStatus" role="status"></p><label id="fallbackLabel" hidden><input id="allowCpuFallback" type="checkbox" checked> Repli automatique CPU si le GPU échoue avant le premier bloc</label>
         <div class="model-meta"><span id="modelDescription">Choose a model</span><span id="modelRecommendation"></span></div>
         <p id="fileStatus" class="file-status" role="status">Audio : aucun fichier sélectionné.</p>
-        <label>Début du fichier à traiter : <select id="excerptSeconds"><option value="1">1 seconde (test rapide)</option><option value="5" selected>5 secondes</option><option value="10">10 secondes</option><option value="30">30 secondes (progressif)</option><option value="60">60 secondes (progressif)</option></select></label>
-        <label><input id="progressiveMode" type="checkbox" checked> Lecture progressive (6s et ONNX 4 pistes)</label>
+        <label>Durée à séparer : <select id="excerptSeconds"><option value="0" selected>Morceau entier</option><option value="1">1 seconde (test rapide)</option><option value="5">5 secondes</option><option value="10">10 secondes</option><option value="30">30 secondes</option><option value="60">60 secondes</option></select></label>
+        <label><input id="progressiveMode" type="checkbox" checked> Lecture progressive (Demucs 6s, ONNX et Roformer)</label>
         <tl-button id="progressiveTest" disabled size="sm">Utiliser CleanChords.mp3 (exemple guitare)</tl-button>
         <tl-button id="realMixTest" disabled size="sm">Utiliser un mix multi-instruments (10 s)</tl-button> <a href="./fixtures/music/NOTICE.md">Crédits du mix · CC BY 3.0</a>
         <tl-button id="testSignal" disabled size="sm">Utiliser le signal de test (1 s)</tl-button>
-        <p>Inférence locale expérimentale : CPU/WASM pour 6s et FT ; WebGPU hybride pour le modèle ONNX 4 pistes. Mémoire CPU observée supérieure à 2 Gio. Téléchargez le modèle choisi avant de séparer ; les poids ONNX sont distincts. La comparaison avec UVR reste à valider.</p>
-        <div class="setup-actions"><tl-button id="loadDemo" disabled variant="secondary">Load demo stems</tl-button><tl-button id="separateButton" variant="primary" disabled>Séparer l’extrait</tl-button><tl-button id="cancelSeparation" disabled>Annuler la séparation</tl-button><span id="progress" role="status" aria-live="polite"></span></div>
+        <p>Inférence locale expérimentale : CPU/WASM pour 6s et FT ; WebGPU hybride pour Demucs ONNX et BS Roformer SW six sources. Mémoire CPU observée supérieure à 2 Gio. Téléchargez le modèle choisi avant de séparer ; les poids ONNX sont distincts. La comparaison avec UVR reste à valider.</p>
+        <div class="setup-actions"><tl-button id="loadDemo" disabled variant="secondary">Load demo stems</tl-button><tl-button id="separateButton" variant="primary" disabled>Séparer le morceau</tl-button><tl-button id="cancelSeparation" disabled>Annuler la séparation</tl-button><span id="progress" role="status" aria-live="polite"></span></div>
         <p id="separationHint" role="status" aria-live="polite">Chargement du catalogue de modèles…</p>
         <div id="separationProgress" class="separation-progress" hidden><label for="separationBar" id="separationPhase">Préparation</label><progress id="separationBar" max="100" value="0" aria-labelledby="separationPhase"></progress><output id="separationPercent" for="separationBar">0%</output><small>Progression par étapes. Le pourcentage avance à la fin de chaque segment calculé.</small><ul id="completedTracks" aria-label="Pistes terminées"></ul></div>
       </section>
@@ -54,6 +54,7 @@
           <tl-button id="normalizationReset" disabled>Retirer</tl-button>
           <small id="normalizationStatus" role="status">Chargez un morceau.</small>
         </div>
+        <div class="session-actions"><tl-button id="saveSession">Sauvegarder la session</tl-button><tl-button id="restoreSession">Restaurer la session</tl-button><small id="sessionStatus" role="status">Audio en RAM · sauvegardez explicitement pour le conserver.</small></div>
         <div id="transport" class="transport"><tl-button id="playButton" variant="primary" disabled>Play</tl-button><tl-button id="stopButton" disabled>Stop</tl-button><label class="transport-loop"><input id="loopToggle" type="checkbox" checked> Loop</label><span id="clock">0:00 / 0:00</span></div>
         <div class="loop-controls" aria-label="Boucle A/B">
           <label>A <input id="loopA" type="number" min="0" step="0.01" value="0" disabled> s</label>
@@ -64,7 +65,7 @@
         <p id="bufferStatus" role="status" hidden></p>
         <tl-button id="activateAudio" hidden>Activer la lecture audio</tl-button>
         <label>Position <input id="seek" type="range" min="0" max="1" step="0.01" value="0" disabled></label>
-        <p><a href="./webgpu-benchmark.html">Diagnostic WebGPU : comparer les mêmes poids sur GPU et CPU</a></p>
+        <p><a href="./webgpu-benchmark.html">Diagnostic WebGPU : comparer les mêmes poids sur GPU et CPU</a><br><a href="./roformer-benchmark.html">Diagnostic BS Roformer SW · six sources</a><br><a href="./low-latency-benchmark.html">Laboratoire d’écoute rapide (expérimental, exports locaux)</a></p>
         <details><summary>Mesures du dernier traitement ONNX</summary><pre id="backendMetrics"></pre></details>
         <div id="tracks" class="track-list" aria-live="polite"><p class="empty-state">Load the demo stems to test the multiptrack controls.</p></div>
       </section>

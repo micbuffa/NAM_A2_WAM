@@ -1,0 +1,72 @@
+{
+  "foregroundGuard": true,
+  "protocol": "slow-motion-dream-6s-v1",
+  "date": "2026-10-23T05:55:05.956Z",
+  "fixtureSha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "isolated": true,
+  "capabilities": {
+    "webgpu": true,
+    "message": "WebGPU disponible · compatibilité de chaque modèle à valider."
+  },
+  "runs": [
+    {
+      "visibilityGuarded": true,
+      "modelId": "htdemucs_4s_onnx",
+      "backend": "webgpu",
+      "trial": 0,
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "totalMs": 14649.605000019073,
+      "preparationMs": 0.0700000524520874,
+      "separationMs": 14649.534999966621,
+      "firstReadyMs": 14566.860000014305,
+      "runtimeVersion": "1.22.0"
+    },
+    {
+      "visibilityGuarded": true,
+      "modelId": "htdemucs_4s_onnx",
+      "backend": "wasm",
+      "trial": 0,
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "totalMs": 61696.34500002861,
+      "preparationMs": 0.11000001430511475,
+      "separationMs": 61696.235000014305,
+      "firstReadyMs": 61606.91500008106,
+      "runtimeVersion": "1.22.0"
+    },
+    {
+      "visibilityGuarded": true,
+      "modelId": "htdemucs_4s_onnx",
+      "backend": "webgpu",
+      "trial": 1,
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "totalMs": 11417.245000004768,
+      "preparationMs": 0.04999995231628418,
+      "separationMs": 11417.195000052452,
+      "firstReadyMs": 11324.350000023842,
+      "runtimeVersion": "1.22.0"
+    },
+    {
+      "visibilityGuarded": true,
+      "modelId": "htdemucs_4s_onnx",
+      "backend": "wasm",
+      "trial": 1,
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "totalMs": 49594.799999952316,
+      "preparationMs": 0.06999993324279785,
+      "separationMs": 49594.73000001907,
+      "firstReadyMs": 49470.60000002384,
+      "runtimeVersion": "1.22.0"
+    }
+  ],
+  "previousDate": "2026-10-23T05:40:11.907Z",
+  "scope": "Contrôle ultérieur Demucs Qualité CPU/WebGPU uniquement ; onglet visible, deux essais par backend."
+}

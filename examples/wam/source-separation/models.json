@@ -4,7 +4,7 @@
     {
       "id": "htdemucs_6s",
       "label": "Demucs v4 · htdemucs_6s",
-      "description": "Guitare et piano dédiés · 6 pistes · expérimental, extrait court.",
+      "description": "Guitare et piano dédiés · 6 pistes · expérimental, traitement par blocs.",
       "roles": [
         "drums",
         "bass",
@@ -27,8 +27,8 @@
         "wasm"
       ],
       "sampleRate": 44100,
-      "maxDuration": 10,
-      "maxProgressiveDuration": 60,
+      "maxDuration": 86400,
+      "maxProgressiveDuration": 86400,
       "license": {
         "name": "MIT · Demucs / demucs-wasm",
         "url": "./vendor/demucs-wasm/NOTICE.md"
@@ -76,7 +76,7 @@
         "wasm"
       ],
       "sampleRate": 44100,
-      "maxDuration": 10,
+      "maxDuration": 86400,
       "license": {
         "name": "MIT · Demucs / demucs-wasm",
         "url": "./vendor/demucs-wasm/NOTICE.md"
@@ -87,7 +87,7 @@
     },
     {
       "id": "htdemucs_4s_onnx",
-      "label": "Demucs v4 · 4 pistes ONNX · GPU expérimental",
+      "label": "Qualité · Demucs v4 · 4 pistes ONNX · GPU expérimental",
       "description": "4 pistes · guitare dans Autres · poids réservés à un usage personnel/recherche selon le fournisseur.",
       "roles": [
         "drums",
@@ -110,7 +110,7 @@
         "wasm"
       ],
       "sampleRate": 44100,
-      "maxDuration": 60,
+      "maxDuration": 86400,
       "license": {
         "name": "Poids : personnel/recherche · code MIT",
         "url": "./vendor/demucs-js/LICENSE.md"
@@ -118,6 +118,81 @@
       "recommendation": "Essayer le GPU ; couper Autres pour retirer la guitare",
       "runtime": "demucs-onnx-core",
       "sourceRevision": "45f990170d9571379a9dbd3bbdd1c7591b26864c"
+    },
+    {
+      "id": "htdemucs_4s_preview",
+      "label": "Aperçu rapide · Demucs 4 pistes · GPU / CPU",
+      "description": "Fenêtres neuronales de 2 s, publication par seconde. Contexte réduit : rendu différent du mode Qualité.",
+      "roles": [
+        "drums",
+        "bass",
+        "other",
+        "vocals"
+      ],
+      "files": [
+        {
+          "url": "./model-assets/htdemucs-2s-core.onnx",
+          "size": 170041680,
+          "sha256": "a7cb52498bd8b0fd6e61eaecafb12f2651ad995d9b49553caa8705c9d9367c93"
+        }
+      ],
+      "targets": 4,
+      "version": "short-2s-v1",
+      "kind": "neural",
+      "backends": [
+        "webgpu",
+        "wasm"
+      ],
+      "sampleRate": 44100,
+      "maxDuration": 86400,
+      "license": {
+        "name": "Demucs MIT · export local reproductible",
+        "url": "./model-assets/NOTICE.md"
+      },
+      "recommendation": "Lecture rapide après préparation · guitare dans Autres",
+      "runtime": "demucs-onnx-core",
+      "sourceRevision": "demucs-4.0.1",
+      "profile": "preview",
+      "frames": 88200,
+      "checkpoint": "955717e8-8726e21a.th"
+    },
+    {
+      "id": "bs_roformer_sw_6s",
+      "label": "BS Roformer SW · 6 instruments · GPU expérimental",
+      "description": "Guitare et piano dédiés · fenêtres 4 s / publication 3 s. CPU de secours très lent ; droits du checkpoint d’origine non précisés.",
+      "roles": [
+        "bass",
+        "drums",
+        "other",
+        "vocals",
+        "guitar",
+        "piano"
+      ],
+      "files": [
+        {
+          "url": "./model-assets/bs_roformer_sw_6stem_fp16.onnx",
+          "size": 352778874,
+          "sha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444"
+        }
+      ],
+      "version": "a744f80957374e1735ad70fa122670b7961da8cc",
+      "kind": "neural",
+      "targets": 6,
+      "backends": [
+        "webgpu",
+        "wasm"
+      ],
+      "sampleRate": 44100,
+      "maxDuration": 86400,
+      "license": {
+        "name": "Export MIT · droits des poids d’origine non précisés",
+        "url": "./model-assets/ROFORMER_NOTICE.md"
+      },
+      "recommendation": "Guitare dédiée · GPU conseillé · CPU lent",
+      "runtime": "bs-roformer-onnx",
+      "frames": 176400,
+      "profile": "quality",
+      "sourceRevision": "a744f80957374e1735ad70fa122670b7961da8cc"
     }
   ]
 }

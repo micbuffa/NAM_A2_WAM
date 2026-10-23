@@ -1,7 +1,7 @@
 // Tone / Tracks workspaces (topbar switch), as in the TONELAB mockup. Switching
 // only changes what is shown (body[data-workspace] + CSS): the rack and the
 // backing tracks keep playing. The choice is remembered in this browser.
-export const WORKSPACES = ['tone', 'tracks'];
+export const WORKSPACES = ['tone', 'tracks', 'multitracks'];
 const STORAGE_KEY = 'nam-a2-wam.workspace';
 
 export class Workspaces extends EventTarget {

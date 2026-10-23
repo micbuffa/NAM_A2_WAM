@@ -52,9 +52,10 @@ test('waveform click and keyboard seek are bounded to published audio',()=>{
   const row=f.view.rows.get('a');f.view.setPosition(2);let prevented=false;row.wave.onkeydown({key:'End',preventDefault(){prevented=true;}});row.wave.onkeydown({key:'Home',preventDefault(){}});
   assert.deepEqual(f.seeks,[3,3,0]);assert.ok(prevented);assert.equal(row.wave.attributes['aria-valuemax'],'3');assert.equal(row.wave.attributes['aria-valuenow'],'2.00');
 });
-test('display follows the common clock and creates no media or additional audio transport',()=>{
-  const f=fixture();f.view.setAudio(audio);f.view.setPosition(1);
-  for(const renderer of f.renderers){assert.equal(renderer.progress.at(-1),.5);assert.equal(renderer.options.autoScroll,false);assert.equal(renderer.options.normalize,false);assert.equal(renderer.draws[0].length,2);}
+test('display follows the common clock with one composited playhead and no extra audio transport',async()=>{
+  const f=fixture();f.view.setAudio(audio);await f.view.pendingWaveforms;f.view.setPosition(1);
+  assert.equal(f.view.playhead.style.transform,'translate3d(300px,0,0)');
+  for(const renderer of f.renderers){assert.equal(renderer.progress.at(-1),0);assert.equal(renderer.options.cursorWidth,0);assert.equal(renderer.options.autoScroll,false);assert.equal(renderer.options.normalize,false);assert.equal(renderer.draws[0].length,2);}
   assert.equal(f.seeks.length,0);f.view.destroy();assert.ok(f.resize.disconnected);for(const renderer of f.renderers){assert.ok(renderer.destroyed);assert.ok(renderer.unsubscribed);}assert.equal(f.root.children.length,0);
 });
 test('session replacement destroys old renderers and resets scroll without changing session values',()=>{
@@ -63,7 +64,7 @@ test('session replacement destroys old renderers and resets scroll without chang
 });
 test('asynchronous peak updates serialize and discard stale queued drawings after destruction',async()=>{
   const f=fixture(),renderer=f.renderers[0];let finish;renderer.render=data=>{renderer.draws.push(data);return new Promise(resolve=>{finish=resolve;});};
-  f.view.setAudio(audio);f.view.setAudio({...audio,duration:4});f.view.setAudio({...audio,duration:8});assert.equal(renderer.draws.length,1);
+  f.view.setAudio(audio);await f.view.pendingWaveforms;f.view.setAudio({...audio,duration:4});f.view.setAudio({...audio,duration:8});await f.view.pendingWaveforms;assert.equal(renderer.draws.length,1);
   finish();await Promise.resolve();assert.equal(renderer.draws.length,2);assert.equal(renderer.draws[1].duration,8);
   f.view.setAudio({...audio,duration:16});f.view.destroy();finish();await Promise.resolve();assert.equal(renderer.draws.length,2);assert.deepEqual(f.errors,[]);
 });
@@ -87,7 +88,7 @@ test('shared viewport supports horizontal keyboard scrolling independently from 
 test('collapse hides instruments without destroying their controls, zoom or scroll; expand restores them',async()=>{
   const f=fixture();f.view.setAudio(audio);const row=f.view.rows.get('a');f.session.updateTrack('a',{volume:.4,pan:-.3,solo:true});f.view.viewport.scrollLeft=100;f.session.setZoom(2);f.session.setViewMode('mix');f.view.setSession(f.session);await f.view.mixJob.pending;await Promise.resolve();
   assert.ok(row.wave.hidden);assert.ok(row.controls.hidden);assert.equal(f.view.mixRow.wave.hidden,false);assert.equal(f.view.mixRow.renderer.draws.length,1);assert.equal(f.view.viewport.scrollLeft,100);assert.equal(f.view.content.style.width,'200%');
-  f.view.setPosition(1);assert.equal(f.view.mixRow.renderer.progress.at(-1),.5);f.session.setViewMode('instruments');f.view.setSession(f.session);assert.equal(f.view.rows.get('a'),row);assert.equal(row.wave.hidden,false);assert.equal(row.volume.value,.4);assert.equal(row.pan.value,-.3);assert.equal(row.solo.attributes['aria-pressed'],'true');assert.equal(f.view.mixRow.wave.hidden,true);f.view.destroy();
+  f.view.setPosition(1);assert.equal(f.view.playhead.style.transform,'translate3d(600px,0,0)');f.session.setViewMode('instruments');f.view.setSession(f.session);assert.equal(f.view.rows.get('a'),row);assert.equal(row.wave.hidden,false);assert.equal(row.volume.value,.4);assert.equal(row.pan.value,-.3);assert.equal(row.solo.attributes['aria-pressed'],'true');assert.equal(f.view.mixRow.wave.hidden,true);f.view.destroy();
 });
 test('collapsed waveform refreshes for mix changes and progressive data without recreating controls',async()=>{
   const f=fixture();f.view.setAudio(audio);f.session.setViewMode('mix');f.view.setSession(f.session);await f.view.mixJob.pending;const row=f.view.mixRow,first=row.renderer.draws.at(-1).getChannelData(0).slice();
@@ -123,4 +124,12 @@ test('outside A/B is lightly shaded in both views, scales with zoom, and clears 
   f.session.setZoom(4);f.session.setViewMode('mix');f.view.updateControls();assert.equal(f.view.content.style.width,'400%');assert.equal(f.view.outsideBefore.style.width,'25%');
   f.view.setLoopRegion({start:.5,end:1.5},false);assert.equal(f.view.outsideBefore.hidden,true);assert.equal(f.view.outsideAfter.hidden,true);
   f.view.setLoopRegion({start:0,end:2},true);assert.equal(f.view.outsideBefore.style.width,'0%');assert.equal(f.view.outsideAfter.style.left,'100%');f.view.destroy();
+});
+
+test('animation of a shared playhead does not repaint individual waveform renderers',async()=>{
+ const f=fixture();f.view.setAudio(audio);await f.view.pendingWaveforms;
+ for(const row of f.view.rows.values())row.renderer.renderProgress=()=>{throw Error('Per-frame waveform repaint');};
+ for(let i=0;i<1000;i++)f.view.setPosition(i/1000);
+ assert.equal(f.view.playhead.style.transform,'translate3d(299.7px,0,0)');
+ f.view.destroy();
 });
