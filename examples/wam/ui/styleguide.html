@@ -134,6 +134,7 @@
 <tl-knob label="Bass"><input type="range" min="0" max="100" value="58" aria-label="Bass"></tl-knob>
 <tl-knob label="Treble"><input type="range" min="0" max="100" value="80" aria-label="Treble"></tl-knob>
 <tl-knob label="Pan" size="sm"><input type="range" min="-1" max="1" step="0.01" value="0" aria-label="Pan"><output slot="value">C</output></tl-knob>
+<tl-knob label="Pan" size="sm" arc popup="Pan"><input type="range" min="-100" max="100" value="35" aria-label="Pan (arc)"></tl-knob>
 <tl-knob label="Mix" disabled><input type="range" min="0" max="100" value="30" aria-label="Mix"></tl-knob>`],
       ['tl-slider', 'Horizontal fader around a native range input (id, value, oninput kept). Click/drag, shift = fine, arrows when focused; bipolar fills from centre', `<tl-slider style="width:220px"><input type="range" min="-60" max="6" step=".5" value="-12" aria-label="Volume"></tl-slider>
 <tl-slider bipolar style="width:220px"><input type="range" min="-1" max="1" step=".01" value="-.35" aria-label="Pan"></tl-slider>

@@ -204,8 +204,17 @@ body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast
 .project-transport { display: flex; gap: 5px; }
 .project-clock { min-width: 84px; color: var(--tl-text); font: 600 var(--tl-fs-md) var(--tl-font-mono); letter-spacing: .05em; font-variant-numeric: tabular-nums; }
 .project-bar { min-width: 40px; color: var(--tl-accent-muted); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
-.project-loop { color: var(--tl-accent); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
-.project-loop.off { color: var(--tl-text-muted); }
+/* Loop on/off and Reset, like the Play along dock's Loop A–B tool. */
+.project-loop { display: flex; align-items: center; gap: 6px; }
+.project-loop-head { color: var(--tl-text-muted); font-size: var(--tl-fs-2xs); font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.led-toggle { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; color: var(--tl-text-muted); background: var(--tl-surface-3);
+  border: 1px solid var(--tl-border); border-radius: var(--tl-radius-sm); font: 600 var(--tl-fs-xs) var(--tl-font-ui); cursor: pointer; }
+.led-toggle i { width: 6px; height: 6px; border-radius: 50%; background: var(--tl-border-strong); }
+.led-toggle:hover:not(:disabled) { color: var(--tl-text); border-color: var(--tl-border-hover); }
+.led-toggle:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
+.led-toggle:disabled { opacity: .35; cursor: not-allowed; }
+.led-toggle[aria-pressed="true"] { color: var(--tl-accent); background: var(--tl-accent-tint); border-color: var(--tl-accent-border); }
+.led-toggle[aria-pressed="true"] i { background: var(--tl-accent); box-shadow: var(--tl-glow-led, none); }
 .project-tempo { margin-left: auto; color: var(--tl-text-muted); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
 /* Ruler and lanes share the track rows' grid and the lanes' inset, so bar 1 lines up with the clips. */
 .project-ruler-row { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); height: 26px; background: var(--tl-bg);
@@ -259,9 +268,7 @@ body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast
 .track-mode-m.active { color: #121212; background: var(--tl-warning); border-color: var(--tl-warning); }
 .track-mode-s.active { color: #121212; background: #6cc4ff; border-color: #6cc4ff; }
 .track-mode-i.active { color: var(--tl-on-accent); background: var(--tl-accent); border-color: var(--tl-accent); }
-.track-volume-group { flex: 1; min-width: 0; display: grid; gap: 1px; }
-.track-volume { min-width: 70px; }
-.track-volume-value { color: var(--tl-text-muted); font: 500 10px var(--tl-font-mono); }
+.track-volume { flex: 1; min-width: 70px; }
 .track-pan { flex: none; }
 .track-lane { display: flex; min-width: 0; padding: 0 18px; color: var(--tl-text-2); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
 .track-lane-area { position: relative; flex: 1; display: flex; align-items: center; min-width: 0;

@@ -212,12 +212,11 @@ export class ProjectTimeline {
     row.modes.inputMonitoring.disabled = !usesPreset(track.instrument);
     row.modes.inputMonitoring.title = usesPreset(track.instrument)
       ? 'Input monitoring: play your guitar through this track’s preset' : 'Input monitoring is for guitar and bass tracks';
+    row.volume.dataset.popupValue = volumeLabel(track.volume);
     if (Number(row.volume.value) !== track.volume) row.volume.value = track.volume;
     if (Number(row.pan.value) !== track.pan) row.pan.value = track.pan;
-    row.volumeValue.textContent = volumeLabel(track.volume);
     row.volume.setAttribute('aria-valuetext', volumeLabel(track.volume));
     row.pan.setAttribute('aria-valuetext', panLabel(track.pan));
-    row.panValue.textContent = track.pan === 0 ? 'C' : `${track.pan < 0 ? 'L' : 'R'}${Math.abs(track.pan)}`;
     const audioChanged = row.track.audio?.url !== track.audio?.url || row.track.audio?.byteSize !== track.audio?.byteSize;
     row.track = track;
     if (audioChanged) this.drawWave(track.id);
@@ -269,12 +268,16 @@ export class ProjectTimeline {
 
     const volume = element('input', '', {type: 'range', min: 0, max: 100, step: 1, value: track.volume});
     labels.push([volume, 'Volume for']);
-    volume.oninput = () => this.onChange(id, {volume: Number(volume.value)});
+    volume.oninput = () => {
+      volume.dataset.popupValue = volumeLabel(Number(volume.value));
+      this.onChange(id, {volume: Number(volume.value)});
+    };
     volume.ondblclick = () => this.onChange(id, {volume: 80});
     const fader = document.createElement('tl-slider');
     fader.className = 'track-volume';
+    fader.setAttribute('size', 'lg');
+    fader.setAttribute('popup', 'Volume');
     fader.append(volume);
-    const volumeValue = element('output', 'track-volume-value');
 
     const pan = element('input', '', {type: 'range', min: -100, max: 100, step: 1, value: track.pan});
     labels.push([pan, 'Pan for']);
@@ -282,15 +285,13 @@ export class ProjectTimeline {
     pan.ondblclick = () => this.onChange(id, {pan: 0});
     const knob = document.createElement('tl-knob');
     knob.setAttribute('size', 'sm');
+    knob.toggleAttribute('arc', true);
+    knob.setAttribute('popup', 'Pan');
     knob.className = 'track-pan';
-    knob.title = 'Pan · double-click to center';
-    const panValue = element('output', '', {slot: 'value'});
-    knob.append(pan, panValue);
+    knob.append(pan);
 
     for (const control of [fader, knob]) control.onclick = (event) => { event.stopPropagation(); this.onSelect(id); };
-    const volumeGroup = element('div', 'track-volume-group');
-    volumeGroup.append(fader, volumeValue);
-    controls.append(modeGroup, volumeGroup, knob);
+    controls.append(modeGroup, fader, knob);
     strip.append(title, meta, controls);
     if (editable) {
       const grip = element('button', 'track-grip', {type: 'button', draggable: true, title: 'Drag to reorder (or use the arrow keys)'});
@@ -327,6 +328,6 @@ export class ProjectTimeline {
     };
     lane.append(area);
     root.append(label, lane);
-    return {root, track, icon, name, meta, modes, volume, volumeValue, pan, panValue, lane, clip, clipName, wave, note, labels};
+    return {root, track, icon, name, meta, modes, volume, pan, lane, clip, clipName, wave, note, labels};
   }
 }

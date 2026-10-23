@@ -83,6 +83,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectPlay').onclick = () => (this.player?.playing ? this.player.pause() : this.player?.play());
     this.$('projectRewind').onclick = () => this.player?.stop();
     this.$('projectLoop').onclick = () => this.toggleLoop();
+    this.$('projectLoopReset').onclick = () => this.player?.duration && this.setLoop({enabled: false, start: 0, end: 0});
     // L toggles the loop while the timeline is shown, unless typing in a field.
     root.addEventListener?.('keydown', (event) => {
       if (event.key.toLowerCase() !== 'l' || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
@@ -516,9 +517,10 @@ export class ProjectsWorkspace extends EventTarget {
     const loopButton = this.$('projectLoop');
     loopButton.disabled = !player?.duration;
     loopButton.setAttribute('aria-pressed', String(loop.enabled));
-    const label = this.$('projectLoopLabel');
-    label.textContent = loopLabel(loop, this.project?.bpm ?? BPM_RANGE.default);
-    label.classList.toggle('off', !loop.enabled);
+    loopButton.querySelector('span').textContent = loop.enabled ? 'On' : 'Off';
+    const region = loopLabel(loop, this.project?.bpm ?? BPM_RANGE.default);
+    loopButton.title = `Loop (L)${region ? ` · ${region}` : ''} · drag on the bar ruler to choose the bars`;
+    this.$('projectLoopReset').disabled = !player?.duration || !(loop.end > loop.start);
     this.timeline.setLoop(loop);
     this.renderPosition();
     if (playing && !this.frame) {
