@@ -296,3 +296,10 @@ test('each lane keeps its output level when the other lane is shown, enabled or 
   assert.equal(contribution('a'),initial);assert.equal(contribution('b'),bLevel);
   rack.destroy();
 });
+
+test('hiding then showing B keeps it muted when it was muted',async()=>{
+  const {rack,source}=await setupRack();source.mode='file';await rack.setVisible(true);
+  await rack.connectRoute(1);await rack.setEnabledB(false);
+  await rack.setVisible(false);await rack.setVisible(true);assert.equal(rack.enabledB,false);
+  await rack.setEnabledB(true);await rack.setVisible(false);await rack.setVisible(true);assert.equal(rack.enabledB,true);
+});

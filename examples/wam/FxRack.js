@@ -50,7 +50,11 @@ export class FxRack extends EventTarget {
   get activeB(){return this.visible;}
   setVisible(visible){return this.enqueue(async()=>{
     if(visible)await this.ensureB();
-    await this.transition(()=>{this.visible=visible;this.enabledB=visible;this.syncTap();this.syncSource();this.syncMix();});
+    await this.transition(()=>{
+      // Hiding then showing B keeps it on or muted, as it was; a first show turns it on.
+      if(!visible&&this.visible)this.shownEnabledB=this.enabledB;
+      this.enabledB=visible&&(this.shownEnabledB??true);this.visible=visible;this.syncTap();this.syncSource();this.syncMix();
+    });
     await this.a.applyRouting();this.changed();
   });}
   connectRoute(index){return this.enqueue(async()=>{
@@ -128,7 +132,7 @@ export class FxRack extends EventTarget {
     const apply=async value=>{
       this.route=null;this.a.junction=null;this.syncTap();
       await this.a.restoreState(value.a);if(value.b)await this.b.restoreState(value.b);
-      this.visible=value.visible;this.route=value.route;this.a.junction=this.route;this.mutedA=value.mutedA;
+      this.visible=value.visible;this.shownEnabledB=undefined;this.route=value.route;this.a.junction=this.route;this.mutedA=value.mutedA;
       // Diagnostics restore never activates an independent physical input.
       this.enabledB=Boolean(value.visible&&value.route&&value.enabledB);
       this.setPan('a',value.panA);this.setPan('b',value.panB);
