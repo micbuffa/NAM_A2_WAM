@@ -26,6 +26,10 @@ class PlayAlongTest < ApplicationSystemTestCase
 
     shadow.find("#list button", text: "Born To Be Wild - Steppenwolf").click
     shadow.assert_selector "#title", text: "Born To Be Wild - Steppenwolf", wait: 20
+    loop_on = shadow.find("#loop")["aria-pressed"]
+    shadow.find("#loop").click
+    assert_not_equal loop_on, shadow.find("#loop")["aria-pressed"], "the Loop button toggles the A-B loop"
+    shadow.find("#loop").click
     shadow.find("#play:not([disabled])", wait: 20).click
     shadow.assert_selector "#play[icon=pause]"
     assert playing?
@@ -50,7 +54,7 @@ class PlayAlongTest < ApplicationSystemTestCase
     shadow = find("backing-track-player").shadow_root
     shadow.assert_selector "#title", text: "Born To Be Wild - Steppenwolf", wait: 20
     assert_equal "true", shadow.find("#expand")["aria-expanded"]
-    assert_equal "10", shadow.find("#a").value
+    assert_equal 10, page.evaluate_script("window.phase3Debug.playAlong.engine.loop.startSeconds")
     assert_not playing?
   end
 
