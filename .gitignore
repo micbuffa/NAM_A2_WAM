@@ -34,3 +34,10 @@
 
 # Reproducible neural exports; included in the static deployment
 /examples/wam/source-separation/model-assets/*.onnx
+
+# Local research audio; never bundled or committed
+/test-data/source-separation/
+
+# Python preparation/test caches
+/tools/__pycache__/
+/tests/phase6/__pycache__/

@@ -1,3 +1,4 @@
+import {QUALITY_CASES,QUALITY_PROTOCOL,controlledMixture} from './InstrumentQuality.js';
 import {InstrumentComparison,listeningPair,listeningWav} from './InstrumentComparison.js';
 import {ModelCache} from './ModelCache.js';
 import {ModelDownloadManager} from './ModelDownloadManager.js';
@@ -24,18 +25,21 @@ function addAudio(parent,label,channels,name,row){
  const note=document.createElement('small');note.textContent=`Pic ${wav.peak.toFixed(3)} · ${wav.overRangeSamples} échantillon(s) au-delà de ±1 (préservés). `;
  parent.append(button,save,note,document.createElement('br'));return {label,peak:wav.peak,overRangeSamples:wav.overRangeSamples};
 }
-$('file').onchange=()=>{$('source').textContent=$('file').files[0]?.name||'Démo : Slow Motion Dream';};
+const updateSource=()=>{const recipe=QUALITY_CASES.find(c=>c.id===$('fixture').value);$('file').disabled=$('seconds').disabled=!!recipe;if(recipe)$('seconds').value='6';$('source').textContent=recipe?`Banc contrôlé : ${recipe.label}`:$('file').files[0]?.name||'Démo : Slow Motion Dream';};
+$('fixture').onchange=$('file').onchange=()=>{clear();report=null;updateSource();$('status').textContent='Source modifiée : préparez la comparaison.';};
+const requestedFixture=new URL(location.href).searchParams.get('fixture');if(QUALITY_CASES.some(c=>c.id===requestedFixture))$('fixture').value=requestedFixture;updateSource();
 $('run').onclick=async()=>{
- const token=++generation;clear();report=null;$('run').disabled=true;$('cancel').disabled=false;for(const id of ['file','seconds','backend','models'])$(id).disabled=true;
+ const token=++generation;clear();report=null;$('run').disabled=true;$('cancel').disabled=false;for(const id of ['fixture','file','seconds','backend','models'])$(id).disabled=true;
  try{
   const selected=[...$('models').querySelectorAll('input:checked')].map(e=>models.find(m=>m.id===e.value));if(!selected.length)throw Error('Choisissez au moins un modèle.');
-  $('status').textContent='Décodage de l’extrait…';const caps=await detectCapabilities(),file=$('file').files[0],bytes=file?await file.arrayBuffer():await fetch('./fixtures/music/slow-motion-dream.mp3').then(r=>r.arrayBuffer());
+  $('status').textContent='Décodage de l’extrait…';const recipe=QUALITY_CASES.find(c=>c.id===$('fixture').value),caps=await detectCapabilities(),file=recipe?null:$('file').files[0],bytes=recipe?await fetch(new URL(`../assets/audio/${recipe.file}`,import.meta.url)).then(r=>r.arrayBuffer()):file?await file.arrayBuffer():await fetch('./fixtures/music/slow-motion-dream.mp3').then(r=>r.arrayBuffer());
   const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes.slice(0))),x=>x.toString(16).padStart(2,'0')).join('');
-  const audio=await new OfflineAudioContext(2,1,44100).decodeAudioData(bytes),{channels,frames}=prepareBenchmarkAudio(audio,Number($('seconds').value));
+  if(recipe&&hash!==recipe.sourceSha256)throw Error('Source du banc modifiée.');
+  const audio=await new OfflineAudioContext(2,1,44100).decodeAudioData(bytes),prepared=prepareBenchmarkAudio(audio,recipe?6:Number($('seconds').value)),controlled=recipe?controlledMixture(prepared.channels,recipe):null,channels=controlled?.mix||prepared.channels,frames=prepared.frames;
   if(token!==generation)throw new DOMException('Annulé','AbortError');
   const requested=$('backend').value,matrix=selected.map(model=>({model,backend:requested==='auto'?(caps.webgpu&&model.backends.includes('webgpu')?'webgpu':'wasm'):requested}));
-  report={protocol:'instrument-listening-v1',status:'running',date:new Date().toISOString(),source:file?.name||'Slow Motion Dream',sourceSha256:hash,sampleRate:44100,frames,normalization:false,referenceStems:false,runs:[]};
-  const original=document.createElement('article');addAudio(original,'Original',channels,'original',{label:'Original',backend:'source'});$('results').append(original);
+  report={protocol:'instrument-listening-v1',status:'running',date:new Date().toISOString(),source:recipe?`Banc contrôlé : ${recipe.label}`:file?.name||'Slow Motion Dream',recipeId:recipe?.id||null,controlledProtocol:recipe?QUALITY_PROTOCOL:null,sourceSha256:hash,sampleRate:44100,frames,normalization:false,referenceStems:!!controlled,runs:[]};
+  const original=document.createElement('article');addAudio(original,'Original',channels,'original',{label:'Original',backend:'source'});if(controlled)for(const [role,label] of [['guitar','Référence guitare'],['bass','Référence basse']])addAudio(original,label,controlled.refs[role],`reference-${role}`,{label:'Référence connue',backend:'source'});$('results').append(original);
   await comparison.run(matrix,channels,{onProgress:message=>$('status').textContent=message,onResult:async result=>{
    if(token!==generation)return;
    const row={modelId:result.model.id,label:result.model.label,identity:JSON.stringify([result.model.version,result.model.files.map(f=>f.sha256)]),backend:result.backend,status:result.status};
@@ -52,7 +56,7 @@ $('run').onclick=async()=>{
    const note=document.createElement('label');note.textContent='Notes d’écoute : repisse, attaques, graves, artefacts, utilité du backing';const input=document.createElement('textarea');input.setAttribute('aria-label',`Notes ${row.label}`);input.oninput=()=>row.listeningNotes=input.value;note.append(input);article.append(note);
   }});
   if(token===generation){report.status=report.runs.some(r=>r.status==='error')?'completed-with-errors':'completed';$('status').textContent='Comparaison terminée. Choisissez une piste, puis Play. Les notes et mesures techniques peuvent être exportées ; aucun classement automatique de qualité.';}
- }catch(e){if(report)report.status=e.name==='AbortError'?'cancelled':'error';$('status').textContent=e.message;}finally{$('run').disabled=false;$('cancel').disabled=true;for(const id of ['file','seconds','backend','models'])$(id).disabled=false;}
+ }catch(e){if(report)report.status=e.name==='AbortError'?'cancelled':'error';$('status').textContent=e.message;}finally{$('run').disabled=false;$('cancel').disabled=true;for(const id of ['fixture','file','seconds','backend','models'])$(id).disabled=false;updateSource();}
 };
 $('cancel').onclick=()=>{++generation;comparison.cancel();$('status').textContent='Annulation…';};
 $('export').onclick=()=>{if(!report){$('status').textContent='Préparez une comparaison auparavant.';return;}const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}));download(url,'instrument-comparison.json');setTimeout(()=>URL.revokeObjectURL(url),1000);};

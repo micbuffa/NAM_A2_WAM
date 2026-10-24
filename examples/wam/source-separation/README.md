@@ -235,3 +235,18 @@ La [comparaison documentée](MODEL_COMPARISON.md) fournit le protocole, les huit
 Depuis Change model / settings, le lien **Comparer à l’écoute · guitare et basse** ouvre `instrument-comparison.html`. Modèles installés uniquement, extraits communs 6/15/30 s, original/instrument/backing, lecteur commun et exports WAV/notes JSON. Pas de normalisation ni de score de qualité sans stems originaux. Voir [le protocole](INSTRUMENT_COMPARISON.md).
 
 Validation du comparateur : neuf nouveaux tests, suite complète460/460 réussie ; essais CPU/GPU réels, décodage et commutation des WAV vérifiés dans la distribution.
+
+### Conseils instrumentaux et banc contrôlé
+
+Settings affiche des profils Guitariste/Bassiste distincts des temps de calcul. Le lien `instrument-quality.html` exécute les modèles installés sur trois mélanges à références connues (guitare enregistrée, basse/batterie synthétiques). Les résultats sont des mesures pilotes SI-SDR/SNR, avec source et limites explicites ; ce n’est pas un classement perceptuel universel. Le modèle n’est modifié que via « Utiliser ce conseil instrumental » puis validation de Settings. Voir [INSTRUMENT_QUALITY.md](INSTRUMENT_QUALITY.md).
+
+Campagne du23octobre2026 : 15/15 séparations valides sur trois mélanges contrôlés ; SW6 est le conseil GPU expérimental des deux profils. 477 tests passent. Le détail et les limites (basse/batterie synthétiques, pas d’écoute humaine ni de classement universel) sont dans INSTRUMENT_QUALITY.md. Le lecteur A/B propose maintenant les trois mélanges et leurs références audibles.
+
+
+### Corpus enregistré guitare/basse
+
+Le banc `real-instrument-quality.html` utilise six extraits locaux : trois morceaux basse MUSDB18 test et trois passages guitare d’une seule composition MedleyDB. Les 24 séparations des quatre configurations sont archivées, sans audio. Settings préfère ces mesures réelles : conseil expérimental SW GPU pour la guitare, Qualité4 GPU pour la basse (meilleure médiane). Le sélecteur de corpus permet de retrouver le pilote contrôlé, séparément. FT reste non mesuré dans cette campagne. Aucun changement de modèle sans application explicite et validation.
+
+Sources, droits, préparation reproductible et résultats : [REAL_INSTRUMENT_CORPUS.md](REAL_INSTRUMENT_CORPUS.md). Les WAV de `test-data/source-separation/` restent locaux et sont exclus de Git et de la distribution. 489 tests réussis ; les résultats ne remplacent pas une écoute humaine ni un corpus guitare plus diversifié.
+
+Le [diagnostic guitare multi-styles](GUITAR_DIAGNOSTIC.md), accessible par `real-instrument-quality.html?corpus=guitar-diagnostic`, compare trois nouvelles compositions acoustiques/électriques enregistrées. Elles sont issues de MUSDB train et restent **hors des conseils Settings**. Le banc permet désormais l’écoute A/B de la référence, de l’instrument séparé et du backing de chaque modèle, à position conservée et volume commun. Les résultats audio restent uniquement en RAM (128Mio maximum), contrairement aux petits rapports numériques exportables.

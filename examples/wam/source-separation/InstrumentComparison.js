@@ -1,3 +1,4 @@
+import {SeparationProgress,separationMessage} from './SeparationProgress.js';
 // Listening comparisons only: without original stems, no separation-quality score.
 export function instrumentRole(model,instrument){
  if(!['bass','guitar'].includes(instrument))throw Error('Instrument invalide.');
@@ -46,7 +47,8 @@ export class InstrumentComparison {
      if(chunk.startFrame!==committed||data?.length!==stems.length||!n||committed+n>frames||data.some(c=>!(c instanceof Float32Array)||c.length!==n||!c.every(Number.isFinite)))throw Error('Blocs audio invalides ou désordonnés.');
      data.forEach((c,i)=>stems[i].set(c,committed));committed+=n;
     };
-    const result=await this.runner.separate(model,channels,{backend,fallback:false,onChunk:accept,onProgress:p=>onProgress(`${model.label} · ${backend} · ${p.phase||'séparation'}`)});
+    const progress=new SeparationProgress();
+    const result=await this.runner.separate(model,channels,{backend,fallback:false,onChunk:accept,onProgress:p=>onProgress(`${model.label} · ${backend} · ${separationMessage(p)} · ${progress.update(p)} %`)});
     if(this.cancelled)throw new DOMException('Annulé','AbortError');
     if(result.backend!==backend)throw Error('Backend inattendu.');
     if(!committed&&result.stems)accept({...result,startFrame:0});

@@ -1,0 +1,40 @@
+import {createRealQualityPanel,readRealQualityReport} from './RealQualityPanel.js';
+import {realQualitySummary,REAL_QUALITY_PROTOCOL} from './RealInstrumentCorpus.js';
+import {REAL_CORPUS} from './RealCorpusDefinition.js';
+import {REFERENCE_REAL_QUALITY} from './RealQualityData.js';
+import {qualitySummary,QUALITY_CASES,QUALITY_FRAMES,QUALITY_PROTOCOL} from './InstrumentQuality.js';
+import {REFERENCE_QUALITY} from './InstrumentQualityData.js';
+export function readQualityReport(storage){try{const r=JSON.parse((storage||globalThis.localStorage).getItem('nam-instrument-quality.v1'));return r?.protocol===QUALITY_PROTOCOL?r:null;}catch{return null;}}
+export function instrumentRecommendation(models,capabilities,instrument,report){
+ if(!['guitar','bass'].includes(instrument))return null;
+ const real=report?.protocol===REAL_QUALITY_PROTOCOL,summary=real?realQualitySummary(report,models):qualitySummary(report,models),cases=real?REAL_CORPUS.cases.filter(c=>c.target===instrument):QUALITY_CASES;
+ const eligible=models.filter(m=>instrument==='bass'||m.roles.includes('guitar'));
+ const gpu=!!capabilities?.webgpu&&eligible.some(m=>m.backends.includes('webgpu')),backend=gpu?'webgpu':'wasm',pool=eligible.filter(m=>m.backends.includes(backend)),scores=summary.filter(s=>s.instrument===instrument&&s.backend===backend&&pool.some(m=>m.id===s.modelId));
+ const tested=pool.every(m=>scores.some(s=>s.modelId===m.id)||cases.every(c=>(Array.isArray(report?.runs)?report.runs:[]).some(r=>r?.caseId===c.id&&r.modelId===m.id&&r.backend===backend&&r.status==='error'&&r.frames===QUALITY_FRAMES&&r.identity===JSON.stringify([m.version,m.files.map(f=>f.sha256)]))));
+ const reliable=scores.filter(s=>s.minimumImprovementDb>=0);
+ if(!tested||!reliable.length)return null;
+ const score=[...reliable].sort((a,b)=>b.siSdrDb-a.siSdrDb)[0];return {model:pool.find(m=>m.id===score.modelId),backend,score};
+}
+export function createInstrumentRecommendationPanel({models,capabilities,onRecommend,doc=document,storage,reference=REFERENCE_QUALITY,realReference=REFERENCE_REAL_QUALITY}={}){
+ const el=(tag,text)=>{const n=doc.createElement(tag);if(text)n.textContent=text;return n;},panel=el('section');panel.className='instrument-recommendations';panel.setAttribute('aria-label','Conseils guitariste et bassiste');
+ const local=readQualityReport(storage),pilot=qualitySummary(local,models).length?local:reference,localReal=readRealQualityReport(storage),real=realQualitySummary(localReal,models).length?localReal:realReference;
+ panel.append(el('h3','Guitariste / bassiste · qualité et rapidité distinctes'));const intro=el('p');panel.append(intro);
+ const label=el('label','Votre instrument '),profile=el('select');profile.setAttribute('aria-label','Profil instrumental');for(const [v,t] of [['guitar','Guitariste'],['bass','Bassiste']]){const o=el('option',t);o.value=v;profile.append(o);}label.append(profile);
+ const basisLabel=el('label','Base du conseil '),basis=el('select');basis.setAttribute('aria-label','Corpus de la recommandation');for(const [v,t] of [['auto','Enregistrements réels si disponibles'],['pilot','Pilote contrôlé (basse/batterie synthétiques)']]){const o=el('option',t);o.value=v;basis.append(o);}basisLabel.append(basis);
+ const realPanel=createRealQualityPanel({models,doc,storage,reference:realReference}),suggestion=el('p'),button=el('button','Utiliser ce conseil instrumental'),context=el('p'),table=el('table');button.type='button';table.setAttribute('aria-label','Résultats du banc instrumental');let activeReport;
+ const update=()=>{
+  const useReal=basis.value!=='pilot'&&realQualitySummary(real,models).some(s=>s.instrument===profile.value);activeReport=useReal?real:pilot;const summary=useReal?realQualitySummary(activeReport,models):qualitySummary(activeReport,models);
+  realPanel.setInstrument(profile.value);realPanel.hidden=useReal;
+  intro.textContent=useReal?`Corpus réel : ${profile.value==='bass'?'trois morceaux MUSDB18 test, pop/rock, reggae et metal':'trois passages d’une seule composition MedleyDB, guitares et voix enregistrées'}. Extraits de 6 s, références alignées. Les temps de calcul restent séparés ; aucune note d’écoute humaine ni garantie générale.`:'Banc pilote : trois extraits de guitare enregistrée + basse et batterie synthétiques, 6 s chacun. Les chiffres décrivent ces mélanges contrôlés, pas un classement universel ni des notes d’écoute humaine. Les temps de calcul figurent séparément ci-dessous.';
+  const choice=instrumentRecommendation(models,capabilities,profile.value,activeReport);button.disabled=!choice;
+  suggestion.textContent=choice?`Sur ce ${useReal?'corpus réel':'banc'} uniquement${profile.value==='guitar'?' (piste guitare dédiée)':''} : ${choice.model.label} · ${choice.backend==='webgpu'?'GPU':'CPU / WASM'} · médiane SI-SDR ${choice.score.siSdrDb.toFixed(2)} dB (${choice.score.count} extraits). Vérifiez le rendu sur votre morceau avant de choisir.`:'Aucun conseil fiable : campagne incomplète ou absence de modèle améliorant chacun des trois extraits. Vous pouvez choisir le modèle manuellement ou lancer le banc.';
+  table.replaceChildren();const heading=el('tr');for(const title of ['Modèle / backend','SI-SDR médian','SNR médian','Niveau projeté','Plus faible extrait','Gain sur mix (médiane / minimum)','Extraits / morceaux'])heading.append(el('th',title));table.append(heading);
+  for(const s of summary.filter(s=>s.instrument===profile.value).sort((a,b)=>b.siSdrDb-a.siSdrDb)){const row=el('tr');for(const text of [`${models.find(m=>m.id===s.modelId)?.label} · ${s.backend}`,`${s.siSdrDb.toFixed(2)} dB`,`${s.snrDb.toFixed(2)} dB`,`${s.gainDb.toFixed(2)} dB`,`${s.minimumDb.toFixed(2)} dB`,`${s.improvementDb.toFixed(2)} / ${s.minimumImprovementDb.toFixed(2)} dB`,useReal?`${s.count} / ${s.compositions}`:`${s.count}/3`])row.append(el('td',text));table.append(row);}
+  for(const m of models)if(!summary.some(s=>s.instrument===profile.value&&s.modelId===m.id)){const row=el('tr'),state=el('td','Non mesuré / campagne incomplète');state.setAttribute('colspan','6');row.append(el('td',m.label),state);table.append(row);}
+  context.textContent=`${typeof activeReport?.date==='string'?`${activeReport===local||activeReport===localReal?'Mesures locales':'Mesures de référence'} · ${activeReport.date.slice(0,10)}. `:''}SI-SDR plus élevé = plus fidèle après un gain global. Cela ne garantit ni un niveau correct ni l’absence d’artefacts audibles. ${useReal?'Corpus réel distinct du pilote synthétique ; backends et modèles non mesurés non classés. Autres n’est comparé à la guitare que sur Rainfall, sans autre instrument hors guitares/voix.':'Sur ce banc sans piano/voix, Autres est évalué face à la guitare ; sur un vrai morceau, ce n’est pas une guitare dédiée.'} Le conseil Guitariste retient uniquement les modèles avec une sortie guitare dédiée.`;
+ };
+ profile.onchange=basis.onchange=update;button.onclick=()=>{const c=instrumentRecommendation(models,capabilities,profile.value,activeReport);if(c)onRecommend?.(c.model);};update();panel.append(label,basisLabel,button,suggestion,table,context);
+ for(const [label,path] of [['Corpus réel : sources et analyse','./REAL_INSTRUMENT_CORPUS.md'],['Écouter les références / relancer le banc réel','./real-instrument-quality.html'],['Diagnostic guitare multi-styles · MUSDB train, hors conseil','./real-instrument-quality.html?corpus=guitar-diagnostic'],['Protocole du pilote contrôlé','./INSTRUMENT_QUALITY.md'],['Rejouer le pilote contrôlé','./instrument-quality.html'],['Écoute A/B sur votre morceau','./instrument-comparison.html']]){const link=el('a',label);link.href=new URL(path,import.meta.url);link.target='_blank';link.rel='noopener';panel.append(link,el('br'));}
+ const bass=el('a','Référence externe basse · MVSep');bass.href='https://www.mvsep.com/algorithms/37';bass.target='_blank';bass.rel='noopener';panel.append(bass,el('p','MVSep rapporte 14,62 dB pour la basse BS Roformer SW sur son Multisong dataset (consulté le 23/10/2026). Ce SDR externe ne se compare pas directement au SI-SDR de nos tests courts et ne valide pas notre export navigateur.'),realPanel);
+ return panel;
+}

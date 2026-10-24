@@ -1,0 +1,875 @@
+{
+  "protocol": "real-instrument-quality-v1",
+  "status": "completed",
+  "date": "2026-10-23T13:52:00.156Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "corpus": {
+    "protocol": "real-instrument-corpus-v1",
+    "sampleRate": 44100,
+    "frames": 264600,
+    "redistributeAudio": false,
+    "ffmpeg": "ffmpeg version 8.1.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "sources": {
+      "musdb": {
+        "url": "https://github.com/sigsep/sigsep-mus-db/releases/download/v0.4.0/MUSDB18-7-STEMS.zip",
+        "sha256": "365f66acffc57282e474a4c24b32afec3678258c50b8d45646ac849b0a287df3"
+      },
+      "medley": {
+        "url": "https://zenodo.org/record/1438309/files/MedleyDB_Sample.tar.gz?download=1",
+        "sha256": "603fa6cc6fc8d6dd0f5ffcc5bd97b8b2c74820e2498b1e44a285308e772d7910"
+      },
+      "coefficients": {
+        "url": "https://raw.githubusercontent.com/marl/medleydb/master/medleydb/resources/mixing_coefficients.yaml",
+        "sha256": "6a3d737e26cfc05c117212261ff4bb69e71e7b64ca10d217e953969706925c83"
+      },
+      "licenses": {
+        "url": "https://raw.githubusercontent.com/sigsep/website/master/content/datasets/assets/tracklist.csv",
+        "sha256": "5e0a9252774412be23971ebfb7d384c0b2f29842eed2fa16aab69cf825b332b1"
+      }
+    },
+    "cases": [
+      {
+        "id": "musdb-falcon",
+        "dataset": "MUSDB18-7s",
+        "track": "The Easton Ellises - Falcon 69",
+        "group": "The Easton Ellises - Falcon 69",
+        "split": "test",
+        "offsetSeconds": 0,
+        "target": "bass",
+        "otherIsGuitar": false,
+        "license": "CC BY-NC-SA 3.0",
+        "genre": "Pop/Rock",
+        "sourceMember": "test/The Easton Ellises - Falcon 69.stem.mp4",
+        "sourceSha256": "1edfa8b5abac9a7b962b33d9b3f65c9e0f4e6490567fd5bc51af313fedecc0b5",
+        "frames": 264600,
+        "sampleRate": 44100,
+        "commonGain": 0.9972442584969263,
+        "files": {
+          "mix": {
+            "path": "musdb-falcon/mix.wav",
+            "sha256": "229f72ea5cce679cf0e388641fa576318a0d4435325b65a88fcfd421f62f164a"
+          },
+          "reference": {
+            "path": "musdb-falcon/reference.wav",
+            "sha256": "943cafc1870021002f9106f2a5d78a5c24d3efacfae44c546a2ef561a32aec4f"
+          },
+          "backing": {
+            "path": "musdb-falcon/backing.wav",
+            "sha256": "01b271d4ebd0a455ff14ff233a11d2ea6fc4765d47bb5b4f960c1d05b97863f2"
+          }
+        }
+      },
+      {
+        "id": "musdb-reggae",
+        "dataset": "MUSDB18-7s",
+        "track": "Arise - Run Run Run",
+        "group": "Arise - Run Run Run",
+        "split": "test",
+        "offsetSeconds": 0,
+        "target": "bass",
+        "otherIsGuitar": false,
+        "license": "Restricted",
+        "genre": "Reggae",
+        "sourceMember": "test/Arise - Run Run Run.stem.mp4",
+        "sourceSha256": "2717258e43d6feb260bcbd7f60ab0ff65818dc6c65f5eedc5291084d553fe75d",
+        "frames": 264600,
+        "sampleRate": 44100,
+        "commonGain": 1,
+        "files": {
+          "mix": {
+            "path": "musdb-reggae/mix.wav",
+            "sha256": "fb4ba61d765e351fa7656c76861e39612f6b2fd70b6208354cc63fb4b8fe1d7a"
+          },
+          "reference": {
+            "path": "musdb-reggae/reference.wav",
+            "sha256": "06b27cfedf14945ac89bf935834254bd6f621dbc22cb9b54b4f40d3bda17d0cf"
+          },
+          "backing": {
+            "path": "musdb-reggae/backing.wav",
+            "sha256": "a4276028d3378c31409ce6a6dd41285af5e3d16bd7b5a0d81cfc0d3d70753a89"
+          }
+        }
+      },
+      {
+        "id": "musdb-metal",
+        "dataset": "MUSDB18-7s",
+        "track": "We Fell From The Sky - Not You",
+        "group": "We Fell From The Sky - Not You",
+        "split": "test",
+        "offsetSeconds": 0,
+        "target": "bass",
+        "otherIsGuitar": false,
+        "license": "Restricted",
+        "genre": "Heavy Metal",
+        "sourceMember": "test/We Fell From The Sky - Not You.stem.mp4",
+        "sourceSha256": "01f97821e9985e0469244b37f28294b2d9074084f4bcbff422c7fa52b726ef2d",
+        "frames": 264600,
+        "sampleRate": 44100,
+        "commonGain": 1,
+        "files": {
+          "mix": {
+            "path": "musdb-metal/mix.wav",
+            "sha256": "719cbaebff496c00432f8e5bec36ad083d7c5e47fc8f2e02b7c444557e98cdbc"
+          },
+          "reference": {
+            "path": "musdb-metal/reference.wav",
+            "sha256": "8a417cd5481d92550da21bd2eee2024a62c55a232a005aa18ea7e9a9c8cbd85e"
+          },
+          "backing": {
+            "path": "musdb-metal/backing.wav",
+            "sha256": "847a59a03097782c83bdfce391149bfad5f988528c766193f50adf5374e60038"
+          }
+        }
+      },
+      {
+        "id": "medley-rainfall-20",
+        "dataset": "MedleyDB sample",
+        "track": "Liz Nelson & Jennifer Davies \u2014 Rainfall",
+        "group": "LizNelson_Rainfall",
+        "split": "sample",
+        "offsetSeconds": 20,
+        "target": "guitar",
+        "otherIsGuitar": true,
+        "hasBleed": false,
+        "license": "CC BY-NC-SA 4.0",
+        "guitarStemIndices": [
+          4,
+          5
+        ],
+        "mixingCoefficients": {
+          "1": 0.6354871509502455,
+          "2": 0.12610504621272442,
+          "3": 0.0624147327727016,
+          "4": 0.8433924607944484,
+          "5": 0.29222231756693756
+        },
+        "sourceStems": {
+          "LizNelson_Rainfall_STEM_01.wav": "9bd7c8cf27e9b191ce1aa036d7dc1787f662cccc7817d6675b8cbd938a77041b",
+          "LizNelson_Rainfall_STEM_02.wav": "ae86f0e41d1e1d57b2c0daeb250ac1fe7536c6df743eda7d140bffd6ce8ac92d",
+          "LizNelson_Rainfall_STEM_03.wav": "6e9be1254c4e513b0f3ae3709a7de35f39b56a84fa6c42b7b3bb46a32dfefde5",
+          "LizNelson_Rainfall_STEM_04.wav": "a7be6dab2d1e61cd144cf335ffae400940005b352cea286c490c345ae9c9752c",
+          "LizNelson_Rainfall_STEM_05.wav": "c3b8d0e47c2a050699f4f3a0bc5c47d11d6a8d539801060c12cc8cbf1dfb8684"
+        },
+        "metadataSha256": "ea5d97db36aedcb00c1863932bc2da7270c419607502d9ac0ef609210d78cf9c",
+        "frames": 264600,
+        "sampleRate": 44100,
+        "commonGain": 1,
+        "files": {
+          "mix": {
+            "path": "medley-rainfall-20/mix.wav",
+            "sha256": "0602b916f99a1748925295a09d10ed3e70a2cfa0e559a4fc3aaf6c07661ad886"
+          },
+          "reference": {
+            "path": "medley-rainfall-20/reference.wav",
+            "sha256": "8903d2e5c1172e5799c17c14780ecb683a243fbb4ab0b5aeb58b32b2b950efe1"
+          },
+          "backing": {
+            "path": "medley-rainfall-20/backing.wav",
+            "sha256": "cb7f854c28790503ace3ed6db1993434c1068b3986706db912d92d78bee83481"
+          }
+        }
+      },
+      {
+        "id": "medley-rainfall-65",
+        "dataset": "MedleyDB sample",
+        "track": "Liz Nelson & Jennifer Davies \u2014 Rainfall",
+        "group": "LizNelson_Rainfall",
+        "split": "sample",
+        "offsetSeconds": 65,
+        "target": "guitar",
+        "otherIsGuitar": true,
+        "hasBleed": false,
+        "license": "CC BY-NC-SA 4.0",
+        "guitarStemIndices": [
+          4,
+          5
+        ],
+        "mixingCoefficients": {
+          "1": 0.6354871509502455,
+          "2": 0.12610504621272442,
+          "3": 0.0624147327727016,
+          "4": 0.8433924607944484,
+          "5": 0.29222231756693756
+        },
+        "sourceStems": {
+          "LizNelson_Rainfall_STEM_01.wav": "9bd7c8cf27e9b191ce1aa036d7dc1787f662cccc7817d6675b8cbd938a77041b",
+          "LizNelson_Rainfall_STEM_02.wav": "ae86f0e41d1e1d57b2c0daeb250ac1fe7536c6df743eda7d140bffd6ce8ac92d",
+          "LizNelson_Rainfall_STEM_03.wav": "6e9be1254c4e513b0f3ae3709a7de35f39b56a84fa6c42b7b3bb46a32dfefde5",
+          "LizNelson_Rainfall_STEM_04.wav": "a7be6dab2d1e61cd144cf335ffae400940005b352cea286c490c345ae9c9752c",
+          "LizNelson_Rainfall_STEM_05.wav": "c3b8d0e47c2a050699f4f3a0bc5c47d11d6a8d539801060c12cc8cbf1dfb8684"
+        },
+        "metadataSha256": "ea5d97db36aedcb00c1863932bc2da7270c419607502d9ac0ef609210d78cf9c",
+        "frames": 264600,
+        "sampleRate": 44100,
+        "commonGain": 1,
+        "files": {
+          "mix": {
+            "path": "medley-rainfall-65/mix.wav",
+            "sha256": "327d4165a9642a0478e601b04ae0bcc7b6cb8b3a388b11314800dfbc9bdcfcc4"
+          },
+          "reference": {
+            "path": "medley-rainfall-65/reference.wav",
+            "sha256": "d381a7c8decd5289477c77c06a20064ecdc632515f3ddfefabb020cab71462ed"
+          },
+          "backing": {
+            "path": "medley-rainfall-65/backing.wav",
+            "sha256": "928769685589a6bcd884662e6e409009a7d3df6e289dfa1072856654f7bf8558"
+          }
+        }
+      },
+      {
+        "id": "medley-rainfall-120",
+        "dataset": "MedleyDB sample",
+        "track": "Liz Nelson & Jennifer Davies \u2014 Rainfall",
+        "group": "LizNelson_Rainfall",
+        "split": "sample",
+        "offsetSeconds": 120,
+        "target": "guitar",
+        "otherIsGuitar": true,
+        "hasBleed": false,
+        "license": "CC BY-NC-SA 4.0",
+        "guitarStemIndices": [
+          4,
+          5
+        ],
+        "mixingCoefficients": {
+          "1": 0.6354871509502455,
+          "2": 0.12610504621272442,
+          "3": 0.0624147327727016,
+          "4": 0.8433924607944484,
+          "5": 0.29222231756693756
+        },
+        "sourceStems": {
+          "LizNelson_Rainfall_STEM_01.wav": "9bd7c8cf27e9b191ce1aa036d7dc1787f662cccc7817d6675b8cbd938a77041b",
+          "LizNelson_Rainfall_STEM_02.wav": "ae86f0e41d1e1d57b2c0daeb250ac1fe7536c6df743eda7d140bffd6ce8ac92d",
+          "LizNelson_Rainfall_STEM_03.wav": "6e9be1254c4e513b0f3ae3709a7de35f39b56a84fa6c42b7b3bb46a32dfefde5",
+          "LizNelson_Rainfall_STEM_04.wav": "a7be6dab2d1e61cd144cf335ffae400940005b352cea286c490c345ae9c9752c",
+          "LizNelson_Rainfall_STEM_05.wav": "c3b8d0e47c2a050699f4f3a0bc5c47d11d6a8d539801060c12cc8cbf1dfb8684"
+        },
+        "metadataSha256": "ea5d97db36aedcb00c1863932bc2da7270c419607502d9ac0ef609210d78cf9c",
+        "frames": 264600,
+        "sampleRate": 44100,
+        "commonGain": 1,
+        "files": {
+          "mix": {
+            "path": "medley-rainfall-120/mix.wav",
+            "sha256": "8d38ac698642b5a39b4f36e7d3df8ccd3c76513b53d69de2c57259300fdf3178"
+          },
+          "reference": {
+            "path": "medley-rainfall-120/reference.wav",
+            "sha256": "28b1f083f6e7f7fc534efa8fd23889eae0a0f8ecfdc2fd32114bda17d88f81f3"
+          },
+          "backing": {
+            "path": "medley-rainfall-120/backing.wav",
+            "sha256": "b7e1105a09771682dbb9ee3ec99051eb9a49d1e3b883df9a2850da05f00b4a5d"
+          }
+        }
+      }
+    ],
+    "medleyPresentInMusdbPreview": false
+  },
+  "resumedRows": 11,
+  "resumedFromDate": "2026-10-23T13:42:11.538Z",
+  "runs": [
+    {
+      "caseId": "musdb-falcon",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "frames": 264600,
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 5.403463742549738,
+        "snrDb": 6.236619278853305,
+        "gainDb": -1.0990464280341816,
+        "polarity": 1,
+        "improvementDb": 11.677982301206999,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 11.705010496918447,
+          "snrDb": 11.948828073140964,
+          "gainDb": -0.7874428270790336,
+          "polarity": 1,
+          "improvementDb": 5.800800309356347
+        }
+      }
+    },
+    {
+      "caseId": "musdb-falcon",
+      "modelId": "htdemucs_4s_onnx",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 6.614245644069017,
+        "snrDb": 7.419100692130863,
+        "gainDb": -1.2799407363706377,
+        "polarity": 1,
+        "improvementDb": 12.888764202726279,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 13.018354291993807,
+          "snrDb": 13.226953183130721,
+          "gainDb": -0.47341022040736525,
+          "polarity": 1,
+          "improvementDb": 7.114144104431707
+        }
+      }
+    },
+    {
+      "caseId": "musdb-falcon",
+      "modelId": "htdemucs_4s_preview",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"short-2s-v1\",[\"a7cb52498bd8b0fd6e61eaecafb12f2651ad995d9b49553caa8705c9d9367c93\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 5.986768554505036,
+        "snrDb": 6.831954257676191,
+        "gainDb": -1.2212918661483494,
+        "polarity": 1,
+        "improvementDb": 12.261287113162297,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 12.433299034891682,
+          "snrDb": 12.666191041906234,
+          "gainDb": -0.5735472765834891,
+          "polarity": 1,
+          "improvementDb": 6.529088847329582
+        }
+      }
+    },
+    {
+      "caseId": "musdb-falcon",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 5.154403087381229,
+        "snrDb": 5.94101721684253,
+        "gainDb": -0.9886602618199646,
+        "polarity": 1,
+        "improvementDb": 11.42892164603849,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 11.310662445033326,
+          "snrDb": 11.580478492347314,
+          "gainDb": -0.8499687201893935,
+          "polarity": 1,
+          "improvementDb": 5.406452257471226
+        }
+      }
+    },
+    {
+      "caseId": "musdb-reggae",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "frames": 264600,
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 2.0362018472836905,
+        "snrDb": 2.2126651910469985,
+        "gainDb": -0.17948806709221532,
+        "polarity": 1,
+        "improvementDb": 4.639008312620705,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 1.9240224773946002,
+          "snrDb": 4.00040543184338,
+          "gainDb": -5.296643622348071,
+          "polarity": 1,
+          "improvementDb": -0.31324538288573756
+        }
+      }
+    },
+    {
+      "caseId": "musdb-reggae",
+      "modelId": "htdemucs_4s_onnx",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 11.864869196349012,
+        "snrDb": 12.11673800091543,
+        "gainDb": -0.7070753961930863,
+        "polarity": 1,
+        "improvementDb": 14.467675661686027,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 14.45463592769981,
+          "snrDb": 14.605995284356572,
+          "gainDb": -0.2742045316144182,
+          "polarity": 1,
+          "improvementDb": 12.217368067419471
+        }
+      }
+    },
+    {
+      "caseId": "musdb-reggae",
+      "modelId": "htdemucs_4s_preview",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"short-2s-v1\",[\"a7cb52498bd8b0fd6e61eaecafb12f2651ad995d9b49553caa8705c9d9367c93\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 10.697307724363066,
+        "snrDb": 11.043489132385131,
+        "gainDb": -0.5966217154495354,
+        "polarity": 1,
+        "improvementDb": 13.30011418970008,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 13.306630630008044,
+          "snrDb": 13.34938563724326,
+          "gainDb": -0.7624260936757494,
+          "polarity": 1,
+          "improvementDb": 11.069362769727707
+        }
+      }
+    },
+    {
+      "caseId": "musdb-reggae",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 0.7590496518883395,
+        "snrDb": 1.006505612191454,
+        "gainDb": -0.2519334602732319,
+        "polarity": 1,
+        "improvementDb": 3.361856117225354,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 0.6639884180745924,
+          "snrDb": 3.352936103234338,
+          "gainDb": -5.557952158940667,
+          "polarity": 1,
+          "improvementDb": -1.5732794422057452
+        }
+      }
+    },
+    {
+      "caseId": "musdb-metal",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "frames": 264600,
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 2.029147271931268,
+        "snrDb": 3.6891026821042026,
+        "gainDb": -2.201287737350645,
+        "polarity": 1,
+        "improvementDb": 15.818937162690439,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 16.600246971039365,
+          "snrDb": 16.634810854721135,
+          "gainDb": -0.3400777219779415,
+          "polarity": 1,
+          "improvementDb": 2.6149770856847443
+        }
+      }
+    },
+    {
+      "caseId": "musdb-metal",
+      "modelId": "htdemucs_4s_onnx",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 1.4126817573304322,
+        "snrDb": 3.4644586795059706,
+        "gainDb": -2.9175787145129792,
+        "polarity": 1,
+        "improvementDb": 15.202471648089602,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 17.180851648489647,
+          "snrDb": 17.230491161137564,
+          "gainDb": -0.2697552669226512,
+          "polarity": 1,
+          "improvementDb": 3.195581763135026
+        }
+      }
+    },
+    {
+      "caseId": "musdb-metal",
+      "modelId": "htdemucs_4s_preview",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"short-2s-v1\",[\"a7cb52498bd8b0fd6e61eaecafb12f2651ad995d9b49553caa8705c9d9367c93\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": -0.11916988694483932,
+        "snrDb": 2.1887958637608067,
+        "gainDb": -2.948682678529413,
+        "polarity": 1,
+        "improvementDb": 13.670620003814332,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 15.893294834910723,
+          "snrDb": 15.932504457571897,
+          "gainDb": -0.40179941037550215,
+          "polarity": 1,
+          "improvementDb": 1.9080249495561024
+        }
+      }
+    },
+    {
+      "caseId": "musdb-metal",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 2.290316436968635,
+        "snrDb": 4.303293684874051,
+        "gainDb": -3.90872938693489,
+        "polarity": 1,
+        "improvementDb": 16.080106327727805,
+        "role": "bass",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 17.717140098976046,
+          "snrDb": 17.788609272335727,
+          "gainDb": -0.16585788145498442,
+          "polarity": 1,
+          "improvementDb": 3.7318702136214252
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-20",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "frames": 264600,
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 17.63622929279071,
+        "snrDb": 17.706327248602,
+        "gainDb": -0.1835679283102547,
+        "polarity": 1,
+        "improvementDb": 10.507041569348818,
+        "role": "guitar",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 11.362963754635778,
+          "snrDb": 11.621706946408107,
+          "gainDb": -0.3696922861252258,
+          "polarity": 1,
+          "improvementDb": 18.3915970666266
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-20",
+      "modelId": "htdemucs_4s_onnx",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 18.964213745861407,
+        "snrDb": 19.004900265060474,
+        "gainDb": -0.16553161153635748,
+        "polarity": 1,
+        "improvementDb": 11.835026022419516,
+        "role": "other",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 11.762354293720534,
+          "snrDb": 12.04245089316052,
+          "gainDb": -0.549611879979388,
+          "polarity": 1,
+          "improvementDb": 18.790987605711354
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-20",
+      "modelId": "htdemucs_4s_preview",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"short-2s-v1\",[\"a7cb52498bd8b0fd6e61eaecafb12f2651ad995d9b49553caa8705c9d9367c93\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 18.827603547726227,
+        "snrDb": 18.88334930723422,
+        "gainDb": -0.09978237161209992,
+        "polarity": 1,
+        "improvementDb": 11.698415824284336,
+        "role": "other",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 11.730273757105609,
+          "snrDb": 11.977186463451122,
+          "gainDb": -0.3634525908658964,
+          "polarity": 1,
+          "improvementDb": 18.75890706909643
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-20",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 26.93281981637879,
+        "snrDb": 26.941554248851464,
+        "gainDb": -0.019000378215303784,
+        "polarity": 1,
+        "improvementDb": 19.803632092936898,
+        "role": "guitar",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 20.11407243142802,
+          "snrDb": 20.10429784086943,
+          "gainDb": -0.1786797574996828,
+          "polarity": 1,
+          "improvementDb": 27.14270574341884
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-65",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "frames": 264600,
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 5.433120680368411,
+        "snrDb": 6.178839869899231,
+        "gainDb": -3.6428300998993866,
+        "polarity": 1,
+        "improvementDb": -3.086957298464668,
+        "role": "guitar",
+        "backing": {
+          "valid": true,
+          "siSdrDb": -2.576038239527481,
+          "snrDb": -2.1201612339420137,
+          "gainDb": -0.4630671306675278,
+          "polarity": 1,
+          "improvementDb": 5.292896350796219
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-65",
+      "modelId": "htdemucs_4s_onnx",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 14.318530886087974,
+        "snrDb": 14.052707755720373,
+        "gainDb": -0.8674477401207731,
+        "polarity": 1,
+        "improvementDb": 5.7984529072548945,
+        "role": "other",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 5.91271085235518,
+          "snrDb": 6.559432498202211,
+          "gainDb": -0.8027533588859147,
+          "polarity": 1,
+          "improvementDb": 13.78164544267888
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-65",
+      "modelId": "htdemucs_4s_preview",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"short-2s-v1\",[\"a7cb52498bd8b0fd6e61eaecafb12f2651ad995d9b49553caa8705c9d9367c93\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 8.94335703848074,
+        "snrDb": 9.267904998735501,
+        "gainDb": -1.7376305770350258,
+        "polarity": 1,
+        "improvementDb": 0.4232790596476601,
+        "role": "other",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 0.1646632524519716,
+          "snrDb": 0.7755074043667594,
+          "gainDb": -0.6368735789441218,
+          "polarity": 1,
+          "improvementDb": 8.033597842775672
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-65",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 18.013539810950586,
+        "snrDb": 18.081616689055704,
+        "gainDb": -0.13518272357704553,
+        "polarity": 1,
+        "improvementDb": 9.493461832117507,
+        "role": "guitar",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 9.745592312444924,
+          "snrDb": 9.858884208125668,
+          "gainDb": -0.12139794410636286,
+          "polarity": 1,
+          "improvementDb": 17.614526902768624
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-120",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "frames": 264600,
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 15.08150015061159,
+        "snrDb": 15.208390899226474,
+        "gainDb": -0.32179340753784935,
+        "polarity": 1,
+        "improvementDb": 9.865103533464174,
+        "role": "guitar",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 10.090911909726003,
+          "snrDb": 10.491258150351488,
+          "gainDb": -0.9078362451844333,
+          "polarity": 1,
+          "improvementDb": 15.28088656931606
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-120",
+      "modelId": "htdemucs_4s_onnx",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"45f990170d9571379a9dbd3bbdd1c7591b26864c\",[\"da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 16.189127142082434,
+        "snrDb": 16.291256991076875,
+        "gainDb": -0.2276316957978153,
+        "polarity": 1,
+        "improvementDb": 10.972730524935017,
+        "role": "other",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 10.783417413252995,
+          "snrDb": 11.123808325420034,
+          "gainDb": -0.8041322825268765,
+          "polarity": 1,
+          "improvementDb": 15.973392072843051
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-120",
+      "modelId": "htdemucs_4s_preview",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"short-2s-v1\",[\"a7cb52498bd8b0fd6e61eaecafb12f2651ad995d9b49553caa8705c9d9367c93\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 16.67553126898845,
+        "snrDb": 16.7633300389569,
+        "gainDb": -0.2262709533213832,
+        "polarity": 1,
+        "improvementDb": 11.459134651841033,
+        "role": "other",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 11.286841177547814,
+          "snrDb": 11.598046083224007,
+          "gainDb": -0.6040641285519994,
+          "polarity": 1,
+          "improvementDb": 16.47681583713787
+        }
+      }
+    },
+    {
+      "caseId": "medley-rainfall-120",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "frames": 264600,
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 23.612951199034153,
+        "snrDb": 23.631746575133814,
+        "gainDb": -0.039934134599001615,
+        "polarity": 1,
+        "improvementDb": 18.396554581886736,
+        "role": "guitar",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 18.560576326428247,
+          "snrDb": 18.61687450234895,
+          "gainDb": -0.1504618576455109,
+          "polarity": 1,
+          "improvementDb": 23.750550986018304
+        }
+      }
+    }
+  ]
+}

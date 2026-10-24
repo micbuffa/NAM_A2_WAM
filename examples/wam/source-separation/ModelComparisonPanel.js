@@ -1,3 +1,4 @@
+import {createInstrumentRecommendationPanel} from './InstrumentRecommendationPanel.js';
 import {benchmarkSummary,benchmarkMatrix} from './ModelBenchmark.js';
 import {REFERENCE_BENCHMARK,GUITAR_RANKING} from './ModelPerformanceData.js';
 import {preferredModel} from './BackendPolicy.js';
@@ -12,6 +13,7 @@ export function createModelComparisonPanel({models,capabilities,onRecommend,onRe
  const suggestion=el('p'),apply=el('button','Utiliser la recommandation');apply.type='button';
  const update=()=>{const m=preferredModel(models,capabilities,'guitar',{objective:goal.value,report});suggestion.textContent=m?`${m.label} · ${capabilities.webgpu&&m.backends.includes('webgpu')?'GPU':'CPU / WASM'}${summary.length?' · mesures et politique de repli ci-dessous':' · choix provisoire, mesure locale conseillée'}`:'Aucun modèle compatible.';apply.disabled=!m;};
  goal.onchange=update;apply.onclick=()=>onRecommend?.(preferredModel(models,capabilities,'guitar',{objective:goal.value,report}));update();panel.append(label,apply,suggestion,el('small','Le choix automatique utilise les mesures seulement si toutes les configurations du backend ont été testées (les échecs sont exclus du choix). Sinon : choix provisoire Demucs Qualité sur GPU, Demucs 6 pistes sur CPU. Le modèle reste modifiable manuellement.'));
+ panel.append(createInstrumentRecommendationPanel({models,capabilities,onRecommend,doc,storage}));
  panel.append(el('h3','Temps de calcul · même extrait de 6 secondes'));
  panel.append(el('p',`${local?'Mesures de ce navigateur':'Mesures de référence sur la machine de développement'} · ${report.date?.slice(0,10)||'non mesuré'} · médiane des essais. Cache, initialisation/préchauffage et séparation inclus ; téléchargement et décodage exclus. Sessions neuves, caches driver conservés. ONNX CPU monothread. Les résultats varient selon la machine et la durée du morceau.`));
  const metricLabel=el('label','Afficher '),metric=el('select');metric.setAttribute('aria-label','Mesure du graphique');

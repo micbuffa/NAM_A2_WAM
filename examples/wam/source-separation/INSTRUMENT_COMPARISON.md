@@ -9,7 +9,7 @@ Depuis **Multitracks → Change model / settings → Comparer à l’écoute · 
 `http://127.0.0.1:8765/examples/wam/source-separation/instrument-comparison.html`
 
 1. Télécharger au préalable les modèles souhaités dans Settings. Le comparateur ne les télécharge jamais automatiquement.
-2. Garder la démo musicale ou choisir un fichier local. Choisir les mêmes 6, 15 ou 30 premières secondes pour tous les moteurs. Le décodage est stéréo à 44,1 kHz, mono dupliqué si nécessaire.
+2. Garder la démo musicale, choisir un fichier local ou sélectionner un mélange du banc contrôlé (clair/acoustique/saturé, fixé à6s). Dans ces derniers cas, les boutons Référence guitare et Référence basse permettent d’écouter les pistes connues avant séparation. Choisir les mêmes 6, 15 ou 30 premières secondes pour tous les moteurs. Le décodage est stéréo à 44,1 kHz, mono dupliqué si nécessaire.
 3. Cocher les modèles. Qualité4 et SW6 sont présélectionnés ; ajouter Demucs6 pour comparer deux sorties guitare dédiées. FT et Aperçu restent accessibles. Auto utilise le GPU si compatible, sinon le CPU ; une erreur ne déclenche pas de repli.
 4. Préparer la comparaison. Les moteurs sont exécutés l’un après l’autre avec leurs adaptateurs de production et leurs fenêtres Auto. Tous les canaux, l’ordre, la longueur et les valeurs finies sont vérifiés avant de proposer une écoute. Annuler arrête le moteur courant ; les résultats terminés restent accessibles.
 5. Choisir Original, Basse, Guitare ou Autres, puis utiliser le lecteur commun. Changer de piste conserve la position et l’état lecture/pause après chargement du nouveau WAV. La commutation peut avoir une courte interruption : ce n’est pas un test ABX aveugle ni une commutation audio sans coupure.
