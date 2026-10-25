@@ -468,7 +468,7 @@ export class ProjectsWorkspace extends EventTarget {
 
   async ensureSignedIn() {
     if (!this.available) {
-      this.report('Projects are available on the online rack, with an account.', true);
+      this.report('Studio is available on the online rack, with an account.', true);
       return false;
     }
     if (this.signedIn) return true;
@@ -581,8 +581,8 @@ export class ProjectsWorkspace extends EventTarget {
   renderHeader() {
     const {dirty, owned} = this;
     const description = describeProject(this.project, {dirty});
-    this.$('projectKicker').textContent = description?.kicker ?? 'Projects';
-    this.$('projectTitle').textContent = this.project?.name ?? 'Projects';
+    this.$('projectKicker').textContent = description?.kicker ?? 'Studio';
+    this.$('projectTitle').textContent = this.project?.name ?? 'Studio';
     this.$('projectMeta').textContent = description?.meta ?? 'Record and mix your ideas track by track.';
     this.$('projectEdit').hidden = !owned;
     const state = this.$('projectSaveState');
@@ -606,7 +606,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectTimeline').hidden = !this.project;
     if (this.project) return;
     const [title, text, action, run] = !this.available
-      ? ['Projects live on the online rack', 'Sign in on the online rack to keep projects and their audio in your account.', null]
+      ? ['Studio lives on the online rack', 'Sign in on the online rack to keep projects and their audio in your account.', null]
       : !this.signedIn
         ? ['Sign in to use projects', 'Projects and their audio are kept in your account, and can be shared read-only with other users.',
           'Sign in', () => this.requestSignIn()]
@@ -734,7 +734,7 @@ function formActions(dialog, confirmLabel, onDelete, deleteLabel) {
 // Name + tempo. Resolves {name, bpm}, or null when cancelled.
 function projectDialog({title, confirmLabel, intro, name = '', bpm = BPM_RANGE.default, onDelete = null}) {
   return new Promise((resolve) => {
-    const {dialog, body, id} = createDialog({title, eyebrow: 'Projects', className: 'project-dialog'});
+    const {dialog, body, id} = createDialog({title, eyebrow: 'Studio', className: 'project-dialog'});
     const form = element('form', {method: 'dialog'});
     const nameInput = element('input', {id: `${id}-name`, required: true, maxLength: 120, value: name, placeholder: 'e.g. Late night ideas',
       autocomplete: 'off'});
@@ -754,7 +754,7 @@ function projectDialog({title, confirmLabel, intro, name = '', bpm = BPM_RANGE.d
 
 // Audio file + name + instrument (Import audio, Add track). Resolves
 // {file, name, instrument} (file may be null unless fileRequired), or null.
-function trackDialog({title, confirmLabel, intro, nameLabel, eyebrow = 'Projects', fileRequired = false, defaultName = null}) {
+function trackDialog({title, confirmLabel, intro, nameLabel, eyebrow = 'Studio', fileRequired = false, defaultName = null}) {
   return new Promise((resolve) => {
     const {dialog, body, id} = createDialog({title, eyebrow, className: 'project-dialog'});
     const form = element('form', {method: 'dialog'});

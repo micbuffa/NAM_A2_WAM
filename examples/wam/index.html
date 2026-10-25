@@ -17,7 +17,7 @@
         <span class="host-brand-mark"><tl-icon name="guitar" size="22"></tl-icon></span>
         <div class="host-brand-text"><h1>NAM A2</h1><p>Neural amp &amp; cabinet rack</p></div>
       </div>
-      <tl-segmented class="host-workspaces" id="workspaceSwitch" value="tone" aria-label="Workspace"><option value="tone">Tone</option><option value="projects">Projects</option></tl-segmented>
+      <tl-segmented class="host-workspaces" id="workspaceSwitch" value="tone" aria-label="Workspace"><option value="tone">Tone</option><option value="projects">Studio</option></tl-segmented>
       <div class="host-topbar-actions">
         <tl-button id="tunerButton" class="host-tuner-button" icon="tuner" size="sm" title="Open tuner (T)" aria-haspopup="dialog" aria-keyshortcuts="T" disabled>Tuner<kbd class="host-kbd">T</kbd></tl-button>
         <tl-badge id="engineStatus" class="host-engine" dot role="status" tone="warning" data-state="starting">Starting audio engine…</tl-badge>
@@ -45,8 +45,8 @@
       </section>
 
       <section class="host-card host-projects" id="projectsPanel" aria-labelledby="projects-title" data-workspace="projects">
-        <h2 id="projects-title"><span class="host-dot green"></span>Project<span class="host-count" id="projectCount"></span></h2>
-        <label>All projects <tl-select icon="audio"><select id="projectSelect" aria-label="Project"></select></tl-select></label>
+        <h2 id="projects-title"><span class="host-dot green"></span>Projects<span class="host-count" id="projectCount"></span></h2>
+        <label>Open project <tl-select icon="audio"><select id="projectSelect" aria-label="Open project"></select></tl-select></label>
         <div class="project-stats"><span><small>Tracks</small><strong id="projectTrackCount">00</strong></span><span><small>Tempo</small><strong id="projectBpm">—</strong></span></div>
         <tl-button class="host-secondary" id="projectNew" block icon="plus" aria-haspopup="dialog">New project</tl-button>
         <tl-button class="host-secondary project-import" id="projectImport" block icon="audio" aria-haspopup="dialog">Import audio</tl-button>
@@ -136,12 +136,12 @@
       </div>
     </main>
 
-    <main class="tracks-stage projects-stage" id="projectsWorkspace" data-workspace="projects" aria-label="Projects">
+    <main class="tracks-stage projects-stage" id="projectsWorkspace" data-workspace="projects" aria-label="Studio">
       <header class="rack-header projects-header">
         <div class="rack-heading">
           <div>
-            <p class="rack-kicker" id="projectKicker">Projects</p>
-            <div class="preset-title-row"><h2 id="projectTitle">Projects</h2><tl-icon-button id="projectEdit" icon="edit" size="sm" variant="ghost" aria-label="Edit project" title="Edit project" aria-haspopup="dialog" hidden></tl-icon-button></div>
+            <p class="rack-kicker" id="projectKicker">Studio</p>
+            <div class="preset-title-row"><h2 id="projectTitle">Studio</h2><tl-icon-button id="projectEdit" icon="edit" size="sm" variant="ghost" aria-label="Edit project" title="Edit project" aria-haspopup="dialog" hidden></tl-icon-button></div>
             <p class="preset-meta" id="projectMeta">Record and mix your ideas track by track.</p>
           </div>
         </div>
@@ -157,7 +157,7 @@
       <div class="rack-canvas tracks-canvas" id="tracksCanvas">
         <section class="projects-empty" id="projectsEmpty">
           <span class="projects-empty-icon"><tl-icon name="audio" size="22"></tl-icon></span>
-          <h3 id="projectsEmptyTitle">Projects</h3>
+          <h3 id="projectsEmptyTitle">Studio</h3>
           <p id="projectsEmptyText"></p>
           <tl-button id="projectsEmptyAction" variant="primary" hidden></tl-button>
         </section>
