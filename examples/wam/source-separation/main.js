@@ -1,3 +1,5 @@
+import {separationStopState,requestSeparationStop} from './SeparationStopControl.js';
+import {createYouTubeImportPanel} from './YouTubeImportClient.js';
 import {createModelComparisonPanel,readBenchmarkReport} from './ModelComparisonPanel.js';
 import {transportTimeline,seekAvailable,WaveformRefreshGate,ProgressSlider} from './TransportTimeline.js';
 import {UiFrameMetrics} from './UiFrameMetrics.js';
@@ -111,14 +113,18 @@ function syncWorkflow() {
   if($('toggleMixView').textContent!==toggleLabel)$('toggleMixView').textContent=toggleLabel;
   $('showSeparated').hidden=!workflow.result||!original||!workflow.available();
   $('showSeparated').textContent=engine?.position>=workflow.available()?'Écouter l’extrait séparé depuis le début':'Écouter les instruments';
-  $('playerCancelButton').hidden=!busy;$('playerSeparationState').hidden=!busy;
+  const stopState=separationStopState(busy,cancelRequested);
+  $('playerCancelButton').hidden=false;$('playerCancelButton').disabled=stopState.disabled;if($('playerCancelButton').textContent!==stopState.label)$('playerCancelButton').textContent=stopState.label;
+  $('cancelSeparation').disabled=stopState.disabled;$('playerSeparationState').hidden=!busy;
   const resultRange=workflow.result&&Math.abs(workflow.result.engine.duration-workflow.original.engine.duration)<1/44100?'morceau entier':`extrait de 0 à ${workflow.result?.engine.duration.toFixed(1)} s sur ${workflow.original?.engine.duration.toFixed(1)} s`;
   const status=!workflow.original?emptyHint:original?
     `Original complet · ${workflow.original.engine.duration.toFixed(1)} s${busy?' · séparation en cours ; vous pouvez continuer à écouter.':workflow.available()?' · pistes séparées disponibles.':''}`:
     `${session?.viewMode==='mix'?'Mix courant':'Instruments'} · ${resultRange} · original conservé.${engine?.progressive&&!engine.complete?(busy?' Le calcul continue.':!engine.availableFrames?' En attente d’une nouvelle séparation.':''):''}`;
-  if($('playerWorkflowStatus').textContent!==status)$('playerWorkflowStatus').textContent=status;
+  const workflowStatus=!busy&&cancelRequested?'Séparation arrêtée. Original conservé'+(workflow.available()?' ; les pistes déjà calculées restent accessibles avec Écouter les instruments.':'.'):status;
+  if($('playerWorkflowStatus').textContent!==workflowStatus)$('playerWorkflowStatus').textContent=workflowStatus;
 }
 async function loadOriginal(audio,label,nextSource={kind:'example',name:label}) {
+  cancelRequested=false;
   $('excerptSeconds').value='0';
   source=nextSource;onSourceChange(source);$('fileStatus').textContent=`Audio prêt · ${label} · ${audio.duration.toFixed(1)} s`;
   const deck=createDeck([{id:'original',role:'original',label:'Original',buffer:audio}],`${label} · original complet · ${audio.duration.toFixed(1)} s`);
@@ -237,7 +243,7 @@ function renderSelectedModel(status) {
   $('selectedModelLicense').hidden = !model;
   if (model) $('selectedModelLicense').href = new URL(model.license.url, import.meta.url);
   syncSeparationButton();
-  if($('activeModelSummary'))$('activeModelSummary').textContent=selectedModelLabel(model,$('backendSelect').value)+(needsPreparation(model)?` · ${status.state==='installed'?'prêt en mémoire':view.label}`:'');
+  if($('activeModelSummary'))$('activeModelSummary').textContent=selectedModelLabel(model,$('backendSelect').value)+(needsPreparation(model)?` · ${status.state==='installed'?(previewRunner?.isPrepared(model,$('backendSelect').value)?'prêt en mémoire':'en cache · préparation au prochain lancement'):view.label}`:'');
 }
 async function refreshModel({backgroundPreparation=false}={}) {
   const model = selectedModel(); if (!model) return;
@@ -287,7 +293,7 @@ async function prepareSelectedModel(model,generation=selectionGeneration) {
 }
 async function loadDemo() {
   ensureIdle();
-  ++audioGeneration;decoding=false;$('progressiveTest').disabled=$('realMixTest').disabled=false;
+  ++audioGeneration;cancelRequested=false;decoding=false;$('progressiveTest').disabled=$('realMixTest').disabled=false;
   const context = getContext(), rate = 44100, length = rate * 4;
   const roles = ['drums','bass','vocals','guitar'];
   const stems = roles.flatMap((_, index) => {
@@ -317,10 +323,12 @@ async function separate() {
   $('completedTracks').replaceChildren();$('backendMetrics').textContent='';syncWorkflow();
   let streamStarted=false;
   try {
+    if(needsPreparation(model)&&!previewRunner.isPrepared(model,$('backendSelect').value))await prepareSelectedModel(model);
+    if(cancelRequested)throw new DOMException('Annulé','AbortError');
     const length = separationFrames(selectedAudio.length,$('excerptSeconds').value);
     const channels=[selectedAudio.getChannelData(0).slice(0,length),selectedAudio.getChannelData(Math.min(1,selectedAudio.numberOfChannels-1)).slice(0,length)];
     $('progress').textContent='Préparation du modèle…';
-    const onProgress=data=>{if(!modelSettings.current(runToken))return;showProgress(data);$('progress').textContent=separationMessage(data);};
+    const onProgress=data=>{if(cancelRequested||!modelSettings.current(runToken))return;showProgress(data);$('progress').textContent=separationMessage(data);};
     let result;
     const title=`${model.id} · ${model.roles.length} pistes · extrait 0–${(length/44100).toFixed(1)} s`;
     if(progressive) {
@@ -329,7 +337,7 @@ async function separate() {
       await workflow.begin(candidate);streamStarted=true;
       if(cancelRequested||!modelSettings.current(runToken))throw new DOMException('Annulé','AbortError');
       const callbacks={segmentSeconds,onProgress,diagnostics:!!uiMetrics,onDiagnostic:data=>{if(modelSettings.current(runToken))uiMetrics?.worker(data);},onChunk:data=>{
-        if(!modelSettings.current(runToken))return;
+        if(cancelRequested||!modelSettings.current(runToken))return;
         transportMode=data.transportMode||'legacy-transfer';
         $('tracks').dataset.transport=transportMode;
         const publish=()=>e.append(data.startFrame,makeTracks(e.context,data));
@@ -342,11 +350,13 @@ async function separate() {
         ? await (needsPreparation(model)?previewRunner:onnxRunner).separate(model,channels,{...callbacks,backend:$('backendSelect').value,fallback:$('allowCpuFallback').checked})
         : await progressiveRunner.separate(model,channels,callbacks);
       if(!modelSettings.current(runToken))return;
+      if(cancelRequested)throw new DOMException('Annulé','AbortError');
       candidate.renderInfo.backend=result.backend||'wasm';e.finish();
       if(workflow.active===candidate){updateWaveforms();syncTransport();}
     } else {
       result=await runner.separate(model,channels,onProgress,{segmentSeconds});
       if(!modelSettings.current(runToken))return;
+      if(cancelRequested)throw new DOMException('Annulé','AbortError');
       showProgress({phase:'audio'});
       candidate=createDeck(makeTracks(getContext(),result),title);e=candidate.engine;
       candidate.renderInfo={modelId:model.id,profile:model.profile||'quality',neuralFrames:null,backend:result.backend||'wasm'};
@@ -364,7 +374,10 @@ async function separate() {
     if(!modelSettings.current(runToken))return;
     if(streamStarted)e.finish(true);
     await workflow.fail().catch(report);syncWorkflow();
-    $('separationPhase').textContent = error.name === 'AbortError' ? 'Annulé' : 'Erreur'; report(error);
+    if(error.name==='AbortError'){
+      $('separationPhase').textContent='Séparation arrêtée';$('progress').textContent='Séparation arrêtée. Le morceau original est conservé.';
+      $('playerWorkflowStatus').setAttribute('aria-live','polite');
+    }else{$('separationPhase').textContent='Erreur';report(error);}
     if(streamStarted && e.availableFrames) $('progress').textContent+=` Les ${(e.availableDuration).toFixed(1)} s déjà calculées restent écoutables.`;
   } finally {
     if(modelSettings.current(runToken)){
@@ -375,13 +388,14 @@ async function separate() {
     const latest = downloads.manager.states.get(model.id);
     renderSelectedModel(latest?.state === 'missing' ? latest : {state:cachedBeforeSeparation ? 'installed' : 'missing'});
     syncTransport();
-    if(!modelSettings.draft&&needsPreparation(model)&&!previewRunner.isPrepared(model,$('backendSelect').value))await refreshModel();
+    if(!cancelRequested&&!modelSettings.draft&&needsPreparation(model)&&!previewRunner.isPrepared(model,$('backendSelect').value))await refreshModel();
     }
   }
 }
-async function loadFile(file){
+async function loadFile(file,provenance=null,signal=null){
   if(restoring||busy){report(Error('Attendez la fin de l’opération en cours.'));return;}
   if(!file)return;
+  if(!provenance)youtubeImport.cancel();
   const generation=++audioGeneration;getContext().resume().catch(report);
   decoding = true; $('fileStatus').textContent = `Audio : décodage de ${file.name}…`;
   syncSeparationButton();
@@ -390,13 +404,21 @@ async function loadFile(file){
     if(file.size>512*1024*1024)throw Error('Fichier limité à 512 Mio.');
     $('progress').textContent='Décodage à 44,1 kHz…';
     const context=new OfflineAudioContext(2,1,44100);
-    const decoded=await context.decodeAudioData(await file.arrayBuffer());if(generation!==audioGeneration)return;
-    await loadOriginal(decoded,file.name,{kind:'file',name:file.name,size:file.size,lastModified:file.lastModified});decoding = false; $('fileStatus').textContent = `Audio prêt · ${file.name} · ${selectedAudio.duration.toFixed(1)} s`;
+    const decoded=await context.decodeAudioData(await file.arrayBuffer());if(generation!==audioGeneration||signal?.aborted)return false;
+    await loadOriginal(decoded,file.name,{kind:'file',name:file.name,size:file.size,lastModified:file.lastModified,...(provenance?{provenance}: {})});decoding = false; $('fileStatus').textContent = `Audio prêt · ${file.name} · ${selectedAudio.duration.toFixed(1)} s`;
     $('progress').textContent=`${file.name} · ${selectedAudio.duration.toFixed(1)} s. La durée à traiter se choisit dans le menu Durée à séparer.`;
-    await refreshModel();
-  }catch(error){if(generation!==audioGeneration)return;decoding=false;$('fileStatus').textContent = `Audio : ${error.message}`;syncSeparationButton();report(error);}
+    if(provenance){refreshModel().catch(report);return true;}
+    await refreshModel();return true;
+  }catch(error){if(generation!==audioGeneration)return false;decoding=false;$('fileStatus').textContent = `Audio : ${error.message}`;syncSeparationButton();report(error);if(provenance)throw error;}
   finally{if(generation===audioGeneration){decoding=false;$('progressiveTest').disabled=$('realMixTest').disabled=false;syncSeparationButton();}}
 }
+let youtubeImportGeneration;
+const youtubeImport=createYouTubeImportPanel({onBegin:()=>{youtubeImportGeneration=audioGeneration;},isBusy:()=>busy||restoring||decoding,onImport:async({blob,metadata},signal)=>{
+  if(youtubeImportGeneration!==audioGeneration||busy||restoring||decoding)throw Error('Une autre opération a commencé ; importez à nouveau après sa fin.');
+  const file=new File([blob],`${metadata.name}.${metadata.extension}`,{type:blob.type,lastModified:Date.now()});
+  const loaded=await loadFile(file,metadata,signal);if(!loaded)throw new DOMException('Import remplacé ou annulé','AbortError');
+}});
+($('youtubeImportSlot')||$('fileInput').closest('label').parentElement).append(youtubeImport.element);
 $('fileInput').onchange=()=>{const file=$('fileInput').files[0];$('fileInput').value='';return loadFile(file);};
 $('modelSelect').onchange=()=>{if(!modelSettings.draft)return chooseModel();};
 $('backendSelect').onchange=()=>{if(!modelSettings.draft)return refreshModel();};
@@ -432,7 +454,7 @@ async function loadExample(path='../assets/audio/CleanChords.mp3',label='CleanCh
 }
 $('separateButton').onclick=separate;
 $('playerSeparateButton').onclick=()=>{onConfigure?.();if(modelInstalled)separate();};
-$('cancelSeparation').onclick=$('playerCancelButton').onclick=()=>{cancelRequested=true;runner?.cancel();progressiveRunner?.cancel();onnxRunner?.cancel();previewRunner?.cancel();};
+$('cancelSeparation').onclick=$('playerCancelButton').onclick=()=>requestSeparationStop({busy,requested:cancelRequested,runners:[runner,progressiveRunner,onnxRunner,previewRunner],onRequest:()=>{cancelRequested=true;syncWorkflow();$('playerSeparationState').textContent='Arrêt du calcul en cours…';}});
 $('toggleMixView').onclick=()=>{if(session?.tracks.length>1){session.setViewMode(session.viewMode==='mix'?'instruments':'mix');syncWorkflow();}};
 $('showOriginal').onclick=()=>workflow.showOriginal().then(projectChanged).catch(report);
 $('showSeparated').onclick=()=>workflow.showResult().then(projectChanged).catch(report);
@@ -527,7 +549,7 @@ async function getState(){
   $('sessionStatus').textContent='Session sauvegardée localement : réglages + audio. Restauration sans lecture automatique.';return state;
 }
 async function setState(state){
-  ensureIdle();$('sessionStatus').textContent='Préparation de la restauration…';await ready;ensureIdle();
+  ensureIdle();$('sessionStatus').textContent='Préparation de la restauration…';await ready;ensureIdle();youtubeImport.cancel();++audioGeneration;cancelRequested=false;
   if(state===null||state?.empty===true){if(state!==null)validateSession(state);pendingRestore=null;pendingLegacy=null;workflow.destroy();globalMixer?.setActiveEngine(null);engine=null;session=null;selectedAudio=null;source=null;onSourceChange(null);tracks=[];compactPlayer.reset();$('sessionTitle').textContent='Choisir une piste';if(state?.global)globalMixer.update(state.global);syncTransport();syncSeparationButton();return;}
   validateSession(state);restoring=true;
   try{
@@ -556,7 +578,7 @@ async function restoreLegacy(state){
     $('sessionStatus').textContent=state.rate&&state.rate!==1?'Ancienne session restaurée en pause · lecture à vitesse 1 (time-stretch multipiste à venir).':'Ancienne session restaurée en pause.';
   }
 function destroy(){
-  if(destroyed)return;destroyed=true;modelSettings.invalidate();progressSlider.destroy();metricsObserver?.disconnect();animationObserver?.disconnect();clearInterval(metricsTimer);document.removeEventListener('visibilitychange',metricsVisibility);++audioGeneration;++selectionGeneration;cancelAnimationFrame(frame);
+  if(destroyed)return;destroyed=true;youtubeImport.destroy();modelSettings.invalidate();progressSlider.destroy();metricsObserver?.disconnect();animationObserver?.disconnect();clearInterval(metricsTimer);document.removeEventListener('visibilitychange',metricsVisibility);++audioGeneration;++selectionGeneration;cancelAnimationFrame(frame);
   runner?.cancel();progressiveRunner?.cancel();onnxRunner?.cancel();previewRunner?.cancel();for(const id of downloads?.manager.tasks.keys()||[])downloads.manager.cancel(id);
   workflow.destroy();guitarPreview?.destroy();globalMixer?.destroy();compactPlayer.destroy();downloads?.cache.close();audioStore.close();window.removeEventListener('pagehide',destroy);
 }
@@ -605,7 +627,7 @@ async function commitModelSettings(){
   });
 }
 return {ready,getState,setState,destroy,loadFile,separate,beginModelSettings,cancelModelSettings,commitModelSettings,exportSnapshot(){ensureIdle();if(!engine)throw Error('Chargez un projet.');return {...exportSnapshot(engine,session.tracks),renderInfo:workflow.active?.renderInfo||{profile:'original'}};},pause(){engine?.pause();},get hasSeparated(){return !!workflow.result&&!!(workflow.result.engine.progressive?workflow.result.engine.availableFrames:workflow.result.engine.tracks.length);},get busy(){return busy||restoring;},get engine(){return engine;},get mixer(){return globalMixer;},
-  beginLoad(){if(busy||restoring)throw Error('Attendez la fin de l’opération en cours.');const token=++audioGeneration;decoding=true;syncSeparationButton();return token;},
+  beginLoad(){if(busy||restoring)throw Error('Attendez la fin de l’opération en cours.');youtubeImport.cancel();const token=++audioGeneration;decoding=true;syncSeparationButton();return token;},
   endLoad(token){if(token===audioGeneration){decoding=false;syncSeparationButton();}},
   async loadBuffer(audio,label,reference,token){
     if(token!==undefined&&token!==audioGeneration)return false;

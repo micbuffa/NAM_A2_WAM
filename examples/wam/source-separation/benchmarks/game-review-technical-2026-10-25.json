@@ -1,0 +1,288 @@
+{
+  "protocol": "local-reference-evaluation-v1",
+  "status": "completed",
+  "startedAt": "2026-10-25T06:14:51.638Z",
+  "environment": {
+    "date": "2026-10-25T06:14:51.638Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "logicalProcessors": 14,
+    "reportedDeviceMemoryGiB": 32,
+    "crossOriginIsolated": true,
+    "visibility": "visible",
+    "hardwareDescription": "not-recorded",
+    "gpu": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "device": null,
+      "description": null,
+      "features": [
+        "depth32float-stencil8",
+        "rg11b10ufloat-renderable",
+        "texture-formats-tier1",
+        "bgra8unorm-storage",
+        "texture-compression-bc",
+        "dual-source-blending",
+        "core-features-and-limits",
+        "float32-filterable",
+        "indirect-first-instance",
+        "texture-compression-astc-sliced-3d",
+        "float32-blendable",
+        "subgroup-size-control",
+        "texture-compression-astc",
+        "texture-compression-etc2",
+        "depth-clip-control",
+        "texture-compression-bc-sliced-3d",
+        "shader-f16",
+        "texture-formats-tier2",
+        "timestamp-query",
+        "clip-distances",
+        "primitive-index",
+        "texture-component-swizzle",
+        "subgroups"
+      ]
+    }
+  },
+  "code": {
+    "version": "local-reference-evaluation-v1",
+    "scope": "Selected harness/scoring/runner source files; not a complete transitive runtime manifest",
+    "sources": [
+      {
+        "path": "reference-evaluation.html",
+        "sha256": "c72a67a4b20a129fa30ee2a71687cdda5a5b2575996c8a2f63db10098b9a6a20"
+      },
+      {
+        "path": "reference-evaluation.js",
+        "sha256": "72d0879a14204464b11743a0612ad65a4d09adf9d724de993aaf8e294d532074"
+      },
+      {
+        "path": "ReviewAudioPlayer.js",
+        "sha256": "bc44ca15ecec620fbf112b4162d8dc343ccc7e6f4fb02bda5abb8c2108d1ca45"
+      },
+      {
+        "path": "ReferenceEvaluation.js",
+        "sha256": "fd84c5beaa86b2d5023d8f94e1a95b17ec11e800c3a72f4bcd70002f5c3c848b"
+      },
+      {
+        "path": "InstrumentComparison.js",
+        "sha256": "7fddfba66ee84c732f9727ff10507f59ae81c5a83a766f83d89661970838e77f"
+      },
+      {
+        "path": "InstrumentQuality.js",
+        "sha256": "fa2a1a8d6194a6441c4731a9fcb93771e036ec34601f61219e55ca98e5d56aa6"
+      },
+      {
+        "path": "BenchmarkRunnerFactory.js",
+        "sha256": "f5b3866d123c3da167b80baeee1bc4f0ac0aa5f9eea20767cb86a876fb98aa5f"
+      },
+      {
+        "path": "PreparedDemucsRunner.js",
+        "sha256": "68cf6214cd03e2cabce974ef3038133fabf43c935589d5cf701db2b36a32c16c"
+      },
+      {
+        "path": "models.json",
+        "sha256": "b9d1a2d939a676ba5050d92e94d60085d25f5a5bcb85100f87ffbb35ec872585"
+      }
+    ]
+  },
+  "sources": {
+    "target": {
+      "name": "gha-1-20-reference.wav",
+      "bytes": 2116844,
+      "sha256": "9d120d861b539aec5411503b33b59ebddee5bb5a3de4227cc656522b122903e1",
+      "decodedSampleRate": 44100,
+      "decodedChannels": 2,
+      "decodedFrames": 264600
+    },
+    "backing": {
+      "name": "gha-1-20-backing.wav",
+      "bytes": 2116844,
+      "sha256": "f5defb9c1cd6c159a1fdbe8fd46a97b20b5be7c0c4ec94084330694689e1ed1f",
+      "decodedSampleRate": 44100,
+      "decodedChannels": 2,
+      "decodedFrames": 264600
+    }
+  },
+  "metadata": {
+    "title": "25 Aerosmith - Dream On · 20–26s · guitare assignée",
+    "artist": "Export de jeu fourni localement",
+    "rights": "Analyse locale des fichiers fournis par l’utilisateur ; aucune redistribution ; droits non audités",
+    "alignment": "Origine commune déclarée, décodage depuis zéro puis tranche exacte 882000–1146600 ; synchronisation musicale à qualifier",
+    "instrument": "guitar",
+    "provenance": "unknown",
+    "recordingDate": "",
+    "otherIsGuitar": false,
+    "trainingExposure": "user-declaration-not-independently-audited"
+  },
+  "recipe": {
+    "sampleRate": 44100,
+    "frames": 264600,
+    "offsetFrame": 0,
+    "seconds": 6,
+    "commonGain": 1,
+    "targetMonoDuplicated": false,
+    "backingMonoDuplicated": false,
+    "mix": "target-plus-backing",
+    "normalization": "one-common-peak-gain",
+    "alignment": "user-declared-no-delay-search"
+  },
+  "pcm": {
+    "format": "float32-little-endian-channel-major",
+    "mixSha256": "ab9c3344bacf4be04f0cec36b68ed71f72c41c00b54f6c6186d6eecfbc153ecd",
+    "targetSha256": "26ab96860d2780f84256342bd15a6bb23c6578d762b583d3ea32896892712d60",
+    "backingSha256": "256a35665b75dff975e842954033db2e9363133263e7018cdb188c067c37e8c7"
+  },
+  "timeComparisonEligible": false,
+  "runs": [
+    {
+      "modelId": "htdemucs_6s",
+      "label": "Demucs v4 · htdemucs_6s",
+      "backend": "wasm",
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": -0.4650722737355883,
+        "snrDb": -0.2261128059457051,
+        "gainDb": -0.24207494242080024,
+        "polarity": 1,
+        "improvementDb": 3.2406590001887046,
+        "role": "guitar",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 0.9161540205691001,
+          "snrDb": 3.483946579056383,
+          "gainDb": -5.506648501856989,
+          "polarity": 1,
+          "improvementDb": -2.8676710694298047
+        }
+      }
+    },
+    {
+      "modelId": "bs_roformer_sw_6s",
+      "label": "BS Roformer SW · 6 instruments · GPU expérimental",
+      "backend": "webgpu",
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": 0.12753033017696397,
+        "snrDb": 0.257301001774566,
+        "gainDb": -0.1308001613536371,
+        "polarity": 1,
+        "improvementDb": 3.833261604101257,
+        "role": "guitar",
+        "backing": {
+          "valid": true,
+          "siSdrDb": 1.8271064877277643,
+          "snrDb": 4.010725097830731,
+          "gainDb": -4.701740923562131,
+          "polarity": 1,
+          "improvementDb": -1.9567186022711407
+        }
+      }
+    }
+  ],
+  "listening": {
+    "status": "not-started",
+    "humanResultsAvailable": false
+  },
+  "gameSourceEvidence": {
+    "protocol": "local-game-assigned-stems-v1",
+    "caseId": "gha-1-20",
+    "offsetSeconds": 20,
+    "sourceFiles": [
+      {
+        "name": "guitar.ogg",
+        "bytes": 4995433,
+        "sha256": "f8f4394b797ead9679a5462d243b9f3a593de39376b4df5095e866b8f6a0eb3c",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "codec_name": "vorbis",
+              "sample_rate": "44100",
+              "channels": 2,
+              "start_time": "0.000000",
+              "duration": "277.153379"
+            }
+          ],
+          "format": {
+            "duration": "277.153379"
+          }
+        }
+      },
+      {
+        "name": "rhythm.ogg",
+        "bytes": 3922345,
+        "sha256": "96b6a4e58c52547e715be41cc6d6282972e768a8d8afa96bf337ff9c75a88e4f",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "codec_name": "vorbis",
+              "sample_rate": "44100",
+              "channels": 2,
+              "start_time": "0.000000",
+              "duration": "277.153379"
+            }
+          ],
+          "format": {
+            "duration": "277.153379"
+          }
+        }
+      },
+      {
+        "name": "song.ogg",
+        "bytes": 5155423,
+        "sha256": "56654c293366e24e704124f1b96ef6f72e5fa82d8658c101abd8a878286b9d37",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "codec_name": "vorbis",
+              "sample_rate": "44100",
+              "channels": 2,
+              "start_time": "0.000000",
+              "duration": "277.153379"
+            }
+          ],
+          "format": {
+            "duration": "277.153379"
+          }
+        }
+      }
+    ],
+    "files": {
+      "mix": {
+        "path": "gha-1-20/mix.wav",
+        "sha256": "b0f38ab52f1df6aff819c2c7127ed7c4d2b33e0ab61de3af2f50ba39214573fa",
+        "bytes": 2116844
+      },
+      "reference": {
+        "path": "gha-1-20/reference.wav",
+        "sha256": "9d120d861b539aec5411503b33b59ebddee5bb5a3de4227cc656522b122903e1",
+        "bytes": 2116844
+      },
+      "backing": {
+        "path": "gha-1-20/backing.wav",
+        "sha256": "f5defb9c1cd6c159a1fdbe8fd46a97b20b5be7c0c4ec94084330694689e1ed1f",
+        "bytes": 2116844
+      },
+      "rhythm": {
+        "path": "gha-1-20/rhythm.wav",
+        "sha256": "1072984cbf38f7d0a600139d5ca30595272a8d2cd05a8808eb413eabe89ad679",
+        "bytes": 2116844
+      }
+    },
+    "preparedCommonGain": 1,
+    "referenceScope": "assigned guitar.ogg game stem; purity and exhaustivity unverified",
+    "trainingExposure": "unknown",
+    "recommendationEligible": false
+  },
+  "recommendationEligible": false,
+  "runStartedAt": "2026-10-25T06:14:59.666Z",
+  "completedAt": "2026-10-25T06:17:09.529Z"
+}

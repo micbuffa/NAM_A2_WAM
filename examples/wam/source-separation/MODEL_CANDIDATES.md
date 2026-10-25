@@ -87,3 +87,13 @@ Ordre après SW : **MDX-Net Inst HQ 4/5**, puis **MelBand Roformer (checkpoint p
 ## Portage navigateur SW-2 effectué
 
 Le modèle SW est maintenant dans `models.json`, avec runtime `bs-roformer-onnx` et adaptateur distinct de Demucs. STFT/iSTFT et douze canaux comparés réellement à la référence PyTorch et à un extrait musical ORT CPU + DSP PyTorch : seuils existants respectés. CPU/WASM navigateur également validé, mais ~35 s pour une fenêtre de 4 s. Téléchargement, cache, préparation, lecteur six pistes et MP3 vers Tracks testés dans le host ; validation longue terminée : 214,9 s séparées en 228,32 s, 72 blocs, premier bloc 3,19 s et sauvegarde réussie. Protocole et résultats : [ROFORMER_VALIDATION.md](ROFORMER_VALIDATION.md). MDX-Net Inst HQ4/5 reste le prochain portage prioritaire.
+
+## Actualisation du 25 octobre 2026 — périmètre guitare/basse
+
+Cette section remplace les priorités historiques vocales ci-dessus. Les modèles de voix/instrumental seuls restent hors périmètre.
+
+- **SCNet compact** : audit checkpoint natif / export int8 sur quatre extraits Q2, puis même graphe sur CPU/WASM et WebGPU. Contrat numérique vérifié ; pas de piste guitare dédiée, pas d’avantage instrumental établi. Petit modèle10,1M, **pas XL ni Large**. Statut : candidat, pas d’entrée Model ni de téléchargement production. Préparation `python tools/prepare-scnet-candidate.py`, vérification `python tools/validate-scnet-candidate.py` dans l’environnement scientifique ; diagnostic source `scnet-feasibility.html`. Révisions, licences, SHA et résultats dans MODEL_EVALUATIONS.MD§16 et `research/scnet-candidate.json`.
+- **MDX Extra Q** : quatre checkpoints officiels, DiffQ0.2.4, référence native Rainfall6s terminée. Résultat exploratoire, pas d’export navigateur. L’entraînement comprend MUSDB test ; exclure ce split des conclusions de généralisation. Aucune extension des histogrammes ou des conseils existants à partir de ce seul essai.
+- **Demucs6 GPU** : pas de nouvelle inférence validée ; le blocage ancien conserve son statut. Une session créée n’est pas une validation. Le runtime production reste inchangé.
+
+Avant tout portage supplémentaire : justifier le bénéfice pour guitare/basse puis valider sortie audio, canaux, ordre des sources, contexte/padding, raccords, mémoire, annulation et communication progressive au lecteur. Un export ONNX compatible ne suffit pas. L’écoute des prises originales et les autres machines restent des validations distinctes.

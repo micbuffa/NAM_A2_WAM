@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {performanceMatrix,summarizePerformance} from '../../examples/wam/source-separation/WebNNBenchmark.js';
+test('two models, production GPU controls and all five isolated providers',()=>{
+ const matrix=performanceMatrix();assert.equal(matrix.length,12);assert.equal(new Set(matrix.map(c=>JSON.stringify(c))).size,12);
+ for(const model of ['demucs4','roformer6']){const rows=matrix.filter(c=>c.model===model);assert.equal(rows.filter(c=>c.runtime==='production').length,1);assert.deepEqual(rows.filter(c=>c.backend==='webnn').map(c=>c.deviceType),['cpu','gpu','npu']);}
+});
+test('warm median excludes first execution and computes six-second RTF',()=>{assert.deepEqual(summarizePerformance({status:'ok',frames:264600,trials:[{elapsedMs:100000},{elapsedMs:12000},{elapsedMs:6000}]}),{firstMs:100000,warmMedianMs:9000,warmMinMs:6000,warmMaxMs:12000,warmRtf:1.5});});
+test('failures never become speed scores; partial/wrong-duration records rejected',()=>{assert.equal(summarizePerformance({status:'error'}),null);for(const record of [{frames:44100,trials:[1,2,3].map(elapsedMs=>({elapsedMs}))},{frames:264600,trials:[{elapsedMs:2}]}])assert.throws(()=>summarizePerformance({status:'ok',...record}));});
+import {withWebnnContext} from '../../examples/wam/source-separation/WebNNBenchmark.js';
+test('native lost context rejects a stalled ORT operation instead of a silent fallback',async()=>{await assert.rejects(withWebnnContext(new Promise(()=>{}),{lost:Promise.resolve({message:'native service crashed'})}),/WebNN context lost: native service crashed/);});
+test('normal operation and runtimes without lifetime signal remain supported',async()=>{assert.equal(await withWebnnContext(Promise.resolve(42),{lost:new Promise(()=>{})}),42);assert.equal(await withWebnnContext(Promise.resolve(11),null),11);});
+import {PERF_PROTOCOL,PERF_STORAGE,restorePerformanceCheckpoint,savePerformanceCheckpoint,performanceCompletion} from '../../examples/wam/source-separation/WebNNBenchmark.js';
+test('checkpoint preserves failed and interrupted measurements without converting them to successes',()=>{let text;const storage={getItem:k=>(assert.equal(k,PERF_STORAGE),text),setItem:(k,v)=>{assert.equal(k,PERF_STORAGE);text=v;}};const report={protocol:PERF_PROTOCOL,status:'running',runs:[{status:'error',error:{message:'context lost'}}],current:{phase:'Création de session'}};assert.equal(savePerformanceCheckpoint(storage,report),true);assert.deepEqual(restorePerformanceCheckpoint(storage),report);});
+test('unavailable storage, corrupt JSON and foreign protocols do not prevent experiments',()=>{assert.equal(restorePerformanceCheckpoint(undefined),null);assert.equal(savePerformanceCheckpoint(undefined,{}),false);for(const text of ['{','null',JSON.stringify({protocol:'other',runs:[]})])assert.equal(restorePerformanceCheckpoint({getItem:()=>text}),null);});
+test('completed campaign distinguishes failures and explicit cancellation',()=>{assert.equal(performanceCompletion([{status:'ok'}]),'completed');assert.equal(performanceCompletion([{status:'error'}]),'completed-with-failures');assert.equal(performanceCompletion([{status:'ok'}],true),'cancelled');});

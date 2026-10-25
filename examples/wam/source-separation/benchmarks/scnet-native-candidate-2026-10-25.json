@@ -1,0 +1,229 @@
+{
+  "protocol": "scnet-candidate-audit-v1",
+  "date": "2026-10-25",
+  "status": "native-cpu-candidate-only",
+  "model": "audiojs/scnet int8; NOT SCNet XL or Large",
+  "modelSha256": "98228931494151762a1c4ab1ec7899a894b1f81fd4a509921a9d2f9bacc50845",
+  "checkpointSha256": "1bc0d1abb20bfdf966dcd07637bafd03e4bc13653d09ef18bc9b3e342eafe2aa",
+  "python": "3.12.14",
+  "platform": "macOS-14.4.1-arm64-arm-64bit",
+  "torch": "2.6.0",
+  "onnxruntime": "1.22.0",
+  "threads": 2,
+  "roles": [
+    "drums",
+    "bass",
+    "other",
+    "vocals"
+  ],
+  "segmentFrames": 485100,
+  "hopFrames": 1024,
+  "fft": 4096,
+  "window": "rectangular",
+  "normalization": "mono mean/std ddof1; no DC added to any stem",
+  "shortInputPadding": "right reflect if > half segment, otherwise zeros",
+  "browserInputSha256": "496a3de09afd13327c2a9d6a2ffd7b95b6c8b05e16d54508d451b08d8648a6cb",
+  "browserReferenceSha256": "33c95447efbeb734868fd99d2060adc09d6c8cfa7d4b7f7e1924a174b2c9ee0e",
+  "codeHashes": {
+    "export-scnet.py": "b6c7af1d7ca05f0b7821c885241c90c6020bd2c0553ab7c8503d4199bfa18a7b",
+    "reference.py": "cd85d8be2a53018fafd14dd5a4834b2dfb01ebcca4bbf5f4965969cf8a4749ca",
+    "scnet_code/scnet/scnet.py": "a024c6a6b3e5eda6da29f052076772c277183dc273f144b4feca1c565030e1ed",
+    "scnet_code/scnet/separation.py": "4fdda9982003b795c3b5d964f998ca0bc416d7c232b813706a6088b16a1a1639"
+  },
+  "runs": [
+    {
+      "case": "musdb-falcon",
+      "target": "bass",
+      "outputRole": "bass",
+      "guitarProxy": false,
+      "frames": 264600,
+      "inputSha256": "229f72ea5cce679cf0e388641fa576318a0d4435325b65a88fcfd421f62f164a",
+      "nativeSeconds": 3.7288614159915596,
+      "onnxNetworkSeconds": 2.6618970839772373,
+      "nativeScore": {
+        "siSdrDb": 7.008808664262021,
+        "snrDb": 7.773774599460756,
+        "gainDb": -1.2953740456177334
+      },
+      "compactOnnxScore": {
+        "siSdrDb": 6.993048351697485,
+        "snrDb": 7.75260113170676,
+        "gainDb": -1.2563531825834375
+      },
+      "baseline": {
+        "siSdrDb": -6.274518558657613,
+        "snrDb": -5.9773489411742915,
+        "gainDb": -0.29842063311225564
+      },
+      "compactToNative": {
+        "drums": {
+          "siSdrDb": 42.34398335538705,
+          "snrDb": 42.344212127657585,
+          "gainDb": -0.00034918877894935245
+        },
+        "bass": {
+          "siSdrDb": 40.401969293948724,
+          "snrDb": 39.40487859225033,
+          "gainDb": 0.04124604442769765
+        },
+        "other": {
+          "siSdrDb": 36.60036820620893,
+          "snrDb": 36.58584858217078,
+          "gainDb": -0.009577429379798729
+        },
+        "vocals": {
+          "siSdrDb": 37.82747294521222,
+          "snrDb": 36.66942030011965,
+          "gainDb": -0.06333454954655836
+        }
+      }
+    },
+    {
+      "case": "musdb-reggae",
+      "target": "bass",
+      "outputRole": "bass",
+      "guitarProxy": false,
+      "frames": 264600,
+      "inputSha256": "fb4ba61d765e351fa7656c76861e39612f6b2fd70b6208354cc63fb4b8fe1d7a",
+      "nativeSeconds": 3.928361583966762,
+      "onnxNetworkSeconds": 2.6471727079479024,
+      "nativeScore": {
+        "siSdrDb": 10.05822821810429,
+        "snrDb": 10.43288810813873,
+        "gainDb": -0.5787376765824123
+      },
+      "compactOnnxScore": {
+        "siSdrDb": 10.1155417626263,
+        "snrDb": 10.480646981190205,
+        "gainDb": -0.5552097907572937
+      },
+      "baseline": {
+        "siSdrDb": -2.6028064653376037,
+        "snrDb": -2.370399296501667,
+        "gainDb": -0.23418811760464664
+      },
+      "compactToNative": {
+        "drums": {
+          "siSdrDb": 39.480007700676666,
+          "snrDb": 39.32020430165156,
+          "gainDb": 0.01688388357666044
+        },
+        "bass": {
+          "siSdrDb": 41.60345764625953,
+          "snrDb": 41.32097730231604,
+          "gainDb": 0.01811131616087939
+        },
+        "other": {
+          "siSdrDb": 39.649491417193865,
+          "snrDb": 39.64716747495273,
+          "gainDb": -0.003236339672608257
+        },
+        "vocals": {
+          "siSdrDb": 42.71709349759861,
+          "snrDb": 42.64187625798894,
+          "gainDb": 0.007941098792154893
+        }
+      }
+    },
+    {
+      "case": "musdb-metal",
+      "target": "bass",
+      "outputRole": "bass",
+      "guitarProxy": false,
+      "frames": 264600,
+      "inputSha256": "719cbaebff496c00432f8e5bec36ad083d7c5e47fc8f2e02b7c444557e98cdbc",
+      "nativeSeconds": 3.6734685000265017,
+      "onnxNetworkSeconds": 2.5964981670258567,
+      "nativeScore": {
+        "siSdrDb": 2.271041221966749,
+        "snrDb": 4.270461198563419,
+        "gainDb": -3.577665734556021
+      },
+      "compactOnnxScore": {
+        "siSdrDb": 2.233751171487135,
+        "snrDb": 4.236541026944475,
+        "gainDb": -3.5059321501370464
+      },
+      "baseline": {
+        "siSdrDb": -13.78978989075905,
+        "snrDb": -13.977596420794601,
+        "gainDb": 0.18772357535011083
+      },
+      "compactToNative": {
+        "drums": {
+          "siSdrDb": 46.93144367592099,
+          "snrDb": 46.891703799718655,
+          "gainDb": -0.003930405627112596
+        },
+        "bass": {
+          "siSdrDb": 37.293423229252426,
+          "snrDb": 35.42858874269423,
+          "gainDb": 0.08483934403494009
+        },
+        "other": {
+          "siSdrDb": 42.80660269402845,
+          "snrDb": 42.753559322177985,
+          "gainDb": -0.0074430107962475105
+        },
+        "vocals": {
+          "siSdrDb": 42.87567987281289,
+          "snrDb": 42.875581989712295,
+          "gainDb": -0.0009849798766854653
+        }
+      }
+    },
+    {
+      "case": "medley-rainfall-20",
+      "target": "guitar",
+      "outputRole": "other",
+      "guitarProxy": true,
+      "frames": 264600,
+      "inputSha256": "0602b916f99a1748925295a09d10ed3e70a2cfa0e559a4fc3aaf6c07661ad886",
+      "nativeSeconds": 3.5655672079883516,
+      "onnxNetworkSeconds": 2.5948066250421107,
+      "nativeScore": {
+        "siSdrDb": 9.93237170929434,
+        "snrDb": 10.122850175686839,
+        "gainDb": -1.5104958629699943
+      },
+      "compactOnnxScore": {
+        "siSdrDb": 9.633450668637998,
+        "snrDb": 9.849440980234702,
+        "gainDb": -1.596525893152664
+      },
+      "baseline": {
+        "siSdrDb": 7.129187723442448,
+        "snrDb": 7.112713367682943,
+        "gainDb": 0.016394619917211653
+      },
+      "compactToNative": {
+        "drums": {
+          "siSdrDb": 17.83909231709519,
+          "snrDb": 17.626046722313276,
+          "gainDb": 0.14310515678086247
+        },
+        "bass": {
+          "siSdrDb": 27.37975046001997,
+          "snrDb": 25.107617193389622,
+          "gainDb": 0.28738078407070217
+        },
+        "other": {
+          "siSdrDb": 35.229056304094556,
+          "snrDb": 34.664773422789715,
+          "gainDb": -0.05889349499170281
+        },
+        "vocals": {
+          "siSdrDb": 46.29430516732822,
+          "snrDb": 45.99989173645761,
+          "gainDb": 0.010936160333150384
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Single compact ONNX candidate; no musical quality ranking from random spectra.",
+    "Native PyTorch timings are not browser WASM or WebGPU timings.",
+    "Guitar other proxy only in Rainfall, as defined in existing Q2 corpus.",
+    "No human listening scores, no original independent recordings."
+  ]
+}

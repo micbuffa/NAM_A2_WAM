@@ -250,3 +250,18 @@ Le banc `real-instrument-quality.html` utilise six extraits locaux : trois morce
 Sources, droits, préparation reproductible et résultats : [REAL_INSTRUMENT_CORPUS.md](REAL_INSTRUMENT_CORPUS.md). Les WAV de `test-data/source-separation/` restent locaux et sont exclus de Git et de la distribution. 489 tests réussis ; les résultats ne remplacent pas une écoute humaine ni un corpus guitare plus diversifié.
 
 Le [diagnostic guitare multi-styles](GUITAR_DIAGNOSTIC.md), accessible par `real-instrument-quality.html?corpus=guitar-diagnostic`, compare trois nouvelles compositions acoustiques/électriques enregistrées. Elles sont issues de MUSDB train et restent **hors des conseils Settings**. Le banc permet désormais l’écoute A/B de la référence, de l’instrument séparé et du backing de chaque modèle, à position conservée et volume commun. Les résultats audio restent uniquement en RAM (128Mio maximum), contrairement aux petits rapports numériques exportables.
+
+
+### Références personnelles et écoute anonyme
+
+`reference-evaluation.html` importe deux stems alignés (instrument et backing), contrôle la provenance déclarée/les droits et produit les mesures et une revue exploratoire en aveugle. Notes humaines vides par défaut, aucune note exportée avant validation explicite ; aucun nouveau conseil automatique. [Protocole](REFERENCE_EVALUATION.md). L’outillage est validé techniquement, la campagne sur données plus indépendantes et l’étude d’écoute restent à réaliser. Voir aussi MODEL_EVALUATIONS.MD à la racine, à mettre à jour à chaque campagne.
+
+### Import YouTube — prototype local (25 octobre 2026)
+
+`./tools/setup-youtube-import.sh`, puis `PORT=8767 ./tools/start-youtube-host.sh` depuis la racine. Ouvrir `http://127.0.0.1:8767/rack/` → Multitracks → Importer depuis YouTube. URL vidéo unique, audio natif, progression SSE, annulation, ancien morceau conservé en cas d’échec. Pas de compte/cookies ni playlist ;30min/200Mio maximum. La séparation est ensuite lancée manuellement. Une dist statique ou Rails sans API affiche l’absence du service ; il faut servir la dist par le serveur Node de ce projet pour disposer de l’import. Détails : `YOUTUBE_IMPORT.md` à la racine.
+
+Le diagnostic de recherche `scnet-feasibility.html` exige les données préparées dans le dossier source par `tools/prepare-scnet-candidate.py` et `tools/validate-scnet-candidate.py` ; il n’ajoute aucun modèle au lecteur de production. SCNet compact et MDX Extra Q restent des candidats évalués, distincts des modèles proposés dans Model. Résultats et limites scientifiques : `MODEL_EVALUATIONS.MD`§16.
+
+Qualification des références GHA : `game-reference-review.html` et [protocole](GAME_REFERENCE_REVIEW.md). Diagnostic natif WebNN : `webnn-probe.html`, à ouvrir dans Chrome Canary sur cette machine ; le test synthétique réussi ne garantit ni NPU ni compatibilité des modèles.
+
+Demucs4 WebNN : [laboratoire isolé et résultats](WEBNN_DEMUCS4_LAB.md), `webnn-demucs4.html` dans Canary. ORT1.30 de recherche distinct du runtime1.22 du host ; fichiers tiers à préparer localement. Première parité globale réussie, gardes de pistes faibles encore en validation ; aucun modèle WebNN activé dans Settings.

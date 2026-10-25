@@ -1,0 +1,244 @@
+{
+  "protocol": "webnn-falcon-6s-retained-session-v1",
+  "date": "2026-10-25T18:17:04.690Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+  "crossOriginIsolated": true,
+  "initialVisibility": "visible",
+  "visibilityEvents": [],
+  "selection": "roformer-webnn-npu",
+  "status": "completed",
+  "runs": [
+    {
+      "model": "roformer6",
+      "runtime": "lab",
+      "backend": "webnn",
+      "deviceType": "npu",
+      "status": "ok",
+      "effectiveHardware": "unknown",
+      "trials": [
+        {
+          "trial": 0,
+          "elapsedMs": 14717.969999999972,
+          "firstReadyMs": 8511.785000000149,
+          "webnnDispatches": 50,
+          "repeatParity": null
+        },
+        {
+          "trial": 1,
+          "elapsedMs": 10575.284999999916,
+          "firstReadyMs": 4660.290000000037,
+          "webnnDispatches": 50,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08072600261167036
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07798906421063871
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09367431724606859
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09374080750912991
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.006399240074787111
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.005438922478760482
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09378361069916083
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09838976273912685
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.04243430723712933
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.03460338545541397
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0000022023083212665694
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0000021798059701597815
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        },
+        {
+          "trial": 2,
+          "elapsedMs": 8857.744999999879,
+          "firstReadyMs": 5558.97499999986,
+          "webnnDispatches": 50,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08072600261167036
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07798906421063871
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09367431724606859
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09374080750912991
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.006399240074787111
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.005438922478760482
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09378361069916083
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09838976273912685
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.04243430723712933
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.03460338545541397
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0000022023083212665694
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0000021798059701597815
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        }
+      ],
+      "webnnDispatches": 150,
+      "webnnGraphBuilds": 25,
+      "warnings": [],
+      "modelSha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "integrityAndImportMs": 607.0749999999534,
+      "contextRequestedOptions": {
+        "deviceType": "npu",
+        "accelerated": true
+      },
+      "reportedAccelerated": null,
+      "dispatchInstrumentation": true,
+      "graphStrategy": "monolithic",
+      "sessionMs": 64796.450000000186,
+      "summary": {
+        "firstMs": 14717.969999999972,
+        "warmMedianMs": 9716.514999999898,
+        "warmMinMs": 8857.744999999879,
+        "warmMaxMs": 10575.284999999916,
+        "warmRtf": 1.6194191666666495
+      },
+      "frames": 264600,
+      "providerEvidence": "WebNN dispatch observed; WASM fallback coverage unknown",
+      "wallMs": 99682.59999999986
+    }
+  ],
+  "note": "Same six-second PCM. Sequential sessions. No disk/OS cache flush. First pass + two retained-session passes. Timed intervals include model+DSP+assembly, exclude validation and transfer. No claim of audible playback or effective NPU.",
+  "input": {
+    "id": "musdb-falcon-6s-control",
+    "path": "musdb-falcon/mix.wav",
+    "sha256": "229f72ea5cce679cf0e388641fa576318a0d4435325b65a88fcfd421f62f164a",
+    "referenceScope": "Existing Q2 Falcon six-second mixture, chosen before viewing these model outputs as an additional musical parity control; not a new independent quality corpus",
+    "frames": 264600,
+    "sampleRate": 44100,
+    "pcmSha256": "be55c410060ad0ddc5b1197078870e5836830d2d1daef04150b5849a93b2ff6e"
+  }
+}

@@ -1,3 +1,4 @@
+import {YouTubeImportService} from '../../tools/YouTubeImportService.mjs';
 import http from 'node:http';
 import {readdir, readFile, stat} from 'node:fs/promises';
 import {extname, join, normalize, resolve, sep} from 'node:path';
@@ -19,6 +20,7 @@ async function discoverAudio() {
     .map((entry) => entry.name).sort((a, b) => a.localeCompare(b));
 }
 
+const mediaImports = new YouTubeImportService();
 const server = http.createServer(async (request, response) => {
   // Match Rails: required by WAM and separation shared ring buffers.
   response.setHeader('Cross-Origin-Opener-Policy','same-origin');
@@ -26,6 +28,7 @@ const server = http.createServer(async (request, response) => {
   response.setHeader('Cross-Origin-Resource-Policy','same-origin');
   try {
     const url = new URL(request.url, `http://${request.headers.host}`);
+    if (await mediaImports.handle(request,response,url)) return;
     if (url.pathname === '/api/test-audio-files') {
       const files = await discoverAudio();
       response.writeHead(200, {'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store'});
@@ -56,3 +59,5 @@ const server = http.createServer(async (request, response) => {
 
 const browseHost = host === '0.0.0.0' ? '127.0.0.1' : host;
 server.listen(port, host, () => console.log(`NAM WAM host: http://${browseHost}:${port}/rack/ (listening on ${host})`));
+
+for(const signal of ['SIGINT','SIGTERM'])process.once(signal,async()=>{server.close();await mediaImports.close();process.exit(0);});

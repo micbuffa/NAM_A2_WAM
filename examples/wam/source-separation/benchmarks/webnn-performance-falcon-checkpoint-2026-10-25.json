@@ -1,0 +1,1576 @@
+{
+  "protocol": "webnn-falcon-6s-retained-session-v1",
+  "date": "2026-10-25T16:54:29.638Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+  "crossOriginIsolated": true,
+  "initialVisibility": "visible",
+  "visibilityEvents": [],
+  "status": "running",
+  "runs": [
+    {
+      "model": "demucs4",
+      "runtime": "production",
+      "backend": "webgpu",
+      "status": "ok",
+      "effectiveHardware": "unknown",
+      "trials": [
+        {
+          "trial": 0,
+          "elapsedMs": 4072.694999933243,
+          "firstReadyMs": 4072.689999938011,
+          "webnnDispatches": 0,
+          "repeatParity": null
+        },
+        {
+          "trial": 1,
+          "elapsedMs": 2602.2949999570847,
+          "firstReadyMs": 2602.2949999570847,
+          "webnnDispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0926959585236377
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0928417765616173
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07448625906900683
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0738049211895346
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610288424896119
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08126684515519494
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0602243559891759
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06333838822464281
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        },
+        {
+          "trial": 2,
+          "elapsedMs": 2371.484999895096,
+          "firstReadyMs": 2371.484999895096,
+          "webnnDispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0926959585236377
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0928417765616173
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07448625906900683
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0738049211895346
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610288424896119
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08126684515519494
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0602243559891759
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06333838822464281
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        }
+      ],
+      "webnnDispatches": 0,
+      "webnnGraphBuilds": 0,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeVersion": "1.22.0",
+      "integrityAndImportMs": 388.91999995708466,
+      "adapterInfo": {
+        "vendor": "apple",
+        "architecture": "metal-3"
+      },
+      "graphStrategy": "monolithic",
+      "sessionMs": 1527.9950000047684,
+      "summary": {
+        "firstMs": 4072.694999933243,
+        "warmMedianMs": 2486.8899999260902,
+        "warmMinMs": 2371.484999895096,
+        "warmMaxMs": 2602.2949999570847,
+        "warmRtf": 0.4144816666543484
+      },
+      "frames": 264600,
+      "providerEvidence": "webgpu explicitly requested",
+      "wallMs": 11054.564999938011
+    },
+    {
+      "model": "demucs4",
+      "runtime": "lab",
+      "backend": "wasm",
+      "status": "ok",
+      "effectiveHardware": "unknown",
+      "trials": [
+        {
+          "trial": 0,
+          "elapsedMs": 10663.985000014305,
+          "firstReadyMs": 10663.985000014305,
+          "webnnDispatches": 0,
+          "repeatParity": null
+        },
+        {
+          "trial": 1,
+          "elapsedMs": 10449.625,
+          "firstReadyMs": 10449.625,
+          "webnnDispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09269359003065378
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0928388954943209
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07451783137327857
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0738356237803882
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610340809671717
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08127067091583758
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06023294356896863
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06334730921008927
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        },
+        {
+          "trial": 2,
+          "elapsedMs": 10600.835000038147,
+          "firstReadyMs": 10600.835000038147,
+          "webnnDispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09269359003065378
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0928388954943209
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07451783137327857
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0738356237803882
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610340809671717
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08127067091583758
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06023294356896863
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06334730921008927
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        }
+      ],
+      "webnnDispatches": 0,
+      "webnnGraphBuilds": 0,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "integrityAndImportMs": 259.11500000953674,
+      "graphStrategy": "monolithic",
+      "sessionMs": 771.2450000047684,
+      "summary": {
+        "firstMs": 10663.985000014305,
+        "warmMedianMs": 10525.230000019073,
+        "warmMinMs": 10449.625,
+        "warmMaxMs": 10600.835000038147,
+        "warmRtf": 1.7542050000031788
+      },
+      "frames": 264600,
+      "providerEvidence": "wasm explicitly requested",
+      "wallMs": 32820.96000003815
+    },
+    {
+      "model": "demucs4",
+      "runtime": "lab",
+      "backend": "webgpu",
+      "status": "ok",
+      "effectiveHardware": "unknown",
+      "trials": [
+        {
+          "trial": 0,
+          "elapsedMs": 2709.3799999952316,
+          "firstReadyMs": 2709.3700000047684,
+          "webnnDispatches": 0,
+          "repeatParity": null
+        },
+        {
+          "trial": 1,
+          "elapsedMs": 2571.8849999904633,
+          "firstReadyMs": 2571.8849999904633,
+          "webnnDispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0926959585236377
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0928417765616173
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07448625906900683
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0738049211895346
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610288424896119
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08126684515519494
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0602243559891759
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06333838822464281
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        },
+        {
+          "trial": 2,
+          "elapsedMs": 2357.265000104904,
+          "firstReadyMs": 2357.265000104904,
+          "webnnDispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0926959585236377
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0928417765616173
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07448625906900683
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0738049211895346
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610288424896119
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08126684515519494
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0602243559891759
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06333838822464281
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        }
+      ],
+      "webnnDispatches": 0,
+      "webnnGraphBuilds": 0,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "integrityAndImportMs": 287.3049999475479,
+      "adapterInfo": {
+        "vendor": "apple",
+        "architecture": "metal-3"
+      },
+      "graphStrategy": "monolithic",
+      "sessionMs": 867.6499999761581,
+      "baselineParity": {
+        "channels": [
+          {
+            "rmsError": 0.000045287218705804486,
+            "maxAbsError": 0.0007344335317611694,
+            "referenceRms": 0.09269359003065378
+          },
+          {
+            "rmsError": 0.00004550248581358903,
+            "maxAbsError": 0.0007008016109466553,
+            "referenceRms": 0.0928388954943209
+          },
+          {
+            "rmsError": 0.000051608869166194256,
+            "maxAbsError": 0.00023018941283226013,
+            "referenceRms": 0.07451783137327857
+          },
+          {
+            "rmsError": 0.000047687011119377696,
+            "maxAbsError": 0.00020909681916236877,
+            "referenceRms": 0.0738356237803882
+          },
+          {
+            "rmsError": 0.00005014014053889777,
+            "maxAbsError": 0.000286981463432312,
+            "referenceRms": 0.08610340809671717
+          },
+          {
+            "rmsError": 0.00004899285550372733,
+            "maxAbsError": 0.00026254355907440186,
+            "referenceRms": 0.08127067091583758
+          },
+          {
+            "rmsError": 0.000048229083470865794,
+            "maxAbsError": 0.0007218345999717712,
+            "referenceRms": 0.06023294356896863
+          },
+          {
+            "rmsError": 0.00004799573261587769,
+            "maxAbsError": 0.0006806254386901855,
+            "referenceRms": 0.06334730921008927
+          }
+        ],
+        "rmsError": 0.00004822201678808179,
+        "relativeRmsError": 0.0006107272095761999,
+        "maxAbsError": 0.0007344335317611694,
+        "withinTolerance": true
+      },
+      "summary": {
+        "firstMs": 2709.3799999952316,
+        "warmMedianMs": 2464.5750000476837,
+        "warmMinMs": 2357.265000104904,
+        "warmMaxMs": 2571.8849999904633,
+        "warmRtf": 0.4107625000079473
+      },
+      "frames": 264600,
+      "providerEvidence": "webgpu explicitly requested",
+      "wallMs": 8895.699999928474
+    },
+    {
+      "model": "demucs4",
+      "runtime": "lab",
+      "backend": "webnn",
+      "deviceType": "cpu",
+      "status": "ok",
+      "effectiveHardware": "unknown",
+      "trials": [
+        {
+          "trial": 0,
+          "elapsedMs": 5587.6900000572205,
+          "firstReadyMs": 5587.6900000572205,
+          "webnnDispatches": 1,
+          "repeatParity": null
+        },
+        {
+          "trial": 1,
+          "elapsedMs": 5648.335000038147,
+          "firstReadyMs": 5648.335000038147,
+          "webnnDispatches": 1,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0926959386781667
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09284174743511694
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07448643260600891
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07380506474684538
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610290008811562
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08126683696629211
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.060224452748498636
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06333849424802065
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        },
+        {
+          "trial": 2,
+          "elapsedMs": 6206.40499997139,
+          "firstReadyMs": 6206.40499997139,
+          "webnnDispatches": 1,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0926959386781667
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09284174743511694
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07448643260600891
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07380506474684538
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610290008811562
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08126683696629211
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.060224452748498636
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06333849424802065
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        }
+      ],
+      "webnnDispatches": 3,
+      "webnnGraphBuilds": 1,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "integrityAndImportMs": 248.00999999046326,
+      "contextRequestedOptions": {
+        "deviceType": "cpu",
+        "accelerated": false
+      },
+      "reportedAccelerated": null,
+      "dispatchInstrumentation": true,
+      "graphStrategy": "monolithic",
+      "sessionMs": 7695.164999961853,
+      "baselineParity": {
+        "channels": [
+          {
+            "rmsError": 0.00004493046941513355,
+            "maxAbsError": 0.0007323324680328369,
+            "referenceRms": 0.09269359003065378
+          },
+          {
+            "rmsError": 0.00004514491405084521,
+            "maxAbsError": 0.0006924271583557129,
+            "referenceRms": 0.0928388954943209
+          },
+          {
+            "rmsError": 0.000051391185517544445,
+            "maxAbsError": 0.00022888928651809692,
+            "referenceRms": 0.07451783137327857
+          },
+          {
+            "rmsError": 0.00004754083225207618,
+            "maxAbsError": 0.00020814314484596252,
+            "referenceRms": 0.0738356237803882
+          },
+          {
+            "rmsError": 0.000049697060724485596,
+            "maxAbsError": 0.00028252601623535156,
+            "referenceRms": 0.08610340809671717
+          },
+          {
+            "rmsError": 0.00004862518566409011,
+            "maxAbsError": 0.00025853514671325684,
+            "referenceRms": 0.08127067091583758
+          },
+          {
+            "rmsError": 0.00004767103274674739,
+            "maxAbsError": 0.0007203370332717896,
+            "referenceRms": 0.06023294356896863
+          },
+          {
+            "rmsError": 0.00004744005761585752,
+            "maxAbsError": 0.0006797313690185547,
+            "referenceRms": 0.06334730921008927
+          }
+        ],
+        "rmsError": 0.00004784778989396866,
+        "relativeRmsError": 0.0006059876619169952,
+        "maxAbsError": 0.0007323324680328369,
+        "withinTolerance": true
+      },
+      "summary": {
+        "firstMs": 5587.6900000572205,
+        "warmMedianMs": 5927.370000004768,
+        "warmMinMs": 5648.335000038147,
+        "warmMaxMs": 6206.40499997139,
+        "warmRtf": 0.9878950000007948
+      },
+      "frames": 264600,
+      "providerEvidence": "WebNN dispatch observed; WASM fallback coverage unknown",
+      "wallMs": 25493.15999996662
+    },
+    {
+      "model": "demucs4",
+      "runtime": "lab",
+      "backend": "webnn",
+      "deviceType": "gpu",
+      "status": "ok",
+      "effectiveHardware": "unknown",
+      "trials": [
+        {
+          "trial": 0,
+          "elapsedMs": 1989.2149999141693,
+          "firstReadyMs": 1989.2099999189377,
+          "webnnDispatches": 1,
+          "repeatParity": null
+        },
+        {
+          "trial": 1,
+          "elapsedMs": 1962.7200000286102,
+          "firstReadyMs": 1962.7200000286102,
+          "webnnDispatches": 1,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09269595235862042
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09284177071938814
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07448623502541316
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07380490036614534
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610290287646609
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08126686935611573
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06022431474580767
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0633383449447604
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        },
+        {
+          "trial": 2,
+          "elapsedMs": 2113.264999985695,
+          "firstReadyMs": 2113.264999985695,
+          "webnnDispatches": 1,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09269595235862042
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09284177071938814
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07448623502541316
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07380490036614534
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610290287646609
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08126686935611573
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06022431474580767
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0633383449447604
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        }
+      ],
+      "webnnDispatches": 3,
+      "webnnGraphBuilds": 1,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "integrityAndImportMs": 260.81500005722046,
+      "contextRequestedOptions": {
+        "deviceType": "gpu",
+        "accelerated": true
+      },
+      "reportedAccelerated": null,
+      "dispatchInstrumentation": true,
+      "graphStrategy": "monolithic",
+      "sessionMs": 11885.074999928474,
+      "baselineParity": {
+        "channels": [
+          {
+            "rmsError": 0.00004530510828550153,
+            "maxAbsError": 0.0007350817322731018,
+            "referenceRms": 0.09269359003065378
+          },
+          {
+            "rmsError": 0.00004551928497404323,
+            "maxAbsError": 0.0007011294364929199,
+            "referenceRms": 0.0928388954943209
+          },
+          {
+            "rmsError": 0.00005162890787603276,
+            "maxAbsError": 0.00023036077618598938,
+            "referenceRms": 0.07451783137327857
+          },
+          {
+            "rmsError": 0.00004770141360243613,
+            "maxAbsError": 0.00020922720432281494,
+            "referenceRms": 0.0738356237803882
+          },
+          {
+            "rmsError": 0.00005015679938853831,
+            "maxAbsError": 0.000286981463432312,
+            "referenceRms": 0.08610340809671717
+          },
+          {
+            "rmsError": 0.00004900615460785069,
+            "maxAbsError": 0.0002624988555908203,
+            "referenceRms": 0.08127067091583758
+          },
+          {
+            "rmsError": 0.00004825804488806414,
+            "maxAbsError": 0.0007224306464195251,
+            "referenceRms": 0.06023294356896863
+          },
+          {
+            "rmsError": 0.00004802540724446862,
+            "maxAbsError": 0.0006811618804931641,
+            "referenceRms": 0.06334730921008927
+          }
+        ],
+        "rmsError": 0.00004824172659795906,
+        "relativeRmsError": 0.0006109768324246286,
+        "maxAbsError": 0.0007350817322731018,
+        "withinTolerance": true
+      },
+      "summary": {
+        "firstMs": 1989.2149999141693,
+        "warmMedianMs": 2037.9925000071526,
+        "warmMinMs": 1962.7200000286102,
+        "warmMaxMs": 2113.264999985695,
+        "warmRtf": 0.33966541666785877
+      },
+      "frames": 264600,
+      "providerEvidence": "WebNN dispatch observed; WASM fallback coverage unknown",
+      "wallMs": 18309.77999997139
+    },
+    {
+      "model": "demucs4",
+      "runtime": "lab",
+      "backend": "webnn",
+      "deviceType": "npu",
+      "status": "ok",
+      "effectiveHardware": "unknown",
+      "trials": [
+        {
+          "trial": 0,
+          "elapsedMs": 2225.485000014305,
+          "firstReadyMs": 2225.485000014305,
+          "webnnDispatches": 1,
+          "repeatParity": null
+        },
+        {
+          "trial": 1,
+          "elapsedMs": 1992.4900000095367,
+          "firstReadyMs": 1992.4900000095367,
+          "webnnDispatches": 1,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09269595235862042
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09284177071938814
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07448623502541316
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07380490036614534
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610290287646609
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08126686935611573
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06022431474580767
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0633383449447604
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        },
+        {
+          "trial": 2,
+          "elapsedMs": 2116.2150000333786,
+          "firstReadyMs": 2116.2150000333786,
+          "webnnDispatches": 1,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09269595235862042
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09284177071938814
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07448623502541316
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07380490036614534
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08610290287646609
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08126686935611573
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.06022431474580767
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0633383449447604
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        }
+      ],
+      "webnnDispatches": 3,
+      "webnnGraphBuilds": 1,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "integrityAndImportMs": 241.22000002861023,
+      "contextRequestedOptions": {
+        "deviceType": "npu",
+        "accelerated": true
+      },
+      "reportedAccelerated": null,
+      "dispatchInstrumentation": true,
+      "graphStrategy": "monolithic",
+      "sessionMs": 12025.989999890327,
+      "baselineParity": {
+        "channels": [
+          {
+            "rmsError": 0.00004530510828550153,
+            "maxAbsError": 0.0007350817322731018,
+            "referenceRms": 0.09269359003065378
+          },
+          {
+            "rmsError": 0.00004551928497404323,
+            "maxAbsError": 0.0007011294364929199,
+            "referenceRms": 0.0928388954943209
+          },
+          {
+            "rmsError": 0.00005162890787603276,
+            "maxAbsError": 0.00023036077618598938,
+            "referenceRms": 0.07451783137327857
+          },
+          {
+            "rmsError": 0.00004770141360243613,
+            "maxAbsError": 0.00020922720432281494,
+            "referenceRms": 0.0738356237803882
+          },
+          {
+            "rmsError": 0.00005015679938853831,
+            "maxAbsError": 0.000286981463432312,
+            "referenceRms": 0.08610340809671717
+          },
+          {
+            "rmsError": 0.00004900615460785069,
+            "maxAbsError": 0.0002624988555908203,
+            "referenceRms": 0.08127067091583758
+          },
+          {
+            "rmsError": 0.00004825804488806414,
+            "maxAbsError": 0.0007224306464195251,
+            "referenceRms": 0.06023294356896863
+          },
+          {
+            "rmsError": 0.00004802540724446862,
+            "maxAbsError": 0.0006811618804931641,
+            "referenceRms": 0.06334730921008927
+          }
+        ],
+        "rmsError": 0.00004824172659795906,
+        "relativeRmsError": 0.0006109768324246286,
+        "maxAbsError": 0.0007350817322731018,
+        "withinTolerance": true
+      },
+      "summary": {
+        "firstMs": 2225.485000014305,
+        "warmMedianMs": 2054.3525000214577,
+        "warmMinMs": 1992.4900000095367,
+        "warmMaxMs": 2116.2150000333786,
+        "warmRtf": 0.3423920833369096
+      },
+      "frames": 264600,
+      "providerEvidence": "WebNN dispatch observed; WASM fallback coverage unknown",
+      "wallMs": 18703.509999990463
+    },
+    {
+      "model": "roformer6",
+      "runtime": "production",
+      "backend": "webgpu",
+      "status": "ok",
+      "effectiveHardware": "unknown",
+      "trials": [
+        {
+          "trial": 0,
+          "elapsedMs": 7224.840000033379,
+          "firstReadyMs": 4187.024999976158,
+          "webnnDispatches": 0,
+          "repeatParity": null
+        },
+        {
+          "trial": 1,
+          "elapsedMs": 5785.695000052452,
+          "firstReadyMs": 2901.8650000095367,
+          "webnnDispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08072649972438198
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07798949220353857
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09367415687822293
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09374064385930483
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.006399172743092735
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.005438865921803828
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09378484805449185
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09839056739384114
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.042433985725481335
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.03460314750612954
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0000022022469671886182
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.000002179772444893306
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        },
+        {
+          "trial": 2,
+          "elapsedMs": 5812.240000009537,
+          "firstReadyMs": 2904.0900000333786,
+          "webnnDispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.08072649972438198
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.07798949220353857
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09367415687822293
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09374064385930483
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.006399172743092735
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.005438865921803828
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09378484805449185
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.09839056739384114
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.042433985725481335
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.03460314750612954
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.0000022022469671886182
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.000002179772444893306
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          }
+        }
+      ],
+      "webnnDispatches": 0,
+      "webnnGraphBuilds": 0,
+      "warnings": [],
+      "modelSha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444",
+      "runtimeVersion": "1.22.0",
+      "integrityAndImportMs": 399.289999961853,
+      "adapterInfo": {
+        "vendor": "apple",
+        "architecture": "metal-3"
+      },
+      "graphStrategy": "cooperative-9-stages",
+      "sessionMs": 1432.445000052452,
+      "summary": {
+        "firstMs": 7224.840000033379,
+        "warmMedianMs": 5798.967500030994,
+        "warmMinMs": 5785.695000052452,
+        "warmMaxMs": 5812.240000009537,
+        "warmRtf": 0.966494583338499
+      },
+      "frames": 264600,
+      "providerEvidence": "webgpu explicitly requested",
+      "wallMs": 20772.759999990463
+    }
+  ],
+  "note": "Same six-second PCM. Sequential sessions. No disk/OS cache flush. First pass + two retained-session passes. Timed intervals include model+DSP+assembly, exclude validation and transfer. No claim of audible playback or effective NPU.",
+  "input": {
+    "id": "musdb-falcon-6s-control",
+    "path": "musdb-falcon/mix.wav",
+    "sha256": "229f72ea5cce679cf0e388641fa576318a0d4435325b65a88fcfd421f62f164a",
+    "referenceScope": "Existing Q2 Falcon six-second mixture, chosen before viewing these model outputs as an additional musical parity control; not a new independent quality corpus",
+    "frames": 264600,
+    "sampleRate": 44100,
+    "pcmSha256": "be55c410060ad0ddc5b1197078870e5836830d2d1daef04150b5849a93b2ff6e"
+  },
+  "current": {
+    "model": "roformer6",
+    "runtime": "lab",
+    "backend": "wasm",
+    "status": "running",
+    "effectiveHardware": "unknown",
+    "trials": [
+      {
+        "trial": 0,
+        "elapsedMs": 70481.625,
+        "firstReadyMs": 35707.889999985695,
+        "webnnDispatches": 0,
+        "repeatParity": null
+      },
+      {
+        "trial": 1,
+        "elapsedMs": 70383.4699999094,
+        "firstReadyMs": 35380.51999998093,
+        "webnnDispatches": 0,
+        "repeatParity": {
+          "channels": [
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.08072600023258188
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.07798906361664894
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.09367431526167726
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.09374080623199477
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.006399254545445419
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.005438940369302189
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.09378362269213833
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.09838976994726974
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.042434307478588645
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.03460338743613662
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.000002202397197531013
+            },
+            {
+              "rmsError": 0,
+              "maxAbsError": 0,
+              "referenceRms": 0.0000021798819334306312
+            }
+          ],
+          "rmsError": 0,
+          "relativeRmsError": 0,
+          "maxAbsError": 0,
+          "withinTolerance": true
+        }
+      }
+    ],
+    "webnnDispatches": 0,
+    "webnnGraphBuilds": 0,
+    "warnings": [],
+    "modelSha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444",
+    "runtimeManifest": {
+      "protocol": "webnn-runtime-lab-v1",
+      "version": "1.30.0",
+      "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+      "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+      "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+      "license": {
+        "name": "MIT",
+        "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+        "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+      },
+      "operatorTable": {
+        "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+        "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+      },
+      "files": {
+        "ort.all.min.mjs": {
+          "bytes": 819537,
+          "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+        },
+        "ort-wasm-simd-threaded.jsep.mjs": {
+          "bytes": 46851,
+          "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+        },
+        "ort-wasm-simd-threaded.jsep.wasm": {
+          "bytes": 28312028,
+          "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+        }
+      },
+      "location": "third_party/nam-webnn-probe/runtime",
+      "productionRuntimeUnchanged": "1.22.0",
+      "scope": "isolated source-only research lab; no production model catalogue change"
+    },
+    "runtimeVersion": "1.30.0",
+    "integrityAndImportMs": 485.65499997138977,
+    "graphStrategy": "monolithic",
+    "sessionMs": 2147.164999961853
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "source": "Native Canary DevTools Console, read through accessibility tree while SW WebNN CPU session preparation pending",
+  "observedError": "Uncaught (in promise) InvalidStateError: Failed to execute 'build' on 'MLGraphBuilder': Context is lost.",
+  "stage": "session preparation",
+  "model": "roformer6",
+  "runtime": "1.30.0",
+  "requestedDevice": "cpu",
+  "action": "Stopped from lab UI; raw export preserves cancelled attempt. No inference timing assigned. Added MLContext.lost guard before repeating all three SW WebNN configurations.",
+  "hardware": {
+    "cpu": "Apple M3 Max",
+    "memoryBytes": 38654705664,
+    "physicalCores": 14,
+    "logicalCores": 14,
+    "macOS": "14.4.1 (23E224)"
+  },
+  "noBrowserFlagsChanged": true
+}

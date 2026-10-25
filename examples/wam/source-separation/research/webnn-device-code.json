@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-25",
+  "scope": "CPU/GPU/NPU selection and persistence; snapshot before Falcon NPU-preference test",
+  "files": {
+    "webnn-demucs4.html": "9093cd76d8fe978251fed9f521493bc9c34a79799bdfc15b635de08c8fa6fdef",
+    "webnn-demucs4.js": "d04541b2783ad6f3ef4de1d8c26e6fbb6b3e8f047ff65c3243860c3467457ba3",
+    "webnn-demucs4-worker.js": "c94d45ce21d5d073a5174f111b66c533c9c1b0a202dd8df89f6dee2153a5088c",
+    "WebNNDevice.js": "d826f2ca033e6a762919632af1e32da00b45e676d1f9e065d4ebcd1da08b520a",
+    "WebNNParity.js": "61781d4fb07e9c9e4d6239206025e227211fcd3a8a3f47e9a3c11a225a7a8a01"
+  }
+}

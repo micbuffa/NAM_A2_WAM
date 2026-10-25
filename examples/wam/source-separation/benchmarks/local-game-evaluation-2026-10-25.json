@@ -1,0 +1,1111 @@
+{
+  "protocol": "local-game-assigned-stems-v1",
+  "status": "completed",
+  "runs": [
+    {
+      "caseId": "gha-1-20",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 32.79605499994755,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 0.12753033017696397,
+          "snrDb": 0.257301001774566,
+          "gainDb": -0.1308001613536371,
+          "polarity": 1,
+          "improvementDb": 3.833261604101257
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 1.8271064877277643,
+          "snrDb": 4.010725097830731,
+          "gainDb": -4.701740923562131,
+          "polarity": 1,
+          "improvementDb": -1.9567186022711407
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 19.79036177909198,
+          "snrDb": 19.771973347850803,
+          "gainDb": -0.19954337614329365,
+          "polarity": 1,
+          "improvementDb": 21.986760755813005
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-1-20",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 90.34879000008107,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": -0.4650722737355883,
+          "snrDb": -0.2261128059457051,
+          "gainDb": -0.24207494242080024,
+          "polarity": 1,
+          "improvementDb": 3.2406590001887046
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 0.9161540205691001,
+          "snrDb": 3.483946579056383,
+          "gainDb": -5.506648501856989,
+          "polarity": 1,
+          "improvementDb": -2.8676710694298047
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 15.994540271737957,
+          "snrDb": 16.00905386344043,
+          "gainDb": -0.421221225178424,
+          "polarity": 1,
+          "improvementDb": 18.19093924845898
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-1-90",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 31.12702999997139,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 3.255422956955465,
+          "snrDb": 4.102444118941725,
+          "gainDb": -0.97474468325775,
+          "polarity": 1,
+          "improvementDb": 5.229210908304717
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 4.680458457360875,
+          "snrDb": 5.9065812791405525,
+          "gainDb": -3.084622190456927,
+          "polarity": 1,
+          "improvementDb": 2.8999891733482417
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 5.649463842681804,
+          "snrDb": 6.595987400709634,
+          "gainDb": -2.810332591319674,
+          "polarity": 1,
+          "improvementDb": 12.674656916738396
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-1-90",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 117.07877499997616,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 1.9518850719921956,
+          "snrDb": 3.4525155951886513,
+          "gainDb": -1.8817456466475335,
+          "polarity": 1,
+          "improvementDb": 3.925673023341448
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 3.602650187928594,
+          "snrDb": 5.144573488303363,
+          "gainDb": -3.639039871481795,
+          "polarity": 1,
+          "improvementDb": 1.8221809039159607
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 5.199621772537467,
+          "snrDb": 6.330628147157813,
+          "gainDb": -2.57947020325445,
+          "polarity": 1,
+          "improvementDb": 12.22481484659406
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-2-20",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 31.431519999980928,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 7.383069995861192,
+          "snrDb": 7.537444289519164,
+          "gainDb": -0.1628847953513793,
+          "polarity": 1,
+          "improvementDb": 9.113875145640556
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 8.61666526940454,
+          "snrDb": 9.167795398178285,
+          "gainDb": -1.2621751001228834,
+          "polarity": 1,
+          "improvementDb": 7.02584161775708
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 11.509303152853034,
+          "snrDb": 11.805364228354536,
+          "gainDb": -0.6146897698358225,
+          "polarity": 1,
+          "improvementDb": 13.27862919568833
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-2-20",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 93.12533500003815,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 7.106561850711911,
+          "snrDb": 7.455486061222645,
+          "gainDb": -0.39758685169105,
+          "polarity": 1,
+          "improvementDb": 8.837367000491275
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 8.34312408320816,
+          "snrDb": 8.936284623220942,
+          "gainDb": -1.218588627207051,
+          "polarity": 1,
+          "improvementDb": 6.752300431560699
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 10.850093141542327,
+          "snrDb": 11.178582761587364,
+          "gainDb": -0.5426201106346976,
+          "polarity": 1,
+          "improvementDb": 12.619419184377623
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-2-90",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 38.78666499996185,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 7.712216020883752,
+          "snrDb": 8.033534095139542,
+          "gainDb": -0.3694776734504964,
+          "polarity": 1,
+          "improvementDb": 11.731235542065217
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 11.800029436175343,
+          "snrDb": 12.066790621783564,
+          "gainDb": -0.669345634828984,
+          "polarity": 1,
+          "improvementDb": 7.677901570103143
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 15.092774878629116,
+          "snrDb": 15.173136822652122,
+          "gainDb": -0.43420426471912194,
+          "polarity": 1,
+          "improvementDb": 18.0068650387996
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-2-90",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 88.23920999991894,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 5.993517544999306,
+          "snrDb": 6.779608084662935,
+          "gainDb": -1.0769427200191455,
+          "polarity": 1,
+          "improvementDb": 10.012537066180773
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 10.016145298212873,
+          "snrDb": 10.420078410234279,
+          "gainDb": -0.9473340789418911,
+          "polarity": 1,
+          "improvementDb": 5.894017432140672
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 10.721074920285158,
+          "snrDb": 11.067470074168428,
+          "gainDb": -0.6073810477401337,
+          "polarity": 1,
+          "improvementDb": 13.63516508045564
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-3-20",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 28.907639999985694,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 11.232082805316397,
+          "snrDb": 11.532356455990287,
+          "gainDb": -0.4914162276417194,
+          "polarity": 1,
+          "improvementDb": 12.744508177669925
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 12.782782639328843,
+          "snrDb": 13.004498225254785,
+          "gainDb": -0.48038465921021184,
+          "polarity": 1,
+          "improvementDb": 11.253162734503253
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 12.335430419028675,
+          "snrDb": 12.57640290638192,
+          "gainDb": -0.5684373951750675,
+          "polarity": 1,
+          "improvementDb": 15.287061544167566
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-3-20",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 91.97350499999523,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 9.881285072457372,
+          "snrDb": 10.263454808169826,
+          "gainDb": -0.5772923876854802,
+          "polarity": 1,
+          "improvementDb": 11.3937104448109
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 11.496525656864709,
+          "snrDb": 11.779177673744615,
+          "gainDb": -0.7299783431525055,
+          "polarity": 1,
+          "improvementDb": 9.966905752039118
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 11.067994870922384,
+          "snrDb": 11.394850338773093,
+          "gainDb": -0.6405320879490124,
+          "polarity": 1,
+          "improvementDb": 14.019625996061274
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-3-90",
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 31.40684500002861,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 10.781938185568249,
+          "snrDb": 11.096579078967023,
+          "gainDb": -0.47785513766231,
+          "polarity": 1,
+          "improvementDb": 12.486770666473534
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 12.381455295616735,
+          "snrDb": 12.609817341760824,
+          "gainDb": -0.6142965577581249,
+          "polarity": 1,
+          "improvementDb": 10.751745490100719
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 11.550245575351072,
+          "snrDb": 11.800950292790937,
+          "gainDb": -0.8199417643905511,
+          "polarity": 1,
+          "improvementDb": 14.403435717550433
+        },
+        "recommendationEligible": false
+      }
+    },
+    {
+      "caseId": "gha-3-90",
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "identity": "[\"35c8bd5b74c56f630082058179cd8f57cb192fb2\",[\"57ae738153b5873c8b2fa1cfe291a38f3e08d2679ad83e7138adb2b5503bd03e\"]]",
+      "frames": 264600,
+      "status": "ok",
+      "jobSeconds": 98.55721000003815,
+      "scores": {
+        "assignedGuitar": {
+          "valid": true,
+          "siSdrDb": 10.034214518112837,
+          "snrDb": 10.418842878589867,
+          "gainDb": -0.6114013560405935,
+          "polarity": 1,
+          "improvementDb": 11.739046999018122
+        },
+        "assignedGuitarBacking": {
+          "valid": true,
+          "siSdrDb": 11.731355580282685,
+          "snrDb": 11.993265330232589,
+          "gainDb": -0.719426234266704,
+          "polarity": 1,
+          "improvementDb": 10.101645774766668
+        },
+        "provisionalRhythm": {
+          "valid": true,
+          "siSdrDb": 10.383743257894098,
+          "snrDb": 10.751872574236184,
+          "gainDb": -0.9017968049487958,
+          "polarity": 1,
+          "improvementDb": 13.23693340009346
+        },
+        "recommendationEligible": false
+      }
+    }
+  ],
+  "recommendationEligible": false,
+  "bs_roformer_sw_6s": {
+    "state": "installed",
+    "backend": "webgpu"
+  },
+  "htdemucs_6s": {
+    "state": "installed",
+    "backend": "wasm"
+  },
+  "corpus": {
+    "protocol": "local-game-assigned-stems-v1",
+    "sampleRate": 44100,
+    "frames": 264600,
+    "redistributeAudio": false,
+    "recommendationEligible": false,
+    "trainingExposure": "unknown",
+    "referenceScope": "assigned guitar.ogg game stem; purity and exhaustivity unverified",
+    "rhythmScope": "rhythm.ogg supplied stem; bass semantics unconfirmed",
+    "recipe": "mix = guitar.ogg + (rhythm.ogg + song.ogg), one common gain; constructed mixture, not commercial recording",
+    "decodePolicy": "origin to 96s, exact frame slices; no seek, alignment search or padding",
+    "preflightSha256": "db7902fb4960c451a50b2ba62d6c2dc901653c0a6ea258232f2289e5a52456e7",
+    "cases": [
+      {
+        "id": "gha-1-20",
+        "track": "25 Aerosmith - Dream On",
+        "offsetSeconds": 20,
+        "durationSeconds": 6,
+        "frames": 264600,
+        "sampleRate": 44100,
+        "target": "guitar",
+        "otherIsGuitar": false,
+        "commonGain": 1,
+        "sourceFiles": [
+          {
+            "name": "guitar.ogg",
+            "bytes": 4995433,
+            "sha256": "f8f4394b797ead9679a5462d243b9f3a593de39376b4df5095e866b8f6a0eb3c",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "277.153379"
+                }
+              ],
+              "format": {
+                "duration": "277.153379"
+              }
+            }
+          },
+          {
+            "name": "rhythm.ogg",
+            "bytes": 3922345,
+            "sha256": "96b6a4e58c52547e715be41cc6d6282972e768a8d8afa96bf337ff9c75a88e4f",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "277.153379"
+                }
+              ],
+              "format": {
+                "duration": "277.153379"
+              }
+            }
+          },
+          {
+            "name": "song.ogg",
+            "bytes": 5155423,
+            "sha256": "56654c293366e24e704124f1b96ef6f72e5fa82d8658c101abd8a878286b9d37",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "277.153379"
+                }
+              ],
+              "format": {
+                "duration": "277.153379"
+              }
+            }
+          }
+        ],
+        "files": {
+          "mix": {
+            "path": "gha-1-20/mix.wav",
+            "sha256": "b0f38ab52f1df6aff819c2c7127ed7c4d2b33e0ab61de3af2f50ba39214573fa",
+            "bytes": 2116844
+          },
+          "reference": {
+            "path": "gha-1-20/reference.wav",
+            "sha256": "9d120d861b539aec5411503b33b59ebddee5bb5a3de4227cc656522b122903e1",
+            "bytes": 2116844
+          },
+          "backing": {
+            "path": "gha-1-20/backing.wav",
+            "sha256": "f5defb9c1cd6c159a1fdbe8fd46a97b20b5be7c0c4ec94084330694689e1ed1f",
+            "bytes": 2116844
+          },
+          "rhythm": {
+            "path": "gha-1-20/rhythm.wav",
+            "sha256": "1072984cbf38f7d0a600139d5ca30595272a8d2cd05a8808eb413eabe89ad679",
+            "bytes": 2116844
+          }
+        }
+      },
+      {
+        "id": "gha-1-90",
+        "track": "25 Aerosmith - Dream On",
+        "offsetSeconds": 90,
+        "durationSeconds": 6,
+        "frames": 264600,
+        "sampleRate": 44100,
+        "target": "guitar",
+        "otherIsGuitar": false,
+        "commonGain": 1,
+        "sourceFiles": [
+          {
+            "name": "guitar.ogg",
+            "bytes": 4995433,
+            "sha256": "f8f4394b797ead9679a5462d243b9f3a593de39376b4df5095e866b8f6a0eb3c",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "277.153379"
+                }
+              ],
+              "format": {
+                "duration": "277.153379"
+              }
+            }
+          },
+          {
+            "name": "rhythm.ogg",
+            "bytes": 3922345,
+            "sha256": "96b6a4e58c52547e715be41cc6d6282972e768a8d8afa96bf337ff9c75a88e4f",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "277.153379"
+                }
+              ],
+              "format": {
+                "duration": "277.153379"
+              }
+            }
+          },
+          {
+            "name": "song.ogg",
+            "bytes": 5155423,
+            "sha256": "56654c293366e24e704124f1b96ef6f72e5fa82d8658c101abd8a878286b9d37",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "277.153379"
+                }
+              ],
+              "format": {
+                "duration": "277.153379"
+              }
+            }
+          }
+        ],
+        "files": {
+          "mix": {
+            "path": "gha-1-90/mix.wav",
+            "sha256": "a823d20bf72da73bf2a9b10c6860a126d9dba72f9a49c9f9e17474ffbcd46d95",
+            "bytes": 2116844
+          },
+          "reference": {
+            "path": "gha-1-90/reference.wav",
+            "sha256": "64404b2fb71b0bab6dd0a8aeec829087ed623616c43945745ed3d488d8b55144",
+            "bytes": 2116844
+          },
+          "backing": {
+            "path": "gha-1-90/backing.wav",
+            "sha256": "e1f9465a8d752660f500d1fe49259644e03451abd15653ca939502fccae6013f",
+            "bytes": 2116844
+          },
+          "rhythm": {
+            "path": "gha-1-90/rhythm.wav",
+            "sha256": "039996b5f65410e1334a50c5dbb7632c36e86230fbb1d42999611710bbb6744f",
+            "bytes": 2116844
+          }
+        }
+      },
+      {
+        "id": "gha-2-20",
+        "track": "22 Lenny Kravitz - Always On The Run",
+        "offsetSeconds": 20,
+        "durationSeconds": 6,
+        "frames": 264600,
+        "sampleRate": 44100,
+        "target": "guitar",
+        "otherIsGuitar": false,
+        "commonGain": 0.7130927841283466,
+        "sourceFiles": [
+          {
+            "name": "guitar.ogg",
+            "bytes": 4339505,
+            "sha256": "1f1ec362e334b6933bb005d845468e0613ddca03567299d9eb94e870245552e1",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "239.258413"
+                }
+              ],
+              "format": {
+                "duration": "239.258413"
+              }
+            }
+          },
+          {
+            "name": "rhythm.ogg",
+            "bytes": 3404327,
+            "sha256": "398d64663f063da8177e57e420f4313635adfd386b9aadfc22b5a1bd5cafbfc7",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "239.258413"
+                }
+              ],
+              "format": {
+                "duration": "239.258413"
+              }
+            }
+          },
+          {
+            "name": "song.ogg",
+            "bytes": 3953967,
+            "sha256": "3eb716620a467e07ad4ea521a17a702536674fcb3d7d0037c2b2da5a6b1d187e",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "239.258413"
+                }
+              ],
+              "format": {
+                "duration": "239.258413"
+              }
+            }
+          }
+        ],
+        "files": {
+          "mix": {
+            "path": "gha-2-20/mix.wav",
+            "sha256": "b7fda57fbfc7d4e42e6353e8c0cf5b443ad9b4973c0455397c83e3cf9a4319a0",
+            "bytes": 2116844
+          },
+          "reference": {
+            "path": "gha-2-20/reference.wav",
+            "sha256": "e0e4141cfe878f0c2a44d7d755d9b21edc0145e47c0d403ab1bcb785cc05d65a",
+            "bytes": 2116844
+          },
+          "backing": {
+            "path": "gha-2-20/backing.wav",
+            "sha256": "1a4460c5d6463779f896c91eeeae16d52da65129067d314c5d396543e3eb587f",
+            "bytes": 2116844
+          },
+          "rhythm": {
+            "path": "gha-2-20/rhythm.wav",
+            "sha256": "da45674d9d055c86715c0cbe6aef326ae9cff84aab005242eeb7b3b6ee328b96",
+            "bytes": 2116844
+          }
+        }
+      },
+      {
+        "id": "gha-2-90",
+        "track": "22 Lenny Kravitz - Always On The Run",
+        "offsetSeconds": 90,
+        "durationSeconds": 6,
+        "frames": 264600,
+        "sampleRate": 44100,
+        "target": "guitar",
+        "otherIsGuitar": false,
+        "commonGain": 0.6556317570868133,
+        "sourceFiles": [
+          {
+            "name": "guitar.ogg",
+            "bytes": 4339505,
+            "sha256": "1f1ec362e334b6933bb005d845468e0613ddca03567299d9eb94e870245552e1",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "239.258413"
+                }
+              ],
+              "format": {
+                "duration": "239.258413"
+              }
+            }
+          },
+          {
+            "name": "rhythm.ogg",
+            "bytes": 3404327,
+            "sha256": "398d64663f063da8177e57e420f4313635adfd386b9aadfc22b5a1bd5cafbfc7",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "239.258413"
+                }
+              ],
+              "format": {
+                "duration": "239.258413"
+              }
+            }
+          },
+          {
+            "name": "song.ogg",
+            "bytes": 3953967,
+            "sha256": "3eb716620a467e07ad4ea521a17a702536674fcb3d7d0037c2b2da5a6b1d187e",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "239.258413"
+                }
+              ],
+              "format": {
+                "duration": "239.258413"
+              }
+            }
+          }
+        ],
+        "files": {
+          "mix": {
+            "path": "gha-2-90/mix.wav",
+            "sha256": "3ceecac95042c886067d95d0b89dde7350cfadd3b4e36288b080ae2e039ac821",
+            "bytes": 2116844
+          },
+          "reference": {
+            "path": "gha-2-90/reference.wav",
+            "sha256": "01f0db9bc4b5d421f9e504181ec0ece6ce29336097a84d2d33d90657bd24730e",
+            "bytes": 2116844
+          },
+          "backing": {
+            "path": "gha-2-90/backing.wav",
+            "sha256": "19050cd6eb16ddeef30a20a78aaad3dd7b66c41ed2461766dd684ef5fa779c36",
+            "bytes": 2116844
+          },
+          "rhythm": {
+            "path": "gha-2-90/rhythm.wav",
+            "sha256": "c3a2c7a951f966494af19221f85e7363620feb9996e28fe3c77dc70ec4ff61aa",
+            "bytes": 2116844
+          }
+        }
+      },
+      {
+        "id": "gha-3-20",
+        "track": "16 The Cult - She Sells Sanctuary",
+        "offsetSeconds": 20,
+        "durationSeconds": 6,
+        "frames": 264600,
+        "sampleRate": 44100,
+        "target": "guitar",
+        "otherIsGuitar": false,
+        "commonGain": 0.7140051069624922,
+        "sourceFiles": [
+          {
+            "name": "guitar.ogg",
+            "bytes": 4847258,
+            "sha256": "bf1318aee7f0fc4ae8c46e6bd055ea1fae9ad7150d8a6b159d3dbe265d062563",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "256.534059"
+                }
+              ],
+              "format": {
+                "duration": "256.534059"
+              }
+            }
+          },
+          {
+            "name": "rhythm.ogg",
+            "bytes": 4068684,
+            "sha256": "ce939e91f1f7456cd08828f617d5869bedd18aaa7aaeb9b438fb161fae1a9d8f",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "256.534059"
+                }
+              ],
+              "format": {
+                "duration": "256.534059"
+              }
+            }
+          },
+          {
+            "name": "song.ogg",
+            "bytes": 4843774,
+            "sha256": "fb71436369eca19cfa3f7b6ccff2a37126c952833ca4167c9838bdb1ece70715",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "256.534059"
+                }
+              ],
+              "format": {
+                "duration": "256.534059"
+              }
+            }
+          }
+        ],
+        "files": {
+          "mix": {
+            "path": "gha-3-20/mix.wav",
+            "sha256": "60a18dc3f138d56442e0d1bc3337a8bbf57e8f473f86c21164f9671510e7e9b6",
+            "bytes": 2116844
+          },
+          "reference": {
+            "path": "gha-3-20/reference.wav",
+            "sha256": "549dd64498f837f02c6b51dee81f12c61a86e4ae7914859cab89d623bbf49f8d",
+            "bytes": 2116844
+          },
+          "backing": {
+            "path": "gha-3-20/backing.wav",
+            "sha256": "a8d8f6120e953d5ae54ff7f581bea4af5a7fc4bdce1fa109e08215f62403c8f6",
+            "bytes": 2116844
+          },
+          "rhythm": {
+            "path": "gha-3-20/rhythm.wav",
+            "sha256": "060c8747acc778adf9043666263533a5e73cf598597af5da5a36449cc5738307",
+            "bytes": 2116844
+          }
+        }
+      },
+      {
+        "id": "gha-3-90",
+        "track": "16 The Cult - She Sells Sanctuary",
+        "offsetSeconds": 90,
+        "durationSeconds": 6,
+        "frames": 264600,
+        "sampleRate": 44100,
+        "target": "guitar",
+        "otherIsGuitar": false,
+        "commonGain": 0.69915139625672,
+        "sourceFiles": [
+          {
+            "name": "guitar.ogg",
+            "bytes": 4847258,
+            "sha256": "bf1318aee7f0fc4ae8c46e6bd055ea1fae9ad7150d8a6b159d3dbe265d062563",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "256.534059"
+                }
+              ],
+              "format": {
+                "duration": "256.534059"
+              }
+            }
+          },
+          {
+            "name": "rhythm.ogg",
+            "bytes": 4068684,
+            "sha256": "ce939e91f1f7456cd08828f617d5869bedd18aaa7aaeb9b438fb161fae1a9d8f",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "256.534059"
+                }
+              ],
+              "format": {
+                "duration": "256.534059"
+              }
+            }
+          },
+          {
+            "name": "song.ogg",
+            "bytes": 4843774,
+            "sha256": "fb71436369eca19cfa3f7b6ccff2a37126c952833ca4167c9838bdb1ece70715",
+            "probe": {
+              "programs": [],
+              "stream_groups": [],
+              "streams": [
+                {
+                  "codec_name": "vorbis",
+                  "sample_rate": "44100",
+                  "channels": 2,
+                  "start_time": "0.000000",
+                  "duration": "256.534059"
+                }
+              ],
+              "format": {
+                "duration": "256.534059"
+              }
+            }
+          }
+        ],
+        "files": {
+          "mix": {
+            "path": "gha-3-90/mix.wav",
+            "sha256": "7acab1132ae7127d2b207c3f206c94f711b0361ca51b545ec1b041556b09696c",
+            "bytes": 2116844
+          },
+          "reference": {
+            "path": "gha-3-90/reference.wav",
+            "sha256": "b02c3d70b0eed4bb8ad21661db326094a02d2a9f9e912d84c3e41c285d503d87",
+            "bytes": 2116844
+          },
+          "backing": {
+            "path": "gha-3-90/backing.wav",
+            "sha256": "9ae78d66ca0f1eb5bbb9fc1f06fc956cadf693341c709e6fc634201c83e8bef7",
+            "bytes": 2116844
+          },
+          "rhythm": {
+            "path": "gha-3-90/rhythm.wav",
+            "sha256": "0866dd35f14b805ce2e0f7e152f8a338d2e988868c5fd52a8121ab788eac9df3",
+            "bytes": 2116844
+          }
+        }
+      }
+    ]
+  },
+  "date": "2026-10-25T04:47:27.859Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "logicalProcessors": 14,
+  "isolated": true,
+  "gpu": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "description": ""
+  },
+  "protocolNotes": {
+    "reference": "Assigned game stem, not certified pure/exhaustive guitar; constructed sum not commercial mix",
+    "trainingExposure": "unknown",
+    "provisionalRhythm": "Not a certified bass reference",
+    "timing": "Cache validation, session preparation and separation/publication; excludes WAV decode and metric calculation. No continuous visibility/system-load logging; not a speed ranking.",
+    "listening": "No human ratings collected; estimated PCM not retained after each run",
+    "mogg": "No inference without channel mapping",
+    "codeEvidence": "local-game-code-2026-10-25.json",
+    "gitHead": "b10dd146a082fcf79f21e96fb31787d1589eea1f",
+    "workingTreeDirty": true,
+    "ortVersion": "1.22.0",
+    "observedOS": "macOS 14.4.1, build 23E224",
+    "recommendationEligible": false
+  },
+  "descriptiveSummary": [
+    {
+      "modelId": "bs_roformer_sw_6s",
+      "backend": "webgpu",
+      "windows": 6,
+      "compositions": 3,
+      "assignedGuitarMedianSiSdrDb": 7.5476430083724715,
+      "assignedGuitarMedianImprovementDb": 10.422555343852887,
+      "assignedGuitarMinSiSdrDb": 0.12753033017696397,
+      "provisionalRhythmMedianSiSdrDb": 11.942837997189873,
+      "jobMedianSeconds": 31.41918250000477,
+      "jobRangeSeconds": [
+        28.907639999985694,
+        38.78666499996185
+      ]
+    },
+    {
+      "modelId": "htdemucs_6s",
+      "backend": "wasm",
+      "windows": 6,
+      "compositions": 3,
+      "assignedGuitarMedianSiSdrDb": 6.550039697855608,
+      "assignedGuitarMedianImprovementDb": 9.424952033336023,
+      "assignedGuitarMinSiSdrDb": -0.4650722737355883,
+      "provisionalRhythmMedianSiSdrDb": 10.785584030913743,
+      "jobMedianSeconds": 92.54942000001668,
+      "jobRangeSeconds": [
+        88.23920999991894,
+        117.07877499997616
+      ]
+    }
+  ],
+  "softwareValidation": {
+    "nodeTestCasesPassed": 537,
+    "nodeFailed": 0,
+    "additionalPythonTestCasesPassed": 3,
+    "wavHashesVerified": 24
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-25",
+  "scope": "Snapshot before Falcon GPU-preference control; original CPU snapshot retained separately.",
+  "gitHead": "b10dd146a082fcf79f21e96fb31787d1589eea1f",
+  "workingTreeDirty": true,
+  "files": {
+    "webnn-demucs4.html": "007dcf49c87401cb28e3ce65019d3208464f149157e400dc848ae50108fa1846",
+    "webnn-demucs4.js": "3b4f02d3fe430d94c99f28eaac8932b050ee27a6c5ee99638496c9d06fc387ea",
+    "webnn-demucs4-worker.js": "32c003e7818af8193e391058e8f1fe30bf6661ca3556973355db4158b514f739",
+    "WebNNParity.js": "61781d4fb07e9c9e4d6239206025e227211fcd3a8a3f47e9a3c11a225a7a8a01",
+    "OnnxCoreModel.js": "7a4c0ca6f1d861587e7f3e1aa0ed432535fdc30276161d552c370952e8530198",
+    "vendor/demucs-js/apply.js": "814c4b775a9a557ec2f83a2b757611ad0c135eda83a3d94f3793116c981d0bfe"
+  }
+}

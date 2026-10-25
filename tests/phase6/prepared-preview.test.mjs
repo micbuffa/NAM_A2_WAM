@@ -72,3 +72,11 @@ test('prepared runner forwards bounded stage preparation events without marking 
  assert.equal(progress.length,1);assert.equal(runner.isPrepared(model,'webgpu'),false);
  worker.onmessage({data:{type:'prepared'}});await preparing;assert.equal(runner.isPrepared(model,'webgpu'),true);runner.cancel();
 });
+test('a stopped GPU session is re-created only on explicit preparation and can separate again',async()=>{
+ const {runner,workers}=fixture();await runner.prepare(model,'webgpu');workers[0].postMessage=()=>{};
+ const pending=runner.separate(model,[new Float32Array(8),new Float32Array(8)]);const obsoleteReply=workers[0].onmessage;
+ runner.cancel();await assert.rejects(pending,{name:'AbortError'});assert.equal(runner.isPrepared(model,'webgpu'),false);assert.equal(workers.length,1);
+ await new Promise(r=>setImmediate(r));assert.equal(workers.length,1);
+ await runner.prepare(model,'webgpu');let published=0;obsoleteReply({data:{type:'done'}});
+ const result=await runner.separate(model,[new Float32Array(8),new Float32Array(8)],{onChunk:()=>published++});assert.equal(result.backend,'webgpu');assert.equal(published,1);assert.equal(workers.length,2);runner.cancel();
+});

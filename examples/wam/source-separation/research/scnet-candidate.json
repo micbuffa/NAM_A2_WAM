@@ -1,0 +1,99 @@
+{
+  "date": "2026-10-25",
+  "status": "candidate-not-in-production",
+  "name": "SCNet compact, 10.1M parameters; not XL/Large",
+  "source": "https://huggingface.co/audiojs/scnet",
+  "filename": "scnet.int8.onnx",
+  "size": 12900277,
+  "sha256": "98228931494151762a1c4ab1ec7899a894b1f81fd4a509921a9d2f9bacc50845",
+  "checkpointSha256": "1bc0d1abb20bfdf966dcd07637bafd03e4bc13653d09ef18bc9b3e342eafe2aa",
+  "codeRevision": "84b1eac0887756b4f1a9d7a1ff49105939749ed2",
+  "licenseEvidence": "https://github.com/starrytong/SCNet/issues/35#issuecomment-4999873539",
+  "roles": [
+    "drums",
+    "bass",
+    "other",
+    "vocals"
+  ],
+  "input": {
+    "name": "mix_spec",
+    "type": "float32",
+    "shape": [
+      1,
+      4,
+      2049,
+      476
+    ]
+  },
+  "output": {
+    "name": "stems_spec",
+    "type": "float32",
+    "observedShape": [
+      1,
+      16,
+      2049,
+      476
+    ]
+  },
+  "dsp": {
+    "sampleRate": 44100,
+    "segmentFrames": 485100,
+    "fft": 4096,
+    "hop": 1024,
+    "window": "rectangular",
+    "scale": "1/sqrt(4096)",
+    "centerPadding": "reflect",
+    "complexOrder": "channel, real/imaginary",
+    "inferenceStepSeconds": 2.75
+  },
+  "large": {
+    "source": "https://huggingface.co/audiojs/scnet-large",
+    "size": 45082486,
+    "sha256": "b2dc586a1e0e6c0afe4915e9057ea29111397b7bbf589edc3d85de91de79cd72",
+    "tested": false
+  },
+  "limitations": [
+    "No dedicated guitar stem",
+    "Compact quantization changes native outputs",
+    "Four short musical CPU tests do not validate other variants or a production browser adapter"
+  ],
+  "audiojsCodeRevision": "3ef9c0469766ddf98592a80338435ac8f4a693a9",
+  "audiojsWeightsRevision": "e71bcdb42bce1d62b7fae25ba90fcbcf90f73f46",
+  "preparationFiles": [
+    {
+      "path": "export-scnet.py",
+      "url": "https://raw.githubusercontent.com/audiojs/neural/3ef9c0469766ddf98592a80338435ac8f4a693a9/packages/neural-separate/scripts/export-scnet.py",
+      "sha256": "b6c7af1d7ca05f0b7821c885241c90c6020bd2c0553ab7c8503d4199bfa18a7b"
+    },
+    {
+      "path": "reference.py",
+      "url": "https://raw.githubusercontent.com/audiojs/neural/3ef9c0469766ddf98592a80338435ac8f4a693a9/packages/neural-separate/scripts/reference.py",
+      "sha256": "cd85d8be2a53018fafd14dd5a4834b2dfb01ebcca4bbf5f4965969cf8a4749ca"
+    },
+    {
+      "path": "scnet_code/scnet/scnet.py",
+      "url": "https://raw.githubusercontent.com/ZFTurbo/Music-Source-Separation-Training/84b1eac0887756b4f1a9d7a1ff49105939749ed2/models/scnet/scnet.py",
+      "sha256": "a024c6a6b3e5eda6da29f052076772c277183dc273f144b4feca1c565030e1ed"
+    },
+    {
+      "path": "scnet_code/scnet/separation.py",
+      "url": "https://raw.githubusercontent.com/ZFTurbo/Music-Source-Separation-Training/84b1eac0887756b4f1a9d7a1ff49105939749ed2/models/scnet/separation.py",
+      "sha256": "4fdda9982003b795c3b5d964f998ca0bc416d7c232b813706a6088b16a1a1639"
+    },
+    {
+      "path": "config_musdb18_scnet.yaml",
+      "url": "https://github.com/ZFTurbo/Music-Source-Separation-Training/releases/download/v.1.0.6/config_musdb18_scnet.yaml",
+      "sha256": "19103def86d549701f824804fc5f3d244e8e8ccd4032da6ee9d5b4f2a5f2da16"
+    },
+    {
+      "path": "scnet_checkpoint_musdb18.ckpt",
+      "url": "https://github.com/ZFTurbo/Music-Source-Separation-Training/releases/download/v.1.0.6/scnet_checkpoint_musdb18.ckpt",
+      "sha256": "1bc0d1abb20bfdf966dcd07637bafd03e4bc13653d09ef18bc9b3e342eafe2aa"
+    },
+    {
+      "path": "scnet.int8.onnx",
+      "url": "https://huggingface.co/audiojs/scnet/resolve/e71bcdb42bce1d62b7fae25ba90fcbcf90f73f46/scnet.int8.onnx",
+      "sha256": "98228931494151762a1c4ab1ec7899a894b1f81fd4a509921a9d2f9bacc50845"
+    }
+  ]
+}

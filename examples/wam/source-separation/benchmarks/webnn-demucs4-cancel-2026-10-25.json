@@ -1,0 +1,12 @@
+{
+  "protocol": "webnn-demucs4-cancel-smoke-v1",
+  "date": "2026-10-25",
+  "browser": "Canary158",
+  "lastObservedPhase": "verification of local weights, first production WASM Worker",
+  "observedStatusAfterClick": "cancelled",
+  "completedRows": 0,
+  "runAndSelectorsEnabled": true,
+  "cancelDisabled": true,
+  "latencyMeasured": false,
+  "interpretation": "UI cancellation smoke test; no additional completed model inference or quality score."
+}

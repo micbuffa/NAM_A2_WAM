@@ -1,0 +1,33 @@
+{
+  "protocol": "webnn-runtime-lab-v1",
+  "version": "1.30.0",
+  "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+  "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+  "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+  "license": {
+    "name": "MIT",
+    "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+    "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+  },
+  "operatorTable": {
+    "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+    "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+  },
+  "files": {
+    "ort.all.min.mjs": {
+      "bytes": 819537,
+      "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+    },
+    "ort-wasm-simd-threaded.jsep.mjs": {
+      "bytes": 46851,
+      "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+    },
+    "ort-wasm-simd-threaded.jsep.wasm": {
+      "bytes": 28312028,
+      "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+    }
+  },
+  "location": "third_party/nam-webnn-probe/runtime",
+  "productionRuntimeUnchanged": "1.22.0",
+  "scope": "isolated source-only research lab; no production model catalogue change"
+}

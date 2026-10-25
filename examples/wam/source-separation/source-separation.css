@@ -136,3 +136,29 @@ body { margin: 0; font-family: var(--tl-font-sans,system-ui,sans-serif); font-si
 .instrument-recommendations{margin:16px 0;padding:14px;border:1px solid #3d493f;border-radius:10px}.instrument-recommendations table{width:100%;border-collapse:collapse;font-size:12px}.instrument-recommendations th,.instrument-recommendations td{padding:7px;text-align:left;border-bottom:1px solid #39433b}.instrument-recommendations p{line-height:1.5}.instrument-recommendations a{color:#bed986}
 
 .instrument-recommendations{overflow-x:auto}.instrument-recommendations td:first-child{overflow-wrap:anywhere;max-width:260px}
+
+/* Optional local import, visible in the compact host sidebar as well. */
+.youtube-import {min-width:0;margin:12px 0;overflow-wrap:anywhere}
+.youtube-import summary {cursor:pointer;font-weight:600}
+.youtube-import form {display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.youtube-import label {display:grid;gap:6px;flex:1 1 180px;min-width:0}
+.youtube-import input {box-sizing:border-box;width:100%;min-width:0}
+.youtube-import progress {width:100%;margin-top:10px}
+.youtube-import [role=status] {font-size:12px;line-height:1.4;color:var(--tl-muted,#b8c4cb)}
+
+#playerCancelButton {border-color:var(--tl-danger,#ef7676)}
+
+/* One import entry point, with local file and YouTube choices together. */
+.audio-import-choice {margin-bottom:12px}
+.audio-import-choice > summary {box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px solid var(--tl-border-strong,#3d433f);border-radius:8px;background:var(--tl-surface-3,#171a19);color:var(--tl-text,#f3f5f1);font-weight:600;cursor:pointer;list-style:none}
+.audio-import-choice > summary::-webkit-details-marker {display:none}
+.audio-import-choice > summary::after {content:'▾'}
+.audio-import-choice[open] > summary::after {content:'▴'}
+.audio-import-choice > summary:hover {background:var(--tl-surface-5,#202422)}
+.audio-import-choice > summary:focus-visible {outline:2px solid var(--tl-accent,#c7f65b);outline-offset:3px}
+.audio-import-options {display:grid;gap:10px;padding:12px 0 0;min-width:0}
+.audio-import-options > tl-button {width:100%}
+.audio-import-options .youtube-import {margin:0;padding:10px;border:1px solid var(--tl-border,#303532);border-radius:8px}
+.audio-import-options .youtube-import summary {font-size:13px;line-height:1.5}
+.audio-import-options .youtube-import form {margin-top:10px}
+.audio-import-options .youtube-import input {margin:0}

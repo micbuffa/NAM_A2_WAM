@@ -74,3 +74,7 @@ test('saving empty lanes after a model change stores only the preserved original
  f.workflow.resetResult(empty);const state=await f.save();assert.equal(state.result,null);assert.equal(state.active,'original');
  assert.equal(f.store.records.get('snapshot').result,null);await f.restore(state);assert.equal(f.workflow.active,f.workflow.original);f.workflow.destroy();
 });
+test('imported YouTube provenance survives session save/restore independently of the temporary download job',async()=>{
+ const f=fixture();f.source.provenance={kind:'youtube',videoId:'YE7VzlLtp-4',url:'https://www.youtube.com/watch?v=YE7VzlLtp-4',name:'Big Buck Bunny',extension:'m4a',duration:597,importedAt:'2026-10-24T22:03:32.612Z',sha256:'8296cfa389ea5e97aeace1f979ab236e9195b5363f1e0bc62309c18a9d4b41f3'};
+ const state=await f.save();assert.deepEqual(state.source.provenance,f.source.provenance);assert.ok(!('jobId' in state.source.provenance));const serialized=JSON.parse(JSON.stringify(state));assert.deepEqual(validateSession(serialized).source.provenance,f.source.provenance);await f.restore(serialized);assert.equal(f.workflow.original.engine.duration,100/44100);f.workflow.destroy();
+});

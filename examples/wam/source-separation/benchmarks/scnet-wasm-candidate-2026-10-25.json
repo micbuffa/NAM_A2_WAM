@@ -1,0 +1,28 @@
+{
+  "protocol": "scnet-browser-contract-v1",
+  "date": "2026-10-24T22:08:57.657Z",
+  "backend": "wasm",
+  "runtime": {
+    "common": "1.22.0",
+    "web": "1.22.0"
+  },
+  "model": "audiojs/scnet.int8.onnx",
+  "status": "completed",
+  "modelSha256": "98228931494151762a1c4ab1ec7899a894b1f81fd4a509921a9d2f9bacc50845",
+  "inputSha256": "496a3de09afd13327c2a9d6a2ffd7b95b6c8b05e16d54508d451b08d8648a6cb",
+  "referenceSha256": "33c95447efbeb734868fd99d2060adc09d6c8cfa7d4b7f7e1924a174b2c9ee0e",
+  "sessionMs": 3255.6549999713898,
+  "inferenceMs": 46493.78500008583,
+  "outputShape": [
+    1,
+    16,
+    2049,
+    476
+  ],
+  "relativeRmsError": 5.586364395036308e-7,
+  "maxAbsError": 0.00003910064697265625,
+  "finite": true,
+  "numericTolerance": 0.001,
+  "parityPassed": true,
+  "interpretation": "Même ONNX compact, pas de parité à la précision du checkpoint natif et pas de preuve de qualité guitare/basse. Des opérateurs peuvent être exécutés sur CPU dans le backend GPU."
+}

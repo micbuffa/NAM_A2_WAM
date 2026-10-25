@@ -41,3 +41,7 @@
 # Python preparation/test caches
 /tools/__pycache__/
 /tests/phase6/__pycache__/
+
+# Optional local YouTube importer dependencies
+/tools/.youtube-runtime/
+/third_party/scnet-probe/

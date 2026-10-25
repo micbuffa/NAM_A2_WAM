@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-25",
+  "model": "mdx_extra_q",
+  "protocol": "mdx-extra-q-native-feasibility-v1",
+  "torch": "2.6.0",
+  "python": "3.12.14",
+  "platform": "macOS-14.4.1-arm64-arm-64bit",
+  "threads": 2,
+  "trainingContamination": "Official documentation says mdx_extra uses MUSDB test. Not an independent MUSDB test evaluation. Additional training provenance on MedleyDB is unknown.",
+  "status": "native-completed-browser-unported",
+  "models": 4,
+  "roles": [
+    "drums",
+    "bass",
+    "other",
+    "vocals"
+  ],
+  "sampleRate": 44100,
+  "officialSegmentsSeconds": [
+    44.0,
+    44.0,
+    44.0,
+    44.0
+  ],
+  "loadSeconds": 3.2592067919904366,
+  "checkpoints": [
+    {
+      "filename": "14fc6a69-a89dd0ee.th",
+      "bytes": 38491885,
+      "sha256": "a89dd0eeb547221dcfd6c0a47baa768ce0bce548eaf86b9a404d6b1088b5d22f"
+    },
+    {
+      "filename": "464b36d7-e5a9386e.th",
+      "bytes": 38893153,
+      "sha256": "e5a9386ecbf6f30bb2bdc7ae162f471d87f3b5bffba1a8cb2cebe4403280967e"
+    },
+    {
+      "filename": "7fd6ef75-a905dd85.th",
+      "bytes": 39436529,
+      "sha256": "a905dd8548f7389f1a3686c24c09d7bee61b716e3372e778e2acec88333ecdf4"
+    },
+    {
+      "filename": "83fc094f-4a16d450.th",
+      "bytes": 50756993,
+      "sha256": "4a16d450fd8c9277494e23865cadaa4a3e64141c45411d84243b8c95ea4b7cae"
+    }
+  ],
+  "inferenceSeconds": 5.436763042001985,
+  "shape": [
+    4,
+    2,
+    264600
+  ],
+  "finite": true,
+  "case": "medley-rainfall-20",
+  "inputSha256": "0602b916f99a1748925295a09d10ed3e70a2cfa0e559a4fc3aaf6c07661ad886",
+  "settings": {
+    "shifts": 0,
+    "split": false,
+    "seconds": 6.0,
+    "note": "One bounded whole-excerpt inference; no 44-second chunked whole-song throughput claim."
+  },
+  "guitarOtherProxy": {
+    "siSdrDb": 18.238653169481918,
+    "gainDb": -0.22824834914142778,
+    "independentTrainingExposure": false
+  }
+}

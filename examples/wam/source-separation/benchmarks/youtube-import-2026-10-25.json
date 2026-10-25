@@ -1,0 +1,59 @@
+{
+  "protocol": "youtube-import-workflow-v1",
+  "date": "2026-10-25 Europe/Paris",
+  "ytDlp": "2026.10.21",
+  "ejs": "0.8.0",
+  "testVideoSource": "https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/extractor/youtube/_video.py",
+  "firstAttempt": {
+    "url": "https://www.youtube.com/watch?v=BaW_jenozKc",
+    "status": "error",
+    "message": "This video is unavailable"
+  },
+  "successfulDownload": {
+    "state": "ready",
+    "progress": 100,
+    "message": "28244 Kio re\u00e7us",
+    "metadata": {
+      "kind": "youtube",
+      "name": "Big Buck Bunny",
+      "videoId": "YE7VzlLtp-4",
+      "url": "https://www.youtube.com/watch?v=YE7VzlLtp-4",
+      "duration": 597,
+      "importedAt": "2026-10-24T22:03:32.612Z",
+      "size": 28914898,
+      "extension": "m4a",
+      "sha256": "8296cfa389ea5e97aeace1f979ab236e9195b5363f1e0bc62309c18a9d4b41f3"
+    }
+  },
+  "browserObserved": {
+    "browser": "Chrome",
+    "serverPort": 8767,
+    "sourceDecodedSeconds": 596.5,
+    "selectedExcerptSeconds": 5,
+    "model": "htdemucs_4s_onnx",
+    "requestedBackend": "webgpu",
+    "stems": [
+      "drums",
+      "bass",
+      "other",
+      "vocals"
+    ],
+    "separation": "completed",
+    "playback": "Pause button and advancing position slider observed",
+    "invalidURL": "Rejected with previous separated result preserved",
+    "compactHost": "Source host import succeeded; final dist import succeeded. Same origin local optional API.",
+    "finalDist": {
+      "url": "http://127.0.0.1:8767/dist/NAM_A2_WAM/index.html",
+      "excerptSeconds": 5,
+      "stems": 4,
+      "status": "completed",
+      "playback": "Pause and all four advancing playheads observed; Stop then verified"
+    }
+  },
+  "limits": [
+    "Workflow validation only; no stems of origin or SI-SDR",
+    "No human listening score",
+    "No claim of full-song separation in this trial",
+    "Model cached/downloaded before separation; timings not instrumented"
+  ]
+}

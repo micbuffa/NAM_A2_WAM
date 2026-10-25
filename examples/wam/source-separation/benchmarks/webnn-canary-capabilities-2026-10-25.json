@@ -1,0 +1,194 @@
+{
+  "protocol": "webnn-native-capability-v1",
+  "date": "2026-10-25T06:42:22.329Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+  "secureContext": true,
+  "crossOriginIsolated": true,
+  "windowAPI": true,
+  "status": "completed",
+  "effectiveHardware": "unknown",
+  "runs": [
+    {
+      "scope": "window",
+      "id": "default",
+      "requestedOptions": {},
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": true,
+      "contextMilliseconds": 53.87999999523163,
+      "reportedAccelerated": null,
+      "buildMilliseconds": 190.29500007629395,
+      "inferenceAndReadMilliseconds": 0.2650001049041748,
+      "output": [
+        11
+      ],
+      "expected": [
+        11
+      ],
+      "status": "passed"
+    },
+    {
+      "scope": "window",
+      "id": "cpu-preference",
+      "requestedOptions": {
+        "deviceType": "cpu",
+        "accelerated": false
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": true,
+      "contextMilliseconds": 1.7649999856948853,
+      "reportedAccelerated": null,
+      "buildMilliseconds": 155.27999997138977,
+      "inferenceAndReadMilliseconds": 0.28000009059906006,
+      "output": [
+        11
+      ],
+      "expected": [
+        11
+      ],
+      "status": "passed"
+    },
+    {
+      "scope": "window",
+      "id": "gpu-preference",
+      "requestedOptions": {
+        "deviceType": "gpu",
+        "accelerated": true
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": true,
+      "contextMilliseconds": 0.5800000429153442,
+      "reportedAccelerated": null,
+      "buildMilliseconds": 153.16999995708466,
+      "inferenceAndReadMilliseconds": 0.21000003814697266,
+      "output": [
+        11
+      ],
+      "expected": [
+        11
+      ],
+      "status": "passed"
+    },
+    {
+      "scope": "window",
+      "id": "npu-preference",
+      "requestedOptions": {
+        "deviceType": "npu",
+        "accelerated": true
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": true,
+      "contextMilliseconds": 0.5699999332427979,
+      "reportedAccelerated": null,
+      "buildMilliseconds": 156.94000005722046,
+      "inferenceAndReadMilliseconds": 0.20500004291534424,
+      "output": [
+        11
+      ],
+      "expected": [
+        11
+      ],
+      "status": "passed"
+    },
+    {
+      "scope": "worker",
+      "id": "default",
+      "requestedOptions": {},
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": true,
+      "contextMilliseconds": 0.41499996185302734,
+      "reportedAccelerated": null,
+      "buildMilliseconds": 167.70500004291534,
+      "inferenceAndReadMilliseconds": 0.23000001907348633,
+      "output": [
+        11
+      ],
+      "expected": [
+        11
+      ],
+      "status": "passed"
+    },
+    {
+      "scope": "worker",
+      "id": "cpu-preference",
+      "requestedOptions": {
+        "deviceType": "cpu",
+        "accelerated": false
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": true,
+      "contextMilliseconds": 0.5550000667572021,
+      "reportedAccelerated": null,
+      "buildMilliseconds": 165.50499999523163,
+      "inferenceAndReadMilliseconds": 0.28000009059906006,
+      "output": [
+        11
+      ],
+      "expected": [
+        11
+      ],
+      "status": "passed"
+    },
+    {
+      "scope": "worker",
+      "id": "gpu-preference",
+      "requestedOptions": {
+        "deviceType": "gpu",
+        "accelerated": true
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": true,
+      "contextMilliseconds": 0.6000000238418579,
+      "reportedAccelerated": null,
+      "buildMilliseconds": 165.7849999666214,
+      "inferenceAndReadMilliseconds": 0.17499995231628418,
+      "output": [
+        11
+      ],
+      "expected": [
+        11
+      ],
+      "status": "passed"
+    },
+    {
+      "scope": "worker",
+      "id": "npu-preference",
+      "requestedOptions": {
+        "deviceType": "npu",
+        "accelerated": true
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": true,
+      "contextMilliseconds": 0.4249999523162842,
+      "reportedAccelerated": null,
+      "buildMilliseconds": 157.74500000476837,
+      "inferenceAndReadMilliseconds": 0.19999992847442627,
+      "output": [
+        11
+      ],
+      "expected": [
+        11
+      ],
+      "status": "passed"
+    }
+  ],
+  "codeEvidence": {
+    "WebNNProbe.js": "722c358cb0527fe0ba3ffaf76d45233e21cd39399b99ea6d08930e859edaab9e",
+    "webnn-probe.js": "8907001db0ac7b14da0be08cc3062add4a6eb8e2d015d30e571a10beaf81381f",
+    "webnn-probe-worker.js": "4548b9159e06c6a2bd7632ae7d26ac6700ab7ce05c9f62dfff1714f6de8a53df",
+    "webnn-probe.html": "ce53ff8544808163c34de30eb46ea48e026ba19a1853be1ad7a9c15b18b62562"
+  },
+  "interpretation": {
+    "browser": "Canary 158.0.8122.0 arm64, version verified in About UI",
+    "effectiveAccelerator": "unknown",
+    "notes": "Native matmul float32 only, no ORT or music model. Both deviceType and accelerated sent as compatibility preferences; accepted unknown keys may be ignored. No flags changed by agent. Timings include a tiny graph, not model throughput.",
+    "series": "Eight archived probes; earlier unarchived smoke runs were also performed while adjusting report rendering."
+  }
+}

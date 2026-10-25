@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-25",
+  "scope": "Snapshot before CPU-preference campaign; earlier GPU campaign used a hardcoded GPU preference before this UI selector was added. Model/DSP/runtime unchanged.",
+  "gitHead": "b10dd146a082fcf79f21e96fb31787d1589eea1f",
+  "workingTreeDirty": true,
+  "files": {
+    "webnn-demucs4.html": "5529f1df570bbec363fd859102ed2ee5fea4d748662d977422aca8d90c45c158",
+    "webnn-demucs4.js": "3fd5bf044a65c76d0ea7be56d7c8b5d3ab5863f728364341e0d9c66c936d452c",
+    "webnn-demucs4-worker.js": "32c003e7818af8193e391058e8f1fe30bf6661ca3556973355db4158b514f739",
+    "WebNNParity.js": "41928fd251b533eea32e1e2b6f4f1b830fa4abe90411f24113d963b1bd9c92b6",
+    "OnnxCoreModel.js": "7a4c0ca6f1d861587e7f3e1aa0ed432535fdc30276161d552c370952e8530198",
+    "vendor/demucs-js/apply.js": "814c4b775a9a557ec2f83a2b757611ad0c135eda83a3d94f3793116c981d0bfe"
+  }
+}

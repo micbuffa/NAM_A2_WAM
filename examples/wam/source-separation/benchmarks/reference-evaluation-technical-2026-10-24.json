@@ -1,0 +1,170 @@
+{
+  "protocol": "local-reference-evaluation-v1",
+  "status": "completed",
+  "startedAt": "2026-10-24T21:43:24.515Z",
+  "environment": {
+    "date": "2026-10-24T21:43:24.515Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "logicalProcessors": 14,
+    "reportedDeviceMemoryGiB": 32,
+    "crossOriginIsolated": true,
+    "visibility": "visible",
+    "hardwareDescription": "not-recorded",
+    "gpu": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "device": null,
+      "description": null,
+      "features": [
+        "depth32float-stencil8",
+        "rg11b10ufloat-renderable",
+        "texture-formats-tier1",
+        "bgra8unorm-storage",
+        "texture-compression-bc",
+        "dual-source-blending",
+        "core-features-and-limits",
+        "float32-filterable",
+        "indirect-first-instance",
+        "texture-compression-astc-sliced-3d",
+        "float32-blendable",
+        "subgroup-size-control",
+        "texture-compression-astc",
+        "texture-compression-etc2",
+        "depth-clip-control",
+        "texture-compression-bc-sliced-3d",
+        "clip-distances",
+        "texture-formats-tier2",
+        "shader-f16",
+        "timestamp-query",
+        "primitive-index",
+        "texture-component-swizzle",
+        "subgroups"
+      ]
+    }
+  },
+  "code": {
+    "version": "local-reference-evaluation-v1",
+    "scope": "Selected harness/scoring/runner source files; not a complete transitive runtime manifest",
+    "sources": [
+      {
+        "path": "reference-evaluation.html",
+        "sha256": "c72a67a4b20a129fa30ee2a71687cdda5a5b2575996c8a2f63db10098b9a6a20"
+      },
+      {
+        "path": "reference-evaluation.js",
+        "sha256": "0996882275bf575c388b31956c3db5647fd73907849d2f2307adcd1752b136ec"
+      },
+      {
+        "path": "ReviewAudioPlayer.js",
+        "sha256": "bc44ca15ecec620fbf112b4162d8dc343ccc7e6f4fb02bda5abb8c2108d1ca45"
+      },
+      {
+        "path": "ReferenceEvaluation.js",
+        "sha256": "fd84c5beaa86b2d5023d8f94e1a95b17ec11e800c3a72f4bcd70002f5c3c848b"
+      },
+      {
+        "path": "InstrumentComparison.js",
+        "sha256": "7fddfba66ee84c732f9727ff10507f59ae81c5a83a766f83d89661970838e77f"
+      },
+      {
+        "path": "InstrumentQuality.js",
+        "sha256": "fa2a1a8d6194a6441c4731a9fcb93771e036ec34601f61219e55ca98e5d56aa6"
+      },
+      {
+        "path": "BenchmarkRunnerFactory.js",
+        "sha256": "f5b3866d123c3da167b80baeee1bc4f0ac0aa5f9eea20767cb86a876fb98aa5f"
+      },
+      {
+        "path": "PreparedDemucsRunner.js",
+        "sha256": "68cf6214cd03e2cabce974ef3038133fabf43c935589d5cf701db2b36a32c16c"
+      },
+      {
+        "path": "models.json",
+        "sha256": "b9d1a2d939a676ba5050d92e94d60085d25f5a5bcb85100f87ffbb35ec872585"
+      }
+    ]
+  },
+  "sources": {
+    "target": {
+      "name": "nam-reference-dev-target.wav",
+      "bytes": 176444,
+      "sha256": "4b5d26c061038a8c56806b5488e31e7f99ff4ca32b759343d62b97dacbbf563a",
+      "decodedSampleRate": 44100,
+      "decodedChannels": 1,
+      "decodedFrames": 44100
+    },
+    "backing": {
+      "name": "nam-reference-dev-backing.wav",
+      "bytes": 176444,
+      "sha256": "84654f13fdec5405034f90d14763cf610ace02a61f2ae0dd4b00c68eed8f36db",
+      "decodedSampleRate": 44100,
+      "decodedChannels": 1,
+      "decodedFrames": 44100
+    }
+  },
+  "metadata": {
+    "title": "Contrôle technique final · deux sinusoïdes",
+    "artist": "",
+    "rights": "Signaux synthétiques créés pour valider le logiciel",
+    "alignment": "Exports depuis le même échantillon zéro",
+    "instrument": "guitar",
+    "provenance": "development-fixture",
+    "recordingDate": "",
+    "otherIsGuitar": false,
+    "trainingExposure": "user-declaration-not-independently-audited"
+  },
+  "recipe": {
+    "sampleRate": 44100,
+    "frames": 44100,
+    "offsetFrame": 0,
+    "seconds": 1,
+    "commonGain": 1,
+    "targetMonoDuplicated": true,
+    "backingMonoDuplicated": true,
+    "mix": "target-plus-backing",
+    "normalization": "one-common-peak-gain",
+    "alignment": "user-declared-no-delay-search"
+  },
+  "pcm": {
+    "format": "float32-little-endian-channel-major",
+    "mixSha256": "3afe0515e46b5c532af920570412e4e2807dbb07132c6de2b58a62109ac52926",
+    "targetSha256": "61b283a716b9310e3850727c1abdf147195a4369ee121e356a414e4ce3afed7b",
+    "backingSha256": "3a99de980a54e4b4babdb7371af0770c51b097f02750376ff6a7614f1ccdb158"
+  },
+  "timeComparisonEligible": false,
+  "runs": [
+    {
+      "modelId": "bs_roformer_sw_6s",
+      "label": "BS Roformer SW · 6 instruments · GPU expérimental",
+      "backend": "webgpu",
+      "identity": "[\"a744f80957374e1735ad70fa122670b7961da8cc\",[\"d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444\"]]",
+      "status": "ok",
+      "score": {
+        "valid": true,
+        "siSdrDb": -2.543266393439163,
+        "snrDb": -0.00009268464116068644,
+        "gainDb": -99.4361675488566,
+        "polarity": -1,
+        "improvementDb": -2.5432663971250857,
+        "role": "guitar",
+        "backing": {
+          "valid": true,
+          "siSdrDb": -0.025169942752709375,
+          "snrDb": -0.02498993602612151,
+          "gainDb": -0.00018000858112913922,
+          "polarity": 1,
+          "improvementDb": -0.025169939066233493
+        }
+      }
+    }
+  ],
+  "listening": {
+    "protocol": "exploratory-blind-review-v1",
+    "status": "in-progress",
+    "ratedCount": 0,
+    "candidateCount": 2,
+    "humanResultsAvailable": false
+  },
+  "runStartedAt": "2026-10-24T21:43:24.627Z",
+  "completedAt": "2026-10-24T21:43:45.294Z"
+}

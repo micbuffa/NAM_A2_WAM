@@ -1,0 +1,20 @@
+{
+  "purpose": "Functional cancellation regression, not model quality or latency evaluation",
+  "date": "2026-10-25",
+  "model": "htdemucs_4s_onnx",
+  "backend": "webgpu",
+  "browser": "Chrome",
+  "file": "CleanChords.mp3",
+  "fileSha256": "c47db7c8d34099bc1a9ea9d591204f0a14e21f6728223ae23c0852396044d420",
+  "durationSecondsDisplayed": 47.7,
+  "availableSecondsDisplayedAfterStop": 35.1,
+  "observations": [
+    "Stop control enabled while busy",
+    "After stop: control disabled; original restored; partial stems retained",
+    "No automatic model preparation restarted"
+  ],
+  "limits": [
+    "Rounded GUI durations",
+    "No human listening score or new instrumental quality measurement"
+  ]
+}

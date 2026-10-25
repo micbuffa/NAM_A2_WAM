@@ -1,6 +1,8 @@
 # Prototype de séparation de sources et lecteur multipiste
 
-**État courant — 22 octobre 2026 :** BS Roformer SW six sources est intégré et validé numériquement en expérimental, avec GPU préféré pour la guitare dédiée. Le catalogue compte cinq modèles. Morceau entier, sauvegarde et MP3 fonctionnent ; CPU lent et performances matérielles détaillées dans ROFORMER_VALIDATION.md. Les notes de phases initiales ci-dessous conservent leur historique.
+> **Orientation validée — 25 octobre 2026 :** la prochaine intégration produit est définie en **§12, P5 — Guitar Studio**. Elle conserve les deux onglets **Tone / Studio** de `main`, les projets Rails et leur interface, et y ajoute la séparation, YouTube et le retour d’un mix vers Tone. Le troisième onglet Multitracks et la bibliothèque locale décrits plus bas restent l’historique du prototype, pas la cible produit. **Spécification en cours ; aucune implémentation P5 démarrée.**
+
+**État historique du prototype — 22 octobre 2026 :** BS Roformer SW six sources est intégré et validé numériquement en expérimental, avec GPU préféré pour la guitare dédiée. Le catalogue compte cinq modèles. Morceau entier, sauvegarde et MP3 fonctionnent ; CPU lent et performances matérielles détaillées dans ROFORMER_VALIDATION.md. Les notes de phases initiales ci-dessous conservent leur historique.
 
 ## État d’implémentation — 21 octobre 2026
 
@@ -418,7 +420,9 @@ Validation P4.12c : **24/24 séparations valides**, quatre configurations × six
 - La mémoire de travail du DSP est bornée par fenêtre ; l’original et les stems sont encore conservés en RAM, puis IndexedDB. Ce changement ne constitue pas un streaming disque. Plafond de validation technique cohérent avec les sessions : 24 h ; import de fichier jusqu’à 512 Mio, selon mémoire et quota disponibles.
 - Tests : durée complète et extraits, étiquettes CPU/GPU, placement des contrôles, progression multi-spécialistes et exécution du wrapper Worker sur 13 s avec DSP simulé pour vérifier raccords, dernier échantillon et libération des allocations. Les runners acceptent désormais des entrées au-delà des anciennes bornes.
 
-### 6.2 P4.5 — [DONE] Tracks conservé et workspace Multitracks distinct
+### 6.2 P4.5 — [DONE, historique du prototype] Tracks conservé et workspace Multitracks distinct
+
+> Pour l’intégration au produit actuel de `main`, voir §12 : navigation Tone / Studio et projets Rails. Les choix de cette section restent la trace du prototype livré.
 
 Cette demande remplace la décision de remplacer le lecteur Tracks en P4.4. Conserver Tracks et ses cartes, bibliothèque, waveform, transport, vitesse/time-stretch, normalisation au chargement et réglages tels qu’avant. Ajouter uniquement une action **Separate Stems** au clic droit sur sa waveform, sans remanier sa mise en page. Ajouter un troisième onglet **Multitracks**.
 
@@ -679,3 +683,269 @@ Validation finale :422 tests réussis ; host Jet60s traité en62,42s, premier bl
 P4.12d.1 **[DONE]** : diagnostic guitare multi-styles sur Country1, Grunge et Take A Step. Métadonnées MedleyDB officielles vérifiées, aucune repisse déclarée, instruments hors batterie/basse/voix exclusivement guitares ; flux Autres utilisable ici comme référence guitare. **Ces morceaux sont MUSDB train** : diagnostic du pipeline et des styles uniquement, pas une validation indépendante ni une base de remplacement automatique des conseils. Corpus/protocole/checkpoints distincts ; mesures et fichiers audio locaux séparés. Comparaison A/B des références et résultats en RAM bornée, même volume/position. Suite : compositions guitare hors entraînement connu et écoute humaine documentée, puis nouveaux candidats instrumentaux.
 
 Validation P4.12d.1 : 12/12 séparations valides sur Country1/Grunge/TakeAStep ; SW meilleur SI-SDR sur chacun, mais scores faibles sur Meaxic. Rapport archivé, aucune modification des conseils initiaux. Écoute A/B technique vérifiée (lecture/pause/position/6s), pas de notes d’écoute humaine inventées. P4.12d.2 **[TODO]** : compositions sans entraînement connu et écoute humaine documentée. Le plan P4.12d reste [CURRENT] ; recherche de nouveaux candidats ensuite.
+
+
+### P4.12d.2a — [DONE] Références locales et revue exploratoire
+
+Page reference-evaluation.html : import instrument/backing autorisés, métadonnées droits/provenance/origine, PCM et fichiers hachés, sélection fenêtre, mix exact et gain commun, scores InstrumentQuality sans normalisation par modèle. Other non assimilé à guitare par défaut. Déclarations non auditées explicitement. Revue aléatoire référence cachée+explicite, modèles/mesures masqués, notes vides, validation explicite puis révélation/verrouillage. Pas de MUSHRA/ABX ni de jugement humain automatique. Lecture commune avec position conservée, URL libérées, aucun PCM persistant ni conseil Settings changé. Tests unitaires et contrôle SWGPU réel sur signaux de développement, dist isolée reconstruite ; 512 tests passent. MODEL_EVALUATIONS.MD v0.2 détaille R1.
+
+### P4.12d.2b — [CURRENT, données requises] Validation musicale et écoute humaine
+
+Références locales GHA/Rock Band reçues le25octobre2026 : première sélection documentée en P4.12d.2b.1. Qualifier les sources et fixer les extraits avant calcul, déclarer exposition à l’entraînement et mener la revue avec de vrais participants. Ces exports de jeu ne prouvent pas une indépendance vis-à-vis des corpus d’entraînement ; aucune note humaine collectée. Les signaux techniques R1 ne valident pas cette tâche. P4.12d reste en cours.
+
+### P4.13 — [DONE, prototype local] Import audio depuis une URL YouTube
+
+Demande du24octobre2026 : URL d’une chanson → récupération audio → entrée du lecteur Multitracks → séparation. Cette piste fonctionnelle peut avancer pendant que P4.12d.2b attend des références originales et de vraies observations humaines ; elle n’en remplace pas la validation scientifique.
+
+- **P4.13a [DONE, étude]** : architecture service local/backend optionnel, contrat de tâche asynchrone et intégration du flux `loadFile(file)` existant. Voir [YOUTUBE_IMPORT.md](YOUTUBE_IMPORT.md), sources primaires et limites. Étude initiale, puis implémentation et extraction réelle validées le25octobre2026.
+- **P4.13b [DONE]** : prototype de service local avec yt-dlp et dépendances nécessaires, vidéo unique autorisée, états/progression réels, annulation/nettoyage, tailles/durées bornées. Aucun service tiers opaque, cookie de navigateur ou téléchargement de playlist implicite.
+- **P4.13c [DONE]** : panneau URL dans Multitracks, Blob/File décodé via le pipeline commun, titre/provenance et métadonnées ; Separate disponible après entrée/modèle prêts. Service absent explicite ; import fichier local conservé et morceau courant préservé en cas d’échec.
+- **P4.13d [DONE]** : tests unitaires et intégration contrôlée, puis extraction d’une vidéo autorisée et séparation/lecture du fichier réel. Compte rendu dans MODEL_EVALUATIONS.MD, tests complets et dist avant essai utilisateur.
+
+Après cette fonctionnalité : poursuivre la validation instrumentale originale et l’étude des candidats SCNet/MDX Extra Q. Les conversions Demucs6 GPU, multi-machines/navigateurs et comparaison native/UVR restent des validations distinctes ; ne pas les déclarer terminées.
+
+
+### P4.12d.3 — [DONE, faisabilité] SCNet compact et MDX Extra Q
+
+Audit SCNet compact (pas XL/Large) : poids et code épinglés, quatre cas Q2 comparés au checkpoint natif, contrat spectrogramme CPU/WASM et WebGPU testé dans un Worker. L’export quantifié modifie légèrement le rendu natif ; absence de piste guitare dédiée. MDX Extra Q : ensemble officiel de quatre réseaux chargé, un cas Rainfall séparé en natif, contrat et empreintes archivés. MUSDB test utilisé à l’entraînement MDX Extra : exclu de toute prétention de validation indépendante. Résultats et limites dans MODEL_EVALUATIONS.MD. Aucun des deux candidats n’entre encore dans Model ; le panneau de recherche rapporte leur état réel.
+
+### P4.12d.4 — [TODO] Adaptateur navigateur d’un candidat retenu
+
+Condition d’entrée : gain instrumental ou de ressources démontré sur corpus autorisé, puis DSP, annulation, flux PCM, raccords, mémoire et export validés avant ajout au menu. SCNet compact n’apporte pas à ce stade un gain établi face aux modèles existants ; MDX Extra Q n’a pas encore d’export navigateur validé. XL/Large n’héritent pas de la validation du petit SCNet. Les chronos natifs exploratoires ne modifient ni le choix par défaut ni les histogrammes de production.
+
+P4.12d.2b demeure **[CURRENT, données/participants requis]**. Les validations sur d’autres machines et une comparaison complète dans UVR restent à organiser. Demucs6 GPU conserve son statut non validé ; les échecs historiques ne sont pas effacés par les nouveaux essais SCNet.
+
+Validation finale de cette livraison :529/529 tests,14 tests dédiés import et contrôle de provenance sauvegardée, dist reconstruite, import/séparation/Play Chrome réels, smoke test lecteur Firefox. Aucune nouvelle séparation neuronale Firefox ni validation multi-machines/écoute humaine déclarée.
+
+### Arrêt explicite de la séparation — [DONE] 25 octobre 2026
+
+Un bouton **Stopper la séparation**, distinct du Stop de lecture, reste visible à côté de Separate instruments. Il est grisé au repos et pendant l’arrêt, actif durant le calcul. Son activation termine les Workers CPU/GPU et empêche de nouveaux blocs/progrès périmés de modifier le lecteur. L’original et les blocs déjà publiés restent accessibles ; sans bloc produit, seul l’original est conservé. Les poids téléchargés restent en cache. Aucun préchauffage GPU ne redémarre automatiquement après cet arrêt ; la préparation reprend uniquement lors d’un nouveau lancement explicite. Tests d’état/idempotence et tests existants de terminaison Worker et conservation partielle requis.
+
+### P4.12d.2b.1 — [DONE] Reconnaissance et sélection de références locales
+
+Collection GHA/Rock Band reçue le25octobre2026. Inventaire global de fichiers uniquement ; contrôles limités à3 dossiers GHA et3 MOGG. Premier lot choisi avant résultats : Dream On, Always On The Run, She Sells Sanctuary ; deux fenêtres6s à20s/90s par morceau. Muse Hysteria complément conditionnel après identification des canaux ; Roxanne et Enter Sandman en réserve. Voir LOCAL_STEMS_CORPUS.md et MODEL_EVALUATIONS.MD§17. Aucun modèle exécuté sur cette collection, aucune note humaine.
+
+### P4.12d.2b.2 — [CURRENT] Qualification et préparation des références sélectionnées
+
+Confirmer les rôles guitar/rhythm/song, l’exhaustivité des guitares, la synchronisation et la recette sans double comptage ; exporter instrument/backing/mix à gain commun et hachages. Exposition à l’entraînement inconnue ; ne pas qualifier les jeux de corpus indépendant sans preuve. Puis campagne sur fenêtres figées et revue humaine existante. Ne pas traiter la collection entière. Aucun mapping MOGG présumé.
+
+### P4.14 — [CURRENT, faisabilité] Étude WebNN CPU / GPU / NPU après les validations prioritaires
+
+Cadrage documentaire **WNN-0 [DONE]** dans [WebNN_SUPPORT_SPECIFICATIONS.md](WebNN_SUPPORT_SPECIFICATIONS.md), version0.4 du25octobre2026. WNN-1 synthétique DONE dans Canary158 (8/8), contrôle Chrome normal absent ; WNN-2 runtime/audit DONE. WNN-3 CURRENT après15 exécutions Demucs4, global sous seuil mais gardes de pistes faibles à traiter prospectivement. WNN-4 à WNN-7 restent à réaliser : diagnostic Worker, runtime isolé/épinglé, audit et parité Demucs4, pipeline progressif, mesures comparables, autres modèles puis exposition optionnelle dans Settings. Conserver WASM/WebGPU actuels. Aucune activation automatique des flags, aucun accélérateur NPU déclaré utilisé sur la seule création d’un contexte. Enregistrer demande, observation et fallback séparément. Étude à compléter après les tâches restantes, pas de support WebNN annoncé en production.
+
+### P4.12d.2b.3 — [DONE] Campagne automatisée sur les stems GHA assignés
+
+G1 : six fenêtres6s figées de trois morceaux, deux configurations guitare dédiée (SW WebGPU et Demucs6 WASM), **12/12 succès**. Préparation reproductible `tools/prepare-local-game-corpus.py`, banc `local-game-evaluation.html`, protocole `local-game-assigned-stems-v1`, SHA des sources/WAV/code et résultats archivés. Somme construite guitar+(rhythm+song), gain commun, comparaison guitar.ogg assigné ; ce n’est pas une certification du mix commercial, de la guitare totale ou de la basse. Aucun Autres assimilé à guitare. Voir MODEL_EVALUATIONS.MD§18 et LOCAL_STEMS_CORPUS.md.537 tests Node et3 Python passent ; aucun audio de cette collection distribué.
+
+P4.12d.2b.2 reste **[CURRENT, qualification/participants requis]** : la préparation technique est réalisée mais pureté/exhaustivité, rôle rhythm, écoute humaine et carte MOGG restent à confirmer. G1 ne termine pas l’étude perceptuelle ni la validation indépendante. Les recommandations de production restent inchangées.
+
+### P4.12d.2b.4 — [DONE, outillage] Qualification et préparation d’écoute
+
+Lecteur `game-reference-review.html` : six fenêtres, quatre versions vérifiées, annotations Oui/Non/Incertain sans valeurs préremplies, identification auditeur et export JSON local. Le contenu des stems est déclaré inconnu par l’utilisateur ; aucune qualification humaine inventée. Transfert automatique vers le banc en aveugle existant, SW6/Demucs6 présélectionnés, aucune inférence automatique au chargement. Contrôle réel DreamOn20s : deux séparations réussies, vue aveugle prête, zéro note humaine. Corpus complet inchangé, estimations seulement en RAM.
+
+Entrées UVR aux noms uniques préparées/hachées par `tools/prepare-uvr-review-inputs.py`, recette et réglages à consigner dans GAME_REFERENCE_REVIEW.md. **Inférence UVR et comparaison de ses sorties restent TODO.** Qualification instrumentale et étude perceptuelle P4.12d.2b.2 toujours CURRENT ; fichiers MOGG sans mapping toujours réservés. MODEL_EVALUATIONS.MD§19–20 documente ces contrôles.549 tests Node réussis, plus tests Python de préparation.
+
+### P4.14a — [DONE] Runtime WebNN isolé et audit Demucs4 (WNN-2)
+
+ORT1.30.0 officiel, SRI imposé, licence MIT, trois assets locaux de recherche ignorés ; ORT1.22 du host inchangé. Audit3268nœuds/opset17, mêmes poids SHA du catalogue, formes/types/attributs et contraintes d’opérateurs archivés. Préparation/reproduction dans WEBNN_DEMUCS4_LAB.md. Aucun changement des recommandations ni du menu de production.
+
+### P4.14b — [CURRENT] Parité Demucs4 WebNN (WNN-3)
+
+15 exécutions PCM valides (9musicales,6synthétiques), cinq candidates WebNN, chacune avec un build+dispatch natif observé. Tous les écarts globaux sous1e−3 ; contrôle de runtime WASM1.30/1.22 réussi. Gardes relatifs par piste faibles échoués sur synthèse/DreamOn, conservés ; Falcon ajouté en contrôle exploratoire passe aussi ces gardes. Cause précise non localisée ; aucune utilisation physique GPU/NPU certifiée. Définir prospectivement une politique absolue+relative motivée et étendre les contrôles avant admission production. MODEL_EVALUATIONS.MD§21, benchmarks/webnn-demucs4-summary-2026-10-25.json.
+
+La compilation doit être amortie par réutilisation de session : première séparation complète WebNN plus longue sur Falcon malgré exécution+DSP plus courte. Les chronos exploratoires ne remplacent pas la campagne de débit chaud. Flux progressif/ring buffer, premier audio, annulation tardive et lecture concurrente WNN-4 restent TODO.556 tests Node et18 Python passent.
+
+### P4.14c — [DONE, laboratoire] Sélection WebNN CPU/GPU/NPU
+
+Demande utilisateur : trois choix explicites et conservés pour l’intégration future dans le host. Laboratoire : sélecteur WebNN/CPU, WebNN/GPU, WebNN/NPU, préférence mémorisée par origine/navigateur, config centralisée/testée WebNNDevice.js et reçue par le Worker. CPU/WebNN distinct de CPU/WASM. NPU demandé vérifié par trois exécutions Falcon (référence1.22, contrôle1.30WASM, candidat1.30WebNN), parité réussie et un dispatch observé. Matériel physique inconnu ; aucune garantie d’un NPU réellement employé. Aucun nouveau backend de production activé.560 tests passent. Les futurs Settings devront reprendre ce choix, l’inclure dans la clé de session et afficher clairement refus/repli/identification inconnue.
+
+### P4.14d [DONE] — comparaison WebNN demandée sur quatre et six pistes
+
+Campagne W4 du25octobre2026 : Demucs4 ONNX qualité et BS Roformer SW6, CPU/WASM et WebGPU sans WebNN, puis WebNN CPU/GPU/NPU demandés. Douze configurations,11réussies,33séparations complètes Falcon6s ; WebNN CPU SW échoue avant inférence. Préparation, première exécution et deux répétitions en session séparées. Matériel effectif inconnu, reprise après interruption documentée. Voir MODEL_EVALUATIONS.MD§23, WEBNN_PERFORMANCE.md et rapports bruts. WebGPU reste recommandé. WNN-3/4/5 et admission SW WebNN audio restent ouverts selon leurs critères ; cette tâche est le banc comparatif, pas l’activation WebNN dans le host.
+
+### [DONE] Ergonomie — entrée unique pour importer l’audio
+
+Dans Multitracks, placer **Importer audio** en tête de la colonne des projets. Le dépliant propose le fichier audio local ou la vidéo YouTube, avec le formulaire URL existant ; recherche et liste restent en dessous. Le choix fichier ouvre le sélecteur natif directement depuis le clic utilisateur et respecte l’indisponibilité de l’import pendant les traitements.
+
+
+## 12. P5 — Intégration Guitar Studio : Tone / Studio et Rails
+
+**Statut : [CURRENT — spécification et préparation]. Implémentation non démarrée.**
+
+Cette section consigne les échanges et décisions du 25 octobre 2026. Elle prévaut sur les anciens choix d’intégration P4.5 et de persistance locale pour la nouvelle version produit. Les autres résultats techniques et scientifiques conservent leurs statuts ; leur présence dans ce document ne vaut pas admission dans l’interface publique.
+
+### 12.1 Objectif et socle retenu
+
+Construire un **guitar studio** pour jouer, préparer un accompagnement, mixer quelques parties et, ultérieurement, enregistrer sa guitare ou sa basse. La navigation cible comporte uniquement **Tone** et **Studio**. Un projet peut être personnel ou partagé entre amis, musiciens, professeur et élèves ; le fonctionnement n’est pas spécialisé pour un scénario pédagogique.
+
+Référence analysée : `main` distant au commit **`f7ffec6b1285b89098352262656be5fdb1295e91`**, consulté dans une copie temporaire en lecture seule. Cette révision renomme Projects en Studio ; l’identifiant interne `projects` reste inchangé. Le checkout de travail demeure sur `multitracks`. Avant implémentation, refaire le point avec les évolutions du contributeur sur `main`.
+
+Réutiliser comme socle :
+
+- `examples/wam/projects/ProjectsWorkspace.js` : projets, import, inspecteur, sauvegarde et partage ;
+- `ProjectPlayer.js`, `ProjectTimeline.js` et `TrackTones.js` : transport commun, pistes, boucles, contrôles TONELAB et racks de presets ;
+- le lecteur **Play along** de Tone ;
+- les comptes et API Rails, `Project`, `Track`, `ProjectShare`, Active Storage et Solid Queue.
+
+Importer les moteurs de séparation de `multitracks` derrière ces interfaces : catalogue produit restreint, cache vérifié des modèles, Workers, publication progressive, ring buffer, annulation et encodage MP3. L’intégration se fera module par module ; les versions anciennes de `main.js`, `index.html`, des styles et du backend dans `multitracks` ne doivent pas écraser le travail plus récent de `main`.
+
+La bibliothèque de projets Rails devient la référence persistante. La RAM reste le support du travail en cours ; le cache navigateur est une optimisation locale, pas une seconde bibliothèque présentée comme synchronisée avec le compte. Une éventuelle reprise des projets locaux du prototype devra être explicite et ne devra pas les supprimer silencieusement.
+
+### 12.2 Parcours et interface
+
+```mermaid
+flowchart LR
+    F[Fichier audio] --> I[Importer audio dans Studio]
+    Y[URL YouTube] --> R[Import Rails en arrière-plan]
+    R --> I
+    I --> P[Projet et original conservé]
+    P --> S[Séparer les instruments]
+    S --> M[Stems synchronisés et mix]
+    M --> B[Créer un backing track]
+    B --> T[Tone : jouer avec Play along]
+    T -->|Ouvrir dans Studio| P
+    M --> C[Projet partagé et contributions personnelles]
+```
+
+**Tone** conserve le jeu live, les presets, le rack et le lecteur Play along compact/agrandi de `main`. Un backing généré depuis Studio apparaît dans la bibliothèque personnelle du lecteur et peut être retrouvé après reconnexion. Depuis un backing chargé, **Séparer les instruments…** ouvre Studio avec cet original, sans changer spontanément le son de Tone. Un backing issu d’un projet propose **Ouvrir dans Studio**.
+
+**Studio** conserve le sélecteur des projets, leur timeline et l’inspecteur de `main`. Les actions principales sont :
+
+1. **Importer audio** : fichier local ou URL d’une vidéo YouTube ;
+2. **Séparer les instruments** : choix entre les deux modèles produit ;
+3. **Lire / pause, retour au début, boucle et zoom horizontal/reset** ;
+4. réglages volume/pan/mute/solo des pistes et comparaison original/résultat ;
+5. **Enregistrer le projet**, **Partager**, **Utiliser ce mix dans Tone**.
+
+Traiter le morceau entier par défaut. Le traitement d’un extrait reste une option secondaire de préparation. Les options techniques, le cache des modèles et WebNN se trouvent dans **Options avancées**, fermées par défaut. Afficher dans l’interface principale le modèle choisi, le moteur effectif connu, les téléchargements nécessaires, la progression et les erreurs utiles.
+
+Les bancs de performances, classements de recherche, fixtures, tableaux scientifiques et outils de mesures n’apparaissent pas dans le parcours utilisateur. Prévoir une distribution produit qui exclut leurs pages et assets dédiés, tout en conservant les crédits, licences et manifestes nécessaires au fonctionnement des modèles. Les travaux de recherche restent accessibles séparément dans le dépôt.
+
+L’original est conservé comme référence. L’écoute de l’original et celle des stems sont exclusives : aucune addition automatique des deux. Une nouvelle séparation ne supprime ni les contributions personnelles ni un résultat précédent sans choix explicite. Les états **en RAM**, **enregistrement en cours** et **enregistré sur le compte** sont distincts.
+
+### 12.3 Deux modèles et choix du moteur
+
+| Modèle proposé | Sources et présentation |
+| --- | --- |
+| **Demucs 4 pistes ONNX**, `htdemucs_4s_onnx` | Batterie, basse, voix, autres. La guitare est généralement incluse dans « autres » ; ne pas annoncer une guitare dédiée. Modèle initial par défaut. |
+| **BS Roformer SW 6 pistes**, `bs_roformer_sw_6s` | Batterie, basse, voix, guitare, piano, autres. Choix pour obtenir des pistes guitare/piano dédiées. |
+
+Le six pistes visé ici est **BS Roformer SW**, pas l’ancien Demucs6 GPU dont l’admission numérique reste ouverte. La liste produit ne propose ni les autres modèles du laboratoire ni le profil Preview à fenêtre courte. Les huit/douze canaux stéréo, leurs rôles et leur ordre doivent conserver le contrat de chaque modèle ; le rôle `piano` pourra s’afficher Piano et se mapper à `keys` dans Rails en conservant son rôle source dans les métadonnées.
+
+- Préférer **WebGPU** si un adaptateur/device peut être initialisé et si le modèle/pipeline est compatible. La seule présence de `navigator.gpu` ne suffit pas.
+- Utiliser **CPU/WASM** si WebGPU est absent ; si sa préparation échoue, proposer ou signaler clairement le repli avant publication de PCM. Ne pas mélanger des backends silencieusement dans un résultat déjà commencé.
+- Réutiliser les sessions préparées et les modèles en cache. Une fois le modèle prêt, pas de polling ni de remise en animation de son chargement à chaque segment. Modèle, backend et préférence WebNN font partie de l’identité de session.
+- **WebNN est expérimental**, uniquement dans Options avancées, désactivé par défaut et conditionné à la présence de l’API et à la validation du modèle. Proposer CPU/GPU/NPU comme préférences demandées, avec matériel effectif indiqué inconnu lorsqu’il n’est pas vérifiable.
+- Les mesures W4 ne suffisent pas à admettre toutes les configurations WebNN : SW CPU perd le contexte ; la parité inter-backend SW WebNN et le streaming restent à valider. Un mode non admis reste indisponible avec explication ; le menu avancé ne doit pas promettre qu’il fonctionne.
+
+Voir [WebNN_SUPPORT_SPECIFICATIONS.md](WebNN_SUPPORT_SPECIFICATIONS.md) et [MODEL_EVALUATIONS.MD, §23](MODEL_EVALUATIONS.MD#23-w4--comparaison-retenue-en-session-avec-et-sans-webnn). Aucun calcul IA serveur n’est nécessaire à cette intégration.
+
+### 12.4 Nature des pistes et règles de presets
+
+**Décision validée : un preset n’est pertinent que pour une piste personnelle créée par le guitariste/bassiste pour jouer ou s’enregistrer. Aucun preset n’est associé à un stem séparé.** La règle dépend de l’origine de la piste, pas seulement de son instrument.
+
+| Nature | Utilisation | Preset associé |
+| --- | --- | --- |
+| Original importé | Référence et entrée de séparation | Aucun |
+| Stem séparé, y compris guitare/basse | Accompagnement, écoute et remix | Aucun ; sélecteur absent |
+| Piste personnelle guitare/basse | Contribution, pratique et futur enregistrement | Autorisé ; son et monitoring de cette piste |
+| Mix rendu pour Tone | Backing stéréo prêt à jouer | Aucun rack de piste réappliqué |
+
+Persister la nature/origine de chaque nouvelle piste, son auteur lorsqu’il s’agit d’une contribution, et le lien avec l’original/la séparation. Distinguer ces informations du rôle instrumental. L’API doit rejeter un preset sur un stem, même si une requête contourne l’interface. Le nom d’une piste ou son passage à l’instrument Guitar ne doit pas transformer son origine en prise personnelle.
+
+Les pistes historiques de `main` peuvent déjà contenir des prises DI et des presets. La migration doit conserver leur audio et leurs associations ; une origine non documentée ne justifie pas d’effacer automatiquement un preset existant. La classification des données historiques doit être explicitée et testée avant migration.
+
+Une piste personnelle utilise le moteur de presets/racks existant, de manière non destructive pour son audio source. Les stems ne déclenchent pas la création de racks NAM. Les noms et l’attribution des contributions sont visibles, sans multiplier les contrôles pour les pistes d’accompagnement.
+
+### 12.5 Lecture progressive, routage et rendu
+
+`ProjectPlayer` de `main` charge des fichiers complets. L’intégration doit accepter aussi le PCM déjà produit en RAM et le PCM progressif, sans exiger un upload Rails puis un nouveau téléchargement avant la préécoute. Conserver l’interface Studio et une seule horloge/règle de transport ; ne pas juxtaposer deux lecteurs concurrents visibles.
+
+Les formes d’onde progressent par blocs, avec une timeline stable, un playhead monotone et une zone disponible explicite. Play reste désactivé jusqu’à disponibilité réelle du premier audio. Une insuffisance de données déclenche une attente explicite, puis une reprise au bon échantillon ; aucune promesse de lecture une seconde après le clic indépendamment du modèle et de la machine.
+
+- Garder calcul, DSP, encodage et gros transferts hors du thread UI ; réutiliser ringbuf.js et la publication bornée existants.
+- Conserver le contexte audio partagé de l’hôte à 48 kHz pour NAM ; maîtriser le passage à 44,1 kHz pour les modèles puis la lecture/rendu, sans dérive de durée entre pistes.
+- Adapter explicitement les réglages du prototype aux conventions de `main` : volume 0–100 avec 80 = 0 dB, pan −100 à 100. Ne pas copier les valeurs linéaires du prototype comme si elles avaient la même unité.
+- Garder l’arbitrage entre Play along et le projet, le monitoring et les racks de Tone de `main`. Une commutation ne crée pas de double accompagnement ou de double guitare live.
+- Annulation, changement de modèle confirmé, changement de projet et déconnexion invalident les réponses tardives. Les blocs déjà calculés restent utilisables et clairement identifiés comme incomplets.
+
+**Utiliser ce mix dans Tone** produit un vrai fichier audio stéréo et une entrée personnelle persistante, liée au projet source et à la version de son mix. L’utilisateur conserve la possibilité de télécharger le fichier. Le chargement dans Tone ne lance pas automatiquement la lecture.
+
+Le rendu respecte les volumes, pans, mute/solo et traitements applicables aux pistes personnelles, avec une prévention explicite de l’écrêtage. Le niveau d’écoute, la balance guitare/backing et la guitare live ne sont pas imprimés dans le fichier. Par défaut, rendre le morceau entier ; un export de la boucle est un choix explicite.
+
+**Limite actuelle :** l’encodeur MP3 du prototype ne rend que le mix des buffers, sans exécuter les inserts WAM. Avant d’exporter un projet comportant une prise personnelle traitée, valider le rendu de son preset et sa fidélité à l’écoute. Ne pas présenter un export sec comme le mix entendu. Le choix technique de rendu des WAM, y compris ceux non compatibles avec un contexte offline, fera l’objet d’un essai dédié.
+
+### 12.6 Persistance Rails et import YouTube
+
+Étendre les modèles et API de `main`, en réutilisant `AccountApi`, la session, le CSRF, les contrôles d’accès et Active Storage. Le backend conserve projets, originaux, stems, contributions, métadonnées de séparation et mix rendus ; le cache des poids des modèles reste côté navigateur.
+
+Une séparation conserve au minimum l’identité/hash/version du modèle, son original, les rôles des stems, la durée totale/prête, le backend demandé et celui observé lorsqu’il est connu, ainsi que son état complet/incomplet. Une modification de mix ne doit pas réuploader les fichiers inchangés.
+
+La liste des projets charge seulement leurs métadonnées. Les fichiers du projet sélectionné sont chargés à la demande ; les autres projets ne sont pas décodés. Prévoir une publication groupée cohérente d’une séparation : un résultat ne devient pas complet après le seul upload du premier stem. En cas d’échec, signaler et permettre de reprendre/nettoyer les fichiers partiels. Utiliser les routes audio privées déjà présentes, y compris pour les mix destinés à Tone.
+
+Revoir les limites et quotas : `main` limite actuellement chaque piste à 100 Mio ; un WAV stéréo Float32 de cinq minutes à 44,1 kHz dépasse cette limite. Choisir et valider le format de conservation, les plafonds par fichier/projet/utilisateur et le stockage disque persistant du conteneur. Une sauvegarde de métadonnées seule ne vaut pas sauvegarde audio.
+
+**YouTube** reste une des sources de l’action Importer audio :
+
+1. Rails reçoit une URL validée d’une seule vidéo et crée une tâche liée à l’utilisateur/projet.
+2. Un job Solid Queue récupère l’audio avec yt-dlp ; la requête HTTP de création ne reste pas bloquée pendant le téléchargement.
+3. Le navigateur reçoit progression, succès/erreur et possibilité d’annuler ; l’audio prêt rejoint le même flux d’import que le fichier local.
+4. L’annulation ferme le processus et nettoie ses temporaires ; un résultat tardif ne remplace pas un autre morceau.
+
+Le conteneur de production doit inclure les dépendances épinglées nécessaires (Python, yt-dlp et runtime JavaScript si requis). Rails porte l’API : un serveur HTTP Node séparé n’est pas une obligation. Le service Node local actuel reste un prototype de contrat et n’est pas exposé tel quel sur Internet. Reprendre ses validations/limites utiles, avec authentification, propriété des tâches, quotas et expiration côté Rails.
+
+L’interface affiche l’indisponibilité du service sans empêcher l’import de fichiers. Ne pas importer de cookies/comptes YouTube ni étendre implicitement le prototype aux playlists ou directs. Conserver la provenance de l’audio ; les détails et limites de la source YouTube figurent dans [YOUTUBE_IMPORT.md](YOUTUBE_IMPORT.md).
+
+### 12.7 Projet partagé : collaboration asynchrone
+
+**Orientation retenue : plusieurs personnes contribuent au même projet partagé.** Créer une copie personnelle ne constitue pas le mécanisme de collaboration par défaut. Le scénario fonctionne entre amis ou musiciens autant que dans un cadre pédagogique. L’enregistrement simultané à distance et le jeu live synchronisé sur Internet ne font pas partie de cette première collaboration.
+
+`main` ne propose actuellement que le partage en lecture seule. **Il faut donc une évolution explicite du backend**, pas seulement afficher des boutons d’ajout aux invités.
+
+Base proposée pour les rôles, à confirmer avant l’implémentation P5.7 :
+
+| Rôle | Permissions proposées |
+| --- | --- |
+| Propriétaire | Gérer le projet, l’accompagnement, les participants et leurs droits ; publier le mix commun |
+| Contributeur | Ajouter ses pistes personnelles et modifier ses propres contributions ; écouter l’accompagnement commun |
+| Auditeur | Écouter le projet et essayer un mix temporaire sans modifier les données communes |
+
+Chaque contribution porte son auteur. Par défaut proposé, un contributeur ne supprime ni les stems d’accompagnement ni les contributions d’un autre. Les droits existants de lecture seule restent inchangés tant qu’aucune invitation n’a été explicitement étendue ; une migration ne transforme pas tous les invités actuels en éditeurs. Les autorisations sont contrôlées sur les API et sur les fichiers audio/presets, pas seulement dans le navigateur.
+
+Distinguer :
+
+- le **mix commun enregistré** du projet, versionné et publié par une personne autorisée ;
+- le **mix temporaire d’écoute** d’un participant (par exemple baisser la guitare pour travailler), sans écrasement automatique du mix commun.
+
+Deux utilisateurs ne doivent pas s’écraser silencieusement : prévoir des révisions et une détection de conflits au niveau approprié du projet/piste/mix. Une sauvegarde fondée sur une ancienne révision signale le conflit et propose de recharger ou résoudre les changements. L’arrivée de nouvelles contributions est annoncée et chargée sans remplacer silencieusement le travail local non enregistré. La technologie de notification reste à choisir ; cette collaboration asynchrone ne promet pas une édition simultanée au caractère près.
+
+**Décisions encore ouvertes pour P5.7 :** qui peut publier le mix commun ou renommer le projet, les pouvoirs exacts du propriétaire sur les pistes d’autrui, la présentation et la résolution des conflits, et l’accès aux presets d’un contributeur lors du partage. Le rendu devra figer les réglages/presets utilisés sans modifier les réglages d’écoute des autres. La référence à un preset et son état au moment d’un rendu sont à distinguer.
+
+Les fonctions de réseau social public (fil d’actualité, profils publics, commentaires) ne sont pas nécessaires pour ce premier espace de contribution partagé ; elles pourront s’appuyer ultérieurement sur la même attribution des projets et pistes.
+
+### 12.8 Découpage incrémental et critères de passage
+
+Chaque incrément d’implémentation nécessite des tests unitaires pertinents et des tests d’intégration sur ses frontières. Proposer un essai utilisateur seulement après réussite des contrôles de l’incrément et publication de leurs résultats réels. Les anciens effectifs de tests et les validations du laboratoire ne valident pas l’intégration encore à faire.
+
+| Tâche | État | Contenu et critères principaux |
+| --- | --- | --- |
+| **P5.0 — Analyse et spécification** | **[DONE]** | Analyse de `main` au commit cité, choix Tone/Studio, séparation des natures de pistes, orientation collaborative et contraintes consignés. Les décisions ouvertes restent identifiées. |
+| **P5.1 — Socle et interface produit** | **[TODO]** | Intégrer depuis le `main` à jour ; deux onglets, composants TONELAB et comptes/projets préservés ; nature des pistes et absence de preset sur stems ; aucun outil de mesure dans la distribution produit. Tests de non-régression Tone/projets/presets historiques et migration. |
+| **P5.2 — Séparation dans Studio** | **[TODO]** | Deux modèles, téléchargement/cache, GPU préféré et CPU visible, original préservé, preview progressive et stop. Vérifier les 4/6 sources stéréo, alignement, raccords, starvation, seek, fluidité UI, changement de modèle/projet et messages tardifs sur de vrais extraits. |
+| **P5.3 — Sauvegarde des résultats Rails** | **[TODO]** | Originaux/stems, métadonnées et statuts, publication cohérente, quotas et chargement à la demande. Test de réouverture sur une autre session/navigateur, accès propriétaire/partagé, refus des accès étrangers, uploads partiels et échecs de stockage. |
+| **P5.4 — Mix Studio vers Tone** | **[TODO]** | Créer un backing persistant, le retrouver dans Play along et revenir au projet source. Tests audio volume/pan/mute/solo, durée/stéréo, non-inclusion du live, absence de double routage et lecture non automatique. Validation dédiée du rendu WAM avant export de pistes personnelles traitées. |
+| **P5.5 — YouTube dans Rails** | **[TODO]** | Jobs, dépendances du conteneur, progression/annulation, provenance et quotas. Tests API/CSRF/propriété des tâches, URL et métadonnées, interruption/nettoyage, limites, service absent ; essai réel documenté après les tests contrôlés. |
+| **P5.6 — WebNN avancé expérimental** | **[TODO]** | Admission par modèle/configuration après parité et lecture progressive ; préférences CPU/GPU/NPU, runtime isolé, perte de contexte et invalidation de session. Mesurer réellement préparation/premier audio/débit et vérifier le repli annoncé, sans promettre un NPU physique. |
+| **P5.7 — Contributions au projet partagé** | **[TODO — règles à préciser]** | Confirmer les permissions puis étendre le partage actuel : auteur des pistes, rôles, mix temporaire/commun, révisions et conflits. Tests à deux comptes modifiant le même projet, sauvegarde périmée, droits révoqués, contribution d’autrui, fichiers privés et presets partagés. |
+| **P5.8 — Enregistrement personnel** | **[TODO — étape ultérieure]** | Ajouter une piste guitare/basse personnelle, choisir son preset, monitoring, prise alignée au projet, sauvegarde et réécoute. Préparer les contrats dans P5.1/P5.3/P5.7 ; implémenter et tester l’enregistrement séparément, notamment latence, permissions micro, pause/reprise et séparation source DI/rendu. |
+
+P5.1 à P5.5 constituent le premier parcours intégré de préparation d’accompagnement. P5.6 et P5.7 restent des incréments identifiés ; P5.8 introduit ensuite l’enregistrement. Ne pas annoncer la contribution enregistrée d’un ami tant que P5.7 et P5.8 ne sont pas opérationnels. L’ordre peut être ajusté après discussion sans déplacer une tâche non réalisée en DONE.
+
+### 12.9 Scénarios d’acceptation de bout en bout
+
+- **Préparation individuelle :** importer un fichier, choisir le 4 ou 6 pistes, préécouter les segments prêts, terminer, mixer, enregistrer, rouvrir et retrouver les stems sans recalcul. Aucun stem n’affiche de preset.
+- **Accompagnement live :** créer le backing du mix, le sélectionner dans Tone, jouer avec son preset Tone, revenir au projet ; aucune guitare live n’est imprimée dans le backing et un seul accompagnement joue.
+- **Source YouTube :** importer via Rails avec progression/annulation ; après réussite, retrouver le même parcours de séparation et la provenance sauvegardée. Une panne du service ne bloque pas les fichiers locaux.
+- **Collaboration, après P5.7/P5.8 :** un utilisateur partage un projet commun, un contributeur ajoute/enregistre sa partie personnelle avec son preset, le propriétaire la retrouve dans ce même projet. Le contributeur ne doit pas créer obligatoirement une copie du projet ni pouvoir effacer une partie d’autrui sans droit explicite.
+- **Écoute et conflits :** un auditeur essaie un mix local sans modifier celui du projet ; deux sauvegardes concurrentes ne s’écrasent pas silencieusement ; les changements non enregistrés restent récupérables.
+- **Compatibilité :** absence de WebGPU → CPU annoncé ; absence de WebNN → option expérimentale indisponible ; aucune régression des comptes, presets, projets existants et du lecteur Play along de `main`.

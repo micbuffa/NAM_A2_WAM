@@ -1,0 +1,5 @@
+const $=id=>document.getElementById(id);let worker,timer;
+function stop(){worker?.terminate();worker=null;clearTimeout(timer);$('run').disabled=false;$('cancel').disabled=true;}
+$('cancel').onclick=()=>{stop();$('status').textContent='Diagnostic arrêté ; aucun backend de remplacement lancé.';};
+$('run').onclick=()=>{stop();$('run').disabled=true;$('cancel').disabled=false;$('report').textContent='';worker=new Worker(new URL('./scnet-feasibility-worker.js',import.meta.url),{type:'module'});worker.onmessage=({data})=>{if(data.type==='progress')$('status').textContent=data.message;else{$('status').textContent=data.status==='completed'?'Diagnostic numérique terminé. Pas de validation musicale ou native FP32 implicite.':'Candidat incompatible avec cette configuration.';$('report').textContent=JSON.stringify(data,null,2);stop();}};worker.onerror=e=>{$('status').textContent=e.message;stop();};worker.postMessage({backend:$('backend').value});timer=setTimeout(()=>{$('status').textContent='Délai de 90 s dépassé ; Worker terminé.';stop();},90000);};
+window.addEventListener('pagehide',stop);

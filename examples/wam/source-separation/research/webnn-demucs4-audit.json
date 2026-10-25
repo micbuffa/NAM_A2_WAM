@@ -1,0 +1,2411 @@
+{
+  "opsets": [
+    {
+      "domain": "ai.onnx",
+      "version": 17
+    }
+  ],
+  "nodes": 3268,
+  "inputs": [
+    {
+      "name": "input",
+      "dtype": "FLOAT",
+      "shape": [
+        1,
+        2,
+        343980
+      ]
+    },
+    {
+      "name": "onnx::ReduceMean_1",
+      "dtype": "FLOAT",
+      "shape": [
+        1,
+        4,
+        2048,
+        336
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "output",
+      "dtype": "FLOAT",
+      "shape": [
+        1,
+        4,
+        4,
+        2048,
+        336
+      ]
+    },
+    {
+      "name": "5073",
+      "dtype": "FLOAT",
+      "shape": [
+        "Add5073_dim_0",
+        "Add5073_dim_1",
+        "Add5073_dim_2",
+        "Add5073_dim_3"
+      ]
+    }
+  ],
+  "initializers": {
+    "FLOAT": 537
+  },
+  "operatorGroups": [
+    {
+      "domain": "ai.onnx",
+      "op": "Add",
+      "nodes": 259,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Cast",
+      "nodes": 46,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Concat",
+      "nodes": 73,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Constant",
+      "nodes": 1009,
+      "inPinnedWebnnTable": false,
+      "documentedConstraints": null,
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "ConstantOfShape",
+      "nodes": 19,
+      "inPinnedWebnnTable": false,
+      "documentedConstraints": null,
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Conv",
+      "nodes": 92,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "Only supports 3-D or 4-D input and 'W' (weight)",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested.",
+      "secondInputDirectConstantNodes": 92,
+      "attributes": [
+        {
+          "name": "/tencoder.0/conv/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[8]",
+            "pads": "[2, 2]",
+            "strides": "[4]"
+          }
+        },
+        {
+          "name": "/tencoder.0/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.0/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.0/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.0/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.0/rewrite/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.0/conv/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[8, 1]",
+            "pads": "[2, 0, 2, 0]",
+            "strides": "[4, 1]"
+          }
+        },
+        {
+          "name": "/encoder.0/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.0/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.0/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.0/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.0/rewrite/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[1, 1]",
+            "pads": "[0, 0, 0, 0]",
+            "strides": "[1, 1]"
+          }
+        },
+        {
+          "name": "/tencoder.1/conv/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[8]",
+            "pads": "[2, 2]",
+            "strides": "[4]"
+          }
+        },
+        {
+          "name": "/tencoder.1/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.1/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.1/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.1/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.1/rewrite/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.1/conv/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[8, 1]",
+            "pads": "[2, 0, 2, 0]",
+            "strides": "[4, 1]"
+          }
+        },
+        {
+          "name": "/encoder.1/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.1/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.1/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.1/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.1/rewrite/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[1, 1]",
+            "pads": "[0, 0, 0, 0]",
+            "strides": "[1, 1]"
+          }
+        },
+        {
+          "name": "/tencoder.2/conv/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[8]",
+            "pads": "[2, 2]",
+            "strides": "[4]"
+          }
+        },
+        {
+          "name": "/tencoder.2/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.2/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.2/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.2/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.2/rewrite/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.2/conv/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[8, 1]",
+            "pads": "[2, 0, 2, 0]",
+            "strides": "[4, 1]"
+          }
+        },
+        {
+          "name": "/encoder.2/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.2/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.2/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.2/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.2/rewrite/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[1, 1]",
+            "pads": "[0, 0, 0, 0]",
+            "strides": "[1, 1]"
+          }
+        },
+        {
+          "name": "/tencoder.3/conv/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[8]",
+            "pads": "[2, 2]",
+            "strides": "[4]"
+          }
+        },
+        {
+          "name": "/tencoder.3/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.3/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.3/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.3/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tencoder.3/rewrite/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.3/conv/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[8, 1]",
+            "pads": "[2, 0, 2, 0]",
+            "strides": "[4, 1]"
+          }
+        },
+        {
+          "name": "/encoder.3/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.3/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.3/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.3/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/encoder.3/rewrite/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[1, 1]",
+            "pads": "[0, 0, 0, 0]",
+            "strides": "[1, 1]"
+          }
+        },
+        {
+          "name": "/channel_upsampler/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/channel_upsampler_t/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/channel_downsampler/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/channel_downsampler_t/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.0/rewrite/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[3, 3]",
+            "pads": "[1, 1, 1, 1]",
+            "strides": "[1, 1]"
+          }
+        },
+        {
+          "name": "/decoder.0/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.0/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.0/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.0/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.0/rewrite/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.0/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.0/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.0/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.0/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.1/rewrite/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[3, 3]",
+            "pads": "[1, 1, 1, 1]",
+            "strides": "[1, 1]"
+          }
+        },
+        {
+          "name": "/decoder.1/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.1/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.1/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.1/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.1/rewrite/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.1/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.1/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.1/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.1/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.2/rewrite/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[3, 3]",
+            "pads": "[1, 1, 1, 1]",
+            "strides": "[1, 1]"
+          }
+        },
+        {
+          "name": "/decoder.2/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.2/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.2/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.2/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.2/rewrite/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.2/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.2/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.2/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.2/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.3/rewrite/Conv",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[3, 3]",
+            "pads": "[1, 1, 1, 1]",
+            "strides": "[1, 1]"
+          }
+        },
+        {
+          "name": "/decoder.3/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.3/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.3/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/decoder.3/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.3/rewrite/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.3/dconv/layers.0/layers.0.0/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[1, 1]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.3/dconv/layers.0/layers.0.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.3/dconv/layers.1/layers.1.0/Conv",
+          "values": {
+            "dilations": "[2]",
+            "group": "1",
+            "kernel_shape": "[3]",
+            "pads": "[2, 2]",
+            "strides": "[1]"
+          }
+        },
+        {
+          "name": "/tdecoder.3/dconv/layers.1/layers.1.3/Conv",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[1]",
+            "pads": "[0, 0]",
+            "strides": "[1]"
+          }
+        }
+      ]
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "ConvTranspose",
+      "nodes": 8,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "Only supports 3-D or 4-D input and 'W' (weight)",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested.",
+      "secondInputDirectConstantNodes": 8,
+      "attributes": [
+        {
+          "name": "/decoder.0/conv_tr/ConvTranspose",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[8, 1]",
+            "pads": "[0, 0, 0, 0]",
+            "strides": "[4, 1]"
+          }
+        },
+        {
+          "name": "/tdecoder.0/conv_tr/ConvTranspose",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[8]",
+            "pads": "[0, 0]",
+            "strides": "[4]"
+          }
+        },
+        {
+          "name": "/decoder.1/conv_tr/ConvTranspose",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[8, 1]",
+            "pads": "[0, 0, 0, 0]",
+            "strides": "[4, 1]"
+          }
+        },
+        {
+          "name": "/tdecoder.1/conv_tr/ConvTranspose",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[8]",
+            "pads": "[0, 0]",
+            "strides": "[4]"
+          }
+        },
+        {
+          "name": "/decoder.2/conv_tr/ConvTranspose",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[8, 1]",
+            "pads": "[0, 0, 0, 0]",
+            "strides": "[4, 1]"
+          }
+        },
+        {
+          "name": "/tdecoder.2/conv_tr/ConvTranspose",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[8]",
+            "pads": "[0, 0]",
+            "strides": "[4]"
+          }
+        },
+        {
+          "name": "/decoder.3/conv_tr/ConvTranspose",
+          "values": {
+            "dilations": "[1, 1]",
+            "group": "1",
+            "kernel_shape": "[8, 1]",
+            "pads": "[0, 0, 0, 0]",
+            "strides": "[4, 1]"
+          }
+        },
+        {
+          "name": "/tdecoder.3/conv_tr/ConvTranspose",
+          "values": {
+            "dilations": "[1]",
+            "group": "1",
+            "kernel_shape": "[8]",
+            "pads": "[0, 0]",
+            "strides": "[4]"
+          }
+        }
+      ]
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Cos",
+      "nodes": 3,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Div",
+      "nodes": 78,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Equal",
+      "nodes": 12,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Erf",
+      "nodes": 56,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Expand",
+      "nodes": 21,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "'shape' input should be a constant",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Gather",
+      "nodes": 60,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Gemm",
+      "nodes": 10,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested.",
+      "secondInputDirectConstantNodes": 10
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "InstanceNormalization",
+      "nodes": 74,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested.",
+      "attributes": [
+        {
+          "name": "/tencoder.0/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.0/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.0/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.0/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.0/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.0/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.0/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.0/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.1/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.1/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.1/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.1/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.1/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.1/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.1/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.1/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.2/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.2/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.2/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.2/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.2/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.2/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.2/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.2/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.3/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.3/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.3/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tencoder.3/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.3/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.3/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.3/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/encoder.3/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.0/norm_out/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.0/norm_out/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.1/norm_out/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.1/norm_out/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.2/norm_out/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.2/norm_out/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.3/norm_out/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.3/norm_out/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.4/norm_out/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.4/norm_out/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.0/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.0/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.0/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.0/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.0/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.0/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.0/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.0/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.1/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.1/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.1/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.1/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.1/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.1/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.1/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.1/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.2/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.2/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.2/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.2/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.2/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.2/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.2/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.2/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.3/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.3/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.3/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/decoder.3/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.3/dconv/layers.0/layers.0.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.3/dconv/layers.0/layers.0.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.3/dconv/layers.1/layers.1.1/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/tdecoder.3/dconv/layers.1/layers.1.4/InstanceNormalization",
+          "values": {
+            "epsilon": "9.999999747378752e-06"
+          }
+        }
+      ]
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "LayerNormalization",
+      "nodes": 26,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested.",
+      "attributes": [
+        {
+          "name": "/crosstransformer/norm_in/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/norm_in_t/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.0/norm1/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.0/norm2/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.0/norm1/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.0/norm2/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.1/norm1/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.1/norm2/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.1/norm3/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.1/norm1/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.1/norm2/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.1/norm3/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.2/norm1/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.2/norm2/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.2/norm1/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.2/norm2/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.3/norm1/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.3/norm2/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.3/norm3/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.3/norm1/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.3/norm2/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.3/norm3/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.4/norm1/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.4/norm2/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.4/norm1/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.4/norm2/LayerNormalization",
+          "values": {
+            "axis": "-1",
+            "epsilon": "9.999999747378752e-06"
+          }
+        }
+      ]
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "MatMul",
+      "nodes": 54,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested.",
+      "secondInputDirectConstantNodes": 30
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Mod",
+      "nodes": 13,
+      "inPinnedWebnnTable": false,
+      "documentedConstraints": null,
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Mul",
+      "nodes": 339,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Pad",
+      "nodes": 3,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "modes == 'wrap' is not supported",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested.",
+      "attributes": [
+        {
+          "name": "/tencoder.1/Pad",
+          "values": {
+            "mode": "b'constant'"
+          }
+        },
+        {
+          "name": "/tencoder.2/Pad",
+          "values": {
+            "mode": "b'constant'"
+          }
+        },
+        {
+          "name": "/tencoder.3/Pad",
+          "values": {
+            "mode": "b'constant'"
+          }
+        }
+      ]
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Pow",
+      "nodes": 1,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Range",
+      "nodes": 2,
+      "inPinnedWebnnTable": false,
+      "documentedConstraints": null,
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "ReduceMean",
+      "nodes": 6,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "Input 'axes' if present should be a constant",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "ReduceProd",
+      "nodes": 2,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "Input 'axes' if present should be a constant",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Reshape",
+      "nodes": 299,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "Input 'shape' should be a constant, 0 dimension value in 'shape' is not supported",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "ScatterND",
+      "nodes": 4,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "Only supports 'reduction' == 'none'",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested.",
+      "attributes": [
+        {
+          "name": "/crosstransformer/ScatterND",
+          "values": {}
+        },
+        {
+          "name": "/crosstransformer/ScatterND_1",
+          "values": {}
+        },
+        {
+          "name": "/crosstransformer/ScatterND_2",
+          "values": {}
+        },
+        {
+          "name": "/crosstransformer/ScatterND_3",
+          "values": {}
+        }
+      ]
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Shape",
+      "nodes": 157,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Sigmoid",
+      "nodes": 48,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Sin",
+      "nodes": 3,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Slice",
+      "nodes": 65,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "Input 'starts', 'ends', 'axes', and 'steps' if present must be a constant",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Softmax",
+      "nodes": 10,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested.",
+      "attributes": [
+        {
+          "name": "/crosstransformer/layers.0/self_attn/Softmax",
+          "values": {
+            "axis": "-1"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.0/self_attn/Softmax",
+          "values": {
+            "axis": "-1"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.1/cross_attn/Softmax",
+          "values": {
+            "axis": "-1"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.1/cross_attn/Softmax",
+          "values": {
+            "axis": "-1"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.2/self_attn/Softmax",
+          "values": {
+            "axis": "-1"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.2/self_attn/Softmax",
+          "values": {
+            "axis": "-1"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.3/cross_attn/Softmax",
+          "values": {
+            "axis": "-1"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.3/cross_attn/Softmax",
+          "values": {
+            "axis": "-1"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers.4/self_attn/Softmax",
+          "values": {
+            "axis": "-1"
+          }
+        },
+        {
+          "name": "/crosstransformer/layers_t.4/self_attn/Softmax",
+          "values": {
+            "axis": "-1"
+          }
+        }
+      ]
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Split",
+      "nodes": 48,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "Input 'split' if present should be a constant",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested.",
+      "attributes": [
+        {
+          "name": "/tencoder.0/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.0/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.0/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.0/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.0/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.0/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.1/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.1/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.1/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.1/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.1/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.1/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.2/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.2/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.2/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.2/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.2/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.2/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.3/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.3/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tencoder.3/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.3/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.3/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/encoder.3/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.0/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.0/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.0/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.0/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.0/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.0/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.1/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.1/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.1/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.1/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.1/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.1/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.2/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.2/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.2/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.2/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.2/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.2/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.3/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.3/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/decoder.3/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.3/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.3/dconv/layers.0/layers.0.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        },
+        {
+          "name": "/tdecoder.3/dconv/layers.1/layers.1.5/Split",
+          "values": {
+            "axis": "1"
+          }
+        }
+      ]
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Sqrt",
+      "nodes": 32,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Squeeze",
+      "nodes": 15,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "Input 'axes' if present should be a constant",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Sub",
+      "nodes": 13,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Tile",
+      "nodes": 4,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "Input 'repeats' should be a constant",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Transpose",
+      "nodes": 135,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Unsqueeze",
+      "nodes": 157,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    },
+    {
+      "domain": "ai.onnx",
+      "op": "Where",
+      "nodes": 12,
+      "inPinnedWebnnTable": true,
+      "documentedConstraints": "",
+      "note": "Listing alone does not prove backend support; shapes/attributes and optimized partitions must be tested."
+    }
+  ],
+  "operatorsNotListed": [
+    "Constant",
+    "ConstantOfShape",
+    "Mod",
+    "Range"
+  ],
+  "interpretation": "Static pre-optimization inventory, not a guarantee of graph compilation or WebNN coverage. Shape/control constants may fold; unlisted ops may fall back. No performance inferred.",
+  "protocol": "webnn-demucs4-static-v1",
+  "date": "2026-10-25",
+  "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+  "modelBytes": 174263526,
+  "runtimeVersion": "1.30.0",
+  "operatorTableSha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+}

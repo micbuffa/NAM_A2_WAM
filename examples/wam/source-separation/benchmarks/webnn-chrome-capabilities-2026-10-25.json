@@ -1,0 +1,114 @@
+{
+  "protocol": "webnn-native-capability-v1",
+  "date": "2026-10-25T06:42:35.443Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "secureContext": true,
+  "crossOriginIsolated": true,
+  "windowAPI": false,
+  "status": "completed",
+  "effectiveHardware": "unknown",
+  "runs": [
+    {
+      "scope": "window",
+      "id": "default",
+      "requestedOptions": {},
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": false,
+      "status": "unavailable"
+    },
+    {
+      "scope": "window",
+      "id": "cpu-preference",
+      "requestedOptions": {
+        "deviceType": "cpu",
+        "accelerated": false
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": false,
+      "status": "unavailable"
+    },
+    {
+      "scope": "window",
+      "id": "gpu-preference",
+      "requestedOptions": {
+        "deviceType": "gpu",
+        "accelerated": true
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": false,
+      "status": "unavailable"
+    },
+    {
+      "scope": "window",
+      "id": "npu-preference",
+      "requestedOptions": {
+        "deviceType": "npu",
+        "accelerated": true
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": false,
+      "status": "unavailable"
+    },
+    {
+      "scope": "worker",
+      "id": "default",
+      "requestedOptions": {},
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": false,
+      "status": "unavailable"
+    },
+    {
+      "scope": "worker",
+      "id": "cpu-preference",
+      "requestedOptions": {
+        "deviceType": "cpu",
+        "accelerated": false
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": false,
+      "status": "unavailable"
+    },
+    {
+      "scope": "worker",
+      "id": "gpu-preference",
+      "requestedOptions": {
+        "deviceType": "gpu",
+        "accelerated": true
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": false,
+      "status": "unavailable"
+    },
+    {
+      "scope": "worker",
+      "id": "npu-preference",
+      "requestedOptions": {
+        "deviceType": "npu",
+        "accelerated": true
+      },
+      "effectiveHardware": "unknown",
+      "optionRecognition": "not-observable; unknown WebIDL keys may be ignored",
+      "available": false,
+      "status": "unavailable"
+    }
+  ],
+  "codeEvidence": {
+    "WebNNProbe.js": "722c358cb0527fe0ba3ffaf76d45233e21cd39399b99ea6d08930e859edaab9e",
+    "webnn-probe.js": "8907001db0ac7b14da0be08cc3062add4a6eb8e2d015d30e571a10beaf81381f",
+    "webnn-probe-worker.js": "4548b9159e06c6a2bd7632ae7d26ac6700ab7ce05c9f62dfff1714f6de8a53df",
+    "webnn-probe.html": "ce53ff8544808163c34de30eb46ea48e026ba19a1853be1ad7a9c15b18b62562"
+  },
+  "interpretation": {
+    "browser": "Chrome 154, UA in report",
+    "effectiveAccelerator": "unknown",
+    "notes": "Native matmul float32 only, no ORT or music model. Both deviceType and accelerated sent as compatibility preferences; accepted unknown keys may be ignored. No flags changed by agent. Timings include a tiny graph, not model throughput.",
+    "series": "Eight archived probes; earlier unarchived smoke runs were also performed while adjusting report rendering."
+  }
+}

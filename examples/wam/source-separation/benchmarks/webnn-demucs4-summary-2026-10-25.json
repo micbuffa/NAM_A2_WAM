@@ -1,0 +1,286 @@
+{
+  "protocol": "webnn-demucs4-validation-summary-v1",
+  "date": "2026-10-25",
+  "ortProduction": "1.22.0",
+  "ortLab": "1.30.0",
+  "totalCompletedExecutions": 15,
+  "musicalExecutions": 9,
+  "syntheticExecutions": 6,
+  "distinctInputs": 3,
+  "webnnExecutions": 5,
+  "allPcmFiniteAndAligned": true,
+  "webnnGraphDispatchObserved": true,
+  "globalParityPassedAllWebnn": true,
+  "strictPerRolePassedAllWebnn": false,
+  "productionEligible": false,
+  "effectiveHardware": "unknown",
+  "artifacts": [
+    {
+      "path": "webnn-demucs4-gpu-preference-2026-10-25.json",
+      "sha256": "9bb2c9ce4f90a578e54e95926ea5fa07b4aa3f16dbfd79496f67994a11bd8824",
+      "runs": 6,
+      "status": "completed-with-failures"
+    },
+    {
+      "path": "webnn-demucs4-cpu-preference-2026-10-25.json",
+      "sha256": "1a201fa383d7ff93c6878b375756e91adb3346d0ba61595df889f45a961eaab3",
+      "runs": 6,
+      "status": "completed-with-failures"
+    },
+    {
+      "path": "webnn-demucs4-falcon-gpu-2026-10-25.json",
+      "sha256": "265b5c74d49491940fa7af7eb7f87a8977c41fa342fab258852a3340d5d3e08d",
+      "runs": 3,
+      "status": "completed"
+    }
+  ],
+  "webnnRows": [
+    {
+      "report": "webnn-demucs4-gpu-preference-2026-10-25.json",
+      "caseId": "synthetic-1s",
+      "requestedOptions": {
+        "deviceType": "gpu",
+        "accelerated": true
+      },
+      "sessionSeconds": 12.191289999961853,
+      "audioSeconds": 10.295975000023843,
+      "relativeRmsError": 9.244588858651333e-05,
+      "maxAbsError": 2.378225326538086e-05,
+      "strictPassed": false,
+      "roles": [
+        {
+          "role": "drums",
+          "relativeRmsError": 0.005081624912667488,
+          "maxAbsError": 5.068723112344742e-06,
+          "referenceRms": 0.00012728066667986674,
+          "relativeApplicable": true,
+          "passed": false
+        },
+        {
+          "role": "bass",
+          "relativeRmsError": 0.06822337342242239,
+          "maxAbsError": 1.064967000274919e-05,
+          "referenceRms": 5.225771683857739e-05,
+          "relativeApplicable": true,
+          "passed": false
+        },
+        {
+          "role": "other",
+          "relativeRmsError": 7.026608339500586e-05,
+          "maxAbsError": 2.378225326538086e-05,
+          "referenceRms": 0.06041425999892176,
+          "relativeApplicable": true,
+          "passed": true
+        },
+        {
+          "role": "vocals",
+          "relativeRmsError": 0.0008734151787849543,
+          "maxAbsError": 8.193310350179672e-07,
+          "referenceRms": 0.0002396479386138791,
+          "relativeApplicable": true,
+          "passed": true
+        }
+      ],
+      "webnnDispatches": 1
+    },
+    {
+      "report": "webnn-demucs4-gpu-preference-2026-10-25.json",
+      "caseId": "gha-dream-on-20-6s",
+      "requestedOptions": {
+        "deviceType": "gpu",
+        "accelerated": true
+      },
+      "sessionSeconds": 12.102350000023842,
+      "audioSeconds": 2.2812549999952316,
+      "relativeRmsError": 0.00039492009926685135,
+      "maxAbsError": 0.0001561082899570465,
+      "strictPassed": false,
+      "roles": [
+        {
+          "role": "drums",
+          "relativeRmsError": 0.009472132294838191,
+          "maxAbsError": 1.3111159205436707e-05,
+          "referenceRms": 0.00018335177492939398,
+          "relativeApplicable": true,
+          "passed": false
+        },
+        {
+          "role": "bass",
+          "relativeRmsError": 0.0005736713555142753,
+          "maxAbsError": 0.0001561082899570465,
+          "referenceRms": 0.059340870873568,
+          "relativeApplicable": true,
+          "passed": true
+        },
+        {
+          "role": "other",
+          "relativeRmsError": 0.00023153436656722643,
+          "maxAbsError": 0.0001462697982788086,
+          "referenceRms": 0.07738709863320478,
+          "relativeApplicable": true,
+          "passed": true
+        },
+        {
+          "role": "vocals",
+          "relativeRmsError": 0.006544250886647493,
+          "maxAbsError": 4.34421599493362e-06,
+          "referenceRms": 8.205993896049251e-05,
+          "relativeApplicable": true,
+          "passed": false
+        }
+      ],
+      "webnnDispatches": 1
+    },
+    {
+      "report": "webnn-demucs4-cpu-preference-2026-10-25.json",
+      "caseId": "synthetic-1s",
+      "requestedOptions": {
+        "deviceType": "cpu",
+        "accelerated": false
+      },
+      "sessionSeconds": 8.060149999976158,
+      "audioSeconds": 6.5062650001049045,
+      "relativeRmsError": 9.276729322758611e-05,
+      "maxAbsError": 2.3834407329559326e-05,
+      "strictPassed": false,
+      "roles": [
+        {
+          "role": "drums",
+          "relativeRmsError": 0.005088092752565977,
+          "maxAbsError": 5.063135176897049e-06,
+          "referenceRms": 0.00012728066667986674,
+          "relativeApplicable": true,
+          "passed": false
+        },
+        {
+          "role": "bass",
+          "relativeRmsError": 0.06847781135985394,
+          "maxAbsError": 1.066596814780496e-05,
+          "referenceRms": 5.225771683857739e-05,
+          "relativeApplicable": true,
+          "passed": false
+        },
+        {
+          "role": "other",
+          "relativeRmsError": 7.050242140153918e-05,
+          "maxAbsError": 2.3834407329559326e-05,
+          "referenceRms": 0.06041425999892176,
+          "relativeApplicable": true,
+          "passed": true
+        },
+        {
+          "role": "vocals",
+          "relativeRmsError": 0.0008713972397662393,
+          "maxAbsError": 8.22416041046381e-07,
+          "referenceRms": 0.0002396479386138791,
+          "relativeApplicable": true,
+          "passed": true
+        }
+      ],
+      "webnnDispatches": 1
+    },
+    {
+      "report": "webnn-demucs4-cpu-preference-2026-10-25.json",
+      "caseId": "gha-dream-on-20-6s",
+      "requestedOptions": {
+        "deviceType": "cpu",
+        "accelerated": false
+      },
+      "sessionSeconds": 7.894690000057221,
+      "audioSeconds": 6.369990000009537,
+      "relativeRmsError": 0.0003920986825629772,
+      "maxAbsError": 0.0001552104949951172,
+      "strictPassed": false,
+      "roles": [
+        {
+          "role": "drums",
+          "relativeRmsError": 0.009440308138033716,
+          "maxAbsError": 1.3070181012153625e-05,
+          "referenceRms": 0.00018335177492939398,
+          "relativeApplicable": true,
+          "passed": false
+        },
+        {
+          "role": "bass",
+          "relativeRmsError": 0.0005696390612581784,
+          "maxAbsError": 0.0001552104949951172,
+          "referenceRms": 0.059340870873568,
+          "relativeApplicable": true,
+          "passed": true
+        },
+        {
+          "role": "other",
+          "relativeRmsError": 0.00022977568587091983,
+          "maxAbsError": 0.00014585256576538086,
+          "referenceRms": 0.07738709863320478,
+          "relativeApplicable": true,
+          "passed": true
+        },
+        {
+          "role": "vocals",
+          "relativeRmsError": 0.006493030125159079,
+          "maxAbsError": 4.33691093348898e-06,
+          "referenceRms": 8.205993896049251e-05,
+          "relativeApplicable": true,
+          "passed": false
+        }
+      ],
+      "webnnDispatches": 1
+    },
+    {
+      "report": "webnn-demucs4-falcon-gpu-2026-10-25.json",
+      "caseId": "musdb-falcon-6s-control",
+      "requestedOptions": {
+        "deviceType": "gpu",
+        "accelerated": true
+      },
+      "sessionSeconds": 12.224979999899864,
+      "audioSeconds": 2.442085000038147,
+      "relativeRmsError": 0.0006109587890957898,
+      "maxAbsError": 0.0007349774241447449,
+      "strictPassed": true,
+      "roles": [
+        {
+          "role": "drums",
+          "relativeRmsError": 0.0004895075624134557,
+          "maxAbsError": 0.0007349774241447449,
+          "referenceRms": 0.09276626244068538,
+          "relativeApplicable": true,
+          "passed": true
+        },
+        {
+          "role": "bass",
+          "relativeRmsError": 0.0006700491364096315,
+          "maxAbsError": 0.00023037195205688477,
+          "referenceRms": 0.07417750661794911,
+          "relativeApplicable": true,
+          "passed": true
+        },
+        {
+          "role": "other",
+          "relativeRmsError": 0.0005922454723346553,
+          "maxAbsError": 0.0002868473529815674,
+          "referenceRms": 0.08372192749021476,
+          "relativeApplicable": true,
+          "passed": true
+        },
+        {
+          "role": "vocals",
+          "relativeRmsError": 0.0007788561432321398,
+          "maxAbsError": 0.0007223561406135559,
+          "referenceRms": 0.061809726334854195,
+          "relativeApplicable": true,
+          "passed": true
+        }
+      ],
+      "webnnDispatches": 1
+    }
+  ],
+  "caveats": [
+    "Small development/parity experiment, not an independent source-quality corpus or speed ranking.",
+    "Global errors pass; fixed strict relative gate fails on low-level stems in synthetic and Dream On inputs. Original failures retained.",
+    "Falcon was an exploratory additional control chosen before viewing its outputs, after initial low-level failures; it is not a pre-registered holdout.",
+    "CPU and GPU are requested context preferences, not proven physical execution devices.",
+    "Runtime/DSP and model identities archived; first GPU diagnostic preceded the configurable selector and lacks a complete pre-run source snapshot. CPU/Falcon source hashes and local code copies retained."
+  ]
+}

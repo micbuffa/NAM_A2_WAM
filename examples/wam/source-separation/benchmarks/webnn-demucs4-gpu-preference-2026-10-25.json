@@ -1,0 +1,463 @@
+{
+  "protocol": "webnn-demucs4-audio-v1",
+  "date": "2026-10-25T07:58:25.095Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+  "crossOriginIsolated": true,
+  "secureContext": true,
+  "status": "completed-with-failures",
+  "limits": {
+    "relativeRms": 0.001,
+    "maxAbs": 0.005,
+    "roleRmsFloor": 0.00001
+  },
+  "runs": [
+    {
+      "caseId": "synthetic-1s",
+      "runtime": "production",
+      "requestedBackend": "wasm",
+      "effectiveHardware": "unknown",
+      "webnnDispatches": 0,
+      "dispatchInstrumentation": false,
+      "webnnGraphBuilds": 0,
+      "graphBuildInstrumentation": false,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeVersion": "1.22.0",
+      "sessionMilliseconds": 1255.5550000667572,
+      "audioMilliseconds": 10569.169999957085,
+      "frames": 44100,
+      "providerEvidence": "WASM CPU explicitly requested",
+      "status": "ok",
+      "totalMilliseconds": 12329.825000047684
+    },
+    {
+      "caseId": "synthetic-1s",
+      "runtime": "lab",
+      "requestedBackend": "wasm",
+      "effectiveHardware": "unknown",
+      "webnnDispatches": 0,
+      "dispatchInstrumentation": false,
+      "webnnGraphBuilds": 0,
+      "graphBuildInstrumentation": false,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "sessionMilliseconds": 773.0149999856949,
+      "audioMilliseconds": 10968.304999947548,
+      "frames": 44100,
+      "parity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 0.00001
+        },
+        "relativeRmsError": 1.576164718718377e-7,
+        "maxAbsError": 4.470348358154297e-8,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0.000020770357895506406,
+            "maxAbsError": 1.210719347000122e-8,
+            "referenceRms": 0.00012728066667986674,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 0.000030375429706072956,
+            "maxAbsError": 7.2177499532699585e-9,
+            "referenceRms": 0.00005225771683857739,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 1.3714417595258257e-7,
+            "maxAbsError": 4.470348358154297e-8,
+            "referenceRms": 0.06041425999892176,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0.000014763770683702144,
+            "maxAbsError": 1.5628756955266e-8,
+            "referenceRms": 0.0002396479386138791,
+            "relativeApplicable": true,
+            "passed": true
+          }
+        ],
+        "passed": true
+      },
+      "providerEvidence": "WASM CPU explicitly requested",
+      "status": "ok",
+      "totalMilliseconds": 12047.454999923706
+    },
+    {
+      "caseId": "synthetic-1s",
+      "runtime": "lab",
+      "requestedBackend": "webnn",
+      "effectiveHardware": "unknown",
+      "webnnDispatches": 1,
+      "dispatchInstrumentation": true,
+      "webnnGraphBuilds": 1,
+      "graphBuildInstrumentation": true,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "contextRequestedOptions": {
+        "deviceType": "gpu",
+        "accelerated": true
+      },
+      "reportedAccelerated": null,
+      "sessionMilliseconds": 12191.289999961853,
+      "audioMilliseconds": 10295.975000023842,
+      "frames": 44100,
+      "parity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 0.00001
+        },
+        "relativeRmsError": 0.00009244588858651333,
+        "maxAbsError": 0.00002378225326538086,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0.005081624912667488,
+            "maxAbsError": 0.000005068723112344742,
+            "referenceRms": 0.00012728066667986674,
+            "relativeApplicable": true,
+            "passed": false
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 0.06822337342242239,
+            "maxAbsError": 0.00001064967000274919,
+            "referenceRms": 0.00005225771683857739,
+            "relativeApplicable": true,
+            "passed": false
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 0.00007026608339500586,
+            "maxAbsError": 0.00002378225326538086,
+            "referenceRms": 0.06041425999892176,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0.0008734151787849543,
+            "maxAbsError": 8.193310350179672e-7,
+            "referenceRms": 0.0002396479386138791,
+            "relativeApplicable": true,
+            "passed": true
+          }
+        ],
+        "passed": false
+      },
+      "providerEvidence": "WebNN graph dispatch observed; WASM fallback coverage not quantified",
+      "status": "ok",
+      "totalMilliseconds": 22824.56500005722
+    },
+    {
+      "caseId": "gha-dream-on-20-6s",
+      "runtime": "production",
+      "requestedBackend": "wasm",
+      "effectiveHardware": "unknown",
+      "webnnDispatches": 0,
+      "dispatchInstrumentation": false,
+      "webnnGraphBuilds": 0,
+      "graphBuildInstrumentation": false,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeVersion": "1.22.0",
+      "sessionMilliseconds": 649.6200000047684,
+      "audioMilliseconds": 11435.519999980927,
+      "frames": 264600,
+      "providerEvidence": "WASM CPU explicitly requested",
+      "status": "ok",
+      "totalMilliseconds": 12352.379999995232
+    },
+    {
+      "caseId": "gha-dream-on-20-6s",
+      "runtime": "lab",
+      "requestedBackend": "wasm",
+      "effectiveHardware": "unknown",
+      "webnnDispatches": 0,
+      "dispatchInstrumentation": false,
+      "webnnGraphBuilds": 0,
+      "graphBuildInstrumentation": false,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "sessionMilliseconds": 770.3050000667572,
+      "audioMilliseconds": 10833.875,
+      "frames": 264600,
+      "parity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 0.00001
+        },
+        "relativeRmsError": 3.697771388915896e-7,
+        "maxAbsError": 2.384185791015625e-7,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0.00004184042151368373,
+            "maxAbsError": 6.80447556078434e-8,
+            "referenceRms": 0.00018335177492939398,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 3.34626528101156e-7,
+            "maxAbsError": 1.7881393432617188e-7,
+            "referenceRms": 0.059340870873568,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 3.4900331919909333e-7,
+            "maxAbsError": 2.384185791015625e-7,
+            "referenceRms": 0.07738709863320478,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0.00013224462466895337,
+            "maxAbsError": 4.8690708354115486e-8,
+            "referenceRms": 0.00008205993896049251,
+            "relativeApplicable": true,
+            "passed": true
+          }
+        ],
+        "passed": true
+      },
+      "providerEvidence": "WASM CPU explicitly requested",
+      "status": "ok",
+      "totalMilliseconds": 11946.480000019073
+    },
+    {
+      "caseId": "gha-dream-on-20-6s",
+      "runtime": "lab",
+      "requestedBackend": "webnn",
+      "effectiveHardware": "unknown",
+      "webnnDispatches": 1,
+      "dispatchInstrumentation": true,
+      "webnnGraphBuilds": 1,
+      "graphBuildInstrumentation": true,
+      "warnings": [],
+      "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "contextRequestedOptions": {
+        "deviceType": "gpu",
+        "accelerated": true
+      },
+      "reportedAccelerated": null,
+      "sessionMilliseconds": 12102.350000023842,
+      "audioMilliseconds": 2281.2549999952316,
+      "frames": 264600,
+      "parity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 0.00001
+        },
+        "relativeRmsError": 0.00039492009926685135,
+        "maxAbsError": 0.0001561082899570465,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0.009472132294838191,
+            "maxAbsError": 0.000013111159205436707,
+            "referenceRms": 0.00018335177492939398,
+            "relativeApplicable": true,
+            "passed": false
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 0.0005736713555142753,
+            "maxAbsError": 0.0001561082899570465,
+            "referenceRms": 0.059340870873568,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 0.00023153436656722643,
+            "maxAbsError": 0.0001462697982788086,
+            "referenceRms": 0.07738709863320478,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0.006544250886647493,
+            "maxAbsError": 0.00000434421599493362,
+            "referenceRms": 0.00008205993896049251,
+            "relativeApplicable": true,
+            "passed": false
+          }
+        ],
+        "passed": false
+      },
+      "providerEvidence": "WebNN graph dispatch observed; WASM fallback coverage not quantified",
+      "status": "ok",
+      "totalMilliseconds": 14717.105000019073
+    }
+  ],
+  "inputs": [
+    {
+      "id": "synthetic-1s",
+      "frames": 44100,
+      "pcmSha256": "ba696d12064b3ea5256bfba3881e7e598c6e41a30128bf65f8f1ef7e0d7e5470"
+    },
+    {
+      "id": "gha-dream-on-20-6s",
+      "frames": 264600,
+      "pcmSha256": "ab9c3344bacf4be04f0cec36b68ed71f72c41c00b54f6c6186d6eecfbc153ecd",
+      "wavSha256": "b0f38ab52f1df6aff819c2c7127ed7c4d2b33e0ab61de3af2f50ba39214573fa",
+      "referenceScope": "G1 constructed game mix; instrument purity irrelevant to numerical parity, training exposure unknown"
+    }
+  ],
+  "effectiveHardware": "unknown",
+  "note": "Six runs include preparation and local verification. No speed ranking or production activation."
+}

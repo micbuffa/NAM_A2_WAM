@@ -1,0 +1,542 @@
+{
+  "protocol": "local-game-stems-preflight-v1",
+  "date": "2026-10-25",
+  "scope": "Inventory of names/layouts only for whole collection; audio inspection restricted to six candidates. No inference on any song.",
+  "inventory": {
+    "ghaFolders": 41,
+    "ghaThreeOggStemsFolders": 39,
+    "ghaThreeMp3StemsFolders": 1,
+    "ghaNoAudioFolders": 1,
+    "ghaAllFilesBytes": 553455425,
+    "rockbandMoggFiles": 306,
+    "rockbandBytes": 8495903727,
+    "moggAudioProbedCount": 3,
+    "ghaAudioProbedFiles": 9,
+    "ghaDecodedWindowsPerFile": 2,
+    "windowSeconds": 6,
+    "decodePolicy": "Decode first 96s from origin for selected GHA files; analyze only sample slices 20-26s and 90-96s. Input-side seek initially gave 265048 rather than 264600 samples on Dream On rhythm; discarded, no padding or alignment search."
+  },
+  "selectedFirstBatch": [
+    {
+      "collection": "Musiques Multipistes gha",
+      "folder": "25 Aerosmith - Dream On",
+      "metadataIni": "[song]\nname = Dream On\nartist = Aerosmith\nalbum = Aerosmith\nyear = 1973\ngenre = Rock\ntags = master\nicon = gha\nunlock_id = gha_5enc\nunlock_require = gha_5b\ndiff_guitar = 4\ndiff_bass = 4",
+      "files": [
+        {
+          "name": "guitar.ogg",
+          "bytes": 4995433,
+          "sha256": "f8f4394b797ead9679a5462d243b9f3a593de39376b4df5095e866b8f6a0eb3c",
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "44100",
+                "channels": 2,
+                "start_time": "0.000000",
+                "duration": "277.153379"
+              }
+            ],
+            "format": {
+              "duration": "277.153379"
+            }
+          }
+        },
+        {
+          "name": "rhythm.ogg",
+          "bytes": 3922345,
+          "sha256": "96b6a4e58c52547e715be41cc6d6282972e768a8d8afa96bf337ff9c75a88e4f",
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "44100",
+                "channels": 2,
+                "start_time": "0.000000",
+                "duration": "277.153379"
+              }
+            ],
+            "format": {
+              "duration": "277.153379"
+            }
+          }
+        },
+        {
+          "name": "song.ogg",
+          "bytes": 5155423,
+          "sha256": "56654c293366e24e704124f1b96ef6f72e5fa82d8658c101abd8a878286b9d37",
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "44100",
+                "channels": 2,
+                "start_time": "0.000000",
+                "duration": "277.153379"
+              }
+            ],
+            "format": {
+              "duration": "277.153379"
+            }
+          }
+        }
+      ],
+      "boundedWindows": [
+        {
+          "startSeconds": 20,
+          "durationSeconds": 6,
+          "frames": 264600,
+          "tracks": {
+            "guitar.ogg": {
+              "rms": 0.0533820693348032,
+              "peak": 0.32966384291648865,
+              "energyBelow250HzFraction": 0.0002041354455286637
+            },
+            "rhythm.ogg": {
+              "rms": 0.060611226157906976,
+              "peak": 0.21054421365261078,
+              "energyBelow250HzFraction": 0.9470254182815552
+            },
+            "song.ogg": {
+              "rms": 0.0560561845372527,
+              "peak": 0.4427679479122162,
+              "energyBelow250HzFraction": 0.31775158643722534
+            }
+          },
+          "pairCorrelations": {
+            "guitar.ogg vs song.ogg": 0.00569416669009158,
+            "guitar.ogg vs rhythm.ogg": 0.0003117016935228552,
+            "rhythm.ogg vs song.ogg": -0.006155338106457638
+          },
+          "constructedMix": {
+            "peakBeforeCommonGain": 0.6121019124984741,
+            "commonGainForPeak09": 1,
+            "maxAbsSumResidual": 5.960464477539063e-08
+          },
+          "interpretation": "Numerical activity and compatible sample grids only. Correlation does not establish instrument purity or absence of bleed. No musical listening or neural inference."
+        },
+        {
+          "startSeconds": 90,
+          "durationSeconds": 6,
+          "frames": 264600,
+          "tracks": {
+            "guitar.ogg": {
+              "rms": 0.10664450343194473,
+              "peak": 0.4274265468120575,
+              "energyBelow250HzFraction": 0.42130404710769653
+            },
+            "rhythm.ogg": {
+              "rms": 0.06978057550110203,
+              "peak": 0.23698006570339203,
+              "energyBelow250HzFraction": 0.9696866273880005
+            },
+            "song.ogg": {
+              "rms": 0.11091231434676915,
+              "peak": 0.5073061585426331,
+              "energyBelow250HzFraction": 0.29311880469322205
+            }
+          },
+          "pairCorrelations": {
+            "guitar.ogg vs song.ogg": 0.004822658632174065,
+            "guitar.ogg vs rhythm.ogg": -0.028242303076184288,
+            "rhythm.ogg vs song.ogg": 0.017353202481420867
+          },
+          "constructedMix": {
+            "peakBeforeCommonGain": 0.8141359686851501,
+            "commonGainForPeak09": 1,
+            "maxAbsSumResidual": 5.960464477539063e-08
+          },
+          "interpretation": "Numerical activity and compatible sample grids only. Correlation does not establish instrument purity or absence of bleed. No musical listening or neural inference."
+        }
+      ],
+      "midiTrackNames": [
+        "dreamon",
+        "PART GUITAR",
+        "PART GUITAR COOP",
+        "PART BASS",
+        "EVENTS",
+        "TRIGGERS"
+      ]
+    },
+    {
+      "collection": "Musiques Multipistes gha",
+      "folder": "22 Lenny Kravitz - Always On The Run",
+      "metadataIni": "[song]\nname = Always On The Run\nartist = Lenny Kravitz Featuring Slash\nalbum = Mama Said\nyear = 1991\ngenre = Rock\ntags = master\nicon = gha\nunlock_id = gha_5a\nunlock_require = gha_4enc\ndiff_guitar = 4\ndiff_bass = 4",
+      "files": [
+        {
+          "name": "guitar.ogg",
+          "bytes": 4339505,
+          "sha256": "1f1ec362e334b6933bb005d845468e0613ddca03567299d9eb94e870245552e1",
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "44100",
+                "channels": 2,
+                "start_time": "0.000000",
+                "duration": "239.258413"
+              }
+            ],
+            "format": {
+              "duration": "239.258413"
+            }
+          }
+        },
+        {
+          "name": "rhythm.ogg",
+          "bytes": 3404327,
+          "sha256": "398d64663f063da8177e57e420f4313635adfd386b9aadfc22b5a1bd5cafbfc7",
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "44100",
+                "channels": 2,
+                "start_time": "0.000000",
+                "duration": "239.258413"
+              }
+            ],
+            "format": {
+              "duration": "239.258413"
+            }
+          }
+        },
+        {
+          "name": "song.ogg",
+          "bytes": 3953967,
+          "sha256": "3eb716620a467e07ad4ea521a17a702536674fcb3d7d0037c2b2da5a6b1d187e",
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "44100",
+                "channels": 2,
+                "start_time": "0.000000",
+                "duration": "239.258413"
+              }
+            ],
+            "format": {
+              "duration": "239.258413"
+            }
+          }
+        }
+      ],
+      "boundedWindows": [
+        {
+          "startSeconds": 20,
+          "durationSeconds": 6,
+          "frames": 264600,
+          "tracks": {
+            "guitar.ogg": {
+              "rms": 0.1305572987196758,
+              "peak": 0.5872583985328674,
+              "energyBelow250HzFraction": 0.17985402047634125
+            },
+            "rhythm.ogg": {
+              "rms": 0.12826416593438053,
+              "peak": 0.5049230456352234,
+              "energyBelow250HzFraction": 0.9611082077026367
+            },
+            "song.ogg": {
+              "rms": 0.08950055170663439,
+              "peak": 0.6596429347991943,
+              "energyBelow250HzFraction": 0.3253990113735199
+            }
+          },
+          "pairCorrelations": {
+            "guitar.ogg vs song.ogg": -0.0025101578966013082,
+            "guitar.ogg vs rhythm.ogg": -0.00798492994858022,
+            "rhythm.ogg vs song.ogg": 0.019480415146337672
+          },
+          "constructedMix": {
+            "peakBeforeCommonGain": 1.2621078491210938,
+            "commonGainForPeak09": 0.7130927841283466,
+            "maxAbsSumResidual": 1.1920928955078125e-07
+          },
+          "interpretation": "Numerical activity and compatible sample grids only. Correlation does not establish instrument purity or absence of bleed. No musical listening or neural inference."
+        },
+        {
+          "startSeconds": 90,
+          "durationSeconds": 6,
+          "frames": 264600,
+          "tracks": {
+            "guitar.ogg": {
+              "rms": 0.13014552153604725,
+              "peak": 0.5709003806114197,
+              "energyBelow250HzFraction": 0.15971550345420837
+            },
+            "rhythm.ogg": {
+              "rms": 0.146127193649216,
+              "peak": 0.5265907645225525,
+              "energyBelow250HzFraction": 0.9391253590583801
+            },
+            "song.ogg": {
+              "rms": 0.1520595452736026,
+              "peak": 0.6975194811820984,
+              "energyBelow250HzFraction": 0.12492115795612335
+            }
+          },
+          "pairCorrelations": {
+            "guitar.ogg vs song.ogg": 0.0028268331143769566,
+            "guitar.ogg vs rhythm.ogg": 0.004674956038182756,
+            "rhythm.ogg vs song.ogg": -0.022666085882385625
+          },
+          "constructedMix": {
+            "peakBeforeCommonGain": 1.372721791267395,
+            "commonGainForPeak09": 0.6556317570868133,
+            "maxAbsSumResidual": 1.1920928955078125e-07
+          },
+          "interpretation": "Numerical activity and compatible sample grids only. Correlation does not establish instrument purity or absence of bleed. No musical listening or neural inference."
+        }
+      ],
+      "midiTrackNames": [
+        "alwaysontherun",
+        "PART GUITAR",
+        "PART BASS",
+        "PART GUITAR COOP",
+        "EVENTS",
+        "TRIGGERS"
+      ]
+    },
+    {
+      "collection": "Musiques Multipistes gha",
+      "folder": "16 The Cult - She Sells Sanctuary",
+      "metadataIni": "[song]\nname = She Sells Sanctuary\nartist = The Cult\nalbum = Love\nyear = 1985\ngenre = Post-Punk\ntags = master\nicon = gha\nunlock_id = gha_4a\nunlock_require = gha_3enc\ndiff_guitar = 3\ndiff_bass = 3",
+      "files": [
+        {
+          "name": "guitar.ogg",
+          "bytes": 4847258,
+          "sha256": "bf1318aee7f0fc4ae8c46e6bd055ea1fae9ad7150d8a6b159d3dbe265d062563",
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "44100",
+                "channels": 2,
+                "start_time": "0.000000",
+                "duration": "256.534059"
+              }
+            ],
+            "format": {
+              "duration": "256.534059"
+            }
+          }
+        },
+        {
+          "name": "rhythm.ogg",
+          "bytes": 4068684,
+          "sha256": "ce939e91f1f7456cd08828f617d5869bedd18aaa7aaeb9b438fb161fae1a9d8f",
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "44100",
+                "channels": 2,
+                "start_time": "0.000000",
+                "duration": "256.534059"
+              }
+            ],
+            "format": {
+              "duration": "256.534059"
+            }
+          }
+        },
+        {
+          "name": "song.ogg",
+          "bytes": 4843774,
+          "sha256": "fb71436369eca19cfa3f7b6ccff2a37126c952833ca4167c9838bdb1ece70715",
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "44100",
+                "channels": 2,
+                "start_time": "0.000000",
+                "duration": "256.534059"
+              }
+            ],
+            "format": {
+              "duration": "256.534059"
+            }
+          }
+        }
+      ],
+      "boundedWindows": [
+        {
+          "startSeconds": 20,
+          "durationSeconds": 6,
+          "frames": 264600,
+          "tracks": {
+            "guitar.ogg": {
+              "rms": 0.12261183797113383,
+              "peak": 0.5579779744148254,
+              "energyBelow250HzFraction": 0.009581523016095161
+            },
+            "rhythm.ogg": {
+              "rms": 0.11093836830890173,
+              "peak": 0.3277656137943268,
+              "energyBelow250HzFraction": 0.9589864015579224
+            },
+            "song.ogg": {
+              "rms": 0.09546862884339807,
+              "peak": 0.9785993695259094,
+              "energyBelow250HzFraction": 0.7510605454444885
+            }
+          },
+          "pairCorrelations": {
+            "guitar.ogg vs song.ogg": 0.0008102487040838993,
+            "guitar.ogg vs rhythm.ogg": 0.0005865355921078883,
+            "rhythm.ogg vs song.ogg": -0.0035688830536245437
+          },
+          "constructedMix": {
+            "peakBeforeCommonGain": 1.2604951858520508,
+            "commonGainForPeak09": 0.7140051069624922,
+            "maxAbsSumResidual": 1.1920928955078125e-07
+          },
+          "interpretation": "Numerical activity and compatible sample grids only. Correlation does not establish instrument purity or absence of bleed. No musical listening or neural inference."
+        },
+        {
+          "startSeconds": 90,
+          "durationSeconds": 6,
+          "frames": 264600,
+          "tracks": {
+            "guitar.ogg": {
+              "rms": 0.11780919024067152,
+              "peak": 0.5377634763717651,
+              "energyBelow250HzFraction": 0.008019743487238884
+            },
+            "rhythm.ogg": {
+              "rms": 0.10794667202920291,
+              "peak": 0.3263534903526306,
+              "energyBelow250HzFraction": 0.9459065794944763
+            },
+            "song.ogg": {
+              "rms": 0.09237669664159096,
+              "peak": 0.944652795791626,
+              "energyBelow250HzFraction": 0.8048559427261353
+            }
+          },
+          "pairCorrelations": {
+            "guitar.ogg vs song.ogg": 0.0013903356721015282,
+            "guitar.ogg vs rhythm.ogg": -0.006799621115200671,
+            "rhythm.ogg vs song.ogg": 0.0077803749538589186
+          },
+          "constructedMix": {
+            "peakBeforeCommonGain": 1.2872748374938965,
+            "commonGainForPeak09": 0.69915139625672,
+            "maxAbsSumResidual": 1.1920928955078125e-07
+          },
+          "interpretation": "Numerical activity and compatible sample grids only. Correlation does not establish instrument purity or absence of bleed. No musical listening or neural inference."
+        }
+      ],
+      "midiTrackNames": [
+        "shesellssanctuary",
+        "PART GUITAR",
+        "PART BASS",
+        "PART GUITAR COOP",
+        "EVENTS",
+        "TRIGGERS"
+      ]
+    }
+  ],
+  "moggCandidates": [
+    {
+      "name": "Muse - Hysteria.mogg",
+      "bytes": 29691520,
+      "sha256": "f8148caa1bc685eb8317e4252610485eb320f20b48044551935525b67d64eecf",
+      "version": 10,
+      "oggPayloadOffset": 4084,
+      "oggSignature": "OggS",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "sample_rate": "44100",
+            "channels": 12,
+            "start_time": "0.000000",
+            "duration": "231.074104"
+          }
+        ],
+        "format": {
+          "duration": "231.074104"
+        }
+      },
+      "channelRoles": "unknown; no songs.dta or channel/pan/gain mapping supplied",
+      "status": "reserve; not ready as instrument reference"
+    },
+    {
+      "name": "Metallica - Enter Sandman.mogg",
+      "bytes": 37043380,
+      "sha256": "961bfed093872e55282cfc697f559b08efda109d7209cab95e204ba3fdd18905",
+      "version": 10,
+      "oggPayloadOffset": 4852,
+      "oggSignature": "OggS",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "sample_rate": "36000",
+            "channels": 13,
+            "start_time": "0.000000",
+            "duration": "336.321028"
+          }
+        ],
+        "format": {
+          "duration": "336.321028"
+        }
+      },
+      "channelRoles": "unknown; no songs.dta or channel/pan/gain mapping supplied",
+      "status": "reserve; not ready as instrument reference"
+    },
+    {
+      "name": "Police - Roxanne.mogg",
+      "bytes": 20226564,
+      "sha256": "cd69f417fa9036709ed28a4059511819187e3813713fbe19198989c5efcf430c",
+      "version": 10,
+      "oggPayloadOffset": 3188,
+      "oggSignature": "OggS",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "sample_rate": "44100",
+            "channels": 12,
+            "start_time": "0.000000",
+            "duration": "178.878753"
+          }
+        ],
+        "format": {
+          "duration": "178.878753"
+        }
+      },
+      "channelRoles": "unknown; no songs.dta or channel/pan/gain mapping supplied",
+      "status": "reserve; not ready as instrument reference"
+    }
+  ],
+  "selectionPolicy": "Choose songs and offsets before viewing separator outputs; genre diversity hypotheses are not listening observations. GHA guitar first; bass only after verifying rhythm stem semantics. Muse reserve pending channel map.",
+  "provenance": "User-provided game-derived files; tags=master is metadata, not independent studio provenance proof. Training exposure unknown.",
+  "redistributeAudio": false
+}

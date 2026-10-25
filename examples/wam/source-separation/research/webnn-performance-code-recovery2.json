@@ -1,0 +1,59 @@
+{
+  "frozenAt": "2026-10-25T18:16:55.963044+00:00",
+  "protocol": "webnn-falcon-6s-retained-session-v1",
+  "change": "Add explicit per-device SW scope and local report checkpoints after browser/server interruption. Worker/model/DSP unchanged from recovery1.",
+  "files": {
+    "WebNNBenchmark.js": {
+      "sha256": "ba79283dd53dbc0106684bb3caa8836e372b0e479c947f37f338ae462805ecd2",
+      "bytes": 1352
+    },
+    "webnn-performance-worker.js": {
+      "sha256": "1cc906ca0a7782f635fbf4a5541534ade16ab0213150128aeb423ffe319f15fe",
+      "bytes": 6926
+    },
+    "webnn-performance.js": {
+      "sha256": "a96f0931cca2a2c1fbeca71512c1f0628d4e9622d0b5c898c7fe2a0cbe2d38da",
+      "bytes": 4987
+    },
+    "webnn-performance.html": {
+      "sha256": "d0dd0481e4b2213ecfc80dcec97586c7c297dca998eed09fa5fd22262bd12131",
+      "bytes": 1489
+    },
+    "OnnxCoreModel.js": {
+      "sha256": "7a4c0ca6f1d861587e7f3e1aa0ed432535fdc30276161d552c370952e8530198",
+      "bytes": 1574
+    },
+    "RoformerCoreModel.js": {
+      "sha256": "19fe57ed51b4a4918301f57fa23f04eb97286ca7107e431573c1795816731782",
+      "bytes": 1458
+    },
+    "RoformerDSP.js": {
+      "sha256": "b1173294122f92babba65192074b673ef2033cfab4ab02a58d4ecc6e71d2dee2",
+      "bytes": 2805
+    },
+    "CooperativeOnnxSession.js": {
+      "sha256": "7d7b86d7466db8d589e14279e932a2a921b828de70fecb67979d9155d0fa3892",
+      "bytes": 5947
+    },
+    "ChunkTools.js": {
+      "sha256": "f1766a42d1c18fe6cda16b4909b5b158f45c175f29497792028c07fcbd823f26",
+      "bytes": 1823
+    },
+    "WebNNDevice.js": {
+      "sha256": "d826f2ca033e6a762919632af1e32da00b45e676d1f9e065d4ebcd1da08b520a",
+      "bytes": 638
+    },
+    "vendor/demucs-js/apply.js": {
+      "sha256": "814c4b775a9a557ec2f83a2b757611ad0c135eda83a3d94f3793116c981d0bfe",
+      "bytes": 24250
+    },
+    "research/roformer-stage-plan.json": {
+      "sha256": "ed7708fa674f4fa8c0c2fbdeb2aee24af49151868b1375576b5b936225cd22da",
+      "bytes": 1251361
+    },
+    "research/webnn-runtime.json": {
+      "sha256": "86e1118ab1a5662ff30e4d1d2958df0036fb3aac3f57bd90816c7740094d0559",
+      "bytes": 1431
+    }
+  }
+}

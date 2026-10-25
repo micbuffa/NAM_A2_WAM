@@ -1,0 +1,58 @@
+{
+  "frozenAt": "2026-10-25T16:54:21.419231+00:00",
+  "protocol": "webnn-falcon-6s-retained-session-v1",
+  "files": {
+    "WebNNBenchmark.js": {
+      "sha256": "b6372ba98613e78bd3d3a7f57dcaec81df48273bd78ae8376416e9e5ad568b4e",
+      "bytes": 955
+    },
+    "webnn-performance-worker.js": {
+      "sha256": "d72d7ac37e4611e44d2b2879f298aa06d5ab51614e5a0cccb9be5e3b064b8143",
+      "bytes": 6842
+    },
+    "webnn-performance.js": {
+      "sha256": "a4c367c645fcd254db8d020693a26b21c2dee316efed4190dffcb163962968e0",
+      "bytes": 4131
+    },
+    "webnn-performance.html": {
+      "sha256": "5244933149e7dbdf1f6c59a0b3d3b43dff4c0ad5289839b77bff0adc225ce09c",
+      "bytes": 1187
+    },
+    "OnnxCoreModel.js": {
+      "sha256": "7a4c0ca6f1d861587e7f3e1aa0ed432535fdc30276161d552c370952e8530198",
+      "bytes": 1574
+    },
+    "RoformerCoreModel.js": {
+      "sha256": "19fe57ed51b4a4918301f57fa23f04eb97286ca7107e431573c1795816731782",
+      "bytes": 1458
+    },
+    "RoformerDSP.js": {
+      "sha256": "b1173294122f92babba65192074b673ef2033cfab4ab02a58d4ecc6e71d2dee2",
+      "bytes": 2805
+    },
+    "CooperativeOnnxSession.js": {
+      "sha256": "7d7b86d7466db8d589e14279e932a2a921b828de70fecb67979d9155d0fa3892",
+      "bytes": 5947
+    },
+    "ChunkTools.js": {
+      "sha256": "f1766a42d1c18fe6cda16b4909b5b158f45c175f29497792028c07fcbd823f26",
+      "bytes": 1823
+    },
+    "WebNNDevice.js": {
+      "sha256": "d826f2ca033e6a762919632af1e32da00b45e676d1f9e065d4ebcd1da08b520a",
+      "bytes": 638
+    },
+    "vendor/demucs-js/apply.js": {
+      "sha256": "814c4b775a9a557ec2f83a2b757611ad0c135eda83a3d94f3793116c981d0bfe",
+      "bytes": 24250
+    },
+    "research/roformer-stage-plan.json": {
+      "sha256": "ed7708fa674f4fa8c0c2fbdeb2aee24af49151868b1375576b5b936225cd22da",
+      "bytes": 1251361
+    },
+    "research/webnn-runtime.json": {
+      "sha256": "86e1118ab1a5662ff30e4d1d2958df0036fb3aac3f57bd90816c7740094d0559",
+      "bytes": 1431
+    }
+  }
+}
