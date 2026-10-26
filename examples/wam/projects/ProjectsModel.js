@@ -22,12 +22,19 @@ export function groupProjects(projects = []) {
   return {mine: projects.filter((project) => project.owned), shared: projects.filter((project) => !project.owned)};
 }
 
-export const projectOptionLabel = (project) => `${project.name} · ${plural(project.trackCount ?? project.tracks?.length ?? 0, 'track')}`;
+export const projectTrackCount = project => {
+  if (!project.tracks) return project.trackCount ?? 0;
+  return project.activeSeparationId
+    ? project.tracks.filter(track => track.separationId === project.activeSeparationId).length
+    : project.tracks.filter(track => !['stem', 'mix'].includes(track.origin)).length;
+};
+
+export const projectOptionLabel = (project) => `${project.name} · ${plural(projectTrackCount(project), 'track')}`;
 
 // What the header says about the open project.
 export function describeProject(project, {dirty = false, previewTracks = null} = {}) {
   if (!project) return null;
-  const tracks = project.tracks?.length ?? project.trackCount ?? 0;
+  const tracks = projectTrackCount(project);
   return {
     kicker: previewTracks ? `Instrument preview · ${plural(previewTracks.length, 'track')} · in RAM` : [project.owned ? 'Recording project' : `Shared by ${project.owner?.name || 'another user'}`, plural(tracks, 'track'),
       project.owned && shareSummary(project.shares)].filter(Boolean).join(' · '),
@@ -168,6 +175,21 @@ export function snapLoop(from, to, length, {free = false} = {}) {
   if (free) return {start: a, end: b};
   const start = Math.min(length.bars - 1, Math.floor(a / bar + 1e-9));
   return {start: start * bar, end: Math.max(start + 1, Math.ceil(b / bar - 1e-9)) * bar};
+}
+
+// Resize one boundary without moving the other or allowing A to cross B.
+export function resizeLoop(loop, anchor, seconds, length, {free = false} = {}) {
+  const total = length.seconds;
+  const clamp = value => Math.max(0, Math.min(total, value));
+  const valid = loop.end > loop.start;
+  const start = valid ? clamp(loop.start) : 0;
+  const end = valid ? clamp(loop.end) : total;
+  const gap = Math.min(.05, total);
+  const bar = total / length.bars;
+  const time = clamp(free ? seconds : Math.round(seconds / bar) * bar);
+  return anchor === 'A'
+    ? {start: Math.max(0, Math.min(end - gap, time)), end}
+    : {start, end: Math.min(total, Math.max(start + gap, time))};
 }
 
 // The loop over the bars around a position: from its bar, `bars` long (the

@@ -5,7 +5,7 @@ import {barBeat, loopAround, loopFromBars, loopLabel, loopToBars, rememberLoop, 
   from '../../examples/wam/projects/ProjectsModel.js';
 import {ProjectPlayer} from '../../examples/wam/projects/ProjectPlayer.js';
 import {TrackTones, needsTone} from '../../examples/wam/projects/TrackTones.js';
-import {takeLinkedProject} from '../../examples/wam/projects/ProjectsWorkspace.js';
+import {ProjectsWorkspace, takeLinkedProject} from '../../examples/wam/projects/ProjectsWorkspace.js';
 import AccountApi from '../../examples/wam/account/api.js';
 import {RemotePresetStore} from '../../examples/wam/account/PresetStore.js';
 
@@ -519,4 +519,27 @@ test('a temporary instrument preview is never presented as saved to the account'
   assert.equal(description.saveState,'Instruments in RAM');
   assert.match(description.kicker,/6 tracks/u);
   assert.match(description.meta,/Original \/ project/u);
+});
+
+
+test('project labels count the active separation rather than adding four and six archived stems', () => {
+  const project = {name:'Wonderwall',owned:true,activeSeparationId:6,trackCount:10,tracks:[
+    {id:1,origin:'original'}, {id:2,origin:'mix'},
+    ...Array.from({length:4},()=>({origin:'stem',separationId:4})),
+    ...Array.from({length:6},()=>({origin:'stem',separationId:6}))]};
+  assert.equal(projectOptionLabel(project),'Wonderwall · 6 tracks');
+  assert.match(describeProject(project).kicker,/6 tracks/);
+  project.activeSeparationId=4;
+  assert.equal(projectOptionLabel(project),'Wonderwall · 4 tracks');
+  project.activeSeparationId=null;
+  assert.equal(projectOptionLabel(project),'Wonderwall · 1 track');
+});
+
+
+test('refreshing a project summary discards stale embedded tracks from its initial import', () => {
+  const w={projects:[{id:7,name:'Song',tracks:[{id:1,origin:'original'}]}]};
+  const project={id:7,name:'Song',bpm:120,activeSeparationId:6,tracks:Array.from({length:6},()=>({origin:'stem',separationId:6}))};
+  ProjectsWorkspace.prototype.replaceSummary.call(w,project);
+  assert.equal(projectOptionLabel(w.projects[0]),'Song · 6 tracks');
+  assert.equal(w.projects[0].tracks,undefined);
 });

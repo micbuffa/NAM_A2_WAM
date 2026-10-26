@@ -81,3 +81,21 @@ test('export availability explains unsaved, loading, failed, unsupported and rea
   assert.match(state({...input,tracks:[track(1,{presetId:8})]}).message,/preset/);
   assert.match(state({...input,tracks:[track(1,{inputMonitoring:true})]}).message,/monitoring/);
 });
+
+
+test('compact Studio hides premature export during separation, guides saving, then exposes the ready mix', async () => {
+  const {ProjectsWorkspace} = await import('../../examples/wam/projects/ProjectsWorkspace.js');
+  const label={},fields=Object.fromEntries(['studioUseMix','studioExportRange','studioExportHelp','studioRetryAudio'].map(id=>[id,{}]));
+  fields.studioExportRange.closest=()=>label;
+  const w={owned:true,saving:false,separation:{busy:true},pendingSeparation:false,displayTracks:tracks,player:{channels},onUseMix(){},$:id=>fields[id]};
+  const render=()=>ProjectsWorkspace.prototype.renderMixExport.call(w);
+  render();assert.equal(fields.studioUseMix.hidden,true);assert.equal(fields.studioExportHelp.hidden,true);
+  w.separation.busy=false;w.pendingSeparation=true;render();
+  assert.equal(fields.studioUseMix.hidden,true);assert.equal(fields.studioExportHelp.hidden,false);
+  assert.match(fields.studioExportHelp.textContent,/Save project/);
+  w.pendingSeparation=false;render();
+  assert.equal(fields.studioUseMix.hidden,false);assert.equal(fields.studioUseMix.disabled,false);assert.equal(fields.studioExportHelp.hidden,true);
+  w.player.channels=new Map([[1,{buffer:{duration:2}}],[2,{error:Error('HTTP 500')}]]);render();
+  assert.equal(fields.studioUseMix.disabled,true);assert.equal(fields.studioRetryAudio.hidden,false);assert.equal(fields.studioExportHelp.hidden,false);
+  w.owned=false;render();assert.equal(fields.studioUseMix.hidden,true);assert.equal(label.hidden,true);
+});

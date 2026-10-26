@@ -4,9 +4,8 @@ class Api::ProjectsController < Api::BaseController
   include ProjectAccess
 
   def index
-    projects = Project.visible_to(current_user).includes(:user).order(updated_at: :desc)
-    track_counts = Track.where(project: projects).group(:project_id).count
-    render json: projects.map { |project| ProjectJson.summary(project, current_user, track_count: track_counts.fetch(project.id, 0)) }
+    projects = Project.visible_to(current_user).includes(:user, :tracks).order(updated_at: :desc)
+    render json: projects.map { |project| ProjectJson.summary(project, current_user) }
   end
 
   def from_backing

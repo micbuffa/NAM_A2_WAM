@@ -15,15 +15,23 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=csrf-token]"
     assert_select "script#currentUser[type='application/json']", text: "null"
   end
-  test "Studio exposes a single separation entry, whole-song default and an explicit stop" do
+  test "Studio exposes one separation entry and leaves duration selection to its dialog" do
     get "/rack/"
     assert_select "#studioSeparation[hidden]", count: 1
     assert_select "#studioSeparate", text: "Separate instruments"
     assert_select "#studioStop[hidden]", text: "Stop separation"
-    assert_select "#studioExcerpt option:first-child[value='0']", text: "Entire song"
+    # The chooser creates this field dynamically; the whole-song default and
+    # excerpt dispatch are covered by the StudioSeparationView unit tests.
+    assert_select "#studioExcerpt", count: 0
     assert_select "details.studio-separation-settings:not([open])", count: 1
     assert_select "#studioProgress[aria-label='Separation progress']", count: 1
     assert_select "#studioOriginal[aria-pressed='true']", count: 1
+  end
+
+  test "Studio ruler exposes its interactive A B controls to accessibility" do
+    get "/rack/"
+    assert_select ".project-ruler-row[aria-hidden='true']", count: 0
+    assert_select "#projectRuler[aria-label='Timeline and A/B loop']", count: 1
   end
 
 end

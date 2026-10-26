@@ -223,3 +223,66 @@ test('a delayed retry from a previous project cannot issue requests or publish a
   player.setTracks([]);gate.resolve();await new Promise(resolve=>setImmediate(resolve));
   assert.equal(calls,1);assert.equal(player.channels.size,0);assert.equal(player.ready,false);player.destroy();
 });
+
+
+test('restoring a six-stem project restores its model and exact saved deck, then switching history restores four', async () => {
+  const {separation: c} = await fixture();
+  const six = Array.from({length:6}, (_,i)=>({id:i+10,separationId:6,volume:53+i,pan:i-3}));
+  const four = Array.from({length:4}, (_,i)=>({id:i+20,separationId:4}));
+  const project = {activeSeparationId:6, tracks:[{id:1,origin:'original'},...four,...six], separations:[
+    {id:4,state:'ready',manifest:{modelId:'htdemucs_4s_onnx',backend:'wasm',frames:44100}},
+    {id:6,state:'ready',manifest:{modelId:'bs_roformer_sw_6s',backend:'webgpu',frames:44100}}]};
+  c.restore(project);
+  assert.equal(c.modelId,'bs_roformer_sw_6s');
+  assert.deepEqual(c.viewTracks,six);
+  assert.equal(c.viewTracks[0].volume,53);
+  assert.equal(c.viewTracks[0].pan,-3);
+  await c.init(); // Capability discovery completing after restore must not reset it to four.
+  assert.equal(c.modelId,'bs_roformer_sw_6s');
+  c.selectSaved(4);
+  assert.equal(c.modelId,'htdemucs_4s_onnx');
+  assert.deepEqual(c.viewTracks,four);
+  c.restore({tracks:[],separations:[]});
+  assert.equal(c.viewTracks,null);
+});
+
+test('the minimal model dialog offers two choices and starts only the chosen model', async () => {
+  const {StudioSeparationView} = await import('../../examples/wam/projects/StudioSeparationView.js');
+  class Element extends EventTarget {
+    constructor(tag) {super();this.tag = tag;this.children = [];}
+    append(...children) {this.children.push(...children);}
+    setAttribute() {}
+    remove() {}
+    showModal() {this.open = true;}
+    close() {this.open = false;this.dispatchEvent(new Event('close'));}
+  }
+  const originalDocument = globalThis.document;
+  globalThis.document = {body:new Element('body'),createElement:tag=>new Element(tag)};
+  try {
+    for (const [index, modelId] of ['htdemucs_4s_onnx','bs_roformer_sw_6s'].entries()) {
+      const f = await fixture(), fields = {studioSource:{value:String(f.source.id)}};
+      const view = Object.create(StudioSeparationView.prototype);
+      const w = {owned:true,project:{id:7,tracks:[f.source]},accountLoadEpoch:1};
+      Object.assign(view,{workspace:w,controller:f.separation,ready:Promise.resolve(),$:id=>fields[id]});
+      const runs=[];f.separation.run = async options => runs.push({modelId:f.separation.modelId,...options});
+      await view.chooseModel();
+      const body=view.modelDialog.children[1];
+      const duration=body.children[0].children[0];
+      const choices=body.children[1].children;
+      assert.equal(duration.value,'0','every dialog defaults to the entire song');
+      assert.deepEqual(duration.children.map(option=>option.value),['0','5','10','30','60']);
+      if(index===1)duration.value='30';
+      assert.equal(choices.length,2);assert.equal(runs.length,0);
+      await choices[index].onclick();
+      assert.equal(runs.length,1);assert.equal(runs[0].modelId,modelId);
+      assert.equal(runs[0].projectId,7);assert.equal(runs[0].seconds,index===0?0:30);
+      assert.equal(view.modelDialog,null);
+      await view.chooseModel();
+      assert.equal(view.modelDialog.children[1].children[0].children[0].value,'0','a previous excerpt is not reused');
+      view.modelDialog.close();assert.equal(runs.length,1,'closing the dialog does not start separation');
+      await view.chooseModel();w.accountLoadEpoch++;
+      await view.modelDialog.children[1].children[1].children[0].onclick();
+      assert.equal(runs.length,1,'a dialog opened under another account cannot start inference');
+    }
+  } finally {globalThis.document=originalDocument;}
+});

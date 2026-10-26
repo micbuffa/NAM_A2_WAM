@@ -810,3 +810,31 @@ L'utilisateur a exécuté le banc dans Canary158 et transmis son JSON. Les trois
 MêmePCM6s que le contrôleChrome155 ; un passage/session neuve et ordre fixe. Canary :WASM11,384s / WebGPU4,302s au total ; candidatsWebNN5,432s/9,265s/1,958s de DSP+inférence, mais totaux24,100s/33,143s/25,580s jusqu'au refus en incluant sessions et référenceWASM. Ne pas transformer ces refus en résultats publiés ou en classementNPU. Le contrôleGPUproduction dépasse lui aussi légèrement le seuil strict surbass. Seuils inchangés et critères historiquesGPUnon réécrits.
 
 RawJSONarchivé octet pour octet, analyse et empreintes dansdocs/evaluations, méthodologie/résultats dansMODEL_EVALUATIONS.MD§24.7. Correction ultérieure du compteurvalidationMs sur exception, qui était restéà0 dans ce rapport ; mesures originales inchangées. Restent répétitions/diagnostic de l'écart, comparaison directeWebNNcontreproduction1.22 et lecture/annulationnative. Le blocage d'automatisationCanaryreste distinct de la preuve d'exécution manuelle désormais obtenue.
+
+
+### 12.18 Restauration et choix simplifié du modèle [DONE]
+
+Un projet restaure sa séparation active sauvegardée : nombre et ordre des instruments, volume/pan/mute/solo et identité du modèle. Le chargement asynchrone des capacités ne doit jamais remplacer un modèle 6 pistes restauré par le défaut 4 pistes. Les compteurs de la liste et de l'en-tête décrivent la séparation active, sans additionner les anciennes séparations 4 + 6, l'original et les mix exportés. Les versions précédentes restent conservées et sélectionnables ; aucune migration destructive des fichiers audio.
+
+Après import fichier, ouverture du résultat YouTube dans Studio ou transfert « Separate instruments » depuis Tone, ouvrir un dialogue minimal avec deux boutons : « 4 tracks · Fast » (Demucs) et « 6 tracks · Guitar & piano » (SW). Le clic choisit le modèle et démarre la séparation ; fermer le dialogue conserve simplement l'original importé. « Separate instruments » permet de rouvrir ce choix. L'ouverture d'un projet sauvegardé ne lance aucune séparation et n'affiche pas ce dialogue. GPU par défaut si disponible, WASM en secours ; WebNN reste explicitement expérimental dans Advanced settings. Un changement vers SW quitte WebNN au profit GPU/WASM. Les réglages de cache et les explications techniques sont repliés ; le menu modèle disparaît du panneau principal. Le choix de durée conserve « Entire song » par défaut.
+
+Tone affiche « Save Preset ». Studio conserve « Save project » avec le même variant primaire. Tests couvrant restauration 6 puis 4, conservation du mix, découverte tardive des capacités, compteurs API/liste, dialogue à deux choix et protection contre un changement de compte. Validation navigateur : projet de test 6 pistes restauré avec Guitar à volume70/pan−35, modèle6 affiché et dialogue minimal ; Wonderwall figure à4 pistes actives, sans cumul10.
+
+
+### 12.19 Barre contextuelle Studio [DONE]
+
+Le panneau permanent de configuration est remplacé par une barre compacte au-dessus des pistes. Le choix initial reste dans le dialogue à deux modèles après import. Pendant le calcul, masquer « Separate instruments » et l'export ; conserver Stop, la progression et l'écoute progressive original/instruments dès qu'un segment est prêt. Après calcul, indiquer Save project si le résultat est encore en RAM ; une fois sauvegardé et chargé, exposer Use mix in Tone sans répéter un paragraphe d'aide « Ready ». Une erreur de chargement garde son explication et Retry. Les projets partagés restent sans actions d'écriture.
+
+Les choix moins fréquents (source, durée de traitement, anciennes séparations, export entier/A-B, backend et cache) sont dans Options replié. Le traitement porte toujours par défaut sur le morceau entier ; cette décision remplace l'exposition permanente de Process prévue au §12.18. « Separate again » rouvre le dialogue sans relancer spontanément le calcul. Les boutons masqués doivent réellement disparaître, y compris les composants tl-button, pour éviter d'afficher des actions désactivées hors contexte. Pas de changement des données audio, de la séparation ni des règles d'export.
+
+
+### 12.20 Durée dans le dialogue de séparation [DONE]
+
+Le dialogue de choix des deux modèles contient désormais « Duration to separate » : morceau entier (défaut à chaque ouverture), ou les premières 5/10/30/60 secondes. Le clic sur un modèle lance directement le calcul avec cette durée. Fermer le dialogue ne lance rien. Le choix de durée est retiré d'Options pour éviter un doublon ; cette disposition remplace celle du §12.19. La durée choisie reste consignée dans le résultat et son manifeste par le mécanisme existant.
+
+
+### 12.21 Poignées de boucle A/B dans Studio [DONE]
+
+La règle temporelle porte deux poignées A (début) et B (fin), déplaçables indépendamment à la souris ou au toucher. Une borne conserve la position de l'autre, reste dans la timeline et ne peut pas la traverser (intervalle minimal 50ms). Positionnement sur la mesure la plus proche ; Alt permet un placement libre. Le déplacement prévisualise immédiatement la région sur toutes les pistes ; le relâchement applique et mémorise la boucle via le mécanisme existant. Une annulation ou une perte de capture restaure la région précédente. Cliquer une poignée ne déplace pas le playhead.
+
+Sans région définie, les poignées sont proposées aux extrémités de la timeline ; déplacer une borne crée et active la boucle. Les poignées restent visibles sur petit écran et sont décalées verticalement pour rester manipulables sur les boucles courtes. Accessibilité : noms « Loop start A »/« Loop end B », valeurs temporelles, tabulation, flèches gauche/droite (mesure, ou 0,1s avec Alt), Home/End, activation de la boucle après modification. Le clic pour chercher et le glisser pour dessiner une nouvelle région sur la règle restent disponibles. Tests : bornes, précision, non-croisement, conservation de l'autre borne, absence de saut à la prise, capture/pointeurs multiples, annulation, clavier et interactions existantes.

@@ -103,7 +103,7 @@
         <div class="rack-chains" id="chainToggleSlot"></div>
         <div class="preset-header-actions" id="presetHeaderActions" hidden>
           <tl-button id="presetDelete" icon="trash" disabled>Delete</tl-button>
-          <tl-button id="presetSaveButton" variant="primary" icon="save">Save</tl-button>
+          <tl-button id="presetSaveButton" variant="primary" icon="save">Save Preset</tl-button>
         </div>
       </header>
       <div class="rack-canvas">
@@ -151,7 +151,7 @@
           <tl-button id="projectResetMix" icon="undo" title="Back to the owner's mix" hidden>Reset mix</tl-button>
           <tl-button id="projectShare" icon="share" aria-haspopup="dialog" hidden>Share</tl-button>
           <tl-button id="projectLeave" icon="close" aria-haspopup="dialog" title="Stop seeing this project" hidden>Leave</tl-button>
-          <tl-button id="projectSave" icon="save" hidden disabled>Save project</tl-button>
+          <tl-button id="projectSave" variant="primary" icon="save" hidden disabled>Save project</tl-button>
           <tl-button id="projectAddTrack" variant="primary" icon="plus" aria-haspopup="dialog" hidden>Add track</tl-button>
         </div>
       </header>
@@ -163,30 +163,29 @@
           <tl-button id="projectsEmptyAction" variant="primary" hidden></tl-button>
         </section>
         <section id="studioSeparation" class="studio-separation" aria-label="Separate instruments" hidden>
-          <div class="studio-separation-options">
-            <label>Accompaniment<select id="studioSource"></select></label>
-            <label>Model<select id="studioModel"></select></label>
-            <label>Process<select id="studioExcerpt"><option value="0">Entire song</option><option value="5">First 5 seconds</option><option value="10">First 10 seconds</option><option value="30">First 30 seconds</option><option value="60">First 60 seconds</option></select></label>
-          </div>
           <div class="studio-separation-actions">
             <tl-button id="studioSeparate" variant="primary" disabled>Separate instruments</tl-button>
             <tl-button id="studioStop" hidden>Stop separation</tl-button>
             <span id="studioBackendLabel" class="host-help"></span>
-            <button id="studioOriginal" class="studio-listen" type="button" aria-pressed="true">Original / project</button>
+            <button id="studioOriginal" class="studio-listen" type="button" aria-pressed="true">Original</button>
             <button id="studioInstruments" class="studio-listen" type="button" aria-pressed="false" disabled>Instruments</button>
-          </div>
-          <div class="studio-export-controls">
-          <select id="studioExportRange" aria-label="Mix export range" hidden><option value="song">Export entire song</option><option value="loop">Export A/B loop only</option></select>
           <tl-button id="studioUseMix" variant="primary" hidden disabled>Use mix in Tone</tl-button>
           <tl-button id="studioRetryAudio" hidden>Retry audio loading</tl-button>
           </div>
           <p id="studioExportHelp" class="host-help" role="status" aria-live="polite" hidden></p>
-          <div class="studio-separation-options"><label>Saved separations<select id="studioSavedResult" aria-label="Saved separations"></select></label></div>
           <div id="studioUnfinished" class="host-help"></div>
-          <p id="studioModelHelp" class="host-help"></p>
+
           <p id="studioStatus" role="status" class="host-help">Preparing separation…</p>
           <progress id="studioProgress" max="100" aria-label="Separation progress" hidden></progress>
-          <details class="studio-separation-settings"><summary>Change model / settings</summary>
+          <details class="studio-separation-settings"><summary>Options</summary>
+          <div class="studio-separation-options">
+            <label>Accompaniment<select id="studioSource"></select></label>
+
+          </div>
+          <div class="studio-separation-options"><label>Saved separations<select id="studioSavedResult" aria-label="Saved separations"></select></label></div>
+            <label>Mix export range<select id="studioExportRange" aria-label="Mix export range" hidden><option value="song">Export entire song</option><option value="loop">Export A/B loop only</option></select></label>
+            <select id="studioModel" hidden aria-label="Selected separation model"></select>
+            <p id="studioModelHelp" class="host-help"></p>
             <p class="host-help">Experimental WebNN: Demucs 4 only, supported browsers only. Every block is compared with WASM before playback (slower, extra memory). CPU/GPU/NPU are device preferences, not confirmed hardware. Failed admission falls back to WASM before any audio is published; SW 6 remains on WebGPU/WASM.</p>
             <label>Execution engine<select id="studioBackend"><option value="webgpu">WebGPU (preferred when available)</option><option value="wasm">CPU / WASM fallback</option><option value="webnn-cpu">Experimental WebNN / CPU</option><option value="webnn-gpu">Experimental WebNN / GPU</option><option value="webnn-npu">Experimental WebNN / NPU</option></select></label>
             <p class="host-help" id="studioModelSize"></p>
@@ -211,7 +210,7 @@
             </div>
             <span class="project-tempo" id="projectTimelineTempo"></span>
           </header>
-          <div class="project-ruler-row" aria-hidden="true"><span></span><div class="project-ruler-track"><div class="project-ruler" id="projectRuler"></div></div></div>
+          <div class="project-ruler-row"><span aria-hidden="true"></span><div class="project-ruler-track"><div class="project-ruler" id="projectRuler" aria-label="Timeline and A/B loop"></div></div></div>
           <ol class="project-tracks" id="projectTracks"></ol>
           <p class="host-help project-tracks-empty" id="projectTracksEmpty">No tracks yet.</p>
         </section>

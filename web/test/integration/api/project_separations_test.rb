@@ -58,6 +58,10 @@ class Api::ProjectSeparationsTest < ActionDispatch::IntegrationTest
       assert_response :success
       json = response.parsed_body
       assert_equal @id, json["activeSeparationId"]
+      assert_equal roles.length, json["trackCount"]
+      get "/api/projects"
+      assert_response :success
+      assert_equal roles.length, response.parsed_body.find { |p| p["id"] == @project.id }["trackCount"]
       stems = json["tracks"].select { |t| t["separationId"] == @id }
       assert_equal roles, stems.map { |t| t["sourceRole"] }
       assert stems.all? { |t| t["origin"] == "stem" && t["presetId"].nil? && t["factoryPreset"].nil? && t["creatorId"] == users(:alice).id }

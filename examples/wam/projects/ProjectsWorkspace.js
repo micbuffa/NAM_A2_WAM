@@ -16,7 +16,7 @@ import {StudioMixExporter, exportRange, mixExportAvailability} from './StudioMix
 import {SeparationPersistence} from './SeparationPersistence.js';
 import {StudioSeparationView} from './StudioSeparationView.js';
 import {ProjectTimeline} from './ProjectTimeline.js';
-import {AUDIO_ACCEPT, BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, groupProjects,
+import {AUDIO_ACCEPT, BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, groupProjects, projectTrackCount,
   initials, instrumentLabel, originLabel, liveTrackId, loopAround, loopFromBars, loopLabel, loopToBars, moveTrack, rememberLoop, rememberedLoop, nameFromFile, orderChanged, shareSummary, plural, presetFields, presetValue, projectOptionLabel, timelineLength, toggleMonitoring,
   trackChanges, twoDigits, usesTrackPreset, withInstrument} from './ProjectsModel.js';
 
@@ -333,7 +333,8 @@ export class ProjectsWorkspace extends EventTarget {
       const project = await this.api.importBacking(file ? {title:track.title} : {id:track.id}, file);
       if(epoch!==this.accountLoadEpoch || accountId!==this.account?.user?.id)return false;
       this.projects.unshift(project); this.setProject(project);this.remember(project.id);this.render();
-      this.report('Audio ready in Studio. Choose the model, then Separate instruments.');return true;
+      this.report('Audio ready in Studio.');
+      void this.separationView?.chooseModel();return true;
     } catch(error) { this.report(`Audio not imported: ${error.message}`,true);return false; }
     finally {this.importingTone=false;}
   }
@@ -491,7 +492,7 @@ export class ProjectsWorkspace extends EventTarget {
     open.onclick=async()=>{
       if(await this.confirmSavedMixDiscard() && await this.confirmPreviewDiscard()) {
         const target=job.projectId;dialog.close();
-        try{this.projects=await this.api.listProjects();await this.open(target,{confirm:false});}
+        try{this.projects=await this.api.listProjects();await this.open(target,{confirm:false});void this.separationView?.chooseModel();}
         catch(error){this.report(error.message,true);}
       }
     };
@@ -526,6 +527,7 @@ export class ProjectsWorkspace extends EventTarget {
       this.replaceSummary(this.project);
       this.renderPicker();
       this.report(`“${name}” imported`);
+      if (this.project?.tracks.some(track => track.audio?.url)) void this.separationView?.chooseModel();
     } catch (error) {
       this.report(`Audio not imported: ${error.message}`, true);
     }
@@ -753,12 +755,17 @@ export class ProjectsWorkspace extends EventTarget {
   renderMixExport() {
     const button=this.$('studioUseMix'),range=this.$('studioExportRange');
     if (!button) return;
-    button.hidden=range.hidden=!this.owned;
+    range.hidden=!this.owned;
+    range.closest('label').hidden=!this.owned;
+    button.hidden=!this.owned || Boolean(this.separation?.busy || this.pendingSeparation);
     const state=mixExportAvailability({owned:this.owned,working:this.saving,separating:this.separation?.busy,pending:this.pendingSeparation,
       tracks:this.displayTracks,channels:this.player?.channels ?? new Map(),toneReady:typeof this.onUseMix === 'function'});
     button.disabled=!state.ready;button.title=state.message;
     const help=this.$('studioExportHelp');
-    if(help){help.hidden=!this.owned;help.textContent=state.message;}
+    if(help){
+      help.hidden=!this.owned || Boolean(this.separation?.busy) || state.ready;
+      help.textContent=this.pendingSeparation ? 'Save project to keep these instruments and use the mix in Tone.' : state.message;
+    }
     const retry=this.$('studioRetryAudio');
     if(retry){retry.hidden=!this.owned || !state.failedIds.length;retry.disabled=Boolean(this.saving);}
 
@@ -891,7 +898,7 @@ export class ProjectsWorkspace extends EventTarget {
   replaceSummary(project) {
     const index = this.projects.findIndex((entry) => entry.id === project.id);
     if (index >= 0) this.projects[index] = {...this.projects[index], name: this.saved?.name ?? project.name, bpm: this.saved?.bpm ?? project.bpm,
-      trackCount: project.tracks?.length ?? this.projects[index].trackCount};
+      tracks: undefined, activeSeparationId: project.activeSeparationId, trackCount: projectTrackCount(project)};
   }
 
   remembered() {

@@ -23,10 +23,11 @@ test('YouTube poll network failure is terminal and gives a reconnect instruction
 });
 test('Tone import opens the server original and preserves local file as upload, no synthetic URL fetch',async()=>{
  for(const file of [null,{name:'local.mp3'}]){
-  const calls=[],w={importingTone:false,saving:false,ensureSignedIn:async()=>true,confirmSavedMixDiscard:async()=>true,confirmPreviewDiscard:async()=>true,
+  let prompted=0;
+  const calls=[],w={separationView:{chooseModel(){prompted++;}},importingTone:false,saving:false,ensureSignedIn:async()=>true,confirmSavedMixDiscard:async()=>true,confirmPreviewDiscard:async()=>true,
    api:{importBacking:async(...args)=>{calls.push(args);return {id:7};}},projects:[],setProject:p=>calls.push(p),remember:()=>{},render:()=>{},report:()=>{}};
   assert.equal(await ProjectsWorkspace.prototype.importFromTone.call(w,{id:'studio-5',title:'Backing'},file),true);
-  assert.deepEqual(calls[0],[file?{title:'Backing'}:{id:'studio-5'},file]);assert.equal(w.projects[0].id,7);assert.equal(w.importingTone,false);
+  assert.deepEqual(calls[0],[file?{title:'Backing'}:{id:'studio-5'},file]);assert.equal(w.projects[0].id,7);assert.equal(w.importingTone,false);assert.equal(prompted,1);
  }
 });
 test('Tone import cancellation or a server failure cannot replace the active project',async()=>{

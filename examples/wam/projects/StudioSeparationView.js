@@ -17,19 +17,14 @@ export class StudioSeparationView {
       try {
         if (workspace.owned) {
           const full = await workspace.api.activateSeparation(workspace.project.id, id);
-          c.stop({reset:true}); workspace.setProject(full);
+          c.stop({reset:true}); workspace.setProject(full); workspace.replaceSummary(full);
         } else {
           c.stop({reset:true}); c.selectSaved(id);
         }
         workspace.render();
       } catch (error) { workspace.report(`Separation not opened: ${error.message}`, true); this.render(); }
     };
-    this.$('studioSeparate').onclick = async () => {
-      if (workspace.saving || !workspace.owned) return;
-      if (c.result && !await this.confirmReplace()) return;
-      const track = separationSources(workspace.project?.tracks ?? []).find(track => String(track.id) === this.$('studioSource').value);
-      if (track) void c.run({track, projectId: workspace.project.id, seconds: Number(this.$('studioExcerpt').value)});
-    };
+    this.$('studioSeparate').onclick = () => this.chooseModel();
     this.$('studioStop').onclick = () => c.stop();
     this.$('studioOriginal').onclick = () => c.show('original');
     this.$('studioInstruments').onclick = () => c.show('stems');
@@ -76,6 +71,47 @@ export class StudioSeparationView {
       if (!this.waveTimer) this.waveTimer = setTimeout(() => { this.waveTimer = null; this.flushWaves(); }, 250);
     });
     this.ready = c.init().catch(error => c.setStatus(`Separation unavailable: ${error.message}`));
+  }
+  async chooseModel() {
+    const w = this.workspace, c = this.controller;
+    await this.ready;
+    if (w.saving || !w.owned || !c.model || this.modelDialog) return;
+    const projectId = w.project?.id, accountEpoch = w.accountLoadEpoch;
+    const {createDialog, button} = await import('../account/dialogs.js');
+    const {dialog, body} = createDialog({title: 'Separate instruments'});
+    this.modelDialog = dialog;
+    const durationLabel = document.createElement('label');
+    durationLabel.textContent = 'Duration to separate';
+    const duration = document.createElement('select');
+    duration.id = 'studioExcerpt';
+    for (const [value, text] of [[0, 'Entire song'], [5, 'First 5 seconds'], [10, 'First 10 seconds'], [30, 'First 30 seconds'], [60, 'First 60 seconds']]) {
+      const option = document.createElement('option');
+      option.value = String(value); option.textContent = text;
+      duration.append(option);
+    }
+    duration.value = '0';
+    durationLabel.append(duration);
+    const choices = document.createElement('div');
+    choices.className = 'studio-model-choices';
+    for (const [id, label] of [['htdemucs_4s_onnx', '4 tracks · Fast'], ['bs_roformer_sw_6s', '6 tracks · Guitar & piano']]) {
+      const choice = button(label, {primary: id === c.modelId});
+      choice.onclick = async () => {
+        const seconds = Number(duration.value);
+        dialog.close();
+        if (w.project?.id !== projectId || w.accountLoadEpoch !== accountEpoch || w.saving || !w.owned) return;
+        if ((c.busy || c.result) && !await this.confirmReplace()) return;
+        // Experimental engines stay opt-in in Advanced settings.
+        const backend = isWebNN(c.backend) && id !== 'htdemucs_4s_onnx' ? (c.gpu ? 'webgpu' : 'wasm') : c.backend;
+        if (w.project?.id !== projectId || w.accountLoadEpoch !== accountEpoch || w.saving || !w.owned) return;
+        c.configure(id, backend);
+        const track = separationSources(w.project?.tracks ?? []).find(track => String(track.id) === this.$('studioSource').value);
+        if (track) void c.run({track, projectId, seconds});
+      };
+      choices.append(choice);
+    }
+    body.append(durationLabel, choices);
+    dialog.addEventListener('close', () => { this.modelDialog = null; }, {once: true});
+    dialog.showModal();
   }
   async finishStaged(id) {
     const w = this.workspace;
@@ -137,6 +173,7 @@ export class StudioSeparationView {
       }
     }
     if (c.activeSavedId) this.$('studioSavedResult').value = String(c.activeSavedId);
+    this.$('studioSavedResult').closest('label').hidden = batches.length < 2;
     this.$('studioSavedResult').disabled = w.saving || c.busy || !batches.length;
     this.$('studioUnfinished').inert = Boolean(w.saving || c.busy);
     this.$('projectTracks').inert = Boolean(w.saving);
@@ -156,11 +193,15 @@ export class StudioSeparationView {
     this.$('studioBackend').value = c.backend;
     this.$('studioBackend').querySelector('[value="webgpu"]').disabled = !c.gpu;
     for(const option of this.$('studioBackend').options) if(isWebNN(option.value))option.disabled=c.modelId!=='htdemucs_4s_onnx';
-    this.$('studioBackendLabel').textContent = backendLabel(c.effectiveBackend ?? c.backend);
+    const savedBackend = !c.result && c.mode === 'stems' ? batches.find(batch => batch.id === c.activeSavedId)?.manifest.backend : null;
+    this.$('studioBackendLabel').textContent = `${c.modelId === 'bs_roformer_sw_6s' ? '6 tracks' : '4 tracks'} · ${backendLabel(savedBackend ?? c.effectiveBackend ?? c.backend)}`;
+    this.$('studioSeparate').hidden = Boolean(c.busy || !w.owned);
+    this.$('studioSeparate').textContent = c.hasAudio ? 'Separate again' : 'Separate instruments';
+    this.$('studioSeparate').setAttribute('variant', c.hasAudio ? 'ghost' : 'primary');
+    this.$('studioOriginal').hidden = this.$('studioInstruments').hidden = !c.hasAudio;
     this.$('studioSeparate').disabled = w.saving || !w.owned || c.busy || !sources.length || !model;
     this.$('studioStop').hidden = !c.busy;
     this.$('studioSource').disabled = w.saving || c.busy;
-    this.$('studioExcerpt').disabled = w.saving || c.busy;
     this.$('studioCheckCache').disabled = this.$('studioRemoveCache').disabled = c.busy || !model;
     this.$('studioInstruments').disabled = !c.hasAudio;
     this.$('studioOriginal').disabled = Boolean(w.saving);

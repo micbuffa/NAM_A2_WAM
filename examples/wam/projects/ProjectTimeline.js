@@ -6,7 +6,7 @@
 // owner reorders tracks by dragging their grip (or with its arrow keys).
 // Dragging on the ruler draws the loop region (whole bars, Alt: exact
 // positions), shown on the ruler and across every lane; a click seeks.
-import {instrumentLabel, originLabel, panLabel, rulerBars, snapLoop, usesTrackPreset, volumeLabel} from './ProjectsModel.js';
+import {formatClock, instrumentLabel, originLabel, panLabel, resizeLoop, rulerBars, snapLoop, usesTrackPreset, volumeLabel} from './ProjectsModel.js';
 
 const element = (tag, className, properties = {}) => Object.assign(document.createElement(tag), {className, ...properties});
 
@@ -32,25 +32,55 @@ export class ProjectTimeline {
     this.length = {bars: 16, seconds: 32};
     this.position = 0;
     this.loop = {enabled: false, start: 0, end: 0};
+    this.anchors = ['A', 'B'].map(name => {
+      const anchor = element('button', `loop-anchor loop-anchor-${name.toLowerCase()}`, {type: 'button', textContent: name});
+      anchor.dataset.loopAnchor = name;
+      anchor.setAttribute('role', 'slider');
+      anchor.setAttribute('aria-label', `Loop ${name === 'A' ? 'start A' : 'end B'}`);
+      anchor.title = `Drag ${name} to resize the loop · Alt: precise · Arrow keys: move`;
+      anchor.onkeydown = event => {
+        const current = this.loop.end > this.loop.start ? this.loop : {start: 0, end: this.length.seconds};
+        const step = event.altKey ? .1 : this.length.seconds / this.length.bars;
+        const position = name === 'A' ? current.start : current.end;
+        const seconds = {ArrowLeft: position - step, ArrowRight: position + step, Home: 0, End: this.length.seconds}[event.key];
+        if (seconds === undefined) return;
+        event.preventDefault(); event.stopPropagation();
+        this.onLoop(resizeLoop(current, name, seconds, this.length, {free: event.altKey}));
+      };
+      return anchor;
+    });
     this.loopDrag = null; // {x, from, moved}: a loop being drawn on the ruler
     ruler.addEventListener('pointerdown', (event) => {
       if (event.button !== 0) return;
+      if (this.loopDrag) return;
       ruler.setPointerCapture?.(event.pointerId);
-      this.loopDrag = {x: event.clientX, from: this.timeAt(event), moved: false};
+      const anchor = event.target.closest?.('[data-loop-anchor]')?.dataset.loopAnchor;
+      const rect = ruler.getBoundingClientRect();
+      const boundary = anchor === 'A' ? (this.loop.end > this.loop.start ? this.loop.start : 0)
+        : (this.loop.end > this.loop.start ? this.loop.end : this.length.seconds);
+      this.loopDrag = {x: event.clientX, from: this.timeAt(event), moved: false,
+        anchor, loop: {...this.loop}, pointerId: event.pointerId,
+        offset: anchor ? event.clientX - (rect.left + boundary / this.length.seconds * rect.width) : 0};
     });
     ruler.addEventListener('pointermove', (event) => {
       const drag = this.loopDrag;
-      if (!drag || (!drag.moved && Math.abs(event.clientX - drag.x) < 4)) return;
+      if (!drag || event.pointerId !== drag.pointerId || (!drag.moved && Math.abs(event.clientX - drag.x) < 4)) return;
       drag.moved = true;
       this.showLoop({enabled: true, ...this.drawnLoop(event)});
     });
     ruler.addEventListener('pointerup', (event) => {
       const drag = this.loopDrag;
+      if (!drag || event.pointerId !== drag.pointerId) return;
       this.loopDrag = null;
       if (drag?.moved) this.onLoop(this.drawnLoop(event, drag));
-      else if (drag) this.onSeek(drag.from);
+      else if (!drag.anchor) this.onSeek(drag.from);
     });
     ruler.addEventListener('pointercancel', () => {
+      this.loopDrag = null;
+      this.showLoop(this.loop);
+    });
+    ruler.addEventListener('lostpointercapture', () => {
+      if (!this.loopDrag) return;
       this.loopDrag = null;
       this.showLoop(this.loop);
     });
@@ -114,6 +144,7 @@ export class ProjectTimeline {
   }
 
   drawnLoop(event, drag = this.loopDrag) {
+    if (drag.anchor) return resizeLoop(drag.loop, drag.anchor, this.timeAt({clientX: event.clientX - drag.offset}), this.length, {free: event.altKey});
     return snapLoop(drag.from, this.timeAt(event), this.length, {free: event.altKey});
   }
 
@@ -129,6 +160,15 @@ export class ProjectTimeline {
     style.setProperty('--loop-end', String(Math.min(1, end / this.length.seconds)));
     classList.toggle('has-loop', end > start);
     classList.toggle('loop-off', !enabled);
+    const region = end > start ? {start, end} : {start: 0, end: this.length.seconds};
+    for (const [index, anchor] of this.anchors.entries()) {
+      const time = index ? region.end : region.start;
+      anchor.style.left = `${Math.max(0, Math.min(100, time / this.length.seconds * 100))}%`;
+      anchor.setAttribute('aria-valuemin', String(index ? region.start + .05 : 0));
+      anchor.setAttribute('aria-valuemax', String(index ? this.length.seconds : region.end - .05));
+      anchor.setAttribute('aria-valuenow', String(time));
+      anchor.setAttribute('aria-valuetext', formatClock(time));
+    }
   }
 
   // The timeline's length ({bars, seconds}, from timelineLength()).
@@ -162,9 +202,11 @@ export class ProjectTimeline {
     const marks = rulerBars(this.length.bars, this.ruler.clientWidth || 600);
     this.ruler.replaceChildren(element('i', 'loop-region'), ...marks.map(({bar, fraction}) => {
       const mark = element('span', '', {textContent: bar});
+      mark.setAttribute('aria-hidden', 'true');
       mark.style.left = `${fraction * 100}%`;
       return mark;
-    }), element('i', 'playhead'));
+    }), element('i', 'playhead'), ...this.anchors);
+    this.showLoop(this.loop);
   }
 
   placeClip(id) {

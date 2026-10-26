@@ -2,20 +2,27 @@
 module ProjectJson
   extend self
 
-  def summary(project, viewer, track_count: project.tracks.size)
+  def summary(project, viewer, track_count: nil)
     { id: project.id, name: project.name, bpm: project.bpm, owned: project.owned_by?(viewer),
-      owner: { id: project.user.id, name: project.user.display_name }, trackCount: track_count,
+      owner: { id: project.user.id, name: project.user.display_name }, trackCount: track_count || visible_track_count(project),
       createdAt: project.created_at, updatedAt: project.updated_at }
   end
 
   def full(project, viewer)
     tracks = project.tracks.with_attached_audio.includes(:preset, :separation).to_a
-    json = summary(project, viewer, track_count: tracks.size).merge(tracks: tracks.map { |track| self.track(track) })
+    json = summary(project, viewer, track_count: visible_track_count(project, tracks)).merge(tracks: tracks.map { |track| self.track(track) })
     batches = viewer && project.owned_by?(viewer) ? project.separations : project.separations.where(state: "ready")
     json[:separations] = batches.includes(:creator, :parts).order(:created_at).map { |separation| self.separation(separation) }
     json[:activeSeparationId] = project.active_separation_id
     json[:shares] = project.shares.includes(:user).order(:created_at).map { |share| self.share(share) } if json[:owned]
     json
+  end
+
+  # Count the restored deck, not the archive of every separation and mix.
+  def visible_track_count(project, tracks = project.tracks)
+    tracks.count do |track|
+      project.active_separation_id ? track.separation_id == project.active_separation_id : !%w[stem mix].include?(track.origin)
+    end
   end
 
   def separation(separation)

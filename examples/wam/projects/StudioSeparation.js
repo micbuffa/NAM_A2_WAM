@@ -49,7 +49,7 @@ export class StudioSeparation extends EventTarget {
     const [models, capabilities] = await Promise.all([this.loadModels(), this.capabilities()]);
     this.models = PRODUCT_MODELS.map(id => models.find(model => model.id === id));
     if (this.models.some(model => !model)) throw Error('Incomplete Studio model catalogue');
-    this.modelId = PRODUCT_MODELS[0];
+    this.modelId = this.savedBatches?.find(batch => batch.id === this.activeSavedId)?.manifest.modelId ?? PRODUCT_MODELS[0];
     this.gpu = capabilities.webgpu;
     this.backend = this.gpu ? 'webgpu' : 'wasm';
     if (!this.activeSavedId) this.setStatus('Choose accompaniment audio, then Separate instruments.');
@@ -99,6 +99,7 @@ export class StudioSeparation extends EventTarget {
     this.savedTracks = this.activeSavedId ? this.projectTracks.filter(track => track.separationId === this.activeSavedId) : null;
     this.mode = this.savedTracks?.length ? 'stems' : 'original';
     const batch = this.savedBatches.find(batch => batch.id === this.activeSavedId);
+    if (batch && PRODUCT_MODELS.includes(batch.manifest.modelId)) this.modelId = batch.manifest.modelId;
     this.setStatus(batch ? `Saved separation · ${this.savedTracks.length} instruments · ${backendLabel(batch.manifest.backend)} · ${(batch.manifest.frames / 44100).toFixed(1)} s${batch.manifest.partial ? ' · interrupted result' : ''}` : 'Choose accompaniment audio to separate.');
   }
   updateTrack(id, fields) {
