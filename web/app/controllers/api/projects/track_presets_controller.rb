@@ -4,7 +4,10 @@ class Api::Projects::TrackPresetsController < Api::BaseController
   include ProjectAccess
 
   def show
-    preset = visible_project.tracks.find(params[:id]).preset
+    track = visible_project.tracks.find(params[:id])
+    return head :not_found unless track.plays_through_preset?
+
+    preset = track.preset
     return head :not_found unless preset
 
     render json: preset.full_json

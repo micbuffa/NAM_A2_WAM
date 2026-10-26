@@ -1,0 +1,37 @@
+<!doctype html><meta charset="utf-8"><title>Studio mix native audio validation</title>
+<button id="run">Run native mix validation</button><pre id="result" role="status">Not run</pre>
+<script type="module">
+import {renderRecordedMix,StudioMixExporter} from '../../../examples/wam/projects/StudioMixExporter.js';
+const report=document.querySelector('#result');
+document.querySelector('#run').onclick=async()=>{
+ try {
+  report.textContent='Running native OfflineAudioContext / MP3 worker…';
+  const make=(id,extra={})=>({id,volume:80,pan:0,mute:false,solo:false,inputMonitoring:false,audio:{checksum:'test'},...extra});
+  const c=new OfflineAudioContext(2,44100,44100),a=c.createBuffer(2,44100,44100),b=c.createBuffer(1,44100,44100);
+  for(let i=0;i<44100;i++){a.getChannelData(0)[i]=.2*Math.sin(2*Math.PI*440*i/44100);a.getChannelData(1)[i]=.1*Math.sin(2*Math.PI*880*i/44100);b.getChannelData(0)[i]=.15*Math.sin(2*Math.PI*220*i/44100);}
+  const channels=new Map([[1,{buffer:a}],[2,{buffer:b}]]),cases=[];let maxError=0;
+  for(const pan of [-100,-50,0,35,100]) for(const mode of ['mix','mute','solo']) {
+    const tracks=[make(1,{pan,volume:60,mute:mode==='mute'}),make(2,{solo:mode==='solo'})],range={start:.1,end:.8};
+    const rendered=await renderRecordedMix({tracks,channels,range});let error=0;
+    const p=pan/100,g=10**(-6/20),active=mode==='mix';
+    for(let i=0;i<rendered.length;i++){
+      const at=i+4410,l=a.getChannelData(0)[at],r=a.getChannelData(1)[at],mono=b.getChannelData(0)[at]*Math.SQRT1_2;
+      const expectedL=mono+(active?(p<=0?l+r*Math.cos((p+1)*Math.PI/2):l*Math.cos(p*Math.PI/2))*g:0);
+      const expectedR=mono+(active?(p<=0?r*Math.sin((p+1)*Math.PI/2):r+l*Math.sin(p*Math.PI/2))*g:0);
+      error=Math.max(error,Math.abs(rendered.getChannelData(0)[i]-expectedL),Math.abs(rendered.getChannelData(1)[i]-expectedR));
+    }
+    if(error>2e-5)throw Error(`Native pan/mix disagreement: ${error}`);maxError=Math.max(maxError,error);cases.push({pan,mode,error,frames:rendered.length});
+  }
+  const highRate=c.createBuffer(2,48000,48000);for(let i=0;i<48000;i++)for(let ch=0;ch<2;ch++)highRate.getChannelData(ch)[i]=.2*Math.sin(i*2*Math.PI*440/48000);
+  const resampled=await renderRecordedMix({tracks:[make(1)],channels:new Map([[1,{buffer:highRate}]]),range:{start:0,end:1}});
+  if(resampled.length!==44100||resampled.sampleRate!==44100)throw Error('Resampling duration mismatch');
+  let resampleError=0;for(let i=500;i<43500;i++)resampleError=Math.max(resampleError,Math.abs(resampled.getChannelData(0)[i]-.2*Math.sin(i*2*Math.PI*440/44100)));
+  if(resampleError>.001)throw Error('Resampling error');
+  const exporter=new StudioMixExporter({api:{}}),encoded=await exporter.encode(a);
+  const decoder=new OfflineAudioContext(2,44100,44100),decoded=await decoder.decodeAudioData(await encoded.blob.arrayBuffer());
+  const rms=data=>Math.sqrt(data.reduce((sum,v)=>sum+v*v,0)/data.length),leftRms=rms(decoded.getChannelData(0)),rightRms=rms(decoded.getChannelData(1));
+  if(decoded.numberOfChannels!==2||Math.abs(decoded.duration-1)>.1||Math.abs(leftRms/rightRms-2)>.15)throw Error('MP3 duration/stereo mismatch');
+  report.textContent=JSON.stringify({status:'PASS',nativeCases:cases.length,maxError,resampleError,encodedBytes:encoded.blob.size,mp3Duration:decoded.duration,leftRms,rightRms,attenuation:encoded.attenuation},null,2);
+ }catch(error){report.textContent=`FAIL: ${error.stack}`;}
+};
+</script>

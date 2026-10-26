@@ -11,10 +11,14 @@
 import {actionsRow, button, confirmDialog, createDialog} from '../account/dialogs.js';
 import {FACTORY_PRESETS} from '../account/FactoryPresets.js';
 import {buildWaveformPeaks} from '../source-separation/CompactWaveform.js';
+import {AudioImportWatcher, importActive} from './AudioImportWatcher.js';
+import {StudioMixExporter, exportRange, mixExportAvailability} from './StudioMixExporter.js';
+import {SeparationPersistence} from './SeparationPersistence.js';
+import {StudioSeparationView} from './StudioSeparationView.js';
 import {ProjectTimeline} from './ProjectTimeline.js';
 import {AUDIO_ACCEPT, BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, groupProjects,
-  initials, instrumentLabel, liveTrackId, loopAround, loopFromBars, loopLabel, loopToBars, moveTrack, rememberLoop, rememberedLoop, nameFromFile, orderChanged, shareSummary, plural, presetFields, presetValue, projectOptionLabel, timelineLength, toggleMonitoring,
-  trackChanges, twoDigits, usesPreset, withInstrument} from './ProjectsModel.js';
+  initials, instrumentLabel, originLabel, liveTrackId, loopAround, loopFromBars, loopLabel, loopToBars, moveTrack, rememberLoop, rememberedLoop, nameFromFile, orderChanged, shareSummary, plural, presetFields, presetValue, projectOptionLabel, timelineLength, toggleMonitoring,
+  trackChanges, twoDigits, usesTrackPreset, withInstrument} from './ProjectsModel.js';
 
 const LAST_PROJECT_KEY = 'nam-a2-wam.project';
 const LOOPS_KEY = 'nam-a2-wam.project-loops'; // each project's loop, in bars (this browser only)
@@ -73,10 +77,16 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectImport').onclick = () => this.importAudioDialog();
     this.$('projectEdit').onclick = () => this.editProjectDialog();
     this.$('projectSave').onclick = () => this.save();
+    this.mixExporter = new StudioMixExporter({api});
+    if (this.$('studioUseMix')) this.$('studioUseMix').onclick = () => this.useMixInTone();
+    if (this.$('studioRetryAudio')) this.$('studioRetryAudio').onclick = () => {
+      for (const track of this.displayTracks) if (this.player?.channels.get(track.id)?.error) this.timeline.setWave(track.id,{state:'loading'});
+      void this.player?.retryFailed();
+    };
     this.$('projectShare').onclick = () => this.shareDialog();
     this.$('projectLeave').onclick = () => this.leave();
     this.$('projectResetMix').onclick = () => this.setTracks(structuredClone(this.saved.tracks));
-    this.$('projectAddTrack').onclick = () => this.addTrackDialog();
+    this.$('projectAddTrack').onclick = () => { this.separation?.show('original'); return this.addTrackDialog(); };
     this.$('projectsEmptyAction').onclick = () => this.emptyAction?.();
     this.$('inspectorPreset').onchange = (event) => this.updateTrack(this.selectedId, presetFields(event.target.value));
     this.$('inspectorEditPreset').onclick = () => this.editPresetInTone();
@@ -93,7 +103,8 @@ export class ProjectsWorkspace extends EventTarget {
     });
     player?.addEventListener('statechange', () => this.renderTransport());
     player?.addEventListener('load', ({detail: {id, buffer}}) => {
-      this.timeline.setWave(id, {peaks: buildWaveformPeaks([buffer], buffer.length), duration: buffer.duration});
+      const stored = this.project?.tracks.find(track => track.id === id)?.waveform;
+      this.timeline.setWave(id, {peaks: stored ? Float32Array.from(stored.peaks) : buildWaveformPeaks([buffer], buffer.length), duration: buffer.duration});
       this.renderLength();
     });
     player?.addEventListener('error', ({detail: {id, error}}) => {
@@ -101,6 +112,11 @@ export class ProjectsWorkspace extends EventTarget {
       const track = this.project?.tracks.find((entry) => entry.id === id);
       this.report(`${track?.audio?.filename ?? 'Audio'} not loaded: ${error.message}`, true);
     });
+    if (player && this.$('studioSeparation')) {
+      this.separationView = new StudioSeparationView(this);
+      this.separation = this.separationView.controller;
+      this.persistence = new SeparationPersistence({api});
+    }
     account?.addEventListener('change', () => this.load());
   }
 
@@ -138,7 +154,9 @@ export class ProjectsWorkspace extends EventTarget {
   get available() { return Boolean(this.api?.available && this.account); }
   get signedIn() { return Boolean(this.account?.signedIn); }
   get owned() { return Boolean(this.project?.owned); }
-  get selectedTrack() { return this.project?.tracks.find((track) => track.id === this.selectedId) ?? null; }
+  get displayTracks() { return this.separation?.viewTracks ?? (this.project?.tracks ?? []).filter(track => !['stem','mix'].includes(track.origin)); }
+  get pendingSeparation() { return Boolean(this.owned && this.separation?.result?.engine.complete && this.separation.result.engine.availableFrames); }
+  get selectedTrack() { return this.displayTracks.find((track) => track.id === this.selectedId) ?? null; }
 
   // Unsaved edits of an owned project.
   get dirty() {
@@ -148,6 +166,8 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   async load() {
+    this.accountLoadEpoch=(this.accountLoadEpoch??0)+1;
+    this.audioImportDialog?.close();
     this.setProject(null);
     this.projects = [];
     this.presets = [];
@@ -162,11 +182,13 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   async open(id, {confirm = true} = {}) {
+    if (this.saving) return this.renderPicker();
     if (confirm && this.dirty && String(id) !== String(this.project?.id)) {
       const discard = await confirmDialog({title: 'Discard unsaved changes?', message: `“${this.project.name}” has unsaved changes.`,
         confirmLabel: 'Discard'});
       if (!discard) return this.render();
     }
+    if (confirm && String(id) !== String(this.project?.id) && !await this.confirmPreviewDiscard()) return this.render();
     try {
       this.setProject(await this.api.getProject(id));
       this.remember(id);
@@ -177,13 +199,27 @@ export class ProjectsWorkspace extends EventTarget {
     this.dispatchEvent(new CustomEvent('change', {detail: {project: this.project}}));
   }
 
+  async confirmSavedMixDiscard() {
+    return !this.dirty || confirmDialog({title:'Discard unsaved mix?', message:'Save project first to keep your mixer changes.',confirmLabel:'Discard changes'});
+  }
+
+  async confirmPreviewDiscard() {
+    if (this.saving) return false;
+    if (!this.separation?.result && !this.separation?.busy) return true;
+    return confirmDialog({title: 'Leave instrument preview?', confirmLabel: 'Continue', message: 'This stops the separation and discards its temporary preview, which is only in RAM. Your saved project and original audio are preserved.'});
+  }
+
   setProject(project) {
     if (project?.id !== this.project?.id) {
+      this.mixExporter?.invalidate();
+      if (this.$?.('studioExportRange')) this.$('studioExportRange').value='song';
+      this.separation?.stop({reset: true});
       this.player?.stop();
       this.player?.setLoop(loopFromBars(project && rememberedLoop(this.loops(), project.id), project?.bpm));
     }
     this.project = project;
     this.saved = project && structuredClone(project);
+    this.separation?.restore(project);
     if (!project?.tracks.some((track) => track.id === this.selectedId)) this.selectedId = project?.tracks[0]?.id ?? null;
   }
 
@@ -198,21 +234,30 @@ export class ProjectsWorkspace extends EventTarget {
 
   // The live guitar follows the selection (liveTrackId()).
   select(id) {
-    if (id === this.selectedId) return;
+    if (id === this.selectedId || this.saving) return;
     this.selectedId = id;
-    for (const track of this.project.tracks) this.timeline.update(track, track.id === id);
+    for (const track of this.displayTracks) this.timeline.update(track, track.id === id);
     this.syncPlayer();
     this.renderInspector();
   }
 
   // Local edit of a track; the row is updated in place (a fader keeps its drag).
   updateTrack(id, fields) {
+    if (this.saving) return;
+    if (this.separation?.updateTrack(id, fields)) {
+      this.timeline.update(this.separation.result.tracks.find(track => track.id === id), id === this.selectedId);
+      this.renderInspector();
+      return;
+    }
     this.setTracks(this.project.tracks.map((track) => (track.id === id ? {...track, ...fields} : track)));
   }
 
   setTracks(tracks) {
+    if (this.saving) return;
     this.project.tracks = tracks;
-    this.timeline.order(tracks);
+    if (this.separation) this.separation.projectTracks = tracks;
+    if (this.separation?.savedTracks) this.separation.savedTracks.splice(0, this.separation.savedTracks.length, ...tracks.filter(track => track.separationId === this.separation.activeSavedId));
+    this.timeline.order(this.displayTracks);
     for (const track of tracks) this.timeline.update(track, track.id === this.selectedId);
     this.syncPlayer();
     this.renderHeader();
@@ -221,9 +266,9 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   async save() {
-    if (!this.dirty) return;
-    const save = this.$('projectSave');
-    save.disabled = true;
+    if (this.saving || (!this.dirty && !this.pendingSeparation)) return;
+    this.saving = true;
+    this.render();
     try {
       const {project, saved} = this;
       if (project.name !== saved.name || project.bpm !== saved.bpm) {
@@ -237,12 +282,60 @@ export class ProjectsWorkspace extends EventTarget {
         const track = await this.api.updateTrack(project.id, id, changes);
         saved.tracks = saved.tracks.map((entry) => (entry.id === id ? track : entry));
       }
-      this.replaceSummary(project);
-      this.report('Project saved');
+      if (this.pendingSeparation) {
+        const c = this.separation, result = c.result;
+        const full = await this.persistence.save(result, c.models.find(model => model.id === result.modelId), c.effectiveBackend ?? c.backend,
+          ({index,total,role,phase}) => c.setStatus(`Saving instruments · ${index+1}/${total} · ${role} · ${phase}`, index/total*100));
+        // Sign-out/account changes can occur while an upload is in flight.
+        // Never reopen the previous account's project from a late response.
+        if (this.project !== project) throw Error('Project changed during saving; reopen it to check the saved result.');
+        c.stop({reset:true});
+        this.setProject(full);
+      }
+      this.replaceSummary(this.project);
+      this.report('Project and audio saved');
     } catch (error) {
+      this.separation?.setStatus(`Save interrupted: ${error.message}. Instruments remain in RAM; use Save project to retry.`);
       this.report(`Project not saved: ${error.message}`, true);
     }
+    this.saving = false;
     this.render();
+  }
+
+  async useMixInTone() {
+    if (!this.owned || this.saving || this.pendingSeparation || this.separation?.busy) return;
+    if (this.dirty) { await this.save(); if (this.dirty) return; }
+    const project = this.project;
+    this.saving = true; this.render();
+    try {
+      const range = exportRange(this.player.duration, this.player.loop, this.$('studioExportRange').value);
+      const entry = await this.mixExporter.export({project,tracks:this.displayTracks,channels:this.player.channels,range,
+        separationId:this.separation?.mode === 'stems' ? this.separation.activeSavedId : null, selection:this.$('studioExportRange').value},
+        (status,progress=null)=>this.separation?.setStatus(status,progress));
+      if (this.project !== project) throw Error('Project changed during export. Reopen its backing from the library.');
+      const full = await this.api.getProject(project.id);
+      if (this.project !== project) throw Error('Project changed during export.');
+      this.setProject(full);this.replaceSummary(full);
+      await this.onUseMix?.(entry);
+      this.report(`Backing track saved${entry.manifest.attenuation<1 ? ' · level reduced to prevent clipping' : ''}`);
+    } catch(error) {
+      this.separation?.setStatus(`Mix export stopped: ${error.message}`);
+      this.report(error.message,true);
+    } finally { this.saving = false; this.render(); }
+  }
+
+  async importFromTone(track, file = null) {
+    if (this.importingTone || this.saving || !await this.ensureSignedIn() || !await this.confirmSavedMixDiscard() || !await this.confirmPreviewDiscard()) return false;
+    if (this.importingTone) return false;
+    this.importingTone = true;
+    const epoch=this.accountLoadEpoch, accountId=this.account?.user?.id;
+    try {
+      const project = await this.api.importBacking(file ? {title:track.title} : {id:track.id}, file);
+      if(epoch!==this.accountLoadEpoch || accountId!==this.account?.user?.id)return false;
+      this.projects.unshift(project); this.setProject(project);this.remember(project.id);this.render();
+      this.report('Audio ready in Studio. Choose the model, then Separate instruments.');return true;
+    } catch(error) { this.report(`Audio not imported: ${error.message}`,true);return false; }
+    finally {this.importingTone=false;}
   }
 
   async create({name, bpm}) {
@@ -284,9 +377,9 @@ export class ProjectsWorkspace extends EventTarget {
 
   // Added and deleted tracks are saved at once; the saved copy follows, so
   // other unsaved edits stay unsaved.
-  async addTrack({name, instrument, file}) {
+  async addTrack({name, instrument, origin = 'personal', file}) {
     const {project} = this;
-    const track = await this.api.createTrack(project.id, {name, instrument}, file);
+    const track = await this.api.createTrack(project.id, {name, instrument, origin}, file);
     project.tracks = [...project.tracks, track];
     this.saved.tracks = [...this.saved.tracks, structuredClone(track)];
     this.selectedId = track.id;
@@ -314,14 +407,15 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   editPresetInTone() {
-    const value = presetValue(this.selectedTrack ?? {});
+    if (!this.selectedTrack || !usesTrackPreset(this.selectedTrack)) return;
+    const value = presetValue(this.selectedTrack);
     if (value) this.onEditPreset(value.startsWith('account:') ? value.slice(8) : value);
   }
 
   // Dialogs ------------------------------------------------------------------
 
   async createProjectDialog() {
-    if (!(await this.ensureSignedIn())) return;
+    if (!(await this.ensureSignedIn()) || !await this.confirmPreviewDiscard()) return;
     const values = await projectDialog({title: 'Create a project', confirmLabel: 'Create project',
       intro: 'A new project starts empty: add tracks from audio files.'});
     if (!values) return;
@@ -341,23 +435,96 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   async importAudioDialog() {
-    if (!(await this.ensureSignedIn())) return;
-    const values = await trackDialog({title: 'Import audio as a project', confirmLabel: 'Import project', fileRequired: true,
+    if (!await this.ensureSignedIn()) return;
+    const {dialog, body} = createDialog({title:'Import audio'});
+    const local = button('Import from a file', {primary:true});
+    const youtube = button('Import from YouTube');
+    const done = button('Close');
+    local.onclick=()=>{dialog.close();void this.importFileDialog();};
+    youtube.onclick=()=>{dialog.close();void this.youtubeImportDialog();};
+    done.onclick=()=>dialog.close();
+    body.append(element('p',{textContent:'Create a Studio project from a local audio file or a YouTube video.'}),actionsRow(local),actionsRow(youtube),actionsRow(done));
+    dialog.showModal();
+  }
+
+  async youtubeImportDialog() {
+    if (!await this.ensureSignedIn()) return;
+    const {dialog,body,id}=createDialog({title:'Import from YouTube'});
+    const form=element('form');
+    const url=element('input',{id:`${id}-url`,type:'url',required:true,placeholder:'https://www.youtube.com/watch?v=…',autocomplete:'off'});
+    const label=element('label',{htmlFor:url.id,textContent:'Video URL'});
+    const start=button('Import audio',{type:'submit',primary:true});
+    const cancel=button('Cancel import'),open=button('Open in Studio',{primary:true}),close=button('Close');
+    const status=element('p',{role:'status',textContent:'Checking server…'});
+    const progress=element('progress',{max:100,hidden:true});
+    const provenance=element('p',{className:'host-help'});
+    let job=null,available=false,pending=false,closed=false;
+    const render=value=>{
+      job=value;const active=importActive(job);
+      status.textContent=job?.message || job?.state || 'Ready. Up to 30 minutes / 100 MiB. Import audio you are allowed to use.';
+      progress.hidden=!active;
+      if(Number.isFinite(job?.progress))progress.value=job.progress;else progress.removeAttribute('value');
+      start.disabled=!available||active||pending;url.disabled=active||pending;
+      cancel.hidden=!active;cancel.disabled=pending;
+      open.hidden=job?.state!=='ready'||!job.projectId;
+      provenance.textContent=job?.metadata?.title ? `${job.metadata.title} · ${job.metadata.url}` : '';
+    };
+    const watcher=new AudioImportWatcher({api:this.api,onChange:render});
+    this.audioImportDialog?.close();this.audioImportDialog=dialog;
+    form.append(label,url,actionsRow(start));
+    body.append(form,status,progress,provenance,actionsRow(cancel,open,close));
+    close.onclick=()=>dialog.close();
+    dialog.addEventListener('close',()=>{closed=true;watcher.stop();if(this.audioImportDialog===dialog)this.audioImportDialog=null;},{once:true});
+    cancel.onclick=async()=>{
+      pending=true;render(job);watcher.stop();
+      try{const value=await this.api.cancelAudioImport(job.id);if(!closed)watcher.watch(value);}
+      catch(error){if(!closed)job={...job,state:'error',message:error.message};}
+      finally{pending=false;if(!closed)render(job);}
+    };
+    form.onsubmit=async event=>{
+      event.preventDefault();if(start.disabled)return;
+      pending=true;render(job);
+      try{const value=await this.api.startAudioImport(url.value.trim());if(!closed)watcher.watch(value);}
+      catch(error){if(!closed)status.textContent=error.message;}
+      finally{pending=false;if(!closed){start.disabled=!available||importActive(job);url.disabled=importActive(job);}}
+    };
+    open.onclick=async()=>{
+      if(await this.confirmSavedMixDiscard() && await this.confirmPreviewDiscard()) {
+        const target=job.projectId;dialog.close();
+        try{this.projects=await this.api.listProjects();await this.open(target,{confirm:false});}
+        catch(error){this.report(error.message,true);}
+      }
+    };
+    dialog.showModal();start.disabled=true;cancel.hidden=open.hidden=true;
+    try{
+      const [capabilities,jobs]=await Promise.all([this.api.audioImportCapabilities(),this.api.listAudioImports()]);
+      if(closed)return;
+      available=capabilities.available;
+      const recent=jobs.find(importActive)||jobs[0];
+      if(recent)watcher.watch(recent);else render(null);
+      if(!available)status.textContent='YouTube import is unavailable on this server. Rails needs yt-dlp, Node.js and FFmpeg; a static deployment cannot download YouTube audio.';
+    }catch(error){if(!closed)status.textContent=error.message;}
+  }
+
+  async importFileDialog() {
+    if (!(await this.ensureSignedIn()) || !await this.confirmPreviewDiscard()) return;
+    const values = await trackDialog({title: 'Import audio as a project', confirmLabel: 'Import project', fileRequired: true, initialOrigin: 'original',
       nameLabel: 'Project name', intro: 'The file is uploaded to your account and becomes the first track of a new project.'});
     if (!values) return;
-    const {file, instrument} = values;
+    const {file, instrument, origin} = values;
     const name = values.name || nameFromFile(file.name);
     this.report(`Uploading ${file.name}…`);
     try {
       const project = await this.api.createProject({name, bpm: BPM_RANGE.default});
       this.projects.unshift({...project, trackCount: 0});
       try {
-        await this.api.createTrack(project.id, {name: nameFromFile(file.name), instrument}, file);
+        await this.api.createTrack(project.id, {name: nameFromFile(file.name), instrument, origin}, file);
       } catch (error) {
         this.report(`“${name}” was created, but the audio was not uploaded: ${error.message}`, true);
       }
       await this.open(project.id, {confirm: false});
       this.replaceSummary(this.project);
+      this.renderPicker();
       this.report(`“${name}” imported`);
     } catch (error) {
       this.report(`Audio not imported: ${error.message}`, true);
@@ -485,15 +652,18 @@ export class ProjectsWorkspace extends EventTarget {
     this.renderTracks();
     this.renderInspector();
     this.syncPlayer();
+    this.separationView?.render();
   }
 
   // The player follows the open project's tracks and mix; lanes wait for their audio.
   syncPlayer() {
-    const tracks = this.project?.tracks ?? [];
-    for (const id of [...this.timeline.waves.keys()]) if (!tracks.some((track) => track.id === id)) this.timeline.setWave(id, null);
-    for (const track of tracks) if (track.audio && !this.timeline.waves.has(track.id)) this.timeline.setWave(track.id, {state: 'loading'});
+    const tracks = this.displayTracks.filter(track => track.id > 0);
+    const retained = [...tracks, ...(this.separation?.result?.tracks ?? [])];
+    for (const id of [...this.timeline.waves.keys()]) if (!retained.some((track) => track.id === id)) this.timeline.setWave(id, null);
+    for (const track of tracks) if (track.audio && !this.timeline.waves.has(track.id)) this.timeline.setWave(track.id, track.waveform ? {peaks:Float32Array.from(track.waveform.peaks),duration:track.waveform.duration} : {state:'loading'});
     const liveId = liveTrackId(tracks, this.selectedId);
     this.player?.setTracks(tracks, liveId);
+    if (this.separation?.mode === 'stems') this.player.syncPreview(this.separation.viewTracks ?? []);
     this.tones?.setTracks(tracks, this.project?.id, liveId);
     this.renderLength();
     this.renderTransport();
@@ -507,7 +677,7 @@ export class ProjectsWorkspace extends EventTarget {
     const {player} = this;
     const playing = Boolean(player?.playing);
     const play = this.$('projectPlay');
-    play.disabled = !player?.duration;
+    play.disabled = player?.ready === false || !player?.duration;
     play.setAttribute('icon', playing ? 'pause' : 'play');
     play.setAttribute('aria-label', playing ? 'Pause' : 'Play');
     play.setAttribute('aria-pressed', String(playing));
@@ -522,6 +692,7 @@ export class ProjectsWorkspace extends EventTarget {
     loopButton.title = `Loop (L)${region ? ` · ${region}` : ''} · drag on the bar ruler to choose the bars`;
     this.$('projectLoopReset').disabled = !player?.duration || !(loop.end > loop.start);
     this.timeline.setLoop(loop);
+    this.renderMixExport();
     this.renderPosition();
     if (playing && !this.frame) {
       const tick = () => {
@@ -543,6 +714,7 @@ export class ProjectsWorkspace extends EventTarget {
   // Changes the player's loop and remembers it for the open project.
   setLoop(changes) {
     const playing = this.player.setLoop(changes);
+    if (this.player.preview) return playing;
     const loops = rememberLoop(this.loops(), this.project.id, loopToBars(this.player.loop, this.project.bpm));
     try { this.storage?.setItem(LOOPS_KEY, JSON.stringify(loops)); } catch { /* Not remembered. */ }
     return playing;
@@ -570,18 +742,33 @@ export class ProjectsWorkspace extends EventTarget {
     select.replaceChildren(...[mine.length && group('My projects', mine), shared.length && group('Shared with me', shared)].filter(Boolean));
     if (!this.projects.length) select.append(new Option(this.signedIn ? 'No projects yet' : 'Sign in to see your projects', ''));
     select.value = this.project ? String(this.project.id) : '';
-    select.disabled = !this.projects.length;
+    select.disabled = this.saving || !this.projects.length;
     this.$('projectCount').textContent = this.projects.length ? twoDigits(this.projects.length) : '';
-    this.$('projectTrackCount').textContent = twoDigits(this.project?.tracks.length ?? 0);
+    this.$('projectTrackCount').textContent = twoDigits(this.displayTracks.length);
     this.$('projectBpm').textContent = this.project ? String(this.project.bpm) : '—';
-    this.$('projectNew').disabled = !this.available;
-    this.$('projectImport').disabled = !this.available;
+    this.$('projectNew').disabled = this.saving || !this.available;
+    this.$('projectImport').disabled = this.saving || !this.available;
+  }
+
+  renderMixExport() {
+    const button=this.$('studioUseMix'),range=this.$('studioExportRange');
+    if (!button) return;
+    button.hidden=range.hidden=!this.owned;
+    const state=mixExportAvailability({owned:this.owned,working:this.saving,separating:this.separation?.busy,pending:this.pendingSeparation,
+      tracks:this.displayTracks,channels:this.player?.channels ?? new Map(),toneReady:typeof this.onUseMix === 'function'});
+    button.disabled=!state.ready;button.title=state.message;
+    const help=this.$('studioExportHelp');
+    if(help){help.hidden=!this.owned;help.textContent=state.message;}
+    const retry=this.$('studioRetryAudio');
+    if(retry){retry.hidden=!this.owned || !state.failedIds.length;retry.disabled=Boolean(this.saving);}
+
+    range.disabled=Boolean(this.saving);
   }
 
   renderHeader() {
     const {dirty, owned} = this;
-    const description = describeProject(this.project, {dirty});
-    this.$('projectKicker').textContent = description?.kicker ?? 'Studio';
+    const description = describeProject(this.project, {dirty, previewTracks: this.separation?.result && this.separation.mode === 'stems' ? this.separation.viewTracks : null});
+    this.$('projectKicker').textContent = !this.separation?.result && this.separation?.mode === 'stems' ? `Saved instruments · ${this.displayTracks.length} tracks` : description?.kicker ?? 'Studio';
     this.$('projectTitle').textContent = this.project?.name ?? 'Studio';
     this.$('projectMeta').textContent = description?.meta ?? 'Record and mix your ideas track by track.';
     this.$('projectEdit').hidden = !owned;
@@ -595,9 +782,12 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectResetMix').hidden = owned || !this.project || !trackChanges(this.saved?.tracks, this.project.tracks).length;
     this.$('projectShare').title = shareSummary(this.project?.shares) || 'Share this project read-only';
     this.$('projectSave').hidden = !owned;
-    this.$('projectSave').disabled = !dirty;
+    this.$('projectSave').disabled = this.saving || this.separation?.busy || (!dirty && !this.pendingSeparation);
+    this.$('projectEdit').disabled = this.$('projectAddTrack').disabled = this.saving;
+    if (this.saving) state.textContent = 'Saving audio…';
     this.$('projectAddTrack').hidden = !owned;
-    this.$('projectTrackCount').textContent = twoDigits(this.project?.tracks.length ?? 0);
+    this.$('projectTrackCount').textContent = twoDigits(this.displayTracks.length);
+    this.renderMixExport();
   }
 
   renderEmpty() {
@@ -621,8 +811,8 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   renderTracks() {
-    const tracks = this.project?.tracks ?? [];
-    this.timeline.render(tracks, {selectedId: this.selectedId, editable: this.owned, presetName: (track) => this.toneLabel(track)});
+    const tracks = this.displayTracks;
+    this.timeline.render(tracks, {selectedId: this.selectedId, editable: this.owned && this.separation?.mode !== 'stems', presetName: (track) => this.toneLabel(track)});
     this.$('projectTimelineTempo').textContent = this.project ? `${this.project.bpm} BPM · 4/4` : '';
     this.$('projectTracksEmpty').hidden = tracks.length > 0;
     this.$('projectTracksEmpty').textContent = this.owned ? 'No tracks yet: add one from an audio file.' : 'This project has no tracks yet.';
@@ -632,15 +822,21 @@ export class ProjectsWorkspace extends EventTarget {
     const track = this.selectedTrack;
     this.$('trackInspector').hidden = !track;
     if (!track) return;
-    const index = this.project.tracks.indexOf(track);
+    const index = this.displayTracks.indexOf(track);
     this.$('inspectorTrackName').textContent = track.name;
     this.$('inspectorTrackNumber').textContent = `Track ${twoDigits(index + 1)}`;
-    this.$('inspectorTrackMeta').textContent = [instrumentLabel(track.instrument), track.audio?.filename ?? 'No audio file'].join(' · ');
-    const tone = usesPreset(track.instrument);
+    this.$('inspectorTrackMeta').textContent = [originLabel(track), instrumentLabel(track.instrument), track.audio?.filename ?? 'No audio file'].join(' · ');
+    const imported=this.$('inspectorImportHelp');
+    if(imported){
+      const metadata=track.importMetadata;
+      imported.hidden=!metadata;
+      imported.textContent=metadata?.kind==='youtube' ? `YouTube source: ${metadata.url} · ${metadata.duration} s` : metadata?.kind==='studio_mix' ? `Imported from Studio project ${metadata.sourceProjectId}, mix ${metadata.sourceTrackId}.` : metadata?.kind==='bundled' ? 'Imported from the Tone backing library.' : metadata ? 'Imported from a local file.' : '';
+    }
+    const tone = usesTrackPreset(track);
     this.$('inspectorPresetField').hidden = !tone;
     this.$('inspectorEditPreset').hidden = !tone || !this.owned;
     this.$('inspectorEditPreset').disabled = !presetValue(track);
-    this.$('inspectorPresetHelp').textContent = !tone ? 'Tone presets apply to guitar and bass tracks.'
+    this.$('inspectorPresetHelp').textContent = !tone ? 'Accompaniment audio plays as recorded. Presets are reserved for your personal guitar and bass parts.'
       : this.toneHelp(track);
     if (tone) this.renderPresetSelect(track);
   }
@@ -667,6 +863,7 @@ export class ProjectsWorkspace extends EventTarget {
 
   // The row's preset, with the state of its rack.
   toneLabel(track) {
+    if (!usesTrackPreset(track)) return '';
     const name = this.presetName(track);
     const state = name && this.tones?.status(track.id)?.state;
     return state === 'loading' ? `${name} (loading…)` : state === 'error' ? `${name} (not loaded)` : name;
@@ -753,8 +950,8 @@ function projectDialog({title, confirmLabel, intro, name = '', bpm = BPM_RANGE.d
 }
 
 // Audio file + name + instrument (Import audio, Add track). Resolves
-// {file, name, instrument} (file may be null unless fileRequired), or null.
-function trackDialog({title, confirmLabel, intro, nameLabel, eyebrow = 'Studio', fileRequired = false, defaultName = null}) {
+// {file, name, instrument, origin} (file may be null unless fileRequired), or null.
+function trackDialog({title, confirmLabel, intro, nameLabel, eyebrow = 'Studio', fileRequired = false, defaultName = null, initialOrigin = 'personal'}) {
   return new Promise((resolve) => {
     const {dialog, body, id} = createDialog({title, eyebrow, className: 'project-dialog'});
     const form = element('form', {method: 'dialog'});
@@ -771,6 +968,10 @@ function trackDialog({title, confirmLabel, intro, nameLabel, eyebrow = 'Studio',
     drop.append(fileInput, icon, text);
     const nameInput = element('input', {id: `${id}-name`, maxLength: defaultName ? 80 : 120, autocomplete: 'off'});
     const {select: instrument, wrapper} = instrumentSelect(`${id}-instrument`);
+    const origin = element('select', {id: `${id}-origin`});
+    origin.append(new Option('My personal part (DI guitar / bass)', 'personal'), new Option('Accompaniment audio (no preset)', 'original'));
+    origin.value = initialOrigin;
+    if (initialOrigin === 'original') instrument.value = 'other';
     const placeholder = () => {
       const file = fileInput.files[0];
       nameInput.placeholder = defaultName ? defaultName(instrument.value) : file ? nameFromFile(file.name) : 'Uses the file name by default';
@@ -784,12 +985,12 @@ function trackDialog({title, confirmLabel, intro, nameLabel, eyebrow = 'Studio',
     instrument.onchange = placeholder;
     placeholder();
     const [instrumentLabel$] = field('Instrument', instrument);
-    form.append(element('p', {textContent: intro}), drop, ...field(nameLabel, nameInput), instrumentLabel$, wrapper,
+    form.append(element('p', {textContent: intro}), drop, ...field(nameLabel, nameInput), ...field('Track type', origin), instrumentLabel$, wrapper,
       formActions(dialog, confirmLabel));
     body.append(form);
     dialog.addEventListener('close', () => {
       const file = fileInput.files[0] ?? null;
-      resolve(dialog.returnValue === 'ok' && (file || !fileRequired) ? {file, name: nameInput.value.trim(), instrument: instrument.value} : null);
+      resolve(dialog.returnValue === 'ok' && (file || !fileRequired) ? {file, name: nameInput.value.trim(), instrument: instrument.value, origin: origin.value} : null);
     }, {once: true});
     dialog.showModal();
   });
@@ -804,7 +1005,7 @@ function editTrackDialog({track, eyebrow, onDelete}) {
       autocomplete: 'off'});
     const {select: instrument, wrapper} = instrumentSelect(`${id}-instrument`, track.instrument);
     const [instrumentLabel$] = field('Instrument', instrument);
-    const note = element('p', {className: 'host-help', textContent: 'Only guitar and bass tracks play through a tone preset.'});
+    const note = element('p', {className: 'host-help', textContent: 'Only personal guitar and bass parts play through a tone preset. Accompaniment audio keeps its recorded sound.'});
     form.append(element('p', {textContent: 'Choose a clear name for this part in your arrangement.'}), ...field('Track name', nameInput),
       instrumentLabel$, wrapper, note, formActions(dialog, 'Apply', onDelete, 'Delete track'));
     body.append(form);

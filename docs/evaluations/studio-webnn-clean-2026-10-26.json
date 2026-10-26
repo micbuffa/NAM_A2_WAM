@@ -1,0 +1,315 @@
+{
+  "protocol": "studio-webnn-admission-v2",
+  "date": "2026-10-26T14:46:02.923Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "modelId": "htdemucs_4s_onnx",
+  "requested": [
+    "wasm",
+    "webgpu",
+    "webnn-cpu",
+    "webnn-gpu",
+    "webnn-npu"
+  ],
+  "seconds": 6,
+  "trialsPerEngine": 1,
+  "sessionPolicy": "fresh Worker/session per trial, local cached bytes; not a retained-session benchmark",
+  "visibilityEvents": [
+    {
+      "at": 0,
+      "hidden": false
+    }
+  ],
+  "rows": [
+    {
+      "type": "done",
+      "backend": "wasm",
+      "elapsedMs": 36185.20000000298,
+      "loadMs": 4616.10000000149,
+      "blocks": [
+        {
+          "inputSeconds": 6,
+          "publishedSeconds": 6,
+          "elapsedMs": 31433.20000000298
+        }
+      ],
+      "adapterInfo": null,
+      "gpuKernels": 0,
+      "profilingEnabled": false,
+      "runtimeVersion": "1.22.0",
+      "transportMode": "transfer",
+      "status": "done",
+      "firstAudioMs": 36139.30000000447,
+      "wallMs": 36239.60000000149,
+      "publishedFrames": 264600,
+      "productionParity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 1e-05
+        },
+        "relativeRmsError": 0,
+        "maxAbsError": 0,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "referenceRms": 0.14652464818892758,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "referenceRms": 0.10120127714407631,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "referenceRms": 0.11234017989961834,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "referenceRms": 0.10628940797272861,
+            "relativeApplicable": true,
+            "passed": true
+          }
+        ],
+        "passed": true
+      },
+      "trial": 0,
+      "audioSeconds": 6,
+      "endToEndRtf": 6.039933333333582,
+      "candidateRtf": null,
+      "nativeWebNNObserved": false,
+      "effectiveHardware": "unknown"
+    },
+    {
+      "type": "done",
+      "backend": "webgpu",
+      "elapsedMs": 7714.39999999851,
+      "loadMs": 3236.60000000149,
+      "blocks": [
+        {
+          "inputSeconds": 6,
+          "publishedSeconds": 6,
+          "elapsedMs": 4341.5
+        }
+      ],
+      "adapterInfo": {
+        "vendor": "apple",
+        "architecture": "metal-3"
+      },
+      "gpuKernels": 1630,
+      "profilingEnabled": true,
+      "runtimeVersion": "1.22.0",
+      "transportMode": "transfer",
+      "status": "done",
+      "firstAudioMs": 7686.20000000298,
+      "wallMs": 7780.60000000149,
+      "publishedFrames": 264600,
+      "productionParity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 1e-05
+        },
+        "relativeRmsError": 0.0006516432976587943,
+        "maxAbsError": 0.0007771626114845276,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0.0004361724611801301,
+            "maxAbsError": 0.0007771626114845276,
+            "referenceRms": 0.14652464818892758,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 0.0010157744582669336,
+            "maxAbsError": 0.0006786584854125977,
+            "referenceRms": 0.10120127714407631,
+            "relativeApplicable": true,
+            "passed": false
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 0.0007939324489321206,
+            "maxAbsError": 0.0005978047847747803,
+            "referenceRms": 0.11234017989961834,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0.0002997995314276623,
+            "maxAbsError": 0.0007164180278778076,
+            "referenceRms": 0.10628940797272861,
+            "relativeApplicable": true,
+            "passed": true
+          }
+        ],
+        "passed": false
+      },
+      "trial": 0,
+      "audioSeconds": 6,
+      "endToEndRtf": 1.296766666666915,
+      "candidateRtf": null,
+      "nativeWebNNObserved": false,
+      "effectiveHardware": "unknown"
+    },
+    {
+      "type": "error",
+      "code": "BACKEND_ERROR",
+      "message": "WebNN unavailable in this browser Worker",
+      "elapsedMs": 14.300000004470348,
+      "timings": {
+        "contextMs": 0,
+        "sessionMs": 0,
+        "referenceSessionMs": 0,
+        "inferenceMs": 0,
+        "referenceMs": 0,
+        "validationMs": 0,
+        "publishedFrames": 0,
+        "blocks": []
+      },
+      "evidence": {
+        "runtimeVersion": "1.30.0",
+        "validatedBlocks": 0,
+        "dispatches": 0,
+        "strictParity": false,
+        "effectiveHardware": "unknown",
+        "mixedProvider": true
+      },
+      "status": "error",
+      "backend": "webnn-cpu",
+      "wallMs": 71.89999999850988,
+      "publishedFrames": 0,
+      "trial": 0,
+      "audioSeconds": 6,
+      "endToEndRtf": null,
+      "candidateRtf": null,
+      "nativeWebNNObserved": false,
+      "effectiveHardware": "unknown"
+    },
+    {
+      "type": "error",
+      "code": "BACKEND_ERROR",
+      "message": "WebNN unavailable in this browser Worker",
+      "elapsedMs": 13.699999995529652,
+      "timings": {
+        "contextMs": 0,
+        "sessionMs": 0,
+        "referenceSessionMs": 0,
+        "inferenceMs": 0,
+        "referenceMs": 0,
+        "validationMs": 0,
+        "publishedFrames": 0,
+        "blocks": []
+      },
+      "evidence": {
+        "runtimeVersion": "1.30.0",
+        "validatedBlocks": 0,
+        "dispatches": 0,
+        "strictParity": false,
+        "effectiveHardware": "unknown",
+        "mixedProvider": true
+      },
+      "status": "error",
+      "backend": "webnn-gpu",
+      "wallMs": 77.19999999552965,
+      "publishedFrames": 0,
+      "trial": 0,
+      "audioSeconds": 6,
+      "endToEndRtf": null,
+      "candidateRtf": null,
+      "nativeWebNNObserved": false,
+      "effectiveHardware": "unknown"
+    },
+    {
+      "type": "error",
+      "code": "BACKEND_ERROR",
+      "message": "WebNN unavailable in this browser Worker",
+      "elapsedMs": 10.5,
+      "timings": {
+        "contextMs": 0,
+        "sessionMs": 0,
+        "referenceSessionMs": 0,
+        "inferenceMs": 0,
+        "referenceMs": 0,
+        "validationMs": 0,
+        "publishedFrames": 0,
+        "blocks": []
+      },
+      "evidence": {
+        "runtimeVersion": "1.30.0",
+        "validatedBlocks": 0,
+        "dispatches": 0,
+        "strictParity": false,
+        "effectiveHardware": "unknown",
+        "mixedProvider": true
+      },
+      "status": "error",
+      "backend": "webnn-npu",
+      "wallMs": 72.29999999701977,
+      "publishedFrames": 0,
+      "trial": 0,
+      "audioSeconds": 6,
+      "endToEndRtf": null,
+      "candidateRtf": null,
+      "nativeWebNNObserved": false,
+      "effectiveHardware": "unknown"
+    }
+  ],
+  "uiHeartbeat": {
+    "intervalMs": 100,
+    "maxGapMs": 2201.10000000149,
+    "samples": 438
+  },
+  "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+  "inputFileSha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507",
+  "input": {
+    "id": "slow-motion-dream-first-6s",
+    "file": "slow-motion-dream.mp3",
+    "license": "CC BY 3.0",
+    "hasIsolatedReferences": false
+  },
+  "assetLoadAndHashMs": 2500,
+  "pcmSha256": "b8b64a9db5a52e02bde2efae82e3567bccc2e91b95c520c4a4b67ca450884213",
+  "frames": 264600,
+  "sampleRate": 44100,
+  "summary": {
+    "completeMatrix": true,
+    "nativeTrials": 3,
+    "nativeSuccesses": 0,
+    "allNativePassed": false,
+    "rankingEligible": false,
+    "reason": "Development qualification on one short mixture; no independent source-quality references or confirmed physical device."
+  },
+  "assessment": {
+    "timingEligible": "exploratory-only",
+    "concurrentBuildOrTests": false,
+    "machine": {
+      "cpu": "Apple M3 Max",
+      "memoryBytes": 38654705664,
+      "physicalCores": 14,
+      "logicalCores": 14,
+      "macOS": "14.4.1 (23E224)"
+    },
+    "nativeQualification": "blocked: Canary not connected; regular Chrome155 has no WebNN in Worker",
+    "controls": "Visible tab, no visibility transition observed; no build/test concurrent; other apps, browser tabs, temperature and system load not controlled",
+    "parityReference": "Production ORT1.22 WASM first trial; its self-comparison is a reference identity, not independent validation",
+    "uiHeartbeatScope": "Entire launch including local 174MB model fetch/hash/copies; max gap does not localize inference or validate Studio playback/scroll",
+    "repetitions": 1,
+    "sourceIdentity": "studio-webnn-code-2026-10-26.json"
+  }
+}

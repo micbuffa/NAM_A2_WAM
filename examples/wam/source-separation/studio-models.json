@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "models": [
+    {
+      "id": "htdemucs_4s_onnx",
+      "label": "Demucs \u00b7 4 instruments",
+      "description": "4 pistes \u00b7 guitare dans Autres \u00b7 poids r\u00e9serv\u00e9s \u00e0 un usage personnel/recherche selon le fournisseur.",
+      "roles": [
+        "drums",
+        "bass",
+        "other",
+        "vocals"
+      ],
+      "files": [
+        {
+          "url": "https://media.githubusercontent.com/media/bakkot/demucs-js/45f990170d9571379a9dbd3bbdd1c7591b26864c/htdemucs.onnx",
+          "size": 174263526,
+          "sha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748"
+        }
+      ],
+      "targets": 4,
+      "version": "45f990170d9571379a9dbd3bbdd1c7591b26864c",
+      "kind": "neural",
+      "backends": [
+        "webgpu",
+        "wasm"
+      ],
+      "sampleRate": 44100,
+      "maxDuration": 86400,
+      "license": {
+        "name": "Poids : personnel/recherche \u00b7 code MIT",
+        "url": "./vendor/demucs-js/LICENSE.md"
+      },
+      "recommendation": "Essayer le GPU ; couper Autres pour retirer la guitare",
+      "runtime": "demucs-onnx-core",
+      "sourceRevision": "45f990170d9571379a9dbd3bbdd1c7591b26864c"
+    },
+    {
+      "id": "bs_roformer_sw_6s",
+      "label": "BS Roformer SW \u00b7 6 instruments",
+      "description": "Guitare et piano d\u00e9di\u00e9s \u00b7 fen\u00eatres 4 s / publication 3 s. CPU de secours tr\u00e8s lent ; droits du checkpoint d\u2019origine non pr\u00e9cis\u00e9s.",
+      "roles": [
+        "bass",
+        "drums",
+        "other",
+        "vocals",
+        "guitar",
+        "piano"
+      ],
+      "files": [
+        {
+          "url": "https://huggingface.co/elicwhite/bs-roformer-sw-6stem-onnx/resolve/a744f80957374e1735ad70fa122670b7961da8cc/bs_roformer_sw_6stem_fp16.onnx",
+          "size": 352778874,
+          "sha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444"
+        }
+      ],
+      "version": "a744f80957374e1735ad70fa122670b7961da8cc",
+      "kind": "neural",
+      "targets": 6,
+      "backends": [
+        "webgpu",
+        "wasm"
+      ],
+      "sampleRate": 44100,
+      "maxDuration": 86400,
+      "license": {
+        "name": "Export MIT \u00b7 droits des poids d\u2019origine non pr\u00e9cis\u00e9s",
+        "url": "./ROFORMER_NOTICE.md"
+      },
+      "recommendation": "Guitare d\u00e9di\u00e9e \u00b7 GPU conseill\u00e9 \u00b7 CPU lent",
+      "runtime": "bs-roformer-onnx",
+      "frames": 176400,
+      "profile": "quality",
+      "sourceRevision": "a744f80957374e1735ad70fa122670b7961da8cc"
+    }
+  ]
+}

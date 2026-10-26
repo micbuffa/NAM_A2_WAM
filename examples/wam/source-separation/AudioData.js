@@ -1,3 +1,4 @@
+import {isVerifiedStreamChunk,attachProducerEnvelope} from './StreamTransport.js';
 export function waveformPath(data, bins = 400) {
   const step = Math.max(1, Math.ceil(data.length / bins)); let path = '';
   for (let i = 0; i < bins; i++) {
@@ -9,10 +10,11 @@ export function waveformPath(data, bins = 400) {
   return path;
 }
 export function makeTracks(context, result) {
-  if (!result.roles?.length || result.stems?.length !== result.roles.length * 2 || result.stems.some(c => !(c instanceof Float32Array) || !c.length || c.length !== result.stems[0].length || !c.every(Number.isFinite))) throw Error('Stems invalides.');
+  if (!result.roles?.length || result.stems?.length !== result.roles.length * 2 || result.stems.some(c => !(c instanceof Float32Array) || !c.length || c.length !== result.stems[0].length || (!isVerifiedStreamChunk(result) && !c.every(Number.isFinite)))) throw Error('Stems invalides.');
   return result.roles.map((role, index) => {
     const buffer = context.createBuffer(2, result.stems[index * 2].length, result.sampleRate);
     buffer.copyToChannel(result.stems[index * 2], 0); buffer.copyToChannel(result.stems[index * 2 + 1], 1);
+    if(isVerifiedStreamChunk(result))attachProducerEnvelope(buffer,result.peaks[index],result.totalFrames);
     return {id: `${role}-${index}`, role, label: role, buffer};
   });
 }

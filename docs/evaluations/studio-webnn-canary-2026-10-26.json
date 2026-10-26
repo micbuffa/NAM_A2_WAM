@@ -1,0 +1,430 @@
+{
+  "protocol": "studio-webnn-admission-v2",
+  "date": "2026-10-26T15:20:40.390Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+  "modelId": "htdemucs_4s_onnx",
+  "requested": [
+    "wasm",
+    "webgpu",
+    "webnn-cpu",
+    "webnn-gpu",
+    "webnn-npu"
+  ],
+  "seconds": 6,
+  "trialsPerEngine": 1,
+  "sessionPolicy": "fresh Worker/session per trial, local cached bytes; not a retained-session benchmark",
+  "visibilityEvents": [
+    {
+      "at": 0,
+      "hidden": false
+    }
+  ],
+  "rows": [
+    {
+      "type": "done",
+      "backend": "wasm",
+      "elapsedMs": 11356.79999999702,
+      "loadMs": 705.2999999970198,
+      "blocks": [
+        {
+          "inputSeconds": 6,
+          "publishedSeconds": 6,
+          "elapsedMs": 10625.39999999851
+        }
+      ],
+      "adapterInfo": null,
+      "gpuKernels": 0,
+      "profilingEnabled": false,
+      "runtimeVersion": "1.22.0",
+      "transportMode": "transfer",
+      "status": "done",
+      "firstAudioMs": 11367.5,
+      "wallMs": 11384.20000000298,
+      "publishedFrames": 264600,
+      "productionParity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 0.00001
+        },
+        "relativeRmsError": 0,
+        "maxAbsError": 0,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "referenceRms": 0.14652464818892758,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "referenceRms": 0.10120127714407631,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "referenceRms": 0.11234017989961834,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "referenceRms": 0.10628940797272861,
+            "relativeApplicable": true,
+            "passed": true
+          }
+        ],
+        "passed": true
+      },
+      "trial": 0,
+      "audioSeconds": 6,
+      "endToEndRtf": 1.8973666666671634,
+      "candidateRtf": null,
+      "nativeWebNNObserved": false,
+      "effectiveHardware": "unknown"
+    },
+    {
+      "type": "done",
+      "backend": "webgpu",
+      "elapsedMs": 4247.39999999851,
+      "loadMs": 665.5,
+      "blocks": [
+        {
+          "inputSeconds": 6,
+          "publishedSeconds": 6,
+          "elapsedMs": 3553.89999999851
+        }
+      ],
+      "adapterInfo": {
+        "vendor": "apple",
+        "architecture": "metal-3"
+      },
+      "gpuKernels": 1630,
+      "profilingEnabled": true,
+      "runtimeVersion": "1.22.0",
+      "transportMode": "transfer",
+      "status": "done",
+      "firstAudioMs": 4285,
+      "wallMs": 4301.89999999851,
+      "publishedFrames": 264600,
+      "productionParity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 0.00001
+        },
+        "relativeRmsError": 0.0006516432976587943,
+        "maxAbsError": 0.0007771626114845276,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0.0004361724611801301,
+            "maxAbsError": 0.0007771626114845276,
+            "referenceRms": 0.14652464818892758,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 0.0010157744582669336,
+            "maxAbsError": 0.0006786584854125977,
+            "referenceRms": 0.10120127714407631,
+            "relativeApplicable": true,
+            "passed": false
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 0.0007939324489321206,
+            "maxAbsError": 0.0005978047847747803,
+            "referenceRms": 0.11234017989961834,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0.0002997995314276623,
+            "maxAbsError": 0.0007164180278778076,
+            "referenceRms": 0.10628940797272861,
+            "relativeApplicable": true,
+            "passed": true
+          }
+        ],
+        "passed": false
+      },
+      "trial": 0,
+      "audioSeconds": 6,
+      "endToEndRtf": 0.716983333333085,
+      "candidateRtf": null,
+      "nativeWebNNObserved": false,
+      "effectiveHardware": "unknown"
+    },
+    {
+      "type": "error",
+      "code": "BACKEND_ERROR",
+      "message": "WebNN admission failed: strict per-role audio parity failed",
+      "elapsedMs": 24057,
+      "timings": {
+        "contextMs": 26.700000002980232,
+        "sessionMs": 7215.19999999553,
+        "referenceSessionMs": 420.20000000298023,
+        "inferenceMs": 5432.19999999553,
+        "referenceMs": 10915.79999999702,
+        "validationMs": 0,
+        "publishedFrames": 0,
+        "blocks": []
+      },
+      "evidence": {
+        "runtimeVersion": "1.30.0",
+        "validatedBlocks": 0,
+        "dispatches": 1,
+        "strictParity": false,
+        "effectiveHardware": "unknown",
+        "mixedProvider": true
+      },
+      "parity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 0.00001
+        },
+        "relativeRmsError": 0.000646039598708269,
+        "maxAbsError": 0.0007728859782218933,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0.0004333880476312399,
+            "maxAbsError": 0.0007728859782218933,
+            "referenceRms": 0.14652468233030555,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 0.0010062288719272013,
+            "maxAbsError": 0.0006730556488037109,
+            "referenceRms": 0.10120129553974314,
+            "relativeApplicable": true,
+            "passed": false
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 0.0007865423205577429,
+            "maxAbsError": 0.0005875825881958008,
+            "referenceRms": 0.11234016842701303,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0.00029869621119178963,
+            "maxAbsError": 0.0007114708423614502,
+            "referenceRms": 0.10628940157059565,
+            "relativeApplicable": true,
+            "passed": true
+          }
+        ],
+        "passed": false
+      },
+      "status": "error",
+      "backend": "webnn-cpu",
+      "wallMs": 24100.29999999702,
+      "publishedFrames": 0,
+      "trial": 0,
+      "audioSeconds": 6,
+      "endToEndRtf": null,
+      "candidateRtf": null,
+      "nativeWebNNObserved": true,
+      "effectiveHardware": "unknown"
+    },
+    {
+      "type": "error",
+      "code": "BACKEND_ERROR",
+      "message": "WebNN admission failed: strict per-role audio parity failed",
+      "elapsedMs": 33030.70000000298,
+      "timings": {
+        "contextMs": 162.70000000298023,
+        "sessionMs": 12512.40000000596,
+        "referenceSessionMs": 380.3999999985099,
+        "inferenceMs": 9265.39999999851,
+        "referenceMs": 10661.69999999553,
+        "validationMs": 0,
+        "publishedFrames": 0,
+        "blocks": []
+      },
+      "evidence": {
+        "runtimeVersion": "1.30.0",
+        "validatedBlocks": 0,
+        "dispatches": 1,
+        "strictParity": false,
+        "effectiveHardware": "unknown",
+        "mixedProvider": true
+      },
+      "parity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 0.00001
+        },
+        "relativeRmsError": 0.000651885972787836,
+        "maxAbsError": 0.0007783025503158569,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0.0004364238673364502,
+            "maxAbsError": 0.0007783025503158569,
+            "referenceRms": 0.14652468233030555,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 0.0010160326474628239,
+            "maxAbsError": 0.0006789639592170715,
+            "referenceRms": 0.10120129553974314,
+            "relativeApplicable": true,
+            "passed": false
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 0.000794203337321895,
+            "maxAbsError": 0.0005984306335449219,
+            "referenceRms": 0.11234016842701303,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0.00030010725134484986,
+            "maxAbsError": 0.0007177293300628662,
+            "referenceRms": 0.10628940157059565,
+            "relativeApplicable": true,
+            "passed": true
+          }
+        ],
+        "passed": false
+      },
+      "status": "error",
+      "backend": "webnn-gpu",
+      "wallMs": 33142.80000000447,
+      "publishedFrames": 0,
+      "trial": 0,
+      "audioSeconds": 6,
+      "endToEndRtf": null,
+      "candidateRtf": null,
+      "nativeWebNNObserved": true,
+      "effectiveHardware": "unknown"
+    },
+    {
+      "type": "error",
+      "code": "BACKEND_ERROR",
+      "message": "WebNN admission failed: strict per-role audio parity failed",
+      "elapsedMs": 25528.5,
+      "timings": {
+        "contextMs": 6.100000001490116,
+        "sessionMs": 12422.29999999702,
+        "referenceSessionMs": 378.6000000014901,
+        "inferenceMs": 1957.5,
+        "referenceMs": 10711.60000000149,
+        "validationMs": 0,
+        "publishedFrames": 0,
+        "blocks": []
+      },
+      "evidence": {
+        "runtimeVersion": "1.30.0",
+        "validatedBlocks": 0,
+        "dispatches": 1,
+        "strictParity": false,
+        "effectiveHardware": "unknown",
+        "mixedProvider": true
+      },
+      "parity": {
+        "limits": {
+          "relativeRms": 0.001,
+          "maxAbs": 0.005,
+          "roleRmsFloor": 0.00001
+        },
+        "relativeRmsError": 0.000651885972787836,
+        "maxAbsError": 0.0007783025503158569,
+        "roles": [
+          {
+            "role": "drums",
+            "relativeRmsError": 0.0004364238673364502,
+            "maxAbsError": 0.0007783025503158569,
+            "referenceRms": 0.14652468233030555,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "bass",
+            "relativeRmsError": 0.0010160326474628239,
+            "maxAbsError": 0.0006789639592170715,
+            "referenceRms": 0.10120129553974314,
+            "relativeApplicable": true,
+            "passed": false
+          },
+          {
+            "role": "other",
+            "relativeRmsError": 0.000794203337321895,
+            "maxAbsError": 0.0005984306335449219,
+            "referenceRms": 0.11234016842701303,
+            "relativeApplicable": true,
+            "passed": true
+          },
+          {
+            "role": "vocals",
+            "relativeRmsError": 0.00030010725134484986,
+            "maxAbsError": 0.0007177293300628662,
+            "referenceRms": 0.10628940157059565,
+            "relativeApplicable": true,
+            "passed": true
+          }
+        ],
+        "passed": false
+      },
+      "status": "error",
+      "backend": "webnn-npu",
+      "wallMs": 25580.30000000447,
+      "publishedFrames": 0,
+      "trial": 0,
+      "audioSeconds": 6,
+      "endToEndRtf": null,
+      "candidateRtf": null,
+      "nativeWebNNObserved": true,
+      "effectiveHardware": "unknown"
+    }
+  ],
+  "uiHeartbeat": {
+    "intervalMs": 100,
+    "maxGapMs": 180.29999999701977,
+    "samples": 990
+  },
+  "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+  "inputFileSha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507",
+  "input": {
+    "id": "slow-motion-dream-first-6s",
+    "file": "slow-motion-dream.mp3",
+    "license": "CC BY 3.0",
+    "hasIsolatedReferences": false
+  },
+  "assetLoadAndHashMs": 379.5,
+  "pcmSha256": "b8b64a9db5a52e02bde2efae82e3567bccc2e91b95c520c4a4b67ca450884213",
+  "frames": 264600,
+  "sampleRate": 44100,
+  "summary": {
+    "completeMatrix": true,
+    "nativeTrials": 3,
+    "nativeSuccesses": 0,
+    "allNativePassed": false,
+    "rankingEligible": false,
+    "reason": "Development qualification on one short mixture; no independent source-quality references or confirmed physical device."
+  }
+}

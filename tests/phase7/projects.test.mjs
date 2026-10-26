@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {barBeat, loopAround, loopFromBars, loopLabel, loopToBars, rememberLoop, rememberedLoop, snapLoop, clampBpm, initials, moveTrack, orderChanged, shareSummary, defaultTrackName, describeProject, formatClock, groupProjects, liveTrackId, nameFromFile, panLabel, presetFields, presetValue,
-  projectOptionLabel, rulerBars, timelineLength, toggleMonitoring, trackChanges, trackGain, volumeLabel, withInstrument}
+  usesTrackPreset, originLabel, projectOptionLabel, rulerBars, timelineLength, toggleMonitoring, trackChanges, trackGain, volumeLabel, withInstrument}
   from '../../examples/wam/projects/ProjectsModel.js';
 import {ProjectPlayer} from '../../examples/wam/projects/ProjectPlayer.js';
 import {TrackTones, needsTone} from '../../examples/wam/projects/TrackTones.js';
@@ -491,4 +491,32 @@ test('the owner sees who a project is shared with', () => {
     'Recording project · 0 tracks · Shared with bob@example.com');
   assert.equal(describeProject({owned: false, owner: {name: 'Bob'}, tracks: [], shares: undefined}).kicker, 'Shared by Bob · 0 tracks');
   assert.deepEqual([initials('Ana Lima'), initials('bob@example.com'), initials('jean-luc.picard@x.io'), initials('')], ['AL', 'BO', 'JL', '?']);
+});
+
+
+test('accompaniment guitar and bass never create tone racks or take the live input', () => {
+  for (const origin of ['original', 'stem', 'mix', 'unknown']) {
+    const accompaniment = {id: 1, origin, instrument: 'guitar', factoryPreset: 'factory:twin-clean', inputMonitoring: true, audio: {url: '/stem.wav'}};
+    assert.equal(usesTrackPreset(accompaniment), false);
+    assert.equal(needsTone(accompaniment, 1), false);
+    assert.equal(liveTrackId([accompaniment], 1), null);
+    assert.equal(toggleMonitoring([{...accompaniment, inputMonitoring: false}], 1)[0].inputMonitoring, false);
+    const changed = withInstrument(accompaniment, 'bass');
+    assert.equal(changed.origin, origin);
+    assert.equal(changed.factoryPreset, null);
+    assert.equal(changed.inputMonitoring, false);
+  }
+  for (const origin of ['personal', 'legacy', undefined]) {
+    assert.equal(usesTrackPreset({origin, instrument: 'guitar'}), true);
+    assert.equal(usesTrackPreset({origin, instrument: 'drums'}), false);
+  }
+  assert.equal(originLabel({origin: 'stem'}), 'Separated stem');
+});
+
+
+test('a temporary instrument preview is never presented as saved to the account', () => {
+  const description = describeProject({owned:true,name:'Song',tracks:[{id:1}]}, {previewTracks:Array.from({length:6},()=>({origin:'stem'}))});
+  assert.equal(description.saveState,'Instruments in RAM');
+  assert.match(description.kicker,/6 tracks/u);
+  assert.match(description.meta,/Original \/ project/u);
 });

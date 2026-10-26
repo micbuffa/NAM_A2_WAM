@@ -64,6 +64,7 @@ export default class AccountApi {
   // Projects: owned ones and those shared with the user (read-only).
   listProjects() { return this.request('GET', '/api/projects'); }
   getProject(id) { return this.request('GET', projectPath(id)); }
+  importBacking(attributes, audio = null) { return this.request('POST', '/api/projects/from_backing', trackBody(attributes, audio)); }
   createProject(attributes) { return this.request('POST', '/api/projects', attributes); }
   updateProject(id, attributes) { return this.request('PATCH', projectPath(id), attributes); }
   deleteProject(id) { return this.request('DELETE', projectPath(id)); }
@@ -79,6 +80,26 @@ export default class AccountApi {
   reorderTracks(projectId, ids) { return this.request('PATCH', `${projectPath(projectId)}/tracks/order`, {ids}); }
   // The account preset of a track, {id, name, state}: shared viewers can read it too.
   getTrackPreset(projectId, id) { return this.request('GET', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}/preset`); }
+
+  createSeparation(projectId, attributes) { return this.request('POST', `${projectPath(projectId)}/separations`, attributes); }
+  uploadSeparationPart(projectId, id, role, mix, audio) {
+    const body = audio ? trackBody(mix, new File([audio], `${role}.wav`, {type:'audio/wav'})) : mix;
+    return this.request('PUT', `${projectPath(projectId)}/separations/${id}/parts/${encodeURIComponent(role)}`, body);
+  }
+  publishSeparation(projectId, id) { return this.request('POST', `${projectPath(projectId)}/separations/${id}/publish`, {}); }
+  activateSeparation(projectId, id) { return this.request('PATCH', `${projectPath(projectId)}/separations/active`, {id}); }
+  discardSeparation(projectId, id) { return this.request('DELETE', `${projectPath(projectId)}/separations/${id}`); }
+
+  audioImportCapabilities() { return this.request('GET', '/api/audio_imports/capabilities'); }
+  listAudioImports() { return this.request('GET', '/api/audio_imports'); }
+  startAudioImport(url) { return this.request('POST', '/api/audio_imports', {url}); }
+  getAudioImport(id) { return this.request('GET', `/api/audio_imports/${encodeURIComponent(id)}`); }
+  cancelAudioImport(id) { return this.request('DELETE', `/api/audio_imports/${encodeURIComponent(id)}`); }
+
+  listBackingTracks() { return this.request('GET', '/api/backing_tracks'); }
+  createMix(projectId, attributes, audio) {
+    return this.request('POST', `${projectPath(projectId)}/mixes`, trackBody({...attributes, manifest:JSON.stringify(attributes.manifest)}, new File([audio], 'studio-mix.mp3', {type:'audio/mpeg'})));
+  }
 
   listShares(projectId) { return this.request('GET', `${projectPath(projectId)}/shares`); }
   shareProject(projectId, email) { return this.request('POST', `${projectPath(projectId)}/shares`, {email}); }

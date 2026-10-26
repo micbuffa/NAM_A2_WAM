@@ -31,3 +31,9 @@
 
 # Local scratch file
 /H
+
+# Local separation research assets (never shipped with the Studio)
+/examples/wam/source-separation/model-assets/**/*.onnx
+/test-data/
+/tools/.youtube-runtime/
+__pycache__/

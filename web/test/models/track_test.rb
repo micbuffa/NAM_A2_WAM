@@ -50,4 +50,27 @@ class TrackTest < ActiveSupport::TestCase
     assert_not not_audio.valid?
     assert_includes not_audio.errors[:audio].first, "audio file"
   end
+  test "presets depend on origin even for guitar and bass stems" do
+    %w[original stem mix].each do |origin|
+      %w[guitar bass].each do |instrument|
+        assert_not track(origin:, instrument:, preset: presets(:alice_clean)).valid?
+        assert_not track(origin:, instrument:, factory_preset: "factory:svt-bass").valid?
+        accompaniment = track(origin:, instrument:, input_monitoring: true)
+        assert accompaniment.valid?
+        assert_not accompaniment.input_monitoring
+      end
+    end
+    assert track(origin: "personal", preset: presets(:alice_clean)).valid?
+    assert tracks(:alice_rhythm).plays_through_preset?
+  end
+
+  test "origin cannot be relabelled to turn an accompaniment into a personal DI" do
+    original = track(origin: "original")
+    original.save!
+    original.assign_attributes(origin: "personal", preset: presets(:alice_clean))
+    assert_not original.valid?
+    assert_includes original.errors[:origin], "cannot be changed after creation"
+    assert_not track(origin: "unknown").valid?
+  end
+
 end

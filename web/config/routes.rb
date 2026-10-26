@@ -19,6 +19,10 @@ Rails.application.routes.draw do
   get "api/me", to: "accounts#show", as: :api_me
 
   namespace :api, defaults: { format: :json } do
+    resources :audio_imports, only: %i[index create show destroy] do
+      get :capabilities, on: :collection
+    end
+    resources :backing_tracks, only: :index
     resources :presets, except: %i[new edit]
     resources :favorites, only: %i[index create destroy] do
       delete "", on: :collection, action: :destroy_by_ref
@@ -26,6 +30,13 @@ Rails.application.routes.draw do
     resource :preferences, only: %i[show update]
     resource :import, only: :create
     resources :projects, except: %i[new edit] do
+      post :from_backing, on: :collection
+      resources :mixes, only: :create, module: :projects
+      resources :separations, only: %i[create destroy], module: :projects do
+        put "parts/:role", on: :member, action: :upload, as: :part
+        post :publish, on: :member
+        patch :active, on: :collection, action: :activate
+      end
       resources :tracks, only: %i[create update destroy], module: :projects do
         patch :order, on: :collection, action: :reorder
         get :audio, on: :member, to: "track_audios#show"

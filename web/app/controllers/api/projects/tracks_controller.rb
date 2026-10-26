@@ -4,12 +4,18 @@ class Api::Projects::TracksController < Api::BaseController
   include ProjectAccess
 
   ATTRIBUTES = {
-    "name" => :name, "instrument" => :instrument, "presetId" => :preset_id, "factoryPreset" => :factory_preset,
+    "origin" => :origin, "name" => :name, "instrument" => :instrument, "presetId" => :preset_id, "factoryPreset" => :factory_preset,
     "volume" => :volume, "pan" => :pan, "mute" => :mute, "solo" => :solo, "inputMonitoring" => :input_monitoring
   }.freeze
 
   def create
-    track = owned_project.tracks.new(position: next_position, **track_attributes)
+    attributes = track_attributes
+    # Generated stems/mixes and the migration-only legacy origin are reserved
+    # for the server-side workflows, not selectable by a generic upload client.
+    unless %w[personal original].include?(attributes.fetch(:origin, "personal"))
+      return render json: { error: "origin must be personal or original" }, status: :unprocessable_content
+    end
+    track = owned_project.tracks.new(position: next_position, creator: current_user, **attributes)
     track.audio.attach(json_body["audio"]) if uploaded_audio?
     track.save!
     render json: ProjectJson.track(track), status: :created
@@ -19,6 +25,9 @@ class Api::Projects::TracksController < Api::BaseController
     attributes = track_attributes
     raise ActionController::ParameterMissing, :track if attributes.empty? && !uploaded_audio?
 
+    if uploaded_audio? && (track.origin == "mix" || track.separation_id || track.source_separations.exists?)
+      return render json: { error: "Import a new original instead of replacing saved separation audio" }, status: :unprocessable_content
+    end
     track.assign_attributes(attributes)
     track.audio.attach(json_body["audio"]) if uploaded_audio?
     track.save!
@@ -26,6 +35,9 @@ class Api::Projects::TracksController < Api::BaseController
   end
 
   def destroy
+    if track.origin == "mix" || track.separation_id || track.source_separations.exists?
+      return render json: { error: "This track belongs to a saved separation" }, status: :unprocessable_content
+    end
     track.destroy!
     head :no_content
   end

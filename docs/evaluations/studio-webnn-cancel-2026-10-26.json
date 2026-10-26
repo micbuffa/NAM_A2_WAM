@@ -1,0 +1,49 @@
+{
+  "protocol": "studio-webnn-admission-v2",
+  "date": "2026-10-26T14:48:14.908Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "modelId": "htdemucs_4s_onnx",
+  "requested": [
+    "wasm"
+  ],
+  "seconds": 6,
+  "trialsPerEngine": 1,
+  "sessionPolicy": "fresh Worker/session per trial, local cached bytes; not a retained-session benchmark",
+  "visibilityEvents": [
+    {
+      "at": 0,
+      "hidden": false
+    }
+  ],
+  "rows": [],
+  "uiHeartbeat": {
+    "intervalMs": 100,
+    "maxGapMs": 325,
+    "samples": 89
+  },
+  "modelSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+  "inputFileSha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507",
+  "input": {
+    "id": "slow-motion-dream-first-6s",
+    "file": "slow-motion-dream.mp3",
+    "license": "CC BY 3.0",
+    "hasIsolatedReferences": false
+  },
+  "assetLoadAndHashMs": 524.2000000029802,
+  "pcmSha256": "b8b64a9db5a52e02bde2efae82e3567bccc2e91b95c520c4a4b67ca450884213",
+  "frames": 264600,
+  "sampleRate": 44100,
+  "interrupted": true,
+  "summary": {
+    "completeMatrix": false,
+    "nativeTrials": 0,
+    "nativeSuccesses": 0,
+    "allNativePassed": false,
+    "rankingEligible": false,
+    "reason": "Development qualification on one short mixture; no independent source-quality references or confirmed physical device."
+  },
+  "assessment": {
+    "observation": "Stop clicked while wasm: inference was visible; UI changed to Stopped; Worker terminated. No native WebNN cancellation was tested.",
+    "latencyMeasured": false
+  }
+}

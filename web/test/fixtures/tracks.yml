@@ -2,6 +2,7 @@ alice_rhythm:
   project: alice_song
   position: 0
   name: Rhythm
+  origin: legacy
   instrument: guitar
   preset: alice_clean
 
@@ -9,11 +10,13 @@ alice_drums:
   project: alice_song
   position: 1
   name: Drums
+  origin: legacy
   instrument: drums
 
 bob_bass:
   project: bob_jam
   position: 0
   name: Bass
+  origin: legacy
   instrument: bass
   factory_preset: factory:svt-bass

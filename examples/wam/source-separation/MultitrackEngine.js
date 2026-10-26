@@ -8,10 +8,20 @@ export class MultitrackEngine extends EventTarget {
   constructor(context) {
     super();
     this.context = context; this.outputNode = context.createGain();
+    this.normalizationNode=context.createGain();this.normalizationNode.connect(this.outputNode);this.normalizationGain=1;this.normalizationNode.gain.value=1;this.audioVersion=0;
     this.tracks = []; this.voices = []; this.offset = 0; this.playing = false;
     this.loop = true; this.generation = 0;
     this.contextChanged = () => this.changed();
     context.addEventListener?.('statechange', this.contextChanged);
+  }
+  setNormalizationGain(value) {
+    if(!Number.isFinite(value)||value<=0||value>10**(24/20))throw Error('Gain de normalisation invalide.');
+    this.normalizationGain=value;const param=this.normalizationNode.gain,now=this.context.currentTime;
+    param.cancelScheduledValues?.(now);
+    if(this.playing)param.setTargetAtTime(value,now,.01);
+    else if(param.setValueAtTime)param.setValueAtTime(value,now);
+    else param.value=value;
+    this.changed();
   }
   changed() { this.dispatchEvent(new Event('statechange')); }
   get ready() { return !this.destroyed && !!this.tracks.length && !this.preparing && !this.starting && (!this.context.state || this.context.state === 'running'); }
@@ -49,7 +59,7 @@ export class MultitrackEngine extends EventTarget {
   }
   load(tracks) {
     if (!tracks.length || tracks.some(t => !t.buffer || t.buffer.length !== tracks[0].buffer.length || t.buffer.sampleRate !== tracks[0].buffer.sampleRate)) throw Error('Les pistes doivent être alignées.');
-    this.stop(); this.loopRegion=null; this.tracks = tracks; this.changed();
+    this.stop(); this.loopRegion=null;this.audioVersion++; this.tracks = tracks; this.changed();
   }
   releaseVoices() {
     for (const voice of this.voices) {
@@ -72,7 +82,7 @@ export class MultitrackEngine extends EventTarget {
     this.voices = this.tracks.map(track => {
       const source = this.context.createBufferSource(), gain = this.context.createGain(), pan = this.context.createStereoPanner();
       source.buffer = track.buffer; source.loop = this.loop;source.loopStart=this.loopBounds.start;source.loopEnd=this.loopBounds.end;
-      source.connect(gain).connect(pan).connect(this.outputNode);
+      source.connect(gain).connect(pan).connect(this.normalizationNode);
       source.start(this.startedAt, this.offset);
       return {id: track.id, source, gain, pan};
     });
@@ -102,5 +112,5 @@ export class MultitrackEngine extends EventTarget {
       voice.pan.pan.setTargetAtTime(track ? finite(track.pan, -1, 1) : 0, this.context.currentTime, .01);
     }
   }
-  destroy() { this.stop(); this.destroyed = true; this.tracks = []; this.context.removeEventListener?.('statechange', this.contextChanged); this.outputNode.disconnect(); this.changed(); }
+  destroy() { this.stop(); this.destroyed = true; this.tracks = []; this.context.removeEventListener?.('statechange', this.contextChanged); this.normalizationNode.disconnect();this.outputNode.disconnect(); this.changed(); }
 }

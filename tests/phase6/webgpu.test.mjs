@@ -9,10 +9,10 @@ import {createHash} from 'node:crypto';
 const model={id:'htdemucs_4s_onnx',runtime:'demucs-onnx-core',roles:['drums','bass','other','vocals'],backends:['wasm','webgpu'],files:[{sha256:'x'}]};
 const input=()=>[new Float32Array(8),new Float32Array(8)];
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
-function setup({respond,status='installed',timeoutMs=1000}={}) {
+function setup({respond,status='installed',timeoutMs=1000,keepAlive=false}={}) {
   const workers=[];let checks=0;
   const manager={getStatus:async()=>{checks++;return {state:status};},cache:{get:async()=>({files:[new ArrayBuffer(1)]})}};
-  const runner=new OnnxDemucsRunner({manager,timeoutMs,workerFactory:()=>{
+  const runner=new OnnxDemucsRunner({manager,timeoutMs,keepAlive,workerFactory:()=>{
     const index=workers.length;
     if(index)assert.equal(workers[index-1].terminated,true);
     const w={postMessage(message){this.message=message;queueMicrotask(()=>respond?.(w,index));},terminate(){this.terminated=true;},send(data){this.onmessage({data});}};workers.push(w);return w;
@@ -56,7 +56,10 @@ test('unresponsive initialization hits a deadline and releases the worker',async
 test('invalid backend, model, excessive duration or absent cache never starts inference',async()=>{
   await assert.rejects(setup().runner.separate({...model,runtime:'legacy'},input()),/invalide/);
   await assert.rejects(setup().runner.separate(model,input(),{backend:'cuda'}),/invalide/);
-  await assert.rejects(setup().runner.separate(model,[new Float32Array(2646001),new Float32Array(2646001)]),/maximum/);
+  // Duration guard without allocating two 24-hour PCM arrays. The old 60 s
+  // excerpt restriction was lifted by the validated progressive pipeline.
+  class OversizedChannel extends Float32Array { get length() { return 86400 * 44100 + 1; } }
+  await assert.rejects(setup().runner.separate(model,[new OversizedChannel(1),new OversizedChannel(1)]),/24 h maximum/);
   const {runner,workers}=setup({status:'missing'});await assert.rejects(runner.separate(model,input()),/Téléchargez/);assert.equal(workers.length,0);
 });
 test('invalid, incomplete, nonfinite and out-of-order output never reaches the player',async()=>{
@@ -131,4 +134,43 @@ test('ORT configuration initializes absent profiling state and keeps CPU indepen
   assert.equal(enabled,true);assert.equal(ort.env.webgpu.profiling.mode,'default');ort.env.webgpu.profiling.ondata({});assert.equal(events,1);
   assert.equal(ort.env.wasm.numThreads,1);assert.equal(ort.env.wasm.proxy,false);assert.equal(ort.env.wasm.wasmPaths,'https://example.org/app/vendor/onnxruntime-web/');
   assert.equal(configureOnnxRuntime(ort,'https://example.org/app/onnx-worker.js'),false);assert.equal(ort.env.webgpu.profiling.mode,'off');
+});
+
+
+test('Studio reuses a successful quality session only for the same model and backend, and stop releases it', async () => {
+  const {runner,workers}=setup({respond:success,keepAlive:true});
+  await runner.separate(model,input(),{backend:'wasm'});
+  assert.equal(workers[0].terminated,undefined);
+  await runner.separate(model,input(),{backend:'wasm'});
+  assert.equal(workers.length,1);
+  await runner.separate(model,input(),{backend:'webgpu'});
+  assert.equal(workers.length,2);
+  assert.equal(workers[0].terminated,true);
+  runner.cancel();assert.equal(workers[1].terminated,true);
+});
+
+
+test('full input validation stays in the worker rather than scanning a whole song on the UI thread', async () => {
+  class WorkerValidatedChannel extends Float32Array { every() { assert.fail('UI scanned the song'); } }
+  const {runner}=setup({respond:success});
+  await runner.separate(model,[new WorkerValidatedChannel(8),new WorkerValidatedChannel(8)]);
+  const {runInNewContext}=await import('node:vm');
+  const source=(await readFile(new URL('../../examples/wam/source-separation/onnx-worker.js',import.meta.url),'utf8'))
+    .replace(/^import .*;$/mg,'').replaceAll('import.meta.url',"'http://localhost/onnx-worker.js'");
+  const messages=[],scope={Float32Array,ArrayBuffer,performance,postMessage:m=>messages.push(m)};
+  runInNewContext(source,scope);
+  await scope.onmessage({data:{weights:new ArrayBuffer(1),left:new Float32Array([NaN]),right:new Float32Array([0]),backend:'webgpu'}});
+  assert.equal(messages[0].type,'error');assert.equal(messages[0].code,'INVALID_AUDIO');
+});
+
+test('WebNN admission failure falls back only before any published block; evidence is required',async()=>{
+ const f=setup({respond:(w,i)=>i===0?w.send({type:'error',message:'strict per-role audio parity failed'}):success(w)});
+ const r=await f.runner.separate(model,input(),{backend:'webnn-npu'});assert.equal(r.backend,'wasm');assert.match(r.fallbackReason,/parity/);
+ const evidence={runtimeVersion:'1.30.0',validatedBlocks:1,dispatches:2,strictParity:true,effectiveHardware:'unknown'};
+ const good=setup({respond:w=>{w.send({...block('webnn-cpu'),evidence});w.send({type:'done',backend:'webnn-cpu',evidence});}});
+ assert.deepEqual((await good.runner.separate(model,input(),{backend:'webnn-cpu'})).evidence,evidence);
+ const bad=setup({respond:w=>{w.send({...block('webnn-gpu'),evidence});w.send({type:'error',message:'context lost'});}});
+ await assert.rejects(bad.runner.separate(model,input(),{backend:'webnn-gpu'}),/context lost/);assert.equal(bad.workers.length,1);
+ const missing=setup({respond:w=>{w.send(block('webnn-gpu'));w.send({type:'done',backend:'webnn-gpu'});}});
+ await assert.rejects(missing.runner.separate(model,input(),{backend:'webnn-gpu'}),/evidence/);
 });

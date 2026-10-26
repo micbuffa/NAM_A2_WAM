@@ -25,16 +25,16 @@ export function groupProjects(projects = []) {
 export const projectOptionLabel = (project) => `${project.name} · ${plural(project.trackCount ?? project.tracks?.length ?? 0, 'track')}`;
 
 // What the header says about the open project.
-export function describeProject(project, {dirty = false} = {}) {
+export function describeProject(project, {dirty = false, previewTracks = null} = {}) {
   if (!project) return null;
   const tracks = project.tracks?.length ?? project.trackCount ?? 0;
   return {
-    kicker: [project.owned ? 'Recording project' : `Shared by ${project.owner?.name || 'another user'}`, plural(tracks, 'track'),
+    kicker: previewTracks ? `Instrument preview · ${plural(previewTracks.length, 'track')} · in RAM` : [project.owned ? 'Recording project' : `Shared by ${project.owner?.name || 'another user'}`, plural(tracks, 'track'),
       project.owned && shareSummary(project.shares)].filter(Boolean).join(' · '),
-    meta: project.owned
-      ? 'Build your project track by track, with an independent mix and tone on every guitar and bass track.'
+    meta: previewTracks ? 'Listen and remix the separated instruments. Original audio and personal parts remain in Original / project.' : project.owned
+      ? 'Build your project track by track, with an independent mix and tone on your personal guitar and bass parts.'
       : 'Read-only: you can listen and try a mix, but changes are not saved.',
-    saveState: !project.owned ? 'Read-only' : dirty ? 'Unsaved changes' : 'Saved',
+    saveState: previewTracks ? 'Instruments in RAM' : !project.owned ? 'Read-only' : dirty ? 'Unsaved changes' : 'Saved',
   };
 }
 
@@ -54,6 +54,10 @@ export function initials(name = '') {
 export const TRACK_FIELDS = ['name', 'instrument', 'presetId', 'factoryPreset', 'volume', 'pan', 'mute', 'solo', 'inputMonitoring'];
 export const PRESET_INSTRUMENTS = ['guitar', 'bass'];
 export const usesPreset = (instrument) => PRESET_INSTRUMENTS.includes(instrument);
+// Missing origin is accepted for older API payloads. Explicit accompaniment
+// origins never acquire a tone by changing their instrument label.
+export const usesTrackPreset = (track) => ['personal', 'legacy'].includes(track.origin ?? 'legacy') && usesPreset(track.instrument);
+export const originLabel = (track) => ({personal: 'Personal part', original: 'Accompaniment', stem: 'Separated stem', mix: 'Backing mix', legacy: 'Existing part'}[track.origin ?? 'legacy'] ?? 'Audio');
 export const instrumentLabel = (id) => INSTRUMENTS.find((entry) => entry.id === id)?.label ?? id;
 
 // Volume 0..100, 80 = 0 dB, 0.3 dB per step (TONELAB mockup); 0 is silence.
@@ -73,22 +77,22 @@ export function defaultTrackName(instrument, tracks = []) {
 
 // A change of instrument drops a preset the new instrument cannot use.
 export function withInstrument(track, instrument) {
-  return usesPreset(instrument) ? {...track, instrument} : {...track, instrument, presetId: null, factoryPreset: null};
+  return usesTrackPreset({...track, instrument}) ? {...track, instrument} : {...track, instrument, presetId: null, factoryPreset: null, ...(track.inputMonitoring ? {inputMonitoring: false} : {})};
 }
 
 // Input monitoring plays the live guitar through one track's preset: one track at a time.
 export function toggleMonitoring(tracks, id) {
-  return tracks.map((track) => ({...track, inputMonitoring: track.id === id ? !track.inputMonitoring && usesPreset(track.instrument) : false}));
+  return tracks.map((track) => ({...track, inputMonitoring: track.id === id ? !track.inputMonitoring && usesTrackPreset(track) : false}));
 }
 
 // The track the live guitar plays through in Projects: the one monitoring the
 // input, else the selected guitar or bass track with a preset (over its
 // recording), else none (the guitar keeps Tone's sound).
 export function liveTrackId(tracks, selectedId) {
-  const monitored = tracks.find((track) => track.inputMonitoring);
+  const monitored = tracks.find((track) => track.inputMonitoring && usesTrackPreset(track));
   if (monitored) return monitored.id;
   const selected = tracks.find((track) => track.id === selectedId);
-  return selected && usesPreset(selected.instrument) && presetValue(selected) ? selected.id : null;
+  return selected && usesTrackPreset(selected) && presetValue(selected) ? selected.id : null;
 }
 
 // The changed fields of each track, compared with the saved project.

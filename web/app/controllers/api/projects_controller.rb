@@ -9,6 +9,13 @@ class Api::ProjectsController < Api::BaseController
     render json: projects.map { |project| ProjectJson.summary(project, current_user, track_count: track_counts.fetch(project.id, 0)) }
   end
 
+  def from_backing
+    project = BackingProjectImport.call(user: current_user, id: json_body["id"], audio: json_body["audio"], title: json_body["title"])
+    render json: ProjectJson.full(project, current_user), status: :created
+  rescue ArgumentError => error
+    render json: {error: error.message}, status: :unprocessable_content
+  end
+
   def show
     render json: ProjectJson.full(visible_project, current_user)
   end

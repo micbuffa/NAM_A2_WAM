@@ -29,9 +29,9 @@ const audioKey = (audio) => (audio ? [audio.url, audio.byteSize, audio.filename]
 
 export class ProjectPlayer extends EventTarget {
   // fetchAudio(url) -> Promise<Response>; timers: {setTimeout, clearTimeout} (tests).
-  constructor(context, {fetchAudio = (url) => fetch(url, {credentials: 'same-origin'}), timers = globalThis} = {}) {
+  constructor(context, {fetchAudio = (url) => fetch(url, {credentials: 'same-origin'}), timers = globalThis, retryDelay = ms => new Promise(resolve => setTimeout(resolve, ms))} = {}) {
     super();
-    Object.assign(this, {context, fetchAudio, timers});
+    Object.assign(this, {context, fetchAudio, timers, retryDelay});
     this.output = context.createGain();
     this.channels = new Map(); // track id -> {playback, gain, pan, insert, key, buffer, voices, monitoring}
     this.liveInput = null; // the live guitar
@@ -117,6 +117,7 @@ export class ProjectPlayer extends EventTarget {
         channel.key = key;
         this.stopVoice(channel);
         channel.buffer = null;
+        channel.error = null; channel.loading = false; channel.url = track.audio?.url;
         if (key) void this.load(track.id, channel, track.audio.url);
       }
     }
@@ -171,20 +172,48 @@ export class ProjectPlayer extends EventTarget {
   }
 
   async load(id, channel, url) {
+    if (channel.loading) return;
     const {key} = channel;
+    const current = () => this.channels.get(id) === channel && channel.key === key;
+    channel.loading = true; channel.error = null; channel.attempt = 0; this.changed();
     try {
-      const response = await this.fetchAudio(url);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const buffer = await this.context.decodeAudioData(await response.arrayBuffer());
-      if (this.channels.get(id) !== channel || channel.key !== key) return;
-      channel.buffer = buffer;
+      let bytes;
+      // Bounded retries for temporary network/server failures, never polling.
+      for (let attempt=0; attempt<3; attempt++) {
+        if (!current()) return;
+        channel.attempt = attempt; this.changed();
+        try {
+          const response = await this.fetchAudio(url);
+          if (!response.ok) {
+            const error = new Error(`HTTP ${response.status}`);
+            error.retryable = response.status >= 500 || response.status === 408 || response.status === 429;
+            throw error;
+          }
+          bytes = await response.arrayBuffer(); break;
+        } catch(error) {
+          if (!current()) return;
+          if (attempt === 2 || !(error.retryable || error instanceof TypeError)) throw error;
+          await this.retryDelay(250 * (attempt+1));
+        }
+      }
+      if (!current()) return;
+      const buffer = await this.context.decodeAudioData(bytes);
+      if (!current()) return;
+      channel.buffer = buffer; channel.loading = false; channel.error = null;
       if (this.playing) this.joinPlayback(channel);
       this.dispatchEvent(new CustomEvent('load', {detail: {id, buffer}}));
       this.changed();
     } catch (error) {
-      if (this.channels.get(id) !== channel || channel.key !== key) return;
+      if (!current()) return;
+      channel.loading = false; channel.error = error;
       this.dispatchEvent(new CustomEvent('error', {detail: {id, error}}));
+      this.changed();
     }
+  }
+
+  retryFailed() {
+    return Promise.all([...this.channels].filter(([,channel]) => channel.error && !channel.loading)
+      .map(([id,channel]) => this.load(id,channel,channel.url)));
   }
 
   async play() {

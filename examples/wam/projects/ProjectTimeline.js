@@ -6,7 +6,7 @@
 // owner reorders tracks by dragging their grip (or with its arrow keys).
 // Dragging on the ruler draws the loop region (whole bars, Alt: exact
 // positions), shown on the ruler and across every lane; a click seeks.
-import {instrumentLabel, panLabel, rulerBars, snapLoop, usesPreset, volumeLabel} from './ProjectsModel.js';
+import {instrumentLabel, originLabel, panLabel, rulerBars, snapLoop, usesTrackPreset, volumeLabel} from './ProjectsModel.js';
 
 const element = (tag, className, properties = {}) => Object.assign(document.createElement(tag), {className, ...properties});
 
@@ -202,16 +202,16 @@ export class ProjectTimeline {
     row.root.setAttribute('aria-current', String(selected));
     row.name.textContent = track.name;
     for (const [control, label] of row.labels) control.setAttribute('aria-label', `${label} ${track.name}`);
-    row.meta.textContent = [instrumentLabel(track.instrument), usesPreset(track.instrument) && (this.presetName(track) || 'No preset')]
+    row.meta.textContent = [originLabel(track), instrumentLabel(track.instrument), usesTrackPreset(track) && (this.presetName(track) || 'No preset')]
       .filter(Boolean).join(' · ');
-    row.icon.setAttribute('name', usesPreset(track.instrument) ? 'guitar' : 'audio');
+    row.icon.setAttribute('name', usesTrackPreset(track) ? 'guitar' : 'audio');
     for (const [key, button] of Object.entries(row.modes)) {
       button.classList.toggle('active', Boolean(track[key]));
       button.setAttribute('aria-pressed', String(Boolean(track[key])));
     }
-    row.modes.inputMonitoring.disabled = !usesPreset(track.instrument);
-    row.modes.inputMonitoring.title = usesPreset(track.instrument)
-      ? 'Input monitoring: play your guitar through this track’s preset' : 'Input monitoring is for guitar and bass tracks';
+    row.modes.inputMonitoring.disabled = !usesTrackPreset(track);
+    row.modes.inputMonitoring.title = usesTrackPreset(track)
+      ? 'Input monitoring: play your guitar through this track’s preset' : 'Input monitoring is for personal guitar and bass parts';
     row.volume.dataset.popupValue = volumeLabel(track.volume);
     if (Number(row.volume.value) !== track.volume) row.volume.value = track.volume;
     if (Number(row.pan.value) !== track.pan) row.pan.value = track.pan;

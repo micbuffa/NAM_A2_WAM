@@ -1,5 +1,7 @@
 class Project < ApplicationRecord
   belongs_to :user
+  belongs_to :active_separation, class_name: "Separation", optional: true
+  has_many :separations, dependent: :destroy
   has_many :tracks, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :project
   has_many :shares, class_name: "ProjectShare", dependent: :delete_all
   has_many :shared_with, through: :shares, source: :user

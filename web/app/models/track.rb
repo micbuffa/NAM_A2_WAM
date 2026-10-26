@@ -1,4 +1,6 @@
 class Track < ApplicationRecord
+  ORIGINS = %w[personal original stem mix legacy].freeze
+  PRESET_ORIGINS = %w[personal legacy].freeze
   INSTRUMENTS = %w[guitar bass vocals drums keys other].freeze
   # Instruments played through a tone preset (the recorded file is a DI).
   PRESET_INSTRUMENTS = %w[guitar bass].freeze
@@ -10,12 +12,18 @@ class Track < ApplicationRecord
   MAX_AUDIO_BYTES = 100.megabytes
 
   belongs_to :project, touch: true
+  belongs_to :creator, class_name: "User", optional: true
+  belongs_to :separation, optional: true
+  has_many :source_separations, class_name: "Separation", foreign_key: :source_track_id, dependent: :restrict_with_error
   belongs_to :preset, optional: true
   has_one_attached :audio
 
   normalizes :name, with: ->(name) { name.squish }
   normalizes :factory_preset, with: ->(key) { key.presence } # multipart sends "" for none
   validates :name, presence: true, length: { maximum: 80 }
+  validates :origin, inclusion: { in: ORIGINS }
+  validate :origin_is_immutable
+  before_validation :clear_ineligible_monitoring
   validates :instrument, inclusion: { in: INSTRUMENTS }
   validates :volume, numericality: { only_integer: true, in: 0..100 }
   validates :pan, numericality: { only_integer: true, in: -100..100 }
@@ -26,15 +34,23 @@ class Track < ApplicationRecord
   validate :audio_is_a_sound_file
 
   def plays_through_preset?
-    PRESET_INSTRUMENTS.include?(instrument)
+    PRESET_ORIGINS.include?(origin) && PRESET_INSTRUMENTS.include?(instrument)
   end
 
   private
+    def origin_is_immutable
+      errors.add(:origin, "cannot be changed after creation") if persisted? && will_save_change_to_origin?
+    end
+
+    def clear_ineligible_monitoring
+      self.input_monitoring = false unless plays_through_preset?
+    end
+
     def preset_fits_instrument
       if preset_id && factory_preset
         errors.add(:base, "A track uses an account preset or a Factory preset, not both")
       elsif (preset_id || factory_preset) && !plays_through_preset?
-        errors.add(:base, "Only guitar and bass tracks use a preset")
+        errors.add(:base, "Only personal guitar and bass tracks use a preset")
       end
     end
 
@@ -46,6 +62,7 @@ class Track < ApplicationRecord
       return unless audio.attached?
 
       errors.add(:audio, "must be an audio file (MP3, WAV, M4A, AIFF, OGG or FLAC)") unless AUDIO_CONTENT_TYPES.include?(audio.content_type)
-      errors.add(:audio, "is too large (maximum #{MAX_AUDIO_BYTES / 1.megabyte} MB)") if audio.byte_size > MAX_AUDIO_BYTES
+      limit = origin == "stem" ? Separation::MAX_STEM_BYTES : MAX_AUDIO_BYTES
+      errors.add(:audio, "is too large (maximum #{limit / 1.megabyte} MB)") if audio.byte_size > limit
     end
 end

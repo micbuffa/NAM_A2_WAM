@@ -7,7 +7,7 @@
 // Full racks beside Tone already underrun, eight Lite ones do not); the track
 // you play through live (input monitoring, or the selected track) gets the Full variant.
 import {DEFAULT_SOURCE_TRIM_DB} from '../SourceManager.js';
-import {presetValue, usesPreset} from './ProjectsModel.js';
+import {presetValue, usesTrackPreset} from './ProjectsModel.js';
 
 // A track rack listens to no device: this stands in for its SourceManager.
 export class TrackSource extends EventTarget {
@@ -22,7 +22,7 @@ export class TrackSource extends EventTarget {
 // the live guitar (liveId: liveTrackId()), which gets the Full variant.
 export const modelVariant = (track, liveId = null) => (track.id === liveId ? 'full' : 'lite');
 
-export const needsTone = (track, liveId = null) => usesPreset(track.instrument) && Boolean(presetValue(track)) && Boolean(track.audio || track.id === liveId);
+export const needsTone = (track, liveId = null) => usesTrackPreset(track) && Boolean(presetValue(track)) && Boolean(track.audio || track.id === liveId);
 
 export class TrackTones extends EventTarget {
   // createRack(): Promise<FxRack>; resolvePreset(track, projectId): Promise<rack state>.

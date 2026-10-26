@@ -1,4 +1,5 @@
 import './backing-track-player/BackingTrackPlayerElement.js';
+import {StudioBackingLibrary, useBackingInTone} from './projects/StudioBackingLibrary.js';
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
 import {linkPlayAlong, linkSpaceKey} from './backing-track-player/PlayAlong.js';
 import {PlayAlongMemory} from './backing-track-player/PlayAlongMemory.js';
@@ -18,7 +19,7 @@ import {EngineStatus} from './EngineStatus.js';
 import {SettingsView} from './SettingsView.js';
 import {Workspaces} from './Workspaces.js';
 import {ProjectsWorkspace, takeLinkedProject} from './projects/ProjectsWorkspace.js';
-import {ProjectPlayer} from './projects/ProjectPlayer.js';
+import {StudioPlayer as ProjectPlayer} from './projects/StudioPlayer.js';
 import {TrackSource, TrackTones} from './projects/TrackTones.js';
 import Renderer from './source-separation/vendor/wavesurfer/renderer.js';
 import {TunerView} from './TunerView.js';
@@ -284,7 +285,24 @@ async function initialize() {
   // Play along (Tone): a backing track mixed with the guitar, before toneGate.
   playAlong=document.createElement('backing-track-player');$('.rack-stage').append(playAlong);
   new ResizeObserver(()=>document.body.style.setProperty('--play-along-height',`${playAlong.offsetHeight}px`)).observe(playAlong);
-  await playAlong.initialize({audioContext:context});
+  const studioLibrary=new StudioBackingLibrary({account:accountIntegration.account});
+  await playAlong.initialize({audioContext:context,library:studioLibrary});
+  projects.onUseMix=entry=>useBackingInTone({entry,library:studioLibrary,player:playAlong,projectPlayer,workspaces});
+  projects.renderMixExport();
+  accountIntegration.account?.addEventListener('change',()=>{
+    studioLibrary.clearAccount();
+    if(playAlong.engine.track?.id.startsWith('studio-'))playAlong.engine.clear();
+    projects.mixExporter.invalidate();
+    playAlong.renderList();playAlong.sync();
+    studioLibrary.list().then(()=>{playAlong.renderList();playAlong.sync();}).catch(error=>message(error.message,true));
+  });
+  playAlong.addEventListener('separate-instruments',async({detail})=>{
+    if(await projects.importFromTone(detail.track,detail.file)){projectPlayer.pause();workspaces.show('projects');}
+  });
+  playAlong.addEventListener('open-studio',async({detail:{projectId}})=>{
+    if(projects.project?.id!==projectId)await projects.open(projectId);
+    if(projects.project?.id===projectId){playAlong.engine.pause();workspaces.show('projects');}
+  });
   const playAlongMix=new BackingTrackMix(context,rack.output,playAlong,{destination:toneGate});
   linkPlayAlong({engine:playAlong.engine,projectPlayer,workspaces});
   linkSpaceKey({engine:playAlong.engine,projectPlayer,workspaces,run:(operation)=>playAlong.act(operation)});

@@ -1,0 +1,70 @@
+{
+  "protocol": "studio-webnn-admission-v2",
+  "date": "2026-10-26",
+  "branch": "codex/studio-integration",
+  "baseCommit": "f7ffec6b1285b89098352262656be5fdb1295e91",
+  "workingTreeUncommitted": true,
+  "scope": "Pre-run identities for fresh-session six-second control; independent of historical W4 retained-session campaign",
+  "files": {
+    "tests/phase7/fixtures/studio-webnn-validation.html": {
+      "sha256": "16b2a10e4918c31b6353dbdee740d3b4a3ab2dc66d2ed6d36c3bd56698bdf38b",
+      "bytes": 10086
+    },
+    "tests/phase7/fixtures/StudioWebNNProtocol.js": {
+      "sha256": "e496ce815ac7c360da4d5d3a6471739eb68b7b155f3ba8e4540088439170f936",
+      "bytes": 1614
+    },
+    "tests/phase7/fixtures/studio-webnn-oracle-worker.js": {
+      "sha256": "eb3f3354316e5d21dffd32570f8608b64abb4a526b0ae34bd1d94571d0d838a5",
+      "bytes": 344
+    },
+    "examples/wam/source-separation/WebNNAdmission.js": {
+      "sha256": "0a3b075056a73649bbc2c6fbfff76a8b57918beed2b97225efc3fbdb8e9d1c80",
+      "bytes": 1109
+    },
+    "examples/wam/source-separation/webnn-worker.js": {
+      "sha256": "a8b78150d87b21719da603c311c8c470e00c42b6a3c983af8a52f15ce62f5d23",
+      "bytes": 4747
+    },
+    "examples/wam/source-separation/onnx-worker.js": {
+      "sha256": "25033d8b5d0278ee89dcef649ac8da7157d23384c569642a1a4540b39a3cfa63",
+      "bytes": 3265
+    },
+    "examples/wam/source-separation/OnnxCoreModel.js": {
+      "sha256": "7a4c0ca6f1d861587e7f3e1aa0ed432535fdc30276161d552c370952e8530198",
+      "bytes": 1574
+    },
+    "examples/wam/source-separation/StreamTransport.js": {
+      "sha256": "e46e76077cf17be51d552693f7ab3ae993b48242b54d8f74bb756340680f356c",
+      "bytes": 7268
+    },
+    "examples/wam/source-separation/WebNNParity.js": {
+      "sha256": "4fcbc750d66b1f093f98bc4402abf47d14aa02f5e90a561d4a9dbd96e66dee04",
+      "bytes": 1275
+    },
+    "examples/wam/source-separation/AudioComparison.js": {
+      "sha256": "684af3c1e839638f73f5e84710d4ebee3bd314c8f13719d97b4015d1faac55b2",
+      "bytes": 2482
+    },
+    "examples/wam/source-separation/vendor/demucs-js/apply.js": {
+      "sha256": "814c4b775a9a557ec2f83a2b757611ad0c135eda83a3d94f3793116c981d0bfe",
+      "bytes": 24250
+    }
+  },
+  "controls": {
+    "concurrentBuildOrTest": "none for clean run; initial smoke explicitly excluded",
+    "weightFetch": "local cached bytes; hash verified",
+    "session": "fresh worker/session every trial",
+    "trialsPerEngine": 1,
+    "order": [
+      "wasm",
+      "webgpu",
+      "webnn-cpu",
+      "webnn-gpu",
+      "webnn-npu"
+    ],
+    "sample": "first six seconds slow-motion-dream, no isolated stems",
+    "audioGate": "unchanged strict per-role and global thresholds",
+    "nativeQualification": "no implicit fallback"
+  }
+}

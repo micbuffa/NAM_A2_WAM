@@ -220,6 +220,47 @@ npm run dist
 ```
 
 This rebuilds the Factory manifests and produces a deployable static distribution.
+The default product build keeps Tone/Studio, their waveform dependencies and
+the approved four/six-instrument separation runtimes, but excludes the standalone
+source-separation laboratory and local model weights.
+To include the research prototype from the current checkout, pass
+`npm run dist -- --include-research`. The more recent research work remains on
+branch `multitracks`; Studio integration is developed on `codex/studio-integration`.
+
+Studio distinguishes personal parts from accompaniment audio. Choose **Track type**
+when adding or importing audio: only personal guitar/bass parts use tone presets.
+Existing projects retain their presets through the `legacy` migration origin.
+Changing the instrument never converts an accompaniment into a personal DI.
+
+In **Studio**, import accompaniment audio, choose Demucs (4 instruments, guitar
+in Other) or BS Roformer SW (6 instruments, dedicated guitar/piano), and click
+**Separate instruments**. The default processes the entire song; short excerpts
+are available in the main panel. WebGPU is preferred when initialized successfully;
+CPU/WASM and cache checks are under **Change model / settings**; model notices remain in the distribution files.
+The Stop button cancels computation and keeps any already available partial result.
+**Original / project** and **Instruments** share playback, mute/solo, volume/pan and
+A/B controls. When the calculation finishes (or after Stop), **Save project** stores
+the instruments as lossless Float32 stereo WAV files, their mix and model/backend
+provenance in Rails. Reopen the project to listen without recomputing. **Saved
+separations** selects a previous result; only the selected deck is downloaded and
+decoded. Unsaved previews remain in RAM and are lost on reload. Interrupted uploads
+can be retried with Save project while the preview remains open; after reload,
+completed uploads can be published and unfinished uploads discarded. Limits are
+512 MiB per stem, 2 GiB per project and 5 GiB per account for separation uploads.
+Shared listeners can listen/remix locally but cannot save over the owner's mix.
+Use **Use mix in Tone** to render a persistent stereo MP3 (192 kbit/s) from the
+saved deck. **Mix export range** defaults to the entire song; A/B-only is explicit.
+The backing appears in Tone / Play along without autoplay, with **Download MP3**
+and **Open in Studio**. A message beside the export button explains when saved
+audio is loading or a track failed; **Retry audio loading** retries only failed
+files. Transient server/network failures get bounded retries, without polling.
+Live guitar and listening levels are excluded; a common
+attenuation prevents PCM clipping. Studio exports support separated instruments
+and dry recorded tracks. Preset-treated personal tracks remain blocked until
+WAM rendering is qualified (P5.4b); a dry DI is never substituted silently.
+See [Studio validation](docs/STUDIO_SEPARATION_VALIDATION.md).
+Rails requires `bin/rails db:migrate` after this schema change; restart the server
+to refresh its schema cache. A static deployment still has no account persistence.
 `npm run build-static` is an alias for the same operation.
 
 ## Test
@@ -326,3 +367,12 @@ git status --short
 git diff --cached --stat
 git diff --cached --name-only
 ```
+
+Studio **Import audio** now offers **file / YouTube** through Rails; progress,
+cancellation and source metadata are retained in the account. Tone's expanded
+Play along player has **Separate instruments** to create a Studio original from
+the selected backing. YouTube needs the updated Rails container, not just a static
+dist. See [Rails deployment and import limits](web/README.md#studio-audio-imports-26-october-2026).
+Advanced WebNN CPU/GPU/NPU is experimental for Demucs4 only, with strict per-block
+WASM comparison and initial fallback. Native WebNN qualification is still pending;
+WebGPU/WASM remain the normal engines.

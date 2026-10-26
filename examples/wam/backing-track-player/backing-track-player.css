@@ -106,3 +106,7 @@ canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
 @container (max-width:520px){header{grid-template-columns:28px minmax(0,1fr) auto minmax(56px,80px) auto;gap:var(--tl-space-2,8px)}.clock,.volume>span{display:none}}
 @container (max-width:380px){.tools{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.dock-toggle tl-icon{transition:none}}
+
+.studio-mix-actions{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.studio-mix-actions[hidden]{display:none}
+.studio-mix-actions a{color:var(--tl-accent,#c7f65b);font-size:var(--tl-fs-sm,11px)}

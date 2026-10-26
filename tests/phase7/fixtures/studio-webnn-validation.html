@@ -1,0 +1,113 @@
+<!doctype html><meta charset="utf-8"><title>Studio WebNN qualification</title>
+<style>
+:root{color-scheme:dark;font:16px system-ui;background:#16191b;color:#eee}body{max-width:1050px;margin:2rem auto;padding:1rem}button,select{padding:.65rem;margin:.3rem;background:#24292d;color:#eee;border:1px solid #697675;border-radius:6px}button:enabled{cursor:pointer}button:disabled{opacity:.45}#run{background:#d6fc75;color:#16191b}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:.5rem;border:1px solid #48504f;text-align:left}pre{overflow:auto;max-height:420px;background:#0c1012;padding:1rem}progress{width:100%}.help{color:#b7c0c0}
+</style>
+<h1>Studio WebNN qualification</h1>
+<p id="browser" class="help"></p>
+<p class="help">Demucs4 · fixed 7.8s ONNX window · same pinned music input for every engine. No automatic fallback in this diagnostic: a failed WebNN trial stays failed. Device types are preferences, not proof of physical hardware.</p>
+<label>Engine <select id="device"><option value="all">Complete comparison</option><option value="wasm">Production WASM 1.22</option><option value="webgpu">Production WebGPU 1.22</option><option value="webnn-cpu">WebNN CPU 1.30</option><option value="webnn-gpu">WebNN GPU 1.30</option><option value="webnn-npu">WebNN NPU 1.30</option></select></label>
+<label>Excerpt <select id="seconds"><option value="6">6 seconds</option><option value="1">1 second (smoke test)</option></select></label>
+<label>Trials / engine <select id="trials"><option value="1">1 (qualification)</option><option value="3">3 (fresh Worker/session each time)</option></select></label>
+<button id="run">Run qualification</button><button id="stop" disabled>Stop</button><button id="export" disabled>Download report JSON</button>
+<progress id="progress" hidden></progress><p id="status" role="status">Not run</p>
+<table><thead><tr><th>Engine</th><th>State</th><th>First audio</th><th>Wall time</th><th>Session</th><th>Candidate inference</th><th>WASM check</th><th>Production parity</th></tr></thead><tbody id="rows"></tbody></table>
+<details><summary>Report / failures</summary><pre id="result">Not run</pre></details>
+<script type="module">
+import {StreamingWorker} from '../../../examples/wam/source-separation/StreamTransport.js';
+import {QUALIFICATION_PROTOCOL,CONFIGURATIONS,summarizeTrial,summarizeQualification} from './StudioWebNNProtocol.js';
+const $=id=>document.getElementById(id),show=value=>$('status').textContent=value;
+$('browser').textContent=`Browser: ${navigator.userAgent}`;
+let epoch=0,worker,oracle,abortController,rejectPending,report;
+const digest=async bytes=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(v=>v.toString(16).padStart(2,'0')).join('');
+function draw(){
+ $('rows').replaceChildren(...report.rows.map(row=>{
+  const tr=document.createElement('tr'),fmt=ms=>Number.isFinite(ms)?`${(ms/1000).toFixed(3)}s`:'—';
+  for(const value of [row.backend,row.status,fmt(row.firstAudioMs),fmt(row.wallMs),fmt(row.timings?.sessionMs??row.loadMs),fmt(row.timings?.inferenceMs??row.blocks?.reduce((sum,b)=>sum+b.elapsedMs,0)),fmt(row.timings?.referenceMs),row.productionParity?row.productionParity.passed?'PASS':'FAIL':'—']){
+   const td=document.createElement('td');td.textContent=value;tr.append(td);
+  }return tr;
+ }));
+ report.summary=summarizeQualification(report.rows);$('result').textContent=JSON.stringify(report,null,2);$('export').disabled=false;
+}
+function stop(){
+ ++epoch;abortController?.abort();worker?.terminate();oracle?.terminate();rejectPending?.(new DOMException('Stopped','AbortError'));rejectPending=null;
+ $('run').disabled=false;$('stop').disabled=true;$('progress').hidden=true;show('Stopped; completed trials retained.');
+ if(report){report.interrupted=true;draw();}
+}
+$('stop').onclick=stop;
+$('export').onclick=()=>{
+ const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}));
+ const link=document.createElement('a');link.href=url;link.download=`studio-webnn-${new Date().toISOString().replaceAll(':','-')}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
+};
+async function trial(weights,channels,backend,current){
+ const start=performance.now(),output=Array.from({length:8},()=>new Float32Array(channels[0].length));let committed=0,firstAudioMs;
+ const path=backend.startsWith('webnn-')?'webnn-worker.js':'onnx-worker.js';
+ return new Promise((resolve,reject)=>{
+  let settled=false;
+  const finish=(record)=>{if(settled)return;settled=true;clearTimeout(timer);worker?.terminate();rejectPending=null;resolve({...record,backend,firstAudioMs,wallMs:performance.now()-start,publishedFrames:committed,output});};
+  const timer=setTimeout(()=>finish({status:'timeout',message:'180s diagnostic deadline exceeded'}),180000);
+  worker=new StreamingWorker(new Worker(`/examples/wam/source-separation/${path}`,{type:'module'}),8);
+  rejectPending=error=>{if(settled)return;settled=true;clearTimeout(timer);worker.terminate();reject(error);};
+  worker.onerror=event=>finish({status:'error',message:event.message});
+  worker.onmessage=({data})=>{
+   if(settled||current!==epoch)return;
+   if(data.type==='progress')show(`${backend}: ${data.phase}…`);
+   else if(data.type==='chunk'){
+    if(data.startFrame!==committed||data.stems.length!==8)return finish({status:'error',message:'Misaligned diagnostic output'});
+    firstAudioMs??=performance.now()-start;
+    for(let c=0;c<8;c++)output[c].set(data.stems[c],data.startFrame);
+    committed+=data.stems[0].length;show(`${backend}: ${committed}/`+channels[0].length+' frames ready');
+   }else if(data.type==='done'||data.type==='error')finish({...data,status:data.type==='done'&&committed!==channels[0].length?'error':data.type});
+  };
+  // The wall clock includes Worker/module startup and weight copies/transfers.
+  // File fetch/hash time is reported separately; source PCM is never detached.
+  const left=channels[0].slice(),right=channels[1].slice(),copy=weights.slice(0);
+  worker.postMessage({weights:copy,left,right,backend,diagnostics:true},[copy,left.buffer,right.buffer]);
+ });
+}
+async function compare(reference,candidate,current){
+ return new Promise((resolve,reject)=>{
+  const timer=setTimeout(()=>{oracle?.terminate();reject(Error('Comparison deadline exceeded'));},30000);
+  rejectPending=error=>{clearTimeout(timer);reject(error);};
+  oracle=new Worker('./studio-webnn-oracle-worker.js',{type:'module'});
+  oracle.onmessage=({data})=>{if(current!==epoch)return;clearTimeout(timer);oracle.terminate();rejectPending=null;data.error?reject(Error(data.error)):resolve(data.parity);};
+  oracle.onerror=e=>{clearTimeout(timer);oracle.terminate();rejectPending=null;reject(Error(e.message));};
+  oracle.postMessage({reference,candidate});
+ });
+}
+$('run').onclick=async()=>{
+ const current=++epoch,seconds=Number($('seconds').value),count=Number($('trials').value),choice=$('device').value;
+ const active=()=>{if(current!==epoch)throw new DOMException('Stopped','AbortError');};
+ const requested=choice==='all'?CONFIGURATIONS:[...new Set(['wasm',choice])];
+ abortController=new AbortController();$('run').disabled=true;$('stop').disabled=false;$('progress').hidden=false;
+ report={protocol:QUALIFICATION_PROTOCOL,date:new Date().toISOString(),userAgent:navigator.userAgent,modelId:'htdemucs_4s_onnx',requested,seconds,trialsPerEngine:count,sessionPolicy:'fresh Worker/session per trial, local cached bytes; not a retained-session benchmark',visibilityEvents:[{at:0,hidden:document.hidden}],rows:[],uiHeartbeat:{intervalMs:100,maxGapMs:0,samples:0}};
+ const started=performance.now(),visibility=()=>report.visibilityEvents.push({at:performance.now()-started,hidden:document.hidden});document.addEventListener('visibilitychange',visibility);
+ let last=performance.now();const heartbeat=setInterval(()=>{const now=performance.now();report.uiHeartbeat.maxGapMs=Math.max(report.uiHeartbeat.maxGapMs,now-last);report.uiHeartbeat.samples++;last=now;},100);
+ try{
+  show('Checking pinned music and local weights…');
+  const get=async path=>{const r=await fetch(path,{signal:abortController.signal});if(!r.ok)throw Error(`${path}: HTTP ${r.status}`);return r.arrayBuffer();};
+  const load=performance.now(),[weights,music,models]=await Promise.all([get('/weights.onnx'),get('/examples/wam/source-separation/fixtures/music/slow-motion-dream.mp3'),fetch('/examples/wam/source-separation/studio-models.json').then(r=>r.json())]);active();
+  const model=models.models.find(m=>m.id==='htdemucs_4s_onnx');report.modelSha256=await digest(weights);report.inputFileSha256=await digest(music);
+  if(report.modelSha256!==model.files[0].sha256||report.inputFileSha256!=='4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507')throw Error('Pinned input/model hash mismatch');
+  report.input={id:'slow-motion-dream-first-'+seconds+'s',file:'slow-motion-dream.mp3',license:'CC BY 3.0',hasIsolatedReferences:false};
+  report.assetLoadAndHashMs=performance.now()-load;
+  const audio=await new OfflineAudioContext(2,1,44100).decodeAudioData(music);active();const frames=seconds*44100;
+  const channels=[audio.getChannelData(0).slice(0,frames),audio.getChannelData(1).slice(0,frames)];
+  report.pcmSha256=await digest(await new Blob(channels).arrayBuffer());report.frames=frames;report.sampleRate=44100;
+  let reference;
+  for(const backend of requested)for(let n=0;n<count;n++){
+   active();show(`${backend} · trial ${n+1}/${count}`);
+   const raw=await trial(weights,channels,backend,current);active();
+   if(raw.status==='done'){
+    if(backend==='wasm'&&!reference)reference=raw.output;
+    if(reference)raw.productionParity=await compare(reference,raw.output,current);
+   }
+   const {output,...record}=raw;report.rows.push(summarizeTrial({...record,trial:n},frames));draw();
+  }
+  show('Comparison finished. Failures are retained; no automatic backend fallback.');
+ }catch(error){if(current===epoch){report.error=error.message;show(error.message);}}
+ finally{
+  clearInterval(heartbeat);document.removeEventListener('visibilitychange',visibility);
+  if(current===epoch){$('run').disabled=false;$('stop').disabled=true;$('progress').hidden=true;draw();}
+ }
+};
+</script>

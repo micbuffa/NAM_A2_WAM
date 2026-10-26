@@ -58,7 +58,7 @@ export class BackingTrackEngine extends EventTarget {
       }
       if(generation!==this.generation||this.destroyed)return;
       const resume=this.playing;this.pause();this.buffer=buffer;this.track={id:track.id,title:track.title,local:!!track.local};this.peak=peak;
-      this.offset=0;this.loop={enabled:this.loop.enabled,startSeconds:0,endSeconds:buffer.duration};this.setNormalized(this.autoNormalize);
+      this.sourceFile=file||null;this.offset=0;this.loop={enabled:this.loop.enabled,startSeconds:0,endSeconds:buffer.duration};this.setNormalized(this.autoNormalize);
       this.loading=false;this.emit('track-change',this.track);this.emit('load-progress',{title:track.title,progress:1,phase:'ready'});this.changed();if(resume)await this.play();return true;
     }catch(error){if(generation!==this.generation)return;this.loading=false;this.emit('load-progress',{title:track.title,error:error.message});throw error;}
   }
@@ -112,5 +112,6 @@ export class BackingTrackEngine extends EventTarget {
     if(!state.track){this.buffer=null;this.track=null;this.offset=0;this.loop={enabled:true,startSeconds:0,endSeconds:0};this.emit('track-change',null);}
     this.autoNormalize=!!state.autoNormalize;this.setLoop(state.loop);this.setRate(state.rate);this.setVolumeDb(state.volumeDb);this.setMuted(state.muted);this.setNormalized(state.normalized);this.setMix(state.mix);this.setGuitarPan(state.guitarPan);this.seek(state.position);
   }
+  clear(){this.pause();this.retireVoice(true);++this.generation;this.abort?.abort();this.loading=false;this.buffer=null;this.track=null;this.sourceFile=null;this.offset=0;this.loop={enabled:true,startSeconds:0,endSeconds:0};this.emit('track-change',null);this.changed();}
   destroy(){if(this.destroyed)return;this.destroyed=true;this.loading=false;++this.generation;this.abort?.abort();this.playing=false;this.retireVoice(true);for(const voice of this.retiring)voice.finish();this.buffer=null;this.normalizer.disconnect();this.volumeNode.disconnect();this.outputNode.disconnect();}
 }

@@ -124,4 +124,39 @@ class Api::ProjectTracksTest < ActionDispatch::IntegrationTest
     get audio_api_project_track_path(projects(:alice_song), tracks(:alice_drums))
     assert_response :not_found
   end
+  test "original uploads retain their origin and reject presets and relabelling" do
+    sign_in_as users(:alice)
+    project = projects(:alice_song)
+    post api_project_tracks_path(project), params: { name: "Original mix", origin: "original", instrument: "guitar", audio: audio_upload }
+    assert_response :created
+    assert_equal "original", response.parsed_body["origin"]
+    original = Track.find(response.parsed_body["id"])
+
+    patch api_project_track_path(project, original), params: { factoryPreset: "factory:twin-clean" }, as: :json
+    assert_response :unprocessable_content
+    patch api_project_track_path(project, original), params: { origin: "personal" }, as: :json
+    assert_response :unprocessable_content
+    assert_equal "original", original.reload.origin
+    assert_nil original.factory_preset
+
+    %w[stem mix legacy].each do |origin|
+      post api_project_tracks_path(project), params: { name: "Reserved", origin: }, as: :json
+      assert_response :unprocessable_content
+    end
+  end
+
+  test "a generated guitar stem cannot get a preset through the API" do
+    sign_in_as users(:alice)
+    stem = projects(:alice_song).tracks.create!(name: "Separated guitar", origin: "stem", instrument: "guitar")
+    patch api_project_track_path(stem.project, stem), params: { presetId: presets(:alice_clean).id }, as: :json
+    assert_response :unprocessable_content
+    patch api_project_track_path(stem.project, stem), params: { inputMonitoring: true, volume: 65, pan: 30 }, as: :json
+    assert_response :success
+    assert_equal [false, 65, 30], response.parsed_body.values_at("inputMonitoring", "volume", "pan")
+    # Defense against stale/invalid rows written by an external import.
+    stem.update_column(:preset_id, presets(:alice_clean).id)
+    get preset_api_project_track_path(stem.project, stem)
+    assert_response :not_found
+  end
+
 end

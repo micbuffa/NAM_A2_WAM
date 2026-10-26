@@ -244,3 +244,57 @@ bin/rails litestream:restore -- -database=storage/production_queue.sqlite3
 
 Test a restore regularly on a scratch machine; a replica you never restored
 is not a backup.
+
+## Studio audio imports (26 October 2026)
+
+The Rails rack is at `/rack/`. Studio **Import audio** offers a local file or a
+YouTube video. Tone's expanded Play along player also has **Separate instruments**:
+this creates a Studio original from the selected backing. An authorized saved
+mix reuses its existing blob; bundled audio is resolved from the server manifest,
+never from an arbitrary browser URL. Local files are uploaded once. This action
+opens Studio; model selection and calculation remain explicit.
+
+YouTube import is a Rails ActiveJob, not a browser proxy. The production Dockerfile
+now installs FFmpeg, Python venv, Node 24 and `yt-dlp[default]==2026.10.21` in
+`/opt/youtube`. It enables Solid Queue in Puma (`SOLID_QUEUE_IN_PUMA=true`).
+Rebuild/redeploy the image after `bin/rack-sync`; `bin/rails db:prepare` must run
+before serving the new release. Keep `/rails/storage` persistent (audio **and**
+application/queue databases). If jobs run in a separate service, give that service
+the same storage and dependencies, and run `bin/jobs` instead of a second embedded
+supervisor. Do not run both workers unintentionally.
+
+For an existing development container, install dependencies explicitly (the current
+`nam-rails-main` already has them):
+
+```sh
+apt-get update && apt-get install -y python3-venv ffmpeg
+python3 -m venv /opt/youtube
+/opt/youtube/bin/pip install 'yt-dlp[default]==2026.10.21'
+# Node 24 must also be installed / on PATH.
+bin/rails db:prepare
+```
+
+Optional `YT_DLP_PATH` overrides the executable. `/api/audio_imports/capabilities`
+reports availability to signed-in users. A static dist alone cannot import YouTube.
+The development adapter is async: jobs survive page closure, but not a server
+restart; stale jobs become errors after 20 minutes. Production Solid Queue persists
+queued work. Running download processes interrupted by a crash are not transparently
+resumable: retry a failed job. Temporary directories are cleaned on normal completion,
+error and cancellation; an OS kill may leave temporary files for operational cleanup.
+
+Limits: single HTTPS YouTube video, non-live, ≤30 min, ≤100 MiB MP3; one active job
+per account, three admitted globally on the current SQLite deployment. Download
+subprocesses have deadlines, bounded output/disk usage and process-group cancellation.
+Account quota is checked before publication. Progress and cancel are private to the
+initiator; ready audio becomes a normal private Studio project with source URL,
+video ID, title, duration and import time. Reopening Import audio reconnects to the
+latest job; terminal jobs are not polled. No cookies, browser credentials, arbitrary
+URLs, external proxy service or CAPTCHA bypass are used. YouTube changes may require
+a reviewed yt-dlp update; unavailable/restricted videos return an error.
+
+WebNN stays under **Change model / settings**: CPU/GPU/NPU preferences, Demucs4 only,
+isolated ORT1.30 Worker. Each audio block is compared with ORT1.30 WASM before
+publication; this extra reference calculation is intentionally slower. Failed initial
+admission falls back to production WASM; no backend switching after published audio.
+The default remains WebGPU when available. Native WebNN qualification and hardware
+performance measurements remain pending; an NPU preference is not proof of NPU use.
