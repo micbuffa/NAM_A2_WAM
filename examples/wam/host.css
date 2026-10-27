@@ -371,3 +371,8 @@ body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast
 
 .studio-separation [hidden] { display: none !important; }
 .studio-separation-settings .studio-separation-options { margin-top: 12px; }
+
+.studio-import-destination { border: 0; padding: 0; margin: 12px 0; display: grid; gap: 12px; }
+.studio-import-destination label[hidden] { display: none; }
+
+.studio-model-choices + .tl-btn { margin-top: 12px; }

@@ -1,6 +1,6 @@
 # Only audio already authorized in Tone; never fetch a browser-supplied URL.
 class BackingProjectImport
-  def self.call(user:, id: nil, audio: nil, title: nil)
+  def self.call(user:, id: nil, audio: nil, title: nil, project_id: nil, name: nil)
     blob = nil; owned_blob = false; metadata = { "kind" => "local" }
     if id.to_s.match?(/\Astudio-[1-9][0-9]*\z/)
       source = Track.where(project: Project.visible_to(user), origin: "mix").with_attached_audio.find(id.delete_prefix("studio-"))
@@ -25,13 +25,14 @@ class BackingProjectImport
       size = blob ? blob.byte_size : audio.is_a?(Hash) ? audio[:io].size : audio.size
       raise ArgumentError, "Audio exceeds 100 MiB" unless size.positive? && size <= Track::MAX_AUDIO_BYTES
       raise ArgumentError, "Account audio quota exceeded" if Separation.storage_bytes(user.projects)+size > Separation::USER_QUOTA
-      project = user.projects.create!(name:title.to_s.truncate(120),bpm:120)
-      track = project.tracks.new(name:title.to_s.truncate(80),instrument:"other",origin:"original",creator:user,position:0,import_metadata:metadata)
+      project = project_id.present? ? user.projects.find(project_id) : user.projects.create!(name:(name.presence || title).to_s.truncate(120),bpm:120)
+      raise ArgumentError, "Project audio quota exceeded" if Separation.storage_bytes(Project.where(id:project.id))+size > Separation::PROJECT_QUOTA
+      track = project.tracks.new(name:title.to_s.truncate(80),instrument:"other",origin:"original",creator:user,position:(project.tracks.maximum(:position) || -1)+1,import_metadata:metadata)
       unless blob
         input = audio.is_a?(Hash) ? audio : {io:audio.tempfile,filename:audio.original_filename,content_type:audio.content_type}
         blob = ActiveStorage::Blob.build_after_unfurling(**input);blob.save!;owned_blob=true;blob.upload_without_unfurling(input[:io])
       end
-      track.audio.attach(blob);track.save!;project
+      track.audio.attach(blob);track.save!;[project,track]
     end
   rescue
     blob.purge if owned_blob && blob

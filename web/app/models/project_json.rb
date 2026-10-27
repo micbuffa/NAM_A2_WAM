@@ -20,9 +20,7 @@ module ProjectJson
 
   # Count the restored deck, not the archive of every separation and mix.
   def visible_track_count(project, tracks = project.tracks)
-    tracks.count do |track|
-      project.active_separation_id ? track.separation_id == project.active_separation_id : !%w[stem mix].include?(track.origin)
-    end
+    tracks.count { |track| track.timeline_visible && !track.removed_at && track.origin != "mix" }
   end
 
   def separation(separation)
@@ -33,7 +31,7 @@ module ProjectJson
   end
 
   def track(track)
-    { id: track.id, position: track.position, name: track.name, origin: track.origin, instrument: track.instrument,
+    { id: track.id, position: track.position, timelineVisible: track.timeline_visible, removedAt: track.removed_at, name: track.name, origin: track.origin, instrument: track.instrument,
       importMetadata: track.import_metadata, creatorId: track.creator_id, separationId: track.separation_id, sourceRole: track.source_role, presetId: track.preset_id, presetName: track.preset&.name, factoryPreset: track.factory_preset,
       volume: track.volume, pan: track.pan, mute: track.mute, solo: track.solo, inputMonitoring: track.input_monitoring,
       waveform: track.waveform_peaks && { peaks: track.waveform_peaks, duration: track.separation.manifest["frames"].to_f / 44100 },

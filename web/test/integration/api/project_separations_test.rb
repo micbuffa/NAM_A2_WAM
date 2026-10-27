@@ -29,9 +29,9 @@ class Api::ProjectSeparationsTest < ActionDispatch::IntegrationTest
 
   teardown { @files&.each(&:close!) }
 
-  def begin_save(model = "htdemucs_4s_onnx", token: SecureRandom.uuid)
+  def begin_save(model = "htdemucs_4s_onnx", token: SecureRandom.uuid, source: nil)
     @project = projects(:alice_song)
-    @source = tracks(:alice_rhythm)
+    @source = source || tracks(:alice_rhythm)
     @source.audio.attach(io: file_fixture("silence.wav").open, filename: "original.wav", content_type: "audio/wav") unless @source.audio.attached?
     @body = { token:, sourceTrackId: @source.id, manifest: manifest(model) }
     post "/api/projects/#{@project.id}/separations", params: @body, as: :json
@@ -58,10 +58,10 @@ class Api::ProjectSeparationsTest < ActionDispatch::IntegrationTest
       assert_response :success
       json = response.parsed_body
       assert_equal @id, json["activeSeparationId"]
-      assert_equal roles.length, json["trackCount"]
+      assert_equal roles.length + 1, json["trackCount"]
       get "/api/projects"
       assert_response :success
-      assert_equal roles.length, response.parsed_body.find { |p| p["id"] == @project.id }["trackCount"]
+      assert_equal roles.length + 1, response.parsed_body.find { |p| p["id"] == @project.id }["trackCount"]
       stems = json["tracks"].select { |t| t["separationId"] == @id }
       assert_equal roles, stems.map { |t| t["sourceRole"] }
       assert stems.all? { |t| t["origin"] == "stem" && t["presetId"].nil? && t["factoryPreset"].nil? && t["creatorId"] == users(:alice).id }
@@ -179,10 +179,43 @@ class Api::ProjectSeparationsTest < ActionDispatch::IntegrationTest
     end
     patch "/api/projects/#{@project.id}/tracks/#{@source.id}", params: {audio: upload}
     assert_response :unprocessable_content
+    checksum = stem.audio.checksum
     delete "/api/projects/#{@project.id}/tracks/#{stem.id}"
-    assert_response :unprocessable_content
+    assert_response :success
+    assert stem.reload.removed_at
+    assert_equal checksum, stem.audio.checksum
+    Separation.find(@id).activate_timeline!
+    assert_not stem.reload.timeline_visible
+    patch "/api/projects/#{@project.id}/tracks/#{stem.id}/restore", as: :json
+    assert_response :success
+    assert stem.reload.timeline_visible
+    assert_nil stem.removed_at
     assert_difference("Project.count", -1) { delete "/api/projects/#{@project.id}"; assert_response :no_content }
   end
+  test "published separation can be undone and redone as a group without recalculation or audio deletion" do
+    sign_in_as users(:alice)
+    begin_save
+    manifest["roles"].each { |role| part(role) }
+    publish
+    assert_response :success
+    batch = Separation.find(@id)
+    stems = batch.tracks.to_a
+    checksums = stems.map { |track| track.audio.checksum }
+    changes = [{id: @source.id, before: {visible: false, removed: false}, after: {visible: true, removed: false}}] +
+      stems.map { |track| {id: track.id, before: {visible: true, removed: false}, after: {visible: false, removed: false}} }
+    patch "/api/projects/#{@project.id}/tracks/visibility", params: {changes:, beforeSeparationId: @id, afterSeparationId: nil}, as: :json
+    assert_response :success
+    assert @source.reload.timeline_visible
+    assert stems.all? { |track| !track.reload.timeline_visible && !track.removed_at }
+    inverse = changes.map { |change| change.merge(before: change[:after], after: change[:before]) }
+    patch "/api/projects/#{@project.id}/tracks/visibility", params: {changes: inverse, beforeSeparationId: nil, afterSeparationId: @id}, as: :json
+    assert_response :success
+    assert_not @source.reload.timeline_visible
+    assert stems.all? { |track| track.reload.timeline_visible && !track.removed_at }
+    assert_equal checksums, stems.map { |track| track.audio.checksum }
+    assert_equal "ready", batch.reload.state
+  end
+
   test "WebNN manifests require strict per-block evidence, preserve preferences on fallback and never admit SW6" do
     sign_in_as users(:alice)
     begin_save
@@ -198,6 +231,57 @@ class Api::ProjectSeparationsTest < ActionDispatch::IntegrationTest
       assert_response :created
       assert_equal valid,response.parsed_body["manifest"]
     end
+  end
+
+  test "separations replace only their source and mix together with other project tracks" do
+    sign_in_as users(:alice)
+    begin_save
+    first_source = @source
+    manifest["roles"].each { |role| part(role) }
+    publish; assert_response :success
+    first_batch = @id
+    first_track = Separation.find(first_batch).tracks.first
+    first_track.update!(volume: 44)
+    begin_save("bs_roformer_sw_6s", source: tracks(:alice_drums))
+    manifest("bs_roformer_sw_6s")["roles"].each { |role| part(role) }
+    publish; assert_response :success
+    second_batch = @id
+    full = response.parsed_body
+    assert_equal 10, full["trackCount"]
+    assert_equal 10, full["tracks"].count { |track| track["timelineVisible"] && track["origin"] != "mix" }
+    assert_not first_source.reload.timeline_visible
+    assert_not tracks(:alice_drums).reload.timeline_visible
+    assert first_track.reload.timeline_visible
+    assert_equal 44, first_track.volume
+    # A project mix may include two complete separated sources.
+    visible = @project.tracks.where(timeline_visible: true).with_attached_audio
+    mix = {"selection"=>"song","format"=>"mp3","sampleRate"=>44100,"bitrate"=>192,"frames"=>4,
+      "range"=>{"start"=>0,"end"=>4.0/44100},"peak"=>0.2,"attenuation"=>1,"separationId"=>nil,
+      "sources"=>visible.map { |track| {"id"=>track.id,"checksum"=>track.audio.checksum,"volume"=>track.volume,"pan"=>track.pan,"mute"=>false,"solo"=>false,"inputMonitoring"=>false} }}
+    assert ProjectMix.validate!(@project, mix)
+    # Deliberately removed instruments are not required for an otherwise ready mix.
+    delete "/api/projects/#{@project.id}/tracks/#{first_track.id}", as: :json
+    assert_response :success
+    mix["sources"].reject! { |source| source["id"] == first_track.id }
+    assert ProjectMix.validate!(@project, mix)
+    incomplete = Marshal.load(Marshal.dump(mix))
+    incomplete["sources"].pop
+    assert_raises(ArgumentError) { ProjectMix.validate!(@project, incomplete) }
+
+    # Re-separating the first original must preserve the second source.
+    begin_save("bs_roformer_sw_6s", source: first_source)
+    manifest("bs_roformer_sw_6s")["roles"].each { |role| part(role) }
+    publish; assert_response :success
+    assert_equal 12, response.parsed_body["trackCount"]
+    assert_not first_track.reload.timeline_visible
+    assert Separation.find(second_batch).tracks.all?(&:timeline_visible)
+    patch "/api/projects/#{@project.id}/separations/active", params: {id:first_batch}, as: :json
+    assert_response :success
+    assert_equal 9, response.parsed_body["trackCount"]
+    assert_not first_track.reload.timeline_visible
+    assert_equal 44, first_track.volume
+    assert Separation.find(second_batch).tracks.all?(&:timeline_visible)
+    assert_not first_source.reload.timeline_visible
   end
 
 end

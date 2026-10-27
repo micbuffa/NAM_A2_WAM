@@ -26,7 +26,7 @@ class Api::Projects::MixesController < Api::BaseController
       if Separation.storage_bytes(Project.where(id: project.id)) + file.size > Separation::PROJECT_QUOTA || Separation.storage_bytes(current_user.projects) + file.size > Separation::USER_QUOTA
         return invalid("Audio storage quota exceeded")
       end
-      track = project.tracks.new(origin: "mix", instrument: "other", creator: current_user, render_token: token, mix_manifest: manifest,
+      track = project.tracks.new(origin: "mix", timeline_visible: false, instrument: "other", creator: current_user, render_token: token, mix_manifest: manifest,
         name: "#{project.name.truncate(60)} · #{manifest["selection"] == "loop" ? "Loop" : "Mix"}", position: (project.tracks.maximum(:position) || -1) + 1)
       blob = ActiveStorage::Blob.build_after_unfurling(io: file.tempfile, filename: "studio-mix.mp3", content_type: "audio/mpeg")
       begin

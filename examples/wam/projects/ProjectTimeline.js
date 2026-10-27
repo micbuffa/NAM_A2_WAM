@@ -15,8 +15,8 @@ export class ProjectTimeline {
   // onSelect(id); onChange(id, fields); onEdit(id): rename dialog; onMonitor(id): toggle input monitoring;
   // onMove(id, index): reorder; onSeek(seconds); onLoop({start, end}): a drawn loop region;
   // createRenderer(options): a WaveSurfer renderer.
-  constructor(list, {root, ruler, onSelect, onChange, onEdit, onMonitor, onMove, onSeek, onLoop, createRenderer}) {
-    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onMonitor, onMove, onSeek, onLoop, createRenderer});
+  constructor(list, {root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onMove, onSeek, onLoop, createRenderer}) {
+    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onMove, onSeek, onLoop, createRenderer});
     this.rows = new Map();
     this.drag = null; // {id, index}: the track being dragged and where it would land
     list.addEventListener('dragover', (event) => this.dragOver(event));
@@ -287,6 +287,14 @@ export class ProjectTimeline {
       rename.onclick = (event) => { event.stopPropagation(); this.onSelect(id); this.onEdit(id); };
       title.append(rename);
       labels.push([rename, 'Edit']);
+      if (this.onDelete) {
+        const remove = document.createElement('tl-icon-button');
+        Object.entries({icon: 'trash', size: 'sm', variant: 'ghost', title: 'Delete track'})
+          .forEach(([key, value]) => remove.setAttribute(key, value));
+        remove.onclick = event => { event.stopPropagation(); this.onDelete(id); };
+        title.append(remove);
+        labels.push([remove, 'Delete']);
+      }
     }
     const meta = element('small', 'track-meta');
 
@@ -331,6 +339,17 @@ export class ProjectTimeline {
     knob.setAttribute('popup', 'Pan');
     knob.className = 'track-pan';
     knob.append(pan);
+
+    // A knob's pointer events cross its shadow root; native slider input
+    // events and keyboard repeats belong to the same user gesture.
+    for (const [control, input, key] of [[fader, volume, 'volume'], [knob, pan, 'pan']]) {
+      control.addEventListener('pointerdown', () => this.onGestureStart?.(`${id}:${key}`));
+      for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) control.addEventListener(type, () => this.onGestureEnd?.());
+      let keyboard = false;
+      input.onkeydown = event => { if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','PageUp','PageDown'].includes(event.key)) { keyboard = true; this.onGestureStart?.(`${id}:${key}`); } };
+      input.onkeyup = input.onblur = () => { keyboard = false; this.onGestureEnd?.(); };
+      input.onchange = () => { if (!keyboard) this.onGestureEnd?.(); };
+    }
 
     for (const control of [fader, knob]) control.onclick = (event) => { event.stopPropagation(); this.onSelect(id); };
     controls.append(modeGroup, fader, knob);

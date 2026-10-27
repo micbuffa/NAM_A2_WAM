@@ -22,3 +22,12 @@ export async function useBackingInTone({entry,library,player,projectPlayer,works
   if(!loaded)return false;
   player.setExpanded(true);workspaces.show('tone');return true;
 }
+
+
+// Return to the source project of a generated mix, or simply switch back to
+// the current Studio project for an external backing. Never reimport audio.
+export async function returnToStudio({projectId,workspace,backingPlayer,workspaces}) {
+  if (projectId && workspace.project?.id !== projectId) await workspace.open(projectId);
+  if (projectId && workspace.project?.id !== projectId) return false;
+  backingPlayer.pause();workspaces.show('projects');return true;
+}

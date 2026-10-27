@@ -1,5 +1,5 @@
 import './backing-track-player/BackingTrackPlayerElement.js';
-import {StudioBackingLibrary, useBackingInTone} from './projects/StudioBackingLibrary.js';
+import {StudioBackingLibrary, useBackingInTone, returnToStudio} from './projects/StudioBackingLibrary.js';
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
 import {linkPlayAlong, linkSpaceKey} from './backing-track-player/PlayAlong.js';
 import {PlayAlongMemory} from './backing-track-player/PlayAlongMemory.js';
@@ -300,8 +300,7 @@ async function initialize() {
     if(await projects.importFromTone(detail.track,detail.file)){projectPlayer.pause();workspaces.show('projects');}
   });
   playAlong.addEventListener('open-studio',async({detail:{projectId}})=>{
-    if(projects.project?.id!==projectId)await projects.open(projectId);
-    if(projects.project?.id===projectId){playAlong.engine.pause();workspaces.show('projects');}
+    await returnToStudio({projectId,workspace:projects,backingPlayer:playAlong.engine,workspaces});
   });
   const playAlongMix=new BackingTrackMix(context,rack.output,playAlong,{destination:toneGate});
   linkPlayAlong({engine:playAlong.engine,projectPlayer,workspaces});

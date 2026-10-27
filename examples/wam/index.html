@@ -50,7 +50,7 @@
         <div class="project-stats"><span><small>Tracks</small><strong id="projectTrackCount">00</strong></span><span><small>Tempo</small><strong id="projectBpm">—</strong></span></div>
         <tl-button class="host-secondary" id="projectNew" block icon="plus" aria-haspopup="dialog">New project</tl-button>
         <tl-button class="host-secondary project-import" id="projectImport" block icon="audio" aria-haspopup="dialog">Import audio</tl-button>
-        <p class="host-help">Create a project from an audio file or a YouTube video.</p>
+        <p class="host-help">Import audio into the current project or a new one.</p>
       </section>
 
       <section class="host-card host-track-inspector" id="trackInspector" aria-labelledby="inspectorTrackName" data-workspace="projects" hidden>
@@ -151,6 +151,8 @@
           <tl-button id="projectResetMix" icon="undo" title="Back to the owner's mix" hidden>Reset mix</tl-button>
           <tl-button id="projectShare" icon="share" aria-haspopup="dialog" hidden>Share</tl-button>
           <tl-button id="projectLeave" icon="close" aria-haspopup="dialog" title="Stop seeing this project" hidden>Leave</tl-button>
+          <tl-icon-button id="projectUndo" icon="undo" aria-label="Undo" title="Undo" disabled hidden></tl-icon-button>
+          <tl-icon-button id="projectRedo" icon="redo" aria-label="Redo" title="Redo" disabled hidden></tl-icon-button>
           <tl-button id="projectSave" variant="primary" icon="save" hidden disabled>Save project</tl-button>
           <tl-button id="projectAddTrack" variant="primary" icon="plus" aria-haspopup="dialog" hidden>Add track</tl-button>
         </div>
@@ -167,8 +169,8 @@
             <tl-button id="studioSeparate" variant="primary" disabled>Separate instruments</tl-button>
             <tl-button id="studioStop" hidden>Stop separation</tl-button>
             <span id="studioBackendLabel" class="host-help"></span>
-            <button id="studioOriginal" class="studio-listen" type="button" aria-pressed="true">Original</button>
-            <button id="studioInstruments" class="studio-listen" type="button" aria-pressed="false" disabled>Instruments</button>
+            <button id="studioOriginal" class="studio-listen" type="button" aria-pressed="true">Project</button>
+            <button id="studioInstruments" class="studio-listen" type="button" aria-pressed="false" disabled>Separation preview</button>
           <tl-button id="studioUseMix" variant="primary" hidden disabled>Use mix in Tone</tl-button>
           <tl-button id="studioRetryAudio" hidden>Retry audio loading</tl-button>
           </div>
@@ -178,8 +180,12 @@
           <p id="studioStatus" role="status" class="host-help">Preparing separation…</p>
           <progress id="studioProgress" max="100" aria-label="Separation progress" hidden></progress>
           <details class="studio-separation-settings"><summary>Options</summary>
+          <div id="studioRemovedTracks" class="studio-separation-options" hidden>
+            <label>Removed tracks<select id="studioRemovedTrack" aria-label="Removed tracks"></select></label>
+            <tl-button id="studioRestoreTrack" size="sm">Restore track</tl-button>
+          </div>
           <div class="studio-separation-options">
-            <label>Accompaniment<select id="studioSource"></select></label>
+            <label>Audio to separate<select id="studioSource"></select></label>
 
           </div>
           <div class="studio-separation-options"><label>Saved separations<select id="studioSavedResult" aria-label="Saved separations"></select></label></div>

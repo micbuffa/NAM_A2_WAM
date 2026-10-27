@@ -76,6 +76,8 @@ export default class AccountApi {
   updateTrack(projectId, id, attributes, audio = null) {
     return this.request('PATCH', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}`, trackBody(attributes, audio));
   }
+  setTrackVisibility(projectId, command) { return this.request('PATCH', `${projectPath(projectId)}/tracks/visibility`, command); }
+  restoreTrack(projectId, id) { return this.request('PATCH', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}/restore`); }
   deleteTrack(projectId, id) { return this.request('DELETE', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}`); }
   reorderTracks(projectId, ids) { return this.request('PATCH', `${projectPath(projectId)}/tracks/order`, {ids}); }
   // The account preset of a track, {id, name, state}: shared viewers can read it too.
@@ -92,7 +94,7 @@ export default class AccountApi {
 
   audioImportCapabilities() { return this.request('GET', '/api/audio_imports/capabilities'); }
   listAudioImports() { return this.request('GET', '/api/audio_imports'); }
-  startAudioImport(url) { return this.request('POST', '/api/audio_imports', {url}); }
+  startAudioImport(url, destination = {}) { return this.request('POST', '/api/audio_imports', {url, ...destination}); }
   getAudioImport(id) { return this.request('GET', `/api/audio_imports/${encodeURIComponent(id)}`); }
   cancelAudioImport(id) { return this.request('DELETE', `/api/audio_imports/${encodeURIComponent(id)}`); }
 

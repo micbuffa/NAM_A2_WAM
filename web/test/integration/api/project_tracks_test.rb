@@ -73,8 +73,87 @@ class Api::ProjectTracksTest < ActionDispatch::IntegrationTest
     assert_equal %w[Drums Rhythm], response.parsed_body["tracks"].map { |track| track["name"] }
 
     delete api_project_track_path(project, drums), as: :json
-    assert_response :no_content
-    assert_equal [ "Rhythm" ], project.tracks.reload.map(&:name)
+    assert_response :success
+    assert drums.reload.removed_at
+    assert_not drums.timeline_visible
+    assert_equal [ "Rhythm" ], project.tracks.where(removed_at: nil).map(&:name)
+    assert_equal drums.id, response.parsed_body["id"]
+    patch restore_api_project_track_path(project, drums), as: :json
+    assert_response :success
+    assert_nil drums.reload.removed_at
+    assert drums.timeline_visible
+    assert_not drums.input_monitoring
+  end
+
+  test "removed audio is recoverable, monitoring is off and repeated delete is idempotent" do
+    sign_in_as users(:alice)
+    track = tracks(:alice_rhythm)
+    track.audio.attach(io: file_fixture("silence.wav").open, filename: "take.wav", content_type: "audio/wav")
+    track.update!(input_monitoring: true)
+    blob_id = track.audio.blob.id
+    assert_no_difference("ActiveStorage::Blob.count") do
+      2.times do
+        delete api_project_track_path(track.project, track), as: :json
+        assert_response :success
+        assert response.parsed_body["removedAt"]
+      end
+    end
+    assert_not track.reload.input_monitoring
+    get api_project_path(track.project)
+    assert_response :success
+    assert_equal 1, response.parsed_body["trackCount"]
+    assert_equal blob_id, track.audio.blob.id
+    patch restore_api_project_track_path(track.project, track), as: :json
+    assert_response :success
+    assert_nil response.parsed_body["removedAt"]
+    assert_equal blob_id, track.reload.audio.blob.id
+    assert_not track.input_monitoring
+    assert_equal file_fixture("silence.wav").binread, track.audio.download
+    patch restore_api_project_track_path(track.project, track), as: :json
+    assert_response :success
+  end
+
+  test "group visibility commands are atomic, preserve blobs and reject stale state" do
+    sign_in_as users(:alice)
+    project = projects(:alice_song)
+    rhythm, drums = tracks(:alice_rhythm), tracks(:alice_drums)
+    rhythm.audio.attach(io: file_fixture("silence.wav").open, filename: "take.wav", content_type: "audio/wav")
+    blob_id = rhythm.audio.blob.id
+    visible = { visible: true, removed: false }
+    removed = { visible: false, removed: true }
+    changes = [rhythm, drums].map { |row| {id: row.id, before: visible, after: removed} }
+    body = {changes:, beforeSeparationId: nil, afterSeparationId: nil}
+    patch "/api/projects/#{project.id}/tracks/visibility", params: body, as: :json
+    assert_response :success
+    assert_equal 2, response.parsed_body["tracks"].size
+    assert rhythm.reload.removed_at
+    assert drums.reload.removed_at
+    patch "/api/projects/#{project.id}/tracks/visibility", params: body, as: :json
+    assert_response :success # Retry after a lost response is idempotent.
+    # One stale entry must prevent all changes, including the valid one.
+    inverse = changes.map { |change| change.merge(before: removed, after: visible) }
+    inverse.last[:before] = visible
+    patch "/api/projects/#{project.id}/tracks/visibility", params: body.merge(changes: inverse), as: :json
+    assert_response :conflict
+    assert rhythm.reload.removed_at
+    inverse.last[:before] = removed
+    patch "/api/projects/#{project.id}/tracks/visibility", params: body.merge(changes: inverse), as: :json
+    assert_response :success
+    assert_nil rhythm.reload.removed_at
+    assert rhythm.timeline_visible
+    assert_equal blob_id, rhythm.audio.blob.id
+  end
+
+  test "group history cannot modify foreign tracks, malformed commands or shared projects" do
+    sign_in_as users(:alice)
+    project = projects(:alice_song)
+    state = {visible: true, removed: false}
+    [[], [{id: tracks(:bob_bass).id, before: state, after: state}], [{id: tracks(:alice_rhythm).id, before: state, after: {visible: true, removed: true}}]].each do |changes|
+      patch "/api/projects/#{project.id}/tracks/visibility", params: {changes:, beforeSeparationId: nil, afterSeparationId: nil}, as: :json
+      assert_response :unprocessable_content
+    end
+    patch "/api/projects/#{tracks(:bob_bass).project_id}/tracks/visibility", params: {}, as: :json
+    assert_response :forbidden
   end
 
   test "a shared viewer can listen but not edit; others cannot reach the tracks" do
@@ -89,6 +168,8 @@ class Api::ProjectTracksTest < ActionDispatch::IntegrationTest
     post api_project_tracks_path(bobs.project), params: { name: "x" }, as: :json
     assert_response :forbidden
     delete api_project_track_path(bobs.project, bobs), as: :json
+    assert_response :forbidden
+    patch restore_api_project_track_path(bobs.project, bobs), as: :json
     assert_response :forbidden
     assert_equal 80, bobs.reload.volume
 

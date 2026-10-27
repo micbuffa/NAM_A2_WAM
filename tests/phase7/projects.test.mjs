@@ -28,7 +28,7 @@ test('the picker groups my projects and the ones shared with me', () => {
 
 test('the header tells owned, dirty and shared projects apart', () => {
   const owned = {name: 'Song', owned: true, tracks: [{}, {}]};
-  assert.equal(describeProject(owned).kicker, 'Recording project · 2 tracks');
+  assert.equal(describeProject(owned).kicker, 'Project · 2 tracks');
   assert.equal(describeProject(owned).saveState, 'Saved');
   assert.equal(describeProject(owned, {dirty: true}).saveState, 'Unsaved changes');
   const shared = {name: 'Jam', owned: false, owner: {name: 'bob@example.com'}, tracks: [{}]};
@@ -488,7 +488,7 @@ test('the owner sees who a project is shared with', () => {
   assert.equal(shareSummary([{name: 'Ana Lima', email: 'ana@example.com'}]), 'Shared with Ana Lima');
   assert.equal(shareSummary([{email: 'a@x.io'}, {email: 'b@x.io'}]), 'Shared with 2 people');
   assert.equal(describeProject({owned: true, tracks: [], shares: [{email: 'bob@example.com', name: 'bob@example.com'}]}).kicker,
-    'Recording project · 0 tracks · Shared with bob@example.com');
+    'Project · 0 tracks · Shared with bob@example.com');
   assert.equal(describeProject({owned: false, owner: {name: 'Bob'}, tracks: [], shares: undefined}).kicker, 'Shared by Bob · 0 tracks');
   assert.deepEqual([initials('Ana Lima'), initials('bob@example.com'), initials('jean-luc.picard@x.io'), initials('')], ['AL', 'BO', 'JL', '?']);
 });
@@ -518,7 +518,7 @@ test('a temporary instrument preview is never presented as saved to the account'
   const description = describeProject({owned:true,name:'Song',tracks:[{id:1}]}, {previewTracks:Array.from({length:6},()=>({origin:'stem'}))});
   assert.equal(description.saveState,'Instruments in RAM');
   assert.match(description.kicker,/6 tracks/u);
-  assert.match(description.meta,/Original \/ project/u);
+  assert.match(description.meta,/other tracks remain in Project/u);
 });
 
 

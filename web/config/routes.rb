@@ -38,6 +38,8 @@ Rails.application.routes.draw do
         patch :active, on: :collection, action: :activate
       end
       resources :tracks, only: %i[create update destroy], module: :projects do
+        patch :visibility, on: :collection
+        patch :restore, on: :member
         patch :order, on: :collection, action: :reorder
         get :audio, on: :member, to: "track_audios#show"
         get :preset, on: :member, to: "track_presets#show"

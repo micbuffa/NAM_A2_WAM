@@ -35,4 +35,38 @@ class Api::BackingImportsTest < ActionDispatch::IntegrationTest
   ensure
     Separation.define_singleton_method(:storage_bytes,original) if original
   end
+  test "file import appends to a chosen owned project without hiding previous tracks or renaming the project" do
+    sign_in_as users(:alice)
+    project=projects(:alice_song)
+    before=project.tracks.count
+    file=Rack::Test::UploadedFile.new(file_fixture("studio-mix.mp3"),"audio/mpeg")
+    assert_no_difference("Project.count") do
+      post "/api/projects/from_backing",params:{projectId:project.id,title:"Imported song",audio:file}
+      assert_response :created
+    end
+    full=response.parsed_body
+    assert_equal project.id,full["id"]
+    assert_equal project.name,full["name"]
+    assert_equal before+1,full["trackCount"]
+    imported=project.tracks.find(full["importedTrackId"])
+    assert_equal "original",imported.origin
+    assert imported.timeline_visible
+    assert imported.audio.attached?
+    assert_equal "Imported song",imported.name
+    assert_equal before,imported.position
+    # The destination must be owned, even if another project is shared.
+    post "/api/projects/from_backing",params:{projectId:projects(:bob_jam).id,audio: Rack::Test::UploadedFile.new(file_fixture("studio-mix.mp3"),"audio/mpeg")}
+    assert_response :not_found
+  end
+
+  test "new project import uses its chosen project name and leaves separation optional" do
+    sign_in_as users(:alice)
+    post "/api/projects/from_backing",params:{name:"My named project",title:"Song",audio:Rack::Test::UploadedFile.new(file_fixture("studio-mix.mp3"),"audio/mpeg")}
+    assert_response :created
+    assert_equal "My named project",response.parsed_body["name"]
+    assert_equal 1,response.parsed_body["trackCount"]
+    assert_empty response.parsed_body["separations"]
+    assert response.parsed_body["tracks"].first["timelineVisible"]
+  end
+
 end

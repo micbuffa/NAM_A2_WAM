@@ -1,3 +1,4 @@
+import {timelineTracks} from './ProjectsModel.js';
 import {backendLabel, isWebNN, WEBNN_BACKENDS, validateWebNNSelection} from '../source-separation/StudioWebNN.js';
 import {ModelCache} from '../source-separation/ModelCache.js';
 import {ModelDownloadManager} from '../source-separation/ModelDownloadManager.js';
@@ -9,7 +10,7 @@ import {makeTracks} from '../source-separation/AudioData.js';
 
 export const STEM_NAMES = {drums: 'Drums', bass: 'Bass', other: 'Other', vocals: 'Vocals', guitar: 'Guitar', piano: 'Piano'};
 export const PRODUCT_MODELS = ['htdemucs_4s_onnx', 'bs_roformer_sw_6s'];
-export const separationSources = tracks => tracks.filter(track => track.audio?.url && ['original', 'legacy'].includes(track.origin ?? 'legacy'));
+export const separationSources = tracks => tracks.filter(track => !track.removedAt && track.audio?.url && ['original', 'legacy'].includes(track.origin ?? 'legacy'));
 const abort = () => new DOMException('Stopped', 'AbortError');
 let nextTrackId = -1;
 
@@ -92,15 +93,18 @@ export class StudioSeparation extends EventTarget {
   restore(project) {
     this.savedBatches = project?.separations ?? [];
     this.projectTracks = project?.tracks ?? [];
+    this.savedProject = project;
     this.selectSaved(project?.activeSeparationId);
   }
   selectSaved(id) {
     this.activeSavedId = this.savedBatches.find(batch => batch.id === Number(id) && batch.state === 'ready')?.id ?? null;
-    this.savedTracks = this.activeSavedId ? this.projectTracks.filter(track => track.separationId === this.activeSavedId) : null;
+    if (this.savedProject) this.savedProject = {...this.savedProject,activeSeparationId:this.activeSavedId};
+    this.savedTracks = timelineTracks(this.savedProject);
+    if (!this.savedTracks.length) this.savedTracks = null;
     this.mode = this.savedTracks?.length ? 'stems' : 'original';
     const batch = this.savedBatches.find(batch => batch.id === this.activeSavedId);
     if (batch && PRODUCT_MODELS.includes(batch.manifest.modelId)) this.modelId = batch.manifest.modelId;
-    this.setStatus(batch ? `Saved separation · ${this.savedTracks.length} instruments · ${backendLabel(batch.manifest.backend)} · ${(batch.manifest.frames / 44100).toFixed(1)} s${batch.manifest.partial ? ' · interrupted result' : ''}` : 'Choose accompaniment audio to separate.');
+    this.setStatus(batch ? `Saved project · ${this.savedTracks?.length ?? 0} tracks · ${backendLabel(batch.manifest.backend)} · ${(batch.manifest.frames / 44100).toFixed(1)} s${batch.manifest.partial ? ' · interrupted result' : ''}` : 'Choose accompaniment audio to separate.');
   }
   updateTrack(id, fields) {
     const track = this.result?.tracks.find(track => track.id === id);

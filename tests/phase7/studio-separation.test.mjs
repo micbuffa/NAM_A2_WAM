@@ -280,6 +280,10 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
       await view.chooseModel();
       assert.equal(view.modelDialog.children[1].children[0].children[0].value,'0','a previous excerpt is not reused');
       view.modelDialog.close();assert.equal(runs.length,1,'closing the dialog does not start separation');
+      await view.chooseModel({sourceId:f.source.id,allowUnseparated:true});
+      const keep=view.modelDialog.children[1].children[2];
+      assert.equal(keep.textContent,'Keep as one track');
+      keep.onclick();assert.equal(runs.length,1,'keeping the import never invokes inference');
       await view.chooseModel();w.accountLoadEpoch++;
       await view.modelDialog.children[1].children[1].children[0].onclick();
       assert.equal(runs.length,1,'a dialog opened under another account cannot start inference');

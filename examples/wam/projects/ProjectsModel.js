@@ -22,12 +22,15 @@ export function groupProjects(projects = []) {
   return {mine: projects.filter((project) => project.owned), shared: projects.filter((project) => !project.owned)};
 }
 
-export const projectTrackCount = project => {
-  if (!project.tracks) return project.trackCount ?? 0;
-  return project.activeSeparationId
-    ? project.tracks.filter(track => track.separationId === project.activeSeparationId).length
-    : project.tracks.filter(track => !['stem', 'mix'].includes(track.origin)).length;
-};
+// Legacy payloads predate visibility; infer the previous active deck once.
+export function timelineTracks(project) {
+  const tracks = (project?.tracks ?? []).filter(track => !track.removedAt);
+  const hasVisibility = tracks.some(track => typeof track.timelineVisible === 'boolean');
+  if (hasVisibility) return tracks.filter(track => track.timelineVisible !== false && track.origin !== 'mix');
+  return project?.activeSeparationId ? tracks.filter(track => track.separationId === project.activeSeparationId)
+    : tracks.filter(track => !['stem','mix'].includes(track.origin));
+}
+export const projectTrackCount = project => project.tracks ? timelineTracks(project).length : project.trackCount ?? 0;
 
 export const projectOptionLabel = (project) => `${project.name} · ${plural(projectTrackCount(project), 'track')}`;
 
@@ -36,10 +39,10 @@ export function describeProject(project, {dirty = false, previewTracks = null} =
   if (!project) return null;
   const tracks = projectTrackCount(project);
   return {
-    kicker: previewTracks ? `Instrument preview · ${plural(previewTracks.length, 'track')} · in RAM` : [project.owned ? 'Recording project' : `Shared by ${project.owner?.name || 'another user'}`, plural(tracks, 'track'),
+    kicker: previewTracks ? `Instrument preview · ${plural(previewTracks.length, 'track')} · in RAM` : [project.owned ? 'Project' : `Shared by ${project.owner?.name || 'another user'}`, plural(tracks, 'track'),
       project.owned && shareSummary(project.shares)].filter(Boolean).join(' · '),
-    meta: previewTracks ? 'Listen and remix the separated instruments. Original audio and personal parts remain in Original / project.' : project.owned
-      ? 'Build your project track by track, with an independent mix and tone on your personal guitar and bass parts.'
+    meta: previewTracks ? 'Listen and remix the separated instruments. Your other tracks remain in Project while you audition this temporary separation.' : project.owned
+      ? 'Import audio, separate instruments when needed, and mix your tracks. Presets are for your personal guitar and bass parts.'
       : 'Read-only: you can listen and try a mix, but changes are not saved.',
     saveState: previewTracks ? 'Instruments in RAM' : !project.owned ? 'Read-only' : dirty ? 'Unsaved changes' : 'Saved',
   };

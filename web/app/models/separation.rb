@@ -18,6 +18,16 @@ class Separation < ApplicationRecord
     JSON.parse(path.read).fetch("models").index_by { |model| model.fetch("id") }
   end
 
+  # Activate only this source's instruments. Other imports/parts keep their
+  # visibility and mix. History remains attached and can be restored later.
+  def activate_timeline!
+    siblings = project.separations.where(source_track_id:)
+    project.tracks.where(separation_id: siblings.select(:id)).update_all(timeline_visible: false)
+    source_track.update!(timeline_visible: false)
+    tracks.where(removed_at: nil).update_all(timeline_visible: true)
+    project.update!(active_separation: self)
+  end
+
   def roles = manifest.fetch("roles")
 
   def self.storage_bytes(projects)

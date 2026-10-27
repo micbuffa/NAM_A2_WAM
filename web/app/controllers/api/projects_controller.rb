@@ -9,8 +9,8 @@ class Api::ProjectsController < Api::BaseController
   end
 
   def from_backing
-    project = BackingProjectImport.call(user: current_user, id: json_body["id"], audio: json_body["audio"], title: json_body["title"])
-    render json: ProjectJson.full(project, current_user), status: :created
+    project, track = BackingProjectImport.call(user: current_user, id: json_body["id"], audio: json_body["audio"], title: json_body["title"], project_id: json_body["projectId"], name: json_body["name"])
+    render json: ProjectJson.full(project, current_user).merge(importedTrackId: track.id), status: :created
   rescue ArgumentError => error
     render json: {error: error.message}, status: :unprocessable_content
   end

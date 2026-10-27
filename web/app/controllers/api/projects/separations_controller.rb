@@ -14,7 +14,7 @@ class Api::Projects::SeparationsController < Api::BaseController
         return render json: ProjectJson.separation(existing)
       end
       source = project.tracks.find(json_body["sourceTrackId"])
-      return render_error("Choose an original with audio") unless source.audio.attached?
+      return render_error("Choose an original with audio") unless source.audio.attached? && !source.removed_at
       return render_error("Discard an unfinished upload before starting another") if project.separations.where(state: "uploading").count >= 2
       separation = project.separations.create!(token: json_body["token"], manifest: json_body["manifest"] || {},
         source_track: source, creator: current_user,
@@ -100,7 +100,7 @@ class Api::Projects::SeparationsController < Api::BaseController
         end
         separation.update!(state: "ready")
       end
-      project.update!(active_separation: separation)
+      separation.activate_timeline!()
     end
     render json: ProjectJson.full(project.reload, current_user)
   end
@@ -109,7 +109,7 @@ class Api::Projects::SeparationsController < Api::BaseController
     project = owned_project
     separation = project.separations.find(json_body["id"])
     return render_error("Separation is not ready") unless separation.state == "ready"
-    project.update!(active_separation: separation)
+    current_user.with_lock { separation.activate_timeline!() }
     render json: ProjectJson.full(project, current_user)
   end
 

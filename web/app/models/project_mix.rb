@@ -20,18 +20,21 @@ class ProjectMix
       # Do not silently export a dry DI instead of an unqualified WAM render.
       raise ArgumentError, "Preset rendering is not validated yet; export the separated instruments instead" if track.preset_id || track.factory_preset
       raise ArgumentError, "Generated mixes cannot be mixed back into their own source" if track.origin == "mix"
+      raise ArgumentError, "A reserved source is not in the project timeline" unless track.timeline_visible && !track.removed_at
       valid_mix = source["volume"].is_a?(Integer) && (0..100).cover?(source["volume"]) && source["pan"].is_a?(Integer) && (-100..100).cover?(source["pan"]) &&
         [true,false].include?(source["mute"]) && [true,false].include?(source["solo"]) && source["inputMonitoring"] == false
       raise ArgumentError, "Invalid source mix" unless valid_mix
     end
     batches = tracks.values.map(&:separation_id).compact.uniq
-    if batches.any?
-      raise ArgumentError, "Choose a single separation deck" unless batches.length == 1 && tracks.values.all? { |t| t.origin == "stem" && t.separation_id == batches.first } && manifest["separationId"] == batches.first
-      batch = project.separations.find(batches.first)
-      raise ArgumentError, "Save every instrument before exporting" unless batch.state == "ready" && tracks.size == batch.roles.size
-    else
-      raise ArgumentError, "Invalid separation source" unless manifest["separationId"].nil?
+    if manifest["separationId"].present?
+      raise ArgumentError, "Invalid separation source" unless batches == [manifest["separationId"]] && tracks.values.all? { |track| track.origin == "stem" }
     end
+    batches.each do |id|
+      batch = project.separations.find(id)
+      count = tracks.values.count { |track| track.separation_id == id }
+      raise ArgumentError, "Save every instrument before exporting" unless batch.state == "ready" && count == batch.tracks.where(timeline_visible: true, removed_at: nil).count
+    end
+
     true
   end
 end

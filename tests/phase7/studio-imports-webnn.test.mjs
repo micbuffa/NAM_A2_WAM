@@ -24,7 +24,7 @@ test('YouTube poll network failure is terminal and gives a reconnect instruction
 test('Tone import opens the server original and preserves local file as upload, no synthetic URL fetch',async()=>{
  for(const file of [null,{name:'local.mp3'}]){
   let prompted=0;
-  const calls=[],w={separationView:{chooseModel(){prompted++;}},importingTone:false,saving:false,ensureSignedIn:async()=>true,confirmSavedMixDiscard:async()=>true,confirmPreviewDiscard:async()=>true,
+  const calls=[],w={chooseImportDestination:async()=>({destination:{}}),replaceSummary(){},separationView:{chooseModel(){prompted++;}},importingTone:false,saving:false,ensureSignedIn:async()=>true,confirmSavedMixDiscard:async()=>true,confirmPreviewDiscard:async()=>true,
    api:{importBacking:async(...args)=>{calls.push(args);return {id:7};}},projects:[],setProject:p=>calls.push(p),remember:()=>{},render:()=>{},report:()=>{}};
   assert.equal(await ProjectsWorkspace.prototype.importFromTone.call(w,{id:'studio-5',title:'Backing'},file),true);
   assert.deepEqual(calls[0],[file?{title:'Backing'}:{id:'studio-5'},file]);assert.equal(w.projects[0].id,7);assert.equal(w.importingTone,false);assert.equal(prompted,1);
@@ -56,7 +56,7 @@ test('isolated ORT WebNN runtime is pinned by bytes and SHA, production ORT rema
 });
 test('a late Tone import response after account change cannot populate another account',async()=>{
  let resolve,replaced=false;
- const w={accountLoadEpoch:1,account:{user:{id:1}},ensureSignedIn:async()=>true,confirmSavedMixDiscard:async()=>true,confirmPreviewDiscard:async()=>true,
+ const w={chooseImportDestination:async()=>({destination:{}}),accountLoadEpoch:1,account:{user:{id:1}},ensureSignedIn:async()=>true,confirmSavedMixDiscard:async()=>true,confirmPreviewDiscard:async()=>true,
  api:{importBacking:()=>new Promise(r=>resolve=r)},projects:[],setProject:()=>replaced=true,report:()=>{}};
  const pending=ProjectsWorkspace.prototype.importFromTone.call(w,{id:'studio-5'});await tick();
  w.accountLoadEpoch++;w.account.user=null;resolve({id:9});assert.equal(await pending,false);assert.equal(replaced,false);

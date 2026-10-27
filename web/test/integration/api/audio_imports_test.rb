@@ -99,4 +99,42 @@ class Api::AudioImportsTest < ActionDispatch::IntegrationTest
     Separation.define_singleton_method(:storage_bytes,storage) if storage
   end
 
+  test "YouTube append remembers its destination and never hides existing project tracks" do
+    project=projects(:alice_song)
+    post "/api/audio_imports",params:{url:"https://youtu.be/9rPbKNMjuzI",projectId:project.id},as: :json
+    assert_response :accepted
+    record=AudioImport.find(response.parsed_body["id"])
+    assert_equal project.id,record.destination["projectId"]
+    download=YoutubeDownloader.instance_method(:download)
+    source=file_fixture("studio-mix.mp3").to_s
+    YoutubeDownloader.define_method(:download) { [source,{"kind"=>"youtube","videoId"=>"9rPbKNMjuzI","title"=>"New clip"}] }
+    before=project.tracks.count
+    assert_no_difference("Project.count") {YoutubeImportJob.perform_now(record.id)}
+    assert_equal "ready",record.reload.state
+    assert_equal project.id,record.project_id
+    assert_equal before+1,project.tracks.count
+    imported=project.tracks.find(record.metadata["sourceTrackId"])
+    assert_equal "New clip",imported.name
+    assert imported.timeline_visible
+    assert_equal imported.id,record.snapshot[:sourceTrackId]
+    post "/api/audio_imports",params:{url:"https://youtu.be/9rPbKNMjuzI",projectId:projects(:bob_jam).id},as: :json
+    assert_response :not_found
+  ensure
+    YoutubeDownloader.define_method(:download,download) if download
+  end
+
+  test "a deleted YouTube destination fails rather than creating a different project" do
+    project=users(:alice).projects.create!(name:"Temporary",bpm:120)
+    record=users(:alice).audio_imports.create!(url:"https://youtu.be/9rPbKNMjuzI",destination:{"projectId"=>project.id})
+    project.destroy!
+    download=YoutubeDownloader.instance_method(:download)
+    source=file_fixture("studio-mix.mp3").to_s
+    YoutubeDownloader.define_method(:download) { [source,{"title"=>"Clip"}] }
+    assert_no_difference(["Project.count","Track.count"]) {YoutubeImportJob.perform_now(record.id)}
+    assert_equal "error",record.reload.state
+    assert_match(/Destination project/,record.message)
+  ensure
+    YoutubeDownloader.define_method(:download,download) if download
+  end
+
 end

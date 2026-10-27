@@ -34,12 +34,59 @@ class Api::Projects::TracksController < Api::BaseController
     render json: ProjectJson.track(track)
   end
 
+  # Keep audio and separation provenance: removing an instrument must not
+  # corrupt a published batch, and reactivating history must not resurrect it.
   def destroy
-    if track.origin == "mix" || track.separation_id || track.source_separations.exists?
-      return render json: { error: "This track belongs to a saved separation" }, status: :unprocessable_content
+    if track.origin == "mix" || (!track.timeline_visible && !track.removed_at)
+      return render json: { error: "Only timeline tracks can be removed" }, status: :unprocessable_content
     end
-    track.destroy!
-    head :no_content
+    track.update!(removed_at: track.removed_at || Time.current, timeline_visible: false, input_monitoring: false)
+    render json: ProjectJson.track(track)
+  end
+
+  def restore
+    if track.timeline_visible && !track.removed_at && track.origin != "mix"
+      return render json: ProjectJson.track(track)
+    end
+    unless track.removed_at && track.origin != "mix"
+      return render json: { error: "This track is not removed" }, status: :unprocessable_content
+    end
+    track.update!(removed_at: nil, timeline_visible: true, input_monitoring: false)
+    render json: ProjectJson.track(track)
+  end
+
+  # Undo/redo a published group without deleting blobs or replaying inference.
+  # Preconditions are checked for the whole group before any row is changed.
+  def visibility
+    project = owned_project
+    changes = json_body["changes"]
+    boolean_state = ->(state) { state.is_a?(Hash) && [true, false].include?(state["visible"]) && [true, false].include?(state["removed"]) && !(state["visible"] && state["removed"]) }
+    unless changes.is_a?(Array) && changes.any? && changes.length <= 200 && changes.all? { |change| change.is_a?(Hash) && change["id"].is_a?(Integer) && boolean_state.call(change["before"]) && boolean_state.call(change["after"]) } && changes.map { |c| c["id"] }.uniq.size == changes.size
+      return render json: { error: "Invalid visibility command" }, status: :unprocessable_content
+    end
+    project.with_lock do
+      rows = project.tracks.where(id: changes.map { |change| change["id"] }).includes(:separation).index_by(&:id)
+      unless rows.size == changes.size && rows.values.all? { |row| row.origin != "mix" && (!row.separation || row.separation.state == "ready") }
+        return render json: { error: "Invalid command tracks" }, status: :unprocessable_content
+      end
+      active = json_body["afterSeparationId"]
+      unless active.nil? || project.separations.where(id: active, state: "ready").exists?
+        return render json: { error: "Invalid saved separation" }, status: :unprocessable_content
+      end
+      matches = ->(side) { changes.all? { |change| row = rows.fetch(change["id"]); row.timeline_visible == change[side]["visible"] && row.removed_at.present? == change[side]["removed"] } }
+      already_applied = project.active_separation_id == active && matches.call("after")
+      unless already_applied || (project.active_separation_id == json_body["beforeSeparationId"] && matches.call("before"))
+        return render json: { error: "Project changed in another window; reopen it before undoing" }, status: :conflict
+      end
+      unless already_applied
+        changes.each do |change|
+          state = change["after"]
+          rows.fetch(change["id"]).update!(timeline_visible: state["visible"], removed_at: state["removed"] ? Time.current : nil, input_monitoring: false)
+        end
+        project.update!(active_separation_id: active)
+      end
+      render json: { tracks: rows.values.map { |row| ProjectJson.track(row) }, activeSeparationId: active }
+    end
   end
 
   # PATCH /api/projects/:project_id/tracks/order { ids: [...] }: every track
