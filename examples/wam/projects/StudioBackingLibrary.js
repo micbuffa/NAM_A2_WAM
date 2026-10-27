@@ -31,3 +31,19 @@ export async function returnToStudio({projectId,workspace,backingPlayer,workspac
   if (projectId && workspace.project?.id !== projectId) return false;
   backingPlayer.pause();workspaces.show('projects');return true;
 }
+
+// Load the already downloaded MP3, without opening Studio or starting inference.
+export async function useYoutubeInTone({job, library, player, projectPlayer, workspaces}) {
+  projectPlayer.pause();player.engine.pause();
+  await library.list();player.renderList();
+  let id=job.sourceTrackId ? `studio-source-${job.sourceTrackId}` : null;
+  // Jobs created before sourceTrackId was recorded can still be opened when
+  // their project contains exactly one matching, authorized YouTube source.
+  if(!id){
+    const matches=library.tracks.filter(track=>track.origin==='youtube'&&track.projectId===job.projectId&&(!job.metadata?.videoId||track.videoId===job.metadata.videoId));
+    if(matches.length===1)id=matches[0].id;
+  }
+  if(!id)throw Error('This older import has no unique available source. Import the video again.');
+  if(!await player.engine.loadTrack(id))throw Error('YouTube audio was not loaded. Try again.');
+  player.setExpanded(true);workspaces.show('tone');return true;
+}

@@ -120,9 +120,52 @@ Un écran avancé « Calibrate input latency » explique le câblage sortie → 
 
 Effectuer plusieurs probes, calculer médiane et dispersion, afficher RTL en frames et ms, correction appliquée, configuration et date. Une estimation variable n’est pas présentée comme calibrée. Permettre réglage manuel et remise à zéro, avec statut « manuel / non mesuré ». Sans câble, ne pas annoncer une mesure exacte de l’interface : l’acoustique ajoute propagation et réflexions.
 
-Indexer le profil local par périphérique entrée, sortie quand identifiable, sampleRate, canaux, navigateur/version pertinente et configuration du contexte. Invalider/revalider sur changement matériel, fréquence ou routage. Déconnexion : arrêter, finaliser ou signaler l’échec sans écraser l’ancienne piste. Le profil n’est pas partagé comme une vérité pour les autres utilisateurs du projet.
+Indexer le profil local par périphérique entrée, sortie quand identifiable, sampleRate, canaux, navigateur/version pertinente et configuration du contexte. Invalider/revalider sur changement matériel, fréquence ou routage. Déconnexion : arrêter, finaliser ou signaler l’échec sans écraser l’ancienne piste. Le profil personnel mesuré reste prioritaire ; les estimations communautaires décrites ci-dessous ne sont pas une calibration universelle.
 
 La latence du preset est séparée : la DI étant enregistrée avant le rack, ne pas imprimer son retard dans la compensation de capture. Si un effet ajoute du délai, qualifier le playback/monitoring et l’éventuelle compensation du mixer. Copier le preset ne garantit pas que tous les WAM exposent correctement leur latence. Une première qualification utilisera une interface filaire ; Bluetooth ne reçoit pas de garantie de synchronisation stable.
+
+### Identification de la carte son et calibration communautaire [SPECIFIED / NOT IMPLEMENTED]
+
+Après une mesure fiable, proposer **« Contribuer cette calibration »**, sans conditionner l’enregistrement à cette contribution. Présenter la mesure, son contexte et les champs à publier avant validation. Demander marque, modèle, génération et référence ; exemple de saisie : « Focusrite Scarlett 2i2, 2e génération — compensation 11 ms ». **11 ms est un exemple, pas une mesure ni une valeur recommandée pour cette carte.**
+
+#### Ce que permet le navigateur
+
+`MediaDeviceInfo.label` peut aider à préremplir le modèle après autorisation de capture, mais son contenu n’est pas normalisé et peut être vide. La spécification interdit de présumer qu’il contient un modèle précis. `deviceId` identifie un périphérique dans le contexte de l’origine, peut changer et n’est pas une référence constructeur ; `groupId` aide à grouper des périphériques dans un document. Il n’existe pas de champ standard marque/modèle/génération dans cette interface. Identifier l’entrée réellement ouverte via `MediaStreamTrack.getSettings().deviceId`, puis proposer son libellé localement, avec confirmation manuelle. Un périphérique « default », virtuel ou ambigu exige un choix explicite. Sources : [MediaDeviceInfo.label](https://w3c.github.io/mediacapture-main/#dom-mediadeviceinfo-label), [deviceId](https://w3c.github.io/mediacapture-main/#dom-mediadeviceinfo-deviceid), [exposition des informations](https://w3c.github.io/mediacapture-main/#device-information-exposure).
+
+Ne pas ajouter de sondage matériel pour contourner ces protections. Associer localement le périphérique courant au modèle confirmé ; ne jamais utiliser les identifiants navigateur comme clés publiques du catalogue.
+
+#### Une mesure dépend de sa configuration
+
+Une seule valeur par carte serait trompeuse. Chaque contribution contient :
+
+- modèle canonique et génération de l’interface d’entrée, sortie utilisée (qui peut être différente), routage et canaux ;
+- plateforme, famille/version du navigateur, fréquence effective du contexte, options de latence demandées et effectives lorsqu’exposées, traitements d’entrée activés ;
+- pilote et taille de buffer uniquement s’ils sont connus et déclarés, sinon « inconnus » : ne pas les déduire du navigateur ;
+- version du protocole et de l’application, date, nombre de probes, médiane, dispersion et confiance ;
+- RTL mesuré **et** correction appliquée, chacun en frames et ms, avec fréquence et `compensationKind` explicitant le point d’horodatage. Ne pas mélanger retard d’entrée, aller-retour et retard du preset.
+
+Les valeurs Web Audio de latence ne constituent pas à elles seules une identification ou une calibration matérielle : voir [Web Audio — latency](https://webaudio.github.io/web-audio-api/#latency). Le protocole physique décrit plus haut reste nécessaire pour qualifier l’alignement.
+
+#### Réutilisation et confidentialité
+
+Dans l’assistant, permettre de choisir son interface dans un catalogue avec alias, génération et option « autre / modèle inconnu ». Présenter une **estimation communautaire compatible** : médiane, dispersion, nombre de contributeurs distincts, date et configuration. Une mesure personnelle valide prévaut ; sinon l’utilisateur peut appliquer explicitement cette estimation ou faire une calibration. Afficher « estimation communautaire », sans promettre un alignement à l’échantillon. Un changement d’entrée, sortie, fréquence ou routage invalide/requalifie le profil. Exclure des agrégats les configurations incompatibles et les protocoles de compensation différents.
+
+Ne publier ni audio de calibration, ni libellé matériel brut, ni deviceId/groupId, numéro de série ou identité personnelle. Le libellé peut contenir des informations privées : l’analyser localement puis envoyer uniquement les champs autorisés confirmés. Contribution facultative, liée au compte côté serveur, modifiable/supprimable par son auteur ; seules les statistiques agrégées sont publiques. Limiter les contributions répétées par utilisateur/configuration, distinguer répétitions de probes et contributeurs indépendants, modérer les alias et valeurs aberrantes. Une contribution ne devient pas « vérifiée » par son simple envoi.
+
+Préparer côté Rails un catalogue `AudioInterfaceModel`, des `LatencyContribution` et agrégats recalculables (noms indicatifs), recherche publique et consultation filtrée, création authentifiée avec CSRF, modification/suppression limitée à l’auteur. Valider unités, bornes et protocole côté serveur, limiter le débit et les champs acceptés. Aucun de ces endpoints n’est implémenté ici.
+
+```mermaid
+flowchart LR
+  A[Mesure loopback fiable] --> B[Profil personnel local]
+  B --> C{Contribution volontaire ?}
+  C -->|Oui| D[Confirmer modèle et configuration]
+  D --> E[Validation et agrégation Rails]
+  E --> F[Catalogue de profils compatibles]
+  F --> G[Estimation choisie par un autre utilisateur]
+  G --> A
+```
+
+Tests à prévoir : permissions refusées/libellés absents, entrée réelle différente du périphérique par défaut, alias et générations ambiguës, identifiants renouvelés, unités et protocole de compensation, filtrage des configurations, priorité du profil personnel, valeurs aberrantes et faux doublons, retrait d’une contribution et recalcul, contrôle d’accès, absence d’identifiants privés dans les payloads et agrégats. Valider ensuite sur plusieurs interfaces physiques ; aucun résultat matériel n’est revendiqué à ce stade.
 
 ## Undo / Redo et rétention des prises
 
@@ -169,6 +212,7 @@ Monitor peut rester actif après Stop, sans laisser le recorder écrire. Arm n�
 | R2 | Monitoring avant armement, sélection entrée/preset, transfert vers Tone | absence de doublage et de recapture du mix ; écoute du preset courant non sauvegardé |
 | R3 | Capture WAM/ring buffer/worker, waveform incrémentale et StopAck | ordre, conservation exacte du PCM, débordement visible, fermeture propre |
 | R4 | Transport commun, calibration loopback et compensation | alignement synthétique puis matériel, unités et dérive longue |
+| R4b | Catalogue matériel, contribution volontaire et profils communautaires | permissions, confidentialité, compatibilité des configurations, agrégats et validation sur interfaces réelles |
 | R5 | Sauvegarde/reprise, remplacement et lecture avec autre son | échec réseau/quota, ancien audio conservé, rechargement et partage |
 | R6 | Qualification de performance et export traité vers Tone | plusieurs accompagnements, rack NAM, UI fluide, rendu preset réellement présent |
 

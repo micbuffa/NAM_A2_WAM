@@ -269,3 +269,6 @@
   .fx-endpoint-actions .fx-lane-enable::part(icon) { display: none; }
   .fx-endpoint-actions .fx-endpoint-reset { padding: 0; }
 }
+
+/* The catalog thumbnail and title also support double-click insertion/replacement. */
+.fx-menu-item { cursor: pointer; }

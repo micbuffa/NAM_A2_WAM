@@ -38,12 +38,17 @@ export class StudioMixExporter {
   }
   invalidate() { ++this.epoch; this.pending=null; }
   current(epoch) { if(epoch!==this.epoch)throw new DOMException('Project or account changed during export','AbortError'); }
-  async encode(buffer,onProgress=()=>{}) {
+  async encode(buffer,onProgress=()=>{}, {signal}={}) {
     const worker=this.workerFactory();
     const request=data=>new Promise((resolve,reject)=>{
-      worker.onmessage=({data})=>data.type==='progress'?onProgress(data.percent):data.type==='error'?reject(Error(data.message)):resolve(data);
-      worker.onerror=event=>reject(Error(event.message||'MP3 worker failed'));
-      worker.postMessage(data,data.type==='packet'?[data.left.buffer,data.right.buffer]:[]);
+      const abort=()=>finish(reject, new DOMException('MP3 export cancelled','AbortError'));
+      const finish=(settle,value)=>{signal?.removeEventListener('abort',abort);settle(value);};
+      if(signal?.aborted)return abort();
+      signal?.addEventListener('abort',abort,{once:true});
+      worker.onmessage=({data})=>data.type==='progress'?onProgress(data.percent):data.type==='error'?finish(reject,Error(data.message)):finish(resolve,data);
+      worker.onerror=event=>finish(reject,Error(event.message||'MP3 worker failed'));
+      try {worker.postMessage(data,data.type==='packet'?[data.left.buffer,data.right.buffer]:[]);}
+      catch(error) {finish(reject,error);}
     });
     try {
       await request({type:'init',frames:buffer.length});

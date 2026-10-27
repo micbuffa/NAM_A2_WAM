@@ -644,7 +644,7 @@ export class ProjectsWorkspace extends EventTarget {
     dialog.showModal();
   }
 
-  async youtubeImportDialog() {
+  async youtubeImportDialog({onImported = null} = {}) {
     if (!await this.ensureSignedIn()) return;
     const {dialog,body,id}=createDialog({title:'Import from YouTube'});
     const form=element('form');
@@ -652,14 +652,14 @@ export class ProjectsWorkspace extends EventTarget {
     const url=element('input',{id:`${id}-url`,type:'url',required:true,placeholder:'https://www.youtube.com/watch?v=…',autocomplete:'off'});
     const label=element('label',{htmlFor:url.id,textContent:'Video URL'});
     const start=button('Import audio',{type:'submit',primary:true});
-    const cancel=button('Cancel import'),open=button('Open in Studio',{primary:true}),close=button('Close');
+    const cancel=button('Cancel import'),open=button(onImported ? 'Use in Tone' : 'Open in Studio',{primary:true}),close=button('Close');
     const status=element('p',{role:'status',textContent:'Checking server…'});
     const progress=element('progress',{max:100,hidden:true});
     const provenance=element('p',{className:'host-help'});
     let job=null,available=false,pending=false,closed=false;
     const render=value=>{
       job=value;const active=importActive(job);
-      status.textContent=job?.message || job?.state || 'Ready. Up to 30 minutes / 100 MiB. Import audio you are allowed to use.';
+      status.textContent=(onImported && job?.state==='ready' ? 'Audio ready. Use in Tone to load it without separation.' : job?.message || job?.state) || 'Ready. Up to 30 minutes / 100 MiB. Import audio you are allowed to use.';
       progress.hidden=!active;
       if(Number.isFinite(job?.progress))progress.value=job.progress;else progress.removeAttribute('value');
       start.disabled=!available||active||pending;url.disabled=active||pending;destination.root.inert=active||pending;
@@ -687,6 +687,17 @@ export class ProjectsWorkspace extends EventTarget {
       finally{pending=false;if(!closed){start.disabled=!available||importActive(job);url.disabled=importActive(job);}}
     };
     open.onclick=async()=>{
+      if (onImported) {
+        if (pending || job?.state !== 'ready') return;
+        const imported = job, epoch = this.accountLoadEpoch;
+        pending = true; open.disabled = true; status.textContent = 'Loading audio in Tone…';
+        try {
+          await onImported(imported);
+          if (this.accountLoadEpoch === epoch && !closed) dialog.close();
+        } catch (error) { if (!closed) status.textContent = error.message; }
+        finally { pending = false; if (!closed) open.disabled = false; }
+        return;
+      }
       if(await this.confirmSavedMixDiscard() && await this.confirmPreviewDiscard()) {
         const target=job.projectId;dialog.close();
         try{this.projects=await this.api.listProjects();this.separation?.stop({reset:true});await this.open(target,{confirm:false,historyLabel:'Import YouTube audio'});if(this.project?.id===target)void this.separationView?.chooseModel({sourceId:job.sourceTrackId,allowUnseparated:true});}

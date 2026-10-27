@@ -2,7 +2,7 @@
 
 ## Serial effect chain
 
-The main host shows the current NAM capture and Cabinet IR as photo cards. Click a `+` to insert a bundled effect at that position. Click any photo to open its editor; closing the editor preserves the running instance and its settings. Card controls and editor toolbars provide bypass. Cabinet AUTO still follows the selected NAM capture type.
+The main host shows the current NAM capture and Cabinet IR as photo cards. Click a `+` to choose a bundled effect at that position, then double-click its thumbnail/title or use **Insert module**. Click any photo to open its editor; **Replace** opens the catalog to replace that instance in place while preserving its input/output gains. Cancel or a failed load keeps the current module. Closing the editor preserves the running instance and its settings. Card controls and editor toolbars provide bypass. Cabinet AUTO still follows the selected NAM capture type.
 
 NAM and Cabinet initialize their default assets without creating editors. Multiple instances keep independent WAM states. The **Session & diagnostics** save/restore controls now snapshot the whole chain in memory; factory/user preset management is a subsequent phase.
 
@@ -369,9 +369,14 @@ git diff --cached --name-only
 ```
 
 Studio **Import audio** now offers **file / YouTube** through Rails; progress,
-cancellation and source metadata are retained in the account. Tone's expanded
-Play along player has **Separate instruments** to create a Studio original from
-the selected backing. YouTube needs the updated Rails container, not just a static
+cancellation and source metadata are retained in the account. Tone's **Import audio**
+offers a local file or YouTube too; **Use in Tone** loads the downloaded source
+without separation or autoplay. YouTube originals stay in the private backing library.
+**Download MP3** is available for every loaded backing (also via the download icon
+in the collapsed dock). Existing MP3s download directly; other formats are converted
+locally to MP3 in a worker. Downloads contain the full source, without the live guitar,
+loop cropping or playback settings. The expanded player also has **Separate instruments**
+to create a Studio original from the selected backing. YouTube needs the updated Rails container, not just a static
 dist. See [Rails deployment and import limits](web/README.md#studio-audio-imports-26-october-2026).
 Advanced WebNN CPU/GPU/NPU is experimental for Demucs4 only, with strict per-block
 WASM comparison and initial fallback. Native WebNN qualification is still pending;

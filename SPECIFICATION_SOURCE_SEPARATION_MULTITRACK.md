@@ -1,3 +1,15 @@
+## 27 octobre 2026 — Édition du rack et calibration communautaire
+
+**[DONE]** Double-clic sur la vignette/le titre d’un WAM : insertion dans le connecteur choisi. Le bouton **Replace** de l’éditeur ouvre le même catalogue ; remplacement au même emplacement, gains conservés, ancien module conservé si le chargement échoue. Annuler laisse l’éditeur et le module intacts. Une action en cours bloque les doublons. Le téléchargement MP3 reste dans Play Along, hors du dialogue Import audio.
+
+**[SPECIFIED / NOT IMPLEMENTED]** Calibration personnelle + contribution volontaire de profils matériels contextualisés : voir [RECORD_TRACKS_SPECIFICATION.md](RECORD_TRACKS_SPECIFICATION.md). Préremplissage éventuel depuis le libellé du périphérique, confirmation du modèle/génération, estimations agrégées compatibles et protection des identifiants privés.
+
+## 27 octobre 2026 — Import et téléchargement dans Tone / Play Along
+
+**[DONE]** Import audio de Tone propose fichier local / vidéo YouTube. Le dialogue YouTube réutilise Rails (progression, annulation, compte, choix de destination), avec **Use in Tone** pour charger la source sans séparation ni autoplay. Les sources YouTube sont répertoriées comme backings privés, chargées uniquement à la demande et retirées du catalogue après suppression ; leurs blobs peuvent être réutilisés pour Separate instruments sans nouveau téléchargement.
+
+Download MP3 est disponible pour toutes les origines : bibliothèque, fichier local, YouTube, mix Studio. Icône dans le dock replié, bouton dans la vue ouverte Le dialogue d’import contient uniquement les choix fichier et YouTube. Un MP3 existant est téléchargé directement ; sinon conversion locale 44,1kHz/stéréo/192k dans le worker MP3 existant, resampling hors contexte live si nécessaire, progression et annulation sur changement de morceau/compte. Conversion plafonnée à512MiB de PCM de travail ; les copies MP3 directes ne requièrent pas ce buffer. Le fichier contient toute la source, indépendamment de loop, speed, normalization/mix live et guitare. Les contrôles sont désactivés pendant chargement/conversion. YouTube reste indisponible en déploiement purement statique ; l’import fichier et la conversion locale y fonctionnent.
+
 ## 27 octobre 2026 — Undo / Redo de Studio
 
 **[DONE] Historique de session** : commandes locales (mix, noms, ordre, preset associé, tempo, boucle), ajout/suppression/restauration de piste, imports dans le projet ouvert et groupes de séparation publiés. Deux flèches SVG près de Save project ; ⌘Z/⌘⇧Z sur Mac, Ctrl+Z/Ctrl+Shift+Z/Ctrl+Y sur Windows/Linux. Un drag = une commande, limite30dont2opérations audio, aucune copie PCM ; Save conserve la pile, rechargement/changement de projet ou de compte la réinitialise. Les champs texte/dialogues/WAM gardent leurs raccourcis. Publication/Undo de visibilité d’un groupe atomique, préconditions de conflit, retries idempotents. Les previews RAM utilisent Stop/Cancel jusqu’à publication.

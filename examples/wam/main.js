@@ -1,5 +1,5 @@
 import './backing-track-player/BackingTrackPlayerElement.js';
-import {StudioBackingLibrary, useBackingInTone, returnToStudio} from './projects/StudioBackingLibrary.js';
+import {StudioBackingLibrary, useYoutubeInTone, useBackingInTone, returnToStudio} from './projects/StudioBackingLibrary.js';
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
 import {linkPlayAlong, linkSpaceKey} from './backing-track-player/PlayAlong.js';
 import {PlayAlongMemory} from './backing-track-player/PlayAlongMemory.js';
@@ -286,7 +286,8 @@ async function initialize() {
   playAlong=document.createElement('backing-track-player');$('.rack-stage').append(playAlong);
   new ResizeObserver(()=>document.body.style.setProperty('--play-along-height',`${playAlong.offsetHeight}px`)).observe(playAlong);
   const studioLibrary=new StudioBackingLibrary({account:accountIntegration.account});
-  await playAlong.initialize({audioContext:context,library:studioLibrary});
+  await playAlong.initialize({audioContext:context,library:studioLibrary,
+    importYoutube: projects.available ? () => projects.youtubeImportDialog({onImported: job => useYoutubeInTone({job,library:studioLibrary,player:playAlong,projectPlayer,workspaces})}) : null});
   projects.onUseMix=entry=>useBackingInTone({entry,library:studioLibrary,player:playAlong,projectPlayer,workspaces});
   projects.renderMixExport();
   accountIntegration.account?.addEventListener('change',()=>{

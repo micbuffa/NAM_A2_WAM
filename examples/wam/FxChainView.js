@@ -18,7 +18,9 @@ export class FxChainView {
     this.subtitle=element('p','fx-editor-subtitle');titles.append(this.kicker,this.title,this.subtitle);
     const close=attrs(element('tl-icon-button','fx-editor-close'),{icon:'close','aria-label':'Close editor'});
     this.state=attrs(element('tl-badge','fx-editor-state'),{tone:'warning',dot:'',role:'status'});this.state.hidden=true;
-    const actions=element('div','fx-editor-actions');actions.append(this.state,close);
+    this.replaceButton=attrs(element('tl-button','','Replace'),{size:'sm',variant:'ghost','aria-haspopup':'dialog'});
+    this.replaceButton.onclick=()=>this.replaceActive();
+    const actions=element('div','fx-editor-actions');actions.append(this.state,this.replaceButton,close);
     bar.append(titles,actions);this.mount=element('div','fx-editor-mount');this.mount.id=`fx-editor-mount-${editorSequence}`;
     this.tabs=attrs(element('nav','fx-editor-tabs'),{role:'tablist','aria-label':'Editor sections'});this.tabs.hidden=true;
     const body=element('div','fx-editor-body');this.editorSides={input:this.createEditorSide('input'),output:this.createEditorSide('output')};
@@ -307,10 +309,15 @@ export class FxChainView {
       await this.refresh();
     }catch(error){if(serial===this.openSerial)this.mount.textContent=`Editor unavailable: ${error.message}`;this.report(error.message,true);}
   }
+  replaceActive() {
+    if(this.activeId&&this.dialog.open)return this.showMenu(null,this.replaceButton,this.activeId);
+  }
   showMenu(beforeId,trigger,replaceId=null) {
+    if(this.menu?.open)return this.menu;
     const index=beforeId?this.chain.entries.indexOf(this.chain.find(beforeId)):this.chain.entries.length,lane=this.options.secondary?'B':'A',replaced=replaceId&&this.chain.find(replaceId);
     const {dialog,body}=createModal({title:replaceId?'Replace module':'Insert a WAM',eyebrow:replaced?`Chain ${lane} · ${replaced.record?.name||kindLabel(replaced)}`:`Chain ${lane} · Position ${index+1}`,className:'fx-menu',wide:true});
-    this.menu=dialog;
+    this.menu=dialog;let busy=false;
+    dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
     const intro=element('div','fx-menu-intro'),copy=element('div'),count=element('span','fx-menu-count'),status=element('p','fx-menu-status');status.setAttribute('aria-live','polite');
     copy.append(element('strong','','Choose an audio module'),element('span','',replaceId?'It takes the place of the current module, with its gains.':'The module will be inserted exactly at the selected connector.'));
     intro.append(copy,count);body.append(intro,status);
@@ -331,24 +338,28 @@ export class FxChainView {
       for(const record of records){
         const item=element('article','fx-menu-entry'),preview=element('div','fx-menu-item'),image=element('img'),button=element('button','fx-menu-insert');
         image.src=record.thumbnailUrl||fallbackThumbnail(record);image.alt='';image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail(record);};
+        preview.title=replaceId?'Double-click to replace':'Double-click to insert';
         preview.append(image,element('strong','',record.name));
         button.append(icon('plus',12),replaceId?'Replace':'Insert module');button.setAttribute('aria-label',`${replaceId?'Replace with':'Insert'} ${record.name}`);
         const uri=element('button','fx-copy-uri');uri.append(icon('copy',11),element('span','',record.entryUrl));uri.title=`Copy ${record.entryUrl}`;uri.setAttribute('aria-label',`Copy WAM URI for ${record.name}`);
         uri.onclick=async()=>{try{await navigator.clipboard.writeText(record.entryUrl);status.textContent=`WAM URI copied: ${record.entryUrl}`;}catch{status.textContent=`Copy this WAM URI: ${record.entryUrl}`;}};
         item.append(preview,button,uri);group.append(item);
-        button.onclick=async()=>{
-          dialog.querySelectorAll('button').forEach(b=>b.disabled=true);status.textContent=`Loading ${record.name}…`;
+        const activate=async()=>{
+          if(busy||!dialog.open)return;busy=true;
+          dialog.querySelectorAll('button,tl-icon-button').forEach(b=>b.disabled=true);status.textContent=`Loading ${record.name}…`;
           try{
             if(replaceId){const entry=await this.chain.replace(replaceId,record);dialog.close();await this.open(entry.id,this.cards.get(entry.id)?.photo);}
             else{await this.chain.insert(record,beforeId,side?.value||'after');dialog.close();this.container.querySelector('button')?.focus();}
           }
           catch(error){status.textContent=error.message;this.report(error.message,true);}
-          finally{dialog.querySelectorAll('button').forEach(b=>b.disabled=false);}
+          finally{busy=false;dialog.querySelectorAll('button,tl-icon-button').forEach(b=>b.disabled=false);}
         };
+        button.onclick=activate;
+        item.ondblclick=event=>{if(!event.target.closest('button,a,tl-button,tl-icon-button'))return activate();};
       }
     }
     count.textContent=`${total} modules available`;
     dialog.addEventListener('close',()=>{if(this.menu===dialog)this.menu=null;if(document.activeElement===document.body&&trigger?.isConnected)trigger.focus();});
-    dialog.showModal();
+    dialog.showModal();return dialog;
   }
 }
