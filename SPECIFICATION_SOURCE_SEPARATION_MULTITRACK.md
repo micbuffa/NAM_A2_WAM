@@ -1,3 +1,7 @@
+## 27 octobre 2026 — WebNN avec fichier personnel et lecteur multipiste
+
+**[DONE — implémentation expérimentale]** Choix Backend WebNN CPU/GPU/NPU pour Demucs4 ONNX qualité et BS Roformer SW6 ; import audio arbitraire, même lecteur progressif et réglages, session Worker réutilisée, ORT1.30 isolé/vérifié, arrêt et repli WASM borné avant première publication, distribution optionnelle du runtime. WebGPU reste le défaut ; matériel WebNN effectif inconnu. **[CURRENT]** Validation native de ce nouveau parcours dans Canary : le pilotage a expiré ; les simulations et le contrôle Chrome/WebGPU passent. Voir [WebNN_SUPPORT_SPECIFICATIONS.md](WebNN_SUPPORT_SPECIFICATIONS.md), sans confondre les anciens bancs fixes avec une nouvelle validation matérielle.
+
 # Prototype de séparation de sources et lecteur multipiste
 
 > **Orientation validée — 25 octobre 2026 :** la prochaine intégration produit est définie en **§12, P5 — Guitar Studio**. Elle conserve les deux onglets **Tone / Studio** de `main`, les projets Rails et leur interface, et y ajoute la séparation, YouTube et le retour d’un mix vers Tone. Le troisième onglet Multitracks et la bibliothèque locale décrits plus bas restent l’historique du prototype, pas la cible produit. **Spécification en cours ; aucune implémentation P5 démarrée.**

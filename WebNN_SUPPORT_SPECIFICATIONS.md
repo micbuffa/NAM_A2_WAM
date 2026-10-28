@@ -1,8 +1,22 @@
+## 27 octobre 2026 — Fichiers personnels et écoute multipiste [IMPLEMENTED / VALIDATION CANARY PENDING]
+
+La branche `multitracks` propose maintenant **WebNN / GPU, WebNN / CPU, WebNN / NPU** dans Backend, pour **Qualité · Demucs 4 pistes ONNX** et **BS Roformer SW 6 instruments**. La sélection reste volontaire ; WebGPU reste recommandé par défaut. Les anciens modèles ORT 6s/FT et l’aperçu Demucs 2s ne sont pas admis sur WebNN.
+
+Procédure : ouvrir `http://127.0.0.1:8765/examples/wam/source-separation/` dans Canary, importer son fichier dans **Input audio**, choisir le modèle puis le backend WebNN, télécharger les poids si nécessaire, choisir toute la durée ou un extrait, puis **Séparer le morceau**. Le même lecteur propose les instruments, volume/pan, mute/solo, boucle et mix. Dans l’onglet Multitracks du host, ces choix se trouvent dans **Change model / settings**. Le cache dépend de l’origine et du navigateur : un modèle installé dans Chrome n’est pas automatiquement installé dans Canary.
+
+Le Worker `webnn-playback-worker.js` reçoit les poids vérifiés du cache habituel. ORT1.30 reste isolé d’ORT1.22 ; `WebNNRuntime.js` vérifie taille et SHA-256 des trois assets avant import. Préparation = création de contexte, compilation et préchauffage ; elle peut prendre plusieurs dizaines de secondes. Les sessions sont réutilisées. Demucs garde sa fenêtre de343980frames, Roformer176400frames ; cette intégration ne promet pas un premier son en1s. Les résultats sont raccordés puis transmis par le transport/ring buffer existant au lecteur progressif. DSP et inférence restent hors du thread UI.
+
+CPU/GPU/NPU font partie de l’identité de session et du choix sérialisé. Changement confirmé de modèle/backend ou annulation détruit le Worker et invalide les anciennes réponses. Une perte de contexte rejette compilation/inférence. Le repli complet sur WASM est optionnel, visible et autorisé seulement avant le premier bloc ; ne jamais mélanger des backends en cours de flux. Les replis internes d’opérateurs restent possibles selon [ORT WebNN](https://onnxruntime.ai/docs/tutorials/web/ep-webnn.html). Le compteur de dispatchs, le type demandé et le matériel effectif inconnu figurent dans les mesures ; aucun NPU physique n’est certifié. Un compteur instrumenté à zéro après préchauffage provoque une erreur plutôt qu’une fausse réussite WebNN.
+
+Build : `python3 tools/prepare-webnn-lab.py` prépare les assets locaux épinglés. Lorsqu’ils sont présents, la dist les inclut sous `source-separation/vendor/onnxruntime-webnn/` avec la licence et réécrit le chemin du loader. Sans ces assets, le reste du host fonctionne et une tentative WebNN explique leur absence. Les poids continuent à être téléchargés via le catalogue habituel.
+
+Validation : tests automatisés du routage, clés de session, intégrité runtime, absence d’API, nettoyage, perte de contexte, annulation/repli et publication exacte des4/6pistes pour une entrée arbitraire. Le Worker réel est exercé avec inférence simulée : ce n’est pas une nouvelle mesure de modèle. Test natif Chrome : WAV importé de6s, Demucs4 WebGPU, quatre pistes visibles et Play/Stop fonctionnels ; WebNN indisponible est désactivé. Pilotage natif de Canary expiré pendant cette session : **le nouveau parcours WebNN de bout en bout reste à valider dans Canary**. Les anciens résultats des bancs fixes ne sont pas attribués à ce nouveau parcours. Aucun nouveau score audio, classement ni résultat matériel dans MODEL_EVALUATIONS.MD.
+
 # Support expérimental de WebNN pour la séparation de sources
 
 Version 0.6 — 25 octobre 2026 — branche `multitracks`.
 
-Document évolutif demandé par l’utilisateur. L’étude avance pendant que les écoutes humaines sont prévues par l’utilisateur. WNN-0, WNN-1 et WNN-2 sont terminés. Demucs4 a produit des sorties musicales via WebNN dans Canary ; WNN-3 reste en validation pour les gardes numériques sur pistes faibles. Aucun modèle WebNN n’est activé dans le host et l’usage effectif du NPU reste inconnu.
+Document évolutif demandé par l’utilisateur. L’étude avance pendant que les écoutes humaines sont prévues par l’utilisateur. WNN-0, WNN-1 et WNN-2 sont terminés. Demucs4 a produit des sorties musicales via WebNN dans Canary ; WNN-3 reste en validation pour les gardes numériques sur pistes faibles. Le lecteur propose maintenant WebNN expérimental pour les fichiers personnels (voir ajout ci-dessous) ; l’usage effectif du NPU reste inconnu.
 
 ## Objectif et périmètre
 

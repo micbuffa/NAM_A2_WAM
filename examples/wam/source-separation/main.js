@@ -1,3 +1,4 @@
+import {WEBNN_BACKENDS,isWebnnBackend,backendLabel} from './WebNNPlayback.js';
 import {separationStopState,requestSeparationStop} from './SeparationStopControl.js';
 import {createYouTubeImportPanel} from './YouTubeImportClient.js';
 import {createModelComparisonPanel,readBenchmarkReport} from './ModelComparisonPanel.js';
@@ -137,15 +138,16 @@ async function loadOriginal(audio,label,nextSource={kind:'example',name:label}) 
     $('sessionStatus').textContent='Réglages de l’original restaurés en pause. Relancez la séparation pour recréer les instruments manquants.';
   }
 }
-const needsPreparation=model=>model?.profile==='preview'||model?.runtime==='bs-roformer-onnx';
+const needsPreparation=model=>model?.profile==='preview'||model?.runtime==='bs-roformer-onnx'||isWebnnBackend($('backendSelect').value);
 const isOnnx=model=>['demucs-onnx-core','bs-roformer-onnx'].includes(model?.runtime);
 function progressiveEnabled() { return isOnnx(selectedModel()) || selectedModel()?.id === 'htdemucs_6s' && $('progressiveMode').checked; }
 function syncBackendOptions() {
   const policy=backendPolicy(selectedModel(),downloads?.capabilities,$('backendSelect').value);
   $('backendSelect').querySelector('[value=webgpu]').disabled=!policy.gpu;
+  for(const backend of WEBNN_BACKENDS)$('backendSelect').querySelector(`[value=${backend}]`).disabled=!policy.webnn;
   $('backendSelect').value=policy.backend;
   $('fallbackLabel').hidden=!policy.onnx;
-  $('backendStatus').textContent=policy.description;
+  $('backendStatus').textContent=policy.description+(policy.onnx&&!downloads?.capabilities?.webnn?' WebNN absent dans ce navigateur ; utilisez un navigateur avec WebNN activé pour ces options expérimentales.':'');
   if($('activeModelSummary'))$('activeModelSummary').textContent=selectedModelLabel(selectedModel(),policy.backend)+(needsPreparation(selectedModel())?` · ${previewRunner?.isPrepared(selectedModel(),policy.backend)?'prêt en mémoire':previewRunner?.isPreparing(selectedModel(),policy.backend)?'préparation en mémoire…':describeModelStatus(selectedModelState,selectedModel()).label}`:'');
 }
 function chooseModel(options) {
@@ -199,7 +201,7 @@ function showProgress(data) {
   if(data.phase==='fallback') {
     $('backendSelect').value='wasm';
     if($('activeModelSummary'))$('activeModelSummary').textContent=selectedModelLabel(selectedModel(),'wasm')+' · repli CPU';
-    $('backendStatus').textContent=`WebGPU a échoué : ${data.message}. Repli sur CPU/WASM avec le même modèle ONNX.`;
+    $('backendStatus').textContent=`Le moteur accéléré a échoué : ${data.message}. Repli sur CPU/WASM avec le même modèle ONNX.`;
     separationProgress=new SeparationProgress();
   }
   const value = separationProgress.update(data);
@@ -226,7 +228,7 @@ function syncSeparationButton() {
 }
 function renderSelectedModel(status) {
   const model = selectedModel();
-  if(needsPreparation(model)&&status.state==='installed'&&previewRunner?.isPrepared(model,$('backendSelect').value))status={...status,message:`${model.profile==='preview'?'Aperçu rapide':'Six sources'} prêt en mémoire · publication par blocs. Le délai réel dépend de la machine.`};
+  if(needsPreparation(model)&&status.state==='installed'&&previewRunner?.isPrepared(model,$('backendSelect').value))status={...status,message:`${model.roles.length} sources prêtes en mémoire · publication par blocs. Le délai réel dépend de la machine.`};
   selectedModelState = status;
   const view = describeModelStatus(status, model);
   modelInstalled = view.ready;
@@ -281,13 +283,13 @@ async function prepareSelectedModel(model,generation=selectionGeneration) {
       renderSelectedModel({state:'loading',message:completed===total?'Étapes GPU compilées · préchauffage sur silence…':`Compilation GPU · étape ${completed}/${total}…`});
     }});
     if(generation!==selectionGeneration||destroyed)return;
-    renderSelectedModel({state:'installed',message:`${model.profile==='preview'?'Aperçu rapide':'Six sources'} prêt en mémoire · publication par blocs. Le délai réel dépend de la machine.`});
+    renderSelectedModel({state:'installed',message:`${model.roles.length} sources prêtes en mémoire · publication par blocs. Le délai réel dépend de la machine.`});
   }catch(error){
     if(generation!==selectionGeneration||destroyed)return;
-    if(backend==='webgpu'&&$('allowCpuFallback').checked&&error.name!=='AbortError'){
+    if((backend==='webgpu'||isWebnnBackend(backend))&&$('allowCpuFallback').checked&&error.name!=='AbortError'){
       $('backendSelect').value='wasm';syncBackendOptions();
       await previewRunner.prepare(model,'wasm');
-      if(generation===selectionGeneration&&!destroyed)renderSelectedModel({state:'installed',message:'Modèle prêt sur CPU · repli après échec GPU. Lecture rapide non garantie.'});
+      if(generation===selectionGeneration&&!destroyed)renderSelectedModel({state:'installed',message:'Modèle prêt sur CPU/WASM · repli après échec du moteur accéléré. Lecture rapide non garantie.'});
     }else throw error;
   }
 }
@@ -368,8 +370,8 @@ async function separate() {
     syncWorkflow();
     completed=true;showProgress({phase:'ready'});
     const memory=result.heapBytes?` · mémoire WASM maximale ${(result.heapBytes/1024**3).toFixed(2)} Gio`:'';
-    $('progress').textContent=`Terminé en ${(result.elapsedMs/1000).toFixed(1)} s${memory} · ${result.backend==='webgpu'?'WebGPU (pipeline hybride)':'CPU/WASM'}${result.fallbackReason?' — repli CPU après échec GPU':''}`;
-    if(result.blocks)$('backendMetrics').textContent=JSON.stringify({profile:model.profile||'quality',firstReadyMs,backend:result.backend,runtimeVersion:result.runtimeVersion,loadMs:result.loadMs,blocks:result.blocks,adapter:result.adapterInfo},null,2);
+    $('progress').textContent=`Terminé en ${(result.elapsedMs/1000).toFixed(1)} s${memory} · ${backendLabel(result.backend)}${result.fallbackReason?' — repli CPU/WASM après échec du moteur accéléré':''}`;
+    if(result.blocks)$('backendMetrics').textContent=JSON.stringify({profile:model.profile||'quality',firstReadyMs,backend:result.backend,runtimeVersion:result.runtimeVersion,loadMs:result.loadMs,blocks:result.blocks,adapter:result.adapterInfo,...(isWebnnBackend(result.backend)?{requestedDevice:result.requestedDevice,effectiveHardware:result.effectiveHardware,webnnDispatches:result.webnnDispatches,wasmFallbackCoverage:result.wasmFallbackCoverage}:{})},null,2);
   } catch(error){
     if(!modelSettings.current(runToken))return;
     if(streamStarted)e.finish(true);
@@ -420,7 +422,7 @@ const youtubeImport=createYouTubeImportPanel({onBegin:()=>{youtubeImportGenerati
 }});
 ($('youtubeImportSlot')||$('fileInput').closest('label').parentElement).append(youtubeImport.element);
 $('fileInput').onchange=()=>{const file=$('fileInput').files[0];$('fileInput').value='';return loadFile(file);};
-$('modelSelect').onchange=()=>{if(!modelSettings.draft)return chooseModel();};
+$('modelSelect').onchange=()=>{if(!modelSettings.draft)return chooseModel();const policy=backendPolicy(selectedModel(),downloads?.capabilities,$('backendSelect').value);$('backendSelect').querySelector('[value=webgpu]').disabled=!policy.gpu;for(const backend of WEBNN_BACKENDS)$('backendSelect').querySelector(`[value=${backend}]`).disabled=!policy.webnn;};
 $('backendSelect').onchange=()=>{if(!modelSettings.draft)return refreshModel();};
 $('downloadSelectedModel').onclick=async()=>{
   const model=selectedModel(); if(!model||busy)return;
@@ -527,7 +529,7 @@ const ready=(async()=>{
     runner=new DemucsRunner({manager:downloads.manager});
     progressiveRunner=new ProgressiveDemucsRunner({manager:downloads.manager});
     onnxRunner=new OnnxDemucsRunner({manager:downloads.manager});
-    previewRunner=new PreparedDemucsRunner({manager:downloads.manager,workerFactory:model=>new Worker(new URL(model.runtime==='bs-roformer-onnx'?'./roformer-worker.js':'./preview-worker.js',import.meta.url),{type:'module'})});
+    previewRunner=new PreparedDemucsRunner({manager:downloads.manager,workerFactory:(model,backend)=>new Worker(new URL(isWebnnBackend(backend)?'./webnn-playback-worker.js':model.runtime==='bs-roformer-onnx'?'./roformer-worker.js':'./preview-worker.js',import.meta.url),{type:'module'})});
     downloads.manager.addEventListener('progress',event=>{
       if(event.detail.id !== selectedModel()?.id)return;
       ++selectionGeneration; // A live event supersedes an older cache lookup.
@@ -560,7 +562,7 @@ async function setState(state){
     if(workflow.result)workflow.result.renderInfo=choice.resultRender||{modelId:choice.modelId,profile:choice.profile||'quality',backend:choice.backend};
     if(catalog.get(choice.modelId))$('modelSelect').value=choice.modelId;
     if(['guitar','vocals','remix'].includes(choice.useCase))$('useCase').value=choice.useCase;
-    $('backendSelect').value=choice.backend==='webgpu'?'webgpu':'wasm';$('progressiveMode').checked=choice.progressive!==false;$('allowCpuFallback').checked=choice.fallback!==false;
+    $('backendSelect').value=['webgpu',...WEBNN_BACKENDS].includes(choice.backend)?choice.backend:'wasm';$('progressiveMode').checked=choice.progressive!==false;$('allowCpuFallback').checked=choice.fallback!==false;
     if([0,1,5,10,30,60].includes(choice.seconds))$('excerptSeconds').value=String(choice.seconds);
     // Cached stems can play while the neural session prepares for a later re-separation.
     await refreshModel({backgroundPreparation:true});renderTracks();updateWaveforms();syncTransport();syncWorkflow();

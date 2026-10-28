@@ -1,3 +1,4 @@
+import {isWebnnBackend,webnnPlaybackConfig} from './WebNNPlayback.js';
 import {StreamingWorker,isVerifiedStreamChunk} from './StreamTransport.js';
 import {modelKey} from './ModelDownloadManager.js';
 
@@ -32,14 +33,14 @@ export class PreparedDemucsRunner {
   cancel(){this.fail(new DOMException('Annulé','AbortError'));}
   async prepare(model,backend,{onProgress=()=>{}}={}){
     if(this.isPrepared(model,backend))return;
-    this.cancel();const worker=this.worker=new StreamingWorker(this.workerFactory(model),model.roles.length*2);this.preparingIdentity=`${modelKey(model)}:${backend}`;
+    this.cancel();const worker=this.worker=new StreamingWorker(this.workerFactory(model,backend),model.roles.length*2);this.preparingIdentity=`${modelKey(model)}:${backend}`;
     try{
       const record=await this.manager.cache.get(modelKey(model));
       if(this.worker!==worker)throw new DOMException('Annulé','AbortError');
       if(!await this.manager.verifyRecord(model,record))throw Error('Téléchargez à nouveau le modèle sélectionné.');
       if(this.worker!==worker)throw new DOMException('Annulé','AbortError');
       const weights=record.files[0];
-      const result=await this.request({type:'prepare',weights,backend,frames:model.frames||88200},data=>{
+      const result=await this.request({type:'prepare',weights,backend,frames:model.frames||(model.runtime==='demucs-onnx-core'?343980:88200),...(isWebnnBackend(backend)?{webnn:webnnPlaybackConfig(model,backend)}:{})},data=>{
         if(data.type==='preparation-progress'&&Number.isSafeInteger(data.completed)&&Number.isSafeInteger(data.total)&&data.total>0&&data.total<=256&&data.completed>=1&&data.completed<=data.total)onProgress(data);
       },[weights]);
       this.identity=`${modelKey(model)}:${backend}`;this.preparingIdentity=null;return result;
@@ -50,7 +51,7 @@ export class PreparedDemucsRunner {
     const callbacks={...options,onChunk:data=>{published+=data.stems[0].length;options.onChunk?.(data);}};
     try{return await this.runSeparation(model,channels,callbacks);}
     catch(error){
-      if(!options.fallback||(options.backend||'webgpu')!=='webgpu'||published||error.name==='AbortError'||error.code==='INVALID_AUDIO')throw error;
+      if(!options.fallback||!(['webgpu'].includes(options.backend||'webgpu')||isWebnnBackend(options.backend))||published||error.name==='AbortError'||error.code==='INVALID_AUDIO')throw error;
       options.onProgress?.({phase:'fallback',backend:'wasm',message:error.message});
       await this.prepare(model,'wasm');
       return {...await this.runSeparation(model,channels,{...callbacks,backend:'wasm'}),fallbackReason:error.message};
@@ -69,6 +70,6 @@ export class PreparedDemucsRunner {
       onProgress({phase:'chunk-ready',chunkIndex:data.chunkIndex,totalChunks:data.totalChunks,completedFrames:committed,totalFrames:channels[0].length});
     },[left.buffer,right.buffer]);
     if(committed!==channels[0].length){this.cancel();throw Error('Séparation incomplète.');}
-    return {...result,backend,profile:model.profile||'quality',frames:model.frames||88200};
+    return {...result,backend,profile:model.profile||'quality',frames:model.frames||(model.runtime==='demucs-onnx-core'?343980:88200),...(isWebnnBackend(backend)?{webnn:webnnPlaybackConfig(model,backend)}:{})};
   }
 }

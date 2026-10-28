@@ -29,6 +29,14 @@ for (const [source, target] of [
   ['build-wasm/dist/nam-simd.wasm', 'plugins/nam-wam/nam-simd.wasm'], ['build-wasm/dist/nam-simd.wasm', 'plugins/cabinet-wam/nam-simd.wasm'],
 ]) await copy(source, target);
 
+// WebNN remains optional: bundle the pinned local lab runtime when prepared.
+// Worker imports stay relative in a self-contained static deployment.
+try { await stat(join(root,'third_party/nam-webnn-probe/runtime/ort.all.min.mjs'));
+  await copy('third_party/nam-webnn-probe/runtime','source-separation/vendor/onnxruntime-webnn');
+} catch(error) { if(error.code!=='ENOENT')throw error; }
+const webnnPath=join(dist,'source-separation/WebNNRuntime.js');
+await writeFile(webnnPath,(await readFile(webnnPath,'utf8')).replace('../../../third_party/nam-webnn-probe/runtime/','./vendor/onnxruntime-webnn/'));
+
 const cataloguePath=join(dist,'wamPlugins/plugins.json');
 await writeFile(cataloguePath,(await readFile(cataloguePath,'utf8')).replaceAll('../../../src/','../plugins/'));
 

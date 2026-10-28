@@ -1,3 +1,4 @@
+import {backendLabel} from './WebNNPlayback.js';
 // Zero is a serializable whole-song choice, preserved in saved projects.
 export const MAX_AUDIO_FRAMES = 86400 * 44100;
 export function separationFrames(totalFrames, seconds = 0) {
@@ -5,5 +6,5 @@ export function separationFrames(totalFrames, seconds = 0) {
   return Number(seconds) === 0 ? totalFrames : Math.min(totalFrames, Math.round(Number(seconds) * 44100));
 }
 export function selectedModelLabel(model, backend) {
-  return `${model?.label || model?.name || model?.id || 'Chargement du modèle…'} · ${backend === 'webgpu' ? 'GPU / WebGPU' : 'CPU / WASM'}`;
+  return `${model?.label || model?.name || model?.id || 'Chargement du modèle…'} · ${backendLabel(backend)}`;
 }

@@ -1,9 +1,12 @@
+import {isWebnnBackend,supportsWebnnModel,backendLabel} from './WebNNPlayback.js';
 import {benchmarkSummary} from './ModelBenchmark.js';
 import {REFERENCE_BENCHMARK} from './ModelPerformanceData.js';
 export function backendPolicy(model,capabilities,requested='wasm') {
   const onnx=['demucs-onnx-core','bs-roformer-onnx'].includes(model?.runtime);
   const gpu=!!(onnx&&capabilities?.webgpu&&model.backends.includes('webgpu'));
-  return {onnx,gpu,backend:requested==='webgpu'&&gpu?'webgpu':'wasm',
+  const webnn=!!(capabilities?.webnn&&supportsWebnnModel(model));
+  if(isWebnnBackend(requested)&&webnn)return {onnx,gpu,webnn,backend:requested,description:`${backendLabel(requested)} · opérateurs non pris en charge sur WASM ; matériel effectif inconnu. Compilation initiale potentiellement longue.`};
+  return {onnx,gpu,webnn,backend:requested==='webgpu'&&gpu?'webgpu':'wasm',
     description:onnx?(requested==='webgpu'&&gpu?'WebGPU expérimental : réseau neuronal accéléré, FFT JavaScript et certains opérateurs CPU.':gpu?'CPU/WASM sélectionné pour ce modèle ONNX ; WebGPU est aussi disponible.':'GPU indisponible : même modèle ONNX exécuté sur CPU/WASM.'):'Ce modèle ORT utilise uniquement CPU/WASM. Pour tester le GPU, choisissez « 4 pistes ONNX ». '};
 }
 

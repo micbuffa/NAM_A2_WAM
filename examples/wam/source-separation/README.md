@@ -1,3 +1,9 @@
+## WebNN expérimental : importer et écouter son propre fichier
+
+Dans Chrome Canary, ouvrir `http://127.0.0.1:8765/examples/wam/source-separation/`, choisir un fichier audio, **Qualité · Demucs4 ONNX** ou **BS Roformer SW6**, puis **WebNN / GPU**, **CPU** ou **NPU** dans Backend. Télécharger le modèle dans ce navigateur si nécessaire, choisir la durée, lancer **Séparer le morceau**, puis Play dans le lecteur multipiste. Le host propose les mêmes options dans **Change model / settings** de Multitracks. Les options sont désactivées sans API WebNN.
+
+Préparer le runtime via `python3 tools/prepare-webnn-lab.py` avant de construire la distribution. Les poids utilisent le cache habituel. La compilation peut être longue ; le processeur demandé n’est pas une preuve du matériel effectif. Garder le repli automatique coché permet un redémarrage WASM avant publication en cas d’erreur ; le décocher permet de tester WebNN sans ce redémarrage. Le nouveau parcours attend encore sa validation native Canary, voir la spécification WebNN.
+
 # Laboratoire de séparation
 
 `npm start`, puis <http://127.0.0.1:8765/examples/wam/source-separation/>.
