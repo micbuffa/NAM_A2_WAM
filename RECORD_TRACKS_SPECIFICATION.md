@@ -1,6 +1,19 @@
 # Enregistrer une guitare ou une basse dans Studio
 
-Date : 27 octobre 2026. **Spécification : enregistrement non implémenté.**
+Mise à jour : 29 octobre 2026. **Premier incrément implémenté sur `codex/studio-integration` : prise mono DI sur une nouvelle piste personnelle vide.**
+
+
+Ergonomie corrigée : commandes regroupées dans le canvas Studio au-dessus des pistes (plus dans l’inspecteur hors écran), **R** directement sur les pistes personnelles et vumètres verticaux dans chaque en-tête de piste, tous types de pistes, niveau après volume/pan à 10 Hz. Le bouton **I** d’une piste vide initialise aussi le monitoring ; il n’est pas nécessaire de commencer à enregistrer pour écouter/voir son entrée. Réglage de compensation replié dans **Recording settings**. Tests : 481 JS passent après cette correction.
+
+L’utilisateur ajoute une piste personnelle guitare/basse sans fichier, choisit son entrée/canal dans Tone, utilise **Enable input / monitor**, puis **R · Arm track**, **Record**, **Stop recording**. Sans preset de piste, le son courant de Tone est copié, même non sauvegardé ; **Use current Tone sound** permet de refaire cette copie avant la prise. Le monitoring reste indépendant de l’armement. Une seule piste est armée à la fois.
+
+La capture WAM utilise le même AudioContext que les accompagnements, un timestamp commun en frames et un ring buffer SPSC de deux secondes vers un Worker. La DI mono est prélevée avant trim logiciel/effets ; le mix et le monitoring ne sont jamais réenregistrés. Le Worker publie des peaks compacts à 10 Hz et finalise uniquement après StopAck du producteur. Débordement, rupture de frames, perte/changement d’entrée et échec du processeur invalident la prise.
+
+Après Stop, le WAV Float32 sans perte et le snapshot restent en RAM. **Save project** publie ensemble audio, métadonnées et snapshot sur une piste encore vide, avec contrôle de version, droits propriétaire, quotas et jeton de session idempotent. Un échec permet de réessayer les mêmes octets. **Discard unsaved take**, avec confirmation, rend la piste vide pour recommencer. Au maximum deux prises non sauvegardées ; 100 MiB par WAV, silence initial compris. Rechargement/abandon du projet perd les prises en RAM (avertissement).
+
+**Limites explicites de cet incrément :** remplacement de pistes contenant déjà de l’audio désactivé ; undo/redo d’une prise, calibration physique automatique et catalogue communautaire non implémentés. Compensation manuelle 0–2000 ms, valeur initiale zéro et statut non calibré ; placement par padding/crop, une seule correction. La boucle n’est pas exécutée pendant une prise ; le transport continue au-delà de la fin des accompagnements. Les changements de transport/projet et la séparation sont bloqués pendant la capture/finalisation. Choix de preset d’une prise en RAM bloqué jusqu’à sa sauvegarde ; ensuite la lecture peut utiliser un autre preset sans réécrire la DI. Export de mix traité contenant ce preset encore bloqué, pour éviter d’exporter silencieusement la DI brute. Pas de régions, punch, overdub ou prise stéréo dans cet incrément.
+
+Les exigences ci-dessous restent la cible complète ; les contrôles manuels ne constituent pas une mesure de latence matérielle.
 
 ## Décisions et périmètre
 
@@ -208,10 +221,10 @@ Monitor peut rester actif après Stop, sans laisser le recorder écrire. Arm n�
 
 | Étape | Livraison | Validation avant essai utilisateur |
 |---|---|---|
-| R1 | Modèle DI + snapshot, piste personnelle et remplacement confirmé | snapshot indépendant de Tone, ressources privées, autorisations et publication atomique |
-| R2 | Monitoring avant armement, sélection entrée/preset, transfert vers Tone | absence de doublage et de recapture du mix ; écoute du preset courant non sauvegardé |
-| R3 | Capture WAM/ring buffer/worker, waveform incrémentale et StopAck | ordre, conservation exacte du PCM, débordement visible, fermeture propre |
-| R4 | Transport commun, calibration loopback et compensation | alignement synthétique puis matériel, unités et dérive longue |
+| R1 · PARTIEL | DI + snapshot et publication sur piste vide implémentés ; remplacement confirmé à venir | snapshot indépendant de Tone, ressources privées, autorisations et publication atomique |
+| R2 · PARTIEL | Monitoring/armement/preset et entrée partagée Tone implémentés ; qualification matérielle restante | absence de doublage et de recapture du mix ; écoute du preset courant non sauvegardé |
+| R3 · IMPLÉMENTÉ, VALIDATION SYNTHÉTIQUE | Capture WAM/ring buffer/worker, waveform incrémentale et StopAck | ordre, conservation exacte du PCM, débordement visible, fermeture propre |
+| R4 · PROCHAINE ÉTAPE | Transport commun déjà en place ; calibration loopback et compensation mesurée à réaliser | alignement synthétique puis matériel, unités et dérive longue |
 | R4b | Catalogue matériel, contribution volontaire et profils communautaires | permissions, confidentialité, compatibilité des configurations, agrégats et validation sur interfaces réelles |
 | R5 | Sauvegarde/reprise, remplacement et lecture avec autre son | échec réseau/quota, ancien audio conservé, rechargement et partage |
 | R6 | Qualification de performance et export traité vers Tone | plusieurs accompagnements, rack NAM, UI fluide, rendu preset réellement présent |
@@ -229,4 +242,26 @@ Chaque étape nécessite ses tests automatisés avant de demander un essai. Les 
 - Serveur : propriétaire/partage/CSRF, formats et quotas, retries idempotents, conflits de version, maintien de l’ancien blob pendant échec/cancel, réouverture du même projet/preset.
 - Performance : long backing + rack de guitare + waveform ; journaliser frames perdus, mémoire, temps de finalisation et longs blocages UI. La queue n’est pas une solution aux DSP trop coûteux : surveiller aussi les underruns de rendu et la charge des WAM.
 
-Aucun enregistrement ni résultat de calibration matérielle n’est revendiqué par ce document. Cette livraison implémente uniquement le retrait confirmé/restaurable des pistes ; les étapes R1–R6 restent à faire.
+Validation du premier incrément (28 octobre 2026) : **479 tests JavaScript et 134 tests Rails / 1123 assertions passent**, sans échec ni test ignoré. tests JS dédiés pour conservation des échantillons, quanta variables, absence de trous, débordement, padding/crop, limites mémoire, final drain/StopAck, transport commun et sauvegarde réessayable ; tests Rails pour publication/rechargement, version obsolète, données invalides, droits, idempotence et panne de stockage. Banc navigateur : `tests/phase7/fixtures/recording-capture.html`, entrée purement synthétique, aucune demande de microphone ; Chrome a capturé 24 032 frames avec une erreur maximale nulle, six mises à jour de waveform et un WAV de 99 212 octets (padding de 760 frames inclus). Cycle réel `StudioRecording` avec entrée synthétique également validé : monitoring → armement → capture → Stop, 24 287 frames, prise en RAM, ancienne piste sauvegardée toujours vide et transport déverrouillé. Création d’un projet et d’une piste vide vérifiée dans le Studio Rails.
+
+Aucune calibration matérielle, session guitare réelle, endurance longue durée ou validation perceptuelle de la latence n’est revendiquée. Les parties restantes de R1/R2 et R4–R6, dont R4b communautaire, restent à réaliser.
+
+
+Correction après essai utilisateur (28 octobre 2026) : le rendu de waveform en cours de capture accepte une piste sans fichier audio (nom provisoire « Recording DI… »). Test navigateur renforcé avec le vrai ProjectTimeline/Wavesurfer, et non un stub : peaks non nuls pendant la capture, 24 288 frames, crête 0,125, WAV décodé, lecture démarrée après Stop, aucune erreur console. Le bouton de transport **▶ Play** est explicite ; après Stop, la position revient au début de la prise pour l’écouter. Une prise silencieuse déclenche un avertissement ; le statut de prise en RAM indique sa crête dBFS. L’ancien vumètre global est remplacé par les vumètres verticaux de toutes les pistes, y compris accompagnements et stems en preview.
+
+Validation finale de la correction : 481 tests JS passent ; banc navigateur avec vrai rendu, WAV décodé et vu-mètre natif en lecture (`liveWaveform`, `playReady`, `playing`, `metered` tous vrais ; signal synthétique de crête 0,125). Distribution et hôte Rails synchronisés.
+
+
+Correction lecture/armement après séparation arrêtée (28 octobre 2026) : pendant **Play**, la piste lit son audio enregistré et son vumètre ne reçoit plus l’entrée live. Le monitoring de piste reprend en pause et reste actif pendant une vraie capture. Après **Stop separation**, **Keep instruments & arm** conserve les instruments partiels comme pistes du projet via la sauvegarde existante, puis arme la nouvelle guitare ; la sélection et la piste personnelle sont préservées. Si la sauvegarde échoue, pas d’armement et résultat partiel conservé en RAM pour réessayer. Sans échantillon séparé, conserver les pistes originales. Le départ de capture attend le décodage des accompagnements.
+
+Validation : 486 tests JS et 135 tests Rails /1136 assertions passent. Test navigateur avec entrée live synthétique à0,75 et fichier enregistré à0,125 : vumètre avant Play -5,509dBFS et pendant Play -21,072dBFS, isolation de l’entrée confirmée, waveform/lecture valides. Test Rails de publication de séparation partielle puis enregistrement de la guitare, instruments conservés.
+
+
+Correction des mises à jour en capture (28 octobre 2026) : le Worker ne transmet que les bins de peaks nouveaux ou modifiés (1024 frames/bin, dernier bin partiel inclus), environ 10 fois par seconde. Un canvas par tuile conserve les pixels précédents et ne redessine que les colonnes concernées, sans normalisation globale ni reconstruction Wavesurfer pendant la capture. Un changement de largeur/échelle temporelle nécessite légitimement un nouveau rendu de l’enveloppe ; Stop effectue une seule transition vers le rendu statique.
+
+Le WAV Float32 se construit par paquets encodés au fil du drainage du ring buffer. Chaque échantillon conservé est encodé une fois ; padding/crop appliqués une fois, peaks calculés dans la même passe. Stop assemble l’en-tête et les Blob immuables sans concaténer/reparcourir tout le PCM. Des copies bornées restent nécessaires pour vider la queue et encoder les paquets ; le navigateur gère le stockage des Blob. Aucun AudioBuffer croissant n’est reconstruit pendant la capture : un décodage complet intervient après Stop pour la lecture, et le changement d’URL lors de Save project réutilise ce buffer (ou son décodage déjà en cours).
+
+Validation : **490 tests JavaScript passent**. Chrome : 22 paquets de waveform, canvas stable, aucun rendu Wavesurfer pendant la capture ; fidélité WAV vérifiée indépendamment, 24 031 frames encodées pour 24 031 capturées, erreur maximale nulle. Les tests couvrent les colonnes sales, les paquets PCM, padding/crop, absence de rescans à Stop et réutilisation du buffer à la sauvegarde. Aucune qualification matérielle supplémentaire revendiquée.
+
+
+Priorité suivante confirmée le 29 octobre : **R4, calibration assistée de latence aller-retour**. Proposer une procédure guidée de branchement sortie → entrée, plusieurs mesures avec score de qualité/dispersion, puis vérifier le placement compensé d’une prise sur le transport commun. Conserver le réglage manuel si la mesure échoue ; ne pas présenter une valeur comme calibrée sans validation. L’identification/configuration matérielle et le profil local précèdent le catalogue communautaire R4b. Cette mise à jour n’implémente pas encore la calibration. Le tuner utilise désormais un tap mono partagé de SourceManager ; createDITap conserve le canal A sélectionné pour l’enregistrement et reste indépendant du choix A/B du tuner.

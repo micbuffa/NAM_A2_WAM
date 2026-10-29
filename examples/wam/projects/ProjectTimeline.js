@@ -1,3 +1,4 @@
+import {LiveWaveform} from './recording/LiveWaveform.js';
 // Track rows of the Projects timeline (TONELAB mockup): name + rename, M/S/I,
 // volume fader and pan knob on the left, the audio lane on the right. Rows are
 // built once per track list and updated in place, so a fader keeps its drag.
@@ -15,8 +16,8 @@ export class ProjectTimeline {
   // onSelect(id); onChange(id, fields); onEdit(id): rename dialog; onMonitor(id): toggle input monitoring;
   // onMove(id, index): reorder; onSeek(seconds); onLoop({start, end}): a drawn loop region;
   // createRenderer(options): a WaveSurfer renderer.
-  constructor(list, {root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onMove, onSeek, onLoop, createRenderer}) {
-    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onMove, onSeek, onLoop, createRenderer});
+  constructor(list, {root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, createRenderer}) {
+    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, createRenderer});
     this.rows = new Map();
     this.drag = null; // {id, index}: the track being dragged and where it would land
     list.addEventListener('dragover', (event) => this.dragOver(event));
@@ -84,13 +85,13 @@ export class ProjectTimeline {
       this.loopDrag = null;
       this.showLoop(this.loop);
     });
-    if (typeof ResizeObserver === 'function') new ResizeObserver(() => this.renderRuler()).observe(ruler);
+    if (typeof ResizeObserver === 'function') new ResizeObserver(() => { this.renderRuler(); for (const id of this.rows.keys()) if (this.waves.get(id)?.live) this.drawWave(id); }).observe(ruler);
   }
 
   // presetName(track): what the row says about the track's tone.
   render(tracks, {selectedId = null, editable = false, presetName = () => ''} = {}) {
     this.presetName = presetName;
-    for (const row of this.rows.values()) row.renderer?.destroy();
+    for (const row of this.rows.values()) { row.renderer?.destroy(); row.liveRenderer?.destroy(); }
     this.rows = new Map(tracks.map((track) => [track.id, this.row(track, editable)]));
     this.list.replaceChildren(...[...this.rows.values()].map((row) => row.root));
     for (const track of tracks) this.update(track, track.id === selectedId);
@@ -177,7 +178,9 @@ export class ProjectTimeline {
     this.length = length;
     this.root.style.setProperty('--bars', length.bars);
     this.renderRuler();
-    for (const id of this.rows.keys()) this.placeClip(id);
+    for (const id of this.rows.keys()) {
+      if (this.waves.get(id)?.live) this.drawWave(id); else this.placeClip(id);
+    }
     this.setPosition(this.position);
     this.showLoop(this.loop);
   }
@@ -187,6 +190,17 @@ export class ProjectTimeline {
     if (wave) this.waves.set(id, wave);
     else this.waves.delete(id);
     this.drawWave(id);
+  }
+
+  appendRecording(id, packet) {
+    const {peakStart, peaks, peakFrames, sampleRate, timelineFrames} = packet;
+    if (!Number.isSafeInteger(peakStart) || peakStart < 0 || !Number.isSafeInteger(peakFrames) || peakFrames < 1 || !(sampleRate > 0) || !Number.isSafeInteger(timelineFrames) || timelineFrames < 1) throw Error('Invalid waveform delta.');
+    let wave = this.waves.get(id);
+    if (!wave?.live) { wave = {live: true, peaks: [], sampleRate, peakFrames, duration: 0}; this.waves.set(id, wave); }
+    if (wave.sampleRate !== sampleRate || wave.peakFrames !== peakFrames) throw Error('Waveform scale changed within a take.');
+    for (let i = 0; i < peaks.length; i++) wave.peaks[peakStart + i] = peaks[i];
+    wave.duration = timelineFrames / sampleRate;
+    this.drawWave(id, {start: peakStart, end: peakStart + peaks.length});
   }
 
   setPosition(seconds) {
@@ -215,7 +229,7 @@ export class ProjectTimeline {
     if (row && duration) row.clip.style.width = `${Math.min(100, (duration / this.length.seconds) * 100)}%`;
   }
 
-  drawWave(id) {
+  drawWave(id, dirty = null) {
     const row = this.rows.get(id);
     if (!row) return;
     const wave = this.waves.get(id);
@@ -223,10 +237,19 @@ export class ProjectTimeline {
     row.note.hidden = Boolean(wave?.peaks);
     row.note.textContent = !row.track.audio ? 'No audio file' : wave?.state === 'error' ? `${row.track.audio.filename} · not loaded`
       : `${row.track.audio.filename} · loading…`;
-    row.lane.classList.toggle('empty', !row.track.audio || wave?.state === 'error');
+    row.lane.classList.toggle('empty', !wave?.peaks && (!row.track.audio || wave?.state === 'error'));
+    if (!wave?.live && row.liveRenderer) { row.liveRenderer.destroy(); row.liveRenderer = null; }
     if (!wave?.peaks) return;
     this.placeClip(id);
-    row.clipName.textContent = row.track.audio.filename;
+    if (wave.live) {
+      row.renderer?.destroy(); row.renderer = null;
+      row.clipName.textContent = 'Recording DI…';
+      row.liveRenderer ??= new LiveWaveform(row.wave);
+      const width = row.lane.clientWidth || row.lane.getBoundingClientRect?.().width || 0;
+      row.liveRenderer.render(wave, width / this.length.seconds, dirty?.start ?? 0, dirty?.end ?? wave.peaks.length);
+      return;
+    }
+    row.clipName.textContent = row.track.audio?.filename ?? 'Recording DI…';
     // Canvas colours: --tl-accent-muted, then --tl-accent once played.
     row.renderer ??= this.createRenderer({container: row.wave, height: 46, waveColor: '#91a675', progressColor: '#c7f65b',
       cursorWidth: 0, fillParent: true, minPxPerSec: 0, normalize: true, autoScroll: false, autoCenter: false, hideScrollbar: true,
@@ -234,6 +257,15 @@ export class ProjectTimeline {
     const {peaks, duration} = wave;
     const data = {duration, length: peaks.length, numberOfChannels: 1, sampleRate: peaks.length / duration, getChannelData: () => peaks};
     void Promise.resolve(row.renderer.render(data)).then(() => this.setPosition(this.position));
+  }
+
+  setLevel(id, peak) {
+    const row = this.rows.get(id); if (!row?.meter) return;
+    const db = peak > .00001 ? Math.max(-60, 20 * Math.log10(peak)) : -60;
+    row.meter.style.setProperty('--track-level', `${Math.min(100, Math.max(0, (db + 60) / 60 * 100))}%`);
+    row.meter.classList.toggle('clipping', peak >= 1);
+    row.meter.setAttribute('aria-valuenow', String(Math.max(-60, Math.min(0, db))));
+    row.meter.setAttribute('aria-valuetext', peak > .00001 ? `${db.toFixed(1)} dBFS` : 'Silence');
   }
 
   update(track, selected) {
@@ -275,6 +307,11 @@ export class ProjectTimeline {
     icon.setAttribute('size', '16');
     const badge = element('span', 'track-icon');
     badge.append(icon);
+    const meter = element('div', 'track-level-meter');
+    meter.setAttribute('role', 'meter'); meter.setAttribute('aria-label', `Level ${track.name}`);
+    meter.setAttribute('aria-valuemin', '-60'); meter.setAttribute('aria-valuemax', '0'); meter.setAttribute('aria-valuenow', '-60');
+    meter.setAttribute('aria-valuetext', 'Silence'); meter.append(element('i', 'track-level-fill'));
+    label.append(meter);
     const strip = element('div', 'track-strip');
     const labels = []; // [control, verb]: aria-labels follow renames
     const title = element('div', 'track-title-row');
@@ -315,6 +352,9 @@ export class ProjectTimeline {
       solo: mode('solo', 'S', 'Solo', () => this.onChange(id, {solo: !this.rows.get(id).modes.solo.classList.contains('active')})),
       inputMonitoring: mode('inputMonitoring', 'I', 'Input monitoring', () => this.onMonitor(id)),
     };
+
+    const arm = editable && track.origin === 'personal' && usesTrackPreset(track) && this.onArm
+      ? mode('armed', 'R', 'Arm recording', () => this.onArm(id)) : null;
 
     const volume = element('input', '', {type: 'range', min: 0, max: 100, step: 1, value: track.volume});
     labels.push([volume, 'Volume for']);
@@ -389,6 +429,6 @@ export class ProjectTimeline {
     };
     lane.append(area);
     root.append(label, lane);
-    return {root, track, icon, name, meta, modes, volume, pan, lane, clip, clipName, wave, note, labels};
+    return {root, track, icon, name, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, labels};
   }
 }

@@ -27,7 +27,7 @@ export class BackingTrackEngine extends EventTarget {
     if(enabled&&b>a&&position>=b)position=a+(position-a)%(b-a);
     return clamp(position,0,this.duration);
   }
-  async loadTrack(id){return this.load(this.library.resolve(id));}
+  async loadTrack(id){const track=this.library.resolve(id);return this.load(track,track.file);}
   async loadFile(file){
     const id='local:'+encodeURIComponent(file.name)+':'+file.size+':'+file.lastModified;
     const loaded=await this.load({id,title:file.name,local:true},file);

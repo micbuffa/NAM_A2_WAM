@@ -7,3 +7,12 @@ export function validateWebNNSelection(modelId, backend) {
 export function validateWebNNEvidence(evidence) {
   return evidence?.runtimeVersion==='1.30.0' && Number.isSafeInteger(evidence?.validatedBlocks) && evidence.validatedBlocks>0 && Number.isSafeInteger(evidence?.dispatches) && evidence.dispatches>0 && evidence?.strictParity===true && evidence?.effectiveHardware==='unknown';
 }
+
+// Availability is API-based: Firefox builds and Canary use the same menu.
+export function studioBackendOptions({webgpu=false,webnn=false,modelId='htdemucs_4s_onnx'}={}) {
+ return [
+  {value:'webgpu',label:'WebGPU',disabled:!webgpu},
+  {value:'wasm',label:'CPU / WASM',disabled:false},
+  ...WEBNN_BACKENDS.map(value=>({value,label:`WebNN / ${value.slice(6).toUpperCase()} · experimental`,disabled:!webnn||modelId!=='htdemucs_4s_onnx'})),
+ ];
+}

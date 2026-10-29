@@ -7,6 +7,8 @@ class Api::Projects::TrackPresetsController < Api::BaseController
     track = visible_project.tracks.find(params[:id])
     return head :not_found unless track.plays_through_preset?
 
+    return render json: { state: track.preset_snapshot } if track.preset_snapshot
+
     preset = track.preset
     return head :not_found unless preset
 

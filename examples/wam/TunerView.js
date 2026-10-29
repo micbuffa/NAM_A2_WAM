@@ -1,17 +1,25 @@
+import {TunerInput} from './TunerInput.js';
 import {destroyPluginInstance} from './WamPluginRegistry.js';
 
-// Analysis-only tap before chain A's effects. Nothing is inserted into the rack.
+// Analysis-only selectable input tap before the rack's effects. Nothing is inserted into the rack.
 export class TunerView {
-  constructor({context, registry, groupId, input, button}) {
-    Object.assign(this, {context, registry, groupId, input, button});
+  constructor({context, registry, groupId, source, rack, button}) {
+    Object.assign(this, {context, registry, groupId, source, rack, button});
     this.serial = 0;
+    this.input = new TunerInput({source, rack});
     this.dialog = document.createElement('dialog');
     this.dialog.className = 'host-tuner tl-modal';
     this.dialog.id = 'tunerDialog';
     this.dialog.setAttribute('aria-labelledby', 'tunerTitle');
-    this.dialog.innerHTML = '<header class="tl-modal-header"><div><p class="tl-eyebrow">Input A · before effects</p><h2 class="tl-modal-title" id="tunerTitle">Tuner</h2></div><tl-icon-button icon="close" variant="ghost" aria-label="Close tuner"></tl-icon-button></header><div class="tl-modal-body"><p class="host-help">Use Enable live input to tune your instrument.</p><div class="tuner-mount" role="status"></div></div>';
+    this.dialog.innerHTML = '<header class="tl-modal-header"><div><p class="tl-eyebrow">Before effects</p><h2 class="tl-modal-title" id="tunerTitle">Tuner</h2></div><tl-icon-button icon="close" variant="ghost" aria-label="Close tuner"></tl-icon-button></header><div class="tl-modal-body"><label class="tuner-input-choice" hidden>Tuner input<select aria-label="Tuner input"></select></label><p class="host-help tuner-input-status" role="status"></p><div class="tuner-mount" role="status"></div></div>';
     document.body.append(this.dialog);
     this.mount = this.dialog.querySelector('.tuner-mount');
+    this.inputChoice = this.dialog.querySelector('.tuner-input-choice');
+    this.select = this.inputChoice.querySelector('select');
+    this.inputStatus = this.dialog.querySelector('.tuner-input-status');
+    this.select.onchange = () => this.input.select(this.select.value);
+    this.input.addEventListener('change', () => this.renderInput());
+    this.renderInput();
     this.dialog.querySelector('tl-icon-button').onclick = () => this.close();
     this.dialog.addEventListener('cancel', event => {event.preventDefault(); this.close();});
     this.dialog.addEventListener('close', () => {if (!this.dialog.open && this.button.getAttribute('aria-expanded') === 'true') this.close();});
@@ -21,6 +29,15 @@ export class TunerView {
     if (button.disabled) button.title = 'Tuner is unavailable in the plugin catalogue';
     button.onclick = () => this.open();
     document.addEventListener('keydown', event => this.shortcut(event));
+  }
+
+  renderInput() {
+    const choices = this.input.choices;
+    this.inputChoice.hidden = choices.length < 2;
+    this.select.replaceChildren(...choices.map(choice => Object.assign(document.createElement('option'), {value: choice.id, textContent: choice.label, disabled: !choice.available})));
+    this.select.value = this.input.selected;
+    const selected = choices.find(choice => choice.id === this.input.selected);
+    this.inputStatus.textContent = selected?.available ? `${selected.label} · before effects` : this.source.mode === 'live' ? 'This input channel is unavailable. Choose another input or check the audio interface.' : 'Use Enable live input to tune your instrument.';
   }
 
   // T toggles the tuner, except while typing (composedPath reaches inputs inside plugin GUIs)
@@ -39,7 +56,7 @@ export class TunerView {
     if (!resources) return;
     const {plugin, gui, sink} = resources;
     gui?.stopMeasuringPitch?.();
-    try {this.input.disconnect(plugin.audioNode);} catch { /* Already disconnected. */ }
+    if (this.resources === resources) this.input.disconnect();
     sink?.disconnect();
     destroyPluginInstance(plugin, gui);
   }
@@ -49,6 +66,7 @@ export class TunerView {
     const serial = ++this.serial;
     this.dialog.showModal(); // Mount the canvas GUI only after the dialog is visible.
     this.button.setAttribute('aria-expanded', 'true');
+    this.renderInput();
     this.mount.textContent = 'Loading tuner…';
     let resources = {};
     try {
@@ -63,7 +81,6 @@ export class TunerView {
       if (!resources.gui) throw new Error('The tuner has no GUI');
       resources.sink = this.context.createGain();
       resources.sink.gain.value = 0;
-      this.input.connect(resources.plugin.audioNode);
       resources.plugin.audioNode.connect(resources.sink).connect(this.context.destination);
       this.mount.replaceChildren(resources.gui);
       // The bundled tuner starts OFF. Activate its existing switch after layout.
@@ -72,6 +89,8 @@ export class TunerView {
         power.value = 1;
         power.dispatchEvent(new Event('change'));
       }
+      this.input.connect(resources.plugin.audioNode);
+      this.renderInput();
       this.resources = resources;
       resources = null;
     } catch (error) {

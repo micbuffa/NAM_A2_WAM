@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_27_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_150000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -175,6 +175,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_000000) do
     t.json "import_metadata"
     t.boolean "timeline_visible", default: true, null: false
     t.datetime "removed_at"
+    t.json "recording"
+    t.json "preset_snapshot"
+    t.string "snapshot_id"
     t.index ["creator_id"], name: "index_tracks_on_creator_id"
     t.index ["preset_id"], name: "index_tracks_on_preset_id"
     t.index ["project_id", "position"], name: "index_tracks_on_project_id_and_position"

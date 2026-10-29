@@ -28,15 +28,17 @@ export class StudioPlayer extends EventTarget {
   retryFailed() { return this.base.retryFailed(); }
   setInsert(id, insert) { this.base.setInsert(id, insert); }
   setLiveInput(node) { this.base.setLiveInput(node); }
-  play() { if (this.ready) return (this.preview ?? this.base).play(); }
-  pause() { return (this.preview ?? this.base).pause(); }
+  play() { if (this.recordingLock) return; if (this.ready) return (this.preview ?? this.base).play(); }
+  pause() { if (this.recordingLock) return; return (this.preview ?? this.base).pause(); }
   stop() {
+    if (this.recordingLock) return;
     if (!this.preview) return this.base.stop();
     this.preview.pause();
     this.preview.seek(this.previewLoop.enabled ? this.previewLoop.start : 0);
   }
-  seek(seconds) { return (this.preview ?? this.base).seek(seconds); }
+  seek(seconds) { if (this.recordingLock) return; return (this.preview ?? this.base).seek(seconds); }
   setLoop(changes) {
+    if (this.recordingLock) return;
     if (!this.preview) return this.base.setLoop(changes);
     const next = {...this.previewLoop, ...changes};
     const [start, end] = [next.start, next.end].map(value => Math.max(0, Math.min(this.duration, Number(value) || 0))).sort((a,b) => a-b);

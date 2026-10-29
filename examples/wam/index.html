@@ -60,6 +60,7 @@
         <label id="inspectorPresetField">Tone preset <tl-select icon="sliders"><select id="inspectorPreset" aria-label="Tone preset"></select></tl-select></label>
         <tl-button class="host-secondary" id="inspectorEditPreset" block icon="edit">Edit preset in Tone</tl-button>
         <p class="host-help" id="inspectorPresetHelp"></p>
+
       </section>
 
       <section class="host-card" aria-labelledby="source-title" data-workspace="tone">
@@ -190,7 +191,7 @@
           </div>
           <div class="studio-separation-options"><label>Saved separations<select id="studioSavedResult" aria-label="Saved separations"></select></label></div>
             <label>Mix export range<select id="studioExportRange" aria-label="Mix export range" hidden><option value="song">Export entire song</option><option value="loop">Export A/B loop only</option></select></label>
-            <select id="studioModel" hidden aria-label="Selected separation model"></select>
+            <label>Separation model<select id="studioModel" aria-label="Separation model"></select></label>
             <p id="studioModelHelp" class="host-help"></p>
             <p class="host-help">Experimental WebNN: Demucs 4 only, supported browsers only. Every block is compared with WASM before playback (slower, extra memory). CPU/GPU/NPU are device preferences, not confirmed hardware. Failed admission falls back to WASM before any audio is published; SW 6 remains on WebGPU/WASM.</p>
             <label>Execution engine<select id="studioBackend"><option value="webgpu">WebGPU (preferred when available)</option><option value="wasm">CPU / WASM fallback</option><option value="webnn-cpu">Experimental WebNN / CPU</option><option value="webnn-gpu">Experimental WebNN / GPU</option><option value="webnn-npu">Experimental WebNN / NPU</option></select></label>
@@ -205,7 +206,7 @@
           <header class="project-timeline-head">
             <div class="project-transport" role="group" aria-label="Transport">
               <tl-icon-button id="projectRewind" icon="rewind" size="sm" aria-label="Return to start" title="Return to start" disabled></tl-icon-button>
-              <tl-icon-button id="projectPlay" icon="play" size="sm" aria-label="Play" title="Play" aria-pressed="false" disabled></tl-icon-button>
+              <tl-button id="projectPlay" variant="primary" aria-label="Play" title="Play" aria-pressed="false" disabled>▶ Play</tl-button>
             </div>
             <strong class="project-clock" id="projectClock" role="timer" aria-label="Position">00:00.00</strong>
             <span class="project-bar" id="projectBarBeat" title="Bar.beat">1.1</span>
@@ -216,6 +217,22 @@
             </div>
             <span class="project-tempo" id="projectTimelineTempo"></span>
           </header>
+          <section id="recordPanel" aria-label="Guitar recording" hidden>
+            <strong>Guitar recording · <span id="recordTrackName"></span></strong>
+            <div class="record-actions">
+              <tl-button id="recordMonitor">Enable input / monitor</tl-button>
+              <tl-button id="recordArm" aria-pressed="false">R · Arm track</tl-button>
+              <tl-button id="projectRecord" variant="danger" disabled>● Record</tl-button>
+              <tl-button id="projectRecordStop" disabled>■ Stop recording</tl-button>
+              <tl-button id="recordCurrentTone" variant="ghost">Use current Tone sound</tl-button>
+              <tl-button id="recordDiscard" variant="ghost" hidden>Discard unsaved take</tl-button>
+            </div>
+            <p id="recordStatus" class="host-help" role="status"></p>
+            <details><summary>Recording settings</summary>
+              <label>Manual compensation (ms)<input id="recordCompensation" aria-label="Recording latency compensation in milliseconds" type="number" min="0" max="2000" step="0.1" value="0"></label>
+              <p class="host-help">Choose your input and channel in Audio devices / Tone. Headphones recommended. Automatic loopback calibration is not available yet.</p>
+            </details>
+          </section>
           <div class="project-ruler-row"><span aria-hidden="true"></span><div class="project-ruler-track"><div class="project-ruler" id="projectRuler" aria-label="Timeline and A/B loop"></div></div></div>
           <ol class="project-tracks" id="projectTracks"></ol>
           <p class="host-help project-tracks-empty" id="projectTracksEmpty">No tracks yet.</p>

@@ -25,7 +25,7 @@ function packet(model, startFrame = 0, length = 44100, totalFrames = 88200) {
     stems: model.roles.flatMap((_, i) => [new Float32Array(length).fill((i+1)/100), new Float32Array(length).fill(-(i+1)/100)]),
     peaks: model.roles.map((_, i) => new Float32Array(Math.min(totalFrames, 2048)).fill((i+1)/100))};
 }
-async function fixture({gpu = true, runner: customRunner, decode} = {}) {
+async function fixture({gpu = true, webnn = false, runner: customRunner, decode} = {}) {
   const c = context(), player = new StudioPlayer(c), manager = new EventTarget();
   manager.tasks = new Map(); manager.download = async () => {}; manager.cancel = () => {};
   const calls = [], runner = customRunner ?? {cancel() {}, prepare: async (_, backend) => calls.push(backend), async separate(model, channels, options) {
@@ -35,7 +35,7 @@ async function fixture({gpu = true, runner: customRunner, decode} = {}) {
   }};
   const source = {id: 41, origin: 'original', name: 'Song', instrument: 'guitar', audio: {url: '/api/audio'}};
   const separation = new StudioSeparation({context: c, player, manager, runners: {demucs: runner, roformer: runner}, loadModels: async () => models,
-    capabilities: async () => ({webgpu: gpu}), fetchAudio: async () => ({ok: true, arrayBuffer: async () => new ArrayBuffer(2)}),
+    capabilities: async () => ({webgpu: gpu,webnn}), fetchAudio: async () => ({ok: true, arrayBuffer: async () => new ArrayBuffer(2)}),
     decode: decode ?? (async () => c.createBuffer(2, 88200, 44100))});
   await separation.init();
   return {c, player, manager, source, separation, runner, calls};
@@ -249,7 +249,7 @@ test('restoring a six-stem project restores its model and exact saved deck, then
 test('the minimal model dialog offers two choices and starts only the chosen model', async () => {
   const {StudioSeparationView} = await import('../../examples/wam/projects/StudioSeparationView.js');
   class Element extends EventTarget {
-    constructor(tag) {super();this.tag = tag;this.children = [];}
+    constructor(tag) {super();this.tag = tag;this.children = [];this.dataset={};}
     append(...children) {this.children.push(...children);}
     setAttribute() {}
     remove() {}
@@ -268,7 +268,7 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
       await view.chooseModel();
       const body=view.modelDialog.children[1];
       const duration=body.children[0].children[0];
-      const choices=body.children[1].children;
+      const choices=body.children.find(e=>e.className==='studio-model-choices').children;
       assert.equal(duration.value,'0','every dialog defaults to the entire song');
       assert.deepEqual(duration.children.map(option=>option.value),['0','5','10','30','60']);
       if(index===1)duration.value='30';
@@ -281,12 +281,37 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
       assert.equal(view.modelDialog.children[1].children[0].children[0].value,'0','a previous excerpt is not reused');
       view.modelDialog.close();assert.equal(runs.length,1,'closing the dialog does not start separation');
       await view.chooseModel({sourceId:f.source.id,allowUnseparated:true});
-      const keep=view.modelDialog.children[1].children[2];
+      const keep=view.modelDialog.children[1].children.find(e=>e.textContent==='Keep as one track');
       assert.equal(keep.textContent,'Keep as one track');
       keep.onclick();assert.equal(runs.length,1,'keeping the import never invokes inference');
       await view.chooseModel();w.accountLoadEpoch++;
-      await view.modelDialog.children[1].children[1].children[0].onclick();
+      await view.modelDialog.children[1].children.find(e=>e.className==='studio-model-choices').children[0].onclick();
       assert.equal(runs.length,1,'a dialog opened under another account cannot start inference');
     }
+    const f=await fixture({webnn:true}),view=Object.create(StudioSeparationView.prototype);
+    Object.assign(view,{workspace:{owned:true,project:{id:7,tracks:[f.source]},accountLoadEpoch:1},controller:f.separation,ready:Promise.resolve(),$:()=>({value:String(f.source.id)})});
+    const runs=[];f.separation.run=async options=>runs.push({backend:f.separation.backend,...options});
+    await view.chooseModel();
+    let body=view.modelDialog.children[1],engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
+    assert.equal(engine.children.filter(option=>option.value.startsWith('webnn')&&!option.disabled).length,3);
+    engine.value='webnn-npu';engine.onchange();view.modelDialog.close();assert.equal(f.separation.backend,'webgpu','cancel keeps previous backend');
+    await view.chooseModel();body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
+    engine.value='webnn-npu';engine.onchange();const choices=body.children.find(e=>e.className==='studio-model-choices').children;
+    assert.equal(choices[0].disabled,false);assert.equal(choices[1].disabled,true,'SW6 cannot launch with WebNN');
+    await choices[0].onclick();assert.equal(runs[0].backend,'webnn-npu');assert.equal(f.separation.backend,'webnn-npu');
   } finally {globalThis.document=originalDocument;}
+});
+
+test('WebNN menu is API-based, stays opt-in, and cannot configure a backend absent from this browser',async()=>{
+ const {studioBackendOptions}=await import('../../examples/wam/source-separation/StudioWebNN.js');
+ const {detectCapabilities}=await import('../../examples/wam/source-separation/Capabilities.js');
+ for(const userAgent of ['Firefox experimental','Chrome Canary']){
+  assert.equal((await detectCapabilities({ml:{},userAgent})).webnn,true);
+ }
+ const missing=await fixture();assert.throws(()=>missing.separation.configure('htdemucs_4s_onnx','webnn-gpu'),/not exposed/);
+ assert.equal(studioBackendOptions({webgpu:true,webnn:false}).filter(o=>o.value.startsWith('webnn')).every(o=>o.disabled),true);
+ const f=await fixture({webnn:true});assert.equal(f.separation.backend,'webgpu');
+ for(const device of ['cpu','gpu','npu']){f.separation.configure('htdemucs_4s_onnx',`webnn-${device}`);assert.equal(f.separation.backend,`webnn-${device}`);}
+ assert.equal(studioBackendOptions({webgpu:true,webnn:true}).filter(o=>o.value.startsWith('webnn')&&!o.disabled).length,3);
+ assert.equal(studioBackendOptions({webgpu:true,webnn:true,modelId:'bs_roformer_sw_6s'}).filter(o=>o.value.startsWith('webnn')).every(o=>o.disabled),true);
 });

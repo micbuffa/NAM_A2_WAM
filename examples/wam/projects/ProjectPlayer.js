@@ -8,7 +8,8 @@
 //   live ─────► insert.live ──┴─► insert.output ─► gain ─► pan ─► output
 // The live guitar plays through one track (liveTrackId()): with input
 // monitoring it replaces the track's recorded part; the selected track plays
-// it over its recording, once its preset rack is in.
+// it while stopped, once its preset rack is in. Ordinary Play auditions the
+// recorded audio exclusively on these track channels; recording keeps monitoring.
 //
 // A loop (setLoop) replays one region of every track: each turn restarts all
 // tracks together on the audio clock, scheduled slightly ahead, so tracks of
@@ -47,7 +48,7 @@ export class ProjectPlayer extends EventTarget {
   }
 
   get duration() {
-    return Math.max(0, ...[...this.channels.values()].map((channel) => channel.buffer?.duration ?? 0));
+    return Math.max(this.recording ? this.offset + Math.max(0, this.context.currentTime - this.startedAt) : 0, ...[...this.channels.values()].map((channel) => channel.buffer?.duration ?? 0));
   }
 
   get position() {
@@ -64,7 +65,7 @@ export class ProjectPlayer extends EventTarget {
     const position = this.offset + Math.max(0, time - this.startedAt);
     const {start, end} = this.loop;
     if (this.looping && position >= end) return start + ((position - end) % (end - start));
-    return Math.min(this.duration, position);
+    return this.recording ? position : Math.min(this.duration, position);
   }
 
   // Context time at which the loop turn playing at `time` ends.
@@ -88,6 +89,9 @@ export class ProjectPlayer extends EventTarget {
   // The track the live guitar plays through now, if any: a monitoring track
   // (dry without its preset), a selected one once its preset rack is in.
   get liveId() {
+    // Audition recorded tracks during Play. Live monitoring resumes on pause,
+    // and remains available while actually recording a new part.
+    if (this.playing && !this.recording) return null;
     const channel = this.channels.get(this.liveTrack);
     return channel && (channel.insert || channel.monitoring) ? this.liveTrack : null;
   }
@@ -113,7 +117,8 @@ export class ProjectPlayer extends EventTarget {
       channel.gain.gain.setTargetAtTime(trackGain(track, tracks), now, RAMP);
       channel.pan.pan.setTargetAtTime(Math.max(-1, Math.min(1, track.pan / 100)), now, RAMP);
       const key = audioKey(track.audio);
-      if (key !== channel.key) {
+      if (key !== channel.key && key !== channel.adoptedAudio?.key) {
+        this.settleAudioReference(channel);
         channel.key = key;
         this.stopVoice(channel);
         channel.buffer = null;
@@ -171,6 +176,20 @@ export class ProjectPlayer extends EventTarget {
     this.liveTarget = null;
   }
 
+  // The server saved the exact pending WAV. Reuse its already decoded (or
+  // in-flight) buffer when the blob URL becomes a protected server URL.
+  adoptAudioReference(id, fromURL, audio, release = () => {}) {
+    const channel = this.channels.get(id);
+    if (!channel || channel.url !== fromURL || (!channel.buffer && !channel.loading)) { release(); return false; }
+    channel.adoptedAudio = {key: audioKey(audio), url: audio.url, release};
+    if (!channel.loading) this.settleAudioReference(channel);
+    return true;
+  }
+  settleAudioReference(channel) {
+    const adopted = channel.adoptedAudio; if (!adopted) return;
+    channel.adoptedAudio = null; channel.key = adopted.key; channel.url = adopted.url; adopted.release();
+  }
+
   async load(id, channel, url) {
     if (channel.loading) return;
     const {key} = channel;
@@ -200,12 +219,14 @@ export class ProjectPlayer extends EventTarget {
       const buffer = await this.context.decodeAudioData(bytes);
       if (!current()) return;
       channel.buffer = buffer; channel.loading = false; channel.error = null;
+      this.settleAudioReference(channel);
       if (this.playing) this.joinPlayback(channel);
       this.dispatchEvent(new CustomEvent('load', {detail: {id, buffer}}));
       this.changed();
     } catch (error) {
       if (!current()) return;
       channel.loading = false; channel.error = error;
+      this.settleAudioReference(channel);
       this.dispatchEvent(new CustomEvent('error', {detail: {id, error}}));
       this.changed();
     }
@@ -214,6 +235,14 @@ export class ProjectPlayer extends EventTarget {
   retryFailed() {
     return Promise.all([...this.channels].filter(([,channel]) => channel.error && !channel.loading)
       .map(([id,channel]) => this.load(id,channel,channel.url)));
+  }
+
+  // Capture and every backing source share this exact context timestamp.
+  startRecording(when, offset) {
+    this.pause();
+    this.offset = offset; this.startedAt = when; this.playing = true; this.recording = true; this.looping = false;
+    for (const channel of this.channels.values()) this.startVoice(channel, when, offset);
+    this.changed();
   }
 
   async play() {
@@ -269,6 +298,7 @@ export class ProjectPlayer extends EventTarget {
     if (!this.playing) return;
     this.offset = this.position;
     this.playing = false;
+    this.recording = false;
     this.looping = false;
     for (const channel of this.channels.values()) this.stopVoice(channel);
     this.changed();
@@ -299,7 +329,7 @@ export class ProjectPlayer extends EventTarget {
       if (!channel.voices.delete(source)) return;
       source.disconnect();
       // The longest track has ended: the project stops at its end.
-      if (this.playing && !this.looping && ![...this.channels.values()].some((entry) => entry.voices.size)) {
+      if (this.playing && !this.recording && !this.looping && ![...this.channels.values()].some((entry) => entry.voices.size)) {
         this.offset = this.duration;
         this.playing = false;
         this.changed();
@@ -320,6 +350,7 @@ export class ProjectPlayer extends EventTarget {
   }
 
   remove(id, channel) {
+    this.settleAudioReference(channel);
     this.stopVoice(channel);
     if (id === this.liveId) this.unrouteLive();
     if (channel.insert) disconnect(channel.insert.output, channel.gain);
@@ -329,7 +360,12 @@ export class ProjectPlayer extends EventTarget {
     this.channels.delete(id);
   }
 
-  changed() { this.dispatchEvent(new Event('statechange')); }
+  changed() {
+    const playback = this.playing && !this.recording;
+    for (const channel of this.channels.values()) channel.playback.gain.setTargetAtTime(playback || !channel.monitoring ? 1 : 0, this.context.currentTime, RAMP);
+    this.routeLive();
+    this.dispatchEvent(new Event('statechange'));
+  }
 
   destroy() {
     this.stop();

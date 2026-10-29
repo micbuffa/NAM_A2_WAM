@@ -284,4 +284,23 @@ class Api::ProjectSeparationsTest < ActionDispatch::IntegrationTest
     assert_not first_source.reload.timeline_visible
   end
 
+  test "a personal guitar added after a stopped separation stays recordable when the partial instruments are published" do
+    sign_in_as users(:alice)
+    begin_save
+    guitar = @project.tracks.create!(name: "New guitar", instrument: "guitar", origin: "personal", position: 2, creator: users(:alice))
+    manifest["roles"].each { |role| part(role); assert_response :success }
+    publish
+    assert_response :success
+    payload = response.parsed_body["tracks"].find { |row| row["id"] == guitar.id }
+    assert payload["timelineVisible"]
+    assert_nil payload["audio"]
+    samples = [0.125, -0.5, 0.25, 0.1].pack("e*")
+    mono = "RIFF" + [52].pack("V") + "WAVEfmt " + [16].pack("V") + [3, 1].pack("v2") + [48000, 192000].pack("V2") + [4, 32].pack("v2") + "data" + [16].pack("V") + samples
+    metadata = { version: 1, sessionId: SecureRandom.uuid, sampleRate: 48000, channels: 1, frames: 4, capturedFrames: 4, startProjectFrame: 0, compensationFrames: 0, calibration: "uncalibrated", capturePresetSnapshot: { version: 2, a: { entries: [] } } }
+    post recording_api_project_track_path(@project, guitar), params: { metadata: metadata.to_json, expectedUpdatedAt: payload["updatedAt"], audio: upload(mono) }
+    assert_response :success
+    assert_equal mono, guitar.reload.audio.download
+    assert_equal 4, @project.tracks.where(origin: "stem", timeline_visible: true).count
+  end
+
 end

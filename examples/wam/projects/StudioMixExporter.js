@@ -1,13 +1,13 @@
 import {trackGain} from './ProjectsModel.js';
 
 const tick=()=>new Promise(resolve=>setTimeout(resolve,0));
-export function mixSources(tracks,channels) {
+export function mixSources(tracks,channels,{persisted=true}={}) {
   const sources=tracks.filter(track=>track.audio);
   if(!sources.length)throw Error('No recorded audio to export.');
-  if(sources.some(track=>track.presetId || track.factoryPreset))throw Error('Preset rendering is not validated yet. Export the separated instruments instead.');
+  if(sources.some(track=>track.presetId || track.factoryPreset || track.presetSnapshot))throw Error('Preset rendering is not validated yet. Export the separated instruments instead.');
   if(sources.some(track=>track.inputMonitoring))throw Error('Turn off input monitoring before exporting recorded audio.');
   if(sources.some(track=>!channels.get(track.id)?.buffer))throw Error('Wait for every audio file to load before exporting.');
-  if(sources.some(track=>track.id<1 || !track.audio.checksum))throw Error('Save project before using this mix in Tone.');
+  if(persisted&&sources.some(track=>track.id<1 || !track.audio.checksum))throw Error('Save project before using this mix in Tone.');
   return sources;
 }
 export function exportRange(duration,loop,selection='song') {
@@ -15,8 +15,8 @@ export function exportRange(duration,loop,selection='song') {
   if(selection!=='loop' || !loop || loop.end-loop.start<.05 || loop.start<0 || loop.end>duration+.001)throw Error('Select an A/B loop first.');
   return {start:loop.start,end:Math.min(duration,loop.end)};
 }
-export async function renderRecordedMix({tracks,channels,range,createContext=frames=>new OfflineAudioContext(2,frames,44100)}) {
-  const sources=mixSources(tracks,channels),frames=Math.round((range.end-range.start)*44100);
+export async function renderRecordedMix({tracks,channels,range,persisted=true,createContext=frames=>new OfflineAudioContext(2,frames,44100)}) {
+  const sources=mixSources(tracks,channels,{persisted}),frames=Math.round((range.end-range.start)*44100);
   if(!Number.isSafeInteger(frames)||frames<1||frames*8>512*1024**2)throw Error('Rendered mix exceeds the 512 MiB working buffer limit.');
   const context=createContext(frames);
   // Build a fresh offline graph with precisely the player's gain and native
@@ -32,9 +32,35 @@ export async function renderRecordedMix({tracks,channels,range,createContext=fra
   }
   return context.startRendering();
 }
+// Render published chunks directly: no per-stem concatenation or silence for
+// the unfinished tail. The preview must have stopped before taking a snapshot.
+export async function renderPreviewMix({tracks,engine,range,createContext=frames=>new OfflineAudioContext(2,frames,44100)}) {
+  if(!engine.complete||!engine.availableFrames)throw Error('Stop separation after some audio is ready before using its mix.');
+  const duration=engine.availableFrames/44100;
+  if(range.start<0||range.end>duration+1e-8||range.end<=range.start)throw Error('Mix range exceeds the separated audio available.');
+  if(tracks.some(t=>t.presetId||t.factoryPreset||t.presetSnapshot||t.inputMonitoring))throw Error('Export instrument audio without live monitoring or presets.');
+  const frames=Math.round((range.end-range.start)*44100);
+  if(!Number.isSafeInteger(frames)||frames<1||frames*8>512*1024**2)throw Error('Rendered mix exceeds the 512 MiB working buffer limit.');
+  const chunks=engine.chunks.map(c=>({...c,tracks:[...c.tracks]})),context=createContext(frames),first=Math.round(range.start*44100),last=first+frames;
+  let expected=0,nodes=0;
+  for(const chunk of chunks){
+    if(chunk.startFrame!==expected||!chunk.length)throw Error('Separated mix contains a missing audio block.');expected+=chunk.length;
+    const a=Math.max(first,chunk.startFrame),b=Math.min(last,chunk.startFrame+chunk.length);if(b<=a)continue;
+    for(const track of tracks){
+      const buffer=chunk.tracks.find(t=>t.id===track.streamId)?.buffer;
+      if(!buffer||buffer.sampleRate!==44100||buffer.length!==chunk.length)throw Error('Separated instrument audio is incomplete.');
+      const node=context.createBufferSource(),gain=context.createGain(),pan=context.createStereoPanner();
+      node.buffer=buffer;gain.gain.value=trackGain(track,tracks);pan.pan.value=track.pan/100;
+      node.connect(gain).connect(pan).connect(context.destination);node.start((a-first)/44100,(a-chunk.startFrame)/44100,(b-a)/44100);
+      if(++nodes%16===0)await tick();
+    }
+  }
+  if(expected!==engine.availableFrames)throw Error('Separated mix contains a missing audio block.');
+  return context.startRendering();
+}
 export class StudioMixExporter {
-  constructor({api,render=renderRecordedMix,workerFactory=()=>new Worker(new URL('./mix-mp3-worker.js',import.meta.url)),token=()=>crypto.randomUUID()}) {
-    Object.assign(this,{api,render,workerFactory,token});this.epoch=0;
+  constructor({api,render=renderRecordedMix,renderPreview=renderPreviewMix,workerFactory=()=>new Worker(new URL('./mix-mp3-worker.js',import.meta.url)),token=()=>crypto.randomUUID()}) {
+    Object.assign(this,{api,render,renderPreview,workerFactory,token});this.epoch=0;
   }
   invalidate() { ++this.epoch; this.pending=null; }
   current(epoch) { if(epoch!==this.epoch)throw new DOMException('Project or account changed during export','AbortError'); }
@@ -58,6 +84,16 @@ export class StudioMixExporter {
       const result=await request({type:'finish'});
       return {...result,blob:new Blob(result.parts,{type:'audio/mpeg'})};
     } finally {worker.terminate();}
+  }
+  async preview({project,tracks,channels,range,engine=null,selection='song'},onProgress=()=>{}) {
+    const epoch=this.epoch,snapshot=structuredClone(tracks),partial=!!engine?.partial;
+    onProgress('Rendering temporary mix…');
+    const buffer=await (engine?this.renderPreview({tracks:snapshot,engine,range}):this.render({tracks:snapshot,channels,range,persisted:false}));this.current(epoch);
+    const result=await this.encode(buffer,percent=>onProgress(`Encoding temporary MP3 · ${percent}%`,percent));this.current(epoch);
+    const title=`${project.name||'Studio'} · ${partial?'Partial mix':'Unsaved mix'}`;
+    return {id:`studio-preview-${this.token()}`,title,projectId:project.id,ephemeral:true,origin:'studio_preview',duration:buffer.length/44100,
+      file:new File([result.blob],`${title}.mp3`,{type:'audio/mpeg'}),
+      manifest:{partial,selection,range,frames:buffer.length,attenuation:result.attenuation}};
   }
   async export({project,tracks,channels,range,separationId=null,selection='song'},onProgress=()=>{}) {
     const epoch=this.epoch;
@@ -85,20 +121,24 @@ export class StudioMixExporter {
 
 
 // Explain every disabled state beside the action, not only in a hover title.
-export function mixExportAvailability({owned,working,separating,pending,tracks,channels,toneReady=true}) {
+export function mixExportAvailability({owned,working,separating,pending,temporary=false,tracks,channels,previewEngine=null,toneReady=true}) {
   const blocked=(message,failedIds=[])=>({ready:false,message,failedIds});
   if(!owned)return blocked('Only the project owner can create a backing track.');
-  if(working)return blocked('Preparing and saving audio…');
-  if(separating)return blocked('Wait for separation to finish, or Stop separation, then Save project.');
-  if(pending)return blocked('Save project first to upload the instruments. Then use their mix in Tone.');
+  if(working)return blocked('Preparing audio…');
+  if(separating)return blocked('Wait for separation to finish, or Stop separation to use the audio already produced.');
+  if(previewEngine){
+    if(!previewEngine.complete||!previewEngine.availableFrames)return blocked('Stop separation after some audio is ready before using its mix.');
+    if(!toneReady)return blocked('Preparing the Tone backing-track player…');
+    return {ready:true,failedIds:[],message:'Use the available instrument mix in Tone without saving. This temporary MP3 lasts for this session.'};
+  }
   const audio=tracks.filter(track=>track.audio);
   if(!audio.length)return blocked('Import an audio file before creating a backing track.');
   const failed=audio.filter(track=>channels.get(track.id)?.error);
   if(failed.length)return blocked(`Saved audio could not be loaded: ${failed.map(track=>`${track.name} (${channels.get(track.id).error.message})`).join(', ')}. Your saved project is kept. Retry audio loading.`,failed.map(track=>track.id));
   const loaded=audio.filter(track=>channels.get(track.id)?.buffer).length;
   if(loaded<audio.length)return blocked(`Preparing saved audio · ${loaded}/${audio.length} tracks ready. The button becomes available when all tracks are loaded.`);
-  if(audio.some(track=>track.presetId || track.factoryPreset))return blocked('Export a separated-instrument mix or tracks without presets. WAM preset rendering is not available yet.');
+  if(audio.some(track=>track.presetId || track.factoryPreset || track.presetSnapshot))return blocked('Export a separated-instrument mix or tracks without presets. WAM preset rendering is not available yet.');
   if(audio.some(track=>track.inputMonitoring))return blocked('Turn off input monitoring before exporting the recorded mix.');
   if(!toneReady)return blocked('Preparing the Tone backing-track player…');
-  return {ready:true,failedIds:[],message:'Ready: Use mix in Tone creates a saved MP3 backing and opens Tone. Press Play there to listen.'};
+  return {ready:true,failedIds:[],message:pending||temporary?'Ready: Use mix in Tone opens a temporary MP3 without saving your project.':'Ready: Use mix in Tone creates a saved MP3 backing and opens Tone. Press Play there to listen.'};
 }

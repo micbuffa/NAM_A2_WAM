@@ -20,6 +20,10 @@ async function discoverAudio() {
 }
 
 const server = http.createServer(async (request, response) => {
+  // Match Rails: isolation is required for the recorder's shared audio queue.
+  response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  response.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   try {
     const url = new URL(request.url, `http://${request.headers.host}`);
     if (url.pathname === '/api/test-audio-files') {

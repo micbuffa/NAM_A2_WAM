@@ -57,6 +57,20 @@ export default class SourceManager extends EventTarget {
     this.liveSplitter.connect(this.sourceTrim,channelIndex,0);this.liveInput.channelIndex=channelIndex;
     this.dispatchEvent(new Event('change'));
   }
+  // A mono DI tap before software trim and every effect; never includes backing audio.
+  createDITap() { return this.createLiveTap(); }
+
+  // Independent mono analysis/capture tap, unaffected by rack muting or effects.
+  createLiveTap(channelIndex = this.liveInput?.channelIndex) {
+    if (this.mode !== 'live' || !this.liveSplitter || !this.liveInput) throw Error('Enable live input before recording.');
+    if (!Number.isInteger(channelIndex) || channelIndex < 0 || channelIndex >= this.liveInput.channelCount) throw Error('Input channel unavailable');
+    const splitter = this.liveSplitter, index = channelIndex;
+    const node = this.audioContext.createGain();
+    node.channelCount = 1; node.channelCountMode = 'explicit'; node.channelInterpretation = 'discrete';
+    splitter.connect(node, index, 0);
+    return {node, release() { try { splitter.disconnect(node); } catch {} node.disconnect(); }};
+  }
+
   async enumerateInputs({requestPermission = false} = {}) {
     let permissionStream = null;
     if (requestPermission) {

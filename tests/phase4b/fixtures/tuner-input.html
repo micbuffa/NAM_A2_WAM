@@ -1,0 +1,39 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Two-input tuner qualification</title>
+<style>body{background:#181b1f;color:#eee;font:17px system-ui;margin:32px}button{padding:12px;font-size:17px}pre{white-space:pre-wrap}dialog{background:#181b1f;color:#eee;border:1px solid #555;border-radius:12px;width:320px}dialog::backdrop{background:#0008}.tuner-input-choice:not([hidden]){display:grid;gap:8px}select{padding:8px}</style>
+<h1>Two-input tuner qualification</h1><p>Real tuner WAM, SourceManager and FxRack. Synthetic channels: A = 220 Hz, B = 440 Hz. No microphone, account writes or audible output.</p>
+<button id="run">Run qualification</button> <button id="tuner" disabled>Tuner</button><pre id="result" role="status">Ready</pre><audio id="player"></audio>
+<script type="module">
+import initializeWamHost from '../../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
+import TunerPlugin from '../../../examples/wam/wamPlugins/tuner_machine/src/index.js';
+import SourceManager from '../../../examples/wam/SourceManager.js';
+import {FxRack} from '../../../examples/wam/FxRack.js';
+import {TunerView} from '../../../examples/wam/TunerView.js';
+const result=document.querySelector('#result'),wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+let context,source,rack,view,oscillators=[];
+const pitch=()=>Number(view.resources.gui.shadowRoot.querySelector('#pitch').textContent);
+const near=(value,expected)=>Math.abs(value-expected)<expected*.02;
+document.querySelector('#run').onclick=async()=>{
+ try{
+  document.querySelector('#run').disabled=true;result.textContent='Qualifying…';
+  context=new AudioContext();await context.resume();const [groupId]=await initializeWamHost(context,'tuner-input-validation');
+  const lane=()=>{const l=Object.assign(new EventTarget(),{input:context.createGain(),output:context.createGain(),outputMeter:{destroy(){}},entries:[],applyRouting:async()=>{},destroy(){this.input.disconnect();this.output.disconnect();}});l.input.connect(l.output);return l;};
+  const a=lane();source=new SourceManager({audioContext:context,wamNode:a.input,player:document.querySelector('#player')});
+  source.liveSplitter=context.createChannelSplitter(2);source.liveInput={channelCount:2,channelIndex:0};source.mode='live';source.liveSplitter.connect(source.sourceTrim,0,0);
+  const merger=context.createChannelMerger(2);
+  for(const [index,hz] of [220,440].entries()){const osc=context.createOscillator();osc.frequency.value=hz;osc.connect(merger,0,index);osc.start();oscillators.push(osc);}merger.connect(source.liveSplitter);
+  rack=new FxRack({context,a,source,createLane:async()=>lane()});await rack.setVisible(true);
+  const registry={records:[{role:'tuner'}],instantiate:()=>TunerPlugin.createInstance(groupId,context)};
+  view=new TunerView({context,registry,groupId,source,rack,button:document.querySelector('#tuner')});
+  await view.open();await wait(900);const aHz=pitch(),selectorVisible=!view.inputChoice.hidden;
+  view.select.value='b';view.select.dispatchEvent(new Event('change'));await wait(900);const bHz=pitch();
+  await rack.setEnabledB(false);await wait(500);const mutedBHz=pitch();
+  await rack.setChannelB(0);await wait(800);const changedBHz=pitch();
+  await rack.setChannelB(1);await rack.connectRoute(0);await wait(800);const sharedBHz=pitch(),sharedLabel=view.select.selectedOptions[0].textContent;
+  await rack.setVisible(false);await wait(500);const hiddenResetsA=view.input.selected==='a'&&view.inputChoice.hidden;
+  view.close();const releasedOnClose=view.input.tap===null;
+  await rack.setVisible(true);await rack.removeRoute();await view.open();await wait(800);const reopenedAHz=pitch();view.close();
+  const pass=selectorVisible&&near(aHz,220)&&near(bHz,440)&&near(mutedBHz,440)&&near(changedBHz,220)&&near(sharedBHz,220)&&hiddenResetsA&&releasedOnClose&&near(reopenedAHz,220);
+  result.textContent=JSON.stringify({pass,selectorVisible,aHz,bHz,mutedBHz,changedBHz,sharedBHz,sharedLabel,hiddenResetsA,releasedOnClose,reopenedAHz},null,2);
+ }catch(error){result.textContent=`FAIL: ${error.stack}`;}
+};
+</script></html>

@@ -1,0 +1,99 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>DI recording qualification</title>
+<style>body{background:#181b1f;color:#eee;font:17px system-ui;margin:32px}button{padding:12px;font-size:17px}pre{white-space:pre-wrap}</style>
+<h1>DI capture · synthetic input qualification</h1><p>No microphone, account writes or audible output. Runs the real capture WAM, ring buffer and Worker.</p>
+<button id="run">Run synthetic capture</button><pre id="result" role="status">Ready</pre>
+<button id="lifecycle">Run Studio recording lifecycle</button><div id="bench" hidden></div>
+<script type="module">
+import initializeWamHost from '../../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
+import {DIRecorder} from '../../../examples/wam/projects/recording/DIRecorder.js';
+import {StudioRecording} from '../../../examples/wam/projects/recording/StudioRecording.js';
+import {StudioPlayer} from '../../../examples/wam/projects/StudioPlayer.js';
+import {TrackMeters} from '../../../examples/wam/projects/TrackMeters.js';
+import {ProjectTimeline} from '../../../examples/wam/projects/ProjectTimeline.js';
+import Renderer from '../../../examples/wam/source-separation/vendor/wavesurfer/renderer.js';
+const output=document.querySelector('#result');
+document.querySelector('#run').onclick=async()=>{
+ let context,recorder;
+ try{
+  output.textContent='Capturing…';context=new AudioContext({sampleRate:48000});await context.resume();
+  const [groupId]=await initializeWamHost(context,'di-recording-validation');
+  recorder=new DIRecorder({context,groupId});
+  const metadata={sampleRate:context.sampleRate,startProjectFrame:1000,compensationFrames:240};
+  await recorder.prepare(metadata);
+  const source=context.createBufferSource(),buffer=context.createBuffer(1,48000,48000),values=buffer.getChannelData(0);
+  for(let i=0;i<values.length;i++)values[i]=.125+.1*Math.sin(i*.03125);
+  source.buffer=buffer;
+  let updates=0;recorder.addEventListener('progress',()=>updates++);
+  recorder.addEventListener('error',({detail})=>output.textContent=`FAIL: ${detail.message}`);
+  const frame=Math.ceil(context.currentTime*48000)+7200;
+  recorder.start(source,frame);source.start(frame/48000);
+  await new Promise(resolve=>setTimeout(resolve,650));
+  const result=await recorder.stop(),view=new DataView(await result.audio.arrayBuffer()),padding=760;
+  let maximumError=0;
+  for(let i=0;i<Math.min(result.capturedFrames,values.length);i++)maximumError=Math.max(maximumError,Math.abs(values[i]-view.getFloat32(44+(padding+i)*4,true)));
+  const pass=maximumError===0&&result.capturedFrames>10000&&updates>0&&result.frames===padding+result.capturedFrames;
+  output.textContent=JSON.stringify({pass,maximumError,capturedFrames:result.capturedFrames,projectFrames:result.frames,waveformUpdates:updates,encodedFrames:result.encodedFrames,losslessBytes:result.audio.size,ringSeconds:2},null,2);
+  source.stop();
+ }catch(error){output.textContent=`FAIL: ${error.stack}`;}
+ finally{recorder?.destroy();await context?.close();}
+};
+
+document.querySelector('#lifecycle').onclick=async()=>{
+ let context,recording,player,osc,meters,liveOsc;
+ try{
+  output.textContent='Running monitor → arm → record → Stop…';
+  context=new AudioContext({sampleRate:48000});await context.resume();
+  const [groupId]=await initializeWamHost(context,'di-lifecycle-validation');
+  const bench=document.querySelector('#bench');
+  const ids=['recordPanel','recordMonitor','recordCurrentTone','recordArm','recordDiscard','projectRecord','projectRecordStop','recordCompensation','recordStatus','inspectorPreset','inspectorEditPreset'];
+  bench.replaceChildren(...ids.map(id=>Object.assign(document.createElement(id==='recordCompensation'?'input':'button'),{id})));
+  document.querySelector('#recordCompensation').value='0';
+  const root=document.createElement('section'),list=document.createElement('ol'),ruler=document.createElement('div');
+  root.style.width='900px';root.append(ruler,list);bench.append(root);bench.hidden=false;
+  const noop=()=>{};
+  let ordinaryRenders=0;
+  const timeline=new ProjectTimeline(list,{root,ruler,onSelect:noop,onChange:noop,onEdit:noop,onMonitor:noop,onMove:noop,onSeek:noop,onLoop:noop,createRenderer:options=>{ordinaryRenders++;return new Renderer(options);}});
+  let packets=0,peakValues=0,stableCanvas=true,firstCanvas;
+  const append=timeline.appendRecording.bind(timeline);
+  timeline.appendRecording=(id,packet)=>{append(id,packet);packets++;peakValues+=packet.peaks.length;const canvas=timeline.rows.get(id).liveRenderer?.tiles.get(0)?.canvas;if(firstCanvas&&canvas!==firstCanvas)stableCanvas=false;firstCanvas??=canvas;};
+  const track={id:1,name:'Synthetic DI',origin:'personal',instrument:'guitar',volume:80,pan:0,updatedAt:'v1',audio:null};
+  const state={version:2,a:{entries:[]},sourceTrim:{live:0,file:-18}},source=new EventTarget();
+  osc=context.createBufferSource();const buffer=context.createBuffer(1,48000,48000);buffer.getChannelData(0).fill(.125);osc.buffer=buffer;osc.loop=true;osc.start();
+  source.trimDb={live:0};source.liveInput={label:'Synthetic DI',channelIndex:0};source.createDITap=()=>({node:osc,release(){}});
+  player=new StudioPlayer(context);
+  const silent=context.createGain();silent.gain.value=0;player.output.connect(silent).connect(context.destination);
+  meters=new TrackMeters({context,player,timeline});
+  const w={owned:true,project:{id:1,tracks:[track]},saved:{tracks:[structuredClone(track)]},selectedId:1,player,accountLoadEpoch:1,
+    get selectedTrack(){return this.project.tracks[0];},$:id=>document.getElementById(id),
+    timeline,renderLength(){},render(){timeline.render(this.project.tracks);recording?.render();},report(text){output.textContent=text;},
+    setTracks(tracks){this.project.tracks=tracks;player.setTracks(tracks);timeline.render(tracks);},
+    tones:{status:()=>({state:'ready'}),tones:new Map([[1,{rack:{getState:async()=>structuredClone(state)}}]])}};
+  recording=new StudioRecording(w,{context,groupId,source,rack:{getState:async()=>structuredClone(state)},enableLive:async()=>{}});
+  await recording.monitor();await recording.arm();
+  if(recording.armedId!==1)throw Error('Track did not arm');
+  await recording.start();if(recording.state!=='recording')throw Error('Capture did not start');
+  await new Promise(resolve=>setTimeout(resolve,2600));
+  const liveRenderer=timeline.rows.get(1).liveRenderer;
+  const incremental=packets>10&&stableCanvas&&ordinaryRenders===0&&liveRenderer?.fullRepaints===1;
+  const liveStats={packets,peakValues,stableCanvas,ordinaryRendersDuringCapture:ordinaryRenders,fullRepaints:liveRenderer?.fullRepaints,drawnColumns:liveRenderer?.drawnColumns};
+  const liveWaveform=!!timeline.waves.get(1)?.peaks?.some(value=>value>0);
+  await recording.stop();
+  if(!player.ready)await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Recorded audio did not load')),5000);player.addEventListener('load',()=>{clearTimeout(timer);resolve();},{once:true});});
+  const playReady=player.ready;
+  // A much louder live input must disappear from the track during Play.
+  liveOsc=context.createBufferSource();const liveBuffer=context.createBuffer(1,48000,48000);liveBuffer.getChannelData(0).fill(.75);liveOsc.buffer=liveBuffer;liveOsc.loop=true;liveOsc.start();
+  player.base.setTracks([{...w.selectedTrack,inputMonitoring:true}],1);player.base.setLiveInput(liveOsc);
+  await new Promise(resolve=>setTimeout(resolve,120));meters.update();
+  const liveBeforePlayDb=Number(timeline.rows.get(1).meter.getAttribute('aria-valuenow'));
+  await player.play();const playing=player.playing;
+  await new Promise(resolve=>setTimeout(resolve,150));meters.update();
+  const metered=parseFloat(timeline.rows.get(1).meter.style.getPropertyValue('--track-level'))>0;
+  const duringPlayDb=Number(timeline.rows.get(1).meter.getAttribute('aria-valuenow'));
+  const playbackOnly=player.base.liveId===null&&liveBeforePlayDb>-10&&duringPlayDb<-15&&duringPlayDb>-26;
+  player.pause();
+  const take=recording.pending.get(1),pass=incremental&&liveWaveform&&playReady&&playing&&metered&&playbackOnly&&recording.state==='idle'&&!!take&&w.saved.tracks[0].audio===null&&!!w.selectedTrack.presetSnapshot&&take.metadata.capturedFrames>10000&&!player.recordingLock;
+  output.textContent=JSON.stringify({lifecyclePass:pass,incremental,liveStats,liveWaveform,playReady,playing,metered,playbackOnly,liveBeforePlayDb,duringPlayDb,peak:take?.peak,state:recording.state,pendingTakes:recording.pending.size,capturedFrames:take?.metadata.capturedFrames,savedAudioStillEmpty:w.saved.tracks[0].audio===null,transportUnlocked:!player.recordingLock},null,2);
+ }catch(error){output.textContent=`FAIL: ${error.stack}`;}
+ finally{meters?.destroy();player?.destroy();recording?.clear();osc?.stop();liveOsc?.stop();await context?.close();}
+};
+</script></html>

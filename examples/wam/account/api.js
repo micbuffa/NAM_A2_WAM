@@ -76,6 +76,12 @@ export default class AccountApi {
   updateTrack(projectId, id, attributes, audio = null) {
     return this.request('PATCH', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}`, trackBody(attributes, audio));
   }
+  saveRecording(projectId, id, metadata, audio, expectedUpdatedAt) {
+    const body = new FormData();
+    body.append('metadata', JSON.stringify(metadata)); body.append('expectedUpdatedAt', expectedUpdatedAt);
+    body.append('audio', audio, audio.name);
+    return this.request('POST', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}/recording`, body);
+  }
   setTrackVisibility(projectId, command) { return this.request('PATCH', `${projectPath(projectId)}/tracks/visibility`, command); }
   restoreTrack(projectId, id) { return this.request('PATCH', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}/restore`); }
   deleteTrack(projectId, id) { return this.request('DELETE', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}`); }

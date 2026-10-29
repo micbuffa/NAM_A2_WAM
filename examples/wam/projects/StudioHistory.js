@@ -33,7 +33,7 @@ export class StudioHistory {
   }
 }
 
-const FIELDS = ['name', 'instrument', 'presetId', 'factoryPreset', 'volume', 'pan', 'mute', 'solo'];
+const FIELDS = ['name', 'instrument', 'presetId', 'factoryPreset', 'volume', 'pan', 'mute', 'solo', 'presetSnapshot', 'snapshotId'];
 export function editState(project, loop) {
   return {name: project.name, bpm: project.bpm, loop: loop && {...loop},
     tracks: project.tracks.map(track => Object.fromEntries(['id', ...FIELDS].map(key => [key, track[key]])))};
@@ -48,7 +48,7 @@ export function editPatch(before, after) {
     const next = after.tracks.find(entry => entry.id === track.id);
     if (!next) continue;
     const fields = {};
-    for (const key of FIELDS) if (track[key] !== next[key]) fields[key] = [track[key], next[key]];
+    for (const key of FIELDS) if (!same(track[key], next[key])) fields[key] = [track[key], next[key]];
     if (Object.keys(fields).length) patch.tracks.push({id: track.id, fields});
   }
   const order = [before.tracks.map(t => t.id), after.tracks.map(t => t.id)];

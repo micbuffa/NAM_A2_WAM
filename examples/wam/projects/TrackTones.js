@@ -87,7 +87,9 @@ export class TrackTones extends EventTarget {
       if (!current()) return;
       if (!rack) throw created.reason;
       if (resolved.status === 'rejected') throw resolved.reason;
-      const state = resolved.value;
+      const state = structuredClone(resolved.value);
+      // A raw recorded DI must enter at the same trim used during live monitoring.
+      if (track.presetSnapshot) state.sourceTrim = {...state.sourceTrim, file: state.sourceTrim?.live ?? 0};
       tone.rack = rack;
       await rack.setState(state);
       if (!current()) return;

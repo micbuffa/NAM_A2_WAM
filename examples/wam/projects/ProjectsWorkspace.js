@@ -1,3 +1,5 @@
+import {TrackMeters} from './TrackMeters.js';
+import {StudioRecording} from './recording/StudioRecording.js';
 import {StudioHistory, editState, editCommand, historyShortcut} from './StudioHistory.js';
 import {audioImportDialog, importDestinationFields} from './AudioImportDialog.js';
 // Projects workspace (TONELAB mockup): the sidebar project picker and track
@@ -83,7 +85,12 @@ export class ProjectsWorkspace extends EventTarget {
         let next=0;
         this.setTracks(order.map(track=>visible.some(entry=>entry.id===track.id)?visible[next++]:track), {label: 'Reorder track'});
       },
+      onArm: (id) => { this.select(id); void this.recording?.act(() => this.recording.arm()); },
       onMonitor: (id) => {
+        const track = this.project?.tracks.find(track => track.id === id);
+        if (track?.origin === 'personal' && !track.audio && this.recording && !track.inputMonitoring) {
+          this.select(id); void this.recording.act(() => this.recording.monitor()); return;
+        }
         this.setTracks(toggleMonitoring(this.project.tracks, id));
         if (this.selectedTrack?.inputMonitoring && !liveInputEnabled()) this.report('Input monitoring: enable live input to play through this track.', true);
       },
@@ -119,6 +126,9 @@ export class ProjectsWorkspace extends EventTarget {
     });
     player?.addEventListener('statechange', () => this.renderTransport());
     player?.addEventListener('load', ({detail: {id, buffer}}) => {
+      const wave = this.timeline.waves.get(id);
+      const recording = this.project?.tracks.find(track => track.id === id)?.recording;
+      if (wave?.peaks && recording?.sessionId && wave.recordingSessionId === recording.sessionId) { this.renderLength(); return; }
       const stored = this.project?.tracks.find(track => track.id === id)?.waveform;
       this.timeline.setWave(id, {peaks: stored ? Float32Array.from(stored.peaks) : buildWaveformPeaks([buffer], buffer.length), duration: buffer.duration});
       this.renderLength();
@@ -133,8 +143,11 @@ export class ProjectsWorkspace extends EventTarget {
       this.separation = this.separationView.controller;
       this.persistence = new SeparationPersistence({api});
     }
+    if (player?.context?.createAnalyser) this.trackMeters = new TrackMeters({context: player.context, player, timeline: this.timeline});
     account?.addEventListener('change', () => this.load());
   }
+
+  attachRecording(options) { this.recording = new StudioRecording(this, options); }
 
   // TrackTones: one rack per guitar or bass track with a preset.
   attachTones(tones) {
@@ -178,11 +191,12 @@ export class ProjectsWorkspace extends EventTarget {
   // Unsaved edits of an owned project.
   get dirty() {
     if (!this.owned || !this.saved) return false;
-    return this.project.name !== this.saved.name || this.project.bpm !== this.saved.bpm
+    return Boolean(this.recording?.pending.size) || this.project.name !== this.saved.name || this.project.bpm !== this.saved.bpm
       || orderChanged(this.saved.tracks, this.project.tracks) || trackChanges(this.saved.tracks, this.project.tracks).length > 0;
   }
 
   async load() {
+    this.recording?.clear();
     this.accountLoadEpoch=(this.accountLoadEpoch??0)+1;
     this.saving = false;
     this.history?.clear();
@@ -201,7 +215,7 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   async open(id, {confirm = true, historyLabel = null} = {}) {
-    if (this.saving) return this.renderPicker();
+    if (this.saving || this.recording?.busy) return this.renderPicker();
     if (confirm && this.dirty && String(id) !== String(this.project?.id)) {
       const discard = await confirmDialog({title: 'Discard unsaved changes?', message: `“${this.project.name}” has unsaved changes.`,
         confirmLabel: 'Discard'});
@@ -241,6 +255,7 @@ export class ProjectsWorkspace extends EventTarget {
     if (!beforeLayout && !preserveHistory) this.history?.clear();
     this.historyGesture = null;
     if (project?.id !== this.project?.id) {
+      this.recording?.clear();
       this.mixExporter?.invalidate();
       if (this.$?.('studioExportRange')) this.$('studioExportRange').value='song';
       this.separation?.stop({reset: true});
@@ -256,7 +271,7 @@ export class ProjectsWorkspace extends EventTarget {
 
   // Local edit of the open project (name, bpm): saved by save().
   edit(attributes) {
-    if (this.saving || this.history?.busy) return;
+    if (this.saving || this.history?.busy || this.recording?.busy) return;
     const before = this.historyState();
     const bars = loopToBars(this.player?.loop, this.project.bpm);
     Object.assign(this.project, attributes);
@@ -268,7 +283,7 @@ export class ProjectsWorkspace extends EventTarget {
 
   // The live guitar follows the selection (liveTrackId()).
   select(id) {
-    if (id === this.selectedId || this.saving) return;
+    if (id === this.selectedId || this.saving || this.recording?.busy) return;
     this.selectedId = id;
     for (const track of this.displayTracks) this.timeline.update(track, track.id === id);
     this.syncPlayer();
@@ -277,20 +292,21 @@ export class ProjectsWorkspace extends EventTarget {
 
   // Local edit of a track; the row is updated in place (a fader keeps its drag).
   updateTrack(id, fields) {
-    if (this.saving || this.history?.busy) return;
+    if (this.saving || this.history?.busy || this.recording?.busy) return;
     if (this.separation?.updateTrack(id, fields)) {
       this.timeline.update(this.separation.result.tracks.find(track => track.id === id), id === this.selectedId);
       this.renderInspector();
       return;
     }
     const track = this.project.tracks.find(entry => entry.id === id);
+    if (track?.presetSnapshot && ('presetId' in fields || 'factoryPreset' in fields)) fields = {...fields, presetSnapshot: null, snapshotId: null};
     const field = Object.keys(fields)[0];
     const verb = {volume: 'Volume', pan: 'Pan', mute: 'Mute', solo: 'Solo', presetId: 'Preset', factoryPreset: 'Preset'}[field] ?? 'Edit';
     this.setTracks(this.project.tracks.map((track) => (track.id === id ? {...track, ...fields} : track)), {label: `${verb} ${track?.name ?? 'track'}`});
   }
 
   setTracks(tracks, {label = 'Edit tracks'} = {}) {
-    if (this.saving || this.history?.busy) return;
+    if (this.saving || this.history?.busy || this.recording?.busy) return;
     const before = this.historyState();
     this.project.tracks = tracks;
     if (this.separation) this.separation.projectTracks = tracks;
@@ -304,12 +320,29 @@ export class ProjectsWorkspace extends EventTarget {
     this.dispatchEvent(new CustomEvent('tracks', {detail: {tracks}}));
   }
 
+  // Recording uses one persisted project deck. Promote a stopped preview with
+  // the existing lossless/idempotent save path; never discard its instruments.
+  async prepareRecordingBacking() {
+    const c = this.separation;
+    if (!c?.result) return;
+    if (c.busy || !c.result.engine.complete) throw Error('Stop separation before arming a guitar track.');
+    if (!c.result.engine.availableFrames) {
+      c.stop({reset: true}); this.render();
+      this.report('No separated audio was produced; recording will use the original project audio.'); return;
+    }
+    const projectId = this.project?.id, epoch = this.accountLoadEpoch;
+    this.report('Keeping the separated instruments as project tracks before arming…');
+    await this.save();
+    if (this.project?.id !== projectId || this.accountLoadEpoch !== epoch || c.result) throw Error('Instruments could not be saved. The partial result is kept; retry Save project before arming.');
+  }
+
   async save() {
-    if (this.saving || (!this.dirty && !this.pendingSeparation)) return;
+    if (this.saving || this.recording?.busy || (!this.dirty && !this.pendingSeparation)) return;
     this.saving = true;
     this.render();
     try {
       const {project, saved} = this;
+      await this.recording?.save();
       if (project.name !== saved.name || project.bpm !== saved.bpm) {
         Object.assign(saved, await this.api.updateProject(project.id, {name: project.name, bpm: project.bpm}), {tracks: saved.tracks});
       }
@@ -342,12 +375,20 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   async useMixInTone() {
-    if (!this.owned || this.saving || this.pendingSeparation || this.separation?.busy) return;
-    if (this.dirty) { await this.save(); if (this.dirty) return; }
+    if (!this.owned || this.saving || this.recording?.busy || this.separation?.busy) return;
     const project = this.project;
     this.saving = true; this.render();
     try {
-      const range = exportRange(this.player.duration, this.player.loop, this.$('studioExportRange').value);
+      const preview=this.separation?.mode==='stems'?this.separation.result?.engine:null;
+      const range = exportRange(preview?preview.availableFrames/44100:this.player.duration, this.player.loop, this.$('studioExportRange').value);
+      if(preview||this.dirty||this.pendingSeparation){
+        const epoch=this.accountLoadEpoch;
+        const entry=await this.mixExporter.preview({project,tracks:this.displayTracks,channels:this.player.channels,range,engine:preview,selection:this.$('studioExportRange').value},
+          (status,progress=null)=>this.separation?.setStatus(status,progress));
+        if(this.project!==project||epoch!==this.accountLoadEpoch)throw new DOMException('Project or account changed during export','AbortError');
+        if(await this.onUseMix?.(entry)===false)throw Error('Temporary backing could not be loaded.');
+        this.report('Temporary mix ready in Tone · project remains unsaved.');return;
+      }
       const entry = await this.mixExporter.export({project,tracks:this.displayTracks,channels:this.player.channels,range,
         separationId:null, selection:this.$('studioExportRange').value},
         (status,progress=null)=>this.separation?.setStatus(status,progress));
@@ -444,7 +485,7 @@ export class ProjectsWorkspace extends EventTarget {
   async deleteTrack(id, {confirm = confirmDialog} = {}) {
     const project = this.project, epoch = this.accountLoadEpoch;
     const track = timelineTracks(project).find(entry => entry.id === id);
-    if (!this.owned || this.saving || this.separation?.busy || this.separation?.result || !track) return;
+    if (!this.owned || this.saving || this.recording?.busy || this.recording?.pending.size || this.separation?.busy || this.separation?.result || !track) return;
     const confirmed = await confirm({title: 'Delete track?', confirmLabel: 'Delete',
       message: `Remove “${track.name}” from the timeline and mix? Its audio is kept in history. You can restore it from Options.`});
     if (!confirmed || this.project !== project || this.accountLoadEpoch !== epoch || this.saving || this.separation?.busy || this.separation?.result) return;
@@ -527,7 +568,7 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   get historyBlocked() {
-    return !this.owned || Boolean(this.saving || this.history?.busy || this.separation?.busy || this.separation?.result);
+    return !this.owned || Boolean(this.saving || this.recording?.busy || this.recording?.pending.size || this.history?.busy || this.separation?.busy || this.separation?.result);
   }
 
   historyState() {
@@ -605,6 +646,9 @@ export class ProjectsWorkspace extends EventTarget {
 
   editPresetInTone() {
     if (!this.selectedTrack || !usesTrackPreset(this.selectedTrack)) return;
+    if (this.selectedTrack?.presetSnapshot) {
+      this.onEditSnapshot?.(structuredClone(this.selectedTrack.presetSnapshot)); return;
+    }
     const value = presetValue(this.selectedTrack);
     if (value) this.onEditPreset(value.startsWith('account:') ? value.slice(8) : value);
   }
@@ -845,6 +889,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.renderInspector();
     this.syncPlayer();
     this.separationView?.render();
+    this.recording?.render();
   }
 
   // The player follows the open project's tracks and mix; lanes wait for their audio.
@@ -870,10 +915,11 @@ export class ProjectsWorkspace extends EventTarget {
     const playing = Boolean(player?.playing);
     const play = this.$('projectPlay');
     play.disabled = player?.ready === false || !player?.duration;
-    play.setAttribute('icon', playing ? 'pause' : 'play');
+    play.textContent = playing ? '❚❚ Pause' : '▶ Play';
+    play.title = play.disabled ? 'Record or import audio first; playback becomes available when audio is ready.' : playing ? 'Pause' : 'Play';
     play.setAttribute('aria-label', playing ? 'Pause' : 'Play');
     play.setAttribute('aria-pressed', String(playing));
-    play.title = playing ? 'Pause' : 'Play';
+
     this.$('projectRewind').disabled = !player?.duration;
     const loop = player?.loop ?? {enabled: false, start: 0, end: 0};
     const loopButton = this.$('projectLoop');
@@ -886,6 +932,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.timeline.setLoop(loop);
     this.renderMixExport();
     this.renderPosition();
+    this.recording?.render();
     if (playing && !this.frame) {
       const tick = () => {
         this.renderPosition();
@@ -950,14 +997,14 @@ export class ProjectsWorkspace extends EventTarget {
     if (!button) return;
     range.hidden=!this.owned;
     range.closest('label').hidden=!this.owned;
-    button.hidden=!this.owned || Boolean(this.separation?.busy || this.pendingSeparation);
-    const state=mixExportAvailability({owned:this.owned,working:this.saving,separating:this.separation?.busy,pending:this.pendingSeparation,
-      tracks:this.displayTracks,channels:this.player?.channels ?? new Map(),toneReady:typeof this.onUseMix === 'function'});
+    button.hidden=!this.owned || Boolean(this.separation?.busy);
+    const state=mixExportAvailability({owned:this.owned,working:this.saving,separating:this.separation?.busy,pending:this.pendingSeparation,temporary:this.dirty,
+      tracks:this.displayTracks,channels:this.player?.channels ?? new Map(),previewEngine:this.separation?.mode==='stems'?this.separation.result?.engine:null,toneReady:typeof this.onUseMix === 'function'});
     button.disabled=!state.ready;button.title=state.message;
     const help=this.$('studioExportHelp');
     if(help){
-      help.hidden=!this.owned || Boolean(this.separation?.busy) || state.ready;
-      help.textContent=this.pendingSeparation ? 'Save project to keep these instruments and use the mix in Tone.' : state.message;
+      help.hidden=!this.owned || Boolean(this.separation?.busy) || (state.ready&&!this.pendingSeparation&&!this.dirty);
+      help.textContent=state.message;
     }
     const retry=this.$('studioRetryAudio');
     if(retry){retry.hidden=!this.owned || !state.failedIds.length;retry.disabled=Boolean(this.saving);}
@@ -1023,6 +1070,7 @@ export class ProjectsWorkspace extends EventTarget {
   renderInspector() {
     const track = this.selectedTrack;
     this.$('trackInspector').hidden = !track;
+    this.recording?.render();
     if (!track) return;
     const index = this.displayTracks.indexOf(track);
     this.$('inspectorTrackName').textContent = track.name;
@@ -1052,6 +1100,7 @@ export class ProjectsWorkspace extends EventTarget {
       return optgroup;
     };
     const options = [new Option('No preset', '')];
+    if (track.presetSnapshot) options.push(new Option('Copied Tone preset', value));
     if (this.owned) {
       options.push(group('Factory', FACTORY_PRESETS.map((preset) => new Option(`${preset.name} · ${preset.category}`, preset.id))));
       if (this.presets.length) options.push(group('My presets', this.presets.map((preset) => new Option(preset.name, `account:${preset.id}`))));
@@ -1083,6 +1132,7 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   presetName(track) {
+    if (track.presetSnapshot) return 'Copied Tone preset';
     if (track.factoryPreset) return FACTORY_PRESETS.find((preset) => preset.id === track.factoryPreset)?.name ?? track.factoryPreset;
     if (track.presetId) return this.presets.find((preset) => preset.id === track.presetId)?.name ?? track.presetName ?? 'Account preset';
     return '';

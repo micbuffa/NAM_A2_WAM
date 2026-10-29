@@ -1,5 +1,9 @@
 # NAM A2 WAM
 
+## Tuner
+
+Open **Tuner** (or press **T**) after enabling live input. With two chains visible, **Tuner input** selects **Chain A** or **Chain B**, with its physical input channel shown. Analysis is taken before trim/effects and remains available while that chain is muted. If A feeds B, both selections analyse A’s raw input, explicitly marked as shared. Hiding B returns the tuner to A; unavailable physical channels are identified rather than silently replaced. No extra microphone permission is requested by opening the tuner.
+
 ## Serial effect chain
 
 The main host shows the current NAM capture and Cabinet IR as photo cards. Click a `+` to choose a bundled effect at that position, then double-click its thumbnail/title or use **Insert module**. Click any photo to open its editor; **Replace** opens the catalog to replace that instance in place while preserving its input/output gains. Cancel or a failed load keeps the current module. Closing the editor preserves the running instance and its settings. Card controls and editor toolbars provide bypass. Cabinet AUTO still follows the selected NAM capture type.
@@ -232,6 +236,22 @@ when adding or importing audio: only personal guitar/bass parts use tone presets
 Existing projects retain their presets through the `legacy` migration origin.
 Changing the instrument never converts an accompaniment into a personal DI.
 
+After stopping a separation, **Keep instruments & arm** saves the partial
+instruments as project tracks before arming the newly added guitar. A failed
+save preserves the preview for retry. Ordinary Play auditions the recorded
+track and its meter; live monitoring resumes on pause and stays active during
+recording.
+
+First recording increment: add an empty **personal guitar/bass** track, choose the
+input/channel in Tone, then **Enable input / monitor → R · Arm track → Record →
+Stop recording → Save project**. The current unsaved Tone sound is copied by
+default; the take stores raw mono DI plus a preset snapshot as a lossless WAV.
+Up to two takes can remain in RAM (100 MiB each); Discard unsaved take allows a
+retry. Manual latency compensation is available, initially uncalibrated.
+Automatic loopback calibration, recording over existing audio, take undo/redo
+and processed DI mix export remain pending. See
+[RECORD_TRACKS_SPECIFICATION.md](RECORD_TRACKS_SPECIFICATION.md).
+
 In **Studio**, import accompaniment audio, choose Demucs (4 instruments, guitar
 in Other) or BS Roformer SW (6 instruments, dedicated guitar/piano), and click
 **Separate instruments**. The default processes the entire song; short excerpts
@@ -381,3 +401,11 @@ dist. See [Rails deployment and import limits](web/README.md#studio-audio-import
 Advanced WebNN CPU/GPU/NPU is experimental for Demucs4 only, with strict per-block
 WASM comparison and initial fallback. Native WebNN qualification is still pending;
 WebGPU/WASM remain the normal engines.
+
+### WebNN in integrated Studio
+
+On `codex/studio-integration`, choose **Execution engine** in Studio’s **Separate instruments** dialog, also used by imports from Tone/Play Along. WebNN CPU/GPU/NPU is opt-in for Demucs4; SW6 stays on WebGPU/WASM. Choices are disabled with an explanation if the browser does not expose WebNN. Firefox experimental builds and Canary use the same API detection. Closing the dialog preserves the previous engine.
+
+### Use a stopped or unsaved instrument mix in Tone
+
+After stopping separation once some audio is ready, click **Use mix in Tone** without saving. The available audio is mixed using current volume/pan/mute/solo and encoded as a temporary MP3. Completed RAM previews and unsaved recorded-track mixer changes work too. **Return to Studio** preserves the current unsaved preview. Temporary mixes are session-only (two recent entries, one per project); use **Save Project** separately to keep the stems or **Download MP3** to keep the mix file.

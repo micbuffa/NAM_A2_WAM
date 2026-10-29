@@ -61,7 +61,7 @@ export function initials(name = '') {
 }
 
 // Track fields edited locally and sent by "Save project".
-export const TRACK_FIELDS = ['name', 'instrument', 'presetId', 'factoryPreset', 'volume', 'pan', 'mute', 'solo', 'inputMonitoring'];
+export const TRACK_FIELDS = ['name', 'instrument', 'presetId', 'factoryPreset', 'volume', 'pan', 'mute', 'solo', 'inputMonitoring', 'presetSnapshot', 'snapshotId'];
 export const PRESET_INSTRUMENTS = ['guitar', 'bass'];
 export const usesPreset = (instrument) => PRESET_INSTRUMENTS.includes(instrument);
 // Missing origin is accepted for older API payloads. Explicit accompaniment
@@ -87,7 +87,7 @@ export function defaultTrackName(instrument, tracks = []) {
 
 // A change of instrument drops a preset the new instrument cannot use.
 export function withInstrument(track, instrument) {
-  return usesTrackPreset({...track, instrument}) ? {...track, instrument} : {...track, instrument, presetId: null, factoryPreset: null, ...(track.inputMonitoring ? {inputMonitoring: false} : {})};
+  return usesTrackPreset({...track, instrument}) ? {...track, instrument} : {...track, instrument, presetId: null, factoryPreset: null, ...(track.presetSnapshot ? {presetSnapshot: null, snapshotId: null} : {}), ...(track.inputMonitoring ? {inputMonitoring: false} : {})};
 }
 
 // Input monitoring plays the live guitar through one track's preset: one track at a time.
@@ -110,7 +110,7 @@ export function trackChanges(saved = [], current = []) {
   return current.flatMap((track) => {
     const before = saved.find((entry) => entry.id === track.id);
     if (!before) return [];
-    const changes = Object.fromEntries(TRACK_FIELDS.filter((key) => before[key] !== track[key]).map((key) => [key, track[key]]));
+    const changes = Object.fromEntries(TRACK_FIELDS.filter((key) => (key === 'presetSnapshot' ? JSON.stringify(before[key] ?? null) !== JSON.stringify(track[key] ?? null) : before[key] !== track[key])).map((key) => [key, track[key]]));
     return Object.keys(changes).length ? [{id: track.id, changes}] : [];
   });
 }
@@ -127,7 +127,7 @@ export function moveTrack(tracks, id, index) {
 export const orderChanged = (saved = [], current = []) => saved.map((track) => track.id).join() !== current.map((track) => track.id).join();
 
 // Preset value of the inspector select: "" (none), "factory:…" or "account:<id>".
-export const presetValue = (track) => track.factoryPreset ?? (track.presetId ? `account:${track.presetId}` : '');
+export const presetValue = (track) => track.presetSnapshot ? `snapshot:${track.snapshotId ?? track.recording?.sessionId ?? track.id}` : track.factoryPreset ?? (track.presetId ? `account:${track.presetId}` : '');
 export function presetFields(value) {
   if (value.startsWith('factory:')) return {presetId: null, factoryPreset: value};
   if (value.startsWith('account:')) return {presetId: Number(value.slice(8)), factoryPreset: null};

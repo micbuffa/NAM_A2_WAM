@@ -5,7 +5,7 @@ class Api::Projects::TracksController < Api::BaseController
 
   ATTRIBUTES = {
     "origin" => :origin, "name" => :name, "instrument" => :instrument, "presetId" => :preset_id, "factoryPreset" => :factory_preset,
-    "volume" => :volume, "pan" => :pan, "mute" => :mute, "solo" => :solo, "inputMonitoring" => :input_monitoring
+    "volume" => :volume, "pan" => :pan, "mute" => :mute, "solo" => :solo, "inputMonitoring" => :input_monitoring, "presetSnapshot" => :preset_snapshot, "snapshotId" => :snapshot_id
   }.freeze
 
   def create
@@ -25,13 +25,48 @@ class Api::Projects::TracksController < Api::BaseController
     attributes = track_attributes
     raise ActionController::ParameterMissing, :track if attributes.empty? && !uploaded_audio?
 
-    if uploaded_audio? && (track.origin == "mix" || track.separation_id || track.source_separations.exists?)
-      return render json: { error: "Import a new original instead of replacing saved separation audio" }, status: :unprocessable_content
+    if uploaded_audio? && (track.origin == "mix" || track.recording.present? || track.separation_id || track.source_separations.exists?)
+      return render json: { error: "Import a new track instead of replacing protected recording or separation audio" }, status: :unprocessable_content
     end
     track.assign_attributes(attributes)
     track.audio.attach(json_body["audio"]) if uploaded_audio?
     track.save!
     render json: ProjectJson.track(track)
+  end
+
+  # First recording milestone: publish a complete lossless DI to an EMPTY
+  # personal track. Retrying the session is idempotent. Never overwrite audio.
+  def recording
+    row = track
+    file = json_body["audio"]
+    metadata = JSON.parse(json_body["metadata"].to_s)
+    unless file.is_a?(ActionDispatch::Http::UploadedFile) && row.origin == "personal" && row.plays_through_preset? && row.timeline_visible && !row.removed_at
+      return render json: { error: "Record into an empty personal guitar or bass track" }, status: :unprocessable_content
+    end
+    TrackRecording.validate!(metadata, file)
+    blob = nil
+    current_user.with_lock do
+      row.reload
+      if row.recording&.fetch("sessionId", nil) == metadata["sessionId"] && row.audio.attached?
+        return render json: ProjectJson.track(row)
+      end
+      unless !row.audio.attached? && row.updated_at.iso8601(3) == json_body["expectedUpdatedAt"].to_s
+        return render json: { error: "Track changed or already contains audio. Reopen the project." }, status: :conflict
+      end
+      if Separation.storage_bytes(Project.where(id: row.project_id)) + file.size > Separation::PROJECT_QUOTA || Separation.storage_bytes(current_user.projects) + file.size > Separation::USER_QUOTA
+        return render json: { error: "Audio storage quota exceeded" }, status: :unprocessable_content
+      end
+      # Upload first, attach only after storage succeeds; the row stays empty on failure.
+      blob = ActiveStorage::Blob.create_and_upload!(io: file.tempfile, filename: "di-#{metadata.fetch('sessionId')}.wav", content_type: "audio/wav", identify: false)
+      row.assign_attributes(recording: metadata, preset_snapshot: metadata.fetch("capturePresetSnapshot"), snapshot_id: metadata.fetch("sessionId"), preset_id: nil, factory_preset: nil, input_monitoring: false)
+      row.audio.attach(blob)
+      row.save!
+    end
+    render json: ProjectJson.track(row)
+  rescue JSON::ParserError, ArgumentError => error
+    render json: { error: error.message }, status: :unprocessable_content
+  ensure
+    blob&.purge if blob && !blob.attachments.exists?
   end
 
   # Keep audio and separation provenance: removing an instrument must not

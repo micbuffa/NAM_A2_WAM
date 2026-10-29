@@ -33,6 +33,7 @@ module ProjectJson
   def track(track)
     { id: track.id, position: track.position, timelineVisible: track.timeline_visible, removedAt: track.removed_at, name: track.name, origin: track.origin, instrument: track.instrument,
       importMetadata: track.import_metadata, creatorId: track.creator_id, separationId: track.separation_id, sourceRole: track.source_role, presetId: track.preset_id, presetName: track.preset&.name, factoryPreset: track.factory_preset,
+      recording: track.recording, presetSnapshot: track.preset_snapshot, snapshotId: track.snapshot_id,
       volume: track.volume, pan: track.pan, mute: track.mute, solo: track.solo, inputMonitoring: track.input_monitoring,
       waveform: track.waveform_peaks && { peaks: track.waveform_peaks, duration: track.separation.manifest["frames"].to_f / 44100 },
       audio: audio(track), updatedAt: track.updated_at }

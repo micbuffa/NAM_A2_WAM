@@ -32,12 +32,21 @@ class Track < ApplicationRecord
   validate :preset_fits_instrument
   validate :preset_belongs_to_owner
   validate :audio_is_a_sound_file
+  validate :snapshot_is_a_personal_tone
 
   def plays_through_preset?
     PRESET_ORIGINS.include?(origin) && PRESET_INSTRUMENTS.include?(instrument)
   end
 
   private
+    def snapshot_is_a_personal_tone
+      return if preset_snapshot.nil?
+      unless plays_through_preset? && preset_snapshot.is_a?(Hash) && preset_snapshot["version"] == 2 && preset_snapshot["a"].is_a?(Hash) && preset_snapshot.to_json.bytesize <= Preset::MAX_STATE_BYTES
+        errors.add(:preset_snapshot, "must be a personal track rack state (maximum 8 MiB)")
+      end
+      errors.add(:preset_snapshot, "cannot be combined with another preset") if preset_id || factory_preset
+    end
+
     def origin_is_immutable
       errors.add(:origin, "cannot be changed after creation") if persisted? && will_save_change_to_origin?
     end

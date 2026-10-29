@@ -1,4 +1,4 @@
-import {backendLabel, isWebNN} from '../source-separation/StudioWebNN.js';
+import {backendLabel, isWebNN, studioBackendOptions} from '../source-separation/StudioWebNN.js';
 import {StudioSeparation, separationSources} from './StudioSeparation.js';
 
 // Adapts the transient separation deck to the existing Studio timeline. Progress
@@ -78,6 +78,7 @@ export class StudioSeparationView {
     this.ready = c.init().catch(error => c.setStatus(`Separation unavailable: ${error.message}`));
   }
   async chooseModel({sourceId = null, allowUnseparated = false} = {}) {
+    if (this.workspace?.recording?.busy || this.workspace?.recording?.pending.size) { this.workspace.report('Save the new DI take before separating instruments.', true); return; }
     const w = this.workspace, c = this.controller;
     await this.ready;
     if (w.saving || !w.owned || !c.model || this.modelDialog) return;
@@ -97,25 +98,36 @@ export class StudioSeparationView {
     }
     duration.value = '0';
     durationLabel.append(duration);
+    const engineLabel = document.createElement('label'), engine = document.createElement('select');
+    engineLabel.textContent = 'Execution engine';engine.id = 'studioDialogBackend';
+    for(const {value,label,disabled} of studioBackendOptions({webgpu:c.gpu,webnn:c.webnn})){
+      const option=document.createElement('option');Object.assign(option,{value,textContent:label,disabled});engine.append(option);
+    }
+    engine.value=c.backend;engineLabel.append(engine);
+    const engineHelp=document.createElement('p');engineHelp.className='host-help';engineHelp.setAttribute('role','status');
     const choices = document.createElement('div');
     choices.className = 'studio-model-choices';
     for (const [id, label] of [['htdemucs_4s_onnx', '4 tracks · Fast'], ['bs_roformer_sw_6s', '6 tracks · Guitar & piano']]) {
       const choice = button(label, {primary: id === c.modelId});
       choice.onclick = async () => {
-        const seconds = Number(duration.value);
+        const seconds = Number(duration.value), requestedBackend = engine.value;
         dialog.close();
         if (w.project?.id !== projectId || w.accountLoadEpoch !== accountEpoch || w.saving || !w.owned) return;
         if ((c.busy || c.result) && !await this.confirmReplace()) return;
-        // Experimental engines stay opt-in in Advanced settings.
-        const backend = isWebNN(c.backend) && id !== 'htdemucs_4s_onnx' ? (c.gpu ? 'webgpu' : 'wasm') : c.backend;
+        const backend = requestedBackend;
         if (w.project?.id !== projectId || w.accountLoadEpoch !== accountEpoch || w.saving || !w.owned) return;
         c.configure(id, backend);
         const track = separationSources(w.project?.tracks ?? []).find(track => String(track.id) === this.$('studioSource').value);
         if (track) void c.run({track, projectId, seconds});
       };
-      choices.append(choice);
+      choice.dataset.modelId=id;choices.append(choice);
     }
-    body.append(durationLabel, choices);
+    const updateEngine=()=>{
+      for(const choice of choices.children)choice.disabled=isWebNN(engine.value)&&choice.dataset.modelId!=='htdemucs_4s_onnx';
+      engineHelp.textContent=!c.webnn?'WebNN is not exposed by this browser. Use a WebNN-enabled build to enable CPU / GPU / NPU choices.':isWebNN(engine.value)?'WebNN is experimental for 4 tracks only. Each block is checked against WASM before playback; hardware device is not confirmed.':'Choose WebNN to test the experimental 4-track backend, or WebGPU / WASM for 4 or 6 tracks.';
+    };
+    engine.onchange=updateEngine;updateEngine();
+    body.append(durationLabel,engineLabel,engineHelp,choices);
     if (allowUnseparated) {
       const keep = button('Keep as one track');
       keep.onclick = () => dialog.close();
@@ -203,9 +215,10 @@ export class StudioSeparationView {
     const select = this.$('studioModel');
     if (select.options.length !== c.models.length) select.replaceChildren(...c.models.map(model => new Option(model.label, model.id)));
     if (c.modelId) select.value = c.modelId;
+    for(const option of select.options)option.disabled=isWebNN(c.backend)&&option.value!=='htdemucs_4s_onnx';
     this.$('studioBackend').value = c.backend;
     this.$('studioBackend').querySelector('[value="webgpu"]').disabled = !c.gpu;
-    for(const option of this.$('studioBackend').options) if(isWebNN(option.value))option.disabled=c.modelId!=='htdemucs_4s_onnx';
+    for(const {value,disabled} of studioBackendOptions({webgpu:c.gpu,webnn:c.webnn,modelId:c.modelId}))this.$('studioBackend').querySelector(`[value="${value}"]`).disabled=disabled;
     const savedBackend = !c.result && c.mode === 'stems' ? batches.find(batch => batch.id === c.activeSavedId)?.manifest.backend : null;
     this.$('studioBackendLabel').textContent = `${c.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4'} · ${backendLabel(savedBackend ?? c.effectiveBackend ?? c.backend)}`;
     this.$('studioSeparate').hidden = Boolean(c.busy || !w.owned);

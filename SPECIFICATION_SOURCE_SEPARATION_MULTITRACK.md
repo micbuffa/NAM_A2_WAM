@@ -1,3 +1,23 @@
+## 28 octobre 2026 — Mix provisoire vers Play Along sans sauvegarde
+
+**[DONE]** Après arrêt de la séparation, **Use mix in Tone** est disponible dès qu’un bloc audio est prêt. Une séparation complète encore en RAM est également exportable. Le rendu utilise seulement la durée publiée, ou la boucle A/B valide sélectionnée, sans silence ajouté pour la partie non calculée. Volume, pan, mute et solo du mix courant sont appliqués. Les changements non sauvegardés des pistes enregistrées peuvent aussi être envoyés sans Save Project. Le rendu de pistes avec preset WAM ou monitoring actif reste hors périmètre.
+
+Un mix provisoire est rendu hors ligne puis encodé en vrai MP3192kb/s dans le Worker existant, sans publier les stems ni appeler les endpoints de sauvegarde. Pas de sauvegarde automatique du projet. Il apparaît dans Play Along comme **Temporary Studio mix · not saved**, démarre en pause et conserve Download MP3 / Return to Studio. Le retour au même projet conserve le preview RAM et ses réglages. Le projet propre sans preview garde son export persistant actuel.
+
+Le catalogue temporaire reste en mémoire : au maximum deux mixes récents, un par projet ; remplacement d’un mix du même projet, nettoyage lors du changement de compte, disparition au rechargement. Les fichiers n’utilisent pas de blob URL durable : le lecteur charge directement le File MP3. Render limité à512MiB de PCM stéréo ; pas de concaténation complète préalable de chaque stem. Les changements de projet/compte invalident une exportation tardive. **Save Project** reste une action distincte pour conserver les instruments et réglages en compte.
+
+Validation : tests des blocs successifs, durée partielle, découpage A/B, gain/solo/pan, absence d’upload/autosave, chargement File et invalidation. Test natif : arrêt d’un vrai Demucs4 sur extrait demandé60s, mix partiel52,6s, Bass mutée, transfert enMP3 vers Tone sans Save, Play/Pause, retour Studio avec preview non sauvegardé et Bass toujours mutée. Aucun nouveau résultat scientifique sur les modèles.
+
+## 28 octobre 2026 — Modèle visible dans Options
+
+**[DONE]** Dans Studio / multipiste, l’accordéon Options contient **Separation model**, affichant Demucs4 et BS Roformer SW6. Le modèle6pistes est disponible avec WebGPU ou CPU/WASM ; avec WebNN actif, il reste visible mais désactivé jusqu’au changement de moteur. Le dialogue de séparation à deux boutons est conservé. Aucun changement du catalogue ou des poids.
+
+## 28 octobre 2026 — Choix WebNN dans Studio (codex/studio-integration)
+
+**[DONE]** Le dialogue intégré **Separate instruments** (Studio et imports depuis Tone/Play Along) propose maintenant **Execution engine** à côté de la durée : WebGPU, CPU/WASM, WebNN CPU/GPU/NPU. Le choix est appliqué seulement lorsqu’on lance une séparation ; fermer/annuler conserve le backend précédent. WebNN reste volontaire et limité à Demucs4 : le bouton6pistes est désactivé tant que WebNN est sélectionné, avec explication. Les options avancées offrent les mêmes restrictions. Détection de `navigator.ml`, sans filtre Firefox/Canary ; API absente = options grisées et raison visible. Worker, runtime ORT1.30 et validation audio stricte déjà intégrés dans cette branche sont conservés. **[CURRENT]** Validation native de ce nouveau sélecteur avec une API WebNN disponible ; Chrome standard vérifié sans API. Aucun nouveau résultat matériel ou benchmark annoncé.
+
+Branche de travail confirmée : **codex/studio-integration**. Main local remis au commit `f7ffec6`, identique à origin/main ; aucune publication sur main. Les parcours fichier/YouTube et Separate instruments de Play Along sont conservés.
+
 ## 27 octobre 2026 — Édition du rack et calibration communautaire
 
 **[DONE]** Double-clic sur la vignette/le titre d’un WAM : insertion dans le connecteur choisi. Le bouton **Replace** de l’éditeur ouvre le même catalogue ; remplacement au même emplacement, gains conservés, ancien module conservé si le chargement échoue. Annuler laisse l’éditeur et le module intacts. Une action en cours bloque les doublons. Le téléchargement MP3 reste dans Play Along, hors du dialogue Import audio.

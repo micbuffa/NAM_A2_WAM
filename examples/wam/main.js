@@ -314,6 +314,7 @@ async function initialize() {
   trackTones=new TrackTones({context,player:projectPlayer,createRack:createTrackRack,
     resolvePreset:async(track,projectId)=>{
       // The owner's own preset, even before the project is saved; a shared project's through its track.
+      if (track.presetSnapshot) return structuredClone(track.presetSnapshot);
       const {api}=accountIntegration.account??{};
       const {state}=track.factoryPreset?await accountIntegration.factoryStore.get(track.factoryPreset)
         :projects.owned?await api.getPreset(track.presetId):await api.getTrackPreset(projectId,track.id);
@@ -329,7 +330,7 @@ async function initialize() {
   accountIntegration.presetStore?.addEventListener('change',({detail})=>void projects.presetChanged(detail));
   Object.assign(window.phase3Debug,{projectPlayer,trackTones,playAlong,playAlongMix});
   chainView=new FxRackView(rack,message);
-  window.phase3Debug.tuner=new TunerView({context,registry,groupId,input:chain.input,button:$('#tunerButton')});
+  window.phase3Debug.tuner=new TunerView({context,registry,groupId,source:sourceManager,rack,button:$('#tunerButton')});
   await discoverFiles();
   await refreshDevices(false);
   if (outputDeviceManager.supported) {
@@ -513,6 +514,16 @@ async function initialize() {
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
   // Factory presets build on the default rack, known once the presets are attached.
   projects.attachTones(trackTones);
+  projects.onEditSnapshot = async state => { await rack.setState(state); workspaces.show('tone'); };
+  projects.attachRecording({context, groupId, source: sourceManager, rack, enableLive: async () => {
+    const resumed = context.resume();
+    if (!liveInputEnabled) { $('#audioSource').value = 'live'; setPlayerEnabled(false); selectedDeviceId = $('#inputDevice').value; await activateSelectedLiveInput(); }
+    await resumed;
+  }, lock: locked => {
+    $('#workspaceSwitch').disabled = locked; $('#settingsButton').disabled = locked;
+    $('#enableLive').disabled = locked;
+    $('#devices-title').closest('.host-card').inert = locked;
+  }});
   engine.ready();
   message('Chain ready. Click a photo to edit, or + to insert an effect.');
   // Programmatic selection during refreshDevices does not fire onchange.

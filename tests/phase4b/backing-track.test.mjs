@@ -38,3 +38,10 @@ test('a deferred local-file restoration resumes settings after reselecting the s
 test('pausing while context resume is pending cancels a requested play',async()=>{
  const {ctx,engine:e}=loaded();let resume;ctx.resume=()=>new Promise(r=>resume=r);const pending=e.play();e.pause();resume();await pending;assert.equal(e.playing,false);e.destroy();
 });
+
+test('temporary Studio library mixes load their File bytes and remain paused without a remote URL',async()=>{
+ const file=new File(['mp3'],'temporary.mp3',{type:'audio/mpeg'}),ctx=context();let decoded=false;
+ ctx.decodeAudioData=async bytes=>{assert.equal(new TextDecoder().decode(bytes),'mp3');decoded=true;return {duration:1,numberOfChannels:1,getChannelData:()=>new Float32Array([.1])};};
+ const engine=new BackingTrackEngine(ctx,{resolve:id=>({id,title:'Unsaved mix',file})});
+ assert.equal(await engine.loadTrack('studio-preview-1'),true);assert.equal(decoded,true);assert.equal(engine.sourceFile,file);assert.equal(engine.playing,false);engine.destroy();
+});
