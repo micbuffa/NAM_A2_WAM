@@ -5,10 +5,24 @@ import {readFile} from 'node:fs/promises';
 import {makeLatencyProbe,analyzeLatencyReturn,summarizeLatency,LATENCY_PROTOCOL} from '../../examples/wam/projects/recording/LatencyAnalysis.js';
 import {LatencyCapture} from '../../examples/wam/projects/recording/LatencyCapture.js';
 import {LatencyProfiles,latencyConfiguration} from '../../examples/wam/projects/recording/LatencyProfiles.js';
-import {RecordingCalibration} from '../../examples/wam/projects/recording/RecordingCalibration.js';
+import {RecordingCalibration,DEFAULT_RECORDING_COMPENSATION_MS} from '../../examples/wam/projects/recording/RecordingCalibration.js';
 import {encodeTake} from '../../examples/wam/projects/recording/TakePCM.js';
 
 const rate=48000,pulseOffset=4800,maxDelayFrames=1800,probe=makeLatencyProbe(rate);
+test('recording starts at an unmeasured 14 ms; manual zero/decimal values and explicit calibration still take precedence',()=>{
+  const fields=Object.fromEntries(['recordCalibrate','recordUseCalibration','recordResetCalibration','recordCalibrationOutput','recordCompensation','recordCalibrationStatus'].map(id=>[id,{value:'0'}]));
+  const context=Object.assign(new EventTarget(),{sampleRate:rate,baseLatency:0,sinkId:''});
+  const source={mode:'live',liveInput:{deviceId:'interface',channelIndex:0}};
+  const controller=new RecordingCalibration({context,source,busy:false,workspace:{$:id=>fields[id]}},{profiles:{lookup:()=>null}});
+  assert.equal(DEFAULT_RECORDING_COMPENSATION_MS,14);assert.equal(fields.recordCompensation.value,'14');
+  assert.deepEqual(controller.metadata(14),{compensationFrames:672,calibration:'manual'});
+  assert.match(fields.recordCalibrationStatus.textContent,/14 ms \(unmeasured\)/);
+  controller.apply(measurement(),controller.configuration);assert.equal(fields.recordCompensation.value,'11');assert.equal(controller.metadata(11).calibration,'loopback');
+  fields.recordCompensation.value='0';fields.recordCompensation.oninput();assert.equal(controller.active,null);assert.deepEqual(controller.metadata(0),{compensationFrames:0,calibration:'uncalibrated'});
+  controller.configurationChanged();assert.equal(fields.recordCompensation.value,'0');
+  fields.recordCompensation.value='14.5';fields.recordCompensation.oninput();assert.equal(controller.metadata(14.5).compensationFrames,696);
+  fields.recordResetCalibration.onclick();assert.equal(fields.recordCompensation.value,'14');assert.equal(controller.pendingApply,null);
+});
 function returned(delay=528,{gain=.7,noise=.0001,echo=false}={}) {
   const samples=new Float32Array(pulseOffset+probe.length+maxDelayFrames+100);let seed=127;
   for(let i=0;i<samples.length;i++){seed=(Math.imul(seed,1664525)+1013904223)|0;samples[i]=(seed/2**31)*noise;}
@@ -75,7 +89,7 @@ test('only the current applied measurement labels a take loopback; manual edits 
   controller.apply(measurement(),controller.configuration);
   assert.equal(controller.metadata(11).calibration,'loopback');assert.equal(controller.metadata(11).compensationFrames,528);
   assert.equal(controller.metadata(12).calibration,'manual');assert.equal(controller.metadata(0).calibration,'uncalibrated');
-  source.liveInput.channelIndex=1;controller.configurationChanged();assert.equal(controller.active,null);assert.equal(fields.recordCompensation.value,'0');
+  source.liveInput.channelIndex=1;controller.configurationChanged();assert.equal(controller.active,null);assert.equal(fields.recordCompensation.value,'14');
   source.liveInput.channelIndex=0;const configuration=controller.configuration;
   controller.pendingApply={measurement:measurement(),configuration};source.mode=null;controller.configurationChanged();assert.ok(controller.pendingApply);
   source.mode='live';controller.configurationChanged();assert.equal(controller.metadata(11).calibration,'loopback');
@@ -109,7 +123,7 @@ test('a manual adjustment is reset on a different device or output; transient re
   const controller=Object.create(RecordingCalibration.prototype),source={mode:'live',liveInput:{deviceId:'one',channelIndex:0}};
   controller.recording={source,context:{sampleRate:rate,sinkId:'out',baseLatency:0}};const fields={recordCalibrationOutput:{value:'0'},recordCompensation:{value:'12'}};
   controller.$=id=>fields[id];controller.render=()=>{};controller.lastConfiguration=controller.configuration;
-  source.liveInput.deviceId='two';controller.configurationChanged();assert.equal(fields.recordCompensation.value,'0');
+  source.liveInput.deviceId='two';controller.configurationChanged();assert.equal(fields.recordCompensation.value,'14');
   controller.pendingApply={measurement:measurement(),configuration:controller.configuration};
   source.mode=null;controller.configurationChanged();source.mode='live';source.liveInput.channelIndex=1;controller.configurationChanged();
   assert.equal(controller.active,undefined);assert.equal(controller.pendingApply,null);assert.equal(controller.metadata(0).calibration,'uncalibrated');

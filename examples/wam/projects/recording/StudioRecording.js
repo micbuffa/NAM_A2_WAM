@@ -1,5 +1,5 @@
 import {confirmDialog} from '../../account/dialogs.js';
-import {RecordingCalibration} from './RecordingCalibration.js';
+import {RecordingCalibration, DEFAULT_RECORDING_COMPENSATION_MS} from './RecordingCalibration.js';
 import {DIRecorder} from './DIRecorder.js';
 import {usesTrackPreset} from '../ProjectsModel.js';
 
@@ -20,7 +20,7 @@ export class StudioRecording {
     this.sourceChanged = () => {
       if (this.calibration?.running) this.calibration.cancel('Audio input changed. Calibration cancelled.');
       else if (this.busy) this.abort(Error('Audio input changed. Recording discarded; previous audio is unchanged.'));
-      this.armedId = null; if (this.calibration) this.calibration.configurationChanged(); else workspace.$('recordCompensation').value = '0'; this.render();
+      this.armedId = null; if (this.calibration) this.calibration.configurationChanged(); else workspace.$('recordCompensation').value = String(DEFAULT_RECORDING_COMPENSATION_MS); this.render();
     };
     source.addEventListener('change', this.sourceChanged);
     this.beforeUnload = event => { if (this.busy || this.pending.size) { event.preventDefault(); event.returnValue = ''; } };

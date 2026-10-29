@@ -1,3 +1,9 @@
+## 2026-10-29 — Default manual recording compensation: 14 ms
+
+Validation: **522 JavaScript tests pass**, including17 latency tests, no failures/skips. Distribution and Rails public/rack rebuilt/synchronized. No backend changes; no hardware test needed for this default-value change.
+
+User requested 14 ms as the initial value. RecordingCalibration exports DEFAULT_RECORDING_COMPENSATION_MS=14; HTML, reset action (labelled Reset to 14 ms), device/routing invalidation and recording fallback agree. Manual status shows actual ms and explicitly unmeasured estimate, not hardware calibration. Known manual values including zero/decimals remain supported; applying a measurement overrides the default. No changes to existing audio or compensation algorithm. Added regression for initial672frames at48kHz, manual zero/14.5ms, measured11ms precedence and reset; updated invalidation tests and docs. Source changes only since eda047b; no commit/push requested.
+
 ## 2026-10-29 — Per-track FX editing in Tone and save destination
 
 Branch **codex/studio-integration**, uncommitted after 8fa7944; prior calibration changes below retained. User clarified that project-only vs new reusable preset choice belongs **when validating edited sound in Tone**, not at audio Stop. Implemented that workflow.

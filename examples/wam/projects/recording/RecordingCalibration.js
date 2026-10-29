@@ -3,6 +3,8 @@ import {ACOUSTIC_PROTOCOL} from './LatencyAnalysis.js';
 import {LatencyCalibrator} from './LatencyCalibrator.js';
 import {LatencyProfiles,latencyConfiguration,sameLatencyConfiguration} from './LatencyProfiles.js';
 
+export const DEFAULT_RECORDING_COMPENSATION_MS = 14;
+
 // A measurement is applied explicitly, never inferred from base/outputLatency.
 // Profiles stay in this browser; no device identifiers or probe PCM are uploaded.
 export class RecordingCalibration {
@@ -11,7 +13,8 @@ export class RecordingCalibration {
     const $=recording.workspace.$;this.$=$;
     $('recordCalibrate').onclick=()=>this.open();
     $('recordUseCalibration').onclick=()=>this.useSaved();
-    $('recordResetCalibration').onclick=()=>{this.active=null;this.pendingApply=null;$('recordCompensation').value='0';this.render();};
+    $('recordCompensation').value=String(DEFAULT_RECORDING_COMPENSATION_MS);
+    $('recordResetCalibration').onclick=()=>{this.active=null;this.pendingApply=null;$('recordCompensation').value=String(DEFAULT_RECORDING_COMPENSATION_MS);this.render();};
     $('recordCalibrationOutput').onchange=()=>this.configurationChanged();
     $('recordCompensation').oninput=()=>{this.active=null;this.pendingApply=null;this.render();};
     this.sinkChanged=()=>{this.cancel('Audio output changed. Measure again.');this.configurationChanged();};
@@ -26,8 +29,8 @@ export class RecordingCalibration {
       if(sameLatencyConfiguration(configuration,this.pendingApply.configuration))this.apply(this.pendingApply.measurement,configuration);
       this.pendingApply=null;
     }
-    if(this.active&&(!live||!sameLatencyConfiguration(configuration,this.active.configuration))){this.active=null;this.$('recordCompensation').value='0';}
-    else if(!this.active&&!this.pendingApply&&(changed||!live))this.$('recordCompensation').value='0';
+    if(this.active&&(!live||!sameLatencyConfiguration(configuration,this.active.configuration))){this.active=null;this.$('recordCompensation').value=String(DEFAULT_RECORDING_COMPENSATION_MS);}
+    else if(!this.active&&!this.pendingApply&&(changed||!live))this.$('recordCompensation').value=String(DEFAULT_RECORDING_COMPENSATION_MS);
     this.render();
   }
   apply(measurement,configuration){
@@ -58,7 +61,7 @@ export class RecordingCalibration {
     this.$('recordCalibrationStatus').textContent=measurement?`${measurement.protocol===ACOUSTIC_PROTOCOL?'Acoustic estimate (manual)':'Measured loopback'} · ${(measurement.frames*1000/measurement.sampleRate).toFixed(2)} ms (${measurement.frames} frames) · check ${measurement.validationResidualFrames} frames · ${new Date(measurement.measuredAt).toLocaleDateString()}`
       :this.pendingApply?'Measurement saved. Reconnect instrument, then Enable input / monitor to apply it on the same configuration.'
       :saved?'A saved measurement matches this configuration. Verify the interface and buffer settings, then Use saved calibration.'
-      :'Manual / unmeasured. Calibration opens the input with monitoring disconnected. A hardware or buffer change requires a new measurement.';
+      :`Manual compensation · ${this.$('recordCompensation').value} ms (unmeasured). The default 14 ms is an estimate; adjust it or calibrate your interface. Calibration opens the input with monitoring disconnected.`;
   }
   cancel(message){this.cancelled=true;this.engine?.cancel(message);}
   clear(){this.cancel();if(this.dialog?.open)this.dialog.close();this.pendingApply=null;this.active=null;}

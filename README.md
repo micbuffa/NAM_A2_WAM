@@ -2,6 +2,12 @@
 
 ## Recording latency calibration
 
+Manual recording compensation starts at **14 ms**, an unmeasured estimate.
+Adjust **Recording settings → Manual compensation (ms)** to a known value
+(including zero or decimals), or apply a loopback calibration. **Reset to
+14 ms** and a device/routing change restore the default estimate; they never
+label it as measured. Existing takes are unchanged.
+
 In Studio, select a personal guitar/bass track, then open **Recording settings → Calibrate input latency**. Select the physical output (1/left or 2/right). The assistant physically disconnects microphone routes into both chains and app speaker outputs before opening input or connecting the cable; presets stay intact. Disable hardware direct monitoring, run the six probes, and explicitly **Apply compensation**. Close the assistant, remove the loopback cable and reconnect the instrument before re-enabling input. The input is disabled on close; playback stays paused.
 
 **Speakers → microphone · acoustic test** uses chirps and reports an acoustic estimate (including propagation), which can be used as manual compensation. **Test signal level** is adjustable from -30 to -6 dBFS, default -18; no automatic volume escalation.

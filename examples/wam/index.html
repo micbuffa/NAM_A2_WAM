@@ -234,9 +234,9 @@
             </div>
             <p id="recordStatus" class="host-help" role="status"></p>
             <details><summary>Recording settings</summary>
-              <label>Manual compensation (ms)<input id="recordCompensation" aria-label="Recording latency compensation in milliseconds" type="number" min="0" max="2000" step="any" value="0"></label>
+              <label>Manual compensation (ms)<input id="recordCompensation" aria-label="Recording latency compensation in milliseconds" type="number" min="0" max="2000" step="any" value="14"></label>
               <label>Calibration output<select id="recordCalibrationOutput" aria-label="Calibration output"><option value="0">Output 1 · Left</option><option value="1">Output 2 · Right</option></select></label>
-              <div class="record-actions"><tl-button id="recordCalibrate">Calibrate input latency</tl-button><tl-button id="recordUseCalibration" hidden>Use saved calibration</tl-button><tl-button id="recordResetCalibration" variant="ghost">Reset compensation</tl-button></div>
+              <div class="record-actions"><tl-button id="recordCalibrate">Calibrate input latency</tl-button><tl-button id="recordUseCalibration" hidden>Use saved calibration</tl-button><tl-button id="recordResetCalibration" variant="ghost">Reset to 14 ms</tl-button></div>
               <p id="recordCalibrationStatus" class="host-help" role="status"></p>
               <p class="host-help">Choose your input and channel in Audio devices / Tone. Calibration requires a physical output-to-input cable and measures the round trip. A saved measurement must match the interface and buffer settings.</p>
             </details>
