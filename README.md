@@ -1,5 +1,13 @@
 # NAM A2 WAM
 
+## Recording latency calibration
+
+In Studio, select a personal guitar/bass track, then open **Recording settings → Calibrate input latency**. Select the physical output (1/left or 2/right). The assistant physically disconnects microphone routes into both chains and app speaker outputs before opening input or connecting the cable; presets stay intact. Disable hardware direct monitoring, run the six probes, and explicitly **Apply compensation**. Close the assistant, remove the loopback cable and reconnect the instrument before re-enabling input. The input is disabled on close; playback stays paused.
+
+**Speakers → microphone · acoustic test** uses chirps and reports an acoustic estimate (including propagation), which can be used as manual compensation. **Test signal level** is adjustable from -30 to -6 dBFS, default -18; no automatic volume escalation.
+
+Measurements use normalized correlation in a Worker and retain bounded local profiles. Manual compensation/reset remain available. Reloaded profiles require **Use saved calibration**, after verifying the same hardware/buffer configuration. New takes store measurement provenance; existing audio is unchanged. Physical hardware qualification and the community calibration catalogue remain pending. See [RECORD_TRACKS_SPECIFICATION.md](RECORD_TRACKS_SPECIFICATION.md).
+
 ## Tuner
 
 Open **Tuner** (or press **T**) after enabling live input. With two chains visible, **Tuner input** selects **Chain A** or **Chain B**, with its physical input channel shown. Analysis is taken before trim/effects and remains available while that chain is muted. If A feeds B, both selections analyse A’s raw input, explicitly marked as shared. Hiding B returns the tuner to A; unavailable physical channels are identified rather than silently replaced. No extra microphone permission is requested by opening the tuner.
@@ -248,8 +256,16 @@ Stop recording → Save project**. The current unsaved Tone sound is copied by
 default; the take stores raw mono DI plus a preset snapshot as a lossless WAV.
 Up to two takes can remain in RAM (100 MiB each); Discard unsaved take allows a
 retry. Manual latency compensation is available, initially uncalibrated.
-Automatic loopback calibration, recording over existing audio, take undo/redo
-and processed DI mix export remain pending. See
+Assisted loopback calibration is available (hardware qualification pending).
+After saving a take, click **FX** in its guitar/bass track header to edit its
+sound in Tone. Choose a library preset as a starting point, or edit the chain;
+**Play project** auditions the existing DI through the visible rack. **Save
+project & return** asks whether to keep the sound **in this project only**
+(default), or also create a **new reusable preset**. This choice happens when
+validating sound edits, not after each audio take. The original DI, capture
+preset and existing library presets stay intact. Cancel returns to Studio;
+the previous Tone rack is restored. Save any RAM take before opening FX.
+Recording over existing audio, take undo/redo and processed DI mix export remain pending. See
 [RECORD_TRACKS_SPECIFICATION.md](RECORD_TRACKS_SPECIFICATION.md).
 
 In **Studio**, import accompaniment audio, choose Demucs (4 instruments, guitar

@@ -8,8 +8,24 @@ class Api::PresetsController < Api::BaseController
   end
 
   def create
-    created = current_user.presets.create!(name: json_body["name"], state: json_body["state"])
-    render json: created.full_json, status: :created
+    key = json_body["requestId"]
+    if key.present? && (!key.is_a?(String) || !key.match?(/\A[0-9a-f-]{36}\z/))
+      return render json: { error: "Invalid preset requestId" }, status: :unprocessable_content
+    end
+    created = nil
+    replay = false
+    current_user.with_lock do
+      created = current_user.presets.find_by(creation_key: key) if key.present?
+      if created
+        unless created.name == json_body["name"].to_s.squish && created.state == json_body["state"]
+          return render json: { error: "Preset creation request already used" }, status: :conflict
+        end
+        replay = true
+      else
+        created = current_user.presets.create!(name: json_body["name"], state: json_body["state"], creation_key: key.presence)
+      end
+    end
+    render json: created.full_json, status: replay ? :ok : :created
   end
 
   def update

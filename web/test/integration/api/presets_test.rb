@@ -36,6 +36,29 @@ class Api::PresetsTest < ActionDispatch::IntegrationTest
     assert_not Preset.exists?(id)
   end
 
+  test "track sound export retries create one independent preset per account" do
+    sign_in_as users(:alice)
+    key = SecureRandom.uuid
+    body = { name: "New track sound", state: STATE, requestId: key }
+    assert_difference "Preset.count", 1 do
+      post api_presets_path, params: body, as: :json
+      assert_response :created
+      @exported_id = response.parsed_body["id"]
+      post api_presets_path, params: body, as: :json
+      assert_response :success
+      assert_equal @exported_id, response.parsed_body["id"]
+    end
+    post api_presets_path, params: body.merge(state: { version: 2 }), as: :json
+    assert_response :conflict
+    assert_equal STATE, Preset.find(@exported_id).state
+    post api_presets_path, params: body.merge(requestId: "bad"), as: :json
+    assert_response :unprocessable_content
+    sign_in_as users(:bob)
+    post api_presets_path, params: body, as: :json
+    assert_response :created
+    assert_not_equal @exported_id, response.parsed_body["id"]
+  end
+
   test "a user can never read or change another user's presets" do
     sign_in_as users(:bob)
     alices = presets(:alice_clean)

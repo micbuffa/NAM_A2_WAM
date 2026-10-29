@@ -20,8 +20,10 @@ import {SettingsView} from './SettingsView.js';
 import {Workspaces} from './Workspaces.js';
 import {ProjectsWorkspace, takeLinkedProject} from './projects/ProjectsWorkspace.js';
 import {StudioPlayer as ProjectPlayer} from './projects/StudioPlayer.js';
+import {TrackSoundEditor} from './projects/TrackSoundEditor.js';
 import {TrackSource, TrackTones} from './projects/TrackTones.js';
 import Renderer from './source-separation/vendor/wavesurfer/renderer.js';
+import {guardCalibrationAudio} from './projects/recording/CalibrationAudioGuard.js';
 import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
 import {setupAccount} from './account/index.js';
@@ -40,6 +42,7 @@ let node;
 let cabinetPlugin;
 let cabinetNode;
 let sourceManager;
+let trackSoundEditor;
 let savedState;
 const audioPreferences = readAudioDevicePreferences();
 let selectedDeviceId = audioPreferences.inputDeviceId;
@@ -165,7 +168,7 @@ async function detectSelectedInputChannels() {
 }
 
 function syncSourceTrim() {
-  const value = sourceManager.activeTrimDb;
+  const value = trackSoundEditor?.audioEditing ? sourceManager.trimDb.live : sourceManager.activeTrimDb;
   $('#sourceTrim').value = value;
   $('#sourceTrim').dispatchEvent(new Event('change'));
   $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
@@ -305,7 +308,7 @@ async function initialize() {
   });
   const playAlongMix=new BackingTrackMix(context,rack.output,playAlong,{destination:toneGate});
   linkPlayAlong({engine:playAlong.engine,projectPlayer,workspaces});
-  linkSpaceKey({engine:playAlong.engine,projectPlayer,workspaces,run:(operation)=>playAlong.act(operation)});
+  linkSpaceKey({engine:playAlong.engine,projectPlayer,workspaces,isTrackEditing:()=>!!trackSoundEditor?.active,run:(operation)=>playAlong.act(operation)});
   // The last track and settings come back without playing (the download does not hold up the rack).
   void new PlayAlongMemory({player:playAlong,account:accountIntegration.account}).restore();
   projectPlayer.output.connect(context.destination);
@@ -320,10 +323,11 @@ async function initialize() {
         :projects.owned?await api.getPreset(track.presetId):await api.getTrackPreset(projectId,track.id);
       return state.nam&&!state.a&&!state.entries?legacyPresetToRack(state):state;
     }});
+  let calibrationMuted=false;
   const syncMonitoring=()=>{
     const id=workspaces.current==='projects'?projectPlayer.liveId:null;
-    projectPlayer.setLiveInput(id===null?null:sourceManager.sourceTrim);
-    toneGate.gain.setTargetAtTime(id===null?1:0,context.currentTime,.01);
+    projectPlayer.setLiveInput(trackSoundEditor?.audioEditing||id===null?null:sourceManager.sourceTrim);
+    toneGate.gain.setTargetAtTime(!calibrationMuted&&!trackSoundEditor?.audioEditing&&id===null?1:0,context.currentTime,.01);
   };
   projectPlayer.addEventListener('statechange',syncMonitoring);
   workspaces.addEventListener('change',syncMonitoring);
@@ -405,11 +409,11 @@ async function initialize() {
     $('#chainOutputGainValue').textContent=`${db.toFixed(1)} dB`;
   };
   $('#sourceTrim').oninput = () => {
-    const value = sourceManager.setTrimDb(Number($('#sourceTrim').value), $('#audioSource').value === 'live' ? 'live' : 'file');
-    $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
+    const value = sourceManager.setTrimDb(Number($('#sourceTrim').value), trackSoundEditor?.audioEditing||$('#audioSource').value === 'live' ? 'live' : 'file');
+    $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;trackSoundEditor?.syncInputGain();presets.scheduleCheck();
   };
   $('#chainInputReset').onclick=()=>{
-    const mode=$('#audioSource').value==='live'?'live':'file';
+    const mode=trackSoundEditor?.audioEditing||$('#audioSource').value==='live'?'live':'file';
     $('#sourceTrim').value=DEFAULT_SOURCE_TRIM_DB[mode];
     $('#sourceTrim').dispatchEvent(new Event('input',{bubbles:true}));
   };
@@ -514,8 +518,24 @@ async function initialize() {
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
   // Factory presets build on the default rack, known once the presets are attached.
   projects.attachTones(trackTones);
-  projects.onEditSnapshot = async state => { await rack.setState(state); workspaces.show('tone'); };
-  projects.attachRecording({context, groupId, source: sourceManager, rack, enableLive: async () => {
+  trackSoundEditor=new TrackSoundEditor({workspace:projects,rack,source:sourceManager,presets,workspaces,context,route:()=>{syncMonitoring();syncSourceTrim();},pauseAlong:()=>playAlong.engine.pause(),view:editor=>{
+    const active=!!editor.active;$('#trackSoundEditor').hidden=!active;document.body.dataset.trackSoundEdit=String(active);$('#workspaceSwitch').disabled=active;
+    if(!active)return;
+    $('#trackSoundContext').textContent=`${editor.projectName} / ${editor.title}`;
+    $('#trackSoundPlay').textContent=projectPlayer.playing?'Pause project':'Play project';$('#trackSoundPlay').disabled=editor.busy||!projectPlayer.ready;
+    $('#trackSoundLoop').disabled=editor.busy||!projectPlayer.duration;$('#trackSoundLoop').setAttribute('aria-pressed',String(projectPlayer.loop.enabled));
+    $('#trackSoundSave').disabled=$('#trackSoundCancel').disabled=editor.busy;
+    $('#trackSoundStatus').textContent=editor.busy?'Loading / saving track sound…':editor.modified?'Sound edited · Save project to keep it':'Editing a copy of the track sound';
+  }});
+  for(const [id,operation]of [['trackSoundPlay',()=>trackSoundEditor.togglePlay()],['trackSoundLoop',()=>trackSoundEditor.toggleLoop()],['trackSoundSave',()=>trackSoundEditor.finish()],['trackSoundCancel',()=>trackSoundEditor.cancel()]])$('#'+id).onclick=()=>Promise.resolve().then(operation).catch(error=>message(error.message,true));
+  window.phase3Debug.trackSoundEditor=trackSoundEditor;
+  projects.attachRecording({context, groupId, source: sourceManager, rack, beginCalibration: () => {
+    calibrationMuted=true;
+    const release=guardCalibrationAudio({context,source:sourceManager,outputs:[toneGate,projectPlayer.output],
+      pause:()=>{ window.phase3Debug.tuner?.close(); projectPlayer.preview?.pause();projectPlayer.base.pause();playAlong.engine.pause();sourceManager.player.pause();syncMonitoring(); },
+      disableInput:()=>disableLiveInput('Remove the loopback cable and reconnect your instrument before enabling live input.')});
+    return async()=>{ await release();calibrationMuted=false;syncMonitoring(); };
+  }, enableLive: async () => {
     const resumed = context.resume();
     if (!liveInputEnabled) { $('#audioSource').value = 'live'; setPlayerEnabled(false); selectedDeviceId = $('#inputDevice').value; await activateSelectedLiveInput(); }
     await resumed;

@@ -1,11 +1,12 @@
 import {confirmDialog} from '../../account/dialogs.js';
+import {RecordingCalibration} from './RecordingCalibration.js';
 import {DIRecorder} from './DIRecorder.js';
 import {usesTrackPreset} from '../ProjectsModel.js';
 
 // First capture milestone: one mono take on an empty personal track. Existing
 // audio is never overwritten; lossless takes remain in RAM until Save project.
 export class StudioRecording {
-  constructor(workspace, {context, groupId, source, rack, enableLive, lock = () => {}}) {
+  constructor(workspace, {context, groupId, source, rack, enableLive, beginCalibration, lock = () => {}}) {
     Object.assign(this, {workspace, context, groupId, source, rack, enableLive, lock});
     this.armedId = null; this.state = 'idle'; this.pending = new Map();
     const $ = workspace.$;
@@ -15,16 +16,18 @@ export class StudioRecording {
     $('recordArm').onclick = () => this.act(() => this.arm());
     $('projectRecord').onclick = () => this.act(() => this.start());
     $('projectRecordStop').onclick = () => this.act(() => this.stop());
+    if ($('recordCalibrate')) this.calibration = new RecordingCalibration(this, {beginCalibration});
     this.sourceChanged = () => {
-      if (this.busy) this.abort(Error('Audio input changed. Recording discarded; previous audio is unchanged.'));
-      this.armedId = null; workspace.$('recordCompensation').value = '0'; this.render();
+      if (this.calibration?.running) this.calibration.cancel('Audio input changed. Calibration cancelled.');
+      else if (this.busy) this.abort(Error('Audio input changed. Recording discarded; previous audio is unchanged.'));
+      this.armedId = null; if (this.calibration) this.calibration.configurationChanged(); else workspace.$('recordCompensation').value = '0'; this.render();
     };
     source.addEventListener('change', this.sourceChanged);
     this.beforeUnload = event => { if (this.busy || this.pending.size) { event.preventDefault(); event.returnValue = ''; } };
     globalThis.addEventListener?.('beforeunload', this.beforeUnload);
     this.render();
   }
-  get busy() { return ['preparing', 'recording', 'finalizing'].includes(this.state); }
+  get busy() { return ['preparing', 'recording', 'finalizing', 'calibrating'].includes(this.state); }
   get eligible() {
     const w = this.workspace, track = w.selectedTrack;
     return w.owned && track && track.origin === 'personal' && usesTrackPreset(track) && !track.audio && !this.pending.has(track.id)
@@ -101,7 +104,7 @@ export class StudioRecording {
     const ms = Number(w.$('recordCompensation').value);
     if (!Number.isFinite(ms) || ms < 0 || ms > 2000) throw Error('Compensation must be between 0 and 2000 ms.');
     const metadata = {version: 1, sessionId: crypto.randomUUID(), sampleRate: this.context.sampleRate, channels: 1, startProjectFrame,
-      compensationFrames: Math.round(ms * this.context.sampleRate / 1000), calibration: ms ? 'manual' : 'uncalibrated', inputChannel: this.source.liveInput?.channelIndex ?? 0};
+      ...(this.calibration?.metadata(ms) ?? {compensationFrames: Math.round(ms * this.context.sampleRate / 1000), calibration: ms ? 'manual' : 'uncalibrated'}), inputChannel: this.source.liveInput?.channelIndex ?? 0};
     const active = this.active = {trackId: track.id, before: structuredClone(track), project, epoch, metadata};
     this.frames = 0; this.setState('preparing');
     try {
@@ -178,7 +181,7 @@ export class StudioRecording {
     if (error) this.workspace.report(error.message, true);
   }
   clear() {
-    this.abort(); this.armedId = null;
+    this.calibration?.clear(); this.abort(); this.armedId = null;
     for (const take of this.pending.values()) URL.revokeObjectURL(take.url);
     this.pending.clear();
   }
@@ -216,10 +219,11 @@ export class StudioRecording {
     $('recordCompensation').disabled = this.busy;
     $('recordDiscard').hidden = !this.pending.has(track?.id); $('recordDiscard').disabled = this.busy || w.saving;
     if (this.pending.has(track?.id)) { $('inspectorPreset').disabled = true; $('inspectorEditPreset').disabled = true; }
-    $('recordStatus').textContent = this.busy ? `${this.state === 'recording' ? 'Recording DI' : this.state === 'preparing' ? 'Preparing capture' : 'Finalizing take'} · ${((this.frames ?? 0) / this.context.sampleRate).toFixed(1)} s`
+    $('recordStatus').textContent = this.busy ? `${this.state === 'recording' ? 'Recording DI' : this.state === 'preparing' ? 'Preparing capture' : this.state === 'calibrating' ? 'Calibrating latency' : 'Finalizing take'} · ${((this.frames ?? 0) / this.context.sampleRate).toFixed(1)} s`
       : this.pending.has(track?.id) ? `Take in RAM · ${this.pending.get(track.id).peak > .00001 ? `peak ${(20 * Math.log10(this.pending.get(track.id).peak)).toFixed(1)} dBFS · Play to listen` : 'silence detected: check input/channel'} · Save project to keep it.` : track?.audio ? 'Recording on existing audio will be added in a later stage. Add an empty personal track.'
       : this.pending.size >= 2 ? 'Two takes are already in RAM. Save project before recording another track.'
-      : `${this.source.liveInput?.label ?? 'Input not enabled'} · input ${(this.source.liveInput?.channelIndex ?? 0) + 1} · manual compensation (uncalibrated)`;
+      : `${this.source.liveInput?.label ?? 'Input not enabled'} · input ${(this.source.liveInput?.channelIndex ?? 0) + 1} · ${this.calibration?.active ? this.calibration.statusLabel : 'manual compensation (uncalibrated)'}`;
+    this.calibration?.render();
     for (const id of ['projectSelect', 'projectNew', 'projectImport', 'projectAddTrack', 'projectEdit', 'projectShare', 'projectLeave', 'projectSave', 'projectUndo', 'projectRedo', 'projectPlay', 'projectRewind', 'projectLoop', 'projectLoopReset', 'inspectorPreset', 'inspectorEditPreset']) {
       if (this.busy && $(id)) { this.disabled ??= new Map(); if (!this.disabled.has($(id))) this.disabled.set($(id), $(id).disabled); $(id).disabled = true; }
     }

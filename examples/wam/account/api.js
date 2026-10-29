@@ -51,7 +51,7 @@ export default class AccountApi {
 
   listPresets() { return this.request('GET', '/api/presets'); }
   getPreset(id) { return this.request('GET', `/api/presets/${encodeURIComponent(id)}`); }
-  createPreset(name, state) { return this.request('POST', '/api/presets', {name, state}); }
+  createPreset(name, state, {requestId} = {}) { return this.request('POST', '/api/presets', {name, state, ...(requestId?{requestId}:{})}); }
   updatePreset(id, attributes) { return this.request('PATCH', `/api/presets/${encodeURIComponent(id)}`, attributes); }
   deletePreset(id) { return this.request('DELETE', `/api/presets/${encodeURIComponent(id)}`); }
 

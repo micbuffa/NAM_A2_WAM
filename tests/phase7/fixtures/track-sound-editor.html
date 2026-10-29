@@ -1,0 +1,54 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Track FX qualification</title>
+<link rel="stylesheet" href="../../../examples/wam/ui/tokens.css"><link rel="stylesheet" href="../../../examples/wam/ui/base.css"><link rel="stylesheet" href="../../../examples/wam/ui/components.css"><link rel="stylesheet" href="../../../examples/wam/host.css">
+<style>body{display:block;padding:24px;background:#181b1f;color:#eee}section{margin:16px 0;padding:16px;border:1px solid #555;border-radius:12px}button{margin:4px}pre{white-space:pre-wrap}#timeline{position:relative}#list{min-height:130px}#editor{max-width:1000px}label{display:block;margin:12px 0}[hidden]{display:none!important}</style>
+<h1>Track FX · independent sound copies</h1><p>Real timeline, ProjectPlayer, TrackTones and PresetsPanel. Synthetic DI and native GainNode rack; silent audio analysis, no microphone or account writes.</p>
+<button id="setup">Prepare synthetic project</button><pre id="report" role="status">Ready</pre>
+<section id="studio"><h2>Studio · Rock song</h2><div id="timeline"><div id="ruler"></div><div id="list"></div></div></section>
+<section id="editor" hidden><h2 id="context">Tone</h2><button id="play">Play project</button><button id="loop">Loop A/B</button><button id="save">Save project & return</button><button id="cancel">Cancel & return</button><p id="status"></p><label>Tone gain <input id="gain" type="range" min="0" max="6" step=".25" value="2"><output id="gainValue">2</output></label><button id="measure">Measure playback signal</button></section>
+<section id="presetsPanel" hidden><label>Presets <select id="presetSelect"></select></label><button id="presetNew">New preset</button><div id="presetHeaderActions" hidden><strong id="presetTitle"></strong><span id="presetMeta"></span><span id="presetUnsaved">Unsaved</span><button id="presetSaveButton">Save Preset</button><button id="presetRename">Rename</button><button id="presetRevert">Revert</button><button id="presetDelete">Delete</button></div><span id="presetCount"></span><p id="presetStatus"></p><p id="presetScope"></p></section>
+<script type="module" src="../../../examples/wam/ui/index.js"></script><script type="module">
+import {ProjectTimeline} from '../../../examples/wam/projects/ProjectTimeline.js';
+import {ProjectPlayer} from '../../../examples/wam/projects/ProjectPlayer.js';
+import {ProjectsWorkspace} from '../../../examples/wam/projects/ProjectsWorkspace.js';
+import {TrackTones} from '../../../examples/wam/projects/TrackTones.js';
+import {TrackSoundEditor} from '../../../examples/wam/projects/TrackSoundEditor.js';
+import PresetsPanel from '../../../examples/wam/account/PresetsPanel.js';
+const $=id=>document.getElementById(id),clone=x=>structuredClone(x),wait=ms=>new Promise(r=>setTimeout(r,ms));
+const state=gain=>({version:2,a:{entries:[{id:'gain',kind:'effect',state:{gain}}]},sourceTrim:{live:0,file:0}});
+let editor,player,rack,workspace,timeline,panel,tones,di,analyser,memory=[],saves=0,releases=0,held=0,routeIsolated=false,measured=0;
+const report=text=>$('report').textContent=typeof text==='string'?text:JSON.stringify(text,null,2);
+function gainRack(context,initial=state(.5)){
+ const input=context.createGain(),output=context.createGain();input.connect(output);let value=clone(initial);
+ return Object.assign(new EventTarget(),{a:{input,entries:[]},output,async getState(){return clone(value);},async setState(s){value=clone(s);output.gain.value=value.a.entries[0].state.gain;if(this===rack){$('gain').value=output.gain.value;$('gainValue').textContent=output.gain.value;}this.dispatchEvent(new Event('change'));},enqueue:fn=>fn(),destroy(){input.disconnect();output.disconnect();}});
+}
+$('setup').onclick=async()=>{try{
+ $('setup').disabled=true;const context=new AudioContext({sampleRate:48000});await context.resume();
+ rack=gainRack(context);await rack.setState(state(.5));player=new ProjectPlayer(context);
+ analyser=context.createAnalyser();const silent=context.createGain();silent.gain.value=0;player.output.connect(analyser).connect(silent).connect(context.destination);
+ di=context.createBuffer(1,context.sampleRate*10,context.sampleRate);const pcm=di.getChannelData(0);for(let i=0;i<pcm.length;i++)pcm[i]=.1*Math.sin(2*Math.PI*220*i/context.sampleRate);
+ const track={id:1,name:'Guitar solo',origin:'personal',instrument:'guitar',volume:80,pan:0,mute:false,solo:false,audio:{url:'synthetic-di',filename:'Synthetic DI.wav'},presetSnapshot:state(2),snapshotId:'capture',recording:{capturePresetSnapshot:state(2)}};
+ // The known decoded DI is installed once; preview and edits must retain it.
+ player.setTracks([{...track,audio:null}]);player.channels.get(1).buffer=di;player.channels.get(1).key='synthetic-di||Synthetic DI.wav';
+ const library=[{id:9,name:'Original global preset',state:state(.25)},{id:10,name:'Alternate sound',state:state(4)}];
+ const store={list:async()=>library.map(({state,...rest})=>rest),get:async id=>clone(library.find(p=>String(p.id)===String(id))),create:async(name,s)=>{const record={id:20+memory.length,name,state:clone(s)};memory.push(record);library.push(record);return clone(record);}};
+ panel=new PresetsPanel({localStore:store,captureState:()=>rack.getState(),applyState:s=>rack.setState(s),defaultState:()=>state(.5),watchRack:fn=>rack.addEventListener('change',fn),storage:null,report});await panel.attach();panel.activeId=9;panel.baseline=JSON.stringify(state(.25));panel.modified=true;panel.render();
+ workspace={owned:true,accountLoadEpoch:1,selectedId:1,project:{id:1,name:'Rock song',tracks:[track]},saved:{id:1,name:'Rock song',tracks:[clone(track)]},recording:{pending:new Map()},player,report,
+   updateTrack:ProjectsWorkspace.prototype.updateTrack,
+   setTracks(tracks){this.project.tracks=tracks;for(const t of tracks)timeline.update(t,true);player.setTracks(tracks);tones.setTracks(tracks,1);},
+   async save(){this.saved=clone(this.project);saves++;return true;}};
+ tones=workspace.tones=new TrackTones({context,player,createRack:async()=>gainRack(context),resolvePreset:async t=>t.presetSnapshot?clone(t.presetSnapshot):clone((await store.get(t.presetId)).state)});tones.setTracks([track],1);
+ const spaces={show:name=>{$('editor').hidden=name!=='tone';$('studio').hidden=name==='tone';}};
+ editor=new TrackSoundEditor({workspace,rack,source:{trimDb:{live:0},suspendMonitoring(){held++;return()=>{held--;releases++;};}},presets:panel,workspaces:spaces,context,route:()=>{routeIsolated=!!editor.audioEditing;},view:e=>{
+  $('context').textContent=`Tone · ${e.projectName} / ${e.title}`;$('status').textContent=e.busy?'Loading / saving…':e.modified?'Sound edited · Save project to keep it':'Editing a copy of the track sound';
+  for(const id of ['play','loop','save','cancel'])$(id).disabled=e.busy;$('play').textContent=player.playing?'Pause project':'Play project';
+ }});
+ timeline=new ProjectTimeline($('list'),{root:$('timeline'),ruler:$('ruler'),onSelect:()=>{},onChange:(id,f)=>workspace.updateTrack(id,f),onEdit:()=>{},onEditSound:id=>editor.open(id).catch(report),onDelete:()=>{},onMonitor:()=>{},onArm:()=>{},onMove:()=>{},onSeek:s=>player.seek(s),onLoop:loop=>player.setLoop(loop)});
+ timeline.render([track],{editable:true,selectedId:1,presetName:()=> 'Copied Tone preset'});timeline.setLength({seconds:10,bars:5});
+ $('gain').oninput=async()=>{const s=await rack.getState();s.a.entries[0].state.gain=Number($('gain').value);await rack.setState(s);await editor.checkModified();};
+ $('play').onclick=()=>editor.togglePlay();$('loop').onclick=()=>editor.toggleLoop();
+ $('measure').onclick=async()=>{await wait(150);const values=new Float32Array(2048);analyser.getFloatTimeDomainData(values);measured=Math.max(...values.map(Math.abs));report({signalPeak:measured,expectedPeak:((Number($('gain').value)*.1)/Math.sqrt(2)),sameDI:player.channels.get(1).buffer===di,isolated:routeIsolated,held});};
+ async function results(){return {projectSaves:saves,trackGain:workspace.project.tracks[0].presetSnapshot.a.entries[0].state.gain,captureGain:workspace.project.tracks[0].recording.capturePresetSnapshot.a.entries[0].state.gain,reusablePresets:memory.length,sameDI:player.channels.get(1).buffer===di,libraryOriginalGain:library[0].state.a.entries[0].state.gain,globalPresetIdentity:panel.activeId,globalToneRestored:!editor.active&&(await rack.getState()).a.entries[0].state.gain===.5,signalPeak:measured,inputHolds:held,inputRestores:releases};}
+ $('save').onclick=async()=>{await editor.finish();report(await results());};$('cancel').onclick=async()=>{await editor.cancel();report(await results());};
+ report('Prepared · click FX on Guitar solo');
+}catch(error){report(error.stack);}};
+</script></html>

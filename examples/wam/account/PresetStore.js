@@ -103,7 +103,7 @@ export class RemotePresetStore extends EventTarget {
   get scope() { return 'account'; }
   list() { return this.api.listPresets(); }
   get(id) { return this.api.getPreset(id); }
-  async create(name, state) { return this.changed('create', await this.api.createPreset(name, state)); }
+  async create(name, state, options) { return this.changed('create', await this.api.createPreset(name, state, options)); }
   async update(id, attributes) { return this.changed('update', await this.api.updatePreset(id, attributes), attributes.state); }
   async delete(id) { return this.changed('delete', await this.api.deletePreset(id), undefined, id); }
 

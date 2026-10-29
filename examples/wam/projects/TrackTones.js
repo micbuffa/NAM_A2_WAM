@@ -29,10 +29,18 @@ export class TrackTones extends EventTarget {
   constructor({context, player, createRack, resolvePreset}) {
     super();
     Object.assign(this, {context, player, createRack, resolvePreset});
+    this.overrides=new Map();
     this.tones = new Map(); // track id -> {key, preset, state: 'loading' | 'ready' | 'error', error, rack, insert, previous}
     this.tracks = [];
     this.projectId = null;
     this.liveId = null;
+  }
+
+  // Borrow Tone's visible rack for one recorded track during editing. A late
+  // headless build must not replace this temporary insert.
+  setOverride(id,insert) {
+    if(insert)this.overrides.set(id,insert);else this.overrides.delete(id);
+    this.player.setInsert(id,insert??this.tones.get(id)?.insert??null);
   }
 
   // {state, error} of a track's rack, or null when it plays dry.
@@ -101,11 +109,11 @@ export class TrackTones extends EventTarget {
       input.gain.value = 10 ** ((state.sourceTrim?.file ?? DEFAULT_SOURCE_TRIM_DB.file) / 20);
       input.connect(rack.a.input);
       tone.insert = {input, live: rack.a.input, output: rack.output};
-      this.player.setInsert(id, tone.insert);
+      this.player.setInsert(id, this.overrides.get(id)??tone.insert);
       tone.state = 'ready';
     } catch (error) {
       if (!current()) return;
-      if (tone.previous) this.player.setInsert(id, null);
+      if (tone.previous) this.player.setInsert(id, this.overrides.get(id)??null);
       tone.state = 'error';
       tone.error = error;
       this.dispatchEvent(new CustomEvent('error', {detail: {id, error}}));
@@ -119,7 +127,7 @@ export class TrackTones extends EventTarget {
     const tone = this.tones.get(id);
     if (!tone) return;
     this.tones.delete(id);
-    this.player.setInsert(id, null);
+    this.player.setInsert(id, this.overrides.get(id)??null);
     this.dispose(tone);
     this.changed(id);
   }
@@ -136,5 +144,5 @@ export class TrackTones extends EventTarget {
 
   changed(id) { this.dispatchEvent(new CustomEvent('change', {detail: {id}})); }
 
-  destroy() { for (const id of [...this.tones.keys()]) this.release(id); }
+  destroy() { this.overrides.clear();for (const id of [...this.tones.keys()]) this.release(id); }
 }

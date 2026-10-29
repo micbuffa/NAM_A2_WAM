@@ -45,6 +45,11 @@ export default class PresetsPanel extends EventTarget {
     this.checkTimer = null;
   }
 
+  setExternalEditor(editor) {
+    this.editorEpoch=(this.editorEpoch??0)+1;clearTimeout(this.draftTimer);clearTimeout(this.checkTimer);this.draftTimer=this.checkTimer=null;
+    this.externalEditor=editor;this.render();
+  }
+
   // Drafts never cross accounts.
   get draftScope() { return this.account?.signedIn ? `user:${this.account.user.id}` : 'guest'; }
 
@@ -54,7 +59,7 @@ export default class PresetsPanel extends EventTarget {
   // Option values are strings; account preset ids are numbers.
   find(id) { return [...this.presets, ...this.factory].find((preset) => String(preset.id) === String(id)) || null; }
   get active() { return this.activeId === null ? null : this.find(this.activeId); }
-  get busy() { return this.loadingId !== null; }
+  get busy() { return this.loadingId !== null || !!this.externalEditor?.busy; }
 
   // The id of the preset to reopen, or null.
   get lastPresetId() {
@@ -104,11 +109,12 @@ export default class PresetsPanel extends EventTarget {
 
   // A result computed against a baseline replaced meanwhile (load, save) is stale.
   async checkModified() {
+    if(this.externalEditor)return this.externalEditor.checkModified();
     this.checkTimer = null;
     if (this.busy) return this.scheduleCheck();
-    const baseline = this.baseline;
+    const baseline = this.baseline,epoch=this.editorEpoch;
     const modified = await this.isModified();
-    if (baseline === this.baseline && !this.busy) this.setModified(modified);
+    if (epoch===this.editorEpoch && !this.externalEditor && baseline === this.baseline && !this.busy) this.setModified(modified);
   }
 
   setModified(modified) {
@@ -118,6 +124,7 @@ export default class PresetsPanel extends EventTarget {
   }
 
   scheduleDraft() {
+    if(this.externalEditor)return;
     if (!this.draftStore) return;
     clearTimeout(this.draftTimer);
     this.draftTimer = setTimeout(() => this.writeDraft().catch((error) => console.warn('Draft not saved', error)), this.draftDelay);
@@ -129,8 +136,10 @@ export default class PresetsPanel extends EventTarget {
     clearTimeout(this.draftTimer);
     this.draftTimer = null;
     if (this.busy) return this.scheduleDraft();
-    const scope = this.draftScope;
+    if(this.externalEditor)return;
+    const epoch=this.editorEpoch,scope = this.draftScope;
     const state = await this.captureState();
+    if(epoch!==this.editorEpoch||this.externalEditor)return;
     if (this.baseline !== null && JSON.stringify(state) === this.baseline) return this.draftStore.delete(scope);
     await this.draftStore.put(scope, {state, presetId: this.activeId, baseline: this.baseline});
   }
@@ -196,6 +205,7 @@ export default class PresetsPanel extends EventTarget {
   // does not stay on screen. Signing in reopens the account's last preset,
   // unless the rack has unsaved changes or the guest signed in to save it.
   async accountChanged({signedOut}) {
+    await this.externalEditor?.cancel({force:true});
     const modified = !signedOut && (this.signingInToSave || await this.isModified());
     if (signedOut) {
       this.activeId = null;
@@ -254,6 +264,14 @@ export default class PresetsPanel extends EventTarget {
     select.disabled = this.busy;
     this.$('presetCount').textContent = String(this.presets.length + this.factory.length);
     this.$('presetNew').disabled = this.busy;
+    this.$('presetDelete').hidden=false;
+    if(this.externalEditor){
+      const editor=this.externalEditor;select.value=editor.selectedPreset;
+      this.$('presetTitle').textContent=editor.title;this.$('presetMeta').textContent=`Studio · ${editor.projectName} · independent track sound`;
+      this.$('presetUnsaved').hidden=!editor.modified;this.$('presetRename').hidden=this.$('presetRevert').hidden=this.$('presetDelete').hidden=true;
+      this.$('presetNew').disabled=true;const save=this.$('presetSaveButton');save.textContent='Save project';save.disabled=editor.busy;save.title='Save this sound in the project, optionally create a new reusable preset';save.toggleAttribute('dot',editor.modified);return;
+    }
+    this.$('presetSaveButton').textContent='Save Preset';
 
     const active = this.active;
     const mine = active && !active.factory;
@@ -345,6 +363,7 @@ export default class PresetsPanel extends EventTarget {
   }
 
   async create({chooseSource = true} = {}) {
+    if(this.externalEditor)return this.externalEditor.finish({reusable:true});
     if (!await this.signInToSave()) return;
     const request = await this.askNewPreset({chooseSource});
     if (!request) return;
@@ -365,6 +384,7 @@ export default class PresetsPanel extends EventTarget {
   // Overwrites the active preset of mine with the current rack (pedals, gains,
   // both lanes); otherwise saves the rack as a new preset.
   async save() {
+    if(this.externalEditor)return this.externalEditor.finish();
     if (!await this.signInToSave()) return;
     const active = this.active;
     if (!active || active.factory) return this.create({chooseSource: false});
@@ -382,12 +402,14 @@ export default class PresetsPanel extends EventTarget {
   // Nothing to save while the rack matches its preset (or the default rack):
   // Save then turns neutral and inactive; New preset still copies the rack.
   renderSave() {
+    if(this.externalEditor){this.$('presetSaveButton').disabled=this.externalEditor.busy;return;}
     const save = this.$('presetSaveButton');
     save.disabled = this.busy || !this.modified;
     save.setAttribute('variant', this.modified ? 'primary' : 'secondary');
   }
 
   async load(id) {
+    if(this.externalEditor)return this.externalEditor.loadPreset(id).catch(error=>this.report(error.message,true));
     const preset = this.find(id);
     if (!preset || this.busy) return;
     this.loadingId = preset.id;
@@ -410,6 +432,7 @@ export default class PresetsPanel extends EventTarget {
   }
 
   async rename(preset) {
+    if(this.externalEditor)return;
     const name = await promptDialog({title: 'Rename preset', label: 'Preset name', value: preset.name, confirmLabel: 'Rename'});
     if (!name || name === preset.name) return;
     try {
@@ -420,6 +443,7 @@ export default class PresetsPanel extends EventTarget {
   }
 
   async remove(preset) {
+    if(this.externalEditor)return;
     if (!await confirmDialog({title: 'Delete preset', message: `Delete “${preset.name}”? This cannot be undone.`, confirmLabel: 'Delete'})) return;
     try {
       await this.store.delete(preset.id);

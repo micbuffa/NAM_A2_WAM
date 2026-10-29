@@ -38,7 +38,7 @@ export function spaceAction({engine, projectPlayer, workspace}) {
 // is caught before any control (capture), with its keyup, which would click
 // a native button. run(operation) reports a failed play. Returns a function
 // that removes it.
-export function linkSpaceKey({engine, projectPlayer, workspaces, root = document, run = (operation) => Promise.resolve().then(operation)}) {
+export function linkSpaceKey({engine, projectPlayer, workspaces, root = document, run = (operation) => Promise.resolve().then(operation), isTrackEditing = () => false}) {
   const abort = new AbortController(), options = {capture: true, signal: abort.signal};
   const transportKey = (event) => event.key === ' ' && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey
     && !typesSpace(event.composedPath?.()[0] ?? event.target) && !root.querySelector?.('dialog[open]');
@@ -46,7 +46,7 @@ export function linkSpaceKey({engine, projectPlayer, workspaces, root = document
     if (!transportKey(event)) return;
     event.preventDefault();
     event.stopPropagation();
-    const action = !event.repeat && spaceAction({engine, projectPlayer, workspace: workspaces.current});
+    const action = !event.repeat && spaceAction({engine, projectPlayer, workspace: isTrackEditing() ? 'projects' : workspaces.current});
     if (action) run(action);
   }, options);
   root.addEventListener('keyup', (event) => {

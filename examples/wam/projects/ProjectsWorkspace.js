@@ -1,3 +1,4 @@
+import {copiedTrackSound} from './TrackSoundState.js';
 import {TrackMeters} from './TrackMeters.js';
 import {StudioRecording} from './recording/StudioRecording.js';
 import {StudioHistory, editState, editCommand, historyShortcut} from './StudioHistory.js';
@@ -76,6 +77,7 @@ export class ProjectsWorkspace extends EventTarget {
       onSelect: (id) => this.select(id),
       onChange: (id, fields) => this.updateTrack(id, fields),
       onEdit: (id) => this.editTrackDialog(id),
+      onEditSound: id => this.editPresetInTone(id),
       onDelete: (id) => this.deleteTrack(id),
       onGestureStart: key => { if (this.historyGesture?.key !== key) this.historyGesture = {key}; },
       onGestureEnd: () => { this.historyGesture = null; },
@@ -111,7 +113,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectResetMix').onclick = () => this.setTracks(structuredClone(this.saved.tracks));
     this.$('projectAddTrack').onclick = () => { this.separation?.show('original'); return this.addTrackDialog(); };
     this.$('projectsEmptyAction').onclick = () => this.emptyAction?.();
-    this.$('inspectorPreset').onchange = (event) => this.updateTrack(this.selectedId, presetFields(event.target.value));
+    this.$('inspectorPreset').onchange = (event) => void this.chooseTrackPreset(this.selectedId,event.target.value).catch(error=>this.report(error.message,true));
     this.$('inspectorEditPreset').onclick = () => this.editPresetInTone();
     this.$('projectPlay').onclick = () => (this.player?.playing ? this.player.pause() : this.player?.play());
     this.$('projectRewind').onclick = () => this.player?.stop();
@@ -290,6 +292,19 @@ export class ProjectsWorkspace extends EventTarget {
     this.renderInspector();
   }
 
+  async chooseTrackPreset(id,value) {
+    if(!this.owned||this.saving||this.recording?.busy)return;
+    if(this.recording?.pending.has(id))throw Error('Save project before changing the sound of this take.');
+    const track=this.project.tracks.find(t=>t.id===id);if(!track||!usesTrackPreset(track)||value===presetValue(track))return;
+    this.soundSelections??=new Map();const seq=(this.soundSelections.get(id)??0)+1;this.soundSelections.set(id,seq);
+    const project=this.project,epoch=this.accountLoadEpoch;
+    if(!value){this.updateTrack(id,{presetSnapshot:null,snapshotId:null,presetId:null,factoryPreset:null});return;}
+    const candidate={...track,...presetFields(value),presetSnapshot:null,snapshotId:null};
+    const state=await this.tones.resolvePreset(candidate,project.id);
+    if(this.project!==project||this.accountLoadEpoch!==epoch||this.soundSelections.get(id)!==seq||this.saving||this.recording?.busy)return;
+    this.updateTrack(id,copiedTrackSound(state));
+  }
+
   // Local edit of a track; the row is updated in place (a fader keeps its drag).
   updateTrack(id, fields) {
     if (this.saving || this.history?.busy || this.recording?.busy) return;
@@ -299,7 +314,7 @@ export class ProjectsWorkspace extends EventTarget {
       return;
     }
     const track = this.project.tracks.find(entry => entry.id === id);
-    if (track?.presetSnapshot && ('presetId' in fields || 'factoryPreset' in fields)) fields = {...fields, presetSnapshot: null, snapshotId: null};
+    if (track?.presetSnapshot && !('presetSnapshot' in fields) && ('presetId' in fields || 'factoryPreset' in fields)) fields = {...fields, presetSnapshot: null, snapshotId: null};
     const field = Object.keys(fields)[0];
     const verb = {volume: 'Volume', pan: 'Pan', mute: 'Mute', solo: 'Solo', presetId: 'Preset', factoryPreset: 'Preset'}[field] ?? 'Edit';
     this.setTracks(this.project.tracks.map((track) => (track.id === id ? {...track, ...fields} : track)), {label: `${verb} ${track?.name ?? 'track'}`});
@@ -337,8 +352,9 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   async save() {
-    if (this.saving || this.recording?.busy || (!this.dirty && !this.pendingSeparation)) return;
-    this.saving = true;
+    if (this.saving || this.recording?.busy) return false;
+    if (!this.dirty && !this.pendingSeparation) return true;
+    let success=false;this.saving = true;
     this.render();
     try {
       const {project, saved} = this;
@@ -365,13 +381,13 @@ export class ProjectsWorkspace extends EventTarget {
         this.setProject(full, {historyLabel: 'Separate instruments'});
       }
       this.replaceSummary(this.project);
-      this.report('Project and audio saved');
+      this.report('Project and audio saved');success=true;
     } catch (error) {
       this.separation?.setStatus(`Save interrupted: ${error.message}. Instruments remain in RAM; use Save project to retry.`);
       this.report(`Project not saved: ${error.message}`, true);
     }
     this.saving = false;
-    this.render();
+    this.render();return success;
   }
 
   async useMixInTone() {
@@ -644,7 +660,8 @@ export class ProjectsWorkspace extends EventTarget {
     this.history.record({label, audio, undo: () => apply(!restore), redo: () => apply(restore)});
   }
 
-  editPresetInTone() {
+  editPresetInTone(id=this.selectedId) {
+    if(this.onEditTrackSound){void this.onEditTrackSound(id).catch(error=>this.report(error.message,true));return;}
     if (!this.selectedTrack || !usesTrackPreset(this.selectedTrack)) return;
     if (this.selectedTrack?.presetSnapshot) {
       this.onEditSnapshot?.(structuredClone(this.selectedTrack.presetSnapshot)); return;
@@ -1085,7 +1102,7 @@ export class ProjectsWorkspace extends EventTarget {
     const tone = usesTrackPreset(track);
     this.$('inspectorPresetField').hidden = !tone;
     this.$('inspectorEditPreset').hidden = !tone || !this.owned;
-    this.$('inspectorEditPreset').disabled = !presetValue(track);
+    this.$('inspectorEditPreset').disabled = !this.onEditTrackSound && !presetValue(track);
     this.$('inspectorPresetHelp').textContent = !tone ? 'Accompaniment audio plays as recorded. Presets are reserved for your personal guitar and bass parts.'
       : this.toneHelp(track);
     if (tone) this.renderPresetSelect(track);

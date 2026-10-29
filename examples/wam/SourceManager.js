@@ -11,6 +11,7 @@ export default class SourceManager extends EventTarget {
   constructor({audioContext, wamNode, mediaDevices = navigator.mediaDevices, player}) {
     super();
     this.secondary=null;
+    this.monitoringHolds=0;
     this.audioContext = audioContext;
     this.wamNode = wamNode;
     this.mediaDevices = mediaDevices;
@@ -47,16 +48,37 @@ export default class SourceManager extends EventTarget {
   setSecondary(target,channelIndex) {
     if(this.secondary&&this.liveSplitter){try{this.liveSplitter.disconnect(this.secondary.target);}catch{}}
     this.secondary=target?{target,channelIndex}:null;
-    if(target&&this.liveSplitter&&Number.isInteger(channelIndex)&&channelIndex>=0&&channelIndex<this.liveInput.channelCount){
+    if(!this.monitoringHolds&&target&&this.liveSplitter&&Number.isInteger(channelIndex)&&channelIndex>=0&&channelIndex<this.liveInput.channelCount){
       this.liveSplitter.connect(target,channelIndex,0);
     }
   }
   selectLiveChannel(channelIndex) {
     if(!this.liveSplitter||!Number.isInteger(channelIndex)||channelIndex<0||channelIndex>=this.liveInput.channelCount)throw Error('Input channel unavailable');
-    this.liveSplitter.disconnect(this.sourceTrim);
-    this.liveSplitter.connect(this.sourceTrim,channelIndex,0);this.liveInput.channelIndex=channelIndex;
+    try { this.liveSplitter.disconnect(this.sourceTrim); } catch {}
+    if (!this.monitoringHolds) this.liveSplitter.connect(this.sourceTrim,channelIndex,0);this.liveInput.channelIndex=channelIndex;
     this.dispatchEvent(new Event('change'));
   }
+  // Stop feeding ANY live/file monitoring branch, including the independent
+  // B input. Analysis/DI taps remain connected directly to the splitter.
+  suspendMonitoring() {
+    this.monitoringHolds++;
+    if (this.liveSplitter) {
+      try { this.liveSplitter.disconnect(this.sourceTrim); } catch {}
+      if (this.secondary) try { this.liveSplitter.disconnect(this.secondary.target); } catch {}
+    } else if (this.liveNode) try { this.liveNode.disconnect(this.sourceTrim); } catch {}
+    try { this.mediaElementNode.disconnect(this.sourceTrim); } catch {}
+    let released=false;
+    return () => {
+      if (released) return; released=true; this.monitoringHolds--;
+      if (this.monitoringHolds) return;
+      if (this.mode === 'live' && this.liveInput) {
+        if (this.liveSplitter) this.liveSplitter.connect(this.sourceTrim,this.liveInput.channelIndex,0);
+        else this.liveNode?.connect(this.sourceTrim);
+        if (this.secondary) this.setSecondary(this.secondary.target,this.secondary.channelIndex);
+      } else if (this.mode === 'file') this.mediaElementNode.connect(this.sourceTrim);
+    };
+  }
+
   // A mono DI tap before software trim and every effect; never includes backing audio.
   createDITap() { return this.createLiveTap(); }
 
@@ -159,8 +181,8 @@ export default class SourceManager extends EventTarget {
     if (typeof this.audioContext.createChannelSplitter === 'function') {
       splitter = this.audioContext.createChannelSplitter(channelCount);
       node.connect(splitter);
-      splitter.connect(this.sourceTrim, selectedChannel, 0);
-    } else node.connect(this.sourceTrim);
+      if (!this.monitoringHolds) splitter.connect(this.sourceTrim, selectedChannel, 0);
+    } else if (!this.monitoringHolds) node.connect(this.sourceTrim);
     this.liveStream = stream;
     this.liveNode = node;
     this.liveSplitter = splitter;
@@ -175,7 +197,7 @@ export default class SourceManager extends EventTarget {
     await this.disconnectCurrent();
     this.player.src = url;
     this.player.load();
-    this.mediaElementNode.connect(this.sourceTrim);
+    if (!this.monitoringHolds) this.mediaElementNode.connect(this.sourceTrim);
     this._activateTrim('file');this.dispatchEvent(new Event('change'));
   }
 

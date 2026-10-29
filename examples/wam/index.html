@@ -107,6 +107,11 @@
           <tl-button id="presetSaveButton" variant="primary" icon="save">Save Preset</tl-button>
         </div>
       </header>
+      <section id="trackSoundEditor" class="track-sound-editor" aria-label="Track sound editing" hidden>
+        <div><strong id="trackSoundContext"></strong><p class="host-help">The project plays through the chain shown here. The DI and library presets stay unchanged.</p></div>
+        <div class="record-actions"><tl-button id="trackSoundPlay" icon="play">Play project</tl-button><tl-button id="trackSoundLoop" icon="loop" aria-pressed="false">Loop</tl-button><tl-button id="trackSoundSave" variant="primary" icon="save">Save project & return</tl-button><tl-button id="trackSoundCancel" variant="ghost">Cancel & return</tl-button></div>
+        <p id="trackSoundStatus" class="host-help" role="status"></p>
+      </section>
       <div class="rack-canvas">
       <p class="fx-help">Drop on a card to swap · Drop on + to insert at that position · Alt + ← / → to move. All plugins can be removed and added with +.</p>
       <section class="fx-rack" aria-label="Processing chain A">
@@ -229,8 +234,11 @@
             </div>
             <p id="recordStatus" class="host-help" role="status"></p>
             <details><summary>Recording settings</summary>
-              <label>Manual compensation (ms)<input id="recordCompensation" aria-label="Recording latency compensation in milliseconds" type="number" min="0" max="2000" step="0.1" value="0"></label>
-              <p class="host-help">Choose your input and channel in Audio devices / Tone. Headphones recommended. Automatic loopback calibration is not available yet.</p>
+              <label>Manual compensation (ms)<input id="recordCompensation" aria-label="Recording latency compensation in milliseconds" type="number" min="0" max="2000" step="any" value="0"></label>
+              <label>Calibration output<select id="recordCalibrationOutput" aria-label="Calibration output"><option value="0">Output 1 · Left</option><option value="1">Output 2 · Right</option></select></label>
+              <div class="record-actions"><tl-button id="recordCalibrate">Calibrate input latency</tl-button><tl-button id="recordUseCalibration" hidden>Use saved calibration</tl-button><tl-button id="recordResetCalibration" variant="ghost">Reset compensation</tl-button></div>
+              <p id="recordCalibrationStatus" class="host-help" role="status"></p>
+              <p class="host-help">Choose your input and channel in Audio devices / Tone. Calibration requires a physical output-to-input cable and measures the round trip. A saved measurement must match the interface and buffer settings.</p>
             </details>
           </section>
           <div class="project-ruler-row"><span aria-hidden="true"></span><div class="project-ruler-track"><div class="project-ruler" id="projectRuler" aria-label="Timeline and A/B loop"></div></div></div>

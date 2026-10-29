@@ -46,6 +46,51 @@ class Api::TrackRecordingsTest < ActionDispatch::IntegrationTest
     assert_equal @metadata[:sessionId], response.parsed_body["tracks"].find { |t| t["id"] == @track.id }.dig("recording", "sessionId")
   end
 
+  test "persists measured loopback provenance and rejects incompatible or identifying calibration fields" do
+    details = { protocol: "loopback-correlation-v1", compensationKind: "round-trip", sampleRate: 48000, frames: 528,
+      spreadFrames: 2, validProbes: 5, totalProbes: 6, confidence: 0.99, validationResidualFrames: 0,
+      measuredAt: Time.current.iso8601, outputChannel: 0 }
+    metadata = @metadata.merge(startProjectFrame: 528, compensationFrames: 528, calibration: "loopback", calibrationDetails: details)
+    [{ frames: 529 }, { spreadFrames: 300 }, { confidence: 0.2 }, { validationResidualFrames: 90 }, { protocol: "unknown" },
+      { measuredAt: "bad date" }, { deviceId: "private-browser-device-id" }, { outputChannel: 9 }].each do |changes|
+      publish(@track, metadata.merge(calibrationDetails: details.merge(changes)))
+      assert_response :unprocessable_content
+      assert_not @track.reload.audio.attached?
+    end
+    publish(@track, metadata.merge(calibrationDetails: nil))
+    assert_response :unprocessable_content
+    publish(@track, metadata.merge(calibration: "manual"))
+    assert_response :unprocessable_content
+    publish(@track, metadata)
+    assert_response :success
+    assert_equal details.deep_stringify_keys, response.parsed_body.dig("recording", "calibrationDetails")
+    get api_project_path(@project)
+    saved = response.parsed_body["tracks"].find { |row| row["id"] == @track.id }
+    assert_equal "loopback", saved.dig("recording", "calibration")
+    assert_equal 528, saved.dig("recording", "compensationFrames")
+    assert_equal wav, @track.reload.audio.download
+  end
+
+  test "changing a recorded track sound preserves dry WAV and capture provenance and does not link the library" do
+    publish
+    assert_response :success
+    original = @track.reload.recording.deep_dup
+    snapshot = { version: 2, a: { entries: [] }, sourceTrim: { live: 4 } }
+    patch api_project_track_path(@project, @track), params: { presetSnapshot: snapshot, snapshotId: "edited-sound", presetId: nil, factoryPreset: nil }, as: :json
+    assert_response :success
+    assert_equal snapshot.deep_stringify_keys, @track.reload.preset_snapshot
+    assert_equal wav, @track.audio.download
+    assert_equal original, @track.recording
+    shared = @project.shares.create!(user: users(:bob))
+    sign_in_as users(:bob)
+    get preset_api_project_track_path(@project, @track)
+    assert_response :success
+    assert_equal snapshot.deep_stringify_keys, response.parsed_body["state"]
+    patch api_project_track_path(@project, @track), params: { snapshotId: "forbidden", presetSnapshot: snapshot }, as: :json
+    assert_response :forbidden
+    shared.destroy!
+  end
+
   test "rejects occupied or stale tracks without changing audio or preset" do
     publish(version: "stale")
     assert_response :conflict

@@ -1,0 +1,63 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Recording latency qualification</title>
+<link rel="stylesheet" href="../../../examples/wam/ui/tokens.css"><link rel="stylesheet" href="../../../examples/wam/ui/base.css"><link rel="stylesheet" href="../../../examples/wam/ui/components.css">
+<style>body{padding:24px;background:#181b1f;color:#eee}button{padding:8px}pre{white-space:pre-wrap}#settings{max-width:800px;margin-top:24px}</style>
+<h1>Recording latency · synthetic loopback qualification</h1><p>Real AudioWorklet, Worker matched filter, WAM capture and ring buffer. An 11 ms DelayNode replaces the physical cable. No microphone, audible probes or account writes.</p>
+<button id="run">Run calibration and aligned recording</button><pre id="result" role="status">Ready</pre>
+<section id="settings"><button id="recordCalibrate" disabled>Calibrate input latency</button><button id="recordUseCalibration" hidden>Use saved calibration</button><button id="recordResetCalibration">Reset compensation</button><label>Calibration output<select id="recordCalibrationOutput"><option value="0">Output 1 · Left</option><option value="1">Output 2 · Right</option></select></label><label>Compensation (ms)<input id="recordCompensation" value="0"></label><p id="recordCalibrationStatus" role="status"></p><button id="reconnect" disabled>Reconnect synthetic instrument</button><p id="guard" role="status">Monitoring normal</p></section><audio id="player"></audio>
+<script type="module" src="../../../examples/wam/ui/index.js"></script>
+<script type="module">
+import initializeWamHost from '../../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
+import SourceManager from '../../../examples/wam/SourceManager.js';
+import {guardCalibrationAudio} from '../../../examples/wam/projects/recording/CalibrationAudioGuard.js';
+import {LatencyCalibrator} from '../../../examples/wam/projects/recording/LatencyCalibrator.js';
+import {makeLatencyProbe} from '../../../examples/wam/projects/recording/LatencyAnalysis.js';
+import {RecordingCalibration} from '../../../examples/wam/projects/recording/RecordingCalibration.js';
+import {LatencyProfiles} from '../../../examples/wam/projects/recording/LatencyProfiles.js';
+import {DIRecorder} from '../../../examples/wam/projects/recording/DIRecorder.js';
+const $=id=>document.getElementById(id),wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));let context,source,delay,ui;
+function connectInput(){source.liveSplitter=context.createChannelSplitter(1);source.liveInput={channelCount:1,channelIndex:0,deviceId:'synthetic-interface',label:'Synthetic loopback'};source.mode='live';delay.connect(source.liveSplitter);if(!source.monitoringHolds)source.liveSplitter.connect(source.sourceTrim,0,0);source.dispatchEvent(new Event('change'));}
+$('run').onclick=async()=>{
+ let recorder,tap;
+ try{
+  $('run').disabled=true;$('result').textContent='Measuring six return windows…';
+  context=new AudioContext({sampleRate:48000});await context.resume();const [groupId]=await initializeWamHost(context,'latency-qualification');
+  source=new SourceManager({audioContext:context,wamNode:context.createGain(),player:$('player')});
+  delay=context.createDelay(1);delay.delayTime.value=528/context.sampleRate;delay.channelCount=1;delay.channelCountMode='explicit';connectInput();
+  const engine=new LatencyCalibrator({context,source,output:delay});let progress=0;engine.addEventListener('progress',({detail})=>{$('result').textContent=`Window ${++progress}/6: ${detail.result.frames} frames`;});
+  const measurement=await engine.run();
+  const probe=makeLatencyProbe(context.sampleRate),buffer=context.createBuffer(1,probe.length,context.sampleRate);buffer.copyToChannel(probe,0);
+  recorder=new DIRecorder({context,groupId});await recorder.prepare({sampleRate:context.sampleRate,startProjectFrame:1000,compensationFrames:measurement.frames});tap=source.createDITap();
+  const when=(Math.ceil(context.currentTime*context.sampleRate)+9600)/context.sampleRate,played=context.createBufferSource();played.buffer=buffer;played.connect(delay);recorder.start(tap.node,Math.round(when*context.sampleRate));played.start(when);
+  await wait(650);const take=await recorder.stop(),view=new DataView(await take.audio.arrayBuffer());let maxError=0;
+  for(let i=0;i<probe.length;i++)maxError=Math.max(maxError,Math.abs(probe[i]-view.getFloat32(44+(1000+i)*4,true)));
+  played.disconnect();
+  const cancelEngine=new LatencyCalibrator({context,source,output:delay});let cancelled=false;const task=cancelEngine.run();setTimeout(()=>cancelEngine.cancel(),80);try{await task;}catch{cancelled=true;}
+  $('result').textContent=JSON.stringify({pass:measurement.frames===528&&measurement.validationResidualFrames===0&&progress===6&&maxError<1e-6&&cancelled&&!cancelEngine.active,measurement,alignedTakeMaxError:maxError,capturedFrames:take.capturedFrames,cancelled,resourcesReleased:!cancelEngine.active},null,2);
+  const memory=new Map(),profiles=new LatencyProfiles({getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v)});
+  const recording={context,source,state:'idle',enableLive:async()=>{connectInput();if(source.secondary)source.setSecondary(source.secondary.target,source.secondary.channelIndex);},workspace:{$,separation:null,report:text=>$('result').textContent=text},get busy(){return this.state!=='idle';},setState(state){this.state=state;}};
+  // Strong A/B monitoring paths into a silent speaker surrogate. Exercise the
+  // SAME physical-disconnection guard as main.js, including gain callbacks.
+  const speakers=context.createGain(),meter=context.createAnalyser(),silent=context.createGain();silent.gain.value=0;speakers.connect(meter).connect(silent).connect(context.destination);
+  const tone=context.createGain(),studio=context.createGain(),ampA=context.createGain(),ampB=context.createGain();ampA.gain.value=ampB.gain.value=1000;
+  source.sourceTrim.connect(ampA).connect(tone);source.setSecondary(ampB,0);ampB.connect(studio);tone.connect(speakers);studio.connect(speakers);
+  const ambient=context.createConstantSource();ambient.offset.value=.0015;ambient.connect(delay);ambient.start();
+  const window=new Float32Array(2048),level=()=>{meter.getFloatTimeDomainData(window);return Math.max(...window.map(Math.abs));};await wait(120);
+  const beforeGuard=level(),checks=[];await source.disconnectCurrent();
+  const room=context.createConvolver();room.normalize=false;const ir=context.createBuffer(1,1000,context.sampleRate);for(const [frame,gain]of [[0,.5],[3,.3],[7,.2],[210,.2],[640,-.12]])ir.getChannelData(0)[frame]=gain;room.buffer=ir;room.connect(delay);
+  ui=new RecordingCalibration(recording,{profiles,createCalibrator:options=>{
+    const calibrator=new LatencyCalibrator({...options,output:room});
+    calibrator.addEventListener('progress',()=>{const value=level();checks.push(value);$('guard').textContent=JSON.stringify({beforeGuard,duringGuardMax:Math.max(...checks),FXgainStill1000:ampA.gain.value===1000&&ampB.gain.value===1000,sourceHolds:source.monitoringHolds});});
+    return calibrator;
+  },beginCalibration:()=>{
+    const release=guardCalibrationAudio({context:{destination:speakers},source,outputs:[tone,studio],disableInput:()=>source.disconnectCurrent()});
+    // Gain updates and FxRack-style secondary synchronization cannot undo it.
+    tone.gain.value=studio.gain.value=1;source.setSecondary(ampB,0);
+    $('guard').textContent='A/B inputs and speaker outputs physically disconnected';
+    return async()=>{await release();$('guard').textContent=JSON.stringify({beforeGuard,duringGuardMax:checks.length?Math.max(...checks):null,FXgainStill1000:ampA.gain.value===1000&&ampB.gain.value===1000,inputDisabled:source.mode===null,sourceHolds:source.monitoringHolds});$('reconnect').disabled=false;};
+  }});
+  source.addEventListener('change',()=>ui.configurationChanged());
+  $('reconnect').onclick=()=>{connectInput();$('guard').textContent='Instrument reconnected · '+ui.metadata(Number($('recordCompensation').value)).calibration;};
+ }catch(error){$('result').textContent=`FAIL: ${error.stack}`;}
+ finally{recorder?.destroy();tap?.release();}
+};
+</script></html>
