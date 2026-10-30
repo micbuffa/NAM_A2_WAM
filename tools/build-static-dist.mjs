@@ -1,7 +1,9 @@
+import {packageRuntimeJs} from './package-runtime-js.mjs';
 import { cp, mkdir, readFile, rm, writeFile, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import {BENCHMARK_FILES,DIRECT_WEBNN_ASSETS,fileHash} from './build-webnn-benchmark.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist', 'NAM_A2_WAM');
@@ -34,8 +36,36 @@ for (const [source, target] of [
 try { await stat(join(root,'third_party/nam-webnn-probe/runtime/ort.all.min.mjs'));
   await copy('third_party/nam-webnn-probe/runtime','source-separation/vendor/onnxruntime-webnn');
 } catch(error) { if(error.code!=='ENOENT')throw error; }
-const webnnPath=join(dist,'source-separation/WebNNRuntime.js');
-await writeFile(webnnPath,(await readFile(webnnPath,'utf8')).replace('../../../third_party/nam-webnn-probe/runtime/','./vendor/onnxruntime-webnn/'));
+for(const name of ['WebNNRuntime.js','webnn-diagnostics-worker.js']){
+  const path=join(dist,'source-separation',name);
+  await writeFile(path,(await readFile(path,'utf8')).replaceAll('../../../third_party/nam-webnn-probe/runtime/','./vendor/onnxruntime-webnn/'));
+}
+const experimentPath=join(dist,'source-separation/WebNNExperiment.js');
+await writeFile(experimentPath,(await readFile(experimentPath,'utf8')).replaceAll('../../../third_party/nam-webgpu-probe/htdemucs-core.onnx','./model-assets/htdemucs-core.onnx'));
+// Mirror the prepared quality model locally: both playback and the diagnostic
+// page use this exact checkpoint, without CDN/CORS dependencies after publishing.
+try {
+  await stat(join(root,'third_party/nam-webgpu-probe/htdemucs-core.onnx'));
+  await copy('third_party/nam-webgpu-probe/htdemucs-core.onnx','source-separation/model-assets/htdemucs-core.onnx');
+  const path=join(dist,'source-separation/models.json'),catalogue=JSON.parse(await readFile(path,'utf8'));
+  const file=catalogue.models.find(model=>model.id==='htdemucs_4s_onnx').files[0];
+  file.sourceUrl=file.url;file.url='./model-assets/htdemucs-core.onnx';
+  await writeFile(path,JSON.stringify(catalogue,null,2)+'\n');
+} catch(error) {if(error.code!=='ENOENT')throw error;}
+const diagnosticPage=join(dist,'source-separation/webnn-diagnostics.html');
+await writeFile(diagnosticPage,(await readFile(diagnosticPage,'utf8')).replace('id="playbackLink" hidden','id="playbackLink"'));
+await writeFile(join(dist,'_headers'),'/*\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Embedder-Policy: require-corp\n  Cross-Origin-Resource-Policy: same-origin\n');
+await writeFile(join(dist,'.htaccess'),'<IfModule mod_headers.c>\nHeader set Cross-Origin-Opener-Policy "same-origin"\nHeader set Cross-Origin-Embedder-Policy "require-corp"\nHeader set Cross-Origin-Resource-Policy "same-origin"\n</IfModule>\n<IfModule mod_mime.c>\nAddType application/wasm .wasm\nAddType text/javascript .mjs .js\n</IfModule>\n');
+await copy('examples/wam/source-separation/WEBNN_DEPLOYMENT.md','WEBNN_TESTING.md');
+await packageRuntimeJs(join(dist,'source-separation'));
+const diagnosticAssets=[...BENCHMARK_FILES,...DIRECT_WEBNN_ASSETS,...['ort.all.min.js','ort-wasm-simd-threaded.jsep.js','ort-wasm-simd-threaded.jsep.wasm','LICENSE'].map(file=>'vendor/onnxruntime-webnn/'+file),'model-assets/htdemucs-core.onnx','model-assets/bs_roformer_sw_6stem_fp16.onnx'];
+const diagnosticFiles={},missingAssets=[];
+for(const file of diagnosticAssets){
+  const path=join(dist,'source-separation',file);
+  try{diagnosticFiles[file]={bytes:(await stat(path)).size,sha256:await fileHash(path)};}catch(error){if(error.code!=='ENOENT')throw error;missingAssets.push(file);}
+}
+const gitValue=args=>spawnSync('git',args,{cwd:root,encoding:'utf8'}).stdout?.trim();
+await writeFile(join(dist,'source-separation/build-info.json'),JSON.stringify({protocol:'webnn-browser-diagnostics-build-v1',date:new Date().toISOString(),layout:'full-host-with-playback',git:{commit:gitValue(['rev-parse','HEAD']),branch:gitValue(['branch','--show-current']),dirty:!!gitValue(['status','--porcelain'])},files:diagnosticFiles,missingAssets},null,2)+'\n');
 
 const cataloguePath=join(dist,'wamPlugins/plugins.json');
 await writeFile(cataloguePath,(await readFile(cataloguePath,'utf8')).replaceAll('../../../src/','../plugins/'));
@@ -86,7 +116,7 @@ console.log('Deployment: copy dist/NAM_A2_WAM/ to any static web server.');
 const backingCatalogue=JSON.parse(await readFile(join(dist,'assets/backingTracks/tracks.json'),'utf8'));
 for(const track of backingCatalogue.tracks)await required(join(dist,'assets/backingTracks',decodeURIComponent(track.url)));
 for(const file of ['BackingTrackPlayerElement.js','BackingTrackEngine.js','BackingTrackLibrary.js','BackingTrackMix.js','backing-track-player.css','phaze-processor.js'])await required(join(dist,'backing-track-player',file));
-for (const file of ['WorkspaceAudioRouter.js','MediaRepository.js','ExportTrackLibrary.js','Mp3ExportCore.js','Mp3Exporter.js','mp3-export-worker.js','vendor/lamejs/lame.min.js','vendor/lamejs/LICENSE','vendor/lamejs/NOTICE.md','MultitrackPlayerElement.js', 'SessionAudioStore.js', 'MultitrackState.js', 'PeakNormalization.js', 'SixStemReconstruction.js', 'SeparationMixer.js', 'MixWaveform.js', 'SeparationWorkflow.js', 'CompactMultitrackView.js', 'CompactWaveform.js', 'vendor/wavesurfer/renderer.js', 'vendor/wavesurfer/renderer-utils.js', 'vendor/wavesurfer/event-emitter.js', 'vendor/wavesurfer/reactive/store.js', 'vendor/wavesurfer/reactive/drag-stream.js', 'vendor/wavesurfer/reactive/scroll-stream.js', 'vendor/wavesurfer/reactive/event-streams.js', 'vendor/wavesurfer/LICENSE', 'vendor/wavesurfer/NOTICE.md', 'vendor/wavesurfer/integrity.json', 'BenchmarkInputs.js', 'fixtures/music/slow-motion-dream.mp3', 'fixtures/music/slow-motion-dream.json', 'fixtures/music/NOTICE.md', 'OnnxRuntimeConfig.js', 'OnnxDemucsRunner.js', 'OnnxCoreModel.js', 'BackendPolicy.js', 'AudioComparison.js', 'onnx-worker.js', 'webgpu-benchmark.html', 'webgpu-benchmark.js', 'vendor/demucs-js/apply.js', 'vendor/demucs-js/LICENSE.md', 'vendor/demucs-js/NOTICE.md', 'vendor/onnxruntime-web/ort.webgpu.min.mjs', 'vendor/onnxruntime-web/ort-wasm-simd-threaded.jsep.mjs', 'vendor/onnxruntime-web/ort-wasm-simd-threaded.jsep.wasm', 'vendor/onnxruntime-web/LICENSE', 'vendor/onnxruntime-web/NOTICE.md', 'vendor/onnxruntime-web/integrity.json', 'ChunkTools.js', 'ProgressiveDemucsRunner.js', 'ProgressiveMultitrackEngine.js', 'progressive-worker.js', 'DemoWaveform.js', 'ModelCache.js', 'ModelDownloadManager.js', 'DownloadsView.js', 'Capabilities.js', 'DemucsRunner.js', 'demucs-worker.js', 'MultitrackEngine.js', 'AudioData.js', 'models.json', 'vendor/demucs-wasm/demucs_onnx_simd.js', 'vendor/demucs-wasm/demucs_onnx_simd.wasm', 'vendor/demucs-wasm/LICENSE', 'vendor/demucs-wasm/NOTICE.md', 'fixtures/catalog.json', 'fixtures/cache-test-4.json', 'fixtures/cache-test-5.json', 'fixtures/LICENSE.txt']) await required(join(dist, 'source-separation', file));
+for (const file of ['WorkspaceAudioRouter.js','MediaRepository.js','ExportTrackLibrary.js','Mp3ExportCore.js','Mp3Exporter.js','mp3-export-worker.js','vendor/lamejs/lame.min.js','vendor/lamejs/LICENSE','vendor/lamejs/NOTICE.md','MultitrackPlayerElement.js', 'SessionAudioStore.js', 'MultitrackState.js', 'PeakNormalization.js', 'SixStemReconstruction.js', 'SeparationMixer.js', 'MixWaveform.js', 'SeparationWorkflow.js', 'CompactMultitrackView.js', 'CompactWaveform.js', 'vendor/wavesurfer/renderer.js', 'vendor/wavesurfer/renderer-utils.js', 'vendor/wavesurfer/event-emitter.js', 'vendor/wavesurfer/reactive/store.js', 'vendor/wavesurfer/reactive/drag-stream.js', 'vendor/wavesurfer/reactive/scroll-stream.js', 'vendor/wavesurfer/reactive/event-streams.js', 'vendor/wavesurfer/LICENSE', 'vendor/wavesurfer/NOTICE.md', 'vendor/wavesurfer/integrity.json', 'BenchmarkInputs.js', 'fixtures/music/slow-motion-dream.mp3', 'fixtures/music/slow-motion-dream.json', 'fixtures/music/NOTICE.md', 'OnnxRuntimeConfig.js', 'OnnxDemucsRunner.js', 'OnnxCoreModel.js', 'BackendPolicy.js', 'AudioComparison.js', 'onnx-worker.js', 'webgpu-benchmark.html', 'webgpu-benchmark.js', 'vendor/demucs-js/apply.js', 'vendor/demucs-js/LICENSE.md', 'vendor/demucs-js/NOTICE.md', 'vendor/onnxruntime-web/ort.webgpu.min.js', 'vendor/onnxruntime-web/ort-wasm-simd-threaded.jsep.js', 'vendor/onnxruntime-web/ort-wasm-simd-threaded.jsep.wasm', 'vendor/onnxruntime-web/LICENSE', 'vendor/onnxruntime-web/NOTICE.md', 'vendor/onnxruntime-web/integrity.json', 'ChunkTools.js', 'ProgressiveDemucsRunner.js', 'ProgressiveMultitrackEngine.js', 'progressive-worker.js', 'DemoWaveform.js', 'ModelCache.js', 'ModelDownloadManager.js', 'DownloadsView.js', 'Capabilities.js', 'DemucsRunner.js', 'demucs-worker.js', 'MultitrackEngine.js', 'AudioData.js', 'models.json', 'vendor/demucs-wasm/demucs_onnx_simd.js', 'vendor/demucs-wasm/demucs_onnx_simd.wasm', 'vendor/demucs-wasm/LICENSE', 'vendor/demucs-wasm/NOTICE.md', 'fixtures/catalog.json', 'fixtures/cache-test-4.json', 'fixtures/cache-test-5.json', 'fixtures/LICENSE.txt']) await required(join(dist, 'source-separation', file));
 await required(join(dist, 'source-separation/SeparationProgress.js'));
 await required(join(dist, 'source-separation/bootstrap.js'));
 await required(join(dist, 'source-separation/ModelStatus.js'));
@@ -128,6 +158,7 @@ await required(join(dist,'source-separation/GAME_REFERENCE_REVIEW.md'));
 for (const file of ['WebNNParity.js','webnn-demucs4.html','webnn-demucs4.js','webnn-demucs4-worker.js','WEBNN_DEMUCS4_LAB.md','research/webnn-runtime.json','research/webnn-demucs4-audit.json']) await required(join(dist,'source-separation',file));
 
 await required(join(dist,'source-separation/WebNNDevice.js'));
+for(const file of ['WebNNPlayback.js','WebNNRuntime.js','webnn-playback-worker.js','WebNNExperiment.js','webnn-diagnostics.html','webnn-diagnostics.js','webnn-diagnostics-worker.js','WEBNN_FIREFOX_BENCHMARK.md'])await required(join(dist,'source-separation',file));
 
 // Source-only performance lab: local research weights/runtime remain external.
 for (const file of ['WebNNBenchmark.js','webnn-performance.html','webnn-performance.js','webnn-performance-worker.js','WEBNN_PERFORMANCE.md']) await required(join(dist,'source-separation',file));

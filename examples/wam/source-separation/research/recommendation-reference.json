@@ -1,0 +1,355 @@
+{
+  "source": "User CSV \u00b7 30 October 2026 \u00b7 one independent session per configuration",
+  "sourceCsvSha256": "8257bdae5232e07343d64e30d1b8ca5f77cac6292f8a3419eed776d27e422031",
+  "limitations": "CSV does not include browser/machine/audio identity or per-pass timings; excerpt length inferred from median/RTF. Local measurements take precedence.",
+  "runs": [
+    {
+      "config": {
+        "id": "demucs4-wasm-1",
+        "model": "demucs4",
+        "backend": "wasm",
+        "session": 1
+      },
+      "implementation": "onnxruntime",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 1743.4650000035763
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 11446.260000020266,
+        "retained": {
+          "medianMs": 11085.112500011921
+        }
+      },
+      "nativeNumericalQualification": "",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "demucs4-webgpu-1",
+        "model": "demucs4",
+        "backend": "webgpu",
+        "session": 1
+      },
+      "implementation": "onnxruntime",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 1726.3549999892712
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 3091.800000011921,
+        "retained": {
+          "medianMs": 2717.327499985695
+        }
+      },
+      "nativeNumericalQualification": "",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "demucs4-webnn-cpu-1-direct",
+        "model": "demucs4",
+        "backend": "webnn-cpu",
+        "session": 1
+      },
+      "implementation": "direct-webnn",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 6243.520000010729
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 6006.9800000190735,
+        "retained": {
+          "medianMs": 5392.894999995828
+        }
+      },
+      "nativeNumericalQualification": "passed PCM parity for this excerpt",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "demucs4-webnn-cpu-1-onnxruntime",
+        "model": "demucs4",
+        "backend": "webnn-cpu",
+        "session": 1
+      },
+      "implementation": "onnxruntime",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 8102.640000015497
+      },
+      "summary": {
+        "durationSeconds": 5.999999999999999,
+        "firstMs": 5791.310000002384,
+        "retained": {
+          "medianMs": 5318.257499992847
+        }
+      },
+      "nativeNumericalQualification": "",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "demucs4-webnn-gpu-1-direct",
+        "model": "demucs4",
+        "backend": "webnn-gpu",
+        "session": 1
+      },
+      "implementation": "direct-webnn",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 11132.184999972582
+      },
+      "summary": {
+        "durationSeconds": 6.000000000000001,
+        "firstMs": 2427.020000010729,
+        "retained": {
+          "medianMs": 2619.457500010729
+        }
+      },
+      "nativeNumericalQualification": "passed PCM parity for this excerpt",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "demucs4-webnn-gpu-1-onnxruntime",
+        "model": "demucs4",
+        "backend": "webnn-gpu",
+        "session": 1
+      },
+      "implementation": "onnxruntime",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 13809.92000001669
+      },
+      "summary": {
+        "durationSeconds": 6.000000000000001,
+        "firstMs": 2423.1949999928474,
+        "retained": {
+          "medianMs": 2461.530000001192
+        }
+      },
+      "nativeNumericalQualification": "",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "demucs4-webnn-npu-1-direct",
+        "model": "demucs4",
+        "backend": "webnn-npu",
+        "session": 1
+      },
+      "implementation": "direct-webnn",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 11016.030000001192
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 2445.435000002384,
+        "retained": {
+          "medianMs": 2632.8049999922514
+        }
+      },
+      "nativeNumericalQualification": "passed PCM parity for this excerpt",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "demucs4-webnn-npu-1-onnxruntime",
+        "model": "demucs4",
+        "backend": "webnn-npu",
+        "session": 1
+      },
+      "implementation": "onnxruntime",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 13922.485000014305
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 2442.9900000095367,
+        "retained": {
+          "medianMs": 2462.077500000596
+        }
+      },
+      "nativeNumericalQualification": "",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "roformer6-wasm-1",
+        "model": "roformer6",
+        "backend": "wasm",
+        "session": 1
+      },
+      "implementation": "onnxruntime",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 2938.3700000047684
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 72290.07499998808,
+        "retained": {
+          "medianMs": 71174.94499999285
+        }
+      },
+      "nativeNumericalQualification": "",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "roformer6-webgpu-1",
+        "model": "roformer6",
+        "backend": "webgpu",
+        "session": 1
+      },
+      "implementation": "onnxruntime",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 2952.1200000047684
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 6135.219999998808,
+        "retained": {
+          "medianMs": 5052.502499997616
+        }
+      },
+      "nativeNumericalQualification": "",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "roformer6-webnn-cpu-1-direct",
+        "model": "roformer6",
+        "backend": "webnn-cpu",
+        "session": 1
+      },
+      "implementation": "direct-webnn",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 24814.259999990463
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 47639.88499999046,
+        "retained": {
+          "medianMs": 46286.285000011325
+        }
+      },
+      "nativeNumericalQualification": "passed PCM parity for this excerpt",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "roformer6-webnn-cpu-1-onnxruntime",
+        "model": "roformer6",
+        "backend": "webnn-cpu",
+        "session": 1
+      },
+      "implementation": "onnxruntime",
+      "status": "error",
+      "phases": {
+        "sessionCreateMs": 11466.544999986887
+      },
+      "summary": null,
+      "nativeNumericalQualification": "",
+      "error": {
+        "message": "WebNN context lost: WebNN context is lost due to connection error."
+      }
+    },
+    {
+      "config": {
+        "id": "roformer6-webnn-gpu-1-direct",
+        "model": "roformer6",
+        "backend": "webnn-gpu",
+        "session": 1
+      },
+      "implementation": "direct-webnn",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 111348.68999999762
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 3978.7049999833107,
+        "retained": {
+          "medianMs": 2465.479999989271
+        }
+      },
+      "nativeNumericalQualification": "passed PCM parity for this excerpt",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "roformer6-webnn-gpu-1-onnxruntime",
+        "model": "roformer6",
+        "backend": "webnn-gpu",
+        "session": 1
+      },
+      "implementation": "onnxruntime",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 79569.94999998808
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 12059.149999976158,
+        "retained": {
+          "medianMs": 11051.51250000298
+        }
+      },
+      "nativeNumericalQualification": "",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "roformer6-webnn-npu-1-direct",
+        "model": "roformer6",
+        "backend": "webnn-npu",
+        "session": 1
+      },
+      "implementation": "direct-webnn",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 110450.00999999046
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 2615.844999998808,
+        "retained": {
+          "medianMs": 2005.5524999946356
+        }
+      },
+      "nativeNumericalQualification": "passed PCM parity for this excerpt",
+      "error": null
+    },
+    {
+      "config": {
+        "id": "roformer6-webnn-npu-1-onnxruntime",
+        "model": "roformer6",
+        "backend": "webnn-npu",
+        "session": 1
+      },
+      "implementation": "onnxruntime",
+      "status": "ok",
+      "phases": {
+        "sessionCreateMs": 79471.62999999523
+      },
+      "summary": {
+        "durationSeconds": 6.0,
+        "firstMs": 12402.409999996424,
+        "retained": {
+          "medianMs": 10429.814999997616
+        }
+      },
+      "nativeNumericalQualification": "",
+      "error": null
+    }
+  ]
+}

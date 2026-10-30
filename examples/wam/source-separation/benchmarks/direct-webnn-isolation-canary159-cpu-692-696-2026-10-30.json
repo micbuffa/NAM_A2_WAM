@@ -1,0 +1,1101 @@
+{
+  "protocol": "direct-webnn-graph-isolation-v1",
+  "date": "2026-10-30T10:00:59.619Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
+  "config": {
+    "device": "cpu",
+    "start": 692,
+    "step": 1,
+    "end": 696
+  },
+  "status": "completed",
+  "runs": [
+    {
+      "kind": "baseline",
+      "index": null,
+      "device": "cpu",
+      "status": "ok",
+      "physicalDeviceVerified": false,
+      "contextMs": 3.240000009536743,
+      "operationCount": 1,
+      "constructionMs": 0.26499998569488525,
+      "buildMs": 184.32000002264977,
+      "totalMs": 188.17500001192093
+    },
+    {
+      "kind": "original",
+      "index": null,
+      "device": "cpu",
+      "status": "error",
+      "physicalDeviceVerified": false,
+      "contextMs": 0.6300000250339508,
+      "cutInputs": {},
+      "operationCount": 1816,
+      "operation": "original outputs",
+      "outputs": {
+        "5073": {
+          "shape": [
+            1,
+            4,
+            2,
+            343980
+          ],
+          "dataType": "float32"
+        },
+        "output": {
+          "shape": [
+            1,
+            4,
+            4,
+            2048,
+            336
+          ],
+          "dataType": "float32"
+        }
+      },
+      "constructionMs": 28.435000002384186,
+      "buildMs": 1004.7250000238419,
+      "error": {
+        "name": "UnknownError",
+        "message": "Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices.",
+        "phase": "build",
+        "stack": "UnknownError: Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices."
+      },
+      "totalMs": 1034.125
+    },
+    {
+      "kind": "ancestors",
+      "index": 692,
+      "device": "cpu",
+      "status": "ok",
+      "physicalDeviceVerified": false,
+      "contextMs": 8.129999995231628,
+      "cutInputs": {},
+      "operationCount": 322,
+      "operation": "reshape",
+      "sourceLabel": "/crosstransformer/layers.0/self_attn/Squeeze",
+      "outputs": {
+        "probe_0": {
+          "shape": [
+            3,
+            2688,
+            1,
+            512
+          ],
+          "dataType": "float32"
+        }
+      },
+      "constructionMs": 7.4200000166893005,
+      "buildMs": 1074.1749999821186,
+      "totalMs": 1090.0799999833107
+    },
+    {
+      "kind": "ancestors",
+      "index": 693,
+      "device": "cpu",
+      "status": "ok",
+      "physicalDeviceVerified": false,
+      "contextMs": 23.435000002384186,
+      "cutInputs": {},
+      "operationCount": 323,
+      "operation": "gather",
+      "sourceLabel": "/crosstransformer/layers.0/self_attn/Gather_1",
+      "outputs": {
+        "probe_0": {
+          "shape": [
+            2688,
+            1,
+            512
+          ],
+          "dataType": "float32"
+        }
+      },
+      "constructionMs": 6.214999973773956,
+      "buildMs": 1047.905000001192,
+      "totalMs": 1077.875
+    },
+    {
+      "kind": "ancestors",
+      "index": 694,
+      "device": "cpu",
+      "status": "error",
+      "physicalDeviceVerified": false,
+      "contextMs": 27.814999997615814,
+      "cutInputs": {},
+      "operationCount": 324,
+      "operation": "reshape",
+      "sourceLabel": "/crosstransformer/layers.0/self_attn/Reshape_4",
+      "outputs": {
+        "probe_0": {
+          "shape": [
+            2688,
+            8,
+            64
+          ],
+          "dataType": "float32"
+        }
+      },
+      "constructionMs": 6.7049999833106995,
+      "buildMs": 298.2350000143051,
+      "error": {
+        "name": "UnknownError",
+        "message": "Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices.",
+        "phase": "build",
+        "stack": "UnknownError: Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices."
+      },
+      "totalMs": 333.1550000011921
+    },
+    {
+      "kind": "single",
+      "index": 694,
+      "device": "cpu",
+      "status": "ok",
+      "physicalDeviceVerified": false,
+      "contextMs": 1.195000022649765,
+      "cutInputs": {
+        "v717": {
+          "shape": [
+            2688,
+            1,
+            512
+          ],
+          "dataType": "float32"
+        }
+      },
+      "operationCount": 1,
+      "operation": "reshape",
+      "sourceLabel": "/crosstransformer/layers.0/self_attn/Reshape_4",
+      "outputs": {
+        "probe_0": {
+          "shape": [
+            2688,
+            8,
+            64
+          ],
+          "dataType": "float32"
+        }
+      },
+      "constructionMs": 0.9149999916553497,
+      "buildMs": 171.52000001072884,
+      "totalMs": 173.82499998807907
+    },
+    {
+      "kind": "ancestors",
+      "index": 695,
+      "device": "cpu",
+      "status": "error",
+      "physicalDeviceVerified": false,
+      "contextMs": 0.6949999928474426,
+      "cutInputs": {},
+      "operationCount": 325,
+      "operation": "transpose",
+      "sourceLabel": "/crosstransformer/layers.0/self_attn/Transpose_3",
+      "outputs": {
+        "probe_0": {
+          "shape": [
+            8,
+            2688,
+            64
+          ],
+          "dataType": "float32"
+        }
+      },
+      "constructionMs": 6.090000003576279,
+      "buildMs": 286.74000000953674,
+      "error": {
+        "name": "UnknownError",
+        "message": "Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices.",
+        "phase": "build",
+        "stack": "UnknownError: Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices."
+      },
+      "totalMs": 293.7350000143051
+    },
+    {
+      "kind": "single",
+      "index": 695,
+      "device": "cpu",
+      "status": "ok",
+      "physicalDeviceVerified": false,
+      "contextMs": 1.604999989271164,
+      "cutInputs": {
+        "v718": {
+          "shape": [
+            2688,
+            8,
+            64
+          ],
+          "dataType": "float32"
+        }
+      },
+      "operationCount": 1,
+      "operation": "transpose",
+      "sourceLabel": "/crosstransformer/layers.0/self_attn/Transpose_3",
+      "outputs": {
+        "probe_0": {
+          "shape": [
+            8,
+            2688,
+            64
+          ],
+          "dataType": "float32"
+        }
+      },
+      "constructionMs": 0.9399999976158142,
+      "buildMs": 180.5300000011921,
+      "totalMs": 183.3250000178814
+    },
+    {
+      "kind": "ancestors",
+      "index": 696,
+      "device": "cpu",
+      "status": "error",
+      "physicalDeviceVerified": false,
+      "contextMs": 0.5750000178813934,
+      "cutInputs": {},
+      "operationCount": 326,
+      "operation": "reshape",
+      "sourceLabel": "/crosstransformer/layers.0/self_attn/Reshape_7",
+      "outputs": {
+        "probe_0": {
+          "shape": [
+            1,
+            8,
+            2688,
+            64
+          ],
+          "dataType": "float32"
+        }
+      },
+      "constructionMs": 6.104999989271164,
+      "buildMs": 301.6200000047684,
+      "error": {
+        "name": "UnknownError",
+        "message": "Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices.",
+        "phase": "build",
+        "stack": "UnknownError: Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices."
+      },
+      "totalMs": 308.52500000596046
+    },
+    {
+      "kind": "single",
+      "index": 696,
+      "device": "cpu",
+      "status": "ok",
+      "physicalDeviceVerified": false,
+      "contextMs": 1.4350000023841858,
+      "cutInputs": {
+        "v719": {
+          "shape": [
+            8,
+            2688,
+            64
+          ],
+          "dataType": "float32"
+        }
+      },
+      "operationCount": 1,
+      "operation": "reshape",
+      "sourceLabel": "/crosstransformer/layers.0/self_attn/Reshape_7",
+      "outputs": {
+        "probe_0": {
+          "shape": [
+            1,
+            8,
+            2688,
+            64
+          ],
+          "dataType": "float32"
+        }
+      },
+      "constructionMs": 0.7399999797344208,
+      "buildMs": 177.84000000357628,
+      "totalMs": 180.20500001311302
+    }
+  ],
+  "events": [
+    {
+      "type": "progress",
+      "message": "Loading and verifying Demucs graph and weights…",
+      "at": "2026-10-30T10:00:59.644Z"
+    },
+    {
+      "type": "identity",
+      "model": {
+        "graph": {
+          "url": "./model-assets/direct-webnn/demucs4.graph.json",
+          "bytes": 292558,
+          "sha256": "cca2a3f526631041a53b02aabce987fc56d89bf69fdba1d20fd3e9168aa330c6"
+        },
+        "weights": {
+          "url": "demucs4.weights.bin",
+          "bytes": 209127568,
+          "sha256": "263f8f3f38a9a43c382a41279e7be8f7a0e591e9576f712df68bc3cce8eaefbf"
+        },
+        "operations": 1816,
+        "sourceSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748"
+      },
+      "operationCount": 1816,
+      "at": "2026-10-30T10:00:59.956Z"
+    },
+    {
+      "type": "probe",
+      "kind": "baseline",
+      "at": "2026-10-30T10:01:00.043Z"
+    },
+    {
+      "type": "progress",
+      "message": "baseline  · context",
+      "at": "2026-10-30T10:01:00.043Z"
+    },
+    {
+      "type": "progress",
+      "message": "baseline  · construction",
+      "at": "2026-10-30T10:01:00.047Z"
+    },
+    {
+      "type": "progress",
+      "message": "baseline  · build",
+      "at": "2026-10-30T10:01:00.047Z"
+    },
+    {
+      "type": "result",
+      "record": {
+        "kind": "baseline",
+        "index": null,
+        "device": "cpu",
+        "status": "ok",
+        "physicalDeviceVerified": false,
+        "contextMs": 3.240000009536743,
+        "operationCount": 1,
+        "constructionMs": 0.26499998569488525,
+        "buildMs": 184.32000002264977,
+        "totalMs": 188.17500001192093
+      },
+      "at": "2026-10-30T10:01:00.231Z"
+    },
+    {
+      "type": "probe",
+      "kind": "original",
+      "at": "2026-10-30T10:01:00.232Z"
+    },
+    {
+      "type": "progress",
+      "message": "original  · context",
+      "at": "2026-10-30T10:01:00.232Z"
+    },
+    {
+      "type": "progress",
+      "message": "original  · construction",
+      "at": "2026-10-30T10:01:00.233Z"
+    },
+    {
+      "type": "progress",
+      "message": "original  · build",
+      "at": "2026-10-30T10:01:00.261Z"
+    },
+    {
+      "type": "result",
+      "record": {
+        "kind": "original",
+        "index": null,
+        "device": "cpu",
+        "status": "error",
+        "physicalDeviceVerified": false,
+        "contextMs": 0.6300000250339508,
+        "cutInputs": {},
+        "operationCount": 1816,
+        "operation": "original outputs",
+        "outputs": {
+          "5073": {
+            "shape": [
+              1,
+              4,
+              2,
+              343980
+            ],
+            "dataType": "float32"
+          },
+          "output": {
+            "shape": [
+              1,
+              4,
+              4,
+              2048,
+              336
+            ],
+            "dataType": "float32"
+          }
+        },
+        "constructionMs": 28.435000002384186,
+        "buildMs": 1004.7250000238419,
+        "error": {
+          "name": "UnknownError",
+          "message": "Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices.",
+          "phase": "build",
+          "stack": "UnknownError: Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices."
+        },
+        "totalMs": 1034.125
+      },
+      "at": "2026-10-30T10:01:01.266Z"
+    },
+    {
+      "type": "probe",
+      "kind": "ancestors",
+      "index": 692,
+      "at": "2026-10-30T10:01:01.271Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 692 · context",
+      "at": "2026-10-30T10:01:01.271Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 692 · construction",
+      "at": "2026-10-30T10:01:01.274Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 692 · build",
+      "at": "2026-10-30T10:01:01.281Z"
+    },
+    {
+      "type": "result",
+      "record": {
+        "kind": "ancestors",
+        "index": 692,
+        "device": "cpu",
+        "status": "ok",
+        "physicalDeviceVerified": false,
+        "contextMs": 8.129999995231628,
+        "cutInputs": {},
+        "operationCount": 322,
+        "operation": "reshape",
+        "sourceLabel": "/crosstransformer/layers.0/self_attn/Squeeze",
+        "outputs": {
+          "probe_0": {
+            "shape": [
+              3,
+              2688,
+              1,
+              512
+            ],
+            "dataType": "float32"
+          }
+        },
+        "constructionMs": 7.4200000166893005,
+        "buildMs": 1074.1749999821186,
+        "totalMs": 1090.0799999833107
+      },
+      "at": "2026-10-30T10:01:02.356Z"
+    },
+    {
+      "type": "probe",
+      "kind": "ancestors",
+      "index": 693,
+      "at": "2026-10-30T10:01:02.360Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 693 · context",
+      "at": "2026-10-30T10:01:02.360Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 693 · construction",
+      "at": "2026-10-30T10:01:02.379Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 693 · build",
+      "at": "2026-10-30T10:01:02.386Z"
+    },
+    {
+      "type": "result",
+      "record": {
+        "kind": "ancestors",
+        "index": 693,
+        "device": "cpu",
+        "status": "ok",
+        "physicalDeviceVerified": false,
+        "contextMs": 23.435000002384186,
+        "cutInputs": {},
+        "operationCount": 323,
+        "operation": "gather",
+        "sourceLabel": "/crosstransformer/layers.0/self_attn/Gather_1",
+        "outputs": {
+          "probe_0": {
+            "shape": [
+              2688,
+              1,
+              512
+            ],
+            "dataType": "float32"
+          }
+        },
+        "constructionMs": 6.214999973773956,
+        "buildMs": 1047.905000001192,
+        "totalMs": 1077.875
+      },
+      "at": "2026-10-30T10:01:03.434Z"
+    },
+    {
+      "type": "probe",
+      "kind": "ancestors",
+      "index": 694,
+      "at": "2026-10-30T10:01:03.438Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 694 · context",
+      "at": "2026-10-30T10:01:03.438Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 694 · construction",
+      "at": "2026-10-30T10:01:03.462Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 694 · build",
+      "at": "2026-10-30T10:01:03.469Z"
+    },
+    {
+      "type": "result",
+      "record": {
+        "kind": "ancestors",
+        "index": 694,
+        "device": "cpu",
+        "status": "error",
+        "physicalDeviceVerified": false,
+        "contextMs": 27.814999997615814,
+        "cutInputs": {},
+        "operationCount": 324,
+        "operation": "reshape",
+        "sourceLabel": "/crosstransformer/layers.0/self_attn/Reshape_4",
+        "outputs": {
+          "probe_0": {
+            "shape": [
+              2688,
+              8,
+              64
+            ],
+            "dataType": "float32"
+          }
+        },
+        "constructionMs": 6.7049999833106995,
+        "buildMs": 298.2350000143051,
+        "error": {
+          "name": "UnknownError",
+          "message": "Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices.",
+          "phase": "build",
+          "stack": "UnknownError: Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices."
+        },
+        "totalMs": 333.1550000011921
+      },
+      "at": "2026-10-30T10:01:03.767Z"
+    },
+    {
+      "type": "probe",
+      "kind": "single",
+      "index": 694,
+      "at": "2026-10-30T10:01:03.768Z"
+    },
+    {
+      "type": "progress",
+      "message": "single 694 · context",
+      "at": "2026-10-30T10:01:03.768Z"
+    },
+    {
+      "type": "progress",
+      "message": "single 694 · construction",
+      "at": "2026-10-30T10:01:03.772Z"
+    },
+    {
+      "type": "progress",
+      "message": "single 694 · build",
+      "at": "2026-10-30T10:01:03.772Z"
+    },
+    {
+      "type": "result",
+      "record": {
+        "kind": "single",
+        "index": 694,
+        "device": "cpu",
+        "status": "ok",
+        "physicalDeviceVerified": false,
+        "contextMs": 1.195000022649765,
+        "cutInputs": {
+          "v717": {
+            "shape": [
+              2688,
+              1,
+              512
+            ],
+            "dataType": "float32"
+          }
+        },
+        "operationCount": 1,
+        "operation": "reshape",
+        "sourceLabel": "/crosstransformer/layers.0/self_attn/Reshape_4",
+        "outputs": {
+          "probe_0": {
+            "shape": [
+              2688,
+              8,
+              64
+            ],
+            "dataType": "float32"
+          }
+        },
+        "constructionMs": 0.9149999916553497,
+        "buildMs": 171.52000001072884,
+        "totalMs": 173.82499998807907
+      },
+      "at": "2026-10-30T10:01:03.941Z"
+    },
+    {
+      "type": "probe",
+      "kind": "ancestors",
+      "index": 695,
+      "at": "2026-10-30T10:01:03.942Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 695 · context",
+      "at": "2026-10-30T10:01:03.942Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 695 · construction",
+      "at": "2026-10-30T10:01:03.944Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 695 · build",
+      "at": "2026-10-30T10:01:03.948Z"
+    },
+    {
+      "type": "result",
+      "record": {
+        "kind": "ancestors",
+        "index": 695,
+        "device": "cpu",
+        "status": "error",
+        "physicalDeviceVerified": false,
+        "contextMs": 0.6949999928474426,
+        "cutInputs": {},
+        "operationCount": 325,
+        "operation": "transpose",
+        "sourceLabel": "/crosstransformer/layers.0/self_attn/Transpose_3",
+        "outputs": {
+          "probe_0": {
+            "shape": [
+              8,
+              2688,
+              64
+            ],
+            "dataType": "float32"
+          }
+        },
+        "constructionMs": 6.090000003576279,
+        "buildMs": 286.74000000953674,
+        "error": {
+          "name": "UnknownError",
+          "message": "Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices.",
+          "phase": "build",
+          "stack": "UnknownError: Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices."
+        },
+        "totalMs": 293.7350000143051
+      },
+      "at": "2026-10-30T10:01:04.235Z"
+    },
+    {
+      "type": "probe",
+      "kind": "single",
+      "index": 695,
+      "at": "2026-10-30T10:01:04.236Z"
+    },
+    {
+      "type": "progress",
+      "message": "single 695 · context",
+      "at": "2026-10-30T10:01:04.236Z"
+    },
+    {
+      "type": "progress",
+      "message": "single 695 · construction",
+      "at": "2026-10-30T10:01:04.241Z"
+    },
+    {
+      "type": "progress",
+      "message": "single 695 · build",
+      "at": "2026-10-30T10:01:04.241Z"
+    },
+    {
+      "type": "result",
+      "record": {
+        "kind": "single",
+        "index": 695,
+        "device": "cpu",
+        "status": "ok",
+        "physicalDeviceVerified": false,
+        "contextMs": 1.604999989271164,
+        "cutInputs": {
+          "v718": {
+            "shape": [
+              2688,
+              8,
+              64
+            ],
+            "dataType": "float32"
+          }
+        },
+        "operationCount": 1,
+        "operation": "transpose",
+        "sourceLabel": "/crosstransformer/layers.0/self_attn/Transpose_3",
+        "outputs": {
+          "probe_0": {
+            "shape": [
+              8,
+              2688,
+              64
+            ],
+            "dataType": "float32"
+          }
+        },
+        "constructionMs": 0.9399999976158142,
+        "buildMs": 180.5300000011921,
+        "totalMs": 183.3250000178814
+      },
+      "at": "2026-10-30T10:01:04.418Z"
+    },
+    {
+      "type": "probe",
+      "kind": "ancestors",
+      "index": 696,
+      "at": "2026-10-30T10:01:04.419Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 696 · context",
+      "at": "2026-10-30T10:01:04.419Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 696 · construction",
+      "at": "2026-10-30T10:01:04.419Z"
+    },
+    {
+      "type": "progress",
+      "message": "ancestors 696 · build",
+      "at": "2026-10-30T10:01:04.425Z"
+    },
+    {
+      "type": "result",
+      "record": {
+        "kind": "ancestors",
+        "index": 696,
+        "device": "cpu",
+        "status": "error",
+        "physicalDeviceVerified": false,
+        "contextMs": 0.5750000178813934,
+        "cutInputs": {},
+        "operationCount": 326,
+        "operation": "reshape",
+        "sourceLabel": "/crosstransformer/layers.0/self_attn/Reshape_7",
+        "outputs": {
+          "probe_0": {
+            "shape": [
+              1,
+              8,
+              2688,
+              64
+            ],
+            "dataType": "float32"
+          }
+        },
+        "constructionMs": 6.104999989271164,
+        "buildMs": 301.6200000047684,
+        "error": {
+          "name": "UnknownError",
+          "message": "Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices.",
+          "phase": "build",
+          "stack": "UnknownError: Failed to execute 'build' on 'MLGraphBuilder': Failed to get compiled graph devices."
+        },
+        "totalMs": 308.52500000596046
+      },
+      "at": "2026-10-30T10:01:04.727Z"
+    },
+    {
+      "type": "probe",
+      "kind": "single",
+      "index": 696,
+      "at": "2026-10-30T10:01:04.728Z"
+    },
+    {
+      "type": "progress",
+      "message": "single 696 · context",
+      "at": "2026-10-30T10:01:04.728Z"
+    },
+    {
+      "type": "progress",
+      "message": "single 696 · construction",
+      "at": "2026-10-30T10:01:04.733Z"
+    },
+    {
+      "type": "progress",
+      "message": "single 696 · build",
+      "at": "2026-10-30T10:01:04.734Z"
+    },
+    {
+      "type": "result",
+      "record": {
+        "kind": "single",
+        "index": 696,
+        "device": "cpu",
+        "status": "ok",
+        "physicalDeviceVerified": false,
+        "contextMs": 1.4350000023841858,
+        "cutInputs": {
+          "v719": {
+            "shape": [
+              8,
+              2688,
+              64
+            ],
+            "dataType": "float32"
+          }
+        },
+        "operationCount": 1,
+        "operation": "reshape",
+        "sourceLabel": "/crosstransformer/layers.0/self_attn/Reshape_7",
+        "outputs": {
+          "probe_0": {
+            "shape": [
+              1,
+              8,
+              2688,
+              64
+            ],
+            "dataType": "float32"
+          }
+        },
+        "constructionMs": 0.7399999797344208,
+        "buildMs": 177.84000000357628,
+        "totalMs": 180.20500001311302
+      },
+      "at": "2026-10-30T10:01:04.907Z"
+    },
+    {
+      "type": "done",
+      "at": "2026-10-30T10:01:04.908Z"
+    }
+  ],
+  "limitations": "Compilation only; altered outputs/cut edges may change compiler behavior. No physical device or inference validation.",
+  "buildInfo": {
+    "protocol": "webnn-browser-diagnostics-build-v1",
+    "date": "2026-10-30T09:37:11.291Z",
+    "layout": "full-host-with-playback",
+    "git": {
+      "commit": "370e966ed63cafabbd7da0abb8ce8117950a3ba6",
+      "branch": "multitracks",
+      "dirty": true
+    },
+    "files": {
+      "DirectWebNNIsolation.js": {
+        "bytes": 4205,
+        "sha256": "65a2ae78e53583e2d357b17893013103aa608c73ffbf22513e586eb387ceb701"
+      },
+      "direct-webnn-isolation.html": {
+        "bytes": 2372,
+        "sha256": "22f1ba05e52c67ecfcc83c0db3fdfcf9a39a2f0e649fb545abfd033bc8b2bbb7"
+      },
+      "direct-webnn-isolation.js": {
+        "bytes": 3606,
+        "sha256": "4f142ec23fcac55a2c4e46cfe57e993320f16c3e1dfbe22167061631c16d3f78"
+      },
+      "direct-webnn-isolation-worker.js": {
+        "bytes": 1898,
+        "sha256": "6c6a4314ffb9d179c685a8a23548ce5946c6c410f7f3de50155f48e8e40bc730"
+      },
+      "DIRECT_WEBNN_BENCHMARK.md": {
+        "bytes": 9617,
+        "sha256": "5c61ca161ce0ce5bcd38238cb708ceb9b5c9b6f124fbb698d93d09b573b267f7"
+      },
+      "DirectWebNN.js": {
+        "bytes": 10754,
+        "sha256": "978dea8c714aacda0e0144684bce25e4b58c670a383be3239c7c70a546049e49"
+      },
+      "webnn-diagnostics.html": {
+        "bytes": 10945,
+        "sha256": "81d9dadf0dfd8c2d99a5b75621d4bf215c2ff507fbe6f7a3a348fda07d158e0e"
+      },
+      "webnn-diagnostics.css": {
+        "bytes": 2756,
+        "sha256": "f6eaa5a5981cd88bbaaa9a207c8c5adfb1551c2f8ae795a2ca713a3c39e9e3f3"
+      },
+      "webnn-diagnostics.js": {
+        "bytes": 11193,
+        "sha256": "916e862c03b5d67f7593e4d60a24d54a0138752a63953eee70817606593eb4fe"
+      },
+      "webnn-diagnostics-worker.js": {
+        "bytes": 13088,
+        "sha256": "2054251a87c28b1baa25b56804fba783b3769063206fc85bbbb34247fe1823b6"
+      },
+      "WebNNExperiment.js": {
+        "bytes": 7391,
+        "sha256": "2382eac829b60cd8dbdc7ca1d8bbe757a902af908db5a904feeb206c6f2ddb3d"
+      },
+      "WebNNDevice.js": {
+        "bytes": 638,
+        "sha256": "d826f2ca033e6a762919632af1e32da00b45e676d1f9e065d4ebcd1da08b520a"
+      },
+      "WebNNBenchmark.js": {
+        "bytes": 1938,
+        "sha256": "58ac375496bf22e151bf9346af0d51dcf8c284e7a1c6eb332ced6e772be9616f"
+      },
+      "OnnxCoreModel.js": {
+        "bytes": 1574,
+        "sha256": "7a4c0ca6f1d861587e7f3e1aa0ed432535fdc30276161d552c370952e8530198"
+      },
+      "RoformerCoreModel.js": {
+        "bytes": 1458,
+        "sha256": "19fe57ed51b4a4918301f57fa23f04eb97286ca7107e431573c1795816731782"
+      },
+      "RoformerDSP.js": {
+        "bytes": 2805,
+        "sha256": "b1173294122f92babba65192074b673ef2033cfab4ab02a58d4ecc6e71d2dee2"
+      },
+      "CooperativeOnnxSession.js": {
+        "bytes": 5947,
+        "sha256": "7d7b86d7466db8d589e14279e932a2a921b828de70fecb67979d9155d0fa3892"
+      },
+      "ChunkTools.js": {
+        "bytes": 1823,
+        "sha256": "f1766a42d1c18fe6cda16b4909b5b158f45c175f29497792028c07fcbd823f26"
+      },
+      "AudioComparison.js": {
+        "bytes": 2482,
+        "sha256": "684af3c1e839638f73f5e84710d4ebee3bd314c8f13719d97b4015d1faac55b2"
+      },
+      "BenchmarkInputs.js": {
+        "bytes": 1265,
+        "sha256": "04e3c7abc3a84c920e3f75bfd125d9737c2a98508cfb24f20fc8fc7193ccdeb5"
+      },
+      "WEBNN_FIREFOX_BENCHMARK.md": {
+        "bytes": 12814,
+        "sha256": "1f10e00b11d8fc4b4ad24d4473244f6416a166d67da609a90ee94669170a2a4a"
+      },
+      "research/webnn-runtime.json": {
+        "bytes": 2035,
+        "sha256": "d7b05614ee8812d449306662f2d46954126533c965e7d236682375c199a4605c"
+      },
+      "research/roformer-stage-plan.json": {
+        "bytes": 1251361,
+        "sha256": "ed7708fa674f4fa8c0c2fbdeb2aee24af49151868b1375576b5b936225cd22da"
+      },
+      "vendor/demucs-js/apply.js": {
+        "bytes": 24250,
+        "sha256": "814c4b775a9a557ec2f83a2b757611ad0c135eda83a3d94f3793116c981d0bfe"
+      },
+      "vendor/demucs-js/LICENSE.md": {
+        "bytes": 1397,
+        "sha256": "20495f593d841c65c709b0e89765b88c0e21ed17c9b2caf9e3a613ee990715cb"
+      },
+      "vendor/demucs-js/NOTICE.md": {
+        "bytes": 1938,
+        "sha256": "d208e9219745dab0c378f9efe5ea558cbb3c60b42dc172ec772d31e4b5f7e5ec"
+      },
+      "vendor/bs-roformer-web/fft-radix2.js": {
+        "bytes": 2616,
+        "sha256": "3e61413f22d48e1b917166eb4b529ac65daf2d4b5f18a0c73f030216c564df31"
+      },
+      "vendor/bs-roformer-web/LICENSE": {
+        "bytes": 1066,
+        "sha256": "6f55521e794231996e23e663ce005a92a2e259e56c259a742c52bbb0274f6bca"
+      },
+      "vendor/bs-roformer-web/NOTICE.md": {
+        "bytes": 434,
+        "sha256": "610f508556ff3dcb8786ba607d76da4a248cc753d885cc62003612c335765409"
+      },
+      "fixtures/music/slow-motion-dream.mp3": {
+        "bytes": 262867,
+        "sha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507"
+      },
+      "fixtures/music/NOTICE.md": {
+        "bytes": 916,
+        "sha256": "5fa750aec677662524c071002906584a8fd28c707befd169ec1377a93f3d87dc"
+      },
+      "model-assets/ROFORMER_NOTICE.md": {
+        "bytes": 1571,
+        "sha256": "f277ebdc436dfff3062bef9ef87233224989c9f643c0f1c6454276273c1f790a"
+      },
+      "model-assets/LICENSE": {
+        "bytes": 1087,
+        "sha256": "cf9b17822d1fcd4ff32ccbe14183386fb3adf6f2ff92dc184130823f7fc28173"
+      },
+      "model-assets/direct-webnn/index.json": {
+        "bytes": 1103,
+        "sha256": "0216d1c89a9298edf9ad01fdfdc8f06f1c6995bea07adc0e19e92cf45ee1db45"
+      },
+      "model-assets/direct-webnn/demucs4.graph.json": {
+        "bytes": 292558,
+        "sha256": "cca2a3f526631041a53b02aabce987fc56d89bf69fdba1d20fd3e9168aa330c6"
+      },
+      "model-assets/direct-webnn/demucs4.weights.bin": {
+        "bytes": 209127568,
+        "sha256": "263f8f3f38a9a43c382a41279e7be8f7a0e591e9576f712df68bc3cce8eaefbf"
+      },
+      "model-assets/direct-webnn/roformer6.graph.json": {
+        "bytes": 1121203,
+        "sha256": "1c1d678fef12fe0ccbfc533d66a31621d7571a23192f4d4c21d613fd48a572a7"
+      },
+      "model-assets/direct-webnn/roformer6.weights.bin": {
+        "bytes": 699046996,
+        "sha256": "6c18430dc61081159f90c2e3efd0e748c8d1ee2c2030b7fa6c45bef1c2f403f5"
+      },
+      "vendor/onnxruntime-webnn/ort.all.min.js": {
+        "bytes": 819534,
+        "sha256": "b65d9f3a2883afb11d440918a510b3cf070318f14895c539949b06e2f594fcf0"
+      },
+      "vendor/onnxruntime-webnn/ort-wasm-simd-threaded.jsep.js": {
+        "bytes": 46851,
+        "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+      },
+      "vendor/onnxruntime-webnn/ort-wasm-simd-threaded.jsep.wasm": {
+        "bytes": 28312028,
+        "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+      },
+      "vendor/onnxruntime-webnn/LICENSE": {
+        "bytes": 1073,
+        "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+      },
+      "model-assets/htdemucs-core.onnx": {
+        "bytes": 174263526,
+        "sha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748"
+      },
+      "model-assets/bs_roformer_sw_6stem_fp16.onnx": {
+        "bytes": 352778874,
+        "sha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444"
+      }
+    },
+    "missingAssets": []
+  },
+  "model": {
+    "graph": {
+      "url": "./model-assets/direct-webnn/demucs4.graph.json",
+      "bytes": 292558,
+      "sha256": "cca2a3f526631041a53b02aabce987fc56d89bf69fdba1d20fd3e9168aa330c6"
+    },
+    "weights": {
+      "url": "demucs4.weights.bin",
+      "bytes": 209127568,
+      "sha256": "263f8f3f38a9a43c382a41279e7be8f7a0e591e9576f712df68bc3cce8eaefbf"
+    },
+    "operations": 1816,
+    "sourceSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748"
+  },
+  "operationCount": 1816,
+  "activeProbe": null,
+  "finished": "2026-10-30T10:01:04.908Z"
+}

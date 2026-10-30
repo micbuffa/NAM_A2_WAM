@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-30",
+  "protocol": "direct-webnn-offline-lowering-v1",
+  "revision": "demucs-static-scalar-gather-slice-declared-io-order",
+  "nativeWebnnValidated": false,
+  "results": [
+    {
+      "model": "demucs4",
+      "method": "WebNN recipe reconstructed as ONNX for offline numerical lowering verification; NOT native WebNN validation",
+      "seed": 20261030,
+      "input": "independent float32 standard normal * .01; full fixed neural-core input tensors; not audio quality",
+      "outputs": [
+        {
+          "maxAbsolute": 0.0,
+          "relativeRms": 0.0
+        },
+        {
+          "maxAbsolute": 0.0,
+          "relativeRms": 0.0
+        }
+      ],
+      "passed": true,
+      "graphSha256": "b66609b77b1c069dbcb6b62b62601ba2de86164e745b31d00c4999497479fedb",
+      "weightsSha256": "f46205290b6e738fa5025f850680b06d8f1d3163a1c68a102ff500ecd623089d"
+    },
+    {
+      "model": "roformer6",
+      "method": "WebNN recipe reconstructed as ONNX for offline numerical lowering verification; NOT native WebNN validation",
+      "seed": 20261030,
+      "input": "independent float32 standard normal * .01; full fixed neural-core input tensors; not audio quality",
+      "outputs": [
+        {
+          "maxAbsolute": 0.0,
+          "relativeRms": 0.0
+        },
+        {
+          "maxAbsolute": 0.0,
+          "relativeRms": 0.0
+        }
+      ],
+      "passed": true,
+      "graphSha256": "d365682802a998fc62d27b466a62fdfb7ba36ddddb42d42b098d87fd38f43d16",
+      "weightsSha256": "6c18430dc61081159f90c2e3efd0e748c8d1ee2c2030b7fa6c45bef1c2f403f5"
+    }
+  ],
+  "metadataNote": "Only explicit I/O name order arrays added since exact full-core numerical verification; neural operations and weight binaries unchanged."
+}

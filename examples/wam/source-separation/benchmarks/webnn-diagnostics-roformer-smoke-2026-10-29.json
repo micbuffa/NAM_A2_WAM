@@ -1,0 +1,689 @@
+{
+  "protocol": "webnn-browser-diagnostics-v1",
+  "date": "2026-10-29T10:23:08.840Z",
+  "status": "completed",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "hardwareConcurrency": 14,
+  "deviceMemoryGiB": 32,
+  "buildLabel": "Chrome 155 · Roformer functional validation",
+  "machineLabel": "",
+  "notes": "",
+  "crossOriginIsolated": true,
+  "secureContext": true,
+  "initialVisibility": "visible",
+  "visibilityEvents": [],
+  "plan": [
+    {
+      "id": "roformer6-webgpu-1",
+      "model": "roformer6",
+      "backend": "webgpu",
+      "session": 1,
+      "trials": 2,
+      "warmups": 0,
+      "threads": 1,
+      "gpuStrategy": "monolithic",
+      "timeoutSeconds": 300
+    }
+  ],
+  "runs": [
+    {
+      "config": {
+        "id": "roformer6-webgpu-1",
+        "model": "roformer6",
+        "backend": "webgpu",
+        "session": 1,
+        "trials": 2,
+        "warmups": 0,
+        "threads": 1,
+        "gpuStrategy": "monolithic",
+        "timeoutSeconds": 300
+      },
+      "status": "ok",
+      "phases": {
+        "weightsFetchMs": 283.2099999785423,
+        "weightsHashMs": 429.3400000035763,
+        "runtimeVerifyMs": 56.32500001788139,
+        "runtimeImportMs": 34.71999999880791,
+        "adapterMs": 6.0450000166893005,
+        "sessionCreateMs": 6998.2750000059605,
+        "cleanupMs": 50.91499999165535
+      },
+      "trials": [
+        {
+          "index": 0,
+          "processingMs": 6266.419999986887,
+          "firstPcmReadyMs": 3385.6800000071526,
+          "networkAndTransfersMs": 4555.685000002384,
+          "outsideSessionMs": 1710.7349999845028,
+          "stftMs": 233.22999995946884,
+          "istftMs": 1389.8100000023842,
+          "assemblyMs": 63.50000002980232,
+          "webnnReadMs": 0,
+          "webnnWriteSubmissionMs": 0,
+          "webnnDispatchSubmissionMs": 0,
+          "dispatches": 0,
+          "repeatParity": null,
+          "validationMs": 55.849999994039536
+        },
+        {
+          "index": 1,
+          "processingMs": 5933.449999988079,
+          "firstPcmReadyMs": 3021.199999988079,
+          "networkAndTransfersMs": 4187.495000034571,
+          "outsideSessionMs": 1745.9549999535084,
+          "stftMs": 189.8100000321865,
+          "istftMs": 1463.9300000071526,
+          "assemblyMs": 62.314999997615814,
+          "webnnReadMs": 0,
+          "webnnWriteSubmissionMs": 0,
+          "webnnDispatchSubmissionMs": 0,
+          "dispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.11963775809998778
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.11889805606190738
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.1477559638694421
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.15626770138991009
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.000012275662353239733
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.000013499721095452407
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.11319594299595001
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.10387769409329975
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.004041198937881467
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.001771954430111348
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.11193331136782234
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.10131400073701124
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          },
+          "validationMs": 61.060000002384186
+        }
+      ],
+      "warmups": [],
+      "effectiveHardware": "unknown",
+      "wasmFallbackCoverage": "unknown",
+      "warnings": [],
+      "workerTimeOrigin": 1793269388942.05,
+      "receivedEpochMs": 1793269388954.79,
+      "features": {
+        "secureContext": true,
+        "crossOriginIsolated": true,
+        "ml": false,
+        "MLGraphBuilder": false,
+        "webgpu": true
+      },
+      "timingSemantics": "Nested wall spans; dispatch is CPU submission, readTensor includes waiting. Never sum nested spans as device time.",
+      "frames": 264600,
+      "sampleRate": 44100,
+      "model": {
+        "label": "BS Roformer SW · 6 stems",
+        "url": "./model-assets/bs_roformer_sw_6stem_fp16.onnx",
+        "bytes": 352778874,
+        "sha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444",
+        "channels": 12,
+        "windowFrames": 176400,
+        "actualBytes": 352778874,
+        "actualSha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444"
+      },
+      "phase": "cleanupMs",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "adapterInfo": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": ""
+      },
+      "gpuFeatures": [
+        "core-features-and-limits"
+      ],
+      "graphStrategy": "monolithic",
+      "webnnDispatches": 0,
+      "providerEvidence": "webgpu explicitly requested",
+      "summary": {
+        "all": {
+          "count": 2,
+          "minMs": 5933.449999988079,
+          "medianMs": 6099.934999987483,
+          "maxMs": 6266.419999986887,
+          "meanMs": 6099.934999987483,
+          "stddevMs": 166.48499999940395
+        },
+        "retained": {
+          "count": 1,
+          "minMs": 5933.449999988079,
+          "medianMs": 5933.449999988079,
+          "maxMs": 5933.449999988079,
+          "meanMs": 5933.449999988079,
+          "stddevMs": 0
+        },
+        "firstMs": 6266.419999986887,
+        "retainedRtf": 0.9889083333313465,
+        "durationSeconds": 6
+      },
+      "beforeCleanupMs": 20136.094999998808,
+      "totalWorkerMs": 20187.20499998331,
+      "trace": [
+        {
+          "name": "weightsFetchMs",
+          "startMs": 21.325000017881393,
+          "endMs": 304.3449999988079,
+          "durationMs": 283.0199999809265
+        },
+        {
+          "name": "weightsHashMs",
+          "startMs": 304.68000000715256,
+          "endMs": 734.0049999952316,
+          "durationMs": 429.32499998807907
+        },
+        {
+          "name": "runtimeVerifyMs",
+          "startMs": 734.1949999928474,
+          "endMs": 790.5049999952316,
+          "durationMs": 56.310000002384186
+        },
+        {
+          "name": "runtimeImportMs",
+          "startMs": 790.5750000178814,
+          "endMs": 825.2900000214577,
+          "durationMs": 34.71500000357628
+        },
+        {
+          "name": "adapterMs",
+          "startMs": 825.375,
+          "endMs": 831.4050000011921,
+          "durationMs": 6.030000001192093
+        },
+        {
+          "name": "sessionCreateMs",
+          "startMs": 831.4600000083447,
+          "endMs": 7829.7249999940395,
+          "durationMs": 6998.264999985695
+        },
+        {
+          "name": "dsp.stft",
+          "startMs": 7847.9800000190735,
+          "endMs": 7993.379999995232,
+          "durationMs": 145.39999997615814
+        },
+        {
+          "name": "session.run",
+          "startMs": 7994.260000020266,
+          "endMs": 10452.450000017881,
+          "durationMs": 2458.189999997616,
+          "trial": 0
+        },
+        {
+          "name": "dsp.network",
+          "startMs": 7994.219999998808,
+          "endMs": 10452.480000019073,
+          "durationMs": 2458.2600000202656
+        },
+        {
+          "name": "dsp.istft",
+          "startMs": 10452.490000009537,
+          "endMs": 11181.385000020266,
+          "durationMs": 728.8950000107288
+        },
+        {
+          "name": "assembly",
+          "startMs": 11181.5,
+          "endMs": 11216.060000002384,
+          "durationMs": 34.560000002384186
+        },
+        {
+          "name": "dsp.stft",
+          "startMs": 11221.605000019073,
+          "endMs": 11309.435000002384,
+          "durationMs": 87.8299999833107
+        },
+        {
+          "name": "session.run",
+          "startMs": 11309.490000009537,
+          "endMs": 13406.985000014305,
+          "durationMs": 2097.4950000047684,
+          "trial": 0
+        },
+        {
+          "name": "dsp.network",
+          "startMs": 11309.480000019073,
+          "endMs": 13407.004999995232,
+          "durationMs": 2097.524999976158
+        },
+        {
+          "name": "dsp.istft",
+          "startMs": 13407.015000015497,
+          "endMs": 14067.930000007153,
+          "durationMs": 660.9149999916553
+        },
+        {
+          "name": "assembly",
+          "startMs": 14067.97499999404,
+          "endMs": 14096.915000021458,
+          "durationMs": 28.940000027418137
+        },
+        {
+          "name": "dsp.stft",
+          "startMs": 14177.819999992847,
+          "endMs": 14274.520000010729,
+          "durationMs": 96.7000000178814
+        },
+        {
+          "name": "session.run",
+          "startMs": 14274.594999998808,
+          "endMs": 16382.540000021458,
+          "durationMs": 2107.9450000226498,
+          "trial": 1
+        },
+        {
+          "name": "dsp.network",
+          "startMs": 14274.590000003576,
+          "endMs": 16382.550000011921,
+          "durationMs": 2107.9600000083447
+        },
+        {
+          "name": "dsp.istft",
+          "startMs": 16382.564999997616,
+          "endMs": 17141.860000014305,
+          "durationMs": 759.2950000166893
+        },
+        {
+          "name": "assembly",
+          "startMs": 17141.909999996424,
+          "endMs": 17174.240000009537,
+          "durationMs": 32.33000001311302
+        },
+        {
+          "name": "dsp.stft",
+          "startMs": 17179.194999992847,
+          "endMs": 17272.305000007153,
+          "durationMs": 93.11000001430511
+        },
+        {
+          "name": "session.run",
+          "startMs": 17272.340000003576,
+          "endMs": 19351.890000015497,
+          "durationMs": 2079.550000011921,
+          "trial": 1
+        },
+        {
+          "name": "dsp.network",
+          "startMs": 17272.335000008345,
+          "endMs": 19351.90000000596,
+          "durationMs": 2079.564999997616
+        },
+        {
+          "name": "dsp.istft",
+          "startMs": 19351.915000021458,
+          "endMs": 20056.55000001192,
+          "durationMs": 704.6349999904633
+        },
+        {
+          "name": "assembly",
+          "startMs": 20056.585000008345,
+          "endMs": 20086.569999992847,
+          "durationMs": 29.984999984502792
+        },
+        {
+          "name": "cleanupMs",
+          "startMs": 20148.99500000477,
+          "endMs": 20199.844999998808,
+          "durationMs": 50.849999994039536
+        }
+      ],
+      "traceDropped": 0,
+      "apiTotalsMs": {
+        "weightsFetchMs": 283.0199999809265,
+        "weightsHashMs": 429.32499998807907,
+        "runtimeVerifyMs": 56.310000002384186,
+        "runtimeImportMs": 34.71500000357628,
+        "adapterMs": 6.030000001192093,
+        "sessionCreateMs": 6998.264999985695,
+        "dsp.stft": 423.03999999165535,
+        "session.run": 8743.180000036955,
+        "dsp.network": 8743.310000002384,
+        "dsp.istft": 2853.7400000095367,
+        "assembly": 125.81500002741814,
+        "cleanupMs": 50.849999994039536
+      },
+      "apiCounts": {
+        "weightsFetchMs": 1,
+        "weightsHashMs": 1,
+        "runtimeVerifyMs": 1,
+        "runtimeImportMs": 1,
+        "adapterMs": 1,
+        "sessionCreateMs": 1,
+        "dsp.stft": 4,
+        "session.run": 4,
+        "dsp.network": 4,
+        "dsp.istft": 4,
+        "assembly": 4,
+        "cleanupMs": 1
+      },
+      "workerStartupMs": 13.83500000834465,
+      "mainJobWallMs": 20202.780000001192,
+      "inputDeliveryMs": 0.89013671875
+    }
+  ],
+  "sources": {
+    "WebNNExperiment.js": {
+      "bytes": 6103,
+      "sha256": "7de851172f253a174ea2450efdcb392f5055e524092c33de5035ab0267d1cd8e"
+    },
+    "webnn-diagnostics.js": {
+      "bytes": 9559,
+      "sha256": "3ca77236a2173da71aacf29056db02e654807528bd956a7f73fa7d90ed7ba59d"
+    },
+    "webnn-diagnostics-worker.js": {
+      "bytes": 11104,
+      "sha256": "bcdaf741546783f142d597c7fa7c12ddad858057d193dfd8b5ea571b041e122c"
+    },
+    "WebNNDevice.js": {
+      "bytes": 638,
+      "sha256": "d826f2ca033e6a762919632af1e32da00b45e676d1f9e065d4ebcd1da08b520a"
+    },
+    "WebNNBenchmark.js": {
+      "bytes": 1938,
+      "sha256": "58ac375496bf22e151bf9346af0d51dcf8c284e7a1c6eb332ced6e772be9616f"
+    },
+    "OnnxCoreModel.js": {
+      "bytes": 1574,
+      "sha256": "7a4c0ca6f1d861587e7f3e1aa0ed432535fdc30276161d552c370952e8530198"
+    },
+    "RoformerCoreModel.js": {
+      "bytes": 1458,
+      "sha256": "19fe57ed51b4a4918301f57fa23f04eb97286ca7107e431573c1795816731782"
+    },
+    "RoformerDSP.js": {
+      "bytes": 2805,
+      "sha256": "b1173294122f92babba65192074b673ef2033cfab4ab02a58d4ecc6e71d2dee2"
+    },
+    "CooperativeOnnxSession.js": {
+      "bytes": 5947,
+      "sha256": "7d7b86d7466db8d589e14279e932a2a921b828de70fecb67979d9155d0fa3892"
+    },
+    "ChunkTools.js": {
+      "bytes": 1823,
+      "sha256": "f1766a42d1c18fe6cda16b4909b5b158f45c175f29497792028c07fcbd823f26"
+    },
+    "AudioComparison.js": {
+      "bytes": 2482,
+      "sha256": "684af3c1e839638f73f5e84710d4ebee3bd314c8f13719d97b4015d1faac55b2"
+    },
+    "BenchmarkInputs.js": {
+      "bytes": 1265,
+      "sha256": "04e3c7abc3a84c920e3f75bfd125d9737c2a98508cfb24f20fc8fc7193ccdeb5"
+    },
+    "vendor/demucs-js/apply.js": {
+      "bytes": 24250,
+      "sha256": "814c4b775a9a557ec2f83a2b757611ad0c135eda83a3d94f3793116c981d0bfe"
+    },
+    "vendor/bs-roformer-web/fft-radix2.js": {
+      "bytes": 2616,
+      "sha256": "3e61413f22d48e1b917166eb4b529ac65daf2d4b5f18a0c73f030216c564df31"
+    },
+    "research/roformer-stage-plan.json": {
+      "bytes": 1251361,
+      "sha256": "ed7708fa674f4fa8c0c2fbdeb2aee24af49151868b1375576b5b936225cd22da"
+    }
+  },
+  "measurementPolicy": {
+    "runtime": "ORT 1.30.0 for every backend",
+    "implicitBackendRetry": false,
+    "operatorWasmFallback": "possible for WebNN; coverage unknown",
+    "effectiveHardware": "unknown",
+    "cacheState": "new worker/session; OS/driver/HTTP caches not purged",
+    "firstPcm": "available in worker, not audible playback",
+    "profiling": "public API wall spans + performance marks; instrumentation always enabled"
+  },
+  "buildInfo": {
+    "protocol": "webnn-browser-diagnostics-build-v1",
+    "date": "2026-10-29T10:18:13.543Z",
+    "git": {
+      "commit": "370e966ed63cafabbd7da0abb8ce8117950a3ba6",
+      "branch": "multitracks",
+      "dirty": true
+    },
+    "files": {
+      "webnn-diagnostics.html": {
+        "bytes": 5645,
+        "sha256": "549372fa15a4424b3e885dcb3c46d6b1b2c0ba1d0f4945141a15271718db8c7d"
+      },
+      "webnn-diagnostics.css": {
+        "bytes": 2014,
+        "sha256": "70da66758dcf6be9033cf41a86e3fc773944402268e0c45fac07b46ec994a52d"
+      },
+      "webnn-diagnostics.js": {
+        "bytes": 9559,
+        "sha256": "3ca77236a2173da71aacf29056db02e654807528bd956a7f73fa7d90ed7ba59d"
+      },
+      "webnn-diagnostics-worker.js": {
+        "bytes": 11104,
+        "sha256": "bcdaf741546783f142d597c7fa7c12ddad858057d193dfd8b5ea571b041e122c"
+      },
+      "WebNNExperiment.js": {
+        "bytes": 6103,
+        "sha256": "7de851172f253a174ea2450efdcb392f5055e524092c33de5035ab0267d1cd8e"
+      },
+      "WebNNDevice.js": {
+        "bytes": 638,
+        "sha256": "d826f2ca033e6a762919632af1e32da00b45e676d1f9e065d4ebcd1da08b520a"
+      },
+      "WebNNBenchmark.js": {
+        "bytes": 1938,
+        "sha256": "58ac375496bf22e151bf9346af0d51dcf8c284e7a1c6eb332ced6e772be9616f"
+      },
+      "OnnxCoreModel.js": {
+        "bytes": 1574,
+        "sha256": "7a4c0ca6f1d861587e7f3e1aa0ed432535fdc30276161d552c370952e8530198"
+      },
+      "RoformerCoreModel.js": {
+        "bytes": 1458,
+        "sha256": "19fe57ed51b4a4918301f57fa23f04eb97286ca7107e431573c1795816731782"
+      },
+      "RoformerDSP.js": {
+        "bytes": 2805,
+        "sha256": "b1173294122f92babba65192074b673ef2033cfab4ab02a58d4ecc6e71d2dee2"
+      },
+      "CooperativeOnnxSession.js": {
+        "bytes": 5947,
+        "sha256": "7d7b86d7466db8d589e14279e932a2a921b828de70fecb67979d9155d0fa3892"
+      },
+      "ChunkTools.js": {
+        "bytes": 1823,
+        "sha256": "f1766a42d1c18fe6cda16b4909b5b158f45c175f29497792028c07fcbd823f26"
+      },
+      "AudioComparison.js": {
+        "bytes": 2482,
+        "sha256": "684af3c1e839638f73f5e84710d4ebee3bd314c8f13719d97b4015d1faac55b2"
+      },
+      "BenchmarkInputs.js": {
+        "bytes": 1265,
+        "sha256": "04e3c7abc3a84c920e3f75bfd125d9737c2a98508cfb24f20fc8fc7193ccdeb5"
+      },
+      "WEBNN_FIREFOX_BENCHMARK.md": {
+        "bytes": 9094,
+        "sha256": "cbcef9b17b188a7fc578f0562e5f4a10e3af592e7f37a5b75533195aca41a0f9"
+      },
+      "research/webnn-runtime.json": {
+        "bytes": 1431,
+        "sha256": "86e1118ab1a5662ff30e4d1d2958df0036fb3aac3f57bd90816c7740094d0559"
+      },
+      "research/roformer-stage-plan.json": {
+        "bytes": 1251361,
+        "sha256": "ed7708fa674f4fa8c0c2fbdeb2aee24af49151868b1375576b5b936225cd22da"
+      },
+      "vendor/demucs-js/apply.js": {
+        "bytes": 24250,
+        "sha256": "814c4b775a9a557ec2f83a2b757611ad0c135eda83a3d94f3793116c981d0bfe"
+      },
+      "vendor/demucs-js/LICENSE.md": {
+        "bytes": 1397,
+        "sha256": "20495f593d841c65c709b0e89765b88c0e21ed17c9b2caf9e3a613ee990715cb"
+      },
+      "vendor/demucs-js/NOTICE.md": {
+        "bytes": 1938,
+        "sha256": "d208e9219745dab0c378f9efe5ea558cbb3c60b42dc172ec772d31e4b5f7e5ec"
+      },
+      "vendor/bs-roformer-web/fft-radix2.js": {
+        "bytes": 2616,
+        "sha256": "3e61413f22d48e1b917166eb4b529ac65daf2d4b5f18a0c73f030216c564df31"
+      },
+      "vendor/bs-roformer-web/LICENSE": {
+        "bytes": 1066,
+        "sha256": "6f55521e794231996e23e663ce005a92a2e259e56c259a742c52bbb0274f6bca"
+      },
+      "vendor/bs-roformer-web/NOTICE.md": {
+        "bytes": 434,
+        "sha256": "610f508556ff3dcb8786ba607d76da4a248cc753d885cc62003612c335765409"
+      },
+      "fixtures/music/slow-motion-dream.mp3": {
+        "bytes": 262867,
+        "sha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507"
+      },
+      "fixtures/music/NOTICE.md": {
+        "bytes": 916,
+        "sha256": "5fa750aec677662524c071002906584a8fd28c707befd169ec1377a93f3d87dc"
+      },
+      "model-assets/ROFORMER_NOTICE.md": {
+        "bytes": 1571,
+        "sha256": "f277ebdc436dfff3062bef9ef87233224989c9f643c0f1c6454276273c1f790a"
+      },
+      "model-assets/LICENSE": {
+        "bytes": 1087,
+        "sha256": "cf9b17822d1fcd4ff32ccbe14183386fb3adf6f2ff92dc184130823f7fc28173"
+      },
+      "vendor/onnxruntime-webnn/ort.all.min.mjs": {
+        "bytes": 819537,
+        "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+      },
+      "vendor/onnxruntime-webnn/ort-wasm-simd-threaded.jsep.mjs": {
+        "bytes": 46851,
+        "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+      },
+      "vendor/onnxruntime-webnn/ort-wasm-simd-threaded.jsep.wasm": {
+        "bytes": 28312028,
+        "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+      },
+      "vendor/onnxruntime-webnn/LICENSE": {
+        "bytes": 1073,
+        "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+      },
+      "model-assets/htdemucs-core.onnx": {
+        "bytes": 174263526,
+        "sha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748"
+      },
+      "model-assets/bs_roformer_sw_6stem_fp16.onnx": {
+        "bytes": 352778874,
+        "sha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444"
+      },
+      "index.html": {
+        "bytes": 5645,
+        "sha256": "549372fa15a4424b3e885dcb3c46d6b1b2c0ba1d0f4945141a15271718db8c7d"
+      },
+      "_headers": {
+        "bytes": 134,
+        "sha256": "a8a32187f44898f1e5bc9c689700cbadb6d777252fef341dad68782e64951428"
+      },
+      ".htaccess": {
+        "bytes": 296,
+        "sha256": "7ea65562afcc1e7628e652d67a01a172f9d3a8be2ca022f7650c2efcf94a601e"
+      }
+    },
+    "totalBytes": 557842347
+  },
+  "input": {
+    "name": "Slow Motion Dream · CC BY 3.0",
+    "kind": "included-music",
+    "sourceSha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507",
+    "frames": 264600,
+    "sampleRate": 44100,
+    "sourceChannels": 2,
+    "pcmSha256": "b8b64a9db5a52e02bde2efae82e3567bccc2e91b95c520c4a4b67ca450884213",
+    "pcmFormat": "Float32 planar L then R, native little endian on tested browsers",
+    "decodeMs": 29.180000007152557,
+    "preparationMs": 50.58500000834465
+  }
+}

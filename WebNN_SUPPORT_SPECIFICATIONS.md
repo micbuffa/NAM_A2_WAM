@@ -1,3 +1,13 @@
+## 29 octobre 2026 — Banc déployable pour Firefox expérimental [IMPLEMENTED / FIREFOX VALIDATION PENDING]
+
+**Déploiement mesures + écoute :** la distribution complète `dist/NAM_A2_WAM/` contient désormais aussi ce banc à `source-separation/webnn-diagnostics.html`, l’hôte/onglet Multitracks et le lecteur direct `source-separation/`. Un seul dossier à publier en HTTPS. Les imports WebNN et Demucs4 sont adaptés aux chemins locaux de la dist ; le catalogue conserve SHA/version/provenance. `WEBNN_TESTING.md`, `_headers`/`.htaccess` et `source-separation/build-info.json` sont fournis. Voir [guide de déploiement](examples/wam/source-separation/WEBNN_DEPLOYMENT.md). Le dossier autonome `dist/WebNN_Benchmark/` reste une variante mesures seules, sans lecteur. Les tests unitaires restent dans le dépôt. Le lecteur accepte déjà un fichier personnel et WebNN CPU/GPU/NPU pour les deux modèles compatibles, avec le même pipeline progressif et le lecteur ; décocher le repli CPU pour une qualification WebNN stricte. Firefox demeure à valider matériellement chez Paul.
+
+Branche `multitracks`. Le build Firefox n’est pas installé sur la machine de développement ; Paul Adenot testera une version publiée sur sa machine. Nouveau protocole prospectif `webnn-browser-diagnostics-v1`, distinct des campagnes Canary antérieures. Commande `npm run dist:webnn-benchmark` → **`dist/WebNN_Benchmark/`**, autonome et servi en HTTPS : pas de Rails, de compte ou de CDN. Les deux checkpoints et ORT1.30.0 sont hachés et embarqués avec notices/licences. Source : `examples/wam/source-separation/webnn-diagnostics.html` ; guide [WEBNN_FIREFOX_BENCHMARK.md](examples/wam/source-separation/WEBNN_FIREFOX_BENCHMARK.md).
+
+Demucs4 et BS Roformer SW6, cinq backends : WASM, WebGPU, WebNN CPU/GPU/NPU demandés. Graphe monolithique commun par défaut ; option Roformer WebGPU coopérative séparément identifiée. Sessions indépendantes, répétitions, warmups explicites, rotation d’ordre, durée d’extrait, audio personnel, threads WASM et timeout réglables. Toutes les erreurs/absences de support sont exportées ; aucun remplacement automatique de backend. Les replis d’opérateurs ORT restent de couverture inconnue et les préférences acceptées ne prouvent pas le matériel utilisé.
+
+Mesures : entrée/décodage/SHA, démarrage Worker, poids fetch/hash, runtime vérification/import, contexte WebNN ou adapter/device GPU, création de session et compilation, première séparation et passages suivants, `session.run` réseau+transferts, DSP/assemblage, lectures de tenseurs, soumissions dispatch/write, validation hors intervalle de processing et nettoyage. Compteurs/traces d’API publiques, erreurs/stack/phase, empreintes des sources servies et build, visibilité et notes machine/build. Export JSON brut et CSV, checkpoints locaux sans PCM. Marques `webnnlab:` pour corrélation avec un enregistrement externe Firefox Profiler. Les durées imbriquées ne sont pas additives ni des chronos de kernels ; pas de taux de fallback, de consommation ou d’identité NPU inventés. Résultats Firefox attendus, aucun score historique requalifié.
+
 ## 27 octobre 2026 — Fichiers personnels et écoute multipiste [IMPLEMENTED / VALIDATION CANARY PENDING]
 
 La branche `multitracks` propose maintenant **WebNN / GPU, WebNN / CPU, WebNN / NPU** dans Backend, pour **Qualité · Demucs 4 pistes ONNX** et **BS Roformer SW 6 instruments**. La sélection reste volontaire ; WebGPU reste recommandé par défaut. Les anciens modèles ORT 6s/FT et l’aperçu Demucs 2s ne sont pas admis sur WebNN.
@@ -140,3 +150,33 @@ Ajouter uniquement les couples validés à « Change model / settings », avec �
 | 2026-10-25 | WNN-2 terminé, WNN-3 en validation | ORT1.30 isolé,15 exécutions Demucs4 finies ; parité globale réussie, garde de sorties faibles à traiter prospectivement. |
 
 Pour chaque tâche future, remplacer `[TODO]` par `[CURRENT]`, puis `[DONE]` seulement après ses contrôles. Ajouter les liens vers rapports bruts, commandes reproductibles, échecs et versions exactes. Les notes d’écoute restent absentes tant qu’aucun participant n’en a fourni.
+
+## Direct WebNN benchmark increment — 2026-10-30
+
+- [DONE software] D1: offline extraction from both pinned checkpoints into graph recipes and raw typed weights; no ONNX parsing in browser. Source identities and generated hashes retained.
+- [DONE software] D2: direct MLGraphBuilder/MLTensor lifecycle in benchmark Worker, default for WebNN requests, no neural ORT/WASM fallback; WASM/WebGPU unchanged; optional mediated comparison. Graph construction/build/allocation phases and implementation exported under diagnostics-v2.
+- [DONE offline] D3a: seeded full neural-input conversion roundtrip yields identical float32 outputs for both models; Python unit tests and JS API/lifecycle tests. This is not native WebNN qualification.
+- [CURRENT] D3b: native Canary/Firefox PCM parity against WASM and support/error collection; unsupported operations fail explicitly. No native WebNN-capable browser currently controllable.
+- [TODO] D4: independent-session native performance/profiler campaigns, device evidence and analysis with Paul.
+
+Details and deployment: examples/wam/source-separation/DIRECT_WEBNN_BENCHMARK.md. Ordinary multitrack playback remains the prior ORT-backed implementation; no production model/backend default changed.
+
+### Native Demucs compilation isolation [CURRENT]
+
+Provide compiler-only probes on original outputs, selected ancestor subgraphs and standalone endpoints, each with a new context. Export identity, timings, cut descriptors and raw errors. Do not assume failures are monotonic or claim native numerical qualification from successful compilation. Automated diagnostic tests required; native Canary/Firefox evidence remains pending.
+
+### Candidat de compatibilité Demucs : sélection statique [CURRENT]
+
+Le raffinement natif localise une transition gather693 compilable → reshape694 non compilable avec ses ancêtres. Export Demucs modifié en Slice+Reshape pour les26sélections scalaires constantes, même checkpoint ; Roformer inchangé. Vérification hors navigateur des deux sorties complètes : erreurs max et RMS relatives nulles. Qualification native requise avant de déclarer ce candidat fonctionnel. Les trois fichiers graph/weights/index doivent être livrés ensemble.
+
+### Pont des sorties Demucs directes [CURRENT — code corrigé, PCM natif à qualifier]
+
+Le rapport10:10 confirme la compilation/dispatch/readback pour les trois requêtes CPU/GPU/NPU avec le candidat Slice. La reconstruction JS échouait ensuite, car la clé numérique5073 était énumérée avant output. Des tableaux explicites préservent désormais l'ordre original des entrées/sorties ; validation des permutations et test de régression avec le véritable adaptateur Demucs. Aucun nouveau score ni parité audio native avant un essai complet réussi.
+
+### Comparaison Direct WebNN / ORT→WebNN [DONE — outil]
+
+Sélecteur Compare both : deux jobs indépendants par appareil WebNN sélectionné, données et paramètres identiques, identifiants/export explicites, ordre des implémentations alterné entre sessions. Baselines non-WebNN une fois. Conserver WASM pour la référence PCM ; ne pas attribuer automatiquement toute différence au runtime seul. Mesures natives appariées à recueillir.
+
+### Heuristique de recommandation [DONE dans le banc ; intégration host future]
+
+Comparer les backends réussis par modèle, disponibilité WebNN, durée de morceau et état d'initialisation. Agréger les médianes par session ; exclure échecs, données invalides et parité échouée. Afficher débit maximal et meilleur coût total projeté, avec provenance actuelle ou CSV de référence explicitement étiquetée. Module pur réutilisable :4pistes par défaut,6si guitare dédiée ; pas de choixWebNN basé uniquement sur navigator.ml, ni sur un classement d'une autre machine. Repli conservateur WebGPU détecté puis WASM. Support de l'appareil et session doivent être validés à l'exécution, avec invalidation des mesures quand les versions ou matériels changent.

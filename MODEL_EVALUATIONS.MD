@@ -4,7 +4,7 @@
 
 # MODEL EVALUATIONS — Séparation musicale locale dans un hôte Web Audio
 
-**Document de travail scientifique évolutif — version 0.10, 25 octobre 2026 (Europe/Paris).**
+**Document de travail scientifique évolutif — version 0.11, 29 octobre 2026 (Europe/Paris).**
 
 Destination : préparation d’un article pour une prochaine Web Audio Conference. Ni soumission ni date de conférence ne sont présumées. La synthèse initiale (v0.1) réunit les campagnes du 20 au 23 octobre2026, sans nouvelle mesure pendant sa rédaction. La v0.2 ajoute le24octobre deux contrôles techniques du nouvel outillage sur signaux synthétiques, sans nouvelle campagne indépendante ni observation humaine.
 
@@ -858,3 +858,151 @@ Les33 sorties complètes sont finies, avec les longueurs et canaux attendus. Les
 - Rapports bruts : [initial](examples/wam/source-separation/benchmarks/webnn-performance-falcon-initial-2026-10-25.json), [SW CPU](examples/wam/source-separation/benchmarks/webnn-performance-falcon-sw-cpu-2026-10-25.json), [SW GPU](examples/wam/source-separation/benchmarks/webnn-performance-falcon-sw-gpu-2026-10-25.json), [SW NPU](examples/wam/source-separation/benchmarks/webnn-performance-falcon-sw-npu-2026-10-25.json). Checkpoint antérieur et observation de console conservés séparément.
 - Empreintes avant essais : `research/webnn-performance-code.json`, puis `-recovery.json` et `-recovery2.json`. Copies exactes locales sous `third_party/nam-webnn-probe/code-performance*`. Les améliorations ultérieures de présentation/checkpoint ne sont pas rétroactivement attribuées aux mesures antérieures.
 - Générateur du tableau : `python3 tools/summarize-webnn-performance.py <rapport.json> --output <tableau.html>`. Les erreurs n’obtiennent pas de score de vitesse. Le runtime et les poids du laboratoire restent locaux/ignorés.
+
+
+## 24. F1 — protocole prospectif pour Firefox expérimental (29 octobre 2026)
+
+### 24.1 Objectif et disponibilité
+
+Préparer des mesures exploitables par Paul Adenot (Mozilla) sur son build WebNN expérimental. Ce build **n’est pas installé sur la machine de développement** : aucune mesure de performance ni affirmation de compatibilité Firefox WebNN n’est produite ici. L’utilisateur publiera une distribution statique autonome ; Paul exportera ses propres rapports. Nouveau protocole `webnn-browser-diagnostics-v1`, distinct du protocole Falcon W4 et de ses chiffres.
+
+Banc : `webnn-diagnostics.html`, guide [WEBNN_FIREFOX_BENCHMARK.md](examples/wam/source-separation/WEBNN_FIREFOX_BENCHMARK.md), commande `npm run dist:webnn-benchmark`, sortie `dist/WebNN_Benchmark/`. Les poids et le runtime sont embarqués et vérifiés ; serveur HTTPS statique, sans Rails/compte/CDN. Les headers COOP/COEP sont documentés pour le multithreading WASM. La livraison du banc ne constitue pas sa validation dans le build cible.
+
+### 24.2 Plan de mesure fixé avant collecte Firefox
+
+Deux modèles : Demucs4 ONNX original (174263526 octets, SHA da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748) et BS Roformer SW6 (352778874 octets, SHA d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444). Cinq chemins avec **le même ORT1.30.0** : WASM, WebGPU, WebNN CPU/GPU/NPU demandés. Graphe monolithique commun par défaut ; WebGPU Roformer coopératif facultatif doit être analysé séparément. Contexte/padding/DSP des modèles conservés : Demucs7,8s ; SW4s/recouvrement1s. Les choix de matériel sont des préférences, non des identités physiques établies. Fallback opérateur WASM déclaré mais non quantifié ; aucun retry silencieux de configuration.
+
+Entrée par défaut : début6s du MP3 Slow Motion Dream, Steven M Bryant2011 feat. CSoul/Alex Beroza/Robert Siekawitch, copie non modifiée Spleeter révision c8854001ac8acad34a9bc2bd15f28475541828b1, CC BY3.0, crédits embarqués. Pas de stems de référence : ce matériau sert au timing et à la comparaison numérique d’un même modèle. Choix d’un fichier personnel et durée1–30s possibles ; SHA du fichier et PCM décodé stéréo44100Hz exportés. Le décodage/rééchantillonnage peut varier par navigateur : comparer les SHA PCM avant une affirmation d’entrée exactement identique.
+
+Paramètres par défaut : une session indépendante/configuration, trois passages mesurés, zéro warmup, un threadWASM, ordreWASM/WebGPU/NNCPU/NNGPU/NNNPU. Pour une véritable campagne, augmenter à3–5sessions, garder des conditions matérielles stables et conserver les erreurs. Rotation d’ordre par session disponible, sans prétendre à une randomisation complète. Passages dans une session = mesures répétées, pas nouveaux morceaux ni sessions indépendantes. Les statistiques comprennent effectifs, première passe, médiane/min/max/moyenne/écart-type population des passes suivantes et RTF selon la durée réellement traitée. Les warmups demandés sont consignés hors scores. CachesOS/driver non purgés ; vérification du runtime avant import touche déjà ses fichiers. Ne pas appeler ce protocole une mesure de cold network start.
+
+### 24.3 Décomposition et limites
+
+Exporter séparément préparation entrée/SHA/décodage, démarrage Worker, poids fetch/hash, runtime vérification/import, contexte WebNN ou adapter/deviceGPU, création de session, compilation native observée, processing complet/premier PCM disponible, `session.run` réseau+transferts, DSP SW/assemblage/reste hors session, validation/parité et nettoyage. Compteurs et traces publiques de build/createTensor/write/dispatch/read, erreurs/phase/stack et timeout conservés. Empreintes des sources réellement servies et manifeste du build, notes machine/build/flags, visibilité de page. JSON brut +CSV ; aucune donnée audio dans ces exports/checkpoints. Marques Worker `webnnlab:` pour un profil externe Firefox Profiler.
+
+Ces temps sont des durées murales imbriquées, **non additives et non des temps de kernels**. Dispatch mesure la soumission CPU ; la lecture de tenseur inclut attente de travail ordonné et copie. Le temps de `session.run` inclut ces coûts. Le DSP Demucs reste dans le reste hors session, sans FFT prétendument isolée. Premier PCM disponible dans un Worker n’est pas premier son audible. Les champs matériels non exposés restent inconnus. Un compteur instrumenté nul produit `no-webnn-observed` plutôt qu’un score WebNN. Le profiling privilégié, la couverture des replis et la consommation nécessitent des mesures complémentaires par l’implémenteur.
+
+### 24.4 Qualification logicielle locale — à distinguer de la campagne Firefox
+
+586 tests JavaScript passent, dont9 nouveaux tests : matrice/rotation, statistiques, API synchrones/asynchrones/erreurs immuables, traces bornées avec compteurs cumulés, checkpoints/CSV, fermeture des imports du bundle et vrai corps du Worker avec inférence simulée. Ces tests ne mesurent pas les accélérateurs.
+
+Un smoke test natif dans Chrome155 a ensuite exécuté la distribution : Demucs sur6s, deux passages, une seule session, zéro warmup,1thread. WASM et WebGPU réussissent ; les trois variantes WebNN sont explicitement `unsupported` car l’API est absente. Pas de substitution WASM sous une étiquetteNN. Première/deuxième passeWASM28,109/24,941s ; WebGPU6,015/4,619s. Création de session2,822s/3,332s, hors préparation. Seulement une passe retenue par configuration : aucune estimation de variabilité indépendante, contrôle thermique/charge globale ou facteur d’accélération généralisable. Il s’agit d’un contrôle fonctionnel, pas d’une nouvelle comparaison formelle avec W4.
+
+GPU contre référenceWASM du même extrait : RMSrelatif global0,000651732, maxabs0,000777341 ; dans les tolérances techniques du comparateur existant. Cela n’est ni une écoute ni une admission perceptuelle. WAV/PCM : SHA source4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507 ; SHA PCM b8b64a9db5a52e02bde2efae82e3567bccc2e91b95c520c4a4b67ca450884213 (264600frames stéréo à44100Hz).
+
+Rapport brut inchangé : [webnn-diagnostics-chrome-smoke-2026-10-29.json](examples/wam/source-separation/benchmarks/webnn-diagnostics-chrome-smoke-2026-10-29.json). Empreintes du code et manifeste déployé dans le rapport. L’exportJSON et la restauration de son checkpoint sans relancer de calcul ont été vérifiés. Les chiffres des campagnes antérieures restent inchangés. **Résultats Firefox à collecter**, puis archiver les JSON originaux, leurs hashes et l’identification machine/build avant toute synthèse.
+
+
+Contrôle fonctionnel supplémentaire SW6 WebGPU monolithique, même musique6s/deux passes : création de session6,998s, processing6,266s puis5,933s ; sortie finie/alignée et répétition contrôlée, pas de référenceWASM dans cette campagne isolée. [Export brut](examples/wam/source-separation/benchmarks/webnn-diagnostics-roformer-smoke-2026-10-29.json), SHA5df53a644a24e5d1a1051221630dd4efd37a891cb711b94c1b5a7ca16698a8c9. Le CSV téléchargé a été parsé et correspond à cette ligne. Stop durant la préparation d’une nouvelle configuration produit `cancelled` et réactive les commandes ; aucun essai interrompu n’est compté comme réussite. Aucune de ces qualifications locales ne valide l’API WebNN de Firefox. Hash du premier rapportDemucs : eb5a0d497b634713710fde60f63dff45589fab75105c8914da0340e53c2320a7.
+
+
+### 24.5 Distribution commune et qualification du lecteur
+
+La dist complète `dist/NAM_A2_WAM/` regroupe désormais l’hôte/onglet Multitracks, le lecteur direct `source-separation/` et le nouveau banc `source-separation/webnn-diagnostics.html`. Elle embarque les deux checkpoints et le runtimeWebNN avec chemins locaux, provenance et SHA conservés ; guide `WEBNN_TESTING.md`, headers et manifeste de build. Les tests unitaires ne sont pas publiés. La distribution WebNN_Benchmark reste l’alternative mesures seules.
+
+588 testsJS passent après assemblage (deux tests supplémentaires contrôlent les vrais assets déployés, les URLs locales, l’identité des checkpoints et le manifeste sans assets manquants). Vérification nativeChrome155 de l’hôte construit : import via sélecteur de fichier de slow-motion-dream.mp3, sélection d’un extrait5s, séparationDemucs4WebGPU sans repli automatique, quatre pistes/waveforms puisPlay/Pause, progression de position et niveau postmix observé à−20,8dBFS. Aucun microphone ni projet utilisateur sauvegardé/modifié, aucune erreurconsole. Cette vérification est fonctionnelle et ne constitue pas un nouveau benchmark contrôlé ou une mesureFirefoxWebNN. Le lecteur conserveORT1.22 pour son cheminGPU/WASM ONNX et utiliseORT1.30 pourNN ; le banc gardeORT1.30 sur les cinq chemins. Les intervalles/warmups/stratégies différents ne sont pas mélangés dans les tableaux de performance. ValidationFirefox/CPU/GPU/NPU réelle attendue chezPaul.
+
+### 24.6 — Benchmark presentation and provenance follow-up (2026-10-29)
+
+Presentation now uses seconds with explicit units and header explanations; raw `Ms` fields retain original values/precision. The highlighted input panel uses actual frames/sampleRate and distinguishes the measured report from next-run source/duration selection. Full decoded source length and requested excerpt duration are now recorded for new reports. Added the project's existing CleanChords guitar DI fixture alongside CC-BY music and local personal files; neither included input has studio ground-truth stems. The standalone distribution bundles both inputs. Failed rows expose detailed logs directly. No changes to the scientific timing protocol, backend selection or archived raw results.
+
+Validation: 591 JS tests pass. Native Chrome155 standalone built artifact: guitar fixture decoded to47.693s, selected first1s (44100 stereo frames), Demucs4/WebGPU two measured passes completed, no console errors. This is functional UI/input validation, not a controlled performance campaign. The user's screenshot of a separate external-file run implies a6s excerpt from median/RTF but does not supply the filename, browser/build, hardware identity, raw error or variability. Do not enter its values into the reproducible native Firefox campaign without exported JSON/provenance. The Roformer WebNN CPU failure cannot be diagnosed from its row alone.
+
+## 25 — Direct WebNN experiment, protocol v2 (2026-10-30)
+
+Purpose: distinguish application ONNX Runtime integration/translation from browser-native WebNN graph construction and execution. New direct mode uses no browser ONNX parser/ORT library. WASM/WebGPU remain ORT1.30; the previous mediated WebNN path remains separately selectable. Existing v1 results are historical ORT-mediated evidence and must not be relabelled direct. Production playback is unchanged. Browser-native backends may use native runtimes internally; this is outside the JavaScript application comparison.
+
+Offline export starts from the same pinned checkpoints (Demucs da9e5101…, Roformer d3d2bac7…). ONNX1.20.0/ORT1.22.0 are offline tooling only: basic constant-folding/static shapes, then explicit lowering into WebNN recipes, binary typed constants and provenance/hash index. Demucs1500 basic-folded nodes→1900 WebNN calls; Roformer6627→6483 calls (empty tails eliminated; attention einsums lowered). Recipes may differ from runtime optimizer output; do not attribute every speed difference to framework overhead. All runtime neural operations go through WebNN without application WASM substitution. DSP stays the same existing JavaScript path. Direct assets are209127568 and699046996 weight bytes; expanded float32/static constants change payload and memory versus compact ONNX originals.
+
+Offline numerical verification reconstructs ONNX from the lowered WebNN recipe and compares original/reconstructed cores on full fixed-shape independent Gaussian inputs, seed20261030, float32 standard normal×.01. CPU ORT1.22 produced identical outputs for both models: max absolute0 /relative RMS0 for both outputs. This establishes lowering mathematical consistency in that test, not native WebNN correctness, audio perceptual quality or browser speed. Raw qualification record: research/direct-webnn-lowering-validation.json; reproducible tools/export-direct-webnn.py and tools/validate-direct-webnn-lowering.py. Four Python edge tests cover scalar gather rank, strided slice spans, empty-tail elimination and conv1D spatial lifting. JS tests cover direct dispatch/lifetime, missing methods, corruption, real artifact hashes, no ORT/model fetch and strict Worker implementation selection.
+
+Diagnostics-v2 adds direct/mediated identity, graph-recipe fetch/verify, weights fetch/hash, graph construction/constants, native build compilation and tensor allocation. Setup spans nest; dispatch/read timings retain prior caveats. A direct PCM parity failure against the campaign's WASM reference removes its speed score; absence of a reference is explicitly unqualified. Device requests remain unknown physical placement.
+
+**Native validation remains pending**: controllable Chrome lacks WebNN; no experimental Firefox is installed. No direct WebNN timing/speed improvement or actual NPU claim is made from conversion success or simulated tests. Next collect Canary/Firefox JSON with WASM baseline, full direct PCM checks, independent sessions, matching input hashes/builds, and profiler evidence. Details in DIRECT_WEBNN_BENCHMARK.md.
+
+### 25.1 — First Canary159 direct report: incomplete campaign, native Demucs build failures
+
+Raw user-supplied JSON archived unchanged as benchmarks/direct-webnn-canary159-incomplete-2026-10-30.json, SHA256 `2f168ed2608dad63746f662c3cf5b6113ca8abe50ce2ca81fc172be74f06a2cf`. Browser UA Chrome159.0.0.0/macOS; source Slow Motion Dream; diagnostics-v2, three trials, zero warmups. Export status running, only three finished rows: all Demucs CPU/GPU/NPU-requested configurations failed at MLGraphBuilder.build with the exact UnknownError “Failed to get compiled graph devices.” Graph construction30.8–37.3ms; native build rejected960.4–997.6ms; no processing/dispatch evidence and no speed score. Chromium current public Core ML source maps this message to ReadComputePlan's NSError path; this identifies native compute-plan loading failure, not its root cause or physical device. Exact tested Chromium commit/native NSError is unavailable.
+
+The same snapshot shows Roformer CPU native build23587.15ms, graph setup23713.26ms and tensor allocation3.82ms, then first trial still active. It is NOT evidence that Roformer finished or failed, nor a controlled speed improvement versus earlier ORT campaigns. Final campaign export remains needed.
+
+Candidate compatibility revision: fold constant-only reshapes offline, expose convolution filters as native constant operands, Demucs1900→1816calls. This has not been confirmed to resolve the native failure. Both raw-weight binaries/hash values unchanged. Offline full-core reconstruction/reference check repeated successfully: both outputs exactly equal for both models; native qualification remains pending. Raw original export is retained unchanged, new generated recipe hashes recorded in research/direct-webnn-lowering-validation.json. Worker last-native-operation checkpoints added to distinguish pending readback in future snapshots.
+
+### 25.2 — Retest after constant-view revision: Demucs failure persists
+
+Completed Canary159 campaign rebuilt at 2026-10-30T09:18:02.542Z: direct WebNN CPU, GPU and NPU all fail during native graph build with `Failed to get compiled graph devices.` The 1816-call recipe confirms that the candidate was present; it did not resolve the failure. No inference times or direct PCM parity can be reported. This report contains no Roformer runs. Raw evidence: `examples/wam/source-separation/benchmarks/direct-webnn-canary159-demucs-failed-2026-10-30.json`; SHA256 `6b69e596b6b6eab5526a3d66a0d0ffe819f4341c0028bf23670b6b238a007c22`. Native browser control attempt timed out; no agent-run Canary validation is claimed.
+
+### 25.3 — Instrumentation pour isoler le graphe fautif (sans nouvelles mesures natives)
+
+Un banc de compilation seule permet de comparer un graphe add minimal, les sorties Demucs originales, des fermetures de dépendances vers des sorties intermédiaires et des opérateurs individuels dont les entrées dynamiques sont substituées par des entrées de même descripteur. Chaque essai détruit son contexte indépendant. Les rapports incluent identités de graphe/poids, intervalles, temps de construction/compilation et erreurs. Les formes intermédiaires, sorties exposées et coupures peuvent modifier les optimisations ou les contraintes du compilateur : cette méthode localise des candidats, elle n'établit pas à elle seule une erreur d'opérateur. Pas de mesure de qualité, d'exécution audio ou de placement physique. Validation native toujours en attente.
+
+### 25.4 — Contrôle ORT → WebNN réussi dans Canary159
+
+Rapport utilisateur du30octobre2026, début09:45:33Z, protocole diagnostics-v1, build2026-10-29T11:30:01.101Z. Ce rapport utilise explicitement ONNX Runtime1.30.0 : ce n'est ni le chemin WebNN direct ni le banc d'isolation de graphes. Trois configurations Demucs4 réussissent, avec trois dispatchs WebNN observés par configuration. Placement matériel effectif et couverture des éventuels opérateurs WASM inconnus.
+
+Entrée : Slow Motion Dream (CC BY3.0), fichier source10.880544s, premier extrait6s, stéréo44100Hz,264600frames ; SHA source `4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507`, SHA PCM `b8b64a9db5a52e02bde2efae82e3567bccc2e91b95c520c4a4b67ca450884213`. Trois passages par session, zéro warmup explicite ; premier passage exclu de la statistique conservée, donc médiane sur seulement deux passages.
+
+| Requête | Création session (s) | Premier passage (s) | Médiane conservée (s) | RTF |
+|---|---:|---:|---:|---:|
+| webnn-cpu | 9.464 | 6.384 | 5.401 | 0.900 |
+| webnn-gpu | 14.535 | 2.559 | 2.599 | 0.433 |
+| webnn-npu | 14.529 | 2.490 | 2.590 | 0.432 |
+
+GPU/NPU demandés donnent environ2.08× le débit CPU demandé ; leur différence est inférieure à0.4%, non interprétable avec cette taille d'échantillon. Téléchargement des poids16.8–18.2s à distinguer de l'inférence ; le premier coût de vérification du runtime est4.04s. Les lectures WebNN mesurées peuvent se chevaucher et leur somme n'est pas un temps GPU. La répétabilité interne est exacte (maxAbsError0), sans référence WASM dans cette campagne : cela ne prouve ni la justesse inter-backends, ni la qualité perceptuelle. Aucune amélioration de la compilation WebNN directe n'est démontrée.
+
+Archive brute inchangée : `examples/wam/source-separation/benchmarks/ort-webnn-canary159-demucs-2026-10-30.json` ; SHA256 `07edd8677c2fb446a895f85602758b3397c5ae07e63216e68472efb326f8c84d`.
+
+### 25.5 — Isolation native Demucs CPU : zone641–768 à approfondir
+
+Campagne utilisateur terminée du30octobre2026,09:49:45Z–09:49:58Z, Canary159, deviceType cpu demandé, build09:37:11Z. Identité du graphe1816opérations : SHA `cca2a3f526631041a53b02aabce987fc56d89bf69fdba1d20fd3e9168aa330c6` ; poids SHA `263f8f3f38a9a43c382a41279e7be8f7a0e591e9576f712df68bc3cce8eaefbf`. Sur28probes,17compilations réussies et11échecs. Graphe add minimal OK (175.64ms), graphe original échoue (1034.65ms). Six fermetures réussissent aux indices0/128/256/384/512/640 ; les dix autres échouent aux indices768/896/1024/1152/1280/1408/1536/1664/1792/1815 avec le même message CoreML. Les dix opérateurs terminaux isolés réussissent.
+
+La fermeture réussie640 contient270opérations ; la fermeture échouée768 en contient381 et inclut toutes celles de640. L'inspection statique ajoute111opérations dans641–747 et765–768, incluant la fin de l'encodeur fréquentiel, l'entrée du crosstransformer, la self-attention et une projection de cross-attention. La sortie768 est un reshape qui compile seul : ne pas lui attribuer la cause. Interaction, formes intermédiaires, constantes, optimisations ou limitations du compilateur restent possibles. Prochaine campagne : CPU, premier640, dernier768, pas4 (33points), puis raffinement de la première zone observée ; aucune hypothèse de monotonie. Ces essais ne dispatchent aucun calcul audio.
+
+Archive brute `examples/wam/source-separation/benchmarks/direct-webnn-isolation-canary159-cpu-2026-10-30.json` ; SHA256 `ed5f3d2bd96d752358308aa231ed8dba11376ab8d22180f436819b0b8e5874b5`.
+
+### 25.6 — Raffinement640–768 : transition observée692→696
+
+Campagne CPU demandée, pas4, terminée : toutes les fermetures échantillonnées640…692 compilent ; toutes celles696…768 échouent. Les19opérateurs terminaux testés individuellement compilent. La fermeture692 contient322opérations ; celle696 en contient326 et ajoute la chaîne gather693 → reshape694 → transpose695 → reshape696. Le gather693 utilise un indice int32 scalaire constant, axe0, sur la projection Q/K/V `[3,2688,1,512]` ; sa sortie a la forme `[2688,1,512]`. Cela suggère de vérifier la sélection Q/K/V et ses interactions avec les réarrangements de tenseurs ; ne pas conclure à une erreur générale de gather. La compilation à692 inclut déjà la projection gemm et le transpose5D précédents.
+
+Prochain essai : start692/end696/step1, même device cpu, cinqpoints. Le résultat permettra de séparer les quatre transformations ; selon celui-ci, tester une formulation slice+reshape équivalente pour la sélection constante, avec validation numérique avant nouvelle qualification native. Aucune correction ni nouvelle inférence native validée ici. Archive `examples/wam/source-separation/benchmarks/direct-webnn-isolation-canary159-cpu-refined-2026-10-30.json`, SHA256 `6221d9d0d573d6aa8a113866a6fcb319c4153755186d78f6015bc7ebb82b78fd`.
+
+### 25.7 — Transition693→694 et candidat de sélection statique
+
+Rapport natif CPU demandé, intervalle692–696/pas1, campagne terminée. Fermetures692 et693 compilent,694/695/696 échouent ; ces trois opérateurs terminaux compilent seuls. La sélection gather693 peut donc compiler, mais le graphe qui ajoute le reshape694 `[2688,1,512]` → `[2688,8,64]` échoue. Interaction de graphe/optimisation à étudier ; ne pas désigner gather ou reshape individuellement comme non pris en charge. Archive brute `examples/wam/source-separation/benchmarks/direct-webnn-isolation-canary159-cpu-692-696-2026-10-30.json`, SHA256 `869def300e7ff589dd92341c19ecd8eed52bc56047321e9e5b6924ae1dd04f30`.
+
+Candidat suivant : remplacer les26Gather à indice constant scalaire de l'export Demucs par une Slice de taille1 sur l'axe sélectionné puis un Reshape pour supprimer cet axe. Les indices négatifs sont normalisés, les valeurs hors limites rejetées. Les indexations vectorielles et l'export Roformer restent inchangés. La sélection est mathématiquement équivalente ; la compilation native reste à qualifier. Demucs passe1816→1842appels ; les constantes d'indices supprimées changent le binaire de poids exporté209127568→209127360octets, sans changer les paramètres appris du checkpoint. Il faut remplacer graph JSON, weights.bin et index ensemble. Anciennes plages d'indices d'isolation non réutilisables après cet export.
+
+Validation du candidat25.7 : septtests Python de l'exporteur et610tests JavaScript passent. Les deux sorties complètes des deux réseaux reconstruits depuis leur recette sont exactement égales à celles des checkpoints originaux sur les entrées de test fixes (maxAbsolute0, relativeRms0). Ce contrôle utilise ORT CPU hors navigateur, il ne qualifie ni la compilation native WebNN, ni l'audio perceptuel. Identités et méthode dans `research/direct-webnn-lowering-validation.json`. Les deux distributions ont été reconstruites.
+
+### 25.8 — Le candidat compile et s'exécute ; erreur d'ordre des sorties dans le pipeline JS
+
+Rapport utilisateur diagnostics-v2, build2026-10-30T10:05:21.829Z, export1842opérations avec Slice. CPU/GPU/NPU demandés atteignent compilation, allocation, dispatch et fin des deux readTensor sans erreur native. Les trois essais échouent ensuite à la première reconstruction audio (`Tensor shapes must match for addition`, apply.js). Aucun score de performance retenu et aucune parité PCM qualifiée. Cela démontre une progression sur ces configurations, sans prouver le placement physique ni l'absence de tout autre problème.
+
+Cause applicative identifiée : les sorties Demucs sont déclarées `output` (spectral) puis `5073` (temporel), mais `Object.keys` sur l'objet JSON énumère la clé numérique `5073` avant `output`. Le contrat session.outputNames transmis à OnnxCoreModel inversait alors outX/outXt. L'export ajoute désormais inputNames/outputNames sous forme de tableaux dans l'ordre des déclarations originales ; la session directe les valide et les préserve. Un test intègre le vrai OnnxCoreModel et la vraie session directe sur un petit graphe à exécution native simulée, vérifie explicitement l'ordre JSON trompeur et les rangs/valeurs associés aux deux branches. C'est un test du pont API, pas une qualification native audio. Graphe neuronal et bins de poids inchangés ; métadonnées JSON/index changées.
+
+Archive brute `examples/wam/source-separation/benchmarks/direct-webnn-canary159-static-slice-audio-order-failure-2026-10-30.json`, SHA256 `e929fcb210f674d15475ac733080a7dafae65735770db984fa93ec5518841375`.
+
+### 25.9 — Comparaison appariée des implémentations WebNN
+
+L'utilisateur indique que le chemin direct fonctionne après correction de l'ordre des sorties, sans fournir encore de nouveau rapport numérique réussi. Le banc propose désormais une campagne “Compare both” : mêmes PCM préparés, modèles, appareils demandés, répétitions et threads ; session distincte pour chaque implémentation. Ordre direct/ORT inversé à chaque session indépendante ; baselines WASM/WebGPU non dupliquées. JSON/CSV et lignes identifient l'implémentation. Les différences de compilation incluent les stratégies de graphe et les caches ; elles ne mesurent pas uniquement le coût du framework. Sans référence WASM, aucune nouvelle qualification PCM n'est inférée. Aucune nouvelle mesure de performance native n'est publiée ici.
+
+### 25.10 — Campagne comparative utilisateur et politique de recommandation
+
+CSV brut archivé à `examples/wam/source-separation/benchmarks/webnn-comparison-user-2026-10-30.csv`, SHA256 `8257bdae5232e07343d64e30d1b8ca5f77cac6292f8a3419eed776d27e422031`.16configurations, une session indépendante chacune ;15réussites. Échec : Roformer6 ORT→WebNN CPU (contexte perdu). Les six configurations directes rapportent “passed PCM parity for this excerpt”. Le CSV ne contient pas l'identité navigateur/machine/audio ni les passages individuels : ne pas inventer ces informations. Durée traitée6s déduite du rapport médiane/RTF. Il ne permet pas une statistique appariée multi-sessions.
+
+| Modèle | Backend / implémentation | Initialisation session (s) | Médiane retenue (s) | RTF |
+|---|---|---:|---:|---:|
+| Demucs4 | WASM/ORT |1.743|11.085|1.848|
+| Demucs4 | WebGPU/ORT |1.726|2.717|0.453|
+| Demucs4 | WebNN GPU/ORT |13.810|2.462|0.410|
+| Demucs4 | WebNN NPU/direct |11.016|2.633|0.439|
+| Roformer6 | WASM/ORT |2.938|71.175|11.862|
+| Roformer6 | WebGPU/ORT |2.952|5.053|0.842|
+| Roformer6 | WebNN GPU/direct |111.349|2.465|0.411|
+| Roformer6 | WebNN NPU/direct |110.450|2.006|0.334|
+
+Demucs ORT→WebNN GPU accélère la médiane d'environ9.4% par rapport à WebGPU, mais coûte environ12s supplémentaires d'initialisation de session. Roformer direct NPU demandé accélère la médiane d'environ2.52× par rapport à WebGPU, mais son initialisation dépasse110s. GPU/NPU restent des requêtes de placement, pas des preuves matérielles. Performances et parité numérique ne constituent pas un classement perceptuel guitare.
+
+Le banc ajoute des cartes calculées depuis la campagne locale ou une référence explicitement étiquetée issue de ce CSV. Quatre profils (modèle4/6, WebNN disponible/non), médiane des médianes de sessions par candidat, exclusion des erreurs et parités échouées, classement du débit et estimation durée complète. Projection à froid : setup + premier passage + max(0,durée/extrait−1)×médiane ; session initialisée : durée/extrait×médiane. Téléchargements, import runtime, lecture audio et mémoire exclus. Aucun temps projeté présenté comme une mesure réelle. Exemple180s à froid : Demucs WebGPU≈83.6s, Roformer WebGPU≈155.6s ; projection600s : Demucs ORT→WebNN GPU≈259.9s, Roformer direct NPU≈311.6s.
+
+Politique réutilisable proposée pour le host : Demucs par défaut, Roformer si piste guitare dédiée requise ; utiliser uniquement des mesures locales compatibles et des backends effectivement supportés ; comparer coût total estimé, tenir compte de la session déjà initialisée ; sans preuve locale, fallback conservateur WebGPU détecté puis WASM. Ne pas faire d'un CSV d'une autre machine un choix automatique de production. Changer périphérique/runtime/modèle invalide la pertinence des mesures. Interface de recommandations uniquement, pas de modification du sélecteur du host de production.

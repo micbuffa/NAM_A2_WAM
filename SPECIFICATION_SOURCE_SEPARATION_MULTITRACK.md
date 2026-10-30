@@ -953,3 +953,32 @@ P5.1 à P5.5 constituent le premier parcours intégré de préparation d’accom
 - **Collaboration, après P5.7/P5.8 :** un utilisateur partage un projet commun, un contributeur ajoute/enregistre sa partie personnelle avec son preset, le propriétaire la retrouve dans ce même projet. Le contributeur ne doit pas créer obligatoirement une copie du projet ni pouvoir effacer une partie d’autrui sans droit explicite.
 - **Écoute et conflits :** un auditeur essaie un mix local sans modifier celui du projet ; deux sauvegardes concurrentes ne s’écrasent pas silencieusement ; les changements non enregistrés restent récupérables.
 - **Compatibilité :** absence de WebGPU → CPU annoncé ; absence de WebNN → option expérimentale indisponible ; aucune régression des comptes, presets, projets existants et du lecteur Play along de `main`.
+## 29 octobre 2026 · Qualification navigateur / Firefox WebNN
+
+**[IMPLEMENTED — VALIDATION FIREFOX PENDING]** Banc autonome pour Paul Adenot, distinct de l’interface produit et des résultats Canary historiques. Source `source-separation/webnn-diagnostics.html`, commande `npm run dist:webnn-benchmark`, sortie `dist/WebNN_Benchmark/` publiable en HTTPS. Deux modèles (Demucs4/SW6), même ORT1.30, cinq backends, paramètres de sessions/répétitions/extraits, erreurs conservées, export JSON/CSV et mesures d’initialisation/processing détaillées. Voir [guide et protocole](examples/wam/source-separation/WEBNN_FIREFOX_BENCHMARK.md) et `WebNN_SUPPORT_SPECIFICATIONS.md`. Le build expérimental Firefox n’étant pas disponible localement, la collecte matérielle sera réalisée par Paul depuis la version publiée ; ne pas confondre livraison du banc et résultats WebNN Firefox.
+
+**[DONE — DISTRIBUTION]** Pour publier mesures et écoute, `npm run build-static` génère un seul dossier **dist/NAM_A2_WAM/** : racine = hôte/onglet Multitracks, `source-separation/` = import/séparation/lecteur direct, `source-separation/webnn-diagnostics.html` = nouveau banc. Runtime, modèles compatibles et chemins locaux embarqués, manifeste/guide/headers fournis. La variante WebNN_Benchmark est mesures seules. Les tests unitaires restent dans le dépôt. Import local et lecture réelle après séparation WebGPU validés dans l’onglet de la dist ; WebNN utilise le chemin de lecture existant mais sa validation Firefox reste à réaliser. [Guide exact des URLs et paramètres](examples/wam/source-separation/WEBNN_DEPLOYMENT.md).
+
+### [DONE] Benchmark readability and test audio selection — 2026-10-29
+
+Highlight measured filename, actual excerpt duration and sample rate at the top; distinguish restored report provenance from the next run. Offer included music/guitar fixtures and local file import with a 1–30s duration choice. Show table times in seconds with explicit headers, explanatory mouse/keyboard tooltips, and a See log button for unsuccessful rows. Preserve raw Ms measurements and export precision. Rebuild standalone and full-host distributions; scientific native Firefox campaign remains pending.
+
+### [DONE software / CURRENT native qualification] Direct WebNN research benchmark — 2026-10-30
+
+For WebNN rows, default to pre-exported graph recipes and raw weights, execute via MLGraphBuilder/MLTensor without browser ONNX Runtime. Keep ORT for WASM/WebGPU and expose old ORT→WebNN as explicit comparison. Support both existing checkpoints; record conversion provenance, implementation, graph construction, native compilation, tensors, processing and reference PCM checks. Native failures have logs and no automatic model-runtime substitute. Rebuild both dist layouts with generated assets; document expanded payload sizes and limitations. Offline conversion parity is validated independently; native Canary/Firefox parity/performance remain CURRENT, not inferred from simulated APIs. Scope is diagnostic page, not production player.
+
+### Diagnostic de compilation WebNN directe Demucs [DONE — outil ; validation native en attente]
+
+Page `source-separation/direct-webnn-isolation.html` livrée dans les deux distributions. Compilation minimale, graphe original puis sous-graphes dépendant de points intermédiaires sélectionnés ; opérateur isolé en cas d'échec. Contextes indépendants, export JSON, annulation et timeout explicite. Aucun résultat d'inférence ni diagnostic définitif sur Core ML n'est déduit de ces essais. La correction du blocage natif demeure en cours.
+
+Le diagnostic natif du30octobre a isolé une interaction entre sélection scalaire et reshape dans Demucs. Un export équivalent Slice+Reshape est proposé comme candidat ; vérification numérique hors navigateur exacte, compilation/inférence WebNN directe toujours à valider. Le chemin ORT→WebNN reste disponible comme référence fonctionnelle.
+
+Le candidat Slice compile et exécute le noyau natif dans le rapportCanary10:10, mais la reconstruction audio échouait à cause de l'ordre des sorties JSON numériques. Le pont est corrigé par des tableaux de noms ordonnés ; test de régression ajouté. Validation PCM native de bout en bout toujours en cours.
+
+### Campagne comparative WebNN directe / ORT [DONE]
+
+Option Compare both dans le banc : mêmes entrées et paramètres, deux implémentations pour chaque appareil WebNN sélectionné, baselines simples, alternance de l'ordre entre sessions, identifiants et labels distincts dans les exports. Compilation et traitement comparés séparément ; aucune attribution automatique des écarts au seul coût d'ORT.
+
+### Recommandations modèles/backends [DONE banc ; intégration host à venir]
+
+Cartes séparées4/6pistes avec/sansWebNN, fondées sur campagne courante ou référence explicitement choisie. Tenir compte du temps d'initialisation, du débit retenu, de la durée visée et de la réutilisation de session. Afficher les estimations comme telles. Politique future : Demucs4 par défaut ; Roformer6 si guitare dédiée demandée ; sonde réelle des capacités, mesures locales, repli WebGPU puis WASM. Les classements de vitesse ne sont pas des classements de qualité audio. Aucun choix automatique de production fondé universellement sur le CSV fourni.

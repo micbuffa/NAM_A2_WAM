@@ -25,6 +25,7 @@
           <progress id="selectedModelBar" max="100" aria-label="Préparation du modèle sélectionné"></progress>
         </div>
         <p id="backendStatus" role="status"></p><label id="fallbackLabel" hidden><input id="allowCpuFallback" type="checkbox" checked> Repli automatique CPU/WASM si WebGPU ou WebNN échoue avant le premier bloc</label>
+        <p><a href="./webnn-diagnostics.html" target="_blank" rel="noopener">Benchmark WebNN / Firefox · detailed performance measurements</a></p>
         <div class="model-meta"><span id="modelDescription">Choose a model</span><span id="modelRecommendation"></span></div>
         <p id="fileStatus" class="file-status" role="status">Audio : aucun fichier sélectionné.</p>
         <label>Durée à séparer : <select id="excerptSeconds"><option value="0" selected>Morceau entier</option><option value="1">1 seconde (test rapide)</option><option value="5">5 secondes</option><option value="10">10 secondes</option><option value="30">30 secondes</option><option value="60">60 secondes</option></select></label>

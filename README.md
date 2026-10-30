@@ -1,5 +1,28 @@
 # NAM A2 WAM
 
+## Publish WebNN tests and personal-audio multitrack playback
+
+Run **`npm run build-static`** and publish the contents of **`dist/NAM_A2_WAM/`**
+on HTTPS. This single distribution contains both the full host (choose
+**Multitracks**) and the direct player at `source-separation/`, plus the new
+performance lab at `source-separation/webnn-diagnostics.html`. It bundles the
+WebNN runtime and the two prepared local models when available. Node/Python
+unit tests are not deployed. See [WEBNN_DEPLOYMENT.md](examples/wam/source-separation/WEBNN_DEPLOYMENT.md)
+for exact URLs, headers and the Import file → WebNN → Separate → Play procedure;
+the same handout is copied into the dist as `WEBNN_TESTING.md`.
+
+## Benchmark-only distribution
+
+On `multitracks`, run **`npm run dist:webnn-benchmark`** to build
+**`dist/WebNN_Benchmark/`**. Publish that entire folder on an HTTPS static server
+and open its `index.html`. It includes Demucs4, BS Roformer SW6, pinned ORT1.30,
+input music/credits and diagnostics; no Rails or CDN dependency. Compare WASM,
+WebGPU and requested WebNN CPU/GPU/NPU with separate initialization/processing
+timings, retained sessions, raw JSON/CSV exports and Firefox Profiler markers.
+The experimental Firefox build still needs validation on Paul's machine.
+See the [deployment and measurement guide](examples/wam/source-separation/WEBNN_FIREFOX_BENCHMARK.md)
+for COOP/COEP headers, model prerequisites, reproducibility and interpretation.
+
 ## Serial effect chain
 
 The main host shows the current NAM capture and Cabinet IR as photo cards. Click a `+` to insert a bundled effect at that position. Click any photo to open its editor; closing the editor preserves the running instance and its settings. Card controls and editor toolbars provide bypass. Cabinet AUTO still follows the selected NAM capture type.
@@ -318,3 +341,5 @@ git status --short
 git diff --cached --stat
 git diff --cached --name-only
 ```
+
+Direct WebNN benchmarking (experimental): see [the direct benchmark guide](examples/wam/source-separation/DIRECT_WEBNN_BENCHMARK.md). Browser WebNN paths now default to graph recipes + raw weights; WASM/WebGPU remain ONNX Runtime, with an optional ORT→WebNN comparison. Re-export assets with `tools/export-direct-webnn.py` before rebuilding/publishing. Native validation remains pending.

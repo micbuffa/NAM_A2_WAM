@@ -1,0 +1,1098 @@
+{
+  "protocol": "webnn-browser-diagnostics-v1",
+  "date": "2026-10-29T10:18:51.544Z",
+  "status": "completed-with-failures",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "hardwareConcurrency": 14,
+  "deviceMemoryGiB": 32,
+  "buildLabel": "Chrome 155 · functional validation, not Firefox",
+  "machineLabel": "",
+  "notes": "Developer functional smoke test of standalone dist. Two passes, one session, included music6s. No comparative Firefox claims.",
+  "crossOriginIsolated": true,
+  "secureContext": true,
+  "initialVisibility": "visible",
+  "visibilityEvents": [],
+  "plan": [
+    {
+      "id": "demucs4-wasm-1",
+      "model": "demucs4",
+      "backend": "wasm",
+      "session": 1,
+      "trials": 2,
+      "warmups": 0,
+      "threads": 1,
+      "gpuStrategy": "monolithic",
+      "timeoutSeconds": 300
+    },
+    {
+      "id": "demucs4-webgpu-1",
+      "model": "demucs4",
+      "backend": "webgpu",
+      "session": 1,
+      "trials": 2,
+      "warmups": 0,
+      "threads": 1,
+      "gpuStrategy": "monolithic",
+      "timeoutSeconds": 300
+    },
+    {
+      "id": "demucs4-webnn-cpu-1",
+      "model": "demucs4",
+      "backend": "webnn-cpu",
+      "session": 1,
+      "trials": 2,
+      "warmups": 0,
+      "threads": 1,
+      "gpuStrategy": "monolithic",
+      "timeoutSeconds": 300
+    },
+    {
+      "id": "demucs4-webnn-gpu-1",
+      "model": "demucs4",
+      "backend": "webnn-gpu",
+      "session": 1,
+      "trials": 2,
+      "warmups": 0,
+      "threads": 1,
+      "gpuStrategy": "monolithic",
+      "timeoutSeconds": 300
+    },
+    {
+      "id": "demucs4-webnn-npu-1",
+      "model": "demucs4",
+      "backend": "webnn-npu",
+      "session": 1,
+      "trials": 2,
+      "warmups": 0,
+      "threads": 1,
+      "gpuStrategy": "monolithic",
+      "timeoutSeconds": 300
+    }
+  ],
+  "runs": [
+    {
+      "config": {
+        "id": "demucs4-wasm-1",
+        "model": "demucs4",
+        "backend": "wasm",
+        "session": 1,
+        "trials": 2,
+        "warmups": 0,
+        "threads": 1,
+        "gpuStrategy": "monolithic",
+        "timeoutSeconds": 300
+      },
+      "status": "ok",
+      "phases": {
+        "weightsFetchMs": 113.9699999988079,
+        "weightsHashMs": 177.67500001192093,
+        "runtimeVerifyMs": 51,
+        "runtimeImportMs": 35.17500001192093,
+        "sessionCreateMs": 2822.2099999785423,
+        "cleanupMs": 27.21000000834465
+      },
+      "trials": [
+        {
+          "index": 0,
+          "processingMs": 28108.79999998212,
+          "firstPcmReadyMs": 28108.79999998212,
+          "networkAndTransfersMs": 23449.32500001788,
+          "outsideSessionMs": 4659.474999964237,
+          "stftMs": null,
+          "istftMs": null,
+          "assemblyMs": 0,
+          "webnnReadMs": 0,
+          "webnnWriteSubmissionMs": 0,
+          "webnnDispatchSubmissionMs": 0,
+          "dispatches": 0,
+          "repeatParity": null,
+          "validationMs": 33.19999998807907
+        },
+        {
+          "index": 1,
+          "processingMs": 24941.355000019073,
+          "firstPcmReadyMs": 24941.355000019073,
+          "networkAndTransfersMs": 21051.884999990463,
+          "outsideSessionMs": 3889.4700000286102,
+          "stftMs": null,
+          "istftMs": null,
+          "assemblyMs": 0,
+          "webnnReadMs": 0,
+          "webnnWriteSubmissionMs": 0,
+          "webnnDispatchSubmissionMs": 0,
+          "dispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.14425626737461442
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.14875851030155443
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.10120681110998879
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.10119577966887708
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.11688011089307708
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.10760885912433656
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.1101111757940934
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.10232498589158436
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          },
+          "validationMs": 40.32500001788139
+        }
+      ],
+      "warmups": [],
+      "effectiveHardware": "unknown",
+      "wasmFallbackCoverage": "unknown",
+      "warnings": [],
+      "workerTimeOrigin": 1793269131637.245,
+      "receivedEpochMs": 1793269131648.5552,
+      "features": {
+        "secureContext": true,
+        "crossOriginIsolated": true,
+        "ml": false,
+        "MLGraphBuilder": false,
+        "webgpu": true
+      },
+      "timingSemantics": "Nested wall spans; dispatch is CPU submission, readTensor includes waiting. Never sum nested spans as device time.",
+      "frames": 264600,
+      "sampleRate": 44100,
+      "model": {
+        "label": "Demucs · 4 stems",
+        "url": "./model-assets/htdemucs-core.onnx",
+        "bytes": 174263526,
+        "sha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+        "channels": 8,
+        "windowFrames": 343980,
+        "actualBytes": 174263526,
+        "actualSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748"
+      },
+      "phase": "cleanupMs",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "graphStrategy": "monolithic",
+      "webnnDispatches": 0,
+      "providerEvidence": "wasm explicitly requested",
+      "summary": {
+        "all": {
+          "count": 2,
+          "minMs": 24941.355000019073,
+          "medianMs": 26525.077500000596,
+          "maxMs": 28108.79999998212,
+          "meanMs": 26525.077500000596,
+          "stddevMs": 1583.7224999815226
+        },
+        "retained": {
+          "count": 1,
+          "minMs": 24941.355000019073,
+          "medianMs": 24941.355000019073,
+          "maxMs": 24941.355000019073,
+          "meanMs": 24941.355000019073,
+          "stddevMs": 0
+        },
+        "firstMs": 28108.79999998212,
+        "retainedRtf": 4.156892500003179,
+        "durationSeconds": 6
+      },
+      "beforeCleanupMs": 56333.510000020266,
+      "totalWorkerMs": 56360.910000026226,
+      "trace": [
+        {
+          "name": "weightsFetchMs",
+          "startMs": 19.850000023841858,
+          "endMs": 133.53500002622604,
+          "durationMs": 113.68500000238419
+        },
+        {
+          "name": "weightsHashMs",
+          "startMs": 134.02500000596046,
+          "endMs": 311.6850000023842,
+          "durationMs": 177.65999999642372
+        },
+        {
+          "name": "runtimeVerifyMs",
+          "startMs": 311.8400000035763,
+          "endMs": 362.81500002741814,
+          "durationMs": 50.97500002384186
+        },
+        {
+          "name": "runtimeImportMs",
+          "startMs": 362.93000000715256,
+          "endMs": 398.09500002861023,
+          "durationMs": 35.16500002145767
+        },
+        {
+          "name": "sessionCreateMs",
+          "startMs": 398.19000002741814,
+          "endMs": 3220.3700000047684,
+          "durationMs": 2822.1799999773502
+        },
+        {
+          "name": "session.run",
+          "startMs": 4586.715000003576,
+          "endMs": 28036.040000021458,
+          "durationMs": 23449.32500001788,
+          "trial": 0
+        },
+        {
+          "name": "session.run",
+          "startMs": 32132.59500002861,
+          "endMs": 53184.48000001907,
+          "durationMs": 21051.884999990463,
+          "trial": 1
+        },
+        {
+          "name": "cleanupMs",
+          "startMs": 56344.94500002265,
+          "endMs": 56372.11500000954,
+          "durationMs": 27.169999986886978
+        }
+      ],
+      "traceDropped": 0,
+      "apiTotalsMs": {
+        "weightsFetchMs": 113.68500000238419,
+        "weightsHashMs": 177.65999999642372,
+        "runtimeVerifyMs": 50.97500002384186,
+        "runtimeImportMs": 35.16500002145767,
+        "sessionCreateMs": 2822.1799999773502,
+        "session.run": 44501.210000008345,
+        "cleanupMs": 27.169999986886978
+      },
+      "apiCounts": {
+        "weightsFetchMs": 1,
+        "weightsHashMs": 1,
+        "runtimeVerifyMs": 1,
+        "runtimeImportMs": 1,
+        "sessionCreateMs": 1,
+        "session.run": 2,
+        "cleanupMs": 1
+      },
+      "workerStartupMs": 12.195000022649765,
+      "mainJobWallMs": 56473.375,
+      "inputDeliveryMs": 1.045166015625
+    },
+    {
+      "config": {
+        "id": "demucs4-webgpu-1",
+        "model": "demucs4",
+        "backend": "webgpu",
+        "session": 1,
+        "trials": 2,
+        "warmups": 0,
+        "threads": 1,
+        "gpuStrategy": "monolithic",
+        "timeoutSeconds": 300
+      },
+      "status": "ok",
+      "phases": {
+        "weightsFetchMs": 96.53499999642372,
+        "weightsHashMs": 127.01499998569489,
+        "runtimeVerifyMs": 45.03499999642372,
+        "runtimeImportMs": 36.060000002384186,
+        "adapterMs": 4.139999985694885,
+        "sessionCreateMs": 3331.689999997616,
+        "cleanupMs": 19.03499999642372
+      },
+      "trials": [
+        {
+          "index": 0,
+          "processingMs": 6015.3499999940395,
+          "firstPcmReadyMs": 6015.3499999940395,
+          "networkAndTransfersMs": 1075.344999998808,
+          "outsideSessionMs": 4940.004999995232,
+          "stftMs": null,
+          "istftMs": null,
+          "assemblyMs": 0,
+          "webnnReadMs": 0,
+          "webnnWriteSubmissionMs": 0,
+          "webnnDispatchSubmissionMs": 0,
+          "dispatches": 0,
+          "repeatParity": null,
+          "validationMs": 32.144999980926514
+        },
+        {
+          "index": 1,
+          "processingMs": 4619.005000025034,
+          "firstPcmReadyMs": 4619,
+          "networkAndTransfersMs": 599.5700000226498,
+          "outsideSessionMs": 4019.435000002384,
+          "stftMs": null,
+          "istftMs": null,
+          "assemblyMs": 0,
+          "webnnReadMs": 0,
+          "webnnWriteSubmissionMs": 0,
+          "webnnDispatchSubmissionMs": 0,
+          "dispatches": 0,
+          "repeatParity": {
+            "channels": [
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.14425260240784002
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.1487541918797519
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.10114532239720353
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.10112946910007019
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.1168872022073352
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.10762459547562353
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.11011358966805261
+              },
+              {
+                "rmsError": 0,
+                "maxAbsError": 0,
+                "referenceRms": 0.10232752423884224
+              }
+            ],
+            "rmsError": 0,
+            "relativeRmsError": 0,
+            "maxAbsError": 0,
+            "withinTolerance": true
+          },
+          "validationMs": 44.16499999165535
+        }
+      ],
+      "warmups": [],
+      "effectiveHardware": "unknown",
+      "wasmFallbackCoverage": "unknown",
+      "warnings": [],
+      "workerTimeOrigin": 1793269188617.765,
+      "receivedEpochMs": 1793269188640.025,
+      "features": {
+        "secureContext": true,
+        "crossOriginIsolated": true,
+        "ml": false,
+        "MLGraphBuilder": false,
+        "webgpu": true
+      },
+      "timingSemantics": "Nested wall spans; dispatch is CPU submission, readTensor includes waiting. Never sum nested spans as device time.",
+      "frames": 264600,
+      "sampleRate": 44100,
+      "model": {
+        "label": "Demucs · 4 stems",
+        "url": "./model-assets/htdemucs-core.onnx",
+        "bytes": 174263526,
+        "sha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748",
+        "channels": 8,
+        "windowFrames": 343980,
+        "actualBytes": 174263526,
+        "actualSha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748"
+      },
+      "phase": "cleanupMs",
+      "runtimeManifest": {
+        "protocol": "webnn-runtime-lab-v1",
+        "version": "1.30.0",
+        "packageURL": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
+        "packageIntegrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+        "packageSha256": "d2228df7e4616bc3348bf504ee888f3bec43789a273f0a63f3e68d203ce3bf71",
+        "license": {
+          "name": "MIT",
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "operatorTable": {
+          "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/js/web/docs/webnn-operators.md",
+          "sha256": "30d2a5327185d9e6028c7fd709b097fe782f5a5dd470dd8d1fd9b45b048f0b6e"
+        },
+        "files": {
+          "ort.all.min.mjs": {
+            "bytes": 819537,
+            "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+          },
+          "ort-wasm-simd-threaded.jsep.mjs": {
+            "bytes": 46851,
+            "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+          },
+          "ort-wasm-simd-threaded.jsep.wasm": {
+            "bytes": 28312028,
+            "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+          }
+        },
+        "location": "third_party/nam-webnn-probe/runtime",
+        "productionRuntimeUnchanged": "1.22.0",
+        "scope": "isolated source-only research lab; no production model catalogue change"
+      },
+      "runtimeVersion": "1.30.0",
+      "adapterInfo": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": ""
+      },
+      "gpuFeatures": [
+        "core-features-and-limits"
+      ],
+      "graphStrategy": "monolithic",
+      "baselineParity": {
+        "channels": [
+          {
+            "rmsError": 0.00006295735434436772,
+            "maxAbsError": 0.0006981194019317627,
+            "referenceRms": 0.14425626737461442
+          },
+          {
+            "rmsError": 0.00006487506771636411,
+            "maxAbsError": 0.0007773414254188538,
+            "referenceRms": 0.14875851030155443
+          },
+          {
+            "rmsError": 0.00010233603224876078,
+            "maxAbsError": 0.0006786659359931946,
+            "referenceRms": 0.10120681110998879
+          },
+          {
+            "rmsError": 0.00010327565308133359,
+            "maxAbsError": 0.0006757378578186035,
+            "referenceRms": 0.10119577966887708
+          },
+          {
+            "rmsError": 0.00008973200479026583,
+            "maxAbsError": 0.0005707554519176483,
+            "referenceRms": 0.11688011089307708
+          },
+          {
+            "rmsError": 0.00008867293648522641,
+            "maxAbsError": 0.0005979537963867188,
+            "referenceRms": 0.10760885912433656
+          },
+          {
+            "rmsError": 0.00003160799299525806,
+            "maxAbsError": 0.0006456971168518066,
+            "referenceRms": 0.1101111757940934
+          },
+          {
+            "rmsError": 0.00003213399919139266,
+            "maxAbsError": 0.0007169544696807861,
+            "referenceRms": 0.10232498589158436
+          }
+        ],
+        "rmsError": 0.00007685807404467542,
+        "relativeRmsError": 0.0006517321120551735,
+        "maxAbsError": 0.0007773414254188538,
+        "withinTolerance": true
+      },
+      "webnnDispatches": 0,
+      "providerEvidence": "webgpu explicitly requested",
+      "summary": {
+        "all": {
+          "count": 2,
+          "minMs": 4619.005000025034,
+          "medianMs": 5317.177500009537,
+          "maxMs": 6015.3499999940395,
+          "meanMs": 5317.177500009537,
+          "stddevMs": 698.1724999845028
+        },
+        "retained": {
+          "count": 1,
+          "minMs": 4619.005000025034,
+          "medianMs": 4619.005000025034,
+          "maxMs": 4619.005000025034,
+          "meanMs": 4619.005000025034,
+          "stddevMs": 0
+        },
+        "firstMs": 6015.3499999940395,
+        "retainedRtf": 0.769834166670839,
+        "durationSeconds": 6
+      },
+      "beforeCleanupMs": 14374.075000017881,
+      "totalWorkerMs": 14393.300000011921,
+      "trace": [
+        {
+          "name": "weightsFetchMs",
+          "startMs": 31.314999997615814,
+          "endMs": 127.66999998688698,
+          "durationMs": 96.35499998927116
+        },
+        {
+          "name": "weightsHashMs",
+          "startMs": 127.96500000357628,
+          "endMs": 254.96500000357628,
+          "durationMs": 127
+        },
+        {
+          "name": "runtimeVerifyMs",
+          "startMs": 255.21000000834465,
+          "endMs": 300.22499999403954,
+          "durationMs": 45.014999985694885
+        },
+        {
+          "name": "runtimeImportMs",
+          "startMs": 301.07499998807907,
+          "endMs": 336.3799999952316,
+          "durationMs": 35.30500000715256
+        },
+        {
+          "name": "adapterMs",
+          "startMs": 336.4699999988079,
+          "endMs": 340.59999999403954,
+          "durationMs": 4.129999995231628
+        },
+        {
+          "name": "sessionCreateMs",
+          "startMs": 340.6599999964237,
+          "endMs": 3672.324999988079,
+          "durationMs": 3331.6649999916553
+        },
+        {
+          "name": "session.run",
+          "startMs": 5039.280000001192,
+          "endMs": 6114.625,
+          "durationMs": 1075.344999998808,
+          "trial": 0
+        },
+        {
+          "name": "session.run",
+          "startMs": 10482.984999984503,
+          "endMs": 11082.555000007153,
+          "durationMs": 599.5700000226498,
+          "trial": 1
+        },
+        {
+          "name": "baselineParity",
+          "startMs": 14384.324999988079,
+          "endMs": 14395.20499998331,
+          "durationMs": 10.879999995231628
+        },
+        {
+          "name": "cleanupMs",
+          "startMs": 14396.460000008345,
+          "endMs": 14415.45499998331,
+          "durationMs": 18.99499997496605
+        }
+      ],
+      "traceDropped": 0,
+      "apiTotalsMs": {
+        "weightsFetchMs": 96.35499998927116,
+        "weightsHashMs": 127,
+        "runtimeVerifyMs": 45.014999985694885,
+        "runtimeImportMs": 35.30500000715256,
+        "adapterMs": 4.129999995231628,
+        "sessionCreateMs": 3331.6649999916553,
+        "session.run": 1674.9150000214577,
+        "baselineParity": 10.879999995231628,
+        "cleanupMs": 18.99499997496605
+      },
+      "apiCounts": {
+        "weightsFetchMs": 1,
+        "weightsHashMs": 1,
+        "runtimeVerifyMs": 1,
+        "runtimeImportMs": 1,
+        "adapterMs": 1,
+        "sessionCreateMs": 1,
+        "session.run": 2,
+        "baselineParity": 1,
+        "cleanupMs": 1
+      },
+      "workerStartupMs": 23.344999998807907,
+      "mainJobWallMs": 14424.435000002384,
+      "inputDeliveryMs": 2.554931640625
+    },
+    {
+      "config": {
+        "id": "demucs4-webnn-cpu-1",
+        "model": "demucs4",
+        "backend": "webnn-cpu",
+        "session": 1,
+        "trials": 2,
+        "warmups": 0,
+        "threads": 1,
+        "gpuStrategy": "monolithic",
+        "timeoutSeconds": 300
+      },
+      "status": "unsupported",
+      "phases": {
+        "cleanupMs": 0.0949999988079071
+      },
+      "trials": [],
+      "warmups": [],
+      "effectiveHardware": "unknown",
+      "wasmFallbackCoverage": "unknown",
+      "warnings": [],
+      "workerTimeOrigin": 1793269203564.41,
+      "receivedEpochMs": 1793269203586.115,
+      "features": {
+        "secureContext": true,
+        "crossOriginIsolated": true,
+        "ml": false,
+        "MLGraphBuilder": false,
+        "webgpu": true
+      },
+      "timingSemantics": "Nested wall spans; dispatch is CPU submission, readTensor includes waiting. Never sum nested spans as device time.",
+      "frames": 264600,
+      "sampleRate": 44100,
+      "error": {
+        "name": "Error",
+        "message": "WebNN is unavailable in this Worker. Check the experimental browser build and secure context. No WASM replacement was run.",
+        "phase": "validate",
+        "stack": "Error: WebNN is unavailable in this Worker. Check the experimental browser build and secure context. No WASM replacement was run.\n    at self.onmessage (http://127.0.0.1:8765/dist/WebNN_Benchmark/webnn-diagnostics-worker.js:24:129)"
+      },
+      "beforeCleanupMs": 9.754999995231628,
+      "phase": "cleanupMs",
+      "totalWorkerMs": 9.995000004768372,
+      "trace": [
+        {
+          "name": "cleanupMs",
+          "startMs": 31.610000014305115,
+          "endMs": 31.625,
+          "durationMs": 0.014999985694885254
+        }
+      ],
+      "traceDropped": 0,
+      "apiTotalsMs": {
+        "cleanupMs": 0.014999985694885254
+      },
+      "apiCounts": {
+        "cleanupMs": 1
+      },
+      "workerStartupMs": 39.229999989271164,
+      "mainJobWallMs": 58.339999973773956,
+      "inputDeliveryMs": 1.66015625
+    },
+    {
+      "config": {
+        "id": "demucs4-webnn-gpu-1",
+        "model": "demucs4",
+        "backend": "webnn-gpu",
+        "session": 1,
+        "trials": 2,
+        "warmups": 0,
+        "threads": 1,
+        "gpuStrategy": "monolithic",
+        "timeoutSeconds": 300
+      },
+      "status": "unsupported",
+      "phases": {
+        "cleanupMs": 0.16999998688697815
+      },
+      "trials": [],
+      "warmups": [],
+      "effectiveHardware": "unknown",
+      "wasmFallbackCoverage": "unknown",
+      "warnings": [],
+      "workerTimeOrigin": 1793269204103.9,
+      "receivedEpochMs": 1793269204128.5698,
+      "features": {
+        "secureContext": true,
+        "crossOriginIsolated": true,
+        "ml": false,
+        "MLGraphBuilder": false,
+        "webgpu": true
+      },
+      "timingSemantics": "Nested wall spans; dispatch is CPU submission, readTensor includes waiting. Never sum nested spans as device time.",
+      "frames": 264600,
+      "sampleRate": 44100,
+      "error": {
+        "name": "Error",
+        "message": "WebNN is unavailable in this Worker. Check the experimental browser build and secure context. No WASM replacement was run.",
+        "phase": "validate",
+        "stack": "Error: WebNN is unavailable in this Worker. Check the experimental browser build and secure context. No WASM replacement was run.\n    at self.onmessage (http://127.0.0.1:8765/dist/WebNN_Benchmark/webnn-diagnostics-worker.js:24:129)"
+      },
+      "beforeCleanupMs": 9.409999996423721,
+      "phase": "cleanupMs",
+      "totalWorkerMs": 9.780000001192093,
+      "trace": [
+        {
+          "name": "cleanupMs",
+          "startMs": 34.28999999165535,
+          "endMs": 34.314999997615814,
+          "durationMs": 0.025000005960464478
+        }
+      ],
+      "traceDropped": 0,
+      "apiTotalsMs": {
+        "cleanupMs": 0.025000005960464478
+      },
+      "apiCounts": {
+        "cleanupMs": 1
+      },
+      "workerStartupMs": 22.560000002384186,
+      "mainJobWallMs": 42.26000002026558,
+      "inputDeliveryMs": 2.304931640625
+    },
+    {
+      "config": {
+        "id": "demucs4-webnn-npu-1",
+        "model": "demucs4",
+        "backend": "webnn-npu",
+        "session": 1,
+        "trials": 2,
+        "warmups": 0,
+        "threads": 1,
+        "gpuStrategy": "monolithic",
+        "timeoutSeconds": 300
+      },
+      "status": "unsupported",
+      "phases": {
+        "cleanupMs": 0.09999999403953552
+      },
+      "trials": [],
+      "warmups": [],
+      "effectiveHardware": "unknown",
+      "wasmFallbackCoverage": "unknown",
+      "warnings": [],
+      "workerTimeOrigin": 1793269204648.595,
+      "receivedEpochMs": 1793269204671.79,
+      "features": {
+        "secureContext": true,
+        "crossOriginIsolated": true,
+        "ml": false,
+        "MLGraphBuilder": false,
+        "webgpu": true
+      },
+      "timingSemantics": "Nested wall spans; dispatch is CPU submission, readTensor includes waiting. Never sum nested spans as device time.",
+      "frames": 264600,
+      "sampleRate": 44100,
+      "error": {
+        "name": "Error",
+        "message": "WebNN is unavailable in this Worker. Check the experimental browser build and secure context. No WASM replacement was run.",
+        "phase": "validate",
+        "stack": "Error: WebNN is unavailable in this Worker. Check the experimental browser build and secure context. No WASM replacement was run.\n    at self.onmessage (http://127.0.0.1:8765/dist/WebNN_Benchmark/webnn-diagnostics-worker.js:24:129)"
+      },
+      "beforeCleanupMs": 9.474999994039536,
+      "phase": "cleanupMs",
+      "totalWorkerMs": 9.705000013113022,
+      "trace": [
+        {
+          "name": "cleanupMs",
+          "startMs": 32.79499998688698,
+          "endMs": 32.82499998807907,
+          "durationMs": 0.030000001192092896
+        }
+      ],
+      "traceDropped": 0,
+      "apiTotalsMs": {
+        "cleanupMs": 0.030000001192092896
+      },
+      "apiCounts": {
+        "cleanupMs": 1
+      },
+      "workerStartupMs": 20.900000005960464,
+      "mainJobWallMs": 39.78000000119209,
+      "inputDeliveryMs": 1.59521484375
+    }
+  ],
+  "sources": {
+    "WebNNExperiment.js": {
+      "bytes": 6103,
+      "sha256": "7de851172f253a174ea2450efdcb392f5055e524092c33de5035ab0267d1cd8e"
+    },
+    "webnn-diagnostics.js": {
+      "bytes": 9559,
+      "sha256": "3ca77236a2173da71aacf29056db02e654807528bd956a7f73fa7d90ed7ba59d"
+    },
+    "webnn-diagnostics-worker.js": {
+      "bytes": 11104,
+      "sha256": "bcdaf741546783f142d597c7fa7c12ddad858057d193dfd8b5ea571b041e122c"
+    },
+    "WebNNDevice.js": {
+      "bytes": 638,
+      "sha256": "d826f2ca033e6a762919632af1e32da00b45e676d1f9e065d4ebcd1da08b520a"
+    },
+    "WebNNBenchmark.js": {
+      "bytes": 1938,
+      "sha256": "58ac375496bf22e151bf9346af0d51dcf8c284e7a1c6eb332ced6e772be9616f"
+    },
+    "OnnxCoreModel.js": {
+      "bytes": 1574,
+      "sha256": "7a4c0ca6f1d861587e7f3e1aa0ed432535fdc30276161d552c370952e8530198"
+    },
+    "RoformerCoreModel.js": {
+      "bytes": 1458,
+      "sha256": "19fe57ed51b4a4918301f57fa23f04eb97286ca7107e431573c1795816731782"
+    },
+    "RoformerDSP.js": {
+      "bytes": 2805,
+      "sha256": "b1173294122f92babba65192074b673ef2033cfab4ab02a58d4ecc6e71d2dee2"
+    },
+    "CooperativeOnnxSession.js": {
+      "bytes": 5947,
+      "sha256": "7d7b86d7466db8d589e14279e932a2a921b828de70fecb67979d9155d0fa3892"
+    },
+    "ChunkTools.js": {
+      "bytes": 1823,
+      "sha256": "f1766a42d1c18fe6cda16b4909b5b158f45c175f29497792028c07fcbd823f26"
+    },
+    "AudioComparison.js": {
+      "bytes": 2482,
+      "sha256": "684af3c1e839638f73f5e84710d4ebee3bd314c8f13719d97b4015d1faac55b2"
+    },
+    "BenchmarkInputs.js": {
+      "bytes": 1265,
+      "sha256": "04e3c7abc3a84c920e3f75bfd125d9737c2a98508cfb24f20fc8fc7193ccdeb5"
+    },
+    "vendor/demucs-js/apply.js": {
+      "bytes": 24250,
+      "sha256": "814c4b775a9a557ec2f83a2b757611ad0c135eda83a3d94f3793116c981d0bfe"
+    },
+    "vendor/bs-roformer-web/fft-radix2.js": {
+      "bytes": 2616,
+      "sha256": "3e61413f22d48e1b917166eb4b529ac65daf2d4b5f18a0c73f030216c564df31"
+    },
+    "research/roformer-stage-plan.json": {
+      "bytes": 1251361,
+      "sha256": "ed7708fa674f4fa8c0c2fbdeb2aee24af49151868b1375576b5b936225cd22da"
+    }
+  },
+  "measurementPolicy": {
+    "runtime": "ORT 1.30.0 for every backend",
+    "implicitBackendRetry": false,
+    "operatorWasmFallback": "possible for WebNN; coverage unknown",
+    "effectiveHardware": "unknown",
+    "cacheState": "new worker/session; OS/driver/HTTP caches not purged",
+    "firstPcm": "available in worker, not audible playback",
+    "profiling": "public API wall spans + performance marks; instrumentation always enabled"
+  },
+  "buildInfo": {
+    "protocol": "webnn-browser-diagnostics-build-v1",
+    "date": "2026-10-29T10:18:13.543Z",
+    "git": {
+      "commit": "370e966ed63cafabbd7da0abb8ce8117950a3ba6",
+      "branch": "multitracks",
+      "dirty": true
+    },
+    "files": {
+      "webnn-diagnostics.html": {
+        "bytes": 5645,
+        "sha256": "549372fa15a4424b3e885dcb3c46d6b1b2c0ba1d0f4945141a15271718db8c7d"
+      },
+      "webnn-diagnostics.css": {
+        "bytes": 2014,
+        "sha256": "70da66758dcf6be9033cf41a86e3fc773944402268e0c45fac07b46ec994a52d"
+      },
+      "webnn-diagnostics.js": {
+        "bytes": 9559,
+        "sha256": "3ca77236a2173da71aacf29056db02e654807528bd956a7f73fa7d90ed7ba59d"
+      },
+      "webnn-diagnostics-worker.js": {
+        "bytes": 11104,
+        "sha256": "bcdaf741546783f142d597c7fa7c12ddad858057d193dfd8b5ea571b041e122c"
+      },
+      "WebNNExperiment.js": {
+        "bytes": 6103,
+        "sha256": "7de851172f253a174ea2450efdcb392f5055e524092c33de5035ab0267d1cd8e"
+      },
+      "WebNNDevice.js": {
+        "bytes": 638,
+        "sha256": "d826f2ca033e6a762919632af1e32da00b45e676d1f9e065d4ebcd1da08b520a"
+      },
+      "WebNNBenchmark.js": {
+        "bytes": 1938,
+        "sha256": "58ac375496bf22e151bf9346af0d51dcf8c284e7a1c6eb332ced6e772be9616f"
+      },
+      "OnnxCoreModel.js": {
+        "bytes": 1574,
+        "sha256": "7a4c0ca6f1d861587e7f3e1aa0ed432535fdc30276161d552c370952e8530198"
+      },
+      "RoformerCoreModel.js": {
+        "bytes": 1458,
+        "sha256": "19fe57ed51b4a4918301f57fa23f04eb97286ca7107e431573c1795816731782"
+      },
+      "RoformerDSP.js": {
+        "bytes": 2805,
+        "sha256": "b1173294122f92babba65192074b673ef2033cfab4ab02a58d4ecc6e71d2dee2"
+      },
+      "CooperativeOnnxSession.js": {
+        "bytes": 5947,
+        "sha256": "7d7b86d7466db8d589e14279e932a2a921b828de70fecb67979d9155d0fa3892"
+      },
+      "ChunkTools.js": {
+        "bytes": 1823,
+        "sha256": "f1766a42d1c18fe6cda16b4909b5b158f45c175f29497792028c07fcbd823f26"
+      },
+      "AudioComparison.js": {
+        "bytes": 2482,
+        "sha256": "684af3c1e839638f73f5e84710d4ebee3bd314c8f13719d97b4015d1faac55b2"
+      },
+      "BenchmarkInputs.js": {
+        "bytes": 1265,
+        "sha256": "04e3c7abc3a84c920e3f75bfd125d9737c2a98508cfb24f20fc8fc7193ccdeb5"
+      },
+      "WEBNN_FIREFOX_BENCHMARK.md": {
+        "bytes": 9094,
+        "sha256": "cbcef9b17b188a7fc578f0562e5f4a10e3af592e7f37a5b75533195aca41a0f9"
+      },
+      "research/webnn-runtime.json": {
+        "bytes": 1431,
+        "sha256": "86e1118ab1a5662ff30e4d1d2958df0036fb3aac3f57bd90816c7740094d0559"
+      },
+      "research/roformer-stage-plan.json": {
+        "bytes": 1251361,
+        "sha256": "ed7708fa674f4fa8c0c2fbdeb2aee24af49151868b1375576b5b936225cd22da"
+      },
+      "vendor/demucs-js/apply.js": {
+        "bytes": 24250,
+        "sha256": "814c4b775a9a557ec2f83a2b757611ad0c135eda83a3d94f3793116c981d0bfe"
+      },
+      "vendor/demucs-js/LICENSE.md": {
+        "bytes": 1397,
+        "sha256": "20495f593d841c65c709b0e89765b88c0e21ed17c9b2caf9e3a613ee990715cb"
+      },
+      "vendor/demucs-js/NOTICE.md": {
+        "bytes": 1938,
+        "sha256": "d208e9219745dab0c378f9efe5ea558cbb3c60b42dc172ec772d31e4b5f7e5ec"
+      },
+      "vendor/bs-roformer-web/fft-radix2.js": {
+        "bytes": 2616,
+        "sha256": "3e61413f22d48e1b917166eb4b529ac65daf2d4b5f18a0c73f030216c564df31"
+      },
+      "vendor/bs-roformer-web/LICENSE": {
+        "bytes": 1066,
+        "sha256": "6f55521e794231996e23e663ce005a92a2e259e56c259a742c52bbb0274f6bca"
+      },
+      "vendor/bs-roformer-web/NOTICE.md": {
+        "bytes": 434,
+        "sha256": "610f508556ff3dcb8786ba607d76da4a248cc753d885cc62003612c335765409"
+      },
+      "fixtures/music/slow-motion-dream.mp3": {
+        "bytes": 262867,
+        "sha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507"
+      },
+      "fixtures/music/NOTICE.md": {
+        "bytes": 916,
+        "sha256": "5fa750aec677662524c071002906584a8fd28c707befd169ec1377a93f3d87dc"
+      },
+      "model-assets/ROFORMER_NOTICE.md": {
+        "bytes": 1571,
+        "sha256": "f277ebdc436dfff3062bef9ef87233224989c9f643c0f1c6454276273c1f790a"
+      },
+      "model-assets/LICENSE": {
+        "bytes": 1087,
+        "sha256": "cf9b17822d1fcd4ff32ccbe14183386fb3adf6f2ff92dc184130823f7fc28173"
+      },
+      "vendor/onnxruntime-webnn/ort.all.min.mjs": {
+        "bytes": 819537,
+        "sha256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+      },
+      "vendor/onnxruntime-webnn/ort-wasm-simd-threaded.jsep.mjs": {
+        "bytes": 46851,
+        "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+      },
+      "vendor/onnxruntime-webnn/ort-wasm-simd-threaded.jsep.wasm": {
+        "bytes": 28312028,
+        "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+      },
+      "vendor/onnxruntime-webnn/LICENSE": {
+        "bytes": 1073,
+        "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+      },
+      "model-assets/htdemucs-core.onnx": {
+        "bytes": 174263526,
+        "sha256": "da9e5101ee0804d04933974b59d8aae9c862e80e14f2f24e7c74cae76bdbe748"
+      },
+      "model-assets/bs_roformer_sw_6stem_fp16.onnx": {
+        "bytes": 352778874,
+        "sha256": "d3d2bac77a7023282cb5f35a5807179e34076b60589867b572275f1a8ec36444"
+      },
+      "index.html": {
+        "bytes": 5645,
+        "sha256": "549372fa15a4424b3e885dcb3c46d6b1b2c0ba1d0f4945141a15271718db8c7d"
+      },
+      "_headers": {
+        "bytes": 134,
+        "sha256": "a8a32187f44898f1e5bc9c689700cbadb6d777252fef341dad68782e64951428"
+      },
+      ".htaccess": {
+        "bytes": 296,
+        "sha256": "7ea65562afcc1e7628e652d67a01a172f9d3a8be2ca022f7650c2efcf94a601e"
+      }
+    },
+    "totalBytes": 557842347
+  },
+  "input": {
+    "name": "Slow Motion Dream · CC BY 3.0",
+    "kind": "included-music",
+    "sourceSha256": "4b431d535d235bd81b62f816f08c3f1afb6679d2706d84b3b75903b7df909507",
+    "frames": 264600,
+    "sampleRate": 44100,
+    "sourceChannels": 2,
+    "pcmSha256": "b8b64a9db5a52e02bde2efae82e3567bccc2e91b95c520c4a4b67ca450884213",
+    "pcmFormat": "Float32 planar L then R, native little endian on tested browsers",
+    "decodeMs": 22.810000002384186,
+    "preparationMs": 43.75499999523163
+  }
+}

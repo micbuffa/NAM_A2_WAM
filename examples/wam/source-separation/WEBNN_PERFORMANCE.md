@@ -1,5 +1,10 @@
 # Comparaison WebNN, WebGPU et CPU/WASM — protocole W4
 
+**29 octobre 2026 :** le nouveau banc **déployable** pour Firefox expérimental utilise
+un protocole distinct : [WEBNN_FIREFOX_BENCHMARK.md](WEBNN_FIREFOX_BENCHMARK.md),
+`npm run dist:webnn-benchmark` → `dist/WebNN_Benchmark/`. Les résultats W4 ci-dessous
+restent historiques et ne deviennent pas des mesures Firefox.
+
 Page source : `http://127.0.0.1:8765/examples/wam/source-separation/webnn-performance.html`.
 Préparer les poids et le runtime local selon `WEBNN_DEMUCS4_LAB.md`. Aucun changement du runtime du host.
 

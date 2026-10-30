@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dist:webnn-benchmark": "node tools/build-webnn-benchmark.mjs",
     "setup": "./tools/setup.sh",
     "start": "node examples/wam/server.mjs",
     "factory-assets": "./tools/regenerate-factory-assets.sh",

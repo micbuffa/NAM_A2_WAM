@@ -45,3 +45,6 @@
 # Optional local YouTube importer dependencies
 /tools/.youtube-runtime/
 /third_party/scnet-probe/
+
+# Generated direct WebNN recipes and raw weights (offline reproducible export)
+/examples/wam/source-separation/model-assets/direct-webnn/
