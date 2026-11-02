@@ -5,6 +5,7 @@ import '../../../examples/wam/ui/index.js';
 import {ProjectsWorkspace} from '../../../examples/wam/projects/ProjectsWorkspace.js';
 import {timelineLength} from '../../../examples/wam/projects/ProjectsModel.js';
 import {Workspaces} from '../../../examples/wam/Workspaces.js';
+import {StudioOptionsDialog} from '../../../examples/wam/projects/StudioOptionsDialog.js';
 import {StudioLayout} from '../../../examples/wam/projects/StudioLayout.js';
 import {ProjectTimeline} from '../../../examples/wam/projects/ProjectTimeline.js';
 import Renderer from '../../../examples/wam/source-separation/vendor/wavesurfer/renderer.js';
@@ -13,6 +14,8 @@ const parsed=new DOMParser().parseFromString(html,'text/html');document.body.app
 const $=id=>document.getElementById(id),query=new URLSearchParams(location.search),count=Number(query.get('count')??6),record=query.has('record');
 const workspaces=new Workspaces({control:$('workspaceSwitch'),storage:null});workspaces.show('projects',{remember:false});
 new StudioLayout({workspaces,button:$('studioSidebarToggle'),sidebar:$('hostSidebar'),storage:null});
+new StudioOptionsDialog({button:$('studioOptions'),panel:$('studioOptionsPanel'),title:'Project options',workspaces});
+new StudioOptionsDialog({button:$('recordOptions'),panel:$('recordOptionsPanel'),title:'Recording settings',workspaces});
 $('projectTitle').textContent='Studio layout · '+count+' tracks';$('projectMeta').textContent='Long project descriptions remain accessible without stretching the toolbar.';
 for(const id of ['projectSaveState','projectShare','projectUndo','projectRedo','projectSave','projectAddTrack'])$(id).hidden=false;
 $('projectSaveState').textContent='Saved';$('projectCount').textContent='12';$('projectSelect').append(new Option('Qualification project','1'));

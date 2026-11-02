@@ -208,7 +208,7 @@ export class ProjectsWorkspace extends EventTarget {
   // Unsaved edits of an owned project.
   get dirty() {
     if (!this.owned || !this.saved) return false;
-    return Boolean(this.recording?.pending.size) || this.project.name !== this.saved.name || this.project.bpm !== this.saved.bpm || signatureOf(this.project.timeSignature) !== signatureOf(this.saved.timeSignature)
+    return Boolean(this.recording?.pending.size) || Boolean(this.hasPendingSoundExport?.()) || this.project.name !== this.saved.name || this.project.bpm !== this.saved.bpm || signatureOf(this.project.timeSignature) !== signatureOf(this.saved.timeSignature)
       || orderChanged(this.saved.tracks, this.project.tracks) || trackChanges(this.saved.tracks, this.project.tracks).length > 0;
   }
 
@@ -310,7 +310,6 @@ export class ProjectsWorkspace extends EventTarget {
 
   async chooseTrackPreset(id,value) {
     if(!this.owned||this.saving||this.recording?.busy)return;
-    if(this.recording?.pending.has(id))throw Error('Save project before changing the sound of this take.');
     const track=this.project.tracks.find(t=>t.id===id);if(!track||!usesTrackPreset(track)||value===presetValue(track))return;
     this.soundSelections??=new Map();const seq=(this.soundSelections.get(id)??0)+1;this.soundSelections.set(id,seq);
     const project=this.project,epoch=this.accountLoadEpoch;
@@ -370,6 +369,10 @@ export class ProjectsWorkspace extends EventTarget {
   async save() {
     if (this.saving || this.recording?.busy) return false;
     if (!this.dirty && !this.pendingSeparation) return true;
+    // Scope choices belong to explicit project saving in Studio, never FX return.
+    const savingProject=this.project,savingEpoch=this.accountLoadEpoch;
+    if(this.prepareSoundSave&&!await this.prepareSoundSave())return false;
+    if(this.saving||this.recording?.busy||this.project!==savingProject||this.accountLoadEpoch!==savingEpoch)return false;
     let success=false;this.saving = true;
     this.render();
     try {
@@ -397,10 +400,12 @@ export class ProjectsWorkspace extends EventTarget {
         this.setProject(full, {historyLabel: 'Separate instruments'});
       }
       this.replaceSummary(this.project);
+      try { await this.completeSoundSave?.(); }
+      catch(error) { error.projectAudioSaved=true;throw error; }
       this.report('Project and audio saved');success=true;
     } catch (error) {
-      this.separation?.setStatus(`Save interrupted: ${error.message}. Instruments remain in RAM; use Save project to retry.`);
-      this.report(`Project not saved: ${error.message}`, true);
+      if(!error.projectAudioSaved)this.separation?.setStatus(`Save interrupted: ${error.message}. Instruments remain in RAM; use Save project to retry.`);
+      this.report(`${error.projectAudioSaved?'Project and audio saved; reusable preset not created yet. Retry Save project':'Project not saved'}: ${error.message}`, true);
     }
     this.saving = false;
     this.render();return success;

@@ -269,7 +269,7 @@ export default class PresetsPanel extends EventTarget {
       const editor=this.externalEditor;select.value=editor.selectedPreset;
       this.$('presetTitle').textContent=editor.title;this.$('presetMeta').textContent=`Studio · ${editor.projectName} · independent track sound`;
       this.$('presetUnsaved').hidden=!editor.modified;this.$('presetRename').hidden=this.$('presetRevert').hidden=this.$('presetDelete').hidden=true;
-      this.$('presetNew').disabled=true;const save=this.$('presetSaveButton');save.textContent='Save project';save.disabled=editor.busy;save.title='Save this sound in the project, optionally create a new reusable preset';save.toggleAttribute('dot',editor.modified);return;
+      this.$('presetNew').disabled=true;const save=this.$('presetSaveButton');save.textContent='Return to Studio';save.disabled=editor.busy;save.title='Apply this sound locally and return to Studio. Save the project there.';save.toggleAttribute('dot',editor.modified);return;
     }
     this.$('presetSaveButton').textContent='Save Preset';
 

@@ -280,14 +280,23 @@ default; the take stores raw mono DI plus a preset snapshot as a lossless WAV.
 Up to two takes can remain in RAM (100 MiB each); Discard unsaved take allows a
 retry. Manual latency compensation is available, initially uncalibrated.
 Assisted loopback calibration is available (hardware qualification pending).
-After saving a take, click **FX** in its guitar/bass track header to edit its
-sound in Tone. Choose a library preset as a starting point, or edit the chain;
-**Play project** auditions the existing DI through the visible rack. **Save
-project & return** asks whether to keep the sound **in this project only**
-(default), or also create a **new reusable preset**. This choice happens when
-validating sound edits, not after each audio take. The original DI, capture
-preset and existing library presets stay intact. Cancel returns to Studio;
-the previous Tone rack is restored. Save any RAM take before opening FX.
+Click **FX** in a personal guitar/bass track header to edit its sound in Tone,
+even while the take is still in RAM. **Return to Studio** applies changed sound
+locally, without a server save or a question; an unchanged visit creates no edit.
+**Play project** auditions the same DI through the visible rack. The previous
+Tone rack is restored on return. **Discard edits & return** abandons only the
+current editing session. In Studio, **Save project** saves audio and the edited
+sound, with an optional checkbox to also create a reusable Tone preset. This
+question appears only for a changed FX sound. Failed saves retain local edits;
+preset creation retries reuse the same request token. Uploading a new take keeps
+the original capture preset as provenance and preserves the retouched playback
+sound. Changes remain in RAM until explicit Save project; no automatic server
+save or durable local autosave is implemented.
+
+**Project options** opens source/history, model/backend, cache and mix export
+settings in a dialog. **Recording settings** opens compensation/calibration.
+Closing these dialogs preserves control values and does not stop audio or
+separation. Progress/Stop remain in the Studio strip.
 Recording over existing audio, take undo/redo and processed DI mix export remain pending. See
 [RECORD_TRACKS_SPECIFICATION.md](RECORD_TRACKS_SPECIFICATION.md).
 

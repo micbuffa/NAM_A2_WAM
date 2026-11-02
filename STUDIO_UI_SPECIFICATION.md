@@ -34,7 +34,7 @@ Separate fixed host/project/transport bars from the flexible track viewport. Com
 
 Tests: viewport geometry for empty / 4 / 6 / many tracks, expanded/collapsed sidebar, zoom and keyboard focus; transport/recording operation unchanged. Verify no lost or hidden controls at 200% zoom.
 
-## Task 3 [TODO] — dialogs for separation and secondary configuration
+## Task 3 [DONE] — dialogs for separation and secondary configuration
 
 Move remaining bulky separation options to the existing import/separation workflow; retain model/backend/duration and advanced choices. Default full song. Keep a slim visible progress/status strip with Stop while separation runs, even with dialog closed. Reopening shows the current operation. Audio devices and calibration remain reachable from Settings; retain confirmation and monitoring-isolation behaviour.
 
@@ -78,3 +78,12 @@ Validation: 549 JavaScript tests and 141 Rails tests / 1220 assertions pass. Reg
 ### Recording controls refinement — 2 November 2026
 
 Independent speaker monitoring and microphone arming replace ambiguous I/R-only controls. R is a guarded keyboard shortcut. Armed input remains visible on the track meter without audible monitoring; ordinary playback meters the played signal. Speaker can toggle during capture. Tempo label opens project BPM/signature; transport adds count-in Off/1/2 bars (one by default) and optional continuing click. One audio clock schedules count-in, DI capture and backing playback. Imported audio gets a dismissible, opt-in tempo suggestion from a bounded Worker. This delivers recording functionality; the broader task 4 compact-header redesign remains pending.
+
+
+### Task 3 delivery and FX return simplification — 2 November 2026
+
+Project options and Recording settings now open native dialogs instead of expanding secondary panels in the timeline. The same bound nodes move into the modal and return on Close/Esc; values/listeners and running separation/playback survive. Workspace/project/account changes close the dialog. Source/history, removed-track restore, model/backend/cache and export range remain available; compensation and calibration keep their existing handlers. Import/separation model choice remains its existing dialog with default whole song and 4/6-track buttons. Progress and Stop stay in the main strip. No decoding, rack rebuilding or audio scheduling is performed when opening/closing options.
+
+FX return is a local project edit, including a take in RAM. Tone shows Return to Studio, does not save or ask a destination, and does not create an edit for an unchanged visit. Only Studio Save project offers an optional reusable-preset checkbox for actually edited FX sounds. Original capture metadata/DI remain intact; upload cannot overwrite a retouched playback snapshot. No timed autosave introduced. Task 4 (compact headers/removal of the redundant recording panel) and task 5 full end-to-end/hardware qualification remain pending.
+
+Validation task3 : 569 JS tests; 142 Rails tests /1241 assertions, all passing. Native synthetic FX workflow validates zero saves on return and Studio-only choice; modal controls preserve values/focus and operation status across Esc/reopen. Source UI at1280×719 has no document overflow. Distribution/Rails rack rebuilt and synchronized. No physical input or user-account writes performed.

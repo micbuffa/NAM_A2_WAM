@@ -23,7 +23,10 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     # The chooser creates this field dynamically; the whole-song default and
     # excerpt dispatch are covered by the StudioSeparationView unit tests.
     assert_select "#studioExcerpt", count: 0
-    assert_select "details.studio-separation-settings:not([open])", count: 1
+    assert_select "#studioOptions[aria-haspopup=dialog]", count: 1
+    assert_select "#studioOptionsPanel[hidden]", count: 1
+    assert_select "#recordOptions[aria-haspopup=dialog]", count: 1
+    assert_select "#recordOptionsPanel[hidden]", count: 1
     assert_select "#studioProgress[aria-label='Separation progress']", count: 1
     assert_select "#studioOriginal, #studioInstruments", count: 0
     assert_select "#studioTrackState[role='status']", count: 1

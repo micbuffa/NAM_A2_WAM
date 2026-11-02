@@ -491,3 +491,12 @@ body[data-workspace="projects"] .project-timeline-head { gap:8px; }
 body[data-workspace="projects"] .project-clock { min-width:76px; }
 body[data-workspace="projects"] .project-bar { min-width:28px; }
 body[data-workspace="projects"] .project-master input { width:80px; }
+
+/* Secondary Studio controls live in native dialogs; the operation strip stays visible. */
+.studio-options-content { display: grid; gap: 12px; }
+.studio-options-content[hidden] { display: none !important; }
+.studio-options-content label { display: grid; gap: 6px; font-size: 12px; color: var(--tl-text-muted); }
+.studio-options-content select, .studio-options-content input[type="number"] { width: 100%; min-width: 0; padding: 8px; color: var(--tl-text); background: var(--tl-surface-2); border: 1px solid var(--tl-border); border-radius: 6px; }
+.studio-options-dialog .studio-separation-options { grid-template-columns: 1fr; }
+.tl-modal .track-sound-reuse { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.tl-modal .track-sound-reuse input[type="checkbox"] { appearance: auto; width: 16px; height: 16px; min-height: 0; flex: 0 0 16px; padding: 0; margin: 0; accent-color: var(--tl-accent); }

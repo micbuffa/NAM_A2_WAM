@@ -15,7 +15,7 @@ function setup({reusable=false,failSave=false}={}){
   const track={id:1,name:'Solo',origin:'personal',instrument:'guitar',volume:80,pan:0,presetSnapshot:clone(library),snapshotId:'captured',audio:{url:'/dry.wav'},recording:{capturePresetSnapshot:clone(library)}};
   const w={owned:true,selectedId:1,project:{id:4,name:'Rock song',tracks:[track]},saved:{tracks:[clone(track)]},accountLoadEpoch:1,recording:{pending:new Map()},player,report:(text,error)=>events.push({text,error}),
     updateTrack(id,fields){this.project.tracks=this.project.tracks.map(t=>t.id===id?{...t,...fields}:t);events.push({update:clone(fields)});},
-    async save(){events.push({save:true});if(failSave)return false;this.saved=clone(this.project);return true;},
+    async save(){if(!await this.prepareSoundSave())return false;events.push({save:true});if(failSave)return false;this.saved=clone(this.project);try{await this.completeSoundSave();return true;}catch(error){this.report(error.message,true);return false;}},
     tones:{resolvePreset:async()=>clone(library),setOverride(id,insert){events.push({override:insert});}}};
   const rack={a:{input:new Node()},output:new Node(),value:clone(originalTone),async getState(){return clone(this.value);}};
   const source={trimDb:{live:0},holds:0,suspendMonitoring(){this.holds++;return()=>this.holds--;}};
@@ -25,7 +25,7 @@ function setup({reusable=false,failSave=false}={}){
   const editor=new TrackSoundEditor({workspace:w,rack,source,presets:panel,workspaces:spaces,context,route:()=>events.push({route:true}),ask:async()=>({reusable,name:'My solo'}),confirm:async()=>true});
   return {editor,w,rack,source,panel,spaces,events,library,originalTone,buffer};
 }
-test('FX audition borrows Tone, uses the existing DI buffer, saves an independent sound, then restores the unsaved Tone rack',async()=>{
+test('FX return applies a local sound without saving or prompting, restores Tone and keeps the same DI buffer',async()=>{
   const {editor,w,rack,source,panel,spaces,library,originalTone,events,buffer}=setup();
   await editor.open(1);assert.equal(source.holds,1);assert.equal(spaces.current,'tone');assert.equal(panel.activeId,9);
   assert.equal(events.find(e=>e.override)?.override.output,rack.output);assert.equal(w.player.channels.get(1).buffer,buffer);
@@ -34,25 +34,47 @@ test('FX audition borrows Tone, uses the existing DI buffer, saves an independen
   assert.equal(editor.active,null);assert.equal(source.holds,0);assert.equal(spaces.current,'projects');assert.deepEqual(rack.value,originalTone);
   assert.equal(w.project.tracks[0].presetSnapshot.a.entries[0].state.gain,3);assert.deepEqual(w.project.tracks[0].audio,{url:'/dry.wav'});
   assert.deepEqual(w.project.tracks[0].recording.capturePresetSnapshot,library);assert.equal(library.a.entries[0].state.gain,2);
-  assert.equal(events.filter(e=>e.create).length,0);assert.equal(panel.modified,true);assert.equal(panel.activeId,9);assert.equal(panel.baseline,'original-global-preset');
+  assert.equal(events.filter(e=>e.save).length,0);assert.equal(w.saved.tracks[0].presetSnapshot.a.entries[0].state.gain,2);assert.equal(events.filter(e=>e.create).length,0);assert.equal(panel.modified,true);assert.equal(panel.activeId,9);assert.equal(panel.baseline,'original-global-preset');
   assert.deepEqual(w.player.loop,{enabled:false,start:1,end:2});assert.equal(w.player.channels.get(1).buffer,buffer);
 });
-test('reusable export follows project save and reuses its request token after a lost response',async()=>{
-  const {editor,w,rack,panel,events}=setup({reusable:true});let attempts=0;const keys=[];
+test('only Studio save asks about reusable export; a lost response reuses the idempotency token without asking again',async()=>{
+  const {editor,w,rack,panel,events}=setup({reusable:true});let attempts=0,questions=0;const keys=[];
+  editor.ask=async()=>{questions++;return{reusable:true,name:'My solo'};};
   panel.store.create=async(name,value,{requestId})=>{keys.push(requestId);if(++attempts===1)throw Error('response lost');return{id:20};};
   await editor.open(1);rack.value.a.entries[0].state.gain=4;await editor.finish();
-  assert.ok(editor.active);assert.equal(w.saved.tracks[0].presetSnapshot.a.entries[0].state.gain,4);assert.equal(keys.length,1);
-  await editor.finish();assert.equal(editor.active,null);assert.deepEqual(keys,[keys[0],keys[0]]);assert.equal(events.filter(e=>e.update).length,1);
+  assert.equal(editor.active,null);assert.equal(questions,0);assert.equal(keys.length,0);
+  assert.equal(await w.save(),false);assert.equal(w.saved.tracks[0].presetSnapshot.a.entries[0].state.gain,4);assert.equal(w.hasPendingSoundExport(),true);
+  assert.equal(await w.save(),true);assert.equal(questions,1);assert.deepEqual(keys,[keys[0],keys[0]]);assert.equal(events.filter(e=>e.update).length,1);assert.equal(w.hasPendingSoundExport(),false);
 });
-test('failed Save creates no library preset, retains editor, and Cancel restores the initial local sound',async()=>{
-  const {editor,w,rack,events}=setup({reusable:true,failSave:true});const before=clone(w.project.tracks[0]);
-  await editor.open(1);rack.value.a.entries[0].state.gain=9;await editor.checkModified();await editor.finish();assert.ok(editor.active);
-  assert.equal(events.some(e=>e.create),false);assert.equal(w.saved.tracks[0].snapshotId,'captured');
-  await editor.cancel();assert.deepEqual(w.project.tracks[0].presetSnapshot,before.presetSnapshot);assert.deepEqual(w.project.tracks[0].audio,before.audio);
+test('failed project save creates no preset and leaves local sound and RAM take available for retry',async()=>{
+  const {editor,w,rack,events}=setup({reusable:true,failSave:true});const take={file:new Blob(['DI'])};w.recording.pending.set(1,take);
+  await editor.open(1);rack.value.a.entries[0].state.gain=9;await editor.finish();assert.equal(editor.active,null);
+  assert.equal(await w.save(),false);assert.equal(events.some(e=>e.create),false);assert.equal(w.saved.tracks[0].snapshotId,'captured');
+  assert.equal(w.project.tracks[0].presetSnapshot.a.entries[0].state.gain,9);assert.equal(w.recording.pending.get(1),take);
 });
-test('pending takes, shared viewers and active separation cannot enter track sound editing',async()=>{
-  const {editor,w}=setup();w.recording.pending.set(1,{});await assert.rejects(()=>editor.open(1),/Save project/);w.recording.pending.clear();
+test('RAM takes may enter FX without save; shared viewers and active separation remain blocked',async()=>{
+  const {editor,w,events}=setup();w.recording.pending.set(1,{});await editor.open(1);assert.ok(editor.active);assert.equal(events.some(e=>e.save),false);await editor.cancel();
   w.owned=false;await assert.rejects(()=>editor.open(1),/personal/);w.owned=true;w.separation={result:{}};await assert.rejects(()=>editor.open(1),/Finish/);
+});
+test('unchanged FX return creates no edit, no dirty snapshot and no save question',async()=>{
+  const {editor,w,events}=setup();editor.ask=async()=>{throw Error('Unexpected question');};
+  await editor.open(1);await editor.finish();assert.equal(editor.active,null);assert.equal(events.some(e=>e.update||e.save||e.create),false);assert.equal(w.project.tracks[0].snapshotId,'captured');
+  assert.equal(await editor.prepareSave(),true);assert.equal(editor.edits().length,0);
+});
+test('cancel project save keeps the local edited sound; discard in Tone discards only the current session',async()=>{
+  const {editor,w,rack}=setup();await editor.open(1);rack.value.a.entries[0].state.gain=4;await editor.finish();
+  editor.ask=async()=>null;assert.equal(await w.save(),false);assert.equal(w.project.tracks[0].presetSnapshot.a.entries[0].state.gain,4);
+  w.tones.resolvePreset=async()=>clone(w.project.tracks[0].presetSnapshot);await editor.open(1);rack.value.a.entries[0].state.gain=8;await editor.cancel();
+  assert.equal(w.project.tracks[0].presetSnapshot.a.entries[0].state.gain,4);
+});
+test('project changes while save question is open cannot export or save the previous sound',async()=>{
+  const {editor,w,rack}=setup(),wait=deferred();await editor.open(1);rack.value.a.entries[0].state.gain=4;await editor.finish();editor.ask=()=>wait.promise;
+  const pending=w.save();w.project={...w.project,id:99};w.accountLoadEpoch++;wait.resolve({reusable:true,name:'Wrong project'});
+  assert.equal(await pending,false);assert.equal(editor.edits().length,0);
+});
+test('undo or a later preset change cannot export stale Tone edits',async()=>{
+  const {editor,w,rack}=setup();await editor.open(1);rack.value.a.entries[0].state.gain=4;await editor.finish();w.project.tracks[0].presetSnapshot=state(8);
+  editor.ask=async()=>{throw Error('Stale sound offered');};assert.equal(await editor.prepareSave(),true);assert.equal(editor.edits().length,0);
 });
 test('FX waits for a global Tone load or save to finish',async()=>{
   const {editor,panel}=setup();panel.busy=true;await assert.rejects(()=>editor.open(1),/Tone preset operation/);assert.equal(editor.active,undefined);
@@ -96,4 +118,25 @@ test('sound undo/redo changes only snapshots and keeps original DI/capture metad
   const audio={url:'dry'},recording={capturePresetSnapshot:state(1)},before={name:'Project',tracks:[{id:1,audio,recording,...copiedTrackSound(state(1),'one')}]},after=clone(before);Object.assign(after.tracks[0],copiedTrackSound(state(2),'two'));
   let current=clone(after);const history=new StudioHistory();history.record(editCommand(before,after,{label:'Track sound',apply:(patch,side)=>{for(const change of patch.tracks)Object.assign(current.tracks[0],Object.fromEntries(Object.entries(change.fields).map(([key,values])=>[key,values[side]])));}}));
   await history.step();assert.equal(current.tracks[0].snapshotId,'one');await history.step(true);assert.equal(current.tracks[0].snapshotId,'two');assert.deepEqual(current.tracks[0].audio,audio);assert.deepEqual(current.tracks[0].recording,recording);
+});
+
+test('real project save asks before uploads, then publishes the edited snapshot after DI capture metadata',async()=>{
+ const {editor,w,rack,events}=setup();await editor.open(1);rack.value.a.entries[0].state.gain=6;await editor.finish();
+ Object.setPrototypeOf(w,ProjectsWorkspace.prototype);w.project.owned=true;delete w.owned;
+ w.saved.name=w.project.name;w.render=()=>{};w.replaceSummary=()=>{};w.api={updateTrack:async(id,trackId,changes)=>{events.push({api:clone(changes)});return{...w.project.tracks[0],...changes};}};
+ w.recording.save=async()=>events.push({audioUpload:true});
+ editor.ask=async()=>{events.push({question:true});return{reusable:false,name:'Solo'};};
+ assert.equal(await ProjectsWorkspace.prototype.save.call(w),true,JSON.stringify(events));
+ const question=events.findIndex(e=>e.question),upload=events.findIndex(e=>e.audioUpload),sound=events.findIndex(e=>e.api);
+ assert.ok(question<upload&&upload<sound);assert.equal(w.saved.tracks[0].presetSnapshot.a.entries[0].state.gain,6);assert.equal(w.dirty,false);
+});
+test('real project save distinguishes a saved project from a failed reusable export and retries without asking twice',async()=>{
+ const {editor,w,rack,panel,events}=setup();await editor.open(1);rack.value.a.entries[0].state.gain=6;await editor.finish();
+ Object.setPrototypeOf(w,ProjectsWorkspace.prototype);w.project.owned=true;delete w.owned;w.saved.name=w.project.name;
+ w.render=()=>{};w.replaceSummary=()=>{};w.api={updateTrack:async()=>clone(w.project.tracks[0])};w.recording.save=async()=>{};
+ let asks=0,attempts=0;const tokens=[];editor.ask=async()=>{asks++;return{reusable:true,name:'New solo'};};
+ panel.store.create=async(name,state,{requestId})=>{tokens.push(requestId);if(++attempts===1)throw Error('Lost response');return{id:20};};
+ assert.equal(await ProjectsWorkspace.prototype.save.call(w),false);assert.equal(w.saved.tracks[0].presetSnapshot.a.entries[0].state.gain,6);assert.equal(w.dirty,true);
+ assert.match(events.at(-1).text,/Project and audio saved; reusable preset not created yet/);
+ assert.equal(await ProjectsWorkspace.prototype.save.call(w),true);assert.equal(w.dirty,false);assert.equal(asks,1);assert.equal(tokens[0],tokens[1]);
 });

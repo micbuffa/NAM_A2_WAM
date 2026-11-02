@@ -95,12 +95,12 @@ test('mix export refuses a snapshot preset until processed DI rendering is quali
 });
 test('new-take persistence is retriable; a failed upload keeps the exact WAV and old saved track',async()=>{
   const recording=Object.create(StudioRecording.prototype), file=new File(['raw'],'take.wav',{type:'audio/wav'});
-  const old={id:1,audio:null},project={id:2,tracks:[{...old,volume:30}]},saved={tracks:[{...old}]};
+  const old={id:1,audio:null},project={id:2,tracks:[{...old,volume:30,presetSnapshot:{version:2,a:{edited:true}},snapshotId:'edited-after-recording'}]},saved={tracks:[{...old}]};
   const take={file,metadata:{sessionId:'take'},url:'blob:take',expectedUpdatedAt:'v1'};recording.pending=new Map([[1,take]]);
   recording.workspace={project,saved,accountLoadEpoch:1,api:{saveRecording:async()=>{throw Error('offline');}}};
   await assert.rejects(()=>recording.save(),/offline/);assert.equal(recording.pending.get(1).file,file);assert.equal(saved.tracks[0].audio,null);
   recording.workspace.api.saveRecording=async()=>({id:1,audio:{url:'/saved.wav'},recording:take.metadata,presetSnapshot:{version:2,a:{}},snapshotId:'take',updatedAt:'v2'});
-  await recording.save();assert.equal(recording.pending.size,0);assert.equal(project.tracks[0].volume,30);assert.equal(saved.tracks[0].audio.url,'/saved.wav');
+  await recording.save();assert.equal(recording.pending.size,0);assert.equal(project.tracks[0].volume,30);assert.equal(saved.tracks[0].audio.url,'/saved.wav');assert.equal(project.tracks[0].snapshotId,'edited-after-recording');assert.deepEqual(project.tracks[0].presetSnapshot,{version:2,a:{edited:true}});assert.equal(saved.tracks[0].snapshotId,'take');assert.equal(saved.tracks[0].recording,take.metadata);
 });
 
 

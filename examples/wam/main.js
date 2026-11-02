@@ -19,6 +19,7 @@ import {EngineStatus} from './EngineStatus.js';
 import {SettingsView} from './SettingsView.js';
 import {registerAppearance} from './ui/Appearance.js';
 import {Workspaces} from './Workspaces.js';
+import {StudioOptionsDialog} from './projects/StudioOptionsDialog.js';
 import {StudioLayout} from './projects/StudioLayout.js';
 import {ProjectsWorkspace, takeLinkedProject} from './projects/ProjectsWorkspace.js';
 import {StudioPlayer as ProjectPlayer} from './projects/StudioPlayer.js';
@@ -522,6 +523,8 @@ async function initialize() {
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
   // Factory presets build on the default rack, known once the presets are attached.
   projects.attachTones(trackTones);
+  new StudioOptionsDialog({button:$('#studioOptions'),panel:$('#studioOptionsPanel'),title:'Project options',workspaces,workspace:projects});
+  new StudioOptionsDialog({button:$('#recordOptions'),panel:$('#recordOptionsPanel'),title:'Recording settings',workspaces,workspace:projects});
   trackSoundEditor=new TrackSoundEditor({workspace:projects,rack,source:sourceManager,presets,workspaces,context,route:()=>{syncMonitoring();syncSourceTrim();},pauseAlong:()=>playAlong.engine.pause(),view:editor=>{
     const active=!!editor.active;$('#trackSoundEditor').hidden=!active;document.body.dataset.trackSoundEdit=String(active);$('#workspaceSwitch').disabled=active;
     if(!active)return;
@@ -529,7 +532,7 @@ async function initialize() {
     $('#trackSoundPlay').textContent=projectPlayer.playing?'Pause project':'Play project';$('#trackSoundPlay').disabled=editor.busy||!projectPlayer.ready;
     $('#trackSoundLoop').disabled=editor.busy||!projectPlayer.duration;$('#trackSoundLoop').setAttribute('aria-pressed',String(projectPlayer.loop.enabled));
     $('#trackSoundSave').disabled=$('#trackSoundCancel').disabled=editor.busy;
-    $('#trackSoundStatus').textContent=editor.busy?'Loading / saving track sound…':editor.modified?'Sound edited · Save project to keep it':'Editing a copy of the track sound';
+    $('#trackSoundStatus').textContent=editor.busy?'Loading track sound…':editor.modified?'Sound edited · Return to Studio, then Save project':'Editing a copy · Return to Studio at any time';
   }});
   for(const [id,operation]of [['trackSoundPlay',()=>trackSoundEditor.togglePlay()],['trackSoundLoop',()=>trackSoundEditor.toggleLoop()],['trackSoundSave',()=>trackSoundEditor.finish()],['trackSoundCancel',()=>trackSoundEditor.cancel()]])$('#'+id).onclick=()=>Promise.resolve().then(operation).catch(error=>message(error.message,true));
   window.phase3Debug.trackSoundEditor=trackSoundEditor;

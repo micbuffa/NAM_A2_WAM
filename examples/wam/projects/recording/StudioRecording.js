@@ -234,9 +234,9 @@ export class StudioRecording {
       const track = await w.api.saveRecording(project.id, id, take.metadata, take.file, take.expectedUpdatedAt);
       if (w.project !== project || w.accountLoadEpoch !== epoch) throw Error('Account or project changed during saving.');
       // Keep local mixer edits; only replace audio/provenance fields from the server.
-      const fields = {audio: track.audio, recording: track.recording, presetSnapshot: track.presetSnapshot, snapshotId: track.snapshotId, updatedAt: track.updatedAt};
+      const fields = {audio: track.audio, recording: track.recording, updatedAt: track.updatedAt};
       project.tracks = project.tracks.map(t => t.id === id ? {...t, ...fields} : t);
-      w.saved.tracks = w.saved.tracks.map(t => t.id === id ? {...t, ...fields, presetId: null, factoryPreset: null} : t);
+      w.saved.tracks = w.saved.tracks.map(t => t.id === id ? {...t, ...fields, presetSnapshot:track.presetSnapshot,snapshotId:track.snapshotId,presetId: null, factoryPreset: null} : t);
       this.pending.delete(id);
       const release = () => URL.revokeObjectURL(take.url);
       if (w.player?.base?.adoptAudioReference) w.player.base.adoptAudioReference(id, take.url, track.audio, release);
@@ -268,7 +268,6 @@ export class StudioRecording {
     if($('projectTimelineTempo'))$('projectTimelineTempo').disabled=this.busy;
     $('recordCompensation').disabled = this.busy;
     $('recordDiscard').hidden = !this.pending.has(track?.id); $('recordDiscard').disabled = this.busy || w.saving;
-    if (this.pending.has(track?.id)) { $('inspectorPreset').disabled = true; $('inspectorEditPreset').disabled = true; }
     $('recordStatus').textContent = this.busy ? `${this.state === 'counting' ? `Count-in · ${this.metronome.count || 'Get ready'}` : this.state === 'recording' ? 'Recording DI' : this.state === 'preparing' ? 'Preparing capture' : this.state === 'calibrating' ? 'Calibrating latency' : 'Finalizing take'} · ${((this.frames ?? 0) / this.context.sampleRate).toFixed(1)} s`
       : this.pending.has(track?.id) ? `Take in RAM · ${this.pending.get(track.id).peak > .00001 ? `peak ${(20 * Math.log10(this.pending.get(track.id).peak)).toFixed(1)} dBFS · Play to listen` : 'silence detected: check input/channel'} · Save project to keep it.` : track?.audio ? 'Recording on existing audio will be added in a later stage. Add an empty personal track.'
       : this.pending.size >= 2 ? 'Two takes are already in RAM. Save project before recording another track.'
