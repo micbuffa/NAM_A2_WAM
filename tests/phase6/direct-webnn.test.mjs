@@ -2,8 +2,49 @@ import test from 'node:test';
 import {OnnxCoreModel} from '../../examples/wam/source-separation/OnnxCoreModel.js';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
+import {EXPERIMENT_MODELS,sha256} from '../../examples/wam/source-separation/DirectWebNNAssets.js';
 import {createDirectWebNNSession,DirectAudioTensor,validateDirectRecipe,loadDirectWebNNModel,describeDirectWebNNFailure} from '../../examples/wam/source-separation/DirectWebNN.js';
+// Full exported models are optional generated integration fixtures (~908 MB), not unit fixtures.
+// An existing but incomplete directory must still fail; the strict npm command also fails if absent.
+const fullModels={skip:!existsSync(new URL('../../examples/wam/source-separation/model-assets/direct-webnn/',import.meta.url)) && process.env.REQUIRE_DIRECT_WEBNN_ASSETS!=='1' && process.env.npm_lifecycle_event!=='test:direct-webnn:assets' ? 'Generated WebNN models absent; run npm run test:direct-webnn:assets after export/build (see README).' : false};
 const recipe=()=>({format:'direct-webnn-graph-v1',inputs:{audio:{id:'i0',shape:[2],dataType:'float32'}},outputs:{result:{id:'v0',shape:[2],dataType:'float32'}},constants:{c0:{shape:[2],dataType:'float32',offset:0,bytes:8}},operations:[{op:'add',args:['i0','c0'],outputs:['v0'],checkShape:[2],sourceLabel:'test-add'}]});
+async function loaderFixture(model='demucs4') {
+ const weights=new Float32Array([.25,.5]).buffer;
+ const g={...recipe(),provenance:{sourceSha256:EXPERIMENT_MODELS[model].sha256},weights:{bytes:weights.byteLength,sha256:await sha256(weights)}};
+ const encode=value=>new TextEncoder().encode(JSON.stringify(value)).buffer;
+ const graph=encode(g),entry={sourceSha256:g.provenance.sourceSha256,graph:{url:`./model-assets/direct-webnn/${model}.graph.json`,bytes:graph.byteLength,sha256:await sha256(graph)},weights:{...g.weights}};
+ const index={format:'direct-webnn-index-v1',models:{[model]:entry}},paths=[];
+ const files=new Map([['index.json',encode(index)],[`${model}.graph.json`,graph],[`${model}.weights.bin`,weights]]);
+ return{g,index,entry,encode,files,paths,fetchImpl:async url=>{
+  paths.push(String(url));const bytes=files.get(new URL(url).pathname.split('/').at(-1));
+  return{ok:!!bytes,arrayBuffer:async()=>bytes.slice(0)};
+ }};
+}
+test('direct model loader verifies pinned identity, graph and weights using tiny synthetic assets',async()=>{
+ const code=await readFile(new URL('../../examples/wam/source-separation/DirectWebNN.js',import.meta.url),'utf8');assert.doesNotMatch(code,/import\(/);assert.doesNotMatch(code,/InferenceSession/);
+ for(const model of ['demucs4','roformer6']){
+  const f=await loaderFixture(model),phases=[];
+  const result=await loadDirectWebNNModel(model,{fetchImpl:f.fetchImpl,measure:async(name,fn)=>{phases.push(name);return fn();}});
+  assert.deepEqual(result.recipe,f.g);assert.deepEqual([...new Float32Array(result.weights)],[.25,.5]);
+  assert.deepEqual(f.paths.map(url=>new URL(url).pathname.split('/').at(-1)),['index.json',`${model}.graph.json`,`${model}.weights.bin`]);
+  assert.ok(f.paths.every(url=>!url.includes('onnxruntime')&&!url.endsWith('.onnx')));
+  assert.deepEqual(phases,['graphRecipeFetchMs','graphRecipeVerifyMs','weightsFetchMs','weightsHashMs']);
+ }
+});
+test('direct model loader rejects missing assets, wrong identities and corrupted graph/weights without large model files',async()=>{
+ const cases=[
+  [f=>f.files.delete('index.json'),/export missing/],
+  [f=>{f.entry.sourceSha256='wrong';f.files.set('index.json',f.encode(f.index));},/pinned model/],
+  [f=>f.files.set('demucs4.graph.json',new ArrayBuffer(1)),/recipe integrity/],
+  [f=>{const b=f.files.get('demucs4.graph.json').slice(0);new Uint8Array(b)[0]^=1;f.files.set('demucs4.graph.json',b);},/recipe integrity/],
+  [async f=>{f.g.provenance.sourceSha256='wrong';const b=f.encode(f.g);f.entry.graph={...f.entry.graph,bytes:b.byteLength,sha256:await sha256(b)};f.files.set('demucs4.graph.json',b);f.files.set('index.json',f.encode(f.index));},/source identity/],
+  [f=>f.files.delete('demucs4.weights.bin'),/export missing/],
+  [f=>f.files.set('demucs4.weights.bin',new ArrayBuffer(1)),/weights integrity/],
+  [f=>f.files.set('demucs4.weights.bin',new Float32Array([99,99]).buffer),/weights integrity/]
+ ];
+ for(const [mutate,message]of cases){const f=await loaderFixture();await mutate(f);await assert.rejects(loadDirectWebNNModel('demucs4',{fetchImpl:f.fetchImpl}),message);}
+});
 function fake(){
  const events=[];
  class Builder{
@@ -34,8 +75,8 @@ test('partial tensor-allocation failures release created resources and recipe co
  await assert.rejects(createDirectWebNNSession(context,recipe(),new ArrayBuffer(8),{Builder}),/out of memory/);assert.equal(events.filter(x=>x==='tensor-destroy').length,1);assert.ok(events.includes('graph-destroy'));
  for(const mutate of [g=>g.constants.c0.offset=1,g=>g.constants.c0.bytes=20,g=>g.operations[0].args[0]='missing',g=>g.operations[0].op='constructor',g=>g.operations[0].outputs=['i0']]){const g=recipe();mutate(g);assert.throws(()=>validateDirectRecipe(g,8));}
 });
-test('exported full models contain only allowed WebNN recipes and verified raw weights; no browser ONNX/ORT fetch',async()=>{
- const base=new URL('../../examples/wam/source-separation/',import.meta.url),paths=[];
+test('exported full models contain only allowed WebNN recipes and verified raw weights; no browser ONNX/ORT fetch',fullModels,async()=>{
+ const paths=[];
  const fetchImpl=async url=>{paths.push(String(url));const data=await readFile(url);return{ok:true,arrayBuffer:async()=>data.buffer.slice(data.byteOffset,data.byteOffset+data.length)};};
  for(const key of ['demucs4','roformer6']){
   const result=await loadDirectWebNNModel(key,{fetchImpl});assert.equal(result.recipe.provenance.numericalQualification.includes('pending'),true);assert.ok(result.recipe.operations.length>1000);assert.deepEqual(new Set(result.recipe.outputNames),new Set(Object.keys(result.recipe.outputs)));if(key==='demucs4')assert.deepEqual(result.recipe.outputNames,['output','5073']);assert.equal(result.recipe.weights.bytes,result.weights.byteLength);
@@ -45,9 +86,8 @@ test('exported full models contain only allowed WebNN recipes and verified raw w
   for(const c of Object.values(result.recipe.constants))assert.notEqual(c.shape.includes(0),true);
  }
  assert.ok(paths.every(path=>!path.includes('onnxruntime')&&!path.endsWith('.onnx')));
- const code=await readFile(new URL('DirectWebNN.js',base),'utf8');assert.doesNotMatch(code,/import\(/);assert.doesNotMatch(code,/InferenceSession/);
 });
-test('Demucs uses equivalent static slices while Roformer scalar gather indices preserve rank zero',async()=>{
+test('Demucs uses equivalent static slices while Roformer scalar gather indices preserve rank zero',fullModels,async()=>{
  for(const key of ['demucs4','roformer6']){
   const g=JSON.parse(await readFile(new URL(`../../examples/wam/source-separation/model-assets/direct-webnn/${key}.graph.json`,import.meta.url)));
   if(key==='demucs4'){assert.equal(g.operations.filter(row=>row.op==='gather').length,0);assert.equal(g.operations.filter(row=>row.sourceLabel?.endsWith('/static-selection-slice')).length,26);assert.match(g.provenance.staticScalarGather,/native validation pending/);}

@@ -333,6 +333,26 @@ npm test
 The tests cover dynamic file discovery, the host, NAM-to-Cabinet routing, manifests, static
 distribution, the AudioWorklet contract, and TONE3000 integration.
 
+Direct WebNN unit tests use tiny synthetic graphs/weights, including loader identity
+and integrity failures; no model download is needed for these tests. Three additional
+checks validate the full generated models in source and distribution. `npm test`
+reports them as **skipped** with instructions when their generated directory is
+absent (these ~908 MB assets are Git-ignored). A present but incomplete directory
+still fails. The remaining distribution tests still require a prepared product dist.
+
+Before deploying Direct WebNN, export the pinned checkpoints with
+`python3 tools/export-direct-webnn.py` (dependencies/preparation described above),
+build with `npm run dist`, then run the mandatory full-asset checks:
+
+```sh
+npm run test:direct-webnn:assets
+```
+
+This command never skips missing models. CI/release jobs can also set
+`REQUIRE_DIRECT_WEBNN_ASSETS=1` when running `npm test`. Distribution preflight
+continues to reject missing native model files; skipping optional integration
+fixtures in the default test run does not enable an incomplete deployment.
+
 To compare native and WASM rendering for a reference model:
 
 ```sh

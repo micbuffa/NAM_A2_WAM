@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {access, readdir, readFile} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
 
 import {STUDIO_RUNTIME_ASSETS} from '../../examples/wam/projects/StudioRuntimeAssets.js';
 
@@ -27,8 +28,10 @@ test('Studio ships precisely the two approved model identities, orders and pinne
   assert.equal(plan.sourceBytes, models[1].files[0].size);
 });
 
-test('direct runtime ships ordered model outputs and complete weights without a benchmark dependency',async()=>{
+test('direct runtime ships ordered model outputs and complete weights without a benchmark dependency',{skip:!existsSync(new URL('model-assets/direct-webnn/',directory)) && process.env.REQUIRE_DIRECT_WEBNN_ASSETS!=='1' && process.env.npm_lifecycle_event!=='test:direct-webnn:assets' ? 'Generated distribution WebNN models absent; run npm run test:direct-webnn:assets after export/build (see README).' : false},async()=>{
  for(const key of ['demucs4','roformer6']){const g=JSON.parse(await readFile(new URL(`model-assets/direct-webnn/${key}.graph.json`,directory)));assert.ok(g.outputNames.length>=2);await access(new URL(`model-assets/direct-webnn/${key}.weights.bin`,directory));if(key==='demucs4')assert.deepEqual(g.outputNames,['output','5073']);}
+});
+test('distributed direct runtime does not depend on ONNX Runtime or ship the benchmark page',async()=>{
  const direct=await readFile(new URL('DirectWebNN.js',directory),'utf8');assert.doesNotMatch(direct,/WebNNExperiment|InferenceSession/);
  await assert.rejects(access(new URL('webnn-diagnostics.html',directory)));
 });
