@@ -12,6 +12,20 @@ export class FxChainView {
   constructor(chain,container,report,options={}) {
     Object.assign(this,{chain,container,report,options});this.openSerial=0;this.activeId=null;
     this.cards=new Map();this.parking=element('div');this.parking.hidden=true;document.body.append(this.parking);
+    // One card per lane can be selected; a press anywhere outside this lane's cards (except inside a dialog,
+    // e.g. its editor) clears it. Pointer events from tl-module's shadow DOM are retargeted to the card.
+    this.selectedId=null;
+    document.addEventListener('pointerdown',event=>{
+      if(!this.selectedId||event.target.closest?.('dialog'))return;
+      const card=event.target.closest?.('.fx-card');if(!card||!this.container.contains(card))this.select(null);
+    });
+    // The selected card answers Alt + arrows, Delete and Escape wherever the focus is, unless the user is
+    // typing in a field or a dialog is open.
+    document.addEventListener('keydown',event=>{
+      if(!this.selectedId||event.defaultPrevented||document.querySelector('dialog[open]'))return;
+      if(event.target.isContentEditable||event.target.closest?.('input,select,textarea'))return;
+      this.selectionKey(event,this.selectedId);
+    });
     this.dialog=element('dialog','fx-editor tl-modal');
     const bar=element('header','fx-editor-bar tl-modal-header'),titles=element('div','fx-editor-titles');
     this.kicker=element('p','tl-eyebrow');this.title=element('h2','tl-modal-title');this.title.id=`fx-editor-title-${++editorSequence}`;this.dialog.setAttribute('aria-labelledby',this.title.id);
@@ -163,6 +177,27 @@ export class FxChainView {
     };this.animation=requestAnimationFrame(tick);
   }
   dropTarget(target,beforeId) { target.dataset.beforeId=beforeId||''; }
+  select(id) {
+    this.selectedId=id;
+    for(const [cardId,view] of this.cards){
+      view.card.classList.toggle('is-selected',cardId===id);
+      if(cardId===id)view.photo.setAttribute('aria-current','true');else view.photo.removeAttribute('aria-current');
+    }
+  }
+  // Keyboard actions on one card: Alt + Left/Right moves it, Delete/Backspace asks to remove it, Escape
+  // clears the selection. Returns true when the key was handled.
+  selectionKey(event,id) {
+    if(event.key==='Escape'&&this.selectedId===id){event.preventDefault();this.select(null);return true;}
+    if((event.key==='Delete'||event.key==='Backspace')&&!event.altKey&&!event.metaKey&&!event.ctrlKey){
+      event.preventDefault();this.select(id);this.confirmRemove(id).catch(error=>this.report(error.message,true));return true;}
+    if(!event.altKey||!['ArrowLeft','ArrowRight'].includes(event.key))return false;
+    event.preventDefault();this.select(id);
+    const entries=this.chain.entries,entry=entries.find(e=>e.id===id),index=entries.indexOf(entry),left=event.key==='ArrowLeft';
+    if(!entry||(left?index===0:index===entries.length-1))return true;
+    this.chain.move(id,left?entries[index-1].id:entries[index+2]?.id||null)
+      .then(()=>this.cards.get(id)?.photo.focus(),error=>this.report(error.message,true));
+    return true;
+  }
   async toggle(id) {try{const e=this.chain.find(id);await this.chain.setBypass(id,!e.bypass);}catch(e){this.report(e.message,true);} }
   render() {
     const ids=this.chain.entries.map(e=>e.id+':'+(e.plugin?.instanceId||e.record?.entryUrl||'')).join('|');
@@ -181,11 +216,14 @@ export class FxChainView {
         card.addEventListener('module-toggle',()=>this.toggle(entry.id));card.addEventListener('module-remove',()=>this.confirmRemove(entry.id));
         const photo=element('button','fx-photo'),image=element('img');const inputMeter=this.createThinMeter('Plugin input level'),outputMeter=this.createThinMeter('Plugin output level');inputMeter.classList.add('fx-card-input-meter');outputMeter.classList.add('fx-card-output-meter');photo.append(inputMeter,image,outputMeter);image.draggable=false;
         card.addEventListener('module-edit',()=>this.open(entry.id,photo));
-        photo.onclick=()=>{if(!this.suppressClick)this.open(entry.id,photo);};
+        // A click only selects (so a card can be grabbed or targeted safely); double-click or Enter edits,
+        // like the header's edit button.
+        photo.onclick=()=>{if(!this.suppressClick)this.select(entry.id);};
+        photo.ondblclick=()=>{if(!this.suppressClick)this.open(entry.id,photo);};
         let pointer=null,drop=null,crossLane=false;
         const clearDrag=()=>{card.classList.remove('is-dragging');drop?.classList.remove('fx-drop-target');pointer=null;drop=null;};
         photo.addEventListener('pointerdown',event=>{
-          if(event.button!==0)return;pointer={id:event.pointerId,x:event.clientX,y:event.clientY,moving:false};
+          if(event.button!==0)return;this.select(entry.id);pointer={id:event.pointerId,x:event.clientX,y:event.clientY,moving:false};
           photo.setPointerCapture(event.pointerId);
         });
         photo.addEventListener('pointermove',event=>{
@@ -209,16 +247,17 @@ export class FxChainView {
           try{await (swap?this.chain.swap(entry.id,target):this.chain.move(entry.id,target||null));this.cards.get(entry.id)?.photo.focus();}catch(error){this.report(error.message,true);}
         });
         photo.addEventListener('pointercancel',()=>{clearDrag();this.suppressClick=false;});
-        photo.addEventListener('keydown',async event=>{
-          if(!event.altKey||!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();
-          const entries=this.chain.entries,index=entries.indexOf(entry),left=event.key==='ArrowLeft';
-          if(left?index===0:index===entries.length-1)return;
-          try{await this.chain.move(entry.id,left?entries[index-1].id:entries[index+2]?.id||null);this.cards.get(entry.id)?.photo.focus();}catch(error){this.report(error.message,true);}
+        // A focused card acts on itself even when another one is selected (keyboard users tab to it).
+        photo.addEventListener('keydown',event=>{
+          if(event.key==='Enter'&&!event.altKey){event.preventDefault();this.select(entry.id);this.open(entry.id,photo);return;}
+          if(this.selectionKey(event,entry.id))event.stopPropagation();
         });
         this.dropTarget(card,entry.id);
         image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail({id:entry.id,name:entry.record?.name||entry.kind});};
         card.append(photo);const captures=entry.plugin?.getCaptureChoices?this.createCaptureSelector(entry):null;if(captures)card.append(captures.root);this.container.append(card);this.cards.set(entry.id,{card,image,photo,inputMeter,outputMeter,captures});
       }add(null);
+      // Rebuilt cards keep the selection; a removed effect drops it.
+      this.select(this.cards.has(this.selectedId)?this.selectedId:null);
       const output=element('span','fx-output-link');
       output.setAttribute('aria-hidden','true');output.append(element('i','fx-wire'));this.container.append(output);
     }
@@ -236,7 +275,7 @@ export class FxChainView {
       const fallback=fallbackThumbnail({id:e.id,name});image ||= fallback;
       // Every new picture gets its own try: only a failing one falls back.
       if(card.image.dataset.source!==image){card.image.dataset.source=image;card.image.onerror=()=>{card.image.onerror=null;card.image.src=fallback;};card.image.src=image;}
-      card.image.alt=name;card.photo.title=e.error?`${name}: ${e.error}`:name;card.photo.setAttribute('aria-label',`Open ${name}`);
+      card.image.alt=name;card.photo.title=e.error?`${name}: ${e.error}`:name;card.photo.setAttribute('aria-label',`${name} — Enter to edit`);
       card.card.setAttribute('heading',name);
       if(card.captures)await this.refreshCaptureSelector(e,card.captures);
       card.card.classList.toggle('is-bypassed',e.bypass||!e.plugin);card.card.active=!e.bypass&&!!e.plugin;if(e.routingStatus)card.photo.title+=` · ${e.routingStatus}`;

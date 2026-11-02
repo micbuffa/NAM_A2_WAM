@@ -12,7 +12,7 @@ export class FxRackView {
     const cell=panel=>{const c=el('div','fx-endpoint-cell');c.append(panel);return c;};this.left.append(cell(input));this.right.append(cell(output));
     this.scroller=el('div','fx-scroll');this.track=el('div','fx-track');this.scroller.append(this.track);this.track.append(strip);
     this.gutter=el('div','fx-route-gutter');this.track.append(this.gutter);
-    this.bStrip=el('section','fx-chain');this.bStrip.id='fxChainB';this.bStrip.setAttribute('aria-label','Chain B effects');this.track.append(this.bStrip);
+    this.bStrip=el('section','fx-chain');this.bStrip.id='fxChainB';this.bStrip.setAttribute('aria-label','Chain B effects — click to select, double-click or Enter to edit, drag or Alt + arrow keys to move, Delete to remove');this.track.append(this.bStrip);
     this.svg=document.createElementNS('http://www.w3.org/2000/svg','svg');this.svg.classList.add('fx-route-cable');this.svg.setAttribute('aria-hidden','true');this.track.append(this.svg);
     this.routeLabel=el('button','fx-route-label');this.gutter.append(this.routeLabel);
     this.routeLabel.onclick=()=>this.routeMenu(this.rack.route?.index||0,this.routeLabel,true);

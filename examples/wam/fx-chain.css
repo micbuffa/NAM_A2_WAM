@@ -90,6 +90,7 @@
 
 /* Effect modules (tl-module host). */
 .fx-card { --halo: 0; flex: 0 0 220px; width: 220px; height: 262px; box-sizing: border-box; }
+.fx-card.is-selected { outline: 2px solid var(--tl-accent); outline-offset: 3px; }
 .fx-card.is-dragging { opacity: .45; }
 .fx-drop-target { outline: 2px dashed var(--tl-accent); outline-offset: 4px; }
 .fx-photo { position: relative; isolation: isolate; display: grid; flex: 1; min-height: 0; margin: 10px 10px 0; padding: 10px 14px; border: 1px solid var(--tl-border-subtle);
