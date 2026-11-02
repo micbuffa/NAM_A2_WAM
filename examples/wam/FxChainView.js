@@ -131,7 +131,8 @@ export class FxChainView {
   async confirmRemove(id) {
     const entry=this.chain.find(id);
     if(this.confirmation.open)return;
-    const title=element('h3','',`Remove ${entry.record?.name||entry.kind}?`);title.id='fx-remove-title';
+    // Name it as the card does: the loaded model / IR for amp and cabinet, otherwise the plugin.
+    const title=element('h3','',`Remove ${this.describe(entry).name}?`);title.id='fx-remove-title';
     const message=element('p','','This instance and its settings will be removed from the chain.');
     const cancel=element('button','tl-btn','Cancel'),remove=element('button','tl-btn tl-btn-danger','Remove'),actions=element('div','tl-modal-actions');actions.append(cancel,remove);
     this.confirmation.setAttribute('aria-labelledby',title.id);this.confirmation.replaceChildren(title,message,actions);
