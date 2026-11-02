@@ -1,11 +1,19 @@
 # Enregistrer une guitare ou une basse dans Studio
 
-Mise à jour : 29 octobre 2026. **Implémenté sur `codex/studio-integration` : prise mono DI sur une piste personnelle vide et assistant de calibration aller-retour ; validation matérielle restante.**
+Mise à jour : 2 novembre 2026. **Implémenté sur `codex/studio-integration` : prise mono DI sur une piste personnelle vide et assistant de calibration aller-retour ; validation matérielle restante.**
 
 
-Ergonomie corrigée : commandes regroupées dans le canvas Studio au-dessus des pistes (plus dans l’inspecteur hors écran), **R** directement sur les pistes personnelles et vumètres verticaux dans chaque en-tête de piste, tous types de pistes, niveau après volume/pan à 10 Hz. Le bouton **I** d’une piste vide initialise aussi le monitoring ; il n’est pas nécessaire de commencer à enregistrer pour écouter/voir son entrée. Réglage de compensation replié dans **Recording settings**. Tests : 481 JS passent après cette correction.
+Commandes visibles au-dessus de la timeline et dans les en-têtes : **microphone** pour armer, **haut-parleur** pour écouter l’entrée. La touche **R** arme/désarme la piste personnelle sélectionnée, sauf dans un champ de saisie, un dialogue ou pendant une prise. Une seule piste est armée à la fois. L’armement initialise l’entrée et le vumètre DI sans activer le monitoring. La sélection d’une piste ou le chargement de son preset ne rend jamais l’entrée audible. Tone ne double pas le monitoring de Studio.
 
-L’utilisateur ajoute une piste personnelle guitare/basse sans fichier, choisit son entrée/canal dans Tone, utilise **Enable input / monitor**, puis **R · Arm track**, **Record**, **Stop recording**. Sans preset de piste, le son courant de Tone est copié, même non sauvegardé ; **Use current Tone sound** permet de refaire cette copie avant la prise. Le monitoring reste indépendant de l’armement. Une seule piste est armée à la fois.
+Parcours : ajouter une piste personnelle guitare/basse vide, choisir l’entrée/canal dans Tone, **Arm track → Record → décompte → prise → Stop recording → Save project**. Le haut-parleur reste optionnel, commutable pendant la prise. Sans preset de piste, le son courant de Tone est copié, même non sauvegardé ; **Use current Tone sound** refait cette copie sans forcer le monitoring. À l’arrêt, le vumètre de la piste armée observe la DI ; en lecture normale il observe l’audio lu après traitement/volume/pan. Le réglage explicite du haut-parleur est conservé après Stop.
+
+### Décompte, métronome et tempo — implémentés
+
+- Par défaut, **une mesure avant la prise**, puis clic désactivé pendant la prise. Menu Off / 1 bar / 2 bars ; bouton métronome pour activer/couper le clic pendant la prise.
+- Le label tempo ouvre l’édition du projet : BPM de noire et signature 2/4, 3/4, 4/4 (défaut), 5/4, 6/8 ou 7/8. Signature sauvegardée/restaurée par Rails et incluse dans undo/redo ; grille, compteurs et boucles utilisent cette signature. En 6/8 à 120 BPM de noire : six clics de croches, mesure de 1,5 s.
+- Clics programmés à l’avance avec l’horloge AudioContext. Capture DI et accompagnement commencent au même timestamp arrondi à une frame, après le décompte. Le clic sort sur le master Studio, jamais dans la DI. À une position non nulle, les clics suivants respectent la grille du projet. Stop pendant le décompte annule sans créer de prise vide.
+- L’import fichier ou YouTube propose une estimation de tempo à partir du signal déjà décodé : Worker dédié, copie bornée à 60 secondes d’un canal, recherche approximative 60–180 BPM. L’utilisateur applique ou ignore la suggestion ; le BPM n’est pas modifié automatiquement. Les ambiguïtés moitié/double tempo restent possibles ; pas de détection du premier temps, de time-stretch ni de modification de l’audio. Un extrait trop court ou sans pulsation claire ne donne pas de suggestion.
+- Déploiement Rails : exécuter **bin/rails db:migrate** pour la colonne time_signature (migration appliquée sur le container local).
 
 La capture WAM utilise le même AudioContext que les accompagnements, un timestamp commun en frames et un ring buffer SPSC de deux secondes vers un Worker. La DI mono est prélevée avant trim logiciel/effets ; le mix et le monitoring ne sont jamais réenregistrés. Le Worker publie des peaks compacts à 10 Hz et finalise uniquement après StopAck du producteur. Débordement, rupture de frames, perte/changement d’entrée et échec du processeur invalident la prise.
 
@@ -319,3 +327,8 @@ Le démarrage attend désormais l’acquittement du processeur de capture avant 
 ### Studio master listening level — 30 October 2026
 
 The Studio master volume controls the common listening output, including monitoring and playback, with a short smoothing ramp. It does not alter captured DI, the track preset, latency compensation or exported mix levels. It is a session listening preference rather than an undoable project edit.
+
+
+### Validation du 2 novembre 2026
+
+558 tests JavaScript et 142 tests Rails (1234 assertions), tous réussis. Qualification native synthétique avec le vrai WAM de capture, ring buffer et Worker : armement silencieux, vumètre DI, quatre clics, départ commun capture/accompagnement, waveform incrémentale stable, lecture mesurée sans pollution de l’entrée live. Stop pendant décompte : aucune prise créée. Worker tempo : 120 BPM retrouvés sur 20 s de pulsations connues. Dialogue tempo/signature et UI compacte vérifiés. Qualification physique carte son et estimation sur corpus musical réel encore nécessaires ; ces tests synthétiques ne constituent pas une mesure de latence matérielle.

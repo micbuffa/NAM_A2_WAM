@@ -152,7 +152,7 @@ test('the shared transport switches decks exclusively and applies Studio faders,
   assert.deepEqual(f.player.loop,{enabled:true,start:.2,end:.8});
   assert.ok(f.separation.result.engine.regionPlaying);
   f.player.stop(); assert.equal(f.player.position,.2);
-  f.separation.show('original'); assert.equal(f.player.preview,null); assert.equal(f.separation.result.engine.playing,false);
+  f.separation.show('original'); assert.equal(f.player.preview,f.separation.result.engine); assert.equal(f.separation.mode,'stems'); assert.equal(f.separation.viewTracks,tracks);
   f.separation.stop({reset:true}); f.player.destroy();
 });
 
@@ -326,4 +326,45 @@ test('Studio master controls the shared playback output for saved and progressiv
 });
 test('Studio controller routes direct four/six stem jobs through the native prepared runner without downloading ONNX',async()=>{
  for(const model of models){const f=await fixture({webnn:true});f.separation.runners.direct=f.runner;let prepared=0;f.runner.prepare=async()=>prepared++;f.manager.download=async()=>{throw Error('unexpected ONNX download');};f.separation.configure(model.id,'webnn-direct-cpu');await f.separation.run({track:f.source,projectId:7});assert.equal(prepared,1);assert.equal(f.separation.result?.tracks.length,model.roles.length);assert.match(f.separation.status,/Done/);}
+});
+
+test('Add track during separation rejects without detaching preview, then PCM and peaks keep advancing',async()=>{
+ const {ProjectsWorkspace}=await import('../../examples/wam/projects/ProjectsWorkspace.js');
+ let push,release;const gate=new Promise(r=>release=r),started=new Promise(r=>push=r);
+ const f=await fixture({runner:{cancel(){},async separate(model,channels,{onChunk}){
+   const first=packet(model);for(const peaks of first.peaks)peaks.fill(0,peaks.length/2);
+   onChunk(first);push();await gate;onChunk(packet(model,44100));return{backend:'wasm'};
+ }}});
+ const running=f.separation.run({track:f.source,seconds:5,projectId:7});await started;
+ const preview=f.separation.result,engine=f.player.preview;
+ const w=Object.create(ProjectsWorkspace.prototype);w.separation=f.separation;
+ w.api={createTrack:()=>{throw Error('Must not mutate project while separating');}};
+ await assert.rejects(()=>w.addTrack({name:'Guitar',instrument:'guitar'}),/Stop separation/);
+ assert.equal(f.separation.mode,'stems');assert.equal(f.separation.result,preview);assert.equal(f.player.preview,engine);
+ assert.equal(engine.availableFrames,44100);assert.equal(preview.tracks[0].peaks.at(-1),0);
+ release();await running;assert.equal(engine.availableFrames,88200);assert.ok(preview.tracks[0].peaks.at(-1)>0);
+ assert.equal(engine.complete,true);
+});
+
+test('one timeline keeps the instruments through streaming, Stop and legacy project-view requests; original stays in reserve',async()=>{
+ let ready,release;const started=new Promise(r=>ready=r),gate=new Promise(r=>release=r);
+ const f=await fixture({runner:{cancel(){release();},async separate(model,channels,{onChunk}){
+  onChunk(packet(model));ready();await gate;return{backend:'wasm'};
+ }}});
+ const source={...f.source, timelineVisible:true};f.separation.projectTracks=[source];
+ const running=f.separation.run({track:source,projectId:12});await started;
+ const tracks=f.separation.viewTracks,engine=f.player.preview;
+ f.separation.show('original');assert.equal(f.separation.viewTracks,tracks);assert.equal(f.player.preview,engine);
+ f.separation.stop();await running;
+ assert.equal(f.separation.viewTracks,tracks);assert.equal(f.player.preview,engine);assert.equal(engine.partial,true);
+ assert.equal(separationSources(f.separation.projectTracks)[0],source);assert.equal(source.timelineVisible,true);
+ assert.ok(!tracks.some(track=>track.id===source.id));
+});
+
+test('single timeline labels separate processing, stopped unsaved audio and completed unsaved audio',async()=>{
+ const {separationTrackState}=await import('../../examples/wam/projects/StudioSeparationView.js');
+ assert.equal(separationTrackState({}), '');
+ assert.match(separationTrackState({busy:true,result:{engine:{partial:false}}}),/Separating.*live/);
+ assert.match(separationTrackState({busy:false,result:{engine:{partial:true}}}),/Unsaved.*stopped.*Save project/);
+ assert.equal(separationTrackState({busy:false,result:{engine:{partial:false}}}), 'Unsaved instruments · Save project');
 });

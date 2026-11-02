@@ -1,7 +1,12 @@
 import {confirmDialog} from '../../account/dialogs.js';
 import {RecordingCalibration, DEFAULT_RECORDING_COMPENSATION_MS} from './RecordingCalibration.js';
 import {DIRecorder} from './DIRecorder.js';
-import {usesTrackPreset} from '../ProjectsModel.js';
+import {Metronome} from './Metronome.js';
+import {liveTrackId, timelineTracks, usesTrackPreset} from '../ProjectsModel.js';
+
+export function armShortcut(event,{visible=true,busy=false,dialog=false}={}) {
+  return typeof event.key==='string' && event.key.toLowerCase()==='r' && !event.repeat && !event.metaKey && !event.ctrlKey && !event.altKey && !event.target?.closest?.('input,textarea,select,[contenteditable]') && visible && !busy && !dialog;
+}
 
 // First capture milestone: one mono take on an empty personal track. Existing
 // audio is never overwritten; lossless takes remain in RAM until Save project.
@@ -9,7 +14,14 @@ export class StudioRecording {
   constructor(workspace, {context, groupId, source, rack, enableLive, beginCalibration, lock = () => {}}) {
     Object.assign(this, {workspace, context, groupId, source, rack, enableLive, lock});
     this.armedId = null; this.state = 'idle'; this.pending = new Map();
+    this.metronome = new Metronome(context, workspace.player.output);
+    this.metronome.addEventListener('tick',()=>{
+      if(this.state==='counting' && this.context.currentTime>=this.metronome.recordAt)this.setState('recording');
+      else this.render();
+    });
     const $ = workspace.$;
+    if($('projectMetronome'))$('projectMetronome').onclick=()=>{this.metronome.enabled=!this.metronome.enabled;this.render();};
+    if($('projectCountIn'))$('projectCountIn').onchange=()=>{if(!this.busy)this.metronome.countInBars=Number($('projectCountIn').value);};
     $('recordMonitor').onclick = () => this.act(() => this.monitor());
     $('recordCurrentTone').onclick = () => this.act(() => this.monitor(true));
     $('recordDiscard').onclick = () => this.act(() => this.discard());
@@ -20,14 +32,14 @@ export class StudioRecording {
     this.sourceChanged = () => {
       if (this.calibration?.running) this.calibration.cancel('Audio input changed. Calibration cancelled.');
       else if (this.busy) this.abort(Error('Audio input changed. Recording discarded; previous audio is unchanged.'));
-      this.armedId = null; if (this.calibration) this.calibration.configurationChanged(); else workspace.$('recordCompensation').value = String(DEFAULT_RECORDING_COMPENSATION_MS); this.render();
+      this.armedId = null; this.releaseMeter(); if (this.calibration) this.calibration.configurationChanged(); else workspace.$('recordCompensation').value = String(DEFAULT_RECORDING_COMPENSATION_MS); this.render();
     };
     source.addEventListener('change', this.sourceChanged);
     this.beforeUnload = event => { if (this.busy || this.pending.size) { event.preventDefault(); event.returnValue = ''; } };
     globalThis.addEventListener?.('beforeunload', this.beforeUnload);
     this.render();
   }
-  get busy() { return ['preparing', 'recording', 'finalizing', 'calibrating'].includes(this.state); }
+  get busy() { return ['preparing', 'counting', 'recording', 'finalizing', 'calibrating'].includes(this.state); }
   get eligible() {
     const w = this.workspace, track = w.selectedTrack;
     return w.owned && track && track.origin === 'personal' && usesTrackPreset(track) && !track.audio && !this.pending.has(track.id)
@@ -35,6 +47,27 @@ export class StudioRecording {
   }
   async act(operation) { try { await operation(); } catch (error) { this.workspace.report(error.message, true); } this.render(); }
   async monitor(useCurrent = false) {
+    if (this.busy) {
+      if(!useCurrent && ['counting','recording'].includes(this.state) && this.armedId===this.workspace.selectedId) {
+        const w=this.workspace,id=w.selectedId;
+        w.project.tracks=w.project.tracks.map(t=>({...t,inputMonitoring:t.id===id?!t.inputMonitoring:false}));
+        const tracks=timelineTracks(w.project);
+        if(w.separation){w.separation.projectTracks=w.project.tracks;if(w.separation.savedTracks)w.separation.savedTracks.splice(0,w.separation.savedTracks.length,...tracks);}
+        w.player.base.setTracks(tracks,liveTrackId(tracks,id));
+        for(const track of w.project.tracks)w.timeline.update(track,track.id===id);
+        this.render();
+      }
+      return;
+    }
+    if (!this.eligible) return;
+    if (!useCurrent && this.workspace.selectedTrack.inputMonitoring) {
+      const id=this.workspace.selectedId;
+      this.workspace.setTracks(this.workspace.project.tracks.map(t=>t.id===id?{...t,inputMonitoring:false}:t));
+      return;
+    }
+    return this.prepareInput(useCurrent, useCurrent ? null : true);
+  }
+  async prepareInput(useCurrent = false, audible = null) {
     if (!this.eligible || this.busy) return;
     const w = this.workspace, project = w.project, id = w.selectedId;
     await this.enableLive();
@@ -48,19 +81,27 @@ export class StudioRecording {
       if (new TextEncoder().encode(JSON.stringify(state)).length > 8 * 1024 ** 2) throw Error('This preset snapshot exceeds the 8 MiB project limit. Choose a smaller preset before recording.');
       fields = {presetSnapshot: state, snapshotId: crypto.randomUUID(), presetId: null, factoryPreset: null};
     }
-    w.setTracks(w.project.tracks.map(track => ({...track, ...(track.id === id ? fields : {}), inputMonitoring: track.id === id})));
+    w.setTracks(w.project.tracks.map(track => ({...track, ...(track.id === id ? fields : {}), inputMonitoring: audible === null ? Boolean(track.inputMonitoring) : audible && track.id === id})));
     this.render();
   }
   async arm() {
-    if (this.armedId === this.workspace.selectedId) { this.armedId = null; return; }
+    if(this.busy)return;
+    if (this.armedId === this.workspace.selectedId) { this.armedId = null; this.releaseMeter(); return; }
     if (!this.eligible) return;
     if (!DIRecorder.supported()) throw Error('Recording needs SharedArrayBuffer and an isolated page. Open the Rails host with COOP/COEP headers.');
     // A stopped result can become the backing, instead of permanently blocking R.
     const id = this.workspace.selectedId, projectId = this.workspace.project?.id;
     await this.workspace.prepareRecordingBacking?.();
     if (this.workspace.selectedId !== id || this.workspace.project?.id !== projectId || !this.eligible) return;
-    await this.monitor();
-    if (this.eligible && this.source.liveInput) this.armedId = this.workspace.selectedId;
+    await this.prepareInput();
+    if (this.eligible && this.source.liveInput) {
+      this.armedId = this.workspace.selectedId;
+      this.releaseMeter(); this.meterTap = this.source.createDITap?.();
+    }
+  }
+  releaseMeter() { this.meterTap?.release(); this.meterTap = null; }
+  meterSource(id) {
+    return id === this.armedId && (!this.workspace.player.playing || ['preparing','counting','recording'].includes(this.state)) ? this.meterTap?.node : null;
   }
   setState(state) {
     const wasBusy = this.busy;
@@ -116,6 +157,7 @@ export class StudioRecording {
       this.tap = this.source.createDITap();
       this.recorder = new DIRecorder({context: this.context, groupId: this.groupId});
       this.recorder.addEventListener('progress', ({detail}) => {
+        if (this.state === 'counting' && this.context.currentTime >= this.metronome.recordAt) this.setState('recording');
         if (this.active !== active || this.state !== 'recording') return;
         this.frames = detail.frames;
         // Only newly changed fixed-position peak bins, never a whole-take envelope.
@@ -125,17 +167,18 @@ export class StudioRecording {
       this.recorder.addEventListener('error', ({detail}) => this.abort(detail));
       await this.recorder.prepare(metadata);
       if (this.active !== active) return;
-      const when = (Math.ceil(this.context.currentTime * metadata.sampleRate) + Math.round(.15 * metadata.sampleRate)) / metadata.sampleRate;
+      const when = Math.round((this.metronome?.start({bpm:project.bpm,signature:project.timeSignature,offset:startProjectFrame/metadata.sampleRate}) ?? this.context.currentTime+.15)*metadata.sampleRate)/metadata.sampleRate;
+      if(this.metronome)this.metronome.recordAt=when;
       this.recorder.start(this.tap.node, Math.round(when * metadata.sampleRate));
       w.player.base.startRecording(when, startProjectFrame / metadata.sampleRate);
-      this.frames = 0; this.setState('recording');
+      this.frames = 0; this.setState(this.metronome?.countBeats ? 'counting' : 'recording');
       this.deviceTrack = this.source.liveStream?.getAudioTracks()[0];
       this.ended = () => this.abort(Error('Audio device disconnected. Recording discarded.'));
       this.deviceTrack?.addEventListener('ended', this.ended);
     } catch (error) { this.abort(error); }
   }
   async stop() {
-    if (this.state === 'preparing') { this.abort(); return; }
+    if (['preparing','counting'].includes(this.state)) { this.abort(); return; }
     if (this.state !== 'recording') return;
     const active = this.active;
     this.setState('finalizing'); this.workspace.player.base.pause();
@@ -149,7 +192,7 @@ export class StudioRecording {
       this.pending.set(active.trackId, take);
       const tracks = active.project.tracks.map(track => track.id === active.trackId ? {...track,
         audio: {url: take.url, filename: file.name, contentType: 'audio/wav', byteSize: file.size},
-        recording: metadata, presetSnapshot: structuredClone(metadata.capturePresetSnapshot), snapshotId: metadata.sessionId, presetId: null, factoryPreset: null, inputMonitoring: false} : track);
+        recording: metadata, presetSnapshot: structuredClone(metadata.capturePresetSnapshot), snapshotId: metadata.sessionId, presetId: null, factoryPreset: null} : track);
       this.cleanup(); this.armedId = null; this.setState('idle');
       this.workspace.setTracks(tracks, {label: null});
       this.workspace.timeline.setWave(active.trackId, {peaks: result.peaks, duration: result.frames / metadata.sampleRate, recordingSessionId: metadata.sessionId});
@@ -169,7 +212,7 @@ export class StudioRecording {
     w.timeline.setWave(id, null); w.render();
   }
   cleanup() {
-    this.active = null;
+    this.active = null; this.metronome?.stop(); this.releaseMeter();
     this.deviceTrack?.removeEventListener('ended', this.ended);
     this.recorder?.destroy(); this.recorder = null; this.tap?.release(); this.tap = null;
   }
@@ -181,7 +224,7 @@ export class StudioRecording {
     if (error) this.workspace.report(error.message, true);
   }
   clear() {
-    this.calibration?.clear(); this.abort(); this.armedId = null;
+    this.calibration?.clear(); this.abort(); this.armedId = null; this.releaseMeter();
     for (const take of this.pending.values()) URL.revokeObjectURL(take.url);
     this.pending.clear();
   }
@@ -206,20 +249,27 @@ export class StudioRecording {
     if ($('recordTrackName')) $('recordTrackName').textContent = track?.name ?? '';
     for (const [id, row] of w.timeline?.rows ?? []) if (row.arm) {
       const armed = this.armedId === id;
-      row.arm.disabled = this.busy || !w.owned || Boolean(row.track.audio) || this.pending.size >= 2;
+      row.arm.disabled = row.structuralLocked || w.separation?.busy || this.busy || !w.owned || Boolean(row.track.audio) || this.pending.size >= 2;
+      row.arm.title = row.structuralLocked || w.separation?.busy ? 'Stop separation and save its instruments before arming.' : row.track.audio ? 'Arming requires an empty guitar or bass track. Add a new track.' : this.pending.size >= 2 ? 'Save pending takes before arming another track.' : 'Arm recording';
       row.arm.classList.toggle('active', armed); row.arm.setAttribute('aria-pressed', String(armed));
     }
     $('recordPanel').hidden = !w.owned || !usesTrackPreset(track ?? {});
-    $('recordMonitor').disabled = $('recordCurrentTone').disabled = !eligible || this.busy;
+    $('recordCurrentTone').disabled = !eligible || this.busy;
+    $('recordMonitor').disabled = !eligible || (this.busy && !['counting','recording'].includes(this.state));
     $('recordArm').disabled = !eligible || this.busy;
-    $('recordArm').textContent = this.armedId === track?.id ? 'R · Armed' : w.separation?.result?.engine.complete ? 'R · Keep instruments & arm' : 'R · Arm track';
+    $('recordMonitor').setAttribute('aria-pressed', String(Boolean(track?.inputMonitoring)));
+    $('recordMonitor').textContent = track?.inputMonitoring ? 'Monitor on' : 'Monitor off';
+    $('recordArm').textContent = this.armedId === track?.id ? 'Armed' : w.separation?.result?.engine.complete ? 'Keep instruments & arm' : 'Arm track';
     $('recordArm').setAttribute('aria-pressed', String(this.armedId === track?.id));
     $('projectRecord').disabled = !eligible || this.busy || this.armedId !== track?.id;
-    $('projectRecordStop').disabled = !['preparing', 'recording'].includes(this.state);
+    $('projectRecordStop').disabled = !['preparing', 'counting', 'recording'].includes(this.state);
+    if($('projectMetronome')){$('projectMetronome').setAttribute('aria-pressed',String(Boolean(this.metronome?.enabled)));$('projectMetronome').title='Click during the take: '+(this.metronome?.enabled?'on':'off');}
+    if($('projectCountIn'))$('projectCountIn').disabled=this.busy;
+    if($('projectTimelineTempo'))$('projectTimelineTempo').disabled=this.busy;
     $('recordCompensation').disabled = this.busy;
     $('recordDiscard').hidden = !this.pending.has(track?.id); $('recordDiscard').disabled = this.busy || w.saving;
     if (this.pending.has(track?.id)) { $('inspectorPreset').disabled = true; $('inspectorEditPreset').disabled = true; }
-    $('recordStatus').textContent = this.busy ? `${this.state === 'recording' ? 'Recording DI' : this.state === 'preparing' ? 'Preparing capture' : this.state === 'calibrating' ? 'Calibrating latency' : 'Finalizing take'} · ${((this.frames ?? 0) / this.context.sampleRate).toFixed(1)} s`
+    $('recordStatus').textContent = this.busy ? `${this.state === 'counting' ? `Count-in · ${this.metronome.count || 'Get ready'}` : this.state === 'recording' ? 'Recording DI' : this.state === 'preparing' ? 'Preparing capture' : this.state === 'calibrating' ? 'Calibrating latency' : 'Finalizing take'} · ${((this.frames ?? 0) / this.context.sampleRate).toFixed(1)} s`
       : this.pending.has(track?.id) ? `Take in RAM · ${this.pending.get(track.id).peak > .00001 ? `peak ${(20 * Math.log10(this.pending.get(track.id).peak)).toFixed(1)} dBFS · Play to listen` : 'silence detected: check input/channel'} · Save project to keep it.` : track?.audio ? 'Recording on existing audio will be added in a later stage. Add an empty personal track.'
       : this.pending.size >= 2 ? 'Two takes are already in RAM. Save project before recording another track.'
       : `${this.source.liveInput?.label ?? 'Input not enabled'} · input ${(this.source.liveInput?.channelIndex ?? 0) + 1} · ${this.calibration?.active ? this.calibration.statusLabel : 'manual compensation (uncalibrated)'}`;

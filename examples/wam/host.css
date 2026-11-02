@@ -419,3 +419,76 @@ body[data-track-sound-edit="true"] { --play-along-height: 0px; }
 
 .appearance-field { display: grid; gap: 8px; margin: 20px 0 12px; }
 .appearance-field select { min-height: 38px; padding: 0 10px; width: 100%; }
+
+/* Studio task 2: compact project bar at every size. Small/zoomed windows keep
+   normal document flow, so no control is hidden merely to satisfy a viewport. */
+body[data-workspace="projects"] { --tl-topbar-height: 56px; }
+.projects-header { min-height: 64px; padding: 10px 16px; gap: 12px; }
+.projects-header .rack-heading { flex: 1 1 150px; flex-wrap: nowrap; gap: 8px; }
+.projects-header .rack-heading > div { min-width: 0; }
+.projects-header .preset-title-row { min-width: 0; flex-wrap: nowrap; }
+.projects-header h2 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 18px; line-height: 1.3; }
+.projects-header .rack-kicker { display: none; }
+.projects-header .preset-meta { margin: 2px 0 0; font-size: 10px; }
+.projects-header-actions { flex-wrap: wrap; gap: 6px; }
+.projects-header-actions tl-button { height: 30px; padding-inline: 9px; font-size: 11px; }
+.projects-header-actions tl-icon-button { width: 30px; height: 30px; }
+.projects-header-actions tl-badge { margin: 0; }
+body[data-workspace="projects"][data-studio-sidebar="collapsed"] .host-sidebar { display: none; }
+body[data-workspace="projects"][data-studio-sidebar="collapsed"] .host-shell { grid-template-columns: minmax(0, 1fr); }
+.project-track-viewport { min-width: 0; }
+.project-track-viewport:focus-visible { outline: 2px solid var(--tl-accent); outline-offset: -2px; }
+body[data-workspace="projects"] .project-timeline-head { flex-wrap: wrap; gap: 12px; padding: 8px 12px; }
+body[data-workspace="projects"] .tracks-canvas { padding: 10px 16px; }
+body[data-workspace="projects"] .studio-separation { margin-bottom: 8px; padding-bottom: 8px; }
+body[data-workspace="projects"] .studio-separation-actions { gap: 6px; }
+body[data-workspace="projects"] .studio-separation-actions tl-button { height: 30px; font-size: 11px; padding-inline: 9px; }
+body[data-workspace="projects"] #recordPanel { padding: 8px 12px; gap: 6px; }
+body[data-workspace="projects"] #recordPanel .record-actions { gap: 6px; }
+body[data-workspace="projects"] #recordPanel tl-button { height: 30px; font-size: 11px; padding-inline: 9px; }
+/* Fit the desktop viewport. Ruler and lanes share ONE scrollport, preserving
+   alignment even when a vertical scrollbar appears. No body overflow lock. */
+@media (min-width: 1100px) and (min-height: 650px) {
+  body[data-workspace="projects"] .host-shell { height: 100dvh; min-height: 0; }
+  body[data-workspace="projects"] .tracks-stage { min-height: 0; }
+  body[data-workspace="projects"] .projects-header { flex: none; flex-wrap: nowrap; }
+  body[data-workspace="projects"] .projects-header .preset-meta { max-width: 32ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body[data-workspace="projects"] .tracks-canvas { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  body[data-workspace="projects"] .studio-separation { flex: 0 1 auto; min-height: 44px; max-height: 25dvh; overflow: auto; scrollbar-width: thin; }
+  body[data-workspace="projects"] .project-timeline { display: flex; flex-direction: column; flex: 1 1 0; min-height: 180px; margin-bottom: 0; }
+  body[data-workspace="projects"] .project-timeline[hidden] { display: none; }
+  body[data-workspace="projects"] .project-timeline-head { flex: none; }
+  body[data-workspace="projects"] #recordPanel { flex: 0 1 auto; min-height: 0; max-height: 24dvh; overflow: auto; scrollbar-width: thin; }
+  body[data-workspace="projects"] .project-track-viewport { flex: 1 1 0; min-height: 80px; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  body[data-workspace="projects"] .project-ruler-row { position: sticky; top: 0; z-index: 6; }
+  body[data-workspace="projects"] .projects-empty { margin: auto; }
+}
+@media (max-width: 1099px), (max-height: 649px) {
+  .projects-header { flex-wrap: wrap; }
+  .projects-header .preset-meta { white-space: normal; }
+  .projects-header-actions { max-width: 100%; }
+  body[data-workspace="projects"] .project-tempo { margin-left: 0; }
+  body[data-workspace="projects"] .project-track-viewport { overflow-x: auto; }
+}
+
+/* Keep editing affordances legible even when a RAM preview temporarily locks them. */
+#projectUndo[disabled], #projectRedo[disabled], .track-title-row tl-icon-button[disabled] { opacity: .7; }
+.track-title-row tl-icon-button { color: var(--tl-text-1); }
+
+.track-mode-r:disabled { opacity: .7; }
+
+.studio-track-state { font-size: 11px; color: var(--tl-accent); padding: 4px 8px; background: var(--tl-accent-tint); border: 1px solid var(--tl-accent-border); border-radius: var(--tl-radius-sm); }
+.studio-track-state[hidden] { display: none; }
+
+.track-mode { display: inline-grid; place-items: center; }
+#recordMonitor[aria-pressed="true"], .track-mode-i.active { color:var(--tl-on-accent); background:var(--tl-accent); }
+#recordArm[aria-pressed="true"] { color:#fff; background:#a52b35; border-color:#a52b35; }
+.project-count-in { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--tl-text-muted); white-space:nowrap; }
+.project-count-in select { padding:4px; }
+.project-tempo-suggestion { flex:none; display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:6px 12px; color:var(--tl-text-2); font-size:11px; }
+.project-tempo-suggestion[hidden] { display:none; }
+
+body[data-workspace="projects"] .project-timeline-head { gap:8px; }
+body[data-workspace="projects"] .project-clock { min-width:76px; }
+body[data-workspace="projects"] .project-bar { min-width:28px; }
+body[data-workspace="projects"] .project-master input { width:80px; }

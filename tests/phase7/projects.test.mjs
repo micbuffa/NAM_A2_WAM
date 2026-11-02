@@ -351,9 +351,11 @@ test('the live guitar follows the selected guitar or bass track with a preset, u
   assert.equal(live.targets.size, 0);
   const insert = {input: context.createGain(), live: context.createGain(), output: context.createGain()};
   player.setInsert(1, insert);
-  assert.equal(changes.at(-1), 1, 'the host hears that the guitar now plays through the track');
-  assert.ok(live.targets.has(insert.live));
-  assert.equal(player.channels.get(1).playback.gain.value, 1, 'the recording keeps playing');
+  assert.equal(changes.at(-1), null, 'loading a preset must not enable audible monitoring');
+  assert.equal(live.targets.size,0);
+  player.setTracks([{id:1,instrument:'guitar',volume:80,pan:0,audio:null,inputMonitoring:true}],1);
+  assert.equal(player.liveId,1);assert.ok(live.targets.has(insert.live));
+  assert.equal(player.channels.get(1).playback.gain.value, 0, 'explicit monitoring replaces this channel playback when stopped');
   player.setTracks([{id: 1, instrument: 'guitar', volume: 80, pan: 0, audio: null}], null);
   assert.equal(player.liveId, null);
   assert.equal(live.targets.size, 0);
@@ -516,9 +518,9 @@ test('accompaniment guitar and bass never create tone racks or take the live inp
 
 test('a temporary instrument preview is never presented as saved to the account', () => {
   const description = describeProject({owned:true,name:'Song',tracks:[{id:1}]}, {previewTracks:Array.from({length:6},()=>({origin:'stem'}))});
-  assert.equal(description.saveState,'Instruments in RAM');
+  assert.equal(description.saveState,'Unsaved instruments');
   assert.match(description.kicker,/6 tracks/u);
-  assert.match(description.meta,/other tracks remain in Project/u);
+  assert.match(description.meta,/original remains available/u);
 });
 
 

@@ -25,13 +25,25 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "#studioExcerpt", count: 0
     assert_select "details.studio-separation-settings:not([open])", count: 1
     assert_select "#studioProgress[aria-label='Separation progress']", count: 1
-    assert_select "#studioOriginal[aria-pressed='true']", count: 1
+    assert_select "#studioOriginal, #studioInstruments", count: 0
+    assert_select "#studioTrackState[role='status']", count: 1
   end
 
   test "Studio exposes an accessible playback master volume" do
     get "/rack/"
     assert_select "#projectMasterVolume[type=range][min='0'][max='100'][value='100'][aria-label='Studio master volume']", count:1
     assert_select "#projectMasterValue", text:"100%"
+  end
+
+  test "Studio toolbar remains reachable with sidebar collapsed and shares a track scrollport" do
+    get "/rack/"
+    assert_select ".projects-header #projectImport", count: 1
+    assert_select ".projects-header #projectNew", count: 1
+    assert_select "#studioSidebarToggle[aria-controls='hostSidebar'][aria-expanded='true']", count: 1
+    assert_select "#projectTrackViewport[role='region'][tabindex='0']" do
+      assert_select "#projectRuler", count: 1
+      assert_select "#projectTracks", count: 1
+    end
   end
 
   test "Studio ruler exposes its interactive A B controls to accessibility" do

@@ -1,6 +1,22 @@
 require "test_helper"
 
 class Api::ProjectsTest < ActionDispatch::IntegrationTest
+  test "project time signature defaults to 4/4, persists and rejects unsupported values" do
+    sign_in_as users(:alice)
+    post api_projects_path, params: { name: "Timing project", bpm: 90 }, as: :json
+    assert_response :created
+    value = response.parsed_body
+    assert_equal "4/4", value["timeSignature"]
+    patch api_project_path(value["id"]), params: { timeSignature: "3/4", bpm: 110 }, as: :json
+    assert_response :success
+    assert_equal "3/4", response.parsed_body["timeSignature"]
+    get api_project_path(value["id"])
+    assert_equal "3/4", response.parsed_body["timeSignature"]
+    patch api_project_path(value["id"]), params: { timeSignature: "99/99" }, as: :json
+    assert_response :unprocessable_content
+    assert_equal "3/4", Project.find(value["id"]).time_signature
+  end
+
   test "requires a session" do
     get api_projects_path
     assert_response :unauthorized

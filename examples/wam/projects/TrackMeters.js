@@ -14,7 +14,8 @@ export class TrackMeters {
     for (const [id, entry] of this.entries) if (!rows.has(id)) this.release(id, entry);
     for (const [id, row] of rows) {
       const preview = this.player.preview;
-      const nodes = preview ? (preview.voices ?? []).filter(v => v.id === row.track.streamId).map(v => v.pan)
+      const input = this.inputFor?.(id);
+      const nodes = input ? [input] : preview ? (preview.voices ?? []).filter(v => v.id === row.track.streamId).map(v => v.pan)
         : [this.player.channels.get(id)?.pan].filter(Boolean);
       let entry = this.entries.get(id);
       if (entry && (entry.nodes.length !== nodes.length || nodes.some(node => !entry.nodes.includes(node)))) { this.release(id, entry); entry = null; }
@@ -28,7 +29,7 @@ export class TrackMeters {
       if (entry && this.context.state !== 'suspended') {
         entry.analyser.getFloatTimeDomainData(entry.samples);
         for (const value of entry.samples) peak = Math.max(peak, Math.abs(value));
-        if (preview) peak *= preview.normalizationNode?.gain.value ?? 1;
+        if (preview && !input) peak *= preview.normalizationNode?.gain.value ?? 1;
       }
       this.timeline.setLevel(id, peak);
     }

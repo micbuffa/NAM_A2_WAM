@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Studio layout qualification · no audio</title>
+<link rel="stylesheet" href="../../../examples/wam/ui/tokens.css"><link rel="stylesheet" href="../../../examples/wam/ui/base.css"><link rel="stylesheet" href="../../../examples/wam/ui/components.css"><link rel="stylesheet" href="../../../examples/wam/host.css">
+<body><script type="module">
+import '../../../examples/wam/ui/index.js';
+import {ProjectsWorkspace} from '../../../examples/wam/projects/ProjectsWorkspace.js';
+import {timelineLength} from '../../../examples/wam/projects/ProjectsModel.js';
+import {Workspaces} from '../../../examples/wam/Workspaces.js';
+import {StudioLayout} from '../../../examples/wam/projects/StudioLayout.js';
+import {ProjectTimeline} from '../../../examples/wam/projects/ProjectTimeline.js';
+import Renderer from '../../../examples/wam/source-separation/vendor/wavesurfer/renderer.js';
+const html=await (await fetch('../../../examples/wam/index.html')).text();
+const parsed=new DOMParser().parseFromString(html,'text/html');document.body.append(parsed.querySelector('.host-shell'));
+const $=id=>document.getElementById(id),query=new URLSearchParams(location.search),count=Number(query.get('count')??6),record=query.has('record');
+const workspaces=new Workspaces({control:$('workspaceSwitch'),storage:null});workspaces.show('projects',{remember:false});
+new StudioLayout({workspaces,button:$('studioSidebarToggle'),sidebar:$('hostSidebar'),storage:null});
+$('projectTitle').textContent='Studio layout · '+count+' tracks';$('projectMeta').textContent='Long project descriptions remain accessible without stretching the toolbar.';
+for(const id of ['projectSaveState','projectShare','projectUndo','projectRedo','projectSave','projectAddTrack'])$(id).hidden=false;
+$('projectSaveState').textContent='Saved';$('projectCount').textContent='12';$('projectSelect').append(new Option('Qualification project','1'));
+$('projectTimeline').hidden=count===0;$('projectsEmpty').hidden=count!==0;$('studioSeparation').hidden=count===0;
+$('studioBackendLabel').textContent='Demucs 4 · WebGPU';$('studioUseMix').hidden=false;$('studioTrackState').hidden=!query.has('preview');$('studioTrackState').textContent='Separating · tracks update live';
+$('studioStatus').textContent=query.has('preview')?'Separating · '+count+' instruments · not saved yet':'Saved project · '+count+' tracks';if(query.has('preview'))$('projectSaveState').textContent='Unsaved instruments';$('studioUnfinished').textContent='';
+if(query.has('preview')){$('projectAddTrack').disabled=true;$('projectAddTrack').title='Stop separation before adding a track; partial instruments are preserved.';}
+$('projectPlay').disabled=false;$('projectLoop').disabled=false;$('projectLoopReset').disabled=false;
+$('recordPanel').hidden=!record;$('recordTrackName').textContent='Guitar solo';$('recordStatus').textContent='Ready to arm. No audio devices are opened in this qualification fixture.';
+const noop=()=>{},timeline=new ProjectTimeline($('projectTracks'),{root:$('projectTimeline'),ruler:$('projectRuler'),onSelect:noop,onChange:noop,onEdit:noop,onEditSound:noop,onDelete:noop,onMonitor:noop,onArm:noop,onMove:noop,onSeek:noop,onLoop:noop,createRenderer:o=>new Renderer(o)});
+const tracks=Array.from({length:count},(_,i)=>({id:i+1,name:i===0&&record?'Guitar solo':'Instrument '+(i+1),origin:i===0&&record?'personal':'stem',instrument:i===0&&record?'guitar':'bass',volume:80,pan:0,mute:false,solo:false,audio:i===0&&record?null:{url:'synthetic-'+i,filename:'Synthetic envelope '+(i+1)}}));
+timeline.render(tracks,{editable:true,selectedId:1,structuralLock:query.has('preview')?'Stop separation, then Save project to edit these instruments.':''});timeline.setLength({seconds:60,bars:32});
+for(const track of tracks.filter(t=>t.audio))timeline.setWave(track.id,{peaks:Float32Array.from({length:2048},(_,i)=>.2+.6*Math.abs(Math.sin(i*.13))),duration:60});
+timeline.showLoop({enabled:true,start:10,end:30});
+const project={id:1,owned:true,name:'Layout qualification',bpm:120,timeSignature:'4/4',tracks};
+$('projectTimelineTempo').textContent='120 BPM · 4/4';
+$('projectTimelineTempo').onclick=()=>ProjectsWorkspace.prototype.editProjectDialog.call({owned:true,project,destroy(){},edit(values){Object.assign(project,values);$('projectTimelineTempo').textContent=`${project.bpm} BPM · ${project.timeSignature}`;timeline.setLength(timelineLength(60,project.bpm,16,project.timeSignature));}});
+const report=document.createElement('output');report.id='layoutReport';report.style.cssText='position:fixed;bottom:0;right:0;z-index:9;background:var(--tl-surface-1);color:var(--tl-text);font-size:10px;padding:3px 8px';report.textContent='READY · '+count+' tracks · no audio or account writes';document.body.append(report);
+</script></body></html>

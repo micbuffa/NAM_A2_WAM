@@ -1,3 +1,4 @@
+import {timing} from './ProjectTiming.js';
 // Pure helpers of the Projects workspace (unit-tested under Node).
 export const BPM_RANGE = {min: 30, max: 300, default: 120};
 export const INSTRUMENTS = [
@@ -39,12 +40,12 @@ export function describeProject(project, {dirty = false, previewTracks = null} =
   if (!project) return null;
   const tracks = projectTrackCount(project);
   return {
-    kicker: previewTracks ? `Instrument preview · ${plural(previewTracks.length, 'track')} · in RAM` : [project.owned ? 'Project' : `Shared by ${project.owner?.name || 'another user'}`, plural(tracks, 'track'),
+    kicker: previewTracks ? `Project · ${plural(previewTracks.length, 'track')} · unsaved instruments` : [project.owned ? 'Project' : `Shared by ${project.owner?.name || 'another user'}`, plural(tracks, 'track'),
       project.owned && shareSummary(project.shares)].filter(Boolean).join(' · '),
-    meta: previewTracks ? 'Listen and remix the separated instruments. Your other tracks remain in Project while you audition this temporary separation.' : project.owned
+    meta: previewTracks ? 'Listen and remix the separated instruments here. Save project to keep their audio. The original remains available for a new separation.' : project.owned
       ? 'Import audio, separate instruments when needed, and mix your tracks. Presets are for your personal guitar and bass parts.'
       : 'Read-only: you can listen and try a mix, but changes are not saved.',
-    saveState: previewTracks ? 'Instruments in RAM' : !project.owned ? 'Read-only' : dirty ? 'Unsaved changes' : 'Saved',
+    saveState: previewTracks ? 'Unsaved instruments' : !project.owned ? 'Read-only' : dirty ? 'Unsaved changes' : 'Saved',
   };
 }
 
@@ -95,9 +96,8 @@ export function toggleMonitoring(tracks, id) {
   return tracks.map((track) => ({...track, inputMonitoring: track.id === id ? !track.inputMonitoring && usesTrackPreset(track) : false}));
 }
 
-// The track the live guitar plays through in Projects: the one monitoring the
-// input, else the selected guitar or bass track with a preset (over its
-// recording), else none (the guitar keeps Tone's sound).
+// Keep a rack ready for the monitored or selected personal track. Selection
+// alone does not enable live input: ProjectPlayer also requires inputMonitoring.
 export function liveTrackId(tracks, selectedId) {
   const monitored = tracks.find((track) => track.inputMonitoring && usesTrackPreset(track));
   if (monitored) return monitored.id;
@@ -144,9 +144,9 @@ export function trackGain(track, tracks = []) {
 
 // The timeline counts 4/4 bars: at least `minBars`, enough for the longest track.
 export const BEATS_PER_BAR = 4;
-export const barSeconds = (bpm) => (60 * BEATS_PER_BAR) / clampBpm(bpm);
-export function timelineLength(duration, bpm, minBars = 16) {
-  const bar = barSeconds(bpm);
+export const barSeconds = (bpm, signature = '4/4') => timing(clampBpm(bpm), signature).barSeconds;
+export function timelineLength(duration, bpm, minBars = 16, signature = '4/4') {
+  const bar = barSeconds(bpm, signature);
   const bars = Math.max(minBars, Math.ceil((Number(duration) || 0) / bar - 1e-9));
   return {bars, seconds: bars * bar};
 }
@@ -164,9 +164,9 @@ export function formatClock(seconds) {
 }
 
 // Bar and beat at a position, counted from 1: "3.2".
-export function barBeat(seconds, bpm) {
-  const beats = Math.floor(Math.max(0, Number(seconds) || 0) / (60 / clampBpm(bpm)) + 1e-9);
-  return `${Math.floor(beats / BEATS_PER_BAR) + 1}.${(beats % BEATS_PER_BAR) + 1}`;
+export function barBeat(seconds, bpm, signature = '4/4') {
+  const beats = Math.floor(Math.max(0, Number(seconds) || 0) / timing(clampBpm(bpm), signature).beatSeconds + 1e-9);
+  return `${Math.floor(beats / timing(bpm,signature).beats) + 1}.${(beats % timing(bpm,signature).beats) + 1}`;
 }
 
 // A loop drawn from one position to another (either way), in seconds: whole
@@ -205,22 +205,22 @@ export function loopAround(seconds, length, bars = 4) {
 
 // What the transport says about a loop: "Bars 5–8" for whole bars, else
 // bar.beat positions ("3.2–5.1"); '' without a region.
-export function loopLabel({start = 0, end = 0} = {}, bpm) {
+export function loopLabel({start = 0, end = 0} = {}, bpm, signature = '4/4') {
   if (!(end > start)) return '';
-  const bar = barSeconds(bpm);
+  const bar = barSeconds(bpm, signature);
   const whole = [start, end].every((value) => Math.abs(value / bar - Math.round(value / bar)) < 1e-6);
-  if (!whole) return `${barBeat(start, bpm)}–${barBeat(end, bpm)}`;
+  if (!whole) return `${barBeat(start, bpm, signature)}–${barBeat(end, bpm, signature)}`;
   const [first, last] = [Math.round(start / bar) + 1, Math.round(end / bar)];
   return first === last ? `Bar ${first}` : `Bars ${first}–${last}`;
 }
 
 // A loop is remembered in bars (so it follows a tempo change): {enabled, start, end}.
-export function loopToBars({enabled = false, start = 0, end = 0} = {}, bpm) {
-  const bar = barSeconds(bpm);
+export function loopToBars({enabled = false, start = 0, end = 0} = {}, bpm, signature = '4/4') {
+  const bar = barSeconds(bpm, signature);
   return {enabled: Boolean(enabled), start: start / bar, end: end / bar};
 }
-export function loopFromBars(bars, bpm) {
-  const bar = barSeconds(bpm);
+export function loopFromBars(bars, bpm, signature = '4/4') {
+  const bar = barSeconds(bpm, signature);
   const [start, end] = [bars?.start, bars?.end].map(Number);
   if (!Number.isFinite(start) || !Number.isFinite(end) || !(end > start) || start < 0) return {enabled: false, start: 0, end: 0};
   return {enabled: Boolean(bars.enabled), start: start * bar, end: end * bar};

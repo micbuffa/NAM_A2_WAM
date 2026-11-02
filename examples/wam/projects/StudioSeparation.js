@@ -43,7 +43,7 @@ export class StudioSeparation extends EventTarget {
     });
   }
   get model() { return this.models.find(model => model.id === this.modelId); }
-  get viewTracks() { return this.mode === 'stems' ? this.result?.tracks ?? this.savedTracks : null; }
+  get viewTracks() { return this.result?.tracks ?? (this.mode === 'stems' ? this.savedTracks : null); }
   get hasAudio() { return Boolean(this.result?.engine.availableFrames || (!this.result && this.savedTracks?.length)); }
   changed() { this.dispatchEvent(new Event('change')); }
   setStatus(status, progress = null) { this.status = status; this.progress = progress; this.changed(); }
@@ -89,8 +89,9 @@ export class StudioSeparation extends EventTarget {
   }
   show(mode) {
     if (!['original', 'stems'].includes(mode) || (mode === 'stems' && !this.result && !this.savedTracks?.length)) return;
-    this.mode = mode;
-    this.player.setPreview(mode === 'stems' && this.result ? this.result.engine : null, this.result?.tracks);
+    // One visible project timeline: a pending result cannot be hidden by a legacy caller.
+    this.mode = this.result ? 'stems' : mode;
+    this.player.setPreview(this.result?.engine ?? null, this.result?.tracks);
     this.changed();
   }
   restore(project) {
@@ -132,6 +133,7 @@ export class StudioSeparation extends EventTarget {
       if (!response.ok) throw Error(`Audio HTTP ${response.status}`);
       const bytes = await response.arrayBuffer(); current();
       const audio = await this.decode(bytes); current();
+      this.dispatchEvent(new CustomEvent('source-audio',{detail:{id:track.id,buffer:audio}}));
       if (audio.sampleRate !== 44100 || !audio.length) throw Error('Audio must decode at 44.1 kHz.');
       const length = seconds ? Math.min(audio.length, seconds * 44100) : audio.length;
       if (length > 86400 * 44100) throw Error('Audio exceeds 24 hours.');

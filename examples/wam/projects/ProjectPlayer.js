@@ -93,7 +93,7 @@ export class ProjectPlayer extends EventTarget {
     // and remains available while actually recording a new part.
     if (this.playing && !this.recording) return null;
     const channel = this.channels.get(this.liveTrack);
-    return channel && (channel.insert || channel.monitoring) ? this.liveTrack : null;
+    return channel?.monitoring ? this.liveTrack : null;
   }
 
   // The project's tracks (ids, audio and mix) and the track the live guitar

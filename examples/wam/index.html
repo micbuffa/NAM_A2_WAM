@@ -49,9 +49,6 @@
         <h2 id="projects-title"><span class="host-dot green"></span>Projects<span class="host-count" id="projectCount"></span></h2>
         <label>Open project <tl-select icon="audio"><select id="projectSelect" aria-label="Open project"></select></tl-select></label>
         <div class="project-stats"><span><small>Tracks</small><strong id="projectTrackCount">00</strong></span><span><small>Tempo</small><strong id="projectBpm">—</strong></span></div>
-        <tl-button class="host-secondary" id="projectNew" block icon="plus" aria-haspopup="dialog">New project</tl-button>
-        <tl-button class="host-secondary project-import" id="projectImport" block icon="audio" aria-haspopup="dialog">Import audio</tl-button>
-        <p class="host-help">Import audio into the current project or a new one.</p>
       </section>
 
       <section class="host-card host-track-inspector" id="trackInspector" aria-labelledby="inspectorTrackName" data-workspace="projects" hidden>
@@ -147,6 +144,7 @@
     <main class="tracks-stage projects-stage" id="projectsWorkspace" data-workspace="projects" aria-label="Studio">
       <header class="rack-header projects-header">
         <div class="rack-heading">
+          <tl-icon-button id="studioSidebarToggle" icon="panel" size="sm" aria-label="Hide sidebar" title="Hide sidebar" aria-controls="hostSidebar" aria-expanded="true"></tl-icon-button>
           <div>
             <p class="rack-kicker" id="projectKicker">Studio</p>
             <div class="preset-title-row"><h2 id="projectTitle">Studio</h2><tl-icon-button id="projectEdit" icon="edit" size="sm" variant="ghost" aria-label="Edit project" title="Edit project" aria-haspopup="dialog" hidden></tl-icon-button></div>
@@ -154,12 +152,14 @@
           </div>
         </div>
         <div class="preset-header-actions projects-header-actions">
+          <tl-icon-button id="projectNew" icon="plus" size="sm" aria-label="New project" title="New project" aria-haspopup="dialog"></tl-icon-button>
+          <tl-button id="projectImport" size="sm" icon="audio" aria-haspopup="dialog">Import audio</tl-button>
           <tl-badge id="projectSaveState" variant="eyebrow" dot role="status" hidden></tl-badge>
           <tl-button id="projectResetMix" icon="undo" title="Back to the owner's mix" hidden>Reset mix</tl-button>
           <tl-button id="projectShare" icon="share" aria-haspopup="dialog" hidden>Share</tl-button>
           <tl-button id="projectLeave" icon="close" aria-haspopup="dialog" title="Stop seeing this project" hidden>Leave</tl-button>
-          <tl-icon-button id="projectUndo" icon="undo" aria-label="Undo" title="Undo" disabled hidden></tl-icon-button>
-          <tl-icon-button id="projectRedo" icon="redo" aria-label="Redo" title="Redo" disabled hidden></tl-icon-button>
+          <tl-button id="projectUndo" size="sm" icon="undo" aria-label="Undo" title="Undo" disabled hidden>Undo</tl-button>
+          <tl-button id="projectRedo" size="sm" icon="redo" aria-label="Redo" title="Redo" disabled hidden>Redo</tl-button>
           <tl-button id="projectSave" variant="primary" icon="save" hidden disabled>Save project</tl-button>
           <tl-button id="projectAddTrack" variant="primary" icon="plus" aria-haspopup="dialog" hidden>Add track</tl-button>
         </div>
@@ -176,8 +176,7 @@
             <tl-button id="studioSeparate" variant="primary" disabled>Separate instruments</tl-button>
             <tl-button id="studioStop" hidden>Stop separation</tl-button>
             <span id="studioBackendLabel" class="host-help"></span>
-            <button id="studioOriginal" class="studio-listen" type="button" aria-pressed="true">Project</button>
-            <button id="studioInstruments" class="studio-listen" type="button" aria-pressed="false" disabled>Separation preview</button>
+            <span id="studioTrackState" class="studio-track-state" role="status" hidden></span>
           <tl-button id="studioUseMix" variant="primary" hidden disabled>Use mix in Tone</tl-button>
           <tl-button id="studioRetryAudio" hidden>Retry audio loading</tl-button>
           </div>
@@ -202,7 +201,7 @@
             <p class="host-help">Direct WebNN: experimental 4 or 6 tracks, enabled only when WebNN is exposed. No ONNX Runtime or WASM inference in the direct path. Six-track compilation can be slow; WebGPU remains the quick-start recommendation. ONNX → WebNN remains limited to 4 tracks with per-block WASM checks. CPU/GPU/NPU are requested devices, not verified hardware.</p>
             <label>Execution engine<select id="studioBackend"><option value="webgpu">WebGPU (preferred when available)</option><option value="wasm">CPU / WASM fallback</option><option value="webnn-cpu">ONNX → WebNN / CPU · experimental</option><option value="webnn-gpu">ONNX → WebNN / GPU · experimental</option><option value="webnn-npu">ONNX → WebNN / NPU · experimental</option><option value="webnn-direct-cpu" disabled>Direct WebNN / CPU · experimental</option><option value="webnn-direct-gpu" disabled>Direct WebNN / GPU · experimental</option><option value="webnn-direct-npu" disabled>Direct WebNN / NPU · experimental</option></select></label>
             <p class="host-help" id="studioModelSize"></p>
-            <p class="host-help">Computation stays on this machine. Use Save project to keep the original, instruments and mix in your account. Unsaved previews are lost on reload. Storage limits: 512 MiB per instrument, 2 GiB per project, 5 GiB per account. Personal parts are preserved in Original / project.</p>
+            <p class="host-help">Computation stays on this machine. Use Save project to keep the original, instruments and mix in your account. Unsaved previews are lost on reload. Storage limits: 512 MiB per instrument, 2 GiB per project, 5 GiB per account. Existing personal parts are preserved when the instruments are saved.</p>
             <tl-button id="studioCheckCache" size="sm">Check cache</tl-button>
             <tl-button id="studioRemoveCache" size="sm">Clear model cache</tl-button>
             <p id="studioCacheStatus" class="host-help"></p>
@@ -222,13 +221,16 @@
               <button id="projectLoop" class="led-toggle" type="button" aria-pressed="false" aria-label="Loop" disabled><i></i><span>Off</span></button>
               <tl-button id="projectLoopReset" size="sm" variant="ghost" title="Clear the loop" disabled>Reset</tl-button>
             </div>
-            <span class="project-tempo" id="projectTimelineTempo"></span>
+            <tl-button class="project-tempo" id="projectTimelineTempo" size="sm" variant="ghost" title="Project tempo and time signature"></tl-button>
+            <tl-button id="projectMetronome" size="sm" icon="metronome" aria-pressed="false" title="Click during the take">Click</tl-button>
+            <label class="project-count-in">Count-in <select id="projectCountIn" aria-label="Recording count-in"><option value="0">Off</option><option value="1" selected>1 bar</option><option value="2">2 bars</option></select></label>
           </header>
+          <div id="projectTempoSuggestion" class="project-tempo-suggestion" hidden><span id="projectTempoEstimate" role="status"></span><tl-button id="projectApplyTempo" size="sm">Use estimated tempo</tl-button><tl-icon-button id="projectDismissTempo" size="sm" icon="close" aria-label="Dismiss tempo suggestion"></tl-icon-button></div>
           <section id="recordPanel" aria-label="Guitar recording" hidden>
             <strong>Guitar recording · <span id="recordTrackName"></span></strong>
             <div class="record-actions">
-              <tl-button id="recordMonitor">Enable input / monitor</tl-button>
-              <tl-button id="recordArm" aria-pressed="false">R · Arm track</tl-button>
+              <tl-button id="recordMonitor" icon="speaker" aria-pressed="false">Monitor off</tl-button>
+              <tl-button id="recordArm" aria-keyshortcuts="R" title="Arm selected track (R)" icon="microphone" aria-pressed="false">Arm track</tl-button>
               <tl-button id="projectRecord" variant="danger" disabled>● Record</tl-button>
               <tl-button id="projectRecordStop" disabled>■ Stop recording</tl-button>
               <tl-button id="recordCurrentTone" variant="ghost">Use current Tone sound</tl-button>
@@ -243,9 +245,11 @@
               <p class="host-help">Choose your input and channel in Audio devices / Tone. Calibration requires a physical output-to-input cable and measures the round trip. A saved measurement must match the interface and buffer settings.</p>
             </details>
           </section>
+          <div class="project-track-viewport" id="projectTrackViewport" role="region" aria-label="Tracks and timeline" tabindex="0">
           <div class="project-ruler-row"><span aria-hidden="true"></span><div class="project-ruler-track"><div class="project-ruler" id="projectRuler" aria-label="Timeline and A/B loop"></div></div></div>
           <ol class="project-tracks" id="projectTracks"></ol>
           <p class="host-help project-tracks-empty" id="projectTracksEmpty">No tracks yet.</p>
+          </div>
         </section>
       </div>
     </main>

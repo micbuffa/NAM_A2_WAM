@@ -1,6 +1,12 @@
 import {backendLabel, isDirectWebNN, studioRecommendation, isWebNN, studioBackendOptions} from '../source-separation/StudioWebNN.js';
 import {StudioSeparation, separationSources} from './StudioSeparation.js';
 
+export function separationTrackState(controller) {
+  if (!controller.result) return '';
+  if (controller.busy) return 'Separating · tracks update live';
+  return controller.result.engine.partial ? 'Unsaved instruments · stopped result · Save project' : 'Unsaved instruments · Save project';
+}
+
 // Adapts the transient separation deck to the existing Studio timeline. Progress
 // never rebuilds track rows, scans PCM, or drives the audio clock.
 export class StudioSeparationView {
@@ -31,8 +37,6 @@ export class StudioSeparationView {
     };
     this.$('studioSeparate').onclick = () => this.chooseModel();
     this.$('studioStop').onclick = () => c.stop();
-    this.$('studioOriginal').onclick = () => c.show('original');
-    this.$('studioInstruments').onclick = () => c.show('stems');
     this.$('studioModel').onchange = this.$('studioBackend').onchange = async () => {
       const model = this.$('studioModel').value, backend = this.$('studioBackend').value;
       if ((c.busy || c.result) && !await this.confirmReplace()) return this.render();
@@ -72,6 +76,7 @@ export class StudioSeparationView {
       workspace.renderTransport();
     });
     workspace.player.addEventListener('statechange', () => this.render());
+    c.addEventListener('source-audio',({detail})=>workspace.maybeDetectTempo?.(detail.id,detail.buffer));
     c.addEventListener('audio', () => {
       if (!this.waveTimer) this.waveTimer = setTimeout(() => { this.waveTimer = null; this.flushWaves(); }, 250);
     });
@@ -224,16 +229,13 @@ export class StudioSeparationView {
     this.$('studioSeparate').hidden = Boolean(c.busy || !w.owned);
     this.$('studioSeparate').textContent = c.result || c.activeSavedId ? 'Separate again' : 'Separate instruments';
     this.$('studioSeparate').setAttribute('variant', c.hasAudio ? 'ghost' : 'primary');
-    this.$('studioOriginal').hidden = this.$('studioInstruments').hidden = !c.result || !c.hasAudio;
+    const trackState = this.$('studioTrackState');
+    trackState.textContent = separationTrackState(c);
+    trackState.hidden = !trackState.textContent;
     this.$('studioSeparate').disabled = w.saving || !w.owned || c.busy || !sources.length || !model;
     this.$('studioStop').hidden = !c.busy;
     this.$('studioSource').disabled = w.saving || c.busy;
     this.$('studioCheckCache').disabled = this.$('studioRemoveCache').disabled = c.busy || !model || isDirectWebNN(c.backend);
-    this.$('studioInstruments').disabled = !c.hasAudio;
-    this.$('studioOriginal').disabled = Boolean(w.saving);
-    this.$('studioInstruments').disabled ||= Boolean(w.saving);
-    this.$('studioOriginal').setAttribute('aria-pressed', String(c.mode === 'original'));
-    this.$('studioInstruments').setAttribute('aria-pressed', String(c.mode === 'stems'));
     const status = `${c.status}${c.result && c.busy ? ` · ${c.result.engine.availableDuration.toFixed(1)} s ready${w.player.waiting ? ' · buffering' : ''}` : ''}`;
     if (this.$('studioStatus').textContent !== status) this.$('studioStatus').textContent = status;
     const progress = this.$('studioProgress');

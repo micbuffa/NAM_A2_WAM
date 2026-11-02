@@ -97,10 +97,16 @@ export class ProjectTimeline {
   }
 
   // presetName(track): what the row says about the track's tone.
-  render(tracks, {selectedId = null, editable = false, presetName = () => ''} = {}) {
+  render(tracks, {selectedId = null, editable = false, structuralLock = '', presetName = () => ''} = {}) {
     this.presetName = presetName;
     for (const row of this.rows.values()) { row.renderer?.destroy(); row.liveRenderer?.destroy(); }
-    this.rows = new Map(tracks.map((track) => [track.id, this.row(track, editable)]));
+    this.rows = new Map(tracks.map((track) => {
+      const row = this.row(track, editable); row.structuralLocked = Boolean(structuralLock);
+      if (structuralLock) for (const control of row.structuralControls) {
+        control.disabled = true; control.draggable = false; control.title = structuralLock;
+      }
+      return [track.id, row];
+    }));
     this.list.replaceChildren(...[...this.rows.values()].map((row) => row.root));
     for (const track of tracks) this.update(track, track.id === selectedId);
     for (const id of this.rows.keys()) this.drawWave(id);
@@ -182,7 +188,7 @@ export class ProjectTimeline {
 
   // The timeline's length ({bars, seconds}, from timelineLength()).
   setLength(length) {
-    if (length.seconds === this.length.seconds && this.ruler.childElementCount) return;
+    if (length.seconds === this.length.seconds && length.bars === this.length.bars && this.ruler.childElementCount) return;
     this.length = length;
     this.root.style.setProperty('--bars', length.bars);
     this.renderRuler();
@@ -323,6 +329,7 @@ export class ProjectTimeline {
     meter.setAttribute('aria-valuetext', 'Silence'); meter.append(element('i', 'track-level-fill'));
     label.append(meter);
     const strip = element('div', 'track-strip');
+    const structuralControls = [];
     const labels = []; // [control, verb]: aria-labels follow renames
     const title = element('div', 'track-title-row');
     const name = element('strong', 'track-name');
@@ -330,21 +337,21 @@ export class ProjectTimeline {
     let fx=null;
     if(editable&&this.onEditSound){
       fx=document.createElement('tl-button');fx.className='track-fx-button';fx.setAttribute('size','sm');fx.setAttribute('variant','ghost');fx.setAttribute('icon','sliders');fx.textContent='FX';fx.title='Edit track sound in Tone';
-      fx.onclick=event=>{event.stopPropagation();this.onSelect(id);this.onEditSound(id);};title.append(fx);labels.push([fx,'Edit sound for']);
+      fx.onclick=event=>{event.stopPropagation();this.onSelect(id);this.onEditSound(id);};title.append(fx);structuralControls.push(fx);labels.push([fx,'Edit sound for']);
     }
     if (editable) {
       const rename = document.createElement('tl-icon-button');
       Object.entries({icon: 'edit', size: 'sm', variant: 'ghost', 'aria-label': `Edit ${track.name}`, title: 'Edit track'})
         .forEach(([key, value]) => rename.setAttribute(key, value));
       rename.onclick = (event) => { event.stopPropagation(); this.onSelect(id); this.onEdit(id); };
-      title.append(rename);
+      title.append(rename); structuralControls.push(rename);
       labels.push([rename, 'Edit']);
       if (this.onDelete) {
         const remove = document.createElement('tl-icon-button');
         Object.entries({icon: 'trash', size: 'sm', variant: 'ghost', title: 'Delete track'})
           .forEach(([key, value]) => remove.setAttribute(key, value));
         remove.onclick = event => { event.stopPropagation(); this.onDelete(id); };
-        title.append(remove);
+        title.append(remove); structuralControls.push(remove);
         labels.push([remove, 'Delete']);
       }
     }
@@ -357,6 +364,10 @@ export class ProjectTimeline {
     const mode = (key, text, label, toggle) => {
       const button = element('button', `track-mode track-mode-${text.toLowerCase()}`, {type: 'button', textContent: text});
       button.title = label;
+      if (text === 'I' || text === 'R') {
+        button.textContent = ''; const icon=document.createElement('tl-icon');
+        icon.setAttribute('name', text === 'I' ? 'speaker' : 'microphone'); icon.setAttribute('size','15'); button.append(icon);
+      }
       labels.push([button, label]);
       button.onclick = (event) => { event.stopPropagation(); this.onSelect(id); toggle(); };
       modeGroup.append(button);
@@ -371,6 +382,7 @@ export class ProjectTimeline {
     const arm = editable && track.origin === 'personal' && usesTrackPreset(track) && this.onArm
       ? mode('armed', 'R', 'Arm recording', () => this.onArm(id)) : null;
 
+    if (arm) structuralControls.push(arm);
     const volume = element('input', '', {type: 'range', min: 0, max: 100, step: 1, value: track.volume});
     labels.push([volume, 'Volume for']);
     volume.oninput = () => {
@@ -426,6 +438,7 @@ export class ProjectTimeline {
         const index = this.ids().indexOf(id) + step;
         if (index >= 0 && index < this.rows.size) this.onMove(id, index);
       };
+      structuralControls.push(grip);
       label.append(grip);
     }
     label.append(badge, strip);
@@ -444,6 +457,6 @@ export class ProjectTimeline {
     };
     lane.append(area);
     root.append(label, lane);
-    return {root, track, fx, icon, name, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, labels};
+    return {root, track, structuralControls, fx, icon, name, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, labels};
   }
 }

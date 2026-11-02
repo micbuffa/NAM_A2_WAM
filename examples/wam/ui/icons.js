@@ -1,5 +1,8 @@
 // Stroke icons on a 24px grid (from the TONELAB mockup, plus the rack's own tuner and panel glyphs).
 export const icons = {
+  microphone: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/>',
+  speaker: '<path d="m11 4-6 5H2v6h3l6 5V4ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14"/>',
+  metronome: '<path d="M8 3h8l4 18H4L8 3ZM12 16l6-12M8 17h8"/>',
   audio: '<path d="M4 9v6"/><path d="M8 6v12"/><path d="M12 3v18"/><path d="M16 7v10"/><path d="M20 10v4"/>',
   chevron: '<path d="m8 10 4 4 4-4"/>',
   close: '<path d="m6 6 12 12"/><path d="M18 6 6 18"/>',

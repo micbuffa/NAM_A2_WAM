@@ -38,13 +38,13 @@ test('each import offers current or new project; a shared project is never offer
 
 test('Tone import into the chosen existing project appends without duplicating the project and offers keep/separate on the new source',async()=>{
  const full={id:7,name:'Jam',importedTrackId:42},calls=[],prompts=[];
- const w={project:{id:7},projects:[{id:7}],chooseImportDestination:async()=>({destination:{projectId:7}}),
+ const w={requestTempo(id){this.tempoRequested=id;},project:{id:7},projects:[{id:7}],chooseImportDestination:async()=>({destination:{projectId:7}}),
   ensureSignedIn:async()=>true,confirmSavedMixDiscard:async()=>true,confirmPreviewDiscard:async()=>true,
   api:{importBacking:async(attributes,file)=>{calls.push({attributes,file});return full;}},
   separationView:{chooseModel:options=>prompts.push(options)},setProject(project){this.project=project;},replaceSummary(){},remember(){},render(){},report(){}};
  assert.equal(await ProjectsWorkspace.prototype.importFromTone.call(w,{id:'bt-song',title:'Song'}),true);
  assert.deepEqual(calls[0].attributes,{projectId:7,id:'bt-song'});assert.equal(w.projects.length,1);
- assert.deepEqual(prompts,[{sourceId:42,allowUnseparated:true}]);
+ assert.deepEqual(prompts,[{sourceId:42,allowUnseparated:true}]);assert.equal(w.tempoRequested,42);
  w.chooseImportDestination=async()=>null;
  assert.equal(await ProjectsWorkspace.prototype.importFromTone.call(w,{id:'bt-song'}),false);assert.equal(calls.length,1);
 });

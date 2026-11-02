@@ -2,10 +2,11 @@
 <style>body{background:#181b1f;color:#eee;font:17px system-ui;margin:32px}button{padding:12px;font-size:17px}pre{white-space:pre-wrap}</style>
 <h1>DI capture · synthetic input qualification</h1><p>No microphone, account writes or audible output. Runs the real capture WAM, ring buffer and Worker.</p>
 <button id="run">Run synthetic capture</button><pre id="result" role="status">Ready</pre>
-<button id="lifecycle">Run Studio recording lifecycle</button><div id="bench" hidden></div>
+<button id="tempo">Run tempo-worker qualification</button><button id="cancelcount">Run count-in cancellation</button><button id="lifecycle">Run Studio recording lifecycle</button><div id="bench" hidden></div>
 <script type="module">
 import initializeWamHost from '../../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import {DIRecorder} from '../../../examples/wam/projects/recording/DIRecorder.js';
+import {TempoDetection} from '../../../examples/wam/projects/TempoDetection.js';
 import {StudioRecording} from '../../../examples/wam/projects/recording/StudioRecording.js';
 import {StudioPlayer} from '../../../examples/wam/projects/StudioPlayer.js';
 import {TrackMeters} from '../../../examples/wam/projects/TrackMeters.js';
@@ -38,8 +39,17 @@ document.querySelector('#run').onclick=async()=>{
  finally{recorder?.destroy();await context?.close();}
 };
 
+document.querySelector('#tempo').onclick=()=>{
+ const sampleRate=8000,pcm=new Float32Array(20*sampleRate);
+ for(let t=sampleRate;t<pcm.length;t+=sampleRate/2)for(let i=0;i<80;i++)pcm[t+i]=Math.exp(-i/15);
+ const detector=new TempoDetection({onResult:result=>output.textContent=JSON.stringify({tempoWorkerPass:result?.bpm===120,result},null,2)});
+ output.textContent='Analysing synthetic 120 BPM pulses…';detector.analyse({length:pcm.length,sampleRate,getChannelData:()=>pcm});
+};
+
+let cancelCountIn=false;
+document.querySelector('#cancelcount').onclick=()=>{cancelCountIn=true;document.querySelector('#lifecycle').click();};
 document.querySelector('#lifecycle').onclick=async()=>{
- let context,recording,player,osc,meters,liveOsc;
+ let context,recording,player,osc,meters,liveOsc,originalStart;
  try{
   output.textContent='Running monitor → arm → record → Stop…';
   context=new AudioContext({sampleRate:48000});await context.resume();
@@ -60,18 +70,29 @@ document.querySelector('#lifecycle').onclick=async()=>{
   const state={version:2,a:{entries:[]},sourceTrim:{live:0,file:-18}},source=new EventTarget();
   osc=context.createBufferSource();const buffer=context.createBuffer(1,48000,48000);buffer.getChannelData(0).fill(.125);osc.buffer=buffer;osc.loop=true;osc.start();
   source.trimDb={live:0};source.liveInput={label:'Synthetic DI',channelIndex:0};source.createDITap=()=>({node:osc,release(){}});
-  player=new StudioPlayer(context);
+  player=new StudioPlayer(context);player.setLiveInput(osc);
   const silent=context.createGain();silent.gain.value=0;player.output.connect(silent).connect(context.destination);
   meters=new TrackMeters({context,player,timeline});
-  const w={owned:true,project:{id:1,tracks:[track]},saved:{tracks:[structuredClone(track)]},selectedId:1,player,accountLoadEpoch:1,
+  const w={owned:true,project:{id:1,bpm:120,timeSignature:'4/4',tracks:[track]},saved:{tracks:[structuredClone(track)]},selectedId:1,player,accountLoadEpoch:1,
     get selectedTrack(){return this.project.tracks[0];},$:id=>document.getElementById(id),
     timeline,renderLength(){},render(){timeline.render(this.project.tracks);recording?.render();},report(text){output.textContent=text;},
-    setTracks(tracks){this.project.tracks=tracks;player.setTracks(tracks);timeline.render(tracks);},
+    setTracks(tracks){this.project.tracks=tracks;player.setTracks(tracks,1);timeline.render(tracks);},
     tones:{status:()=>({state:'ready'}),tones:new Map([[1,{rack:{getState:async()=>structuredClone(state)}}]])}};
   recording=new StudioRecording(w,{context,groupId,source,rack:{getState:async()=>structuredClone(state)},enableLive:async()=>{}});
-  await recording.monitor();await recording.arm();
+  meters.inputFor=id=>recording.meterSource(id);
+  await recording.arm();
+  await new Promise(resolve=>setTimeout(resolve,150));meters.update();
+  const armedSilently=!w.selectedTrack.inputMonitoring && player.base.liveId===null;
+  const rawMeterWorks=Number(timeline.rows.get(1).meter.getAttribute('aria-valuenow'))>-25;
+  let scheduledFrame;originalStart=DIRecorder.prototype.start;
+  DIRecorder.prototype.start=function(input,frame){scheduledFrame=frame;return originalStart.call(this,input,frame);};
   if(recording.armedId!==1)throw Error('Track did not arm');
-  await recording.start();if(recording.state!=='recording')throw Error('Capture did not start');
+  await recording.start();DIRecorder.prototype.start=originalStart;
+  if(recording.state!=='counting')throw Error('Count-in did not start: '+output.textContent);
+  const captureAligned=scheduledFrame===Math.round(player.base.startedAt*48000);
+  const countInBeats=recording.metronome.countBeats;
+  if(cancelCountIn){await recording.stop();output.textContent=JSON.stringify({countInCancelPass:recording.state==='idle'&&!recording.active&&recording.pending.size===0&&!player.recordingLock&&recording.metronome.voices.size===0,state:recording.state,takes:recording.pending.size},null,2);return;}
+  await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(Error('Count-in timed out')),5000);const timer=setInterval(()=>{if(recording.state==='recording'){clearInterval(timer);clearTimeout(timeout);resolve();}},20);});
   await new Promise(resolve=>setTimeout(resolve,2600));
   const liveRenderer=timeline.rows.get(1).liveRenderer;
   const incremental=packets>10&&stableCanvas&&ordinaryRenders===0&&liveRenderer?.fullRepaints===1;
@@ -91,9 +112,9 @@ document.querySelector('#lifecycle').onclick=async()=>{
   const duringPlayDb=Number(timeline.rows.get(1).meter.getAttribute('aria-valuenow'));
   const playbackOnly=player.base.liveId===null&&liveBeforePlayDb>-10&&duringPlayDb<-15&&duringPlayDb>-26;
   player.pause();
-  const take=recording.pending.get(1),pass=incremental&&liveWaveform&&playReady&&playing&&metered&&playbackOnly&&recording.state==='idle'&&!!take&&w.saved.tracks[0].audio===null&&!!w.selectedTrack.presetSnapshot&&take.metadata.capturedFrames>10000&&!player.recordingLock;
-  output.textContent=JSON.stringify({lifecyclePass:pass,incremental,liveStats,liveWaveform,playReady,playing,metered,playbackOnly,liveBeforePlayDb,duringPlayDb,peak:take?.peak,state:recording.state,pendingTakes:recording.pending.size,capturedFrames:take?.metadata.capturedFrames,savedAudioStillEmpty:w.saved.tracks[0].audio===null,transportUnlocked:!player.recordingLock},null,2);
+  const take=recording.pending.get(1),pass=armedSilently&&rawMeterWorks&&captureAligned&&countInBeats===4&&incremental&&liveWaveform&&playReady&&playing&&metered&&playbackOnly&&recording.state==='idle'&&!!take&&w.saved.tracks[0].audio===null&&!!w.selectedTrack.presetSnapshot&&take.metadata.capturedFrames>10000&&!player.recordingLock;
+  output.textContent=JSON.stringify({lifecyclePass:pass,armedSilently,rawMeterWorks,captureAligned,countInBeats,incremental,liveStats,liveWaveform,playReady,playing,metered,playbackOnly,liveBeforePlayDb,duringPlayDb,peak:take?.peak,state:recording.state,pendingTakes:recording.pending.size,capturedFrames:take?.metadata.capturedFrames,savedAudioStillEmpty:w.saved.tracks[0].audio===null,transportUnlocked:!player.recordingLock},null,2);
  }catch(error){output.textContent=`FAIL: ${error.stack}`;}
- finally{meters?.destroy();player?.destroy();recording?.clear();osc?.stop();liveOsc?.stop();await context?.close();}
+ finally{cancelCountIn=false;if(originalStart)DIRecorder.prototype.start=originalStart;meters?.destroy();player?.destroy();recording?.clear();osc?.stop();liveOsc?.stop();await context?.close();}
 };
 </script></html>

@@ -19,6 +19,7 @@ import {EngineStatus} from './EngineStatus.js';
 import {SettingsView} from './SettingsView.js';
 import {registerAppearance} from './ui/Appearance.js';
 import {Workspaces} from './Workspaces.js';
+import {StudioLayout} from './projects/StudioLayout.js';
 import {ProjectsWorkspace, takeLinkedProject} from './projects/ProjectsWorkspace.js';
 import {StudioPlayer as ProjectPlayer} from './projects/StudioPlayer.js';
 import {TrackSoundEditor} from './projects/TrackSoundEditor.js';
@@ -58,6 +59,7 @@ const settings = new SettingsView({button: $('#settingsButton')});
 registerAppearance(settings);
 const engine = new EngineStatus({element: $('#engineStatus'), context});
 const workspaces = new Workspaces({control: $('#workspaceSwitch')});
+new StudioLayout({workspaces, button: $('#studioSidebarToggle'), sidebar: $('#hostSidebar')});
 if (takeLinkedProject()) workspaces.show('projects');
 // Settings > Audio: what the browser chose (it does not let a page set the buffer size).
 const milliseconds = (seconds) => Number.isFinite(seconds) && seconds > 0 ? `${(seconds * 1000).toFixed(1)} ms` : 'Not reported';
@@ -329,7 +331,7 @@ async function initialize() {
   const syncMonitoring=()=>{
     const id=workspaces.current==='projects'?projectPlayer.liveId:null;
     projectPlayer.setLiveInput(trackSoundEditor?.audioEditing||id===null?null:sourceManager.sourceTrim);
-    toneGate.gain.setTargetAtTime(!calibrationMuted&&!trackSoundEditor?.audioEditing&&id===null?1:0,context.currentTime,.01);
+    toneGate.gain.setTargetAtTime(!calibrationMuted&&!trackSoundEditor?.audioEditing&&workspaces.current==='tone'?1:0,context.currentTime,.01);
   };
   projectPlayer.addEventListener('statechange',syncMonitoring);
   workspaces.addEventListener('change',syncMonitoring);

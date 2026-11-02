@@ -20,12 +20,12 @@ class Api::ProjectsController < Api::BaseController
   end
 
   def create
-    project = current_user.projects.create!(json_body.slice("name", "bpm"))
+    project = current_user.projects.create!(project_attributes)
     render json: ProjectJson.full(project, current_user), status: :created
   end
 
   def update
-    attributes = json_body.slice("name", "bpm")
+    attributes = project_attributes
     raise ActionController::ParameterMissing, :name if attributes.empty?
 
     owned_project.update!(attributes)
@@ -38,5 +38,10 @@ class Api::ProjectsController < Api::BaseController
   end
 
   private
+    def project_attributes
+      attributes = json_body.slice("name", "bpm")
+      attributes["time_signature"] = json_body["timeSignature"] if json_body.key?("timeSignature")
+      attributes
+    end
     def project_id = params[:id]
 end

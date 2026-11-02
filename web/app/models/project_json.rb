@@ -3,7 +3,7 @@ module ProjectJson
   extend self
 
   def summary(project, viewer, track_count: nil)
-    { id: project.id, name: project.name, bpm: project.bpm, owned: project.owned_by?(viewer),
+    { id: project.id, name: project.name, bpm: project.bpm, timeSignature: project.time_signature, owned: project.owned_by?(viewer),
       owner: { id: project.user.id, name: project.user.display_name }, trackCount: track_count || visible_track_count(project),
       createdAt: project.created_at, updatedAt: project.updated_at }
   end

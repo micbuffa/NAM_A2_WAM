@@ -1,6 +1,8 @@
+import {TempoDetection} from './TempoDetection.js';
+import {TIME_SIGNATURES, signatureOf} from './ProjectTiming.js';
 import {copiedTrackSound} from './TrackSoundState.js';
 import {TrackMeters} from './TrackMeters.js';
-import {StudioRecording} from './recording/StudioRecording.js';
+import {StudioRecording, armShortcut} from './recording/StudioRecording.js';
 import {StudioHistory, editState, editCommand, historyShortcut} from './StudioHistory.js';
 import {audioImportDialog, importDestinationFields} from './AudioImportDialog.js';
 // Projects workspace (TONELAB mockup): the sidebar project picker and track
@@ -57,6 +59,12 @@ export class ProjectsWorkspace extends EventTarget {
     Object.assign(this, {api, account, requestSignIn, report, onEditPreset, player, storage});
     this.$ = (id) => root.getElementById(id);
     this.projects = [];
+    this.tempoDetection = new TempoDetection({onResult: result => {
+      if(!this.tempoSource || this.tempoSource.projectId!==this.project?.id)return;
+      this.tempoSuggestion=result ?? {unavailable:true};this.renderTempoSuggestion();
+    }});
+    if(this.$('projectApplyTempo'))this.$('projectApplyTempo').onclick=()=>{if(this.tempoSuggestion?.bpm && this.owned && !this.saving && !this.recording?.busy && !this.separation?.busy){this.edit({bpm:this.tempoSuggestion.bpm});this.tempoSuggestion=null;this.renderTempoSuggestion();}};
+    if(this.$('projectDismissTempo'))this.$('projectDismissTempo').onclick=()=>{this.tempoDetection.cancel();this.tempoSource=null;this.tempoSuggestion=null;this.renderTempoSuggestion();};
     this.project = null;
     this.saved = null; // the project as last loaded or saved
     this.selectedId = null;
@@ -101,6 +109,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectNew').onclick = () => this.createProjectDialog();
     this.$('projectImport').onclick = () => this.importAudioDialog();
     this.$('projectEdit').onclick = () => this.editProjectDialog();
+    if(this.$('projectTimelineTempo'))this.$('projectTimelineTempo').onclick=()=>{if(this.owned)void this.editProjectDialog();};
     this.$('projectSave').onclick = () => this.save();
     this.mixExporter = new StudioMixExporter({api});
     if (this.$('studioUseMix')) this.$('studioUseMix').onclick = () => this.useMixInTone();
@@ -111,7 +120,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectShare').onclick = () => this.shareDialog();
     this.$('projectLeave').onclick = () => this.leave();
     this.$('projectResetMix').onclick = () => this.setTracks(structuredClone(this.saved.tracks));
-    this.$('projectAddTrack').onclick = () => { this.separation?.show('original'); return this.addTrackDialog(); };
+    this.$('projectAddTrack').onclick = () => this.addTrackDialog();
     this.$('projectsEmptyAction').onclick = () => this.emptyAction?.();
     this.$('inspectorPreset').onchange = (event) => void this.chooseTrackPreset(this.selectedId,event.target.value).catch(error=>this.report(error.message,true));
     this.$('inspectorEditPreset').onclick = () => this.editPresetInTone();
@@ -120,6 +129,10 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectRewind').onclick = () => this.player?.stop();
     this.$('projectLoop').onclick = () => this.toggleLoop();
     this.$('projectLoopReset').onclick = () => this.player?.duration && this.setLoop({enabled: false, start: 0, end: 0});
+    root.addEventListener?.('keydown',event=>{
+      if(!armShortcut(event,{visible:Boolean(this.$('projectTimeline').offsetParent),busy:this.recording?.busy,dialog:Boolean(root.querySelector?.('dialog[open]'))}))return;
+      if(this.recording){event.preventDefault();void this.recording.act(()=>this.recording.arm());}
+    });
     // L toggles the loop while the timeline is shown, unless typing in a field.
     root.addEventListener?.('keydown', (event) => {
       if (event.key.toLowerCase() !== 'l' || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
@@ -129,6 +142,7 @@ export class ProjectsWorkspace extends EventTarget {
     });
     player?.addEventListener('statechange', () => this.renderTransport());
     player?.addEventListener('load', ({detail: {id, buffer}}) => {
+      this.maybeDetectTempo(id,buffer);
       const wave = this.timeline.waves.get(id);
       const recording = this.project?.tracks.find(track => track.id === id)?.recording;
       if (wave?.peaks && recording?.sessionId && wave.recordingSessionId === recording.sessionId) { this.renderLength(); return; }
@@ -150,7 +164,7 @@ export class ProjectsWorkspace extends EventTarget {
     account?.addEventListener('change', () => this.load());
   }
 
-  attachRecording(options) { this.recording = new StudioRecording(this, options); }
+  attachRecording(options) { this.recording = new StudioRecording(this, options); if(this.trackMeters)this.trackMeters.inputFor=id=>this.recording.meterSource(id); }
 
   // TrackTones: one rack per guitar or bass track with a preset.
   attachTones(tones) {
@@ -194,7 +208,7 @@ export class ProjectsWorkspace extends EventTarget {
   // Unsaved edits of an owned project.
   get dirty() {
     if (!this.owned || !this.saved) return false;
-    return Boolean(this.recording?.pending.size) || this.project.name !== this.saved.name || this.project.bpm !== this.saved.bpm
+    return Boolean(this.recording?.pending.size) || this.project.name !== this.saved.name || this.project.bpm !== this.saved.bpm || signatureOf(this.project.timeSignature) !== signatureOf(this.saved.timeSignature)
       || orderChanged(this.saved.tracks, this.project.tracks) || trackChanges(this.saved.tracks, this.project.tracks).length > 0;
   }
 
@@ -258,12 +272,13 @@ export class ProjectsWorkspace extends EventTarget {
     if (!beforeLayout && !preserveHistory) this.history?.clear();
     this.historyGesture = null;
     if (project?.id !== this.project?.id) {
+      this.tempoDetection?.cancel();this.tempoSource=null;this.tempoSuggestion=null;
       this.recording?.clear();
       this.mixExporter?.invalidate();
       if (this.$?.('studioExportRange')) this.$('studioExportRange').value='song';
       this.separation?.stop({reset: true});
       this.player?.stop();
-      this.player?.setLoop(loopFromBars(project && rememberedLoop(this.loops(), project.id), project?.bpm));
+      this.player?.setLoop(loopFromBars(project && rememberedLoop(this.loops(), project.id), project?.bpm, project?.timeSignature));
     }
     this.project = project;
     this.saved = project && structuredClone(project);
@@ -276,10 +291,10 @@ export class ProjectsWorkspace extends EventTarget {
   edit(attributes) {
     if (this.saving || this.history?.busy || this.recording?.busy) return;
     const before = this.historyState();
-    const bars = loopToBars(this.player?.loop, this.project.bpm);
+    const bars = loopToBars(this.player?.loop, this.project.bpm, this.project.timeSignature);
     Object.assign(this.project, attributes);
     // The loop keeps its bars at the new tempo.
-    if (this.player && this.player.loop.end > this.player.loop.start) this.player.setLoop(loopFromBars(bars, this.project.bpm));
+    if (this.player && this.player.loop.end > this.player.loop.start) this.player.setLoop(loopFromBars(bars, this.project.bpm, this.project.timeSignature));
     this.rememberEdit(before, 'Edit project');
     this.render();
   }
@@ -347,7 +362,7 @@ export class ProjectsWorkspace extends EventTarget {
       this.report('No separated audio was produced; recording will use the original project audio.'); return;
     }
     const projectId = this.project?.id, epoch = this.accountLoadEpoch;
-    this.report('Keeping the separated instruments as project tracks before arming…');
+    this.report('Keeping the separated instruments as project tracks before editing or recording…');
     await this.save();
     if (this.project?.id !== projectId || this.accountLoadEpoch !== epoch || c.result) throw Error('Instruments could not be saved. The partial result is kept; retry Save project before arming.');
   }
@@ -360,8 +375,8 @@ export class ProjectsWorkspace extends EventTarget {
     try {
       const {project, saved} = this;
       await this.recording?.save();
-      if (project.name !== saved.name || project.bpm !== saved.bpm) {
-        Object.assign(saved, await this.api.updateProject(project.id, {name: project.name, bpm: project.bpm}), {tracks: saved.tracks});
+      if (project.name !== saved.name || project.bpm !== saved.bpm || signatureOf(project.timeSignature) !== signatureOf(saved.timeSignature)) {
+        Object.assign(saved, await this.api.updateProject(project.id, {name: project.name, bpm: project.bpm, timeSignature: signatureOf(project.timeSignature)}), {tracks: saved.tracks});
       }
       if (orderChanged(saved.tracks, project.tracks)) {
         await this.api.reorderTracks(project.id, project.tracks.map((track) => track.id));
@@ -441,15 +456,15 @@ export class ProjectsWorkspace extends EventTarget {
       const project = await this.api.importBacking({...destination, ...(file ? {title:track.title} : {id:track.id})}, file);
       if(epoch!==this.accountLoadEpoch || accountId!==this.account?.user?.id)return false;
       if (!this.projects.some(entry=>entry.id===project.id)) this.projects.unshift(project);
-      this.setProject(project, {historyLabel: 'Import audio'});this.replaceSummary(project);this.remember(project.id);this.render();
+      this.setProject(project, {historyLabel: 'Import audio'});this.requestTempo(project.importedTrackId);this.replaceSummary(project);this.remember(project.id);this.render();
       this.report('Audio ready in Studio.');
       void this.separationView?.chooseModel({sourceId:project.importedTrackId,allowUnseparated:true});return true;
     } catch(error) { this.report(`Audio not imported: ${error.message}`,true);return false; }
     finally {this.importingTone=false;}
   }
 
-  async create({name, bpm}) {
-    const project = await this.api.createProject({name, bpm});
+  async create({name, bpm, timeSignature}) {
+    const project = await this.api.createProject({name, bpm, timeSignature:signatureOf(timeSignature)});
     this.projects.unshift({...project, trackCount: 0});
     await this.open(project.id, {confirm: false});
     return project;
@@ -488,6 +503,10 @@ export class ProjectsWorkspace extends EventTarget {
   // Added and deleted tracks are saved at once; the saved copy follows, so
   // other unsaved edits stay unsaved.
   async addTrack({name, instrument, origin = 'personal', file}) {
+    if (this.separation?.busy) throw Error('Stop separation before adding a track. The instrument preview will be preserved.');
+    if (this.separation?.result) await this.prepareRecordingBacking();
+    if (this.separation?.busy) throw Error('Stop separation before adding a track.');
+    this.separation?.show?.('original');
     const {project} = this;
     const track = await this.api.createTrack(project.id, {name, instrument, origin}, file);
     project.tracks = [...project.tracks, track];
@@ -616,7 +635,7 @@ export class ProjectsWorkspace extends EventTarget {
     }
     if (patch.loop && this.player) {
       this.player.setLoop(patch.loop[side]);
-      try { this.storage?.setItem(LOOPS_KEY, JSON.stringify(rememberLoop(this.loops(), this.project.id, loopToBars(this.player.loop, this.project.bpm)))); } catch { /* Browser storage unavailable. */ }
+      try { this.storage?.setItem(LOOPS_KEY, JSON.stringify(rememberLoop(this.loops(), this.project.id, loopToBars(this.player.loop, this.project.bpm, this.project.timeSignature)))); } catch { /* Browser storage unavailable. */ }
     }
     if (this.separation) {
       this.separation.projectTracks = this.project.tracks;
@@ -646,7 +665,7 @@ export class ProjectsWorkspace extends EventTarget {
       button.hidden = !this.owned;
       button.disabled = this.historyBlocked || !label;
       button.setAttribute('aria-label', label ? `${name}: ${label}` : name);
-      button.setAttribute('title', `${name}${label ? `: ${label}` : ''} (${shortcut})`);
+      button.setAttribute('title', `${name}${label ? `: ${label}` : ''} (${shortcut})${this.separation?.result ? ' · Save project after separation to edit project history.' : ''}`);
       button.setAttribute('aria-keyshortcuts', this.isMac ? (redo ? 'Meta+Shift+Z' : 'Meta+Z') : (redo ? 'Control+Shift+Z Control+Y' : 'Control+Z'));
     }
   }
@@ -688,7 +707,7 @@ export class ProjectsWorkspace extends EventTarget {
 
   async editProjectDialog() {
     if (!this.owned) return;
-    const values = await projectDialog({title: 'Edit project', confirmLabel: 'Apply', name: this.project.name, bpm: this.project.bpm,
+    const values = await projectDialog({title: 'Edit project', confirmLabel: 'Apply', name: this.project.name, bpm: this.project.bpm, timeSignature: signatureOf(this.project.timeSignature),
       intro: 'Update the project name and tempo, then save the project.', onDelete: () => this.destroy()});
     if (values) this.edit(values);
   }
@@ -762,7 +781,7 @@ export class ProjectsWorkspace extends EventTarget {
       }
       if(await this.confirmSavedMixDiscard() && await this.confirmPreviewDiscard()) {
         const target=job.projectId;dialog.close();
-        try{this.projects=await this.api.listProjects();this.separation?.stop({reset:true});await this.open(target,{confirm:false,historyLabel:'Import YouTube audio'});if(this.project?.id===target)void this.separationView?.chooseModel({sourceId:job.sourceTrackId,allowUnseparated:true});}
+        try{this.projects=await this.api.listProjects();this.separation?.stop({reset:true});await this.open(target,{confirm:false,historyLabel:'Import YouTube audio'});if(this.project?.id===target){this.requestTempo(job.sourceTrackId);void this.separationView?.chooseModel({sourceId:job.sourceTrackId,allowUnseparated:true});}}
         catch(error){this.report(error.message,true);}
       }
     };
@@ -786,11 +805,13 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   async addTrackDialog() {
-    if (!this.owned) return;
+    if (!this.owned || this.saving) return;
+    if (this.separation?.busy) { this.report('Stop separation before adding a track. Its partial instruments will be kept.', true); return; }
+    const projectId = this.project.id, epoch = this.accountLoadEpoch;
     const values = await trackDialog({title: 'Add a track', confirmLabel: 'Add track', eyebrow: this.project.name,
       nameLabel: 'Track name', defaultName: (instrument) => defaultTrackName(instrument, this.project.tracks),
       intro: 'Choose the instrument and the audio file of this part. The file can also be added later.'});
-    if (!values) return;
+    if (!values || this.project?.id !== projectId || this.accountLoadEpoch !== epoch) return;
     if (values.file) this.report(`Uploading ${values.file.name}…`);
     try {
       const track = await this.addTrack({...values, name: values.name || defaultTrackName(values.instrument, this.project.tracks)});
@@ -906,6 +927,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.renderTracks();
     this.renderInspector();
     this.syncPlayer();
+    this.separationView?.flushWaves();
     this.separationView?.render();
     this.recording?.render();
   }
@@ -925,10 +947,27 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   renderLength() {
-    if (this.project) this.timeline.setLength(timelineLength(this.player?.duration ?? 0, this.project.bpm));
+    if (this.project) this.timeline.setLength(timelineLength(this.player?.duration ?? 0, this.project.bpm, 16, this.project.timeSignature));
   }
 
+  requestTempo(id) {
+    if(!id)return;this.tempoDetection?.cancel();this.tempoSource={projectId:this.project?.id,id,started:false};this.tempoSuggestion={loading:true};
+    const buffer=this.player?.channels?.get(id)?.buffer;if(buffer)this.maybeDetectTempo(id,buffer);this.renderTempoSuggestion();
+  }
+  maybeDetectTempo(id,buffer) {
+    if(!this.tempoSource||this.tempoSource.projectId!==this.project?.id||this.tempoSource.id!==id||this.tempoSource.started)return;
+    this.tempoSource.started=true;
+    try{this.tempoDetection.analyse(buffer);}catch{this.tempoSuggestion={unavailable:true};this.renderTempoSuggestion();}
+  }
+  renderTempoSuggestion() {
+    const root=this.$('projectTempoSuggestion');if(!root)return;
+    const suggestion=this.tempoSuggestion;root.hidden=!suggestion;if(!suggestion)return;
+    this.$('projectTempoEstimate').textContent=suggestion.loading?'Estimating tempo…':suggestion.bpm?`Estimated ${suggestion.bpm} BPM · verify (half/double possible)`:'No clear beat detected · set BPM manually';
+    this.$('projectApplyTempo').hidden=!suggestion.bpm;
+    this.$('projectApplyTempo').disabled=Boolean(this.saving||this.recording?.busy||this.separation?.busy);
+  }
   renderTransport() {
+    this.renderTempoSuggestion();
     const {player} = this;
     const playing = Boolean(player?.playing);
     if(this.$('projectMasterVolume')){const volume=Math.round((player?.masterVolume??1)*100);this.$('projectMasterVolume').value=String(volume);this.$('projectMasterVolume').setAttribute('aria-valuetext',volume+'%');this.$('projectMasterValue').textContent=volume+'%';}
@@ -945,7 +984,7 @@ export class ProjectsWorkspace extends EventTarget {
     loopButton.disabled = !player?.duration;
     loopButton.setAttribute('aria-pressed', String(loop.enabled));
     loopButton.querySelector('span').textContent = loop.enabled ? 'On' : 'Off';
-    const region = loopLabel(loop, this.project?.bpm ?? BPM_RANGE.default);
+    const region = loopLabel(loop, this.project?.bpm ?? BPM_RANGE.default, this.project?.timeSignature);
     loopButton.title = `Loop (L)${region ? ` · ${region}` : ''} · drag on the bar ruler to choose the bars`;
     this.$('projectLoopReset').disabled = !player?.duration || !(loop.end > loop.start);
     this.timeline.setLoop(loop);
@@ -975,7 +1014,7 @@ export class ProjectsWorkspace extends EventTarget {
     const before = this.historyState();
     const playing = this.player.setLoop(changes);
     if (this.player.preview) return playing;
-    const loops = rememberLoop(this.loops(), this.project.id, loopToBars(this.player.loop, this.project.bpm));
+    const loops = rememberLoop(this.loops(), this.project.id, loopToBars(this.player.loop, this.project.bpm, this.project.timeSignature));
     try { this.storage?.setItem(LOOPS_KEY, JSON.stringify(loops)); } catch { /* Not remembered. */ }
     this.rememberEdit(before, 'Loop A/B');
     return playing;
@@ -988,7 +1027,7 @@ export class ProjectsWorkspace extends EventTarget {
   renderPosition() {
     const seconds = this.player?.position ?? 0;
     this.$('projectClock').textContent = formatClock(seconds);
-    this.$('projectBarBeat').textContent = barBeat(seconds, this.project?.bpm ?? BPM_RANGE.default);
+    this.$('projectBarBeat').textContent = barBeat(seconds, this.project?.bpm ?? BPM_RANGE.default, this.project?.timeSignature);
     this.timeline.setPosition(seconds);
   }
 
@@ -1036,7 +1075,9 @@ export class ProjectsWorkspace extends EventTarget {
     const description = describeProject(this.project, {dirty, previewTracks: this.separation?.result && this.separation.mode === 'stems' ? this.separation.viewTracks : null});
     this.$('projectKicker').textContent = description?.kicker ?? 'Studio';
     this.$('projectTitle').textContent = this.project?.name ?? 'Studio';
+    this.$('projectTitle').title = this.$('projectTitle').textContent;
     this.$('projectMeta').textContent = description?.meta ?? 'Record and mix your ideas track by track.';
+    this.$('projectMeta').title = this.$('projectMeta').textContent;
     this.$('projectEdit').hidden = !owned;
     const state = this.$('projectSaveState');
     state.hidden = !this.project;
@@ -1049,7 +1090,9 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectShare').title = shareSummary(this.project?.shares) || 'Share this project read-only';
     this.$('projectSave').hidden = !owned;
     this.$('projectSave').disabled = this.saving || this.separation?.busy || (!dirty && !this.pendingSeparation);
-    this.$('projectEdit').disabled = this.$('projectAddTrack').disabled = this.saving;
+    this.$('projectEdit').disabled = this.saving;
+    this.$('projectAddTrack').disabled = Boolean(this.saving || this.separation?.busy);
+    this.$('projectAddTrack').title = this.separation?.busy ? 'Stop separation before adding a track; partial instruments are preserved.' : 'Add track';
     if (this.saving) state.textContent = this.history?.busy ? 'Updating project…' : 'Saving audio…';
     this.$('projectAddTrack').hidden = !owned;
     this.$('projectTrackCount').textContent = twoDigits(this.displayTracks.length);
@@ -1080,8 +1123,8 @@ export class ProjectsWorkspace extends EventTarget {
 
   renderTracks() {
     const tracks = this.displayTracks;
-    this.timeline.render(tracks, {selectedId: this.selectedId, editable: this.owned && !this.separation?.result, presetName: (track) => this.toneLabel(track)});
-    this.$('projectTimelineTempo').textContent = this.project ? `${this.project.bpm} BPM · 4/4` : '';
+    this.timeline.render(tracks, {selectedId: this.selectedId, editable: this.owned, structuralLock: this.separation?.result ? (this.separation.busy ? 'Stop separation, then Save project to edit these instruments.' : 'Save project to edit these instruments and enable Undo/Redo.') : '', presetName: (track) => this.toneLabel(track)});
+    this.$('projectTimelineTempo').textContent = this.project ? `${this.project.bpm} BPM · ${signatureOf(this.project.timeSignature)}` : '';
     this.$('projectTracksEmpty').hidden = tracks.length > 0;
     this.$('projectTracksEmpty').textContent = this.owned ? 'No tracks yet: add one from an audio file.' : 'This project has no tracks yet.';
   }
@@ -1144,8 +1187,8 @@ export class ProjectsWorkspace extends EventTarget {
     if (this.tones?.status(track.id)?.state === 'error') return 'This preset could not be loaded: the track plays dry.';
     if (track.inputMonitoring) return 'Input monitoring: your live guitar plays through this preset, in place of the recording.';
     if (liveTrackId(this.project.tracks, this.selectedId) === track.id) {
-      return track.audio ? 'Your live guitar plays through this preset, over the recording (I: in place of it).'
-        : 'Your live guitar plays through this preset.';
+      return track.audio ? 'Monitoring off. Play auditions the recorded DI through this preset.'
+        : 'Monitoring off. Arm the microphone to meter/record DI; enable the speaker to hear yourself.';
     }
     return this.owned ? 'The recorded DI plays through this preset.' : 'Preset chosen by the project owner; the DI plays through it.';
   }
@@ -1200,21 +1243,24 @@ function formActions(dialog, confirmLabel, onDelete, deleteLabel) {
 }
 
 // Name + tempo. Resolves {name, bpm}, or null when cancelled.
-function projectDialog({title, confirmLabel, intro, name = '', bpm = BPM_RANGE.default, onDelete = null}) {
+function projectDialog({title, confirmLabel, intro, name = '', bpm = BPM_RANGE.default, timeSignature = '4/4', onDelete = null}) {
   return new Promise((resolve) => {
     const {dialog, body, id} = createDialog({title, eyebrow: 'Studio', className: 'project-dialog'});
     const form = element('form', {method: 'dialog'});
     const nameInput = element('input', {id: `${id}-name`, required: true, maxLength: 120, value: name, placeholder: 'e.g. Late night ideas',
       autocomplete: 'off'});
     const bpmInput = element('input', {id: `${id}-bpm`, type: 'number', required: true, min: BPM_RANGE.min, max: BPM_RANGE.max, step: 1, value: bpm});
+    const signature=element('select',{id:`${id}-signature`});
+    for(const value of TIME_SIGNATURES)signature.append(element('option',{value,textContent:value}));
+    signature.value=signatureOf(timeSignature);
     const tempo = element('div', {className: 'project-bpm-field'});
     tempo.append(bpmInput, element('strong', {textContent: 'BPM'}));
-    const [tempoLabel] = field('Tempo', bpmInput);
-    form.append(element('p', {textContent: intro}), ...field('Project name', nameInput), tempoLabel, tempo,
+    const [tempoLabel] = field('Tempo · quarter-note BPM', bpmInput);
+    form.append(element('p', {textContent: intro}), ...field('Project name', nameInput), tempoLabel, tempo, ...field('Time signature',signature),
       formActions(dialog, confirmLabel, onDelete, 'Delete project'));
     body.append(form);
     dialog.addEventListener('close', () => resolve(dialog.returnValue === 'ok' && nameInput.value.trim()
-      ? {name: nameInput.value.trim(), bpm: clampBpm(bpmInput.value)} : null), {once: true});
+      ? {name: nameInput.value.trim(), bpm: clampBpm(bpmInput.value), timeSignature:signature.value} : null), {once: true});
     dialog.showModal();
     nameInput.select();
   });

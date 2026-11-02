@@ -176,7 +176,7 @@ test('arming promotes stopped instruments before enabling monitoring, but fails 
     const r=Object.create(StudioRecording.prototype),calls=[];r.pending=new Map();r.source={liveInput:{}};
     r.workspace={owned:true,selectedId:1,project:{id:2},selectedTrack:{id:1,origin:'personal',instrument:'guitar'},separation:{result:{engine:{complete:true}}},
       async prepareRecordingBacking(){calls.push('publish');this.separation.result=null;}};
-    r.monitor=async()=>calls.push('monitor');await r.arm();assert.deepEqual(calls,['publish','monitor']);assert.equal(r.armedId,1);
+    r.prepareInput=async()=>calls.push('input-only');await r.arm();assert.deepEqual(calls,['publish','input-only']);assert.equal(r.armedId,1);
     r.armedId=null;r.workspace.separation.result={engine:{complete:true}};r.workspace.prepareRecordingBacking=async()=>{throw Error('disk quota');};calls.length=0;
     await assert.rejects(()=>r.arm(),/disk quota/);assert.deepEqual(calls,[]);assert.equal(r.armedId,null);assert.ok(r.workspace.separation.result);
   }finally{previous?Object.defineProperty(globalThis,'crossOriginIsolated',previous):delete globalThis.crossOriginIsolated;}
@@ -207,12 +207,12 @@ test('Stop separation → Add guitar → Arm keeps the guitar and publishes the 
     let released=0,published=0;
     const engine={complete:true,availableFrames:44100,destroy(){released++;}};
     c.result={projectId:2,modelId:'four',engine,tracks:[{id:-1,name:'Bass preview'}]};c.mode='original';
-    await w.addTrack({name:'My guitar',instrument:'guitar'});assert.equal(w.selectedTrack.id,5);
     w.persistence={save:async(result,selected)=>{
       published++;assert.equal(result.engine,engine);assert.equal(selected.id,'four');
-      return {...w.project,tracks:[{...original,timelineVisible:false},...model.roles.map((role,i)=>({id:10+i,name:role,origin:'stem',instrument:role,timelineVisible:true,volume:80,pan:0})),w.project.tracks.find(t=>t.id===5)]};
+      return {...w.project,tracks:[{...original,timelineVisible:false},...model.roles.map((role,i)=>({id:10+i,name:role,origin:'stem',instrument:role,timelineVisible:true,volume:80,pan:0}))]};
     }};
-    const r=w.recording=Object.create(StudioRecording.prototype);r.workspace=w;r.pending=new Map();r.source={liveInput:{}};r.monitor=async()=>{};
+    await w.addTrack({name:'My guitar',instrument:'guitar'});assert.equal(w.selectedTrack.id,5);assert.equal(published,1);
+    const r=w.recording=Object.create(StudioRecording.prototype);r.workspace=w;r.pending=new Map();r.source={liveInput:{}};r.prepareInput=async()=>{};
     await r.arm();assert.equal(published,1);assert.equal(released,1);assert.equal(c.result,null);assert.equal(r.armedId,5);
     assert.deepEqual(w.displayTracks.map(t=>t.id),[10,11,12,13,5]);assert.equal(w.selectedTrack.name,'My guitar');
   }finally{previous?Object.defineProperty(globalThis,'crossOriginIsolated',previous):delete globalThis.crossOriginIsolated;}
@@ -267,4 +267,13 @@ test('saved WAV adoption retains one AudioBuffer and does not refetch or redecod
     assert.equal(p.channels.get(1).buffer,buffer);assert.equal(p.channels.get(1).url,'/saved.wav');
     assert.equal(fetches,1);assert.equal(decodes,1);assert.equal(releases,1);p.destroy();
   }
+});
+
+test('failed publication before Add track preserves stopped preview and never creates a personal track',async()=>{
+ const {ProjectsWorkspace}=await import('../../examples/wam/projects/ProjectsWorkspace.js');
+ const w=Object.create(ProjectsWorkspace.prototype),result={engine:{complete:true,availableFrames:44100}};
+ w.project={id:2};w.accountLoadEpoch=1;w.separation={busy:false,result};w.report=()=>{};w.save=async()=>false;
+ let created=0;w.api={createTrack:async()=>{created++;}};
+ await assert.rejects(()=>w.addTrack({name:'Guitar',instrument:'guitar'}),/could not be saved/);
+ assert.equal(w.separation.result,result);assert.equal(created,0);
 });

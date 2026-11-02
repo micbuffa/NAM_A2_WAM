@@ -265,12 +265,17 @@ Changing the instrument never converts an accompaniment into a personal DI.
 After stopping a separation, **Keep instruments & arm** saves the partial
 instruments as project tracks before arming the newly added guitar. A failed
 save preserves the preview for retry. Ordinary Play auditions the recorded
-track and its meter; live monitoring resumes on pause and stays active during
-recording.
+track and its meter. Live monitoring resumes on pause, and remains available
+during recording, only when its speaker toggle is explicitly enabled.
 
 First recording increment: add an empty **personal guitar/bass** track, choose the
-input/channel in Tone, then **Enable input / monitor → R · Arm track → Record →
-Stop recording → Save project**. The current unsaved Tone sound is copied by
+input/channel in Tone, then **Arm track (microphone icon or R) → Record →
+Stop recording → Save project**. Arming enables input metering without speaker
+feedback; the speaker icon independently toggles monitoring, including during a
+take. Record starts after one bar of count-in by default (Off/1/2 bars). The
+metronome button optionally keeps clicks during the take. Click the tempo label
+to edit quarter-note BPM and time signature (default 4/4). Imported audio offers
+an approximate tempo suggestion, applied only on request. The current unsaved Tone sound is copied by
 default; the take stores raw mono DI plus a preset snapshot as a lossless WAV.
 Up to two takes can remain in RAM (100 MiB each); Discard unsaved take allows a
 retry. Manual latency compensation is available, initially uncalibrated.
@@ -292,8 +297,8 @@ in Other) or BS Roformer SW (6 instruments, dedicated guitar/piano), and click
 are available in the main panel. WebGPU is preferred when initialized successfully;
 CPU/WASM and cache checks are under **Change model / settings**; model notices remain in the distribution files.
 The Stop button cancels computation and keeps any already available partial result.
-**Original / project** and **Instruments** share playback, mute/solo, volume/pan and
-A/B controls. When the calculation finishes (or after Stop), **Save project** stores
+Separated instruments appear directly in the Studio timeline, with playback, mute/solo, volume/pan and
+A/B controls. There is no Project/Separation preview toggle. A visible status distinguishes processing and unsaved instruments; the original stays in reserve for a new separation. When the calculation finishes (or after Stop), **Save project** stores
 the instruments as lossless Float32 stereo WAV files, their mix and model/backend
 provenance in Rails. Reopen the project to listen without recomputing. **Saved
 separations** selects a previous result; only the selected deck is downloaded and
@@ -449,4 +454,4 @@ After stopping separation once some audio is ready, click **Use mix in Tone** wi
 
 Settings → Appearance offers Dark (default), Studio Light, Warm Studio and Follow system. The choice is stored in this browser, applies to Tone/Studio/host dialogs and does not modify projects or presets. Plugin interfaces may keep their own appearance.
 
-[STUDIO_UI_SPECIFICATION.md](STUDIO_UI_SPECIFICATION.md) describes five incremental tasks: appearance (implemented), viewport layout, secondary dialogs, compact track/recording headers, then responsive and end-to-end qualification. The no-page-scroll layout is still a following task.
+[STUDIO_UI_SPECIFICATION.md](STUDIO_UI_SPECIFICATION.md) describes five incremental tasks: appearance and viewport layout (implemented), secondary dialogs, compact track/recording headers, then responsive and end-to-end qualification. Desktop Studio keeps the project bar and transport visible, with a shared scrolling track/ruler area. The panel icon beside the project name collapses the sidebar; Import audio and New project are now in the top project bar. Smaller or zoomed windows retain normal page scrolling for accessibility.
