@@ -1,3 +1,13 @@
+## 2026-11-02 — Cubase header preference and UI task5 software qualification
+
+Previous work committed/pushed as d9537ce on codex/studio-integration. Adds fourth Track control style (Cubase-like speaker/outlined circle), explicitly for Studio headers only. Reaper default, same buttons/state/listeners/shortcuts, theme independent. Reduced-motion rules added in host.css and shared shadow baseStyles, leaving audio/meter/waveform updates active.
+
+Task5 software validation found a real backend guard bug: ProjectMix accepted tracks with preset_snapshot but no library/factory preset IDs. It now rejects those unqualified WAM exports rather than accepting a possibly dry DI mix. New joined Rails journey exercises source reservation,4 partial stems,Tone MP3 provenance,DI+capture preset upload,playback FX edit,save/reopen,delete/restore and the export rejection (37 assertions).
+
+582 JS tests /144 Rails tests /1285 assertions pass, no failures/skips. Native capture23 packets/stable canvas/0 ordinary rerenders/1 full repaint; silent arm and playback-only metering/count-in cancellation pass. Synthetic11ms latency528frames/residual0;15 native mix cases and MP3 worker pass;6 master cases pass; FX return local and Studio-only save pass. Dark/light/warm1280×719 and20-track keyboard scroll without page scroll;640×360 no horizontal overflow. Screenshot /tmp/studio-four-icon-styles.png. Dist and Rails rack synced. Details and reproducible limits in docs/STUDIO_UI_VALIDATION.md.
+
+UI task5 CURRENT: software increment complete; physical interface,real YouTube,endurance/concurrent full-model inference and Firefox/WebNN qualification remain manual/native follow-ups. No hardware,model speed or comprehensive accessibility certification claimed. Next implementation candidate after qualification: P5.4b processed personal-track mix export; do not silently mix raw DI.
+
 ## 2026-11-02 — Track control visual conventions
 
 User asks preferences for Logic-like I/R, Ableton-like and Reaper-like icons. Settings → Appearance now includes Track control style + live preview: Logic I/R, Ableton IN/record-circle, Reaper speaker/microphone (unchanged default). Explicitly inspired visual conventions, not a behavioural DAW emulation: same binary monitoring, independent arm, same R shortcut. TrackControlStyle is presentation-only with validated browser-local storage, cross-tab storage-event synchronization/clear fallback, session use if storage denied. Appearance settings releases its sync listener on close. Global theme remains independent.

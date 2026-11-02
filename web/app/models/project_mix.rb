@@ -18,7 +18,7 @@ class ProjectMix
       track = tracks[source["id"]]
       raise ArgumentError, "Original audio changed; render the mix again" unless track && track.audio.attached? && track.audio.checksum == source["checksum"]
       # Do not silently export a dry DI instead of an unqualified WAM render.
-      raise ArgumentError, "Preset rendering is not validated yet; export the separated instruments instead" if track.preset_id || track.factory_preset
+      raise ArgumentError, "Preset rendering is not validated yet; export the separated instruments instead" if track.preset_id || track.factory_preset || track.preset_snapshot.present?
       raise ArgumentError, "Generated mixes cannot be mixed back into their own source" if track.origin == "mix"
       raise ArgumentError, "A reserved source is not in the project timeline" unless track.timeline_visible && !track.removed_at
       valid_mix = source["volume"].is_a?(Integer) && (0..100).cover?(source["volume"]) && source["pan"].is_a?(Integer) && (-100..100).cover?(source["pan"]) &&

@@ -46,7 +46,7 @@ Move selected-track Input/Monitor/Arm into appropriate personal-track headers; u
 
 Tests: arm eligibility, live vs playback meters, monitor safety, recording waveform append, delete confirmation/undo, FX round trip, empty/saved/read-only tracks. No additional PCM copies or change to latency compensation.
 
-## Task 5 [TODO] — responsive/accessibility and end-to-end qualification
+## Task 5 [CURRENT] — responsive/accessibility and end-to-end qualification
 
 Keyboard, focus rings, tooltips, reduced motion and contrast across themes. Verify Studio ↔ Tone, save/restore, file/YouTube import, separation/Stop/partial mix, recording/calibration and FX editing. Test target desktop sizes and smaller screens, no focus traps outside dialogs, recording and separation under load. Rebuild dist and sync Rails; update README and HANDOFF with exact tests and remaining hardware/browser qualifications.
 
@@ -105,3 +105,14 @@ Validation: 577 JavaScript tests, 143 Rails tests /1248 assertions, all pass. Ne
 Settings → Appearance adds a labelled Track control style selector and live monitor/arm preview: Logic-like I/R, Ableton-like IN/record-circle, Reaper-like speaker/microphone (current default). These are visual conventions only, not copied DAW behaviour. Binary independent monitoring and arming/R shortcut remain unchanged. All glyph variants are aria-hidden inside the same button; accessible names, active/disabled state, focus and click listeners stay intact. CSS switches glyph visibility using one root dataset. No track rebuild, waveform repaint, audio command or project/history change. Browser-local preference validates values, tolerates blocked storage, synchronizes storage events and restores on reload; invalid/cleared values use Reaper-like. Settings listener released on close. Themes remain independent.
 
 Validation:581 JavaScript tests and143 Rails tests /1248 assertions pass. Native preview/track checks show I/R and IN/record with identical button labels/disabled state; row height remains76px at1280×719 without horizontal overflow. Actual Rails Settings reload restores Logic choice; initial Reaper choice restored after test. No console errors/audio/account writes. Screenshot /tmp/studio-track-controls-preference.png. Dist/Rails rack synced.
+
+
+### Task 5 — software qualification delivered, 2 November 2026
+
+Cubase-like speaker/outlined record circle joins the existing three header conventions; only monitor/arm glyphs change. Reduced-motion CSS now covers host Studio/dialogs and shared shadow controls, without stopping audio or waveform/meter updates.
+
+A joined Rails journey covers generated file import → stopped four-stem separation publication → MP3 mix linked to Tone → personal DI upload → independent playback snapshot edit → save/reopen → delete/restore. It exposed and fixed a server export guard: project-local preset snapshots must be rejected just like library/factory presets until processed-WAM mix rendering is qualified. No dry DI substitution is allowed.
+
+Validation: 582 JavaScript tests and 144 Rails tests /1285 assertions pass. Native fixtures pass capture/count-in cancellation, incremental waveform, 11ms synthetic loopback compensation, OfflineAudioContext mix/resampling/MP3, master and local FX return/save. Three themes at1280×719,20-track keyboard scroll and640×360 fallback checked; four icon conventions retain labels and handlers. Full matrix and limits: docs/STUDIO_UI_VALIDATION.md. Dist rebuilt and Rails rack synced.
+
+Task5 remains CURRENT for physical-interface/browser and endurance qualification: no real YouTube download, concurrent full-model inference load, physical microphone/interface latency or experimental Firefox/WebNN test is claimed by these synthetic checks. These require the relevant hardware/browser and test session; software qualification is complete for this increment.

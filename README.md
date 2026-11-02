@@ -304,12 +304,15 @@ recording panel. Track density defaults **Compact**; choose **Comfortable** in
 Project options. This browser-local preference changes layout only.
 
 **Settings → Appearance → Track control style** offers Logic-like **I / R**,
-Ableton-like **IN / record circle**, or Reaper-like **speaker / microphone**
-(default), with a live preview. These are inspired visual conventions, not full
+Ableton-like **IN / record circle**, Reaper-like **speaker / microphone**
+(default), or Cubase-like **speaker / outlined record circle**, with a live preview. These are inspired visual conventions, not full
 DAW emulations: monitoring stays on/off, arm stays independent, and R keeps the
 same shortcut. Changes apply immediately without replacing buttons, rebuilding
 waveforms or touching audio; the preference persists locally and synchronizes
-between tabs. Theme selection remains separate.
+between tabs. Theme selection remains separate. Reduced-motion system preferences
+disable decorative transitions in Studio controls and dialogs; audio, meters
+and waveform progress continue updating. See [Studio validation](docs/STUDIO_UI_VALIDATION.md)
+for the tested workflows and remaining physical/browser checks.
 
 **Project options** opens source/history, model/backend, cache and mix export
 settings in a dialog. **Recording settings** opens compensation/calibration.

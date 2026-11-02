@@ -7,7 +7,7 @@ function setup(saved=null,blocked=false){
  return{style,root,writes,storage(key,value){events.dispatchEvent(Object.assign(new Event('storage'),{key,newValue:value}));}};
 }
 test('track control styles restore with the current icon convention as default and reject unknown choices',()=>{
- for(const saved of [null,'unknown','logic','ableton','reaper']){const f=setup(saved);assert.equal(f.style.preference,['logic','ableton','reaper'].includes(saved)?saved:'reaper');assert.equal(f.root.dataset.trackControls,f.style.preference);assert.equal(f.root.dataset.theme,'warm');}
+ for(const saved of [null,'unknown','logic','ableton','reaper','cubase']){const f=setup(saved);assert.equal(f.style.preference,['logic','ableton','reaper','cubase'].includes(saved)?saved:'reaper');assert.equal(f.root.dataset.trackControls,f.style.preference);assert.equal(f.root.dataset.theme,'warm');}
  const f=setup();f.style.set('logic');assert.deepEqual(f.writes,[['nam-a2.track-controls','logic']]);assert.throws(()=>f.style.set('other'),/Unknown/);assert.equal(f.style.preference,'logic');
 });
 test('blocked storage permits session changes and cross-tab events synchronize or reset styles independently from theme',()=>{
@@ -22,15 +22,15 @@ function documentFixture(){
 }
 test('glyph variants preserve button identity, handler and accessible pressed state',()=>{
  const doc=documentFixture(),button=doc.createElement('button'),click=()=>{};button.onclick=click;button.setAttribute('aria-pressed','true');button.setAttribute('aria-label','Arm recording Solo');
- appendTrackControlGlyphs(button,'arm',doc);assert.equal(button.children.length,3);assert.equal(button.children[0].textContent,'R');assert.equal(button.children[1].attrs.name,'record');assert.equal(button.children[2].attrs.name,'microphone');
+ appendTrackControlGlyphs(button,'arm',doc);assert.equal(button.children.length,4);assert.equal(button.children[0].textContent,'R');assert.equal(button.children[1].attrs.name,'record');assert.equal(button.children[2].attrs.name,'microphone');assert.equal(button.children[3].attrs.name,'recordOutline');
  assert.ok(button.children.every(n=>n.attrs['aria-hidden']==='true'));assert.equal(button.onclick,click);assert.equal(button.attrs['aria-pressed'],'true');assert.equal(button.attrs['aria-label'],'Arm recording Solo');
- const monitor=doc.createElement('button');appendTrackControlGlyphs(monitor,'monitor',doc);assert.equal(monitor.children[0].textContent,'I');assert.equal(monitor.children[1].textContent,'IN');assert.equal(monitor.children[2].attrs.name,'speaker');
+ const monitor=doc.createElement('button');appendTrackControlGlyphs(monitor,'monitor',doc);assert.equal(monitor.children[0].textContent,'I');assert.equal(monitor.children[1].textContent,'IN');assert.equal(monitor.children[2].attrs.name,'speaker');assert.equal(monitor.children[3].attrs.name,'speaker');
 });
 test('preference exposes labelled choices and a preview, applies immediately, and unsubscribes on close',()=>{
  const previous=globalThis.document;globalThis.document=documentFixture();
  try{
   const f=setup(),container=document.createElement('div'),dispose=appendTrackControlPreference(container,f.style),field=container.children[0],select=field.children[1];
-  assert.equal(field.children[0].htmlFor,select.id);assert.deepEqual(select.children.map(n=>n.value),['logic','ableton','reaper']);assert.equal(select.value,'reaper');assert.equal(field.children[2].children.length,2);
+  assert.equal(field.children[0].htmlFor,select.id);assert.deepEqual(select.children.map(n=>n.value),['logic','ableton','reaper','cubase']);assert.equal(select.value,'reaper');assert.equal(field.children[2].children.length,2);
   select.value='logic';select.onchange();assert.equal(f.style.preference,'logic');f.style.set('ableton');assert.equal(select.value,'ableton');
   dispose();f.style.set('reaper');assert.equal(select.value,'ableton');
  }finally{globalThis.document=previous;}

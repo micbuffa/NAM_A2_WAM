@@ -1,5 +1,5 @@
 // Presentation only: never changes audio routing, arming or project state.
-export const TRACK_CONTROL_STYLES=Object.freeze(['logic','ableton','reaper']);
+export const TRACK_CONTROL_STYLES=Object.freeze(['logic','ableton','reaper','cubase']);
 const KEY='nam-a2.track-controls';
 export class TrackControlStyle extends EventTarget {
   constructor({root=globalThis.document?.documentElement,storage,events=globalThis}={}) {
@@ -17,11 +17,13 @@ export class TrackControlStyle extends EventTarget {
 }
 // All variants stay inside the same button, preserving focus/listeners and state.
 export function appendTrackControlGlyphs(button,kind,doc=document){
+  const variants={logic:{monitor:'I',arm:'R'},ableton:{monitor:'IN',arm:'record'},reaper:{monitor:'speaker',arm:'microphone'},cubase:{monitor:'speaker',arm:'recordOutline'}};
   for(const style of TRACK_CONTROL_STYLES){
-    const glyph=doc.createElement(style==='reaper'||(style==='ableton'&&kind==='arm')?'tl-icon':'span');
+    const value=variants[style][kind],text=['I','R','IN'].includes(value);
+    const glyph=doc.createElement(text?'span':'tl-icon');
     glyph.className=`track-control-glyph track-control-${style}`;glyph.setAttribute('aria-hidden','true');
-    if(style==='reaper'||(style==='ableton'&&kind==='arm')){glyph.setAttribute('name',style==='reaper'?(kind==='arm'?'microphone':'speaker'):'record');glyph.setAttribute('size','15');}
-    else glyph.textContent=style==='logic'?(kind==='arm'?'R':'I'):'IN';
+    if(text)glyph.textContent=value;
+    else{glyph.setAttribute('name',value);glyph.setAttribute('size','15');}
     button.append(glyph);
   }
 }
@@ -29,7 +31,7 @@ export function appendTrackControlPreference(container,style){
   const field=document.createElement('div');field.className='appearance-field';
   const label=document.createElement('label');label.htmlFor='trackControlStyle';label.textContent='Track control style';
   const select=document.createElement('select');select.id='trackControlStyle';
-  for(const [value,text]of [['logic','Logic-like · I / R'],['ableton','Ableton-like · IN / record circle'],['reaper','Reaper-like · speaker / microphone']]){
+  for(const [value,text]of [['logic','Logic-like · I / R'],['ableton','Ableton-like · IN / record circle'],['reaper','Reaper-like · speaker / microphone'],['cubase','Cubase-like · speaker / outlined record circle']]){
     const option=document.createElement('option');option.value=value;option.textContent=text;select.append(option);
   }
   select.value=style.preference;select.onchange=()=>style.set(select.value);
@@ -40,7 +42,7 @@ export function appendTrackControlPreference(container,style){
     const glyph=document.createElement('span');glyph.className='track-control-preview-icon';glyph.setAttribute('role','img');glyph.setAttribute('aria-label',text);appendTrackControlGlyphs(glyph,kind);
     item.append(glyph,document.createTextNode(text));preview.append(item);
   }
-  const note=document.createElement('p');note.className='host-help';note.textContent='Inspired visual styles for Studio track buttons. Functions and shortcuts stay the same: monitoring is on/off, independent from arming (R). Saved on this browser.';
+  const note=document.createElement('p');note.className='host-help';note.textContent='Inspired icons for Studio track headers only; transport icons and themes stay unchanged. Functions and shortcuts stay the same: monitoring is on/off, independent from arming (R). Saved on this browser.';
   field.append(label,select,preview,note);container.append(field);
   return()=>style.removeEventListener('change',sync);
 }

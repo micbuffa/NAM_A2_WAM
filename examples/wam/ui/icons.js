@@ -1,5 +1,6 @@
 // Stroke icons on a 24px grid (from the TONELAB mockup, plus the rack's own tuner and panel glyphs).
 export const icons = {
+  recordOutline: '<circle cx="12" cy="12" r="7"/>',
   record: '<circle cx="12" cy="12" r="7" fill="currentColor" stroke="none"/>',
   microphone: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/>',
   speaker: '<path d="m11 4-6 5H2v6h3l6 5V4ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14"/>',

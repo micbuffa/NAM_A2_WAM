@@ -520,8 +520,14 @@ body[data-workspace="projects"][data-studio-density="compact"] .track-fx-button 
 :root:not([data-track-controls]) .track-control-reaper,
 :root[data-track-controls="reaper"] .track-control-reaper,
 :root[data-track-controls="logic"] .track-control-logic,
-:root[data-track-controls="ableton"] .track-control-ableton { display: inline-flex; align-items: center; justify-content: center; }
+:root[data-track-controls="ableton"] .track-control-ableton,
+:root[data-track-controls="cubase"] .track-control-cubase { display: inline-flex; align-items: center; justify-content: center; }
 .track-control-ableton { font-size: 9px; }
 .track-control-preview { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
 .track-control-example { display: inline-flex; gap: 8px; align-items: center; font-size: 12px; color: var(--tl-text); }
 .track-control-preview-icon { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 1px solid var(--tl-border); border-radius: var(--tl-radius-sm); background: var(--tl-surface-3); }
+
+/* Respect reduced-motion for host controls; transport/meter values still update. */
+@media (prefers-reduced-motion: reduce) {
+  body[data-workspace="projects"] .tracks-stage *, .tl-modal, .tl-modal * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

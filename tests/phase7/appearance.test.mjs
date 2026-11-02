@@ -51,6 +51,15 @@ test('Appearance settings exposes labelled native choices and releases update li
 });
 function luminance(hex) {const rgb = hex.match(/[a-f0-9]{2}/gi).map(x => parseInt(x,16)/255).map(x => x <= .04045 ? x/12.92 : ((x+.055)/1.055)**2.4); return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;}
 function contrast(a,b) {const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);}
+test('reduced-motion preference reaches host dialogs and shared shadow controls', async () => {
+  for (const path of ['host.css', 'ui/define.js']) {
+    const css = await readFile(new URL(`../../examples/wam/${path}`, import.meta.url), 'utf8');
+    const reduced = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce)'));
+    assert.match(reduced, /transition:\s*none\s*!important/);
+    assert.match(reduced, /animation:\s*none\s*!important/);
+    assert.match(reduced, /scroll-behavior:\s*auto\s*!important/);
+  }
+});
 test('lighter palette text, primary buttons and waveforms meet contrast targets', async () => {
   const css = await readFile(new URL('../../examples/wam/ui/tokens.css', import.meta.url),'utf8');
   const blocks = [...css.matchAll(/\{([^{}]*)\}/g)].map(m => Object.fromEntries([...m[1].matchAll(/(--tl-[\w-]+):\s*(#[a-f\d]{6})\s*;/gi)].map(v=>[v[1],v[2]])));

@@ -10,6 +10,9 @@ export const baseStyles = css(`
   :host { box-sizing: border-box; font-family: var(--tl-font-ui); }
   :host([hidden]) { display: none !important; }
   *, *::before, *::after { box-sizing: inherit; }
+  @media (prefers-reduced-motion: reduce) {
+    :host, *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+  }
 `);
 
 export const shadow = (host, styles, html = '') => {
