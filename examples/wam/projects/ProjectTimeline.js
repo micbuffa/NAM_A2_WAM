@@ -19,6 +19,14 @@ export class ProjectTimeline {
   constructor(list, {root, ruler, onSelect, onChange, onEdit, onEditSound, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, createRenderer}) {
     Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onEditSound, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, createRenderer});
     this.rows = new Map();
+    globalThis.addEventListener?.('nam-appearance-change', () => {
+      // Repaint cached envelopes only; transport, PCM and recording append state stay intact.
+      for (const [id, row] of this.rows) {
+        row.renderer?.destroy(); row.renderer = null;
+        row.liveRenderer?.destroy(); row.liveRenderer = null;
+        this.drawWave(id);
+      }
+    });
     this.drag = null; // {id, index}: the track being dragged and where it would land
     list.addEventListener('dragover', (event) => this.dragOver(event));
     list.addEventListener('drop', (event) => {
@@ -251,7 +259,8 @@ export class ProjectTimeline {
     }
     row.clipName.textContent = row.track.audio?.filename ?? 'Recording DI…';
     // Canvas colours: --tl-accent-muted, then --tl-accent once played.
-    row.renderer ??= this.createRenderer({container: row.wave, height: 46, waveColor: '#91a675', progressColor: '#c7f65b',
+    const colours = globalThis.getComputedStyle?.(row.wave);
+    row.renderer ??= this.createRenderer({container: row.wave, height: 46, waveColor: colours?.getPropertyValue('--tl-accent-muted').trim() || '#91a675', progressColor: colours?.getPropertyValue('--tl-accent').trim() || '#c7f65b',
       cursorWidth: 0, fillParent: true, minPxPerSec: 0, normalize: true, autoScroll: false, autoCenter: false, hideScrollbar: true,
       interact: false, dragToSeek: false, barWidth: 2, barGap: 1, barRadius: 1});
     const {peaks, duration} = wave;

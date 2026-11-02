@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><title>Studio master · offline audio checks</title><button id="run">Run audio gain checks</button><pre id="result">Ready · no microphone or speaker output.</pre><script type="module">
+import {StudioPlayer} from '../../../examples/wam/projects/StudioPlayer.js';
+import {ProgressiveMultitrackEngine} from '../../../examples/wam/source-separation/ProgressiveMultitrackEngine.js';
+document.querySelector('#run').onclick=async()=>{
+ const rows=[];
+ try{for(const mode of ['saved','preview'])for(const volume of [1,.25,0]){
+  const context=new OfflineAudioContext(2,8192,44100),player=new StudioPlayer(context);player.output.connect(context.destination);
+  let preview;
+  if(mode==='preview'){preview=new ProgressiveMultitrackEngine(context);preview.startStream({roles:['guitar'],totalFrames:8192});player.setPreview(preview,[]);}
+  const source=context.createConstantSource();source.offset.value=.2;source.connect(preview?.outputNode??player.base.output);player.setMasterVolume(volume);source.start();
+  const buffer=await context.startRendering(),actual=buffer.getChannelData(0).at(-1),expected=.2*volume;
+  if(Math.abs(actual-expected)>.00001)throw Error(mode+' gain mismatch: '+actual+' vs '+expected);
+  rows.push({mode,volume,actual,expected});player.destroy();preview?.destroy();
+ }document.querySelector('#result').textContent='PASS\n'+JSON.stringify(rows,null,2);
+ }catch(error){document.querySelector('#result').textContent='FAIL '+error.stack;}
+};
+</script>

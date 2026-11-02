@@ -9,11 +9,16 @@ export class StudioPlayer extends EventTarget {
     this.base = new ProjectPlayer(context, options);
     this.context = context;
     this.output = this.base.output;
+    this.masterVolume = 1;
     for (const type of ['load', 'error']) this.base.addEventListener(type, ({detail}) => this.dispatchEvent(new CustomEvent(type, {detail})));
     // Live routing and preset changes still matter while preview audio plays.
     this.base.addEventListener('statechange', () => this.changed());
     this.previewChanged = () => this.changed();
     this.previewError = ({detail}) => this.dispatchEvent(new CustomEvent('error', {detail: {error: detail}}));
+  }
+  setMasterVolume(value) {
+    if(!Number.isFinite(value)||value<0||value>1)throw Error('Invalid Studio master volume.');
+    this.masterVolume=value;this.output.gain.setTargetAtTime(value,this.context.currentTime,.01);this.changed();
   }
   get channels() { return this.base.channels; }
   get liveId() { return this.base.liveId; }

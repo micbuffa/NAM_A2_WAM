@@ -17,6 +17,7 @@ import {FxRack} from './FxRack.js';
 import {FxRackView} from './FxRackView.js';
 import {EngineStatus} from './EngineStatus.js';
 import {SettingsView} from './SettingsView.js';
+import {registerAppearance} from './ui/Appearance.js';
 import {Workspaces} from './Workspaces.js';
 import {ProjectsWorkspace, takeLinkedProject} from './projects/ProjectsWorkspace.js';
 import {StudioPlayer as ProjectPlayer} from './projects/StudioPlayer.js';
@@ -54,6 +55,7 @@ let projects;
 // The open project plays beside the rack's live guitar, in both workspaces.
 const projectPlayer = new ProjectPlayer(context);
 const settings = new SettingsView({button: $('#settingsButton')});
+registerAppearance(settings);
 const engine = new EngineStatus({element: $('#engineStatus'), context});
 const workspaces = new Workspaces({control: $('#workspaceSwitch')});
 if (takeLinkedProject()) workspaces.show('projects');

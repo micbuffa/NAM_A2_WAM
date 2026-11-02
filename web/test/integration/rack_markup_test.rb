@@ -28,6 +28,12 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "#studioOriginal[aria-pressed='true']", count: 1
   end
 
+  test "Studio exposes an accessible playback master volume" do
+    get "/rack/"
+    assert_select "#projectMasterVolume[type=range][min='0'][max='100'][value='100'][aria-label='Studio master volume']", count:1
+    assert_select "#projectMasterValue", text:"100%"
+  end
+
   test "Studio ruler exposes its interactive A B controls to accessibility" do
     get "/rack/"
     assert_select ".project-ruler-row[aria-hidden='true']", count: 0

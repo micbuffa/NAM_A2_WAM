@@ -1,5 +1,6 @@
-// Explicit product allowlist: no benchmark pages, corpus or model weights.
+// Explicit product allowlist: native weights included; no benchmark pages or corpus.
 export const STUDIO_RUNTIME_ASSETS = [
+  'DirectWebNN.js','DirectWebNNAssets.js','direct-webnn-worker.js','model-assets/direct-webnn','model-assets/LICENSE','model-assets/NOTICE.md',
   'WebNNAdmission.js', 'StudioWebNN.js', 'WebNNParity.js', 'AudioComparison.js', 'webnn-worker.js', 'vendor/onnxruntime-webnn', 'CompactWaveform.js', 'studio-models.json', 'ROFORMER_NOTICE.md',
   'OnnxDemucsRunner.js', 'PreparedDemucsRunner.js', 'StreamTransport.js',
   'SegmentSettings.js', 'ChunkTools.js', 'ProgressiveMultitrackEngine.js', 'MultitrackEngine.js',

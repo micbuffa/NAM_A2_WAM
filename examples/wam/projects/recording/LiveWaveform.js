@@ -20,7 +20,7 @@ export class LiveWaveform {
       if (!tile) {
         const canvas = this.createCanvas(); canvas.width = this.tileWidth * this.ratio; canvas.height = this.height * this.ratio;
         Object.assign(canvas.style, {position: 'absolute', left: `${index * this.tileWidth}px`, top: '0', width: `${this.tileWidth}px`, height: `${this.height}px`});
-        const context = canvas.getContext('2d'); context.scale(this.ratio, this.ratio); context.fillStyle = '#91a675';
+        const context = canvas.getContext('2d'); context.scale(this.ratio, this.ratio); context.fillStyle = globalThis.getComputedStyle?.(this.container)?.getPropertyValue('--tl-accent-muted').trim() || '#91a675';
         this.container.append(canvas); tile = {canvas, context}; this.tiles.set(index, tile);
       }
       const local = x % this.tileWidth, a = Math.floor(x / pixelsPerBin), b = Math.min(wave.peaks.length, Math.ceil((x + 1) / pixelsPerBin));

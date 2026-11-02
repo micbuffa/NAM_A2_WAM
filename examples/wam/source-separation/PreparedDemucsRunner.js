@@ -1,3 +1,4 @@
+import {isDirectWebNN,validateDirectEvidence} from './StudioWebNN.js';
 import {StreamingWorker,isVerifiedStreamChunk} from './StreamTransport.js';
 import {modelKey} from './ModelDownloadManager.js';
 
@@ -34,6 +35,11 @@ export class PreparedDemucsRunner {
     if(this.isPrepared(model,backend))return;
     this.cancel();const worker=this.worker=new StreamingWorker(this.workerFactory(model),model.roles.length*2);this.preparingIdentity=`${modelKey(model)}:${backend}`;
     try{
+      if(isDirectWebNN(backend)){
+        const result=await this.request({type:'prepare',modelId:model.id,backend},data=>{if(data.type==='preparation-progress')onProgress(data);});
+        if(this.worker!==worker)throw new DOMException('Annulé','AbortError');
+        this.identity=`${modelKey(model)}:${backend}`;this.preparingIdentity=null;return result;
+      }
       const record=await this.manager.cache.get(modelKey(model));
       if(this.worker!==worker)throw new DOMException('Annulé','AbortError');
       if(!await this.manager.verifyRecord(model,record))throw Error('Téléchargez à nouveau le modèle sélectionné.');
@@ -63,11 +69,14 @@ export class PreparedDemucsRunner {
     onProgress({phase:'inference',totalTracks:model.roles.length,progress:0});
     const result=await this.request({type:'run',left,right,diagnostics},data=>{
       if(data.type==='diagnostic'){onDiagnostic(data);return;}
+      if(data.type==='progress'){onProgress(data);return;}
       if(data.type!=='chunk')return;
+      if(isDirectWebNN(backend)&&!validateDirectEvidence(data.evidence))throw Object.assign(Error('Direct WebNN evidence missing.'),{code:'INVALID_AUDIO'});
       if(data.startFrame!==committed||data.sampleRate!==44100||data.stems?.length!==model.roles.length*2||data.stems.some(c=>!(c instanceof Float32Array)||!c.length||c.length!==data.stems[0].length||(!isVerifiedStreamChunk(data)&&!c.every(Number.isFinite)))||committed+data.stems[0].length>channels[0].length)throw Object.assign(Error('Bloc progressif invalide.'),{code:'INVALID_AUDIO'});
       committed+=data.stems[0].length;onChunk(Object.assign(data,{roles:model.roles}));
       onProgress({phase:'chunk-ready',chunkIndex:data.chunkIndex,totalChunks:data.totalChunks,completedFrames:committed,totalFrames:channels[0].length});
     },[left.buffer,right.buffer]);
+    if(isDirectWebNN(backend)&&!validateDirectEvidence(result.evidence)){this.cancel();throw Error('Direct WebNN completion evidence missing.');}
     if(committed!==channels[0].length){this.cancel();throw Error('Séparation incomplète.');}
     return {...result,backend,profile:model.profile||'quality',frames:model.frames||88200};
   }

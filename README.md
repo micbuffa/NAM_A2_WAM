@@ -1,5 +1,17 @@
 # NAM A2 WAM
 
+## Studio: Direct WebNN and master playback volume
+
+On `codex/studio-integration`, open **Studio → Separate instruments → Execution engine** (also available in **Options**). Direct WebNN CPU/GPU/NPU supports both the four-stem Demucs and six-stem Roformer models. These options are disabled when the browser does not expose WebNN; the Worker validates context and model compatibility before producing audio. No ONNX Runtime is imported by this native path. An unavailable native device fails explicitly. The older ONNX→WebNN path remains four-stem only and retains its per-block WASM reference checks.
+
+WebGPU remains the quick-start default. The reference run on `multitracks` measured roughly110s initialization for direct six-stem WebNN, but faster retained processing. Prefer six stems when a dedicated guitar/piano track is wanted; four stems group guitar in Other. Reference times are device-specific; CPU/GPU/NPU are requested placement, not hardware attestation. Native Studio audio still requires a Canary/experimental-browser listening check; automated protocol tests and prior benchmark parity do not replace that check.
+
+The **Master** slider beside Studio Play controls listening level (0–100%, default100%) for saved projects, progressive separation previews and Studio monitoring. It is session-level listening gain: it does not alter track faders, recorded DI, presets or exported mix files. A10ms ramp avoids abrupt gain steps.
+
+Deployment now includes `source-separation/model-assets/direct-webnn/` (~908MB raw constants total). Graph JSON, index and both weight binaries must stay together. The browser verifies pinned source identity, byte counts and SHA-256; weights use the browser HTTP cache, distinct from the ONNX model manager cache. For a clean checkout, prepare the pinned checkpoints listed in `tools/export-direct-webnn.py`, install Python3.12 with `onnx==1.20.0`, `onnxruntime==1.22.0` and NumPy, then run that script before building. Generated recipes/weights are ignored by Git. Missing assets fail the distribution preflight before replacing the previous dist. Existing checkpoint notices apply to converted constants; no new training is performed.
+
+`web/bin/rack-sync` builds the distribution and copies it to Rails. If the local Ruby locale is US-ASCII, generate the template with `ruby -E UTF-8:UTF-8 web/lib/rack_view.rb`. Test the served rack at `http://localhost:3001/rack/`.
+
 ## Recording latency calibration
 
 Manual recording compensation starts at **14 ms**, an unmeasured estimate.
@@ -431,3 +443,10 @@ On `codex/studio-integration`, choose **Execution engine** in Studio’s **Separ
 ### Use a stopped or unsaved instrument mix in Tone
 
 After stopping separation once some audio is ready, click **Use mix in Tone** without saving. The available audio is mixed using current volume/pan/mute/solo and encoded as a temporary MP3. Completed RAM previews and unsaved recorded-track mixer changes work too. **Return to Studio** preserves the current unsaved preview. Temporary mixes are session-only (two recent entries, one per project); use **Save Project** separately to keep the stems or **Download MP3** to keep the mix file.
+
+
+### Studio appearance and compact UI roadmap
+
+Settings → Appearance offers Dark (default), Studio Light, Warm Studio and Follow system. The choice is stored in this browser, applies to Tone/Studio/host dialogs and does not modify projects or presets. Plugin interfaces may keep their own appearance.
+
+[STUDIO_UI_SPECIFICATION.md](STUDIO_UI_SPECIFICATION.md) describes five incremental tasks: appearance (implemented), viewport layout, secondary dialogs, compact track/recording headers, then responsive and end-to-end qualification. The no-page-scroll layout is still a following task.

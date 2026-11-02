@@ -40,12 +40,15 @@ class Separation < ApplicationRecord
     def valid_manifest
       model = self.class.catalogue[manifest["modelId"]]
       valid = model && manifest["modelVersion"] == model["version"] && manifest["modelHashes"] == model["files"].map { |file| file["sha256"] } && manifest["roles"] == model["roles"]
-      valid &&= %w[wasm webgpu webnn-cpu webnn-gpu webnn-npu].include?(manifest["requestedBackend"]) && %w[wasm webgpu webnn-cpu webnn-gpu webnn-npu].include?(manifest["backend"])
-      if manifest["backend"].to_s.start_with?("webnn-")
+      valid &&= %w[wasm webgpu webnn-cpu webnn-gpu webnn-npu webnn-direct-cpu webnn-direct-gpu webnn-direct-npu].include?(manifest["requestedBackend"]) && %w[wasm webgpu webnn-cpu webnn-gpu webnn-npu webnn-direct-cpu webnn-direct-gpu webnn-direct-npu].include?(manifest["backend"])
+      if manifest["backend"].to_s.start_with?("webnn-direct-")
+        evidence=manifest["webnnEvidence"] || {}
+        valid &&= evidence.is_a?(Hash) && evidence["implementation"]=="direct-webnn" && evidence["verifiedModel"]==true && evidence["dispatches"].is_a?(Integer) && evidence["dispatches"]>0 && evidence["effectiveHardware"]=="unknown" && %w[graphSha256 weightsSha256].all? { |key| evidence[key].to_s.match?(/\A[a-f0-9]{64}\z/) }
+      elsif manifest["backend"].to_s.start_with?("webnn-")
         evidence=manifest["webnnEvidence"] || {}
         valid &&= evidence.is_a?(Hash) && manifest["modelId"]=="htdemucs_4s_onnx" && evidence["strictParity"]==true && evidence["validatedBlocks"].is_a?(Integer) && evidence["validatedBlocks"]>0 && evidence["dispatches"].is_a?(Integer) && evidence["dispatches"]>0 && evidence["runtimeVersion"]=="1.30.0" && evidence["effectiveHardware"]=="unknown"
       end
-      valid &&= manifest["modelId"]=="htdemucs_4s_onnx" if manifest["requestedBackend"].to_s.start_with?("webnn-")
+      valid &&= manifest["modelId"]=="htdemucs_4s_onnx" if manifest["requestedBackend"].to_s.start_with?("webnn-") && !manifest["requestedBackend"].to_s.start_with?("webnn-direct-")
       frames = manifest["frames"]
       valid &&= manifest["sampleRate"] == 44100 && frames.is_a?(Integer) && frames.positive? && 44 + frames * 8 <= MAX_STEM_BYTES
       valid &&= [ true, false ].include?(manifest["partial"]) && manifest["totalFrames"].is_a?(Integer) && manifest["totalFrames"] >= frames && manifest["totalFrames"] <= 86400 * 44100

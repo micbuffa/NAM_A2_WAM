@@ -7,3 +7,5 @@ Le dépôt de conversion et son code déclarent MIT : https://github.com/elicwhi
 Le fichier ONNX est ignoré par Git et absent de la distribution produit. Le gestionnaire Studio le télécharge depuis la révision Hugging Face épinglée. Téléchargement dans le navigateur uniquement sur demande, via le gestionnaire habituel qui vérifie taille et SHA-256. Aucun audio utilisateur n’est envoyé au fournisseur du modèle.
 
 Le réseau a quatre secondes de contexte et publie trois secondes à chaque bloc (recouvrement d’une seconde). Les six sources sont, dans cet ordre : basse, batterie, autres, voix, guitare, piano. Voir ROFORMER_VALIDATION.md pour les mesures et leurs limites ; la précision numérique ne mesure pas la qualité de séparation musicale.
+
+Depuis le portage WebNN direct, la distribution produit inclut aussi les constantes FP32 converties et leur recette sous model-assets/direct-webnn. Elles conservent la même provenance et les mêmes limites de licence du checkpoint ; voir model-assets/NOTICE.md. Le chemin ONNX reste téléchargé sur demande.

@@ -40,6 +40,7 @@ export class SettingsView {
     this.dialog = dialog;
     this.button.setAttribute('aria-expanded', 'true');
     dialog.addEventListener('close', () => {
+      this.cleanup?.(); this.cleanup = null;
       this.park();
       this.dialog = null;
       this.button.setAttribute('aria-expanded', 'false');
@@ -78,10 +79,11 @@ export class SettingsView {
   refresh(id = this.current) {
     if (!this.dialog || id !== this.current) return;
     const section = this.sections.find((candidate) => candidate.id === id);
+    this.cleanup?.(); this.cleanup = null;
     this.park();
     this.content.replaceChildren();
     if (section?.element) { section.element.hidden = false; this.content.append(section.element); }
-    else section?.render(this.content);
+    else this.cleanup = section?.render(this.content);
   }
 
   // Persistent section elements go back to their hidden home.

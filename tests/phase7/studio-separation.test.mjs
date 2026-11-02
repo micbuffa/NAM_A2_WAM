@@ -293,7 +293,7 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
     const runs=[];f.separation.run=async options=>runs.push({backend:f.separation.backend,...options});
     await view.chooseModel();
     let body=view.modelDialog.children[1],engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
-    assert.equal(engine.children.filter(option=>option.value.startsWith('webnn')&&!option.disabled).length,3);
+    assert.equal(engine.children.filter(option=>option.value.startsWith('webnn')&&!option.disabled).length,6);
     engine.value='webnn-npu';engine.onchange();view.modelDialog.close();assert.equal(f.separation.backend,'webgpu','cancel keeps previous backend');
     await view.chooseModel();body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
     engine.value='webnn-npu';engine.onchange();const choices=body.children.find(e=>e.className==='studio-model-choices').children;
@@ -312,6 +312,18 @@ test('WebNN menu is API-based, stays opt-in, and cannot configure a backend abse
  assert.equal(studioBackendOptions({webgpu:true,webnn:false}).filter(o=>o.value.startsWith('webnn')).every(o=>o.disabled),true);
  const f=await fixture({webnn:true});assert.equal(f.separation.backend,'webgpu');
  for(const device of ['cpu','gpu','npu']){f.separation.configure('htdemucs_4s_onnx',`webnn-${device}`);assert.equal(f.separation.backend,`webnn-${device}`);}
- assert.equal(studioBackendOptions({webgpu:true,webnn:true}).filter(o=>o.value.startsWith('webnn')&&!o.disabled).length,3);
- assert.equal(studioBackendOptions({webgpu:true,webnn:true,modelId:'bs_roformer_sw_6s'}).filter(o=>o.value.startsWith('webnn')).every(o=>o.disabled),true);
+ assert.equal(studioBackendOptions({webgpu:true,webnn:true}).filter(o=>o.value.startsWith('webnn')&&!o.disabled).length,6);
+ assert.equal(studioBackendOptions({webgpu:true,webnn:true,modelId:'bs_roformer_sw_6s'}).filter(o=>o.value.startsWith('webnn-')&&!o.value.startsWith('webnn-direct-')).every(o=>o.disabled),true);
+});
+
+test('Studio master controls the shared playback output for saved and progressive audio without changing track mix',()=>{
+ const c=context(),player=new StudioPlayer(c);assert.equal(player.masterVolume,1);
+ player.setMasterVolume(.4);assert.equal(player.output.gain.value,.4);assert.equal(player.base.output,player.output);
+ const preview=new ProgressiveMultitrackEngine(c);preview.startStream({roles:['guitar'],totalFrames:120});
+ player.setPreview(preview,[]);assert.ok(preview.outputNode.targets.has(player.output));assert.equal(player.output.gain.value,.4);
+ player.setMasterVolume(0);assert.equal(player.output.gain.value,0);player.setPreview(null);assert.equal(player.masterVolume,0);
+ assert.throws(()=>player.setMasterVolume(NaN));assert.throws(()=>player.setMasterVolume(1.1));player.destroy();preview.destroy();
+});
+test('Studio controller routes direct four/six stem jobs through the native prepared runner without downloading ONNX',async()=>{
+ for(const model of models){const f=await fixture({webnn:true});f.separation.runners.direct=f.runner;let prepared=0;f.runner.prepare=async()=>prepared++;f.manager.download=async()=>{throw Error('unexpected ONNX download');};f.separation.configure(model.id,'webnn-direct-cpu');await f.separation.run({track:f.source,projectId:7});assert.equal(prepared,1);assert.equal(f.separation.result?.tracks.length,model.roles.length);assert.match(f.separation.status,/Done/);}
 });

@@ -233,6 +233,23 @@ class Api::ProjectSeparationsTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "direct WebNN manifests support both models and require native provenance" do
+    sign_in_as users(:alice)
+    begin_save
+    @project.separations.destroy_all
+    proof={"implementation"=>"direct-webnn","verifiedModel"=>true,"dispatches"=>1,"effectiveHardware"=>"unknown","graphSha256"=>"a"*64,"weightsSha256"=>"b"*64}
+    %w[htdemucs_4s_onnx bs_roformer_sw_6s].each do |model|
+      base=manifest(model).merge("requestedBackend"=>"webnn-direct-gpu","backend"=>"webnn-direct-gpu","webnnEvidence"=>proof)
+      [base.merge("webnnEvidence"=>nil),base.merge("webnnEvidence"=>proof.merge("dispatches"=>0)),base.merge("webnnEvidence"=>proof.merge("weightsSha256"=>"invalid"))].each do |invalid|
+        post "/api/projects/#{@project.id}/separations",params:@body.merge(token:SecureRandom.uuid,manifest:invalid),as: :json
+        assert_response :unprocessable_content
+      end
+      post "/api/projects/#{@project.id}/separations",params:@body.merge(token:SecureRandom.uuid,manifest:base),as: :json
+      assert_response :created
+      assert_equal base,response.parsed_body["manifest"]
+    end
+  end
+
   test "separations replace only their source and mix together with other project tracks" do
     sign_in_as users(:alice)
     begin_save

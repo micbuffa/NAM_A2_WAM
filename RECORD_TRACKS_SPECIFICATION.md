@@ -314,3 +314,8 @@ Option **Speakers → microphone · acoustic test**, protocole `acoustic-chirp-v
 Validation logicielle : **510 tests JS passent** (16 dédiés à la latence), dont isolation A/B avec tap DI conservé, activation d’un nouveau périphérique sous garde, fermeture en échec, estimation sur retour coloré avec échos, bornes du signal et séparation des profils/provenances. Rails inchangé pour cette correction (136 tests /1165 assertions validés pour R4). Chrome : garde réellement partagé avec main.js, deux routes amplifiées ×1000, niveau avant garde3, maximum pendant les six mesures0, gains conservés, entrée désactivée avant restauration. Retour acoustique simulé : 530 frames (11,04 ms), confiance93%, dispersion/résidu0, résultat réutilisé comme compensation manuelle. Le test câble à528 frames et l’alignement exact du WAV continuent de passer. Aucun essai sur le micro/les haut-parleurs réels du Mac n’a été effectué par l’agent ; l’essai utilisateur reste nécessaire pour qualifier ce trajet.
 
 Le démarrage attend désormais l’acquittement du processeur de capture avant de programmer les probes. Les interruptions de rendu avant le frame de début prévu (phase d’attente de l’AudioContext) ne sont pas considérées comme de l’audio perdu ; les trous après le début réel restent une erreur. Un test de régression vérifie cette distinction et la réutilisation des fenêtres préallouées.
+
+
+### Studio master listening level — 30 October 2026
+
+The Studio master volume controls the common listening output, including monitoring and playback, with a short smoothing ramp. It does not alter captured DI, the track preset, latency compensation or exported mix levels. It is a session listening preference rather than an undoable project edit.

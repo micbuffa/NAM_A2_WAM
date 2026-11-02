@@ -1,4 +1,4 @@
-import {backendLabel, isWebNN, studioBackendOptions} from '../source-separation/StudioWebNN.js';
+import {backendLabel, isDirectWebNN, studioRecommendation, isWebNN, studioBackendOptions} from '../source-separation/StudioWebNN.js';
 import {StudioSeparation, separationSources} from './StudioSeparation.js';
 
 // Adapts the transient separation deck to the existing Studio timeline. Progress
@@ -120,11 +120,11 @@ export class StudioSeparationView {
         const track = separationSources(w.project?.tracks ?? []).find(track => String(track.id) === this.$('studioSource').value);
         if (track) void c.run({track, projectId, seconds});
       };
-      choice.dataset.modelId=id;choices.append(choice);
+      choice.title=studioRecommendation(id);choice.dataset.modelId=id;choices.append(choice);
     }
     const updateEngine=()=>{
-      for(const choice of choices.children)choice.disabled=isWebNN(engine.value)&&choice.dataset.modelId!=='htdemucs_4s_onnx';
-      engineHelp.textContent=!c.webnn?'WebNN is not exposed by this browser. Use a WebNN-enabled build to enable CPU / GPU / NPU choices.':isWebNN(engine.value)?'WebNN is experimental for 4 tracks only. Each block is checked against WASM before playback; hardware device is not confirmed.':'Choose WebNN to test the experimental 4-track backend, or WebGPU / WASM for 4 or 6 tracks.';
+      for(const choice of choices.children)choice.disabled=isWebNN(engine.value)&&!isDirectWebNN(engine.value)&&choice.dataset.modelId!=='htdemucs_4s_onnx';
+      engineHelp.textContent=!c.webnn?'WebNN is not exposed by this browser. Use a WebNN-enabled build to enable CPU / GPU / NPU choices.':isWebNN(engine.value)?(isDirectWebNN(engine.value)?'Direct WebNN supports 4 or 6 tracks. Six-track compilation can take about 110 s in the reference run; subsequent processing is faster. Device requests do not prove hardware placement.':'ONNX → WebNN is experimental for 4 tracks only. Each block is checked against WASM before playback.'):'WebGPU is recommended for fast startup. Direct WebNN is available experimentally for both models. Reference timings are device-specific.';
     };
     engine.onchange=updateEngine;updateEngine();
     body.append(durationLabel,engineLabel,engineHelp,choices);
@@ -215,7 +215,7 @@ export class StudioSeparationView {
     const select = this.$('studioModel');
     if (select.options.length !== c.models.length) select.replaceChildren(...c.models.map(model => new Option(model.label, model.id)));
     if (c.modelId) select.value = c.modelId;
-    for(const option of select.options)option.disabled=isWebNN(c.backend)&&option.value!=='htdemucs_4s_onnx';
+    for(const option of select.options)option.disabled=isWebNN(c.backend)&&!isDirectWebNN(c.backend)&&option.value!=='htdemucs_4s_onnx';
     this.$('studioBackend').value = c.backend;
     this.$('studioBackend').querySelector('[value="webgpu"]').disabled = !c.gpu;
     for(const {value,disabled} of studioBackendOptions({webgpu:c.gpu,webnn:c.webnn,modelId:c.modelId}))this.$('studioBackend').querySelector(`[value="${value}"]`).disabled=disabled;
@@ -228,7 +228,7 @@ export class StudioSeparationView {
     this.$('studioSeparate').disabled = w.saving || !w.owned || c.busy || !sources.length || !model;
     this.$('studioStop').hidden = !c.busy;
     this.$('studioSource').disabled = w.saving || c.busy;
-    this.$('studioCheckCache').disabled = this.$('studioRemoveCache').disabled = c.busy || !model;
+    this.$('studioCheckCache').disabled = this.$('studioRemoveCache').disabled = c.busy || !model || isDirectWebNN(c.backend);
     this.$('studioInstruments').disabled = !c.hasAudio;
     this.$('studioOriginal').disabled = Boolean(w.saving);
     this.$('studioInstruments').disabled ||= Boolean(w.saving);
@@ -240,13 +240,14 @@ export class StudioSeparationView {
     progress.hidden = !c.busy && !w.saving;
     if (c.progress === null) progress.removeAttribute('value');
     else progress.value = c.progress;
-    if (this.lastModelId !== c.modelId) {
+    if (this.lastModelId !== c.modelId || this.lastBackend !== c.backend) {
+      this.lastBackend=c.backend;
       this.lastModelId = c.modelId;
-      this.$('studioCacheStatus').textContent = 'Downloaded on demand. Use Check cache to verify an existing download.';
+      this.$('studioCacheStatus').textContent = isDirectWebNN(c.backend)?'Direct WebNN weights use browser HTTP cache and are SHA-256 verified at startup. Cache buttons below apply to ONNX weights.':'Downloaded on demand. Use Check cache to verify an existing download.';
       this.$('studioModelHelp').textContent = !model ? 'Preparing available models…' : model.id === 'htdemucs_4s_onnx'
-        ? '4 instruments: drums, bass, vocals, other. Guitar is included in Other.'
-        : '6 instruments with dedicated guitar and piano. GPU recommended; CPU is much slower.';
-      this.$('studioModelSize').textContent = model ? `Model download: ${(model.files.reduce((sum, file) => sum + file.size, 0) / 1024 ** 2).toFixed(0)} MiB.` : '';
+        ? '4 instruments: guitar is included in Other. '+studioRecommendation('htdemucs_4s_onnx')
+        : studioRecommendation('bs_roformer_sw_6s');
+      this.$('studioModelSize').textContent = model ? isDirectWebNN(c.backend)?`Direct weights: ${model.id==='bs_roformer_sw_6s'?'667':'199'} MiB · browser cache.`:`Model download: ${(model.files.reduce((sum, file) => sum + file.size, 0) / 1024 ** 2).toFixed(0)} MiB.` : '';
     }
   }
 }

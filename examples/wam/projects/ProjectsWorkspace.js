@@ -116,6 +116,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('inspectorPreset').onchange = (event) => void this.chooseTrackPreset(this.selectedId,event.target.value).catch(error=>this.report(error.message,true));
     this.$('inspectorEditPreset').onclick = () => this.editPresetInTone();
     this.$('projectPlay').onclick = () => (this.player?.playing ? this.player.pause() : this.player?.play());
+    if(this.$('projectMasterVolume'))this.$('projectMasterVolume').oninput=event=>this.player?.setMasterVolume(Number(event.target.value)/100);
     this.$('projectRewind').onclick = () => this.player?.stop();
     this.$('projectLoop').onclick = () => this.toggleLoop();
     this.$('projectLoopReset').onclick = () => this.player?.duration && this.setLoop({enabled: false, start: 0, end: 0});
@@ -930,6 +931,7 @@ export class ProjectsWorkspace extends EventTarget {
   renderTransport() {
     const {player} = this;
     const playing = Boolean(player?.playing);
+    if(this.$('projectMasterVolume')){const volume=Math.round((player?.masterVolume??1)*100);this.$('projectMasterVolume').value=String(volume);this.$('projectMasterVolume').setAttribute('aria-valuetext',volume+'%');this.$('projectMasterValue').textContent=volume+'%';}
     const play = this.$('projectPlay');
     play.disabled = player?.ready === false || !player?.duration;
     play.textContent = playing ? '❚❚ Pause' : '▶ Play';

@@ -5,7 +5,7 @@ import {access, readdir, readFile} from 'node:fs/promises';
 import {STUDIO_RUNTIME_ASSETS} from '../../examples/wam/projects/StudioRuntimeAssets.js';
 
 const directory = new URL('../../dist/NAM_A2_WAM/source-separation/', import.meta.url);
-test('the product distribution keeps waveform dependencies without the separation laboratory or local weights', async () => {
+test('the product distribution keeps waveform dependencies without the separation laboratory, including the native model assets', async () => {
   assert.deepEqual((await readdir(directory)).sort(), [...new Set(STUDIO_RUNTIME_ASSETS.map(path => path.split('/')[0]))].sort());
   for (const file of ['renderer.js', 'renderer-utils.js', 'event-emitter.js', 'LICENSE', 'NOTICE.md', 'integrity.json']) {
     await access(new URL(`vendor/wavesurfer/${file}`, directory));
@@ -25,4 +25,10 @@ test('Studio ships precisely the two approved model identities, orders and pinne
   const plan = JSON.parse(await readFile(new URL('roformer-stage-plan.json', directory)));
   assert.equal(plan.sourceSha256, models[1].files[0].sha256);
   assert.equal(plan.sourceBytes, models[1].files[0].size);
+});
+
+test('direct runtime ships ordered model outputs and complete weights without a benchmark dependency',async()=>{
+ for(const key of ['demucs4','roformer6']){const g=JSON.parse(await readFile(new URL(`model-assets/direct-webnn/${key}.graph.json`,directory)));assert.ok(g.outputNames.length>=2);await access(new URL(`model-assets/direct-webnn/${key}.weights.bin`,directory));if(key==='demucs4')assert.deepEqual(g.outputNames,['output','5073']);}
+ const direct=await readFile(new URL('DirectWebNN.js',directory),'utf8');assert.doesNotMatch(direct,/WebNNExperiment|InferenceSession/);
+ await assert.rejects(access(new URL('webnn-diagnostics.html',directory)));
 });

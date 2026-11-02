@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>NAM A2 WAM Rack</title>
+  <script src="./ui/theme.js"></script>
   <link rel="stylesheet" href="./ui/tokens.css">
   <link rel="stylesheet" href="./ui/base.css">
   <link rel="stylesheet" href="./ui/components.css">
@@ -198,8 +199,8 @@
             <label>Mix export range<select id="studioExportRange" aria-label="Mix export range" hidden><option value="song">Export entire song</option><option value="loop">Export A/B loop only</option></select></label>
             <label>Separation model<select id="studioModel" aria-label="Separation model"></select></label>
             <p id="studioModelHelp" class="host-help"></p>
-            <p class="host-help">Experimental WebNN: Demucs 4 only, supported browsers only. Every block is compared with WASM before playback (slower, extra memory). CPU/GPU/NPU are device preferences, not confirmed hardware. Failed admission falls back to WASM before any audio is published; SW 6 remains on WebGPU/WASM.</p>
-            <label>Execution engine<select id="studioBackend"><option value="webgpu">WebGPU (preferred when available)</option><option value="wasm">CPU / WASM fallback</option><option value="webnn-cpu">Experimental WebNN / CPU</option><option value="webnn-gpu">Experimental WebNN / GPU</option><option value="webnn-npu">Experimental WebNN / NPU</option></select></label>
+            <p class="host-help">Direct WebNN: experimental 4 or 6 tracks, enabled only when WebNN is exposed. No ONNX Runtime or WASM inference in the direct path. Six-track compilation can be slow; WebGPU remains the quick-start recommendation. ONNX → WebNN remains limited to 4 tracks with per-block WASM checks. CPU/GPU/NPU are requested devices, not verified hardware.</p>
+            <label>Execution engine<select id="studioBackend"><option value="webgpu">WebGPU (preferred when available)</option><option value="wasm">CPU / WASM fallback</option><option value="webnn-cpu">ONNX → WebNN / CPU · experimental</option><option value="webnn-gpu">ONNX → WebNN / GPU · experimental</option><option value="webnn-npu">ONNX → WebNN / NPU · experimental</option><option value="webnn-direct-cpu" disabled>Direct WebNN / CPU · experimental</option><option value="webnn-direct-gpu" disabled>Direct WebNN / GPU · experimental</option><option value="webnn-direct-npu" disabled>Direct WebNN / NPU · experimental</option></select></label>
             <p class="host-help" id="studioModelSize"></p>
             <p class="host-help">Computation stays on this machine. Use Save project to keep the original, instruments and mix in your account. Unsaved previews are lost on reload. Storage limits: 512 MiB per instrument, 2 GiB per project, 5 GiB per account. Personal parts are preserved in Original / project.</p>
             <tl-button id="studioCheckCache" size="sm">Check cache</tl-button>
@@ -213,6 +214,7 @@
               <tl-icon-button id="projectRewind" icon="rewind" size="sm" aria-label="Return to start" title="Return to start" disabled></tl-icon-button>
               <tl-button id="projectPlay" variant="primary" aria-label="Play" title="Play" aria-pressed="false" disabled>▶ Play</tl-button>
             </div>
+            <label class="project-master">Master <input id="projectMasterVolume" type="range" min="0" max="100" step="1" value="100" aria-label="Studio master volume"><output id="projectMasterValue" for="projectMasterVolume">100%</output></label>
             <strong class="project-clock" id="projectClock" role="timer" aria-label="Position">00:00.00</strong>
             <span class="project-bar" id="projectBarBeat" title="Bar.beat">1.1</span>
             <div class="project-loop" role="group" aria-label="Loop">

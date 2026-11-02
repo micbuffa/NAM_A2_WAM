@@ -1,5 +1,5 @@
 import {timelineTracks} from './ProjectsModel.js';
-import {backendLabel, isWebNN, WEBNN_BACKENDS, validateWebNNSelection} from '../source-separation/StudioWebNN.js';
+import {backendLabel, isDirectWebNN, isWebNN, WEBNN_BACKENDS, validateWebNNSelection} from '../source-separation/StudioWebNN.js';
 import {ModelCache} from '../source-separation/ModelCache.js';
 import {ModelDownloadManager} from '../source-separation/ModelDownloadManager.js';
 import {detectCapabilities} from '../source-separation/Capabilities.js';
@@ -26,6 +26,7 @@ export class StudioSeparation extends EventTarget {
     super();
     Object.assign(this, {context, player, manager, engineFactory, capabilities, fetchAudio, decode, loadModels});
     this.runners = runners ?? {
+      direct: new PreparedDemucsRunner({manager,workerFactory:()=>new Worker(new URL('../source-separation/direct-webnn-worker.js',import.meta.url),{type:'module'}),timeoutMs:300000}),
       demucs: new OnnxDemucsRunner({manager, keepAlive: true}),
       roformer: new PreparedDemucsRunner({manager, workerFactory: () => new Worker(new URL('../source-separation/roformer-worker.js', import.meta.url), {type: 'module'})}),
     };
@@ -136,7 +137,7 @@ export class StudioSeparation extends EventTarget {
       if (length > 86400 * 44100) throw Error('Audio exceeds 24 hours.');
       const channels = [audio.getChannelData(0).slice(0, length), audio.getChannelData(Math.min(1, audio.numberOfChannels - 1)).slice(0, length)];
       this.setStatus('Checking model cache…');
-      await this.manager.download(model); current();
+      if(!isDirectWebNN(this.backend))await this.manager.download(model); current();
       const engine = this.engineFactory(this.context);
       engine.startStream({roles: model.roles, totalFrames: length});
       const tracks = model.roles.map((role, index) => ({id: nextTrackId--, streamId: `${role}-${index}`, name: STEM_NAMES[role], origin: 'stem',
@@ -156,9 +157,9 @@ export class StudioSeparation extends EventTarget {
       };
       let backend = this.backend;
       this.effectiveBackend = backend;
-      const runner = model.runtime === 'bs-roformer-onnx' ? this.runners.roformer : this.runners.demucs;
-      if (model.runtime === 'bs-roformer-onnx') {
-        const prepare = backend => runner.prepare(model, backend, {onProgress: data => { current(); this.setStatus(`Loading model · stage ${data.completed}/${data.total}`, data.completed / data.total * 100); }});
+      const runner = isDirectWebNN(backend)?this.runners.direct:model.runtime === 'bs-roformer-onnx' ? this.runners.roformer : this.runners.demucs;
+      if (isDirectWebNN(backend)||model.runtime === 'bs-roformer-onnx') {
+        const prepare = backend => runner.prepare(model, backend, {onProgress: data => { current(); this.setStatus(isDirectWebNN(backend)?(data.phase==='compile'?'Compiling direct WebNN graph…':'Loading and verifying direct WebNN weights · browser cache…'):`Loading model · stage ${data.completed}/${data.total}`, isDirectWebNN(backend)?null:data.completed / data.total * 100); }});
         this.setStatus('Loading model and preparing first inference…');
         try { await prepare(backend); }
         catch (error) {
