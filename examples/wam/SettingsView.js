@@ -36,7 +36,7 @@ export class SettingsView {
   close() { this.dialog?.close(); }
 
   create() {
-    const {dialog, body} = createModal({title: 'Settings', eyebrow: 'NAM A2 rack', className: 'host-settings', wide: true});
+    const {dialog, body} = createModal({title: 'Settings', eyebrow: 'Fretwork', className: 'host-settings', wide: true});
     this.dialog = dialog;
     this.button.setAttribute('aria-expanded', 'true');
     dialog.addEventListener('close', () => {

@@ -1,6 +1,6 @@
-<% content_for :title, "Confirm sign-in · NAM A2 WAM" %>
+<% content_for :title, "Confirm sign-in · Fretwork" %>
 <section class="auth-card" aria-labelledby="auth-title">
-  <p class="auth-kicker">NAM A2 WAM</p>
+  <p class="auth-kicker">Fretwork</p>
   <h1 id="auth-title">Confirm sign-in</h1>
   <p class="auth-help" id="auth-status" role="status">Sign in as <strong><%= @sign_in_token.email %></strong> on this device.</p>
   <%= form_with url: confirm_sign_in_path, method: :post, class: "auth-form", id: "confirm-sign-in" do |form| %>

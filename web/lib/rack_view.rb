@@ -11,7 +11,6 @@ module RackView
   HEAD_ADDITIONS = <<~ERB.lines.map { |line| "  #{line}" }.join
     <%# Generated from examples/wam/index.html by bin/rack-sync (lib/rack_view.rb); edit the source, not this file. %>
     <%= csrf_meta_tags %>
-    <link rel="icon" href="./plugins/nam-wam/neuralwamp-logo.svg" type="image/svg+xml">
     <script type="application/json" id="currentUser"><%= json_escape(@current_user_payload.to_json).html_safe %></script>
   ERB
 

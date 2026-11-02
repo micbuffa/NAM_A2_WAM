@@ -658,7 +658,7 @@ if (tone3000PopupCallback && (tone3000HasOpener || tone3000PopupMode || !tone300
     window.setTimeout(() => channel.close(), 1500);
   }
   if (window.opener && !window.opener.closed) window.opener.postMessage(callback, window.location.origin);
-  document.body.innerHTML = '<p style="font:16px system-ui;padding:2rem">Returning to NAM A2 WAM…</p>';
+  document.body.innerHTML = '<p style="font:16px system-ui;padding:2rem">Returning to Fretwork…</p>';
   window.setTimeout(() => window.close(), 1600);
 } else {
   // Some embedded browsers collapse window.open() into the current tab. In
