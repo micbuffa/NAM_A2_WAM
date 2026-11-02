@@ -55,14 +55,14 @@ document.querySelector('#lifecycle').onclick=async()=>{
   context=new AudioContext({sampleRate:48000});await context.resume();
   const [groupId]=await initializeWamHost(context,'di-lifecycle-validation');
   const bench=document.querySelector('#bench');
-  const ids=['recordPanel','recordMonitor','recordCurrentTone','recordArm','recordDiscard','projectRecord','projectRecordStop','recordCompensation','recordStatus','inspectorPreset','inspectorEditPreset'];
+  const ids=['recordStatusBar','recordCurrentTone','recordDiscard','projectRecord','projectRecordStop','recordCompensation','recordStatus','inspectorPreset','inspectorEditPreset'];
   bench.replaceChildren(...ids.map(id=>Object.assign(document.createElement(id==='recordCompensation'?'input':'button'),{id})));
   document.querySelector('#recordCompensation').value='0';
   const root=document.createElement('section'),list=document.createElement('ol'),ruler=document.createElement('div');
   root.style.width='900px';root.append(ruler,list);bench.append(root);bench.hidden=false;
   const noop=()=>{};
   let ordinaryRenders=0;
-  const timeline=new ProjectTimeline(list,{root,ruler,onSelect:noop,onChange:noop,onEdit:noop,onMonitor:noop,onMove:noop,onSeek:noop,onLoop:noop,createRenderer:options=>{ordinaryRenders++;return new Renderer(options);}});
+  const timeline=new ProjectTimeline(list,{root,ruler,onSelect:noop,onChange:noop,onEdit:noop,onArm:()=>void recording?.act(()=>recording.arm()),onMonitor:()=>void recording?.act(()=>recording.monitor()),onMove:noop,onSeek:noop,onLoop:noop,createRenderer:options=>{ordinaryRenders++;return new Renderer(options);}});
   let packets=0,peakValues=0,stableCanvas=true,firstCanvas;
   const append=timeline.appendRecording.bind(timeline);
   timeline.appendRecording=(id,packet)=>{append(id,packet);packets++;peakValues+=packet.peaks.length;const canvas=timeline.rows.get(id).liveRenderer?.tiles.get(0)?.canvas;if(firstCanvas&&canvas!==firstCanvas)stableCanvas=false;firstCanvas??=canvas;};
@@ -75,10 +75,11 @@ document.querySelector('#lifecycle').onclick=async()=>{
   meters=new TrackMeters({context,player,timeline});
   const w={owned:true,project:{id:1,bpm:120,timeSignature:'4/4',tracks:[track]},saved:{tracks:[structuredClone(track)]},selectedId:1,player,accountLoadEpoch:1,
     get selectedTrack(){return this.project.tracks[0];},$:id=>document.getElementById(id),
-    timeline,renderLength(){},render(){timeline.render(this.project.tracks);recording?.render();},report(text){output.textContent=text;},
-    setTracks(tracks){this.project.tracks=tracks;player.setTracks(tracks,1);timeline.render(tracks);},
+    timeline,renderLength(){},render(){timeline.render(this.project.tracks,{editable:true,selectedId:1});recording?.render();},report(text){output.textContent=text;},
+    setTracks(tracks){this.project.tracks=tracks;player.setTracks(tracks,1);timeline.render(tracks,{editable:true,selectedId:1});},
     tones:{status:()=>({state:'ready'}),tones:new Map([[1,{rack:{getState:async()=>structuredClone(state)}}]])}};
   recording=new StudioRecording(w,{context,groupId,source,rack:{getState:async()=>structuredClone(state)},enableLive:async()=>{}});
+  player.addEventListener('statechange',()=>recording.render());
   meters.inputFor=id=>recording.meterSource(id);
   await recording.arm();
   await new Promise(resolve=>setTimeout(resolve,150));meters.update();
@@ -91,14 +92,18 @@ document.querySelector('#lifecycle').onclick=async()=>{
   if(recording.state!=='counting')throw Error('Count-in did not start: '+output.textContent);
   const captureAligned=scheduledFrame===Math.round(player.base.startedAt*48000);
   const countInBeats=recording.metronome.countBeats;
-  if(cancelCountIn){await recording.stop();output.textContent=JSON.stringify({countInCancelPass:recording.state==='idle'&&!recording.active&&recording.pending.size===0&&!player.recordingLock&&recording.metronome.voices.size===0,state:recording.state,takes:recording.pending.size},null,2);return;}
+  if(cancelCountIn){await recording.stopTransport();output.textContent=JSON.stringify({countInCancelPass:recording.state==='idle'&&!recording.active&&recording.pending.size===0&&!player.recordingLock&&recording.metronome.voices.size===0,state:recording.state,takes:recording.pending.size},null,2);return;}
+  const activeRow=timeline.rows.get(1),speakerAvailable=!list.inert&&!activeRow.modes.inputMonitoring.disabled;
+  activeRow.modes.inputMonitoring.click();const monitorOn=w.selectedTrack.inputMonitoring===true;
+  activeRow.modes.inputMonitoring.click();const monitorDuringTake=speakerAvailable&&monitorOn&&w.selectedTrack.inputMonitoring===false;
+  const otherControlsLocked=activeRow.volume.disabled&&activeRow.pan.disabled&&activeRow.arm.disabled&&activeRow.lane.inert;
   await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(Error('Count-in timed out')),5000);const timer=setInterval(()=>{if(recording.state==='recording'){clearInterval(timer);clearTimeout(timeout);resolve();}},20);});
   await new Promise(resolve=>setTimeout(resolve,2600));
   const liveRenderer=timeline.rows.get(1).liveRenderer;
   const incremental=packets>10&&stableCanvas&&ordinaryRenders===0&&liveRenderer?.fullRepaints===1;
   const liveStats={packets,peakValues,stableCanvas,ordinaryRendersDuringCapture:ordinaryRenders,fullRepaints:liveRenderer?.fullRepaints,drawnColumns:liveRenderer?.drawnColumns};
   const liveWaveform=!!timeline.waves.get(1)?.peaks?.some(value=>value>0);
-  await recording.stop();
+  await recording.stopTransport();
   if(!player.ready)await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Recorded audio did not load')),5000);player.addEventListener('load',()=>{clearTimeout(timer);resolve();},{once:true});});
   const playReady=player.ready;
   // A much louder live input must disappear from the track during Play.
@@ -112,8 +117,8 @@ document.querySelector('#lifecycle').onclick=async()=>{
   const duringPlayDb=Number(timeline.rows.get(1).meter.getAttribute('aria-valuenow'));
   const playbackOnly=player.base.liveId===null&&liveBeforePlayDb>-10&&duringPlayDb<-15&&duringPlayDb>-26;
   player.pause();
-  const take=recording.pending.get(1),pass=armedSilently&&rawMeterWorks&&captureAligned&&countInBeats===4&&incremental&&liveWaveform&&playReady&&playing&&metered&&playbackOnly&&recording.state==='idle'&&!!take&&w.saved.tracks[0].audio===null&&!!w.selectedTrack.presetSnapshot&&take.metadata.capturedFrames>10000&&!player.recordingLock;
-  output.textContent=JSON.stringify({lifecyclePass:pass,armedSilently,rawMeterWorks,captureAligned,countInBeats,incremental,liveStats,liveWaveform,playReady,playing,metered,playbackOnly,liveBeforePlayDb,duringPlayDb,peak:take?.peak,state:recording.state,pendingTakes:recording.pending.size,capturedFrames:take?.metadata.capturedFrames,savedAudioStillEmpty:w.saved.tracks[0].audio===null,transportUnlocked:!player.recordingLock},null,2);
+  const take=recording.pending.get(1),pass=monitorDuringTake&&otherControlsLocked&&armedSilently&&rawMeterWorks&&captureAligned&&countInBeats===4&&incremental&&liveWaveform&&playReady&&playing&&metered&&playbackOnly&&recording.state==='idle'&&!!take&&w.saved.tracks[0].audio===null&&!!w.selectedTrack.presetSnapshot&&take.metadata.capturedFrames>10000&&!player.recordingLock;
+  output.textContent=JSON.stringify({lifecyclePass:pass,monitorDuringTake,otherControlsLocked,armedSilently,rawMeterWorks,captureAligned,countInBeats,incremental,liveStats,liveWaveform,playReady,playing,metered,playbackOnly,liveBeforePlayDb,duringPlayDb,peak:take?.peak,state:recording.state,pendingTakes:recording.pending.size,capturedFrames:take?.metadata.capturedFrames,savedAudioStillEmpty:w.saved.tracks[0].audio===null,transportUnlocked:!player.recordingLock},null,2);
  }catch(error){output.textContent=`FAIL: ${error.stack}`;}
  finally{cancelCountIn=false;if(originalStart)DIRecorder.prototype.start=originalStart;meters?.destroy();player?.destroy();recording?.clear();osc?.stop();liveOsc?.stop();await context?.close();}
 };

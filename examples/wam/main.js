@@ -17,6 +17,7 @@ import {FxRack} from './FxRack.js';
 import {FxRackView} from './FxRackView.js';
 import {EngineStatus} from './EngineStatus.js';
 import {SettingsView} from './SettingsView.js';
+import {TrackControlStyle} from './ui/TrackControlStyle.js';
 import {registerAppearance} from './ui/Appearance.js';
 import {Workspaces} from './Workspaces.js';
 import {StudioOptionsDialog} from './projects/StudioOptionsDialog.js';
@@ -57,10 +58,10 @@ let projects;
 // The open project plays beside the rack's live guitar, in both workspaces.
 const projectPlayer = new ProjectPlayer(context);
 const settings = new SettingsView({button: $('#settingsButton')});
-registerAppearance(settings);
+registerAppearance(settings, undefined, new TrackControlStyle());
 const engine = new EngineStatus({element: $('#engineStatus'), context});
 const workspaces = new Workspaces({control: $('#workspaceSwitch')});
-new StudioLayout({workspaces, button: $('#studioSidebarToggle'), sidebar: $('#hostSidebar')});
+new StudioLayout({workspaces, button: $('#studioSidebarToggle'), sidebar: $('#hostSidebar'), densityControl: $('#projectTrackDensity')});
 if (takeLinkedProject()) workspaces.show('projects');
 // Settings > Audio: what the browser chose (it does not let a page set the buffer size).
 const milliseconds = (seconds) => Number.isFinite(seconds) && seconds > 0 ? `${(seconds * 1000).toFixed(1)} ms` : 'Not reported';

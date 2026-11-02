@@ -182,14 +182,15 @@
             <span id="studioTrackState" class="studio-track-state" role="status" hidden></span>
           <tl-button id="studioUseMix" variant="primary" hidden disabled>Use mix in Tone</tl-button>
           <tl-button id="studioRetryAudio" hidden>Retry audio loading</tl-button>
+          <tl-button id="studioOptions" size="sm" icon="settings" aria-haspopup="dialog">Project options</tl-button>
           </div>
           <p id="studioExportHelp" class="host-help" role="status" aria-live="polite" hidden></p>
           <div id="studioUnfinished" class="host-help"></div>
 
           <p id="studioStatus" role="status" class="host-help">Preparing separation…</p>
           <progress id="studioProgress" max="100" aria-label="Separation progress" hidden></progress>
-          <tl-button id="studioOptions" size="sm" icon="settings" aria-haspopup="dialog">Project options</tl-button>
           <div id="studioOptionsPanel" class="studio-options-content" hidden>
+            <label>Track density<select id="projectTrackDensity" aria-label="Track density"><option value="compact" selected>Compact</option><option value="comfortable">Comfortable</option></select></label>
           <div id="studioRemovedTracks" class="studio-separation-options" hidden>
             <label>Removed tracks<select id="studioRemovedTrack" aria-label="Removed tracks"></select></label>
             <tl-button id="studioRestoreTrack" size="sm">Restore track</tl-button>
@@ -216,6 +217,8 @@
             <div class="project-transport" role="group" aria-label="Transport">
               <tl-icon-button id="projectRewind" icon="rewind" size="sm" aria-label="Return to start" title="Return to start" disabled></tl-icon-button>
               <tl-button id="projectPlay" variant="primary" aria-label="Play" title="Play" aria-pressed="false" disabled>▶ Play</tl-button>
+              <tl-icon-button id="projectRecord" size="sm" icon="record" aria-label="Record" title="Arm a personal track using its microphone icon, then Record" aria-pressed="false" disabled></tl-icon-button>
+              <tl-icon-button id="projectRecordStop" size="sm" icon="stop" aria-label="Stop" title="Stop playback or recording" disabled></tl-icon-button>
             </div>
             <label class="project-master">Master <input id="projectMasterVolume" type="range" min="0" max="100" step="1" value="100" aria-label="Studio master volume"><output id="projectMasterValue" for="projectMasterVolume">100%</output></label>
             <strong class="project-clock" id="projectClock" role="timer" aria-label="Position">00:00.00</strong>
@@ -228,28 +231,19 @@
             <tl-button class="project-tempo" id="projectTimelineTempo" size="sm" variant="ghost" title="Project tempo and time signature"></tl-button>
             <tl-button id="projectMetronome" size="sm" icon="metronome" aria-pressed="false" title="Click during the take">Click</tl-button>
             <label class="project-count-in">Count-in <select id="projectCountIn" aria-label="Recording count-in"><option value="0">Off</option><option value="1" selected>1 bar</option><option value="2">2 bars</option></select></label>
+            <tl-icon-button id="recordOptions" size="sm" icon="settings" aria-label="Recording settings" title="Recording settings, current Tone sound and unsaved take" aria-haspopup="dialog"></tl-icon-button>
           </header>
           <div id="projectTempoSuggestion" class="project-tempo-suggestion" hidden><span id="projectTempoEstimate" role="status"></span><tl-button id="projectApplyTempo" size="sm">Use estimated tempo</tl-button><tl-icon-button id="projectDismissTempo" size="sm" icon="close" aria-label="Dismiss tempo suggestion"></tl-icon-button></div>
-          <section id="recordPanel" aria-label="Guitar recording" hidden>
-            <strong>Guitar recording · <span id="recordTrackName"></span></strong>
-            <div class="record-actions">
-              <tl-button id="recordMonitor" icon="speaker" aria-pressed="false">Monitor off</tl-button>
-              <tl-button id="recordArm" aria-keyshortcuts="R" title="Arm selected track (R)" icon="microphone" aria-pressed="false">Arm track</tl-button>
-              <tl-button id="projectRecord" variant="danger" disabled>● Record</tl-button>
-              <tl-button id="projectRecordStop" disabled>■ Stop recording</tl-button>
-              <tl-button id="recordCurrentTone" variant="ghost">Use current Tone sound</tl-button>
-              <tl-button id="recordDiscard" variant="ghost" hidden>Discard unsaved take</tl-button>
-            </div>
-            <p id="recordStatus" class="host-help" role="status"></p>
-            <tl-button id="recordOptions" size="sm" icon="settings" aria-haspopup="dialog">Recording settings</tl-button>
+          <div id="recordStatusBar" class="record-status-bar" hidden><strong id="recordTrackName"></strong><span id="recordStatus" role="status"></span></div>
             <div id="recordOptionsPanel" class="studio-options-content" hidden>
+              <p id="recordSettingsTrack" class="host-help"></p>
+              <div class="record-actions"><tl-button id="recordCurrentTone" size="sm" variant="ghost">Use current Tone sound</tl-button><tl-button id="recordDiscard" size="sm" variant="ghost" hidden>Discard unsaved take</tl-button></div>
               <label>Manual compensation (ms)<input id="recordCompensation" aria-label="Recording latency compensation in milliseconds" type="number" min="0" max="2000" step="any" value="14"></label>
               <label>Calibration output<select id="recordCalibrationOutput" aria-label="Calibration output"><option value="0">Output 1 · Left</option><option value="1">Output 2 · Right</option></select></label>
               <div class="record-actions"><tl-button id="recordCalibrate">Calibrate input latency</tl-button><tl-button id="recordUseCalibration" hidden>Use saved calibration</tl-button><tl-button id="recordResetCalibration" variant="ghost">Reset to 14 ms</tl-button></div>
               <p id="recordCalibrationStatus" class="host-help" role="status"></p>
               <p class="host-help">Choose your input and channel in Audio devices / Tone. Calibration requires a physical output-to-input cable and measures the round trip. A saved measurement must match the interface and buffer settings.</p>
             </div>
-          </section>
           <div class="project-track-viewport" id="projectTrackViewport" role="region" aria-label="Tracks and timeline" tabindex="0">
           <div class="project-ruler-row"><span aria-hidden="true"></span><div class="project-ruler-track"><div class="project-ruler" id="projectRuler" aria-label="Timeline and A/B loop"></div></div></div>
           <ol class="project-tracks" id="projectTracks"></ol>

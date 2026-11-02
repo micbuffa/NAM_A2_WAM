@@ -3,7 +3,7 @@
 Mise à jour : 2 novembre 2026. **Implémenté sur `codex/studio-integration` : prise mono DI sur une piste personnelle vide et assistant de calibration aller-retour ; validation matérielle restante.**
 
 
-Commandes visibles au-dessus de la timeline et dans les en-têtes : **microphone** pour armer, **haut-parleur** pour écouter l’entrée. La touche **R** arme/désarme la piste personnelle sélectionnée, sauf dans un champ de saisie, un dialogue ou pendant une prise. Une seule piste est armée à la fois. L’armement initialise l’entrée et le vumètre DI sans activer le monitoring. La sélection d’une piste ou le chargement de son preset ne rend jamais l’entrée audible. Tone ne double pas le monitoring de Studio.
+Commandes dans les en-têtes personnels : **microphone** pour armer, **haut-parleur** pour écouter l’entrée. **Record / Stop** se trouvent dans le transport commun, sans panneau d’enregistrement séparé. La touche **R** arme/désarme la piste personnelle sélectionnée, sauf dans un champ de saisie, un dialogue ou pendant une prise. Une seule piste est armée à la fois. L’armement initialise l’entrée et le vumètre DI sans activer le monitoring. La sélection d’une piste ou le chargement de son preset ne rend jamais l’entrée audible. Tone ne double pas le monitoring de Studio.
 
 Parcours : ajouter une piste personnelle guitare/basse vide, choisir l’entrée/canal dans Tone, **Arm track → Record → décompte → prise → Stop recording → Save project**. Le haut-parleur reste optionnel, commutable pendant la prise. Sans preset de piste, le son courant de Tone est copié, même non sauvegardé ; **Use current Tone sound** refait cette copie sans forcer le monitoring. À l’arrêt, le vumètre de la piste armée observe la DI ; en lecture normale il observe l’audio lu après traitement/volume/pan. Le réglage explicite du haut-parleur est conservé après Stop.
 
@@ -338,3 +338,17 @@ The Studio master volume controls the common listening output, including monitor
 ### Validation du workflow FX et des dialogues — 2 novembre 2026
 
 569 tests JavaScript et 142 tests Rails /1241 assertions réussis. FX sur prise en RAM, retour inchangé sans question/écriture, retour modifié local, sauvegarde Studio seule, annulation/échec et retry idempotent couverts. Test de publication : audio/provenance puis snapshot de lecture retouché, sans écraser le preset de capture. Banc natif synthétique : même AudioBuffer DI, gain de lecture3 et gain de capture2 préservé, aucun save au retour, options de création réutilisable vérifiées. Dialogues déplacent les contrôles originaux, préservent valeurs/handlers, fermeture sans arrêter les opérations. Pas d’enregistrement matériel ni d’autosave durable revendiqué.
+
+
+### En-têtes compacts et transport commun — 2 novembre 2026
+
+Record vise la piste armée même si une autre piste est sélectionnée ; le contrôleur revient à cette piste avant de préparer la prise. Un résultat de séparation non publié bloque ce départ jusqu’à sauvegarde. Stop arrête la lecture ou la capture, annule le décompte sans prise vide et reste désactivé pendant finalisation/calibration. Une ligne de statut donne nom de piste, entrée, décompte/durée et état RAM. Le bouton engrenage du transport conserve les réglages, Use current Tone sound et Discard unsaved take. Pas de changement d’encodage, compensation ou buffers audio.
+
+Pendant capture/décompte, le haut-parleur de la seule piste armée reste accessible ; sélection, déplacement, FX/suppression, mix, pan et seek restent bloqués. Les états désactivés préexistants sont restaurés à la sortie. Densité Compact/Comfortable, locale au navigateur, sans effet audio ni entrée d’historique. La densité compacte conserve toutes les commandes et les vumètres ; les métadonnées longues sont accessibles au survol du nom.
+
+Qualification :577 tests JS,143 tests Rails /1248 assertions réussis. Banc natif synthétique avec WAM/ring buffer/Worker : armement silencieux, vumètre DI, quatre clics, même horloge capture/accompagnement, haut-parleur utilisable pendant la prise, autres contrôles bloqués, waveform incrémentale stable, lecture post-FX mesurée, Stop du décompte sans prise. Qualification matérielle et endurance restent à effectuer.
+
+
+### Préférence de notation des commandes — 2 novembre 2026
+
+Settings → Appearance → Track control style : Logic-like I/R, Ableton-like IN/cercle Record ou Reaper-like haut-parleur/microphone (défaut conservé). Variantes visuelles inspirées, sans modification du fonctionnement : monitoring binaire indépendant, armement avec R. Même bouton, mêmes labels accessibles, états et handlers ; seuls les glyphes affichés changent par CSS. Préférence locale persistante, indépendante du thème, du projet et du preset. Pas de mode Auto ajouté au monitoring. Tests581 JS /143 Rails, toutes validations réussies.

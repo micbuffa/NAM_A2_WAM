@@ -382,18 +382,10 @@ body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast
 .studio-model-choices + .tl-btn { margin-top: 12px; }
 
 /* The first recording controls live beside the selected personal track. */
-#recordPanel { display: grid; gap: 8px; border-top: 1px solid var(--tl-border); margin-top: 14px; padding-top: 12px; }
-#recordPanel[hidden] { display: none; }
-#recordPanel label { display: grid; gap: 6px; font: 600 var(--tl-fs-xs) var(--tl-font-ui); color: var(--tl-text-muted); }
 #recordCompensation { box-sizing: border-box; width: 100%; padding: 8px 10px; border: 1px solid var(--tl-border); border-radius: var(--tl-radius-sm); background: var(--tl-surface-sunken); color: var(--tl-text); font: inherit; }
-#recordPanel .host-help { margin: 0; }
-#recordPanel { margin: 0; padding: 14px 18px; border-top: 0; border-bottom: 1px solid var(--tl-border); background: var(--tl-surface-sunken); }
 .record-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
-#recordPanel .record-meter { display: grid; grid-template-columns: auto 110px auto; align-items: center; gap: 8px; }
 .record-meter meter { width: 110px; height: 16px; accent-color: var(--tl-accent); }
 .record-meter output { min-width: 115px; font: var(--tl-fs-xs) var(--tl-font-mono); }
-#recordPanel details { font-size: var(--tl-fs-xs); color: var(--tl-text-muted); }
-#recordPanel details label { max-width: 220px; margin-top: 10px; }
 .track-mode-r.active { color: white; background: #b43939; border-color: #e96a6a; }
 #projectRecord[disabled] { opacity: .65; }
 .track-level-meter { position: relative; flex: 0 0 9px; width: 9px; min-height: 62px; align-self: stretch; overflow: hidden; border-radius: 3px; background: var(--tl-surface-sunken); border: 1px solid var(--tl-border); --track-level: 0%; }
@@ -407,7 +399,6 @@ body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast
 .record-calibration progress { display: block; width: 100%; margin-top: 12px; }
 .record-calibration progress[hidden] { display: none; }
 .record-calibration label { display: flex; align-items: center; gap: 8px; }
-#recordPanel details > label { display: inline-flex; gap: 8px; align-items: center; margin: 8px 12px 8px 0; }
 
 .track-sound-editor:not([hidden]) { display: grid; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--tl-border); background: var(--tl-surface-2, #20251d); }
 body[data-track-sound-edit="true"] .rack-stage > backing-track-player { display: none; }
@@ -442,9 +433,6 @@ body[data-workspace="projects"] .tracks-canvas { padding: 10px 16px; }
 body[data-workspace="projects"] .studio-separation { margin-bottom: 8px; padding-bottom: 8px; }
 body[data-workspace="projects"] .studio-separation-actions { gap: 6px; }
 body[data-workspace="projects"] .studio-separation-actions tl-button { height: 30px; font-size: 11px; padding-inline: 9px; }
-body[data-workspace="projects"] #recordPanel { padding: 8px 12px; gap: 6px; }
-body[data-workspace="projects"] #recordPanel .record-actions { gap: 6px; }
-body[data-workspace="projects"] #recordPanel tl-button { height: 30px; font-size: 11px; padding-inline: 9px; }
 /* Fit the desktop viewport. Ruler and lanes share ONE scrollport, preserving
    alignment even when a vertical scrollbar appears. No body overflow lock. */
 @media (min-width: 1100px) and (min-height: 650px) {
@@ -457,7 +445,6 @@ body[data-workspace="projects"] #recordPanel tl-button { height: 30px; font-size
   body[data-workspace="projects"] .project-timeline { display: flex; flex-direction: column; flex: 1 1 0; min-height: 180px; margin-bottom: 0; }
   body[data-workspace="projects"] .project-timeline[hidden] { display: none; }
   body[data-workspace="projects"] .project-timeline-head { flex: none; }
-  body[data-workspace="projects"] #recordPanel { flex: 0 1 auto; min-height: 0; max-height: 24dvh; overflow: auto; scrollbar-width: thin; }
   body[data-workspace="projects"] .project-track-viewport { flex: 1 1 0; min-height: 80px; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
   body[data-workspace="projects"] .project-ruler-row { position: sticky; top: 0; z-index: 6; }
   body[data-workspace="projects"] .projects-empty { margin: auto; }
@@ -480,8 +467,8 @@ body[data-workspace="projects"] #recordPanel tl-button { height: 30px; font-size
 .studio-track-state[hidden] { display: none; }
 
 .track-mode { display: inline-grid; place-items: center; }
-#recordMonitor[aria-pressed="true"], .track-mode-i.active { color:var(--tl-on-accent); background:var(--tl-accent); }
-#recordArm[aria-pressed="true"] { color:#fff; background:#a52b35; border-color:#a52b35; }
+.track-mode-i.active { color:var(--tl-on-accent); background:var(--tl-accent); }
+.track-mode-r.active { color:#fff; background:#a52b35; border-color:#a52b35; }
 .project-count-in { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--tl-text-muted); white-space:nowrap; }
 .project-count-in select { padding:4px; }
 .project-tempo-suggestion { flex:none; display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:6px 12px; color:var(--tl-text-2); font-size:11px; }
@@ -500,3 +487,41 @@ body[data-workspace="projects"] .project-master input { width:80px; }
 .studio-options-dialog .studio-separation-options { grid-template-columns: 1fr; }
 .tl-modal .track-sound-reuse { display: flex; align-items: center; gap: 8px; font-size: 13px; }
 .tl-modal .track-sound-reuse input[type="checkbox"] { appearance: auto; width: 16px; height: 16px; min-height: 0; flex: 0 0 16px; padding: 0; margin: 0; accent-color: var(--tl-accent); }
+
+/* Recording lives in the shared transport; personal-track input controls stay in rows. */
+#projectRecord { color: var(--tl-danger); }
+#projectRecord[aria-pressed="true"] { color: var(--tl-danger); background: var(--tl-danger-tint); border-color: var(--tl-danger); }
+#projectRecord[disabled] { opacity: .65; }
+.record-status-bar { flex: none; display: flex; align-items: baseline; gap: 8px; padding: 5px 12px; border-bottom: 1px solid var(--tl-border-subtle); font-size: 11px; color: var(--tl-text-muted); }
+.record-status-bar[hidden] { display: none; }
+.record-status-bar strong { color: var(--tl-text); flex: 0 1 auto; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.record-status-bar #recordStatus { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.track-row.armed .track-name { color: var(--tl-danger); }
+.track-row.recording .track-lane { box-shadow: inset 0 0 0 1px var(--tl-danger); }
+body[data-workspace="projects"][data-studio-density="compact"] .track-row { min-height: 76px; }
+body[data-workspace="projects"][data-studio-density="compact"] .track-label { padding: 6px 8px 6px 4px; gap: 6px; align-items: center; }
+body[data-workspace="projects"][data-studio-density="compact"] .track-icon { width: 24px; height: 24px; }
+body[data-workspace="projects"][data-studio-density="compact"] .track-meta { display: none; }
+body[data-workspace="projects"][data-studio-density="compact"] .track-controls { margin-top: 0; gap: 6px; }
+body[data-workspace="projects"][data-studio-density="compact"] .track-lane { padding-block: 6px; }
+body[data-workspace="projects"][data-studio-density="compact"] .track-level-meter { min-height: 60px; }
+@media (max-width: 700px) {
+  .record-status-bar { flex-wrap: wrap; }
+  .record-status-bar #recordStatus { white-space: normal; }
+}
+
+.track-mode[hidden] { display: none; }
+body[data-workspace="projects"] .project-timeline-head { gap: 6px; }
+body[data-workspace="projects"] .project-master input { width: 72px; }
+body[data-workspace="projects"][data-studio-density="compact"] .track-fx-button { height: 22px; padding-inline: 4px; font-size: 10px; }
+
+/* Visual conventions only; button identity, state, labels and actions are shared. */
+.track-control-glyph { display: none; }
+:root:not([data-track-controls]) .track-control-reaper,
+:root[data-track-controls="reaper"] .track-control-reaper,
+:root[data-track-controls="logic"] .track-control-logic,
+:root[data-track-controls="ableton"] .track-control-ableton { display: inline-flex; align-items: center; justify-content: center; }
+.track-control-ableton { font-size: 9px; }
+.track-control-preview { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+.track-control-example { display: inline-flex; gap: 8px; align-items: center; font-size: 12px; color: var(--tl-text); }
+.track-control-preview-icon { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 1px solid var(--tl-border); border-radius: var(--tl-radius-sm); background: var(--tl-surface-3); }

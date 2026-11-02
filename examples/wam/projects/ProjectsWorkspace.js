@@ -98,6 +98,7 @@ export class ProjectsWorkspace extends EventTarget {
       onArm: (id) => { this.select(id); void this.recording?.act(() => this.recording.arm()); },
       onMonitor: (id) => {
         const track = this.project?.tracks.find(track => track.id === id);
+        if(this.recording?.busy){if(this.recording.armedId===id)void this.recording.act(()=>this.recording.monitor());return;}
         if (track?.origin === 'personal' && !track.audio && this.recording && !track.inputMonitoring) {
           this.select(id); void this.recording.act(() => this.recording.monitor()); return;
         }

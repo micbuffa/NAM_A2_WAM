@@ -67,5 +67,5 @@ test('static and Rails source share early bootstrap and distribution includes ap
   assert.ok(html.indexOf('src="./ui/theme.js"') < html.indexOf('<body>'));
   const build = await readFile(new URL('tools/build-static-dist.mjs',root),'utf8');
   assert.match(build, /'ui\/theme.js'/); assert.match(build, /'ui\/Appearance.js'/);
-  assert.match(await readFile(new URL('examples/wam/main.js',root),'utf8'), /registerAppearance\(settings\)/);
+  assert.match(await readFile(new URL('examples/wam/main.js',root),'utf8'), /registerAppearance\(settings, undefined, new TrackControlStyle\(\)\)/);
 });

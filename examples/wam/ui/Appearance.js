@@ -1,4 +1,5 @@
-export function registerAppearance(settings, appearance = globalThis.NamAppearance) {
+import {appendTrackControlPreference} from './TrackControlStyle.js';
+export function registerAppearance(settings, appearance = globalThis.NamAppearance, trackControls = null) {
   settings.addSection({id: 'appearance', label: 'Appearance', icon: 'sliders', order: 3, render(container) {
     const heading = document.createElement('h3'); heading.textContent = 'Appearance';
     const label = document.createElement('label'); label.htmlFor = 'appearanceTheme'; label.textContent = 'Theme';
@@ -14,6 +15,7 @@ export function registerAppearance(settings, appearance = globalThis.NamAppearan
     note.textContent = 'Applies to Tone, Studio and host dialogs. Saved on this browser. Plugin interfaces may keep their own appearance.';
     const field = document.createElement('div'); field.className = 'appearance-field'; field.append(label, select);
     container.append(heading, field, note);
-    return () => globalThis.removeEventListener('nam-appearance-change', sync);
+    const release=trackControls?appendTrackControlPreference(container,trackControls):null;
+    return () => {globalThis.removeEventListener('nam-appearance-change', sync);release?.();};
   }});
 }

@@ -1,9 +1,12 @@
 // UI-only preference: never modifies projects, audio routing or transport.
 const KEY = 'nam-a2.studio-sidebar';
+const DENSITY_KEY='nam-a2.studio-density';
 export class StudioLayout {
-  constructor({workspaces, button, sidebar, root = document.body, storage = globalThis.localStorage}) {
-    Object.assign(this, {workspaces, button, sidebar, root, storage});
-    this.collapsed = false;
+  constructor({workspaces, button, sidebar, densityControl, root = document.body, storage = globalThis.localStorage}) {
+    Object.assign(this, {workspaces, button, sidebar, densityControl, root, storage});
+    this.collapsed = false;this.density='compact';
+    try{if(storage?.getItem(DENSITY_KEY)==='comfortable')this.density='comfortable';}catch{}
+    this.changeDensity=()=>this.setDensity(densityControl.value);densityControl?.addEventListener('change',this.changeDensity);
     try { this.collapsed = storage?.getItem(KEY) === 'collapsed'; } catch { /* Session-only preference. */ }
     this.toggle = () => this.setCollapsed(!this.collapsed);
     this.workspaceChanged = () => this.render();
@@ -18,8 +21,14 @@ export class StudioLayout {
     try { this.storage?.setItem(KEY, this.collapsed ? 'collapsed' : 'expanded'); } catch { /* Keep usable without storage. */ }
     this.render();
   }
+  setDensity(value){
+    this.density=value==='comfortable'?'comfortable':'compact';
+    try{this.storage?.setItem(DENSITY_KEY,this.density);}catch{}
+    this.render();
+  }
   render() {
     const hidden = this.workspaces.current === 'projects' && this.collapsed;
+    this.root.dataset.studioDensity=this.density;if(this.densityControl)this.densityControl.value=this.density;
     this.root.dataset.studioSidebar = this.collapsed ? 'collapsed' : 'expanded';
     this.sidebar.inert = hidden;
     this.button.setAttribute('aria-expanded', String(!this.collapsed));
@@ -30,6 +39,7 @@ export class StudioLayout {
     this.button.removeEventListener('click', this.toggle);
     this.workspaces.removeEventListener('change', this.workspaceChanged);
     this.sidebar.inert = false;
-    delete this.root.dataset.studioSidebar;
+    delete this.root.dataset.studioSidebar;delete this.root.dataset.studioDensity;
+    this.densityControl?.removeEventListener('change',this.changeDensity);
   }
 }

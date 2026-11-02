@@ -293,6 +293,24 @@ the original capture preset as provenance and preserves the retouched playback
 sound. Changes remain in RAM until explicit Save project; no automatic server
 save or durable local autosave is implemented.
 
+Studio recording uses **arm** and **monitor** buttons in personal-track
+headers (microphone/speaker by default). Arm with the microphone (or R), then use the red **Record** icon in the
+shared transport. Record targets the armed track, even after selecting another
+row. **Stop** stops playback or the take; during count-in it cancels the take.
+The armed speaker remains available during capture, independently from arming.
+The transport gear opens **Recording settings**, including current Tone sound,
+discarding a selected RAM take and calibration. There is no separate large
+recording panel. Track density defaults **Compact**; choose **Comfortable** in
+Project options. This browser-local preference changes layout only.
+
+**Settings → Appearance → Track control style** offers Logic-like **I / R**,
+Ableton-like **IN / record circle**, or Reaper-like **speaker / microphone**
+(default), with a live preview. These are inspired visual conventions, not full
+DAW emulations: monitoring stays on/off, arm stays independent, and R keeps the
+same shortcut. Changes apply immediately without replacing buttons, rebuilding
+waveforms or touching audio; the preference persists locally and synchronizes
+between tabs. Theme selection remains separate.
+
 **Project options** opens source/history, model/backend, cache and mix export
 settings in a dialog. **Recording settings** opens compensation/calibration.
 Closing these dialogs preserves control values and does not stop audio or

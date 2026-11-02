@@ -22,12 +22,10 @@ export class StudioRecording {
     const $ = workspace.$;
     if($('projectMetronome'))$('projectMetronome').onclick=()=>{this.metronome.enabled=!this.metronome.enabled;this.render();};
     if($('projectCountIn'))$('projectCountIn').onchange=()=>{if(!this.busy)this.metronome.countInBars=Number($('projectCountIn').value);};
-    $('recordMonitor').onclick = () => this.act(() => this.monitor());
     $('recordCurrentTone').onclick = () => this.act(() => this.monitor(true));
     $('recordDiscard').onclick = () => this.act(() => this.discard());
-    $('recordArm').onclick = () => this.act(() => this.arm());
     $('projectRecord').onclick = () => this.act(() => this.start());
-    $('projectRecordStop').onclick = () => this.act(() => this.stop());
+    $('projectRecordStop').onclick = () => this.act(() => this.stopTransport());
     if ($('recordCalibrate')) this.calibration = new RecordingCalibration(this, {beginCalibration});
     this.sourceChanged = () => {
       if (this.calibration?.running) this.calibration.cancel('Audio input changed. Calibration cancelled.');
@@ -40,9 +38,10 @@ export class StudioRecording {
     this.render();
   }
   get busy() { return ['preparing', 'counting', 'recording', 'finalizing', 'calibrating'].includes(this.state); }
-  get eligible() {
-    const w = this.workspace, track = w.selectedTrack;
-    return w.owned && track && track.origin === 'personal' && usesTrackPreset(track) && !track.audio && !this.pending.has(track.id)
+  get eligible() { return this.canArm(this.workspace.selectedTrack); }
+  canArm(track) {
+    const w = this.workspace;
+    return w.owned && track && track.origin === 'personal' && !track.removedAt && usesTrackPreset(track) && !track.audio && !this.pending.has(track.id)
       && this.pending.size < 2 && !w.saving && !w.separation?.busy && (!w.separation?.result || w.separation.result.engine.complete);
   }
   async act(operation) { try { await operation(); } catch (error) { this.workspace.report(error.message, true); } this.render(); }
@@ -136,8 +135,15 @@ export class StudioRecording {
       tones?.addEventListener('change', changed); changed();
     });
   }
+  async stopTransport() {
+    if(['preparing','counting','recording'].includes(this.state))return this.stop();
+    if(!this.busy)this.workspace.player.stop();
+  }
   async start() {
     const w = this.workspace;
+    if(this.busy||w.separation?.result)return;
+    // The transport records the armed track, even after selecting another row.
+    if(!this.busy&&this.armedId!=null&&this.canArm(w.project?.tracks.find(t=>t.id===this.armedId)))w.select?.(this.armedId);
     if (!this.eligible || this.armedId !== w.selectedId || this.busy) return;
     const track = w.selectedTrack, project = w.project, epoch = w.accountLoadEpoch;
     w.player.base.pause();
@@ -245,38 +251,58 @@ export class StudioRecording {
   }
   render() {
     const w = this.workspace, $ = w.$, track = w.selectedTrack, eligible = this.eligible;
-    if (!$('recordPanel')) return;
-    if ($('recordTrackName')) $('recordTrackName').textContent = track?.name ?? '';
-    for (const [id, row] of w.timeline?.rows ?? []) if (row.arm) {
-      const armed = this.armedId === id;
-      row.arm.disabled = row.structuralLocked || w.separation?.busy || this.busy || !w.owned || Boolean(row.track.audio) || this.pending.size >= 2;
-      row.arm.title = row.structuralLocked || w.separation?.busy ? 'Stop separation and save its instruments before arming.' : row.track.audio ? 'Arming requires an empty guitar or bass track. Add a new track.' : this.pending.size >= 2 ? 'Save pending takes before arming another track.' : 'Arm recording';
-      row.arm.classList.toggle('active', armed); row.arm.setAttribute('aria-pressed', String(armed));
+    if (!$('projectRecord')) return;
+    const armedTrack=w.project?.tracks.find(t=>t.id===this.armedId&&!t.removedAt),recordable=this.canArm(armedTrack)&&!w.separation?.result,statusTrack=armedTrack??track;
+    const lockControl=control=>{if(!control)return;this.disabled??=new Map();if(!this.disabled.has(control))this.disabled.set(control,control.disabled);control.disabled=true;};
+    // Keep only the armed track's speaker available during a take. Disabling
+    // the entire list would make it impossible to cut feedback while recording.
+    if(w.timeline)w.timeline.locked=this.busy;
+    for (const [id, row] of w.timeline?.rows ?? []) {
+      const armed=this.armedId===id,monitor=row.modes?.inputMonitoring;
+      if(row.lane)row.lane.inert=this.busy;
+      row.root?.classList.toggle('armed',armed);row.root?.classList.toggle('recording',armed&&['counting','recording'].includes(this.state));
+      if(this.busy)for(const control of [...(row.structuralControls??[]),...Object.values(row.modes??{}),row.volume,row.pan]){
+        if(control!==monitor||!armed||!['counting','recording'].includes(this.state))lockControl(control);
+      }
+      if(monitor){
+        monitor.disabled=Boolean(w.saving||w.separation?.busy||row.structuralLocked)||(this.busy?!(armed&&['counting','recording'].includes(this.state)):!usesTrackPreset(row.track));
+        monitor.title=monitor.disabled&&this.busy?'Monitoring is available only on the armed track during capture.':'Input monitoring: '+(row.track.inputMonitoring?'on':'off')+' · independent from arming';
+      }
+      if(row.arm){
+        row.arm.disabled=row.structuralLocked||this.busy||!this.canArm(row.track);
+        row.arm.title=row.structuralLocked||w.separation?.busy?'Stop separation and save its instruments before arming.':row.track.audio?'Arming requires an empty personal track. Add a new track.':this.pending.size>=2?'Save pending takes before arming another track.':`${armed?'Disarm':'Arm'} ${row.track.name} (R) · input ${(this.source.liveInput?.channelIndex??0)+1}`;
+        row.arm.classList.toggle('active',armed);row.arm.setAttribute('aria-pressed',String(armed));
+      }
     }
-    $('recordPanel').hidden = !w.owned || !usesTrackPreset(track ?? {});
-    $('recordCurrentTone').disabled = !eligible || this.busy;
-    $('recordMonitor').disabled = !eligible || (this.busy && !['counting','recording'].includes(this.state));
-    $('recordArm').disabled = !eligible || this.busy;
-    $('recordMonitor').setAttribute('aria-pressed', String(Boolean(track?.inputMonitoring)));
-    $('recordMonitor').textContent = track?.inputMonitoring ? 'Monitor on' : 'Monitor off';
-    $('recordArm').textContent = this.armedId === track?.id ? 'Armed' : w.separation?.result?.engine.complete ? 'Keep instruments & arm' : 'Arm track';
-    $('recordArm').setAttribute('aria-pressed', String(this.armedId === track?.id));
-    $('projectRecord').disabled = !eligible || this.busy || this.armedId !== track?.id;
-    $('projectRecordStop').disabled = !['preparing', 'counting', 'recording'].includes(this.state);
+    const showContext=w.owned&&(this.busy||armedTrack||usesTrackPreset(track??{})||this.pending.size);
+    if($('recordStatusBar'))$('recordStatusBar').hidden=!showContext;
+    if($('recordTrackName')){$('recordTrackName').textContent=armedTrack?.name??(usesTrackPreset(track??{})?track.name:'Recording');$('recordTrackName').title=$('recordTrackName').textContent;}
+    if($('recordSettingsTrack'))$('recordSettingsTrack').textContent=track?`Selected track: ${track.name}`:'Select a personal guitar or bass track.';
+    $('recordCurrentTone').disabled=!eligible||this.busy;
+    if($('recordOptions')){$('recordOptions').hidden=!w.owned;$('recordOptions').disabled=this.busy||w.saving;}
+    $('projectRecord').hidden=!w.owned;
+    $('projectRecord').disabled=!recordable||this.busy;
+    $('projectRecord').setAttribute('aria-pressed',String(['counting','recording'].includes(this.state)));
+    $('projectRecord').title=w.separation?.result?'Save the separated instruments before recording.':recordable?`Record to ${armedTrack.name} · count-in ${this.metronome?.countInBars??1} bar(s)`:'Arm an empty personal guitar or bass track using its microphone icon (R).';
+    $('projectRecordStop').disabled=this.busy?!['preparing','counting','recording'].includes(this.state):!w.player?.playing&&!(w.player?.position>0);
+    $('projectRecordStop').title=this.busy?'Stop recording (during count-in: cancel take)':'Stop playback';
     if($('projectMetronome')){$('projectMetronome').setAttribute('aria-pressed',String(Boolean(this.metronome?.enabled)));$('projectMetronome').title='Click during the take: '+(this.metronome?.enabled?'on':'off');}
     if($('projectCountIn'))$('projectCountIn').disabled=this.busy;
     if($('projectTimelineTempo'))$('projectTimelineTempo').disabled=this.busy;
     $('recordCompensation').disabled = this.busy;
     $('recordDiscard').hidden = !this.pending.has(track?.id); $('recordDiscard').disabled = this.busy || w.saving;
     $('recordStatus').textContent = this.busy ? `${this.state === 'counting' ? `Count-in · ${this.metronome.count || 'Get ready'}` : this.state === 'recording' ? 'Recording DI' : this.state === 'preparing' ? 'Preparing capture' : this.state === 'calibrating' ? 'Calibrating latency' : 'Finalizing take'} · ${((this.frames ?? 0) / this.context.sampleRate).toFixed(1)} s`
-      : this.pending.has(track?.id) ? `Take in RAM · ${this.pending.get(track.id).peak > .00001 ? `peak ${(20 * Math.log10(this.pending.get(track.id).peak)).toFixed(1)} dBFS · Play to listen` : 'silence detected: check input/channel'} · Save project to keep it.` : track?.audio ? 'Recording on existing audio will be added in a later stage. Add an empty personal track.'
+      : this.pending.has(statusTrack?.id) ? `Take in RAM · ${this.pending.get(statusTrack.id).peak > .00001 ? `peak ${(20 * Math.log10(this.pending.get(statusTrack.id).peak)).toFixed(1)} dBFS · Play to listen` : 'silence detected: check input/channel'} · Save project to keep it.` : statusTrack?.audio ? 'Recording on existing audio will be added in a later stage. Add an empty personal track.'
       : this.pending.size >= 2 ? 'Two takes are already in RAM. Save project before recording another track.'
-      : `${this.source.liveInput?.label ?? 'Input not enabled'} · input ${(this.source.liveInput?.channelIndex ?? 0) + 1} · ${this.calibration?.active ? this.calibration.statusLabel : 'manual compensation (uncalibrated)'}`;
+      : `${armedTrack?'Armed · ':''}${this.source.liveInput?.label ?? 'Input not enabled'} · input ${(this.source.liveInput?.channelIndex ?? 0) + 1} · ${this.calibration?.active ? this.calibration.statusLabel : 'manual compensation (uncalibrated)'}`;
+    if(!this.busy&&!armedTrack&&!usesTrackPreset(track??{})&&this.pending.size)$('recordStatus').textContent=`${this.pending.size} take(s) in RAM · Select a personal track to edit its sound · Save project to keep audio.`;
+    if($('recordStatus'))$('recordStatus').title=$('recordStatus').textContent;
     this.calibration?.render();
     for (const id of ['projectSelect', 'projectNew', 'projectImport', 'projectAddTrack', 'projectEdit', 'projectShare', 'projectLeave', 'projectSave', 'projectUndo', 'projectRedo', 'projectPlay', 'projectRewind', 'projectLoop', 'projectLoopReset', 'inspectorPreset', 'inspectorEditPreset']) {
       if (this.busy && $(id)) { this.disabled ??= new Map(); if (!this.disabled.has($(id))) this.disabled.set($(id), $(id).disabled); $(id).disabled = true; }
     }
     if ($('studioUseMix') && this.busy) $('studioUseMix').disabled = true;
-    for (const id of ['projectTracks', 'projectRuler', 'studioSeparation']) if ($(id)) $(id).inert = this.busy;
+    if($('projectTracks'))$('projectTracks').inert=Boolean(w.saving);
+    for (const id of ['projectRuler','studioSeparation']) if($(id))$(id).inert=this.busy||Boolean(w.saving);
   }
 }

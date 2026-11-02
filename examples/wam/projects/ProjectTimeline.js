@@ -1,3 +1,4 @@
+import {appendTrackControlGlyphs} from '../ui/TrackControlStyle.js';
 import {LiveWaveform} from './recording/LiveWaveform.js';
 // Track rows of the Projects timeline (TONELAB mockup): name + rename, M/S/I,
 // volume fader and pan knob on the left, the audio lane on the right. Rows are
@@ -123,6 +124,7 @@ export class ProjectTimeline {
   }
 
   startDrag(event, id) {
+    if(this.locked){event.preventDefault();return;}
     this.drag = {id, index: null};
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', String(id));
@@ -298,8 +300,11 @@ export class ProjectTimeline {
       button.classList.toggle('active', Boolean(track[key]));
       button.setAttribute('aria-pressed', String(Boolean(track[key])));
     }
+    row.name.title=`${track.name} · ${row.meta.textContent}`;
+    row.name.setAttribute('aria-description',row.meta.textContent);
     if(row.fx)row.fx.hidden=!usesTrackPreset(track);
-    row.modes.inputMonitoring.disabled = !usesTrackPreset(track);
+    row.modes.inputMonitoring.hidden=!usesTrackPreset(track);
+    if(!this.locked)row.modes.inputMonitoring.disabled = !usesTrackPreset(track);
     row.modes.inputMonitoring.title = usesTrackPreset(track)
       ? 'Input monitoring: play your guitar through this track’s preset' : 'Input monitoring is for personal guitar and bass parts';
     row.volume.dataset.popupValue = volumeLabel(track.volume);
@@ -316,7 +321,7 @@ export class ProjectTimeline {
     const {id} = track;
     const root = element('li', 'track-row');
     root.dataset.trackId = id;
-    root.onclick = () => this.onSelect(id);
+    root.onclick = () => {if(!this.locked)this.onSelect(id);};
 
     const label = element('div', 'track-label');
     const icon = document.createElement('tl-icon');
@@ -365,8 +370,7 @@ export class ProjectTimeline {
       const button = element('button', `track-mode track-mode-${text.toLowerCase()}`, {type: 'button', textContent: text});
       button.title = label;
       if (text === 'I' || text === 'R') {
-        button.textContent = ''; const icon=document.createElement('tl-icon');
-        icon.setAttribute('name', text === 'I' ? 'speaker' : 'microphone'); icon.setAttribute('size','15'); button.append(icon);
+        button.textContent='';appendTrackControlGlyphs(button,text==='I'?'monitor':'arm');
       }
       labels.push([button, label]);
       button.onclick = (event) => { event.stopPropagation(); this.onSelect(id); toggle(); };
@@ -452,6 +456,7 @@ export class ProjectTimeline {
     const note = element('span', 'track-lane-note');
     area.append(clip, note, element('i', 'playhead'));
     area.onclick = (event) => {
+      if(this.locked)return;
       const rect = area.getBoundingClientRect();
       if (rect.width) this.onSeek(Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * this.length.seconds);
     };

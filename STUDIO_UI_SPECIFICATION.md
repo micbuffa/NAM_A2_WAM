@@ -40,7 +40,7 @@ Move remaining bulky separation options to the existing import/separation workfl
 
 Tests: all import sources, current/new project, direct WebNN eligibility, cancel/change model, partial mix, pending recording guards and focus return. Closing configuration must not cancel audio or separation implicitly.
 
-## Task 4 [TODO] — compact track headers and recording controls
+## Task 4 [DONE] — compact track headers and recording controls
 
 Move selected-track Input/Monitor/Arm into appropriate personal-track headers; use the shared transport Record/Stop. Remove redundant large recording panel only after parity. Track headers retain name, meter, volume, pan, Mute/Solo, FX, delete and accessible overflow actions. Provide comfortable/compact density and track height where useful. Accompaniment/stems never acquire editable personal-part presets accidentally.
 
@@ -87,3 +87,21 @@ Project options and Recording settings now open native dialogs instead of expand
 FX return is a local project edit, including a take in RAM. Tone shows Return to Studio, does not save or ask a destination, and does not create an edit for an unchanged visit. Only Studio Save project offers an optional reusable-preset checkbox for actually edited FX sounds. Original capture metadata/DI remain intact; upload cannot overwrite a retouched playback snapshot. No timed autosave introduced. Task 4 (compact headers/removal of the redundant recording panel) and task 5 full end-to-end/hardware qualification remain pending.
 
 Validation task3 : 569 JS tests; 142 Rails tests /1241 assertions, all passing. Native synthetic FX workflow validates zero saves on return and Studio-only choice; modal controls preserve values/focus and operation status across Esc/reopen. Source UI at1280×719 has no document overflow. Distribution/Rails rack rebuilt and synchronized. No physical input or user-account writes performed.
+
+
+### Task 4 delivery — compact headers and shared recording transport, 2 November 2026
+
+Removed the redundant recording panel and its duplicate Arm/Monitor buttons. Personal-track headers contain the speaker and microphone; the global transport contains one Record and one Stop. Record targets the armed track, selecting it before preparation even if another row was selected. It refuses an unpublished separation preview; the existing Stop/Save/Arm publication rules remain. Stop handles playback, capture and count-in cancellation, and is unavailable during finalization/calibration. A thin status line identifies the armed/selected personal track and displays input/count-in/capture/RAM-take information. Source/channel stays in Audio devices. Recording settings remains in the transport gear, including Use current Tone sound, Discard unsaved take and calibration.
+
+During count-in/capture, only the armed track's speaker stays available in the track list. Mute/Solo, faders, pan, structural edits, track selection, seek and ruler changes stay locked; prior disabled states restore afterwards. This avoids making the new speaker unusable with a blanket inert list. The speaker changes only live routing, never capture/transport/PCM. Monitoring is independent of arming and playback meters still observe played audio.
+
+Track density defaults Compact (~76 px per row in the reference viewport); Comfortable restores the more spacious metadata layout. Project options stores this browser-local UI preference, independent from project/preset/history/audio. Compact metadata remains available on name hover/accessibility description. Every row retains vertical meter, name, volume/pan, M/S and applicable FX/edit/delete/reorder; stems hide personal-input controls and never receive an arm button.
+
+Validation: 577 JavaScript tests, 143 Rails tests /1248 assertions, all pass. New guards cover armed-vs-selected target, capture locks/speaker access, disabled-state restoration, shared Stop and unpublished previews; density restore/cleanup and markup uniqueness are covered. Native synthetic capture passes raw metering, silent arm, four-beat shared-clock count-in, speaker on/off during capture, waveform append (zero ordinary rerenders, one initial full repaint), playback metering and Stop cancellation with zero empty takes. Layout:1280×719 transport one54px row, all track rows76px;20-track keyboard navigation scrolls lanes while page remains at0;640×360 effective viewport uses normal vertical page flow without horizontal overflow. No physical input, account writes or long endurance qualification. Task5 remains next.
+
+
+### Track-control notation preference — 2 November 2026
+
+Settings → Appearance adds a labelled Track control style selector and live monitor/arm preview: Logic-like I/R, Ableton-like IN/record-circle, Reaper-like speaker/microphone (current default). These are visual conventions only, not copied DAW behaviour. Binary independent monitoring and arming/R shortcut remain unchanged. All glyph variants are aria-hidden inside the same button; accessible names, active/disabled state, focus and click listeners stay intact. CSS switches glyph visibility using one root dataset. No track rebuild, waveform repaint, audio command or project/history change. Browser-local preference validates values, tolerates blocked storage, synchronizes storage events and restores on reload; invalid/cleared values use Reaper-like. Settings listener released on close. Themes remain independent.
+
+Validation:581 JavaScript tests and143 Rails tests /1248 assertions pass. Native preview/track checks show I/R and IN/record with identical button labels/disabled state; row height remains76px at1280×719 without horizontal overflow. Actual Rails Settings reload restores Logic choice; initial Reaper choice restored after test. No console errors/audio/account writes. Screenshot /tmp/studio-track-controls-preference.png. Dist/Rails rack synced.

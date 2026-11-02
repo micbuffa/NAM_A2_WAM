@@ -49,6 +49,17 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "recording shares the transport and has no redundant input panel" do
+    get "/rack/"
+    assert_select ".project-transport #projectRecord[aria-label=Record]", count: 1
+    assert_select ".project-transport #projectRecordStop[aria-label=Stop]", count: 1
+    assert_select "#recordPanel, #recordArm, #recordMonitor", count: 0
+    assert_select "#recordStatusBar #recordStatus[role=status]", count: 1
+    assert_select "#recordOptionsPanel #recordCurrentTone", count: 1
+    assert_select "#recordOptionsPanel #recordDiscard", count: 1
+    assert_select "#studioOptionsPanel #projectTrackDensity", count: 1
+  end
+
   test "Studio ruler exposes its interactive A B controls to accessibility" do
     get "/rack/"
     assert_select ".project-ruler-row[aria-hidden='true']", count: 0
