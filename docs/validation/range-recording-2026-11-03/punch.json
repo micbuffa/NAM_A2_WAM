@@ -2,6 +2,7 @@
   "rangePass": true,
   "mode": "punch",
   "outsideError": 0,
+  "insideError": 0,
   "playbackContinues": true,
   "position": 1.0313333333333332,
   "metadata": {
@@ -13,5 +14,5 @@
     "complete": true,
     "contentFrames": 24000
   },
-  "frames": 125664
+  "frames": 125408
 }

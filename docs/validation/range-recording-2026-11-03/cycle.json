@@ -14,7 +14,7 @@
     "complete": true,
     "contentFrames": 24000
   },
-  "frames": 125408,
+  "frames": 125152,
   "options": [
     {
       "number": 2,
@@ -34,7 +34,7 @@
     {
       "number": 5,
       "complete": false,
-      "frames": 10240
+      "frames": 10720
     }
   ],
   "defaultComplete": true,
