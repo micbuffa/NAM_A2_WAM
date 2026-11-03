@@ -23,3 +23,7 @@ A discovered race clamped audition seeks to0while the new file decoded; ProjectP
 ## Deployment and remaining checks
 
 Dist and Rails public/rack synchronized. Reload http://localhost:3001/rack/. Set A/B, select Loop mode, arm a personal track, Record. Choose a loop take and Play to compare before Save. On real hardware verify latency measurement, monitoring off/on, long-run stability, late scheduling under CPU load and audible splices; this report does not certify ADC/DAC alignment or listening quality.
+
+## Recovery qualification follow-up
+
+Take selection now prepares its WAV before Undo and rolls back the command descriptor, selected take and file roots when replay fails. Temporary files are released on failed Undo; late replies preserve the newer project/save state. Loop clips close only after a complete project save, including optional preset export; failed later steps retain alternatives even when the selected audio already uploaded. A different retained pass remains selectable and can then be saved against the restored baseline. Reopening tests verify exact prefix/overwrite/suffix bytes, selected incomplete pass, snapshot and mixer. See LOOP_TAKE_RECOVERY_VALIDATION.md for checks and remaining limits.

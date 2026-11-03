@@ -371,7 +371,7 @@ export class ProjectsWorkspace extends EventTarget {
     if (this.saving || this.recording?.busy) return false;
     if (!this.dirty && !this.pendingSeparation) return true;
     // Scope choices belong to explicit project saving in Studio, never FX return.
-    const savingProject=this.project,savingEpoch=this.accountLoadEpoch;
+    const savingProject=this.project,savingEpoch=this.accountLoadEpoch,savingReview=this.recording?.loopReview;
     if(this.prepareSoundSave&&!await this.prepareSoundSave())return false;
     if(this.saving||this.recording?.busy||this.project!==savingProject||this.accountLoadEpoch!==savingEpoch)return false;
     let success=false;this.saving = true;
@@ -403,6 +403,7 @@ export class ProjectsWorkspace extends EventTarget {
       this.replaceSummary(this.project);
       try { await this.completeSoundSave?.(); }
       catch(error) { error.projectAudioSaved=true;throw error; }
+      if(this.project===savingProject&&this.accountLoadEpoch===savingEpoch&&this.recording?.loopReview===savingReview)savingReview?.close();
       this.report('Project and audio saved');success=true;
     } catch (error) {
       if(!error.projectAudioSaved)this.separation?.setStatus(`Save interrupted: ${error.message}. Instruments remain in RAM; use Save project to retry.`);

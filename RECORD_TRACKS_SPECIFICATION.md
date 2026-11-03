@@ -21,6 +21,12 @@ L’écriture utile est bornée en frames : le processeur s’arrête exactement
 
 Limites conservées : DI mono Float32 à la fréquence courante pour réenregistrer une piste existante, pas de régions, comping, crossfade automatique ou overdub additif. Le test synthétique ne qualifie pas une carte son physique. Voir docs/RANGE_RECORDING_VALIDATION.md.
 
+### Reprise après échec — qualification complémentaire du 3 novembre 2026
+
+La préparation d’un autre passage doit réussir avant toute modification de la piste. Une erreur de Worker, d’allocation ou d’Undo conserve la sélection courante ; un échec de réapplication restaure la référence au choix précédent et tente de le réafficher, sans annoncer de succès ni libérer son WAV. Un conflit serveur persistant reste signalé à l’utilisateur. Une réponse périmée ne change pas un autre projet et ne déverrouille pas sa sauvegarde.
+
+Les alternatives de boucle sont libérées **uniquement après réussite de la sauvegarde complète** (audio, paramètres du projet et éventuel preset réutilisable). Si l’upload a réussi mais qu’une étape suivante échoue, il n’est pas répété inutilement et les alternatives restent disponibles. L’utilisateur peut même choisir une autre prise avant de réessayer. À la réouverture, seule la prise choisie est restaurée, avec sa DI, son preset et ses réglages ; les autres passages temporaires ne sont pas un historique permanent. Détails : docs/LOOP_TAKE_RECOVERY_VALIDATION.md.
+
 ### Décompte, métronome et tempo — implémentés
 
 - Par défaut, **une mesure avant la prise**, puis clic désactivé pendant la prise. Menu Off / 1 bar / 2 bars ; bouton métronome pour activer/couper le clic pendant la prise.
@@ -277,13 +283,13 @@ Monitor peut rester actif après Stop, sans laisser le recorder écrire. Arm n�
 
 | Étape | Livraison | Validation avant essai utilisateur |
 |---|---|---|
-| R1 · PARTIEL | DI + snapshot et publication sur piste vide implémentés ; remplacement confirmé à venir | snapshot indépendant de Tone, ressources privées, autorisations et publication atomique |
+| R1 · [DONE] logiciel | DI + snapshot, publication et écrasement partiel confirmé, pistes vides/existantes | snapshot indépendant, droits, quotas, retries et conservation de l’ancien audio testés |
 | R2 · PARTIEL | Monitoring/armement/preset et entrée partagée Tone implémentés ; qualification matérielle restante | absence de doublage et de recapture du mix ; écoute du preset courant non sauvegardé |
 | R3 · IMPLÉMENTÉ, VALIDATION SYNTHÉTIQUE | Capture WAM/ring buffer/worker, waveform incrémentale et StopAck | ordre, conservation exacte du PCM, débordement visible, fermeture propre |
 | R4 · IMPLÉMENTÉ, VALIDATION MATÉRIELLE RESTANTE | Transport commun, assistant loopback et compensation mesurée ; profils locaux | alignement synthétique puis matériel, unités et dérive longue |
-| R4b | Catalogue matériel, contribution volontaire et profils communautaires | permissions, confidentialité, compatibilité des configurations, agrégats et validation sur interfaces réelles |
-| R5 · PARTIEL | Lecture/édition du son avec FX→Tone et copie de preset implémentées ; remplacement audio et undo des prises à venir | DI/provenance conservées, sauvegarde du son et preset indépendant, retries ; remplacement et qualification matérielle restent à valider |
-| R6 | Qualification de performance et export traité vers Tone | plusieurs accompagnements, rack NAM, UI fluide, rendu preset réellement présent |
+| R4b · [TODO] | Catalogue matériel, contribution volontaire et profils communautaires | permissions, confidentialité, compatibilité des configurations, agrégats et validation sur interfaces réelles |
+| R5 · [DONE] logiciel, matériel restant | Lecture/édition du son, écrasement partiel, punch A/B, prises en boucle, choix et Undo/Redo | échecs de choix/sauvegarde, retry, réouverture et WAV exact qualifiés ; validation perceptuelle sur matériel restante |
+| R6 · [CURRENT] qualification élargie | Export traité adaptatif implémenté ; poursuivre les essais de performance, presets et navigateurs | plusieurs accompagnements, rack NAM, UI fluide, rendu réel ; endurance et interfaces physiques restantes |
 
 Chaque étape nécessite ses tests automatisés avant de demander un essai. Les tests de calibration matérielle complètent les tests unitaires ; ils ne peuvent pas être remplacés par des mocks de `outputLatency`.
 
@@ -300,7 +306,7 @@ Chaque étape nécessite ses tests automatisés avant de demander un essai. Les 
 
 Validation du premier incrément (28 octobre 2026) : **479 tests JavaScript et 134 tests Rails / 1123 assertions passent**, sans échec ni test ignoré. tests JS dédiés pour conservation des échantillons, quanta variables, absence de trous, débordement, padding/crop, limites mémoire, final drain/StopAck, transport commun et sauvegarde réessayable ; tests Rails pour publication/rechargement, version obsolète, données invalides, droits, idempotence et panne de stockage. Banc navigateur : `tests/phase7/fixtures/recording-capture.html`, entrée purement synthétique, aucune demande de microphone ; Chrome a capturé 24 032 frames avec une erreur maximale nulle, six mises à jour de waveform et un WAV de 99 212 octets (padding de 760 frames inclus). Cycle réel `StudioRecording` avec entrée synthétique également validé : monitoring → armement → capture → Stop, 24 287 frames, prise en RAM, ancienne piste sauvegardée toujours vide et transport déverrouillé. Création d’un projet et d’une piste vide vérifiée dans le Studio Rails.
 
-Aucune calibration matérielle, session guitare réelle, endurance longue durée ou validation perceptuelle de la latence n’est revendiquée. Les parties restantes de R1/R2 et R4–R6, dont R4b communautaire, restent à réaliser.
+Aucune calibration matérielle, session guitare réelle, endurance longue durée ou validation perceptuelle de la latence n’est revendiquée. R1 et R5 sont désormais livrés côté logiciel ; la qualification matérielle R2/R4/R5, le catalogue R4b et la qualification élargie R6 restent ouverts.
 
 
 Correction après essai utilisateur (28 octobre 2026) : le rendu de waveform en cours de capture accepte une piste sans fichier audio (nom provisoire « Recording DI… »). Test navigateur renforcé avec le vrai ProjectTimeline/Wavesurfer, et non un stub : peaks non nuls pendant la capture, 24 288 frames, crête 0,125, WAV décodé, lecture démarrée après Stop, aucune erreur console. Le bouton de transport **▶ Play** est explicite ; après Stop, la position revient au début de la prise pour l’écouter. Une prise silencieuse déclenche un avertissement ; le statut de prise en RAM indique sa crête dBFS. L’ancien vumètre global est remplacé par les vumètres verticaux de toutes les pistes, y compris accompagnements et stems en preview.

@@ -59,6 +59,35 @@ class Api::RecordingReplacementsTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_equal old,@track.reload.audio.blob.id
   end
+  test "reopening a saved partial cycle keeps the exact WAV, playback sound, mix and selected take" do
+    first=publish(8);original=@track.reload.audio.download
+    @track.update!(volume:37,pan:-12,preset_snapshot:{version:2,a:{entries:[]},label:"Playback sound"},snapshot_id:"playback")
+    sound=@track.preset_snapshot
+    samples=[0.125,0.125,0.75,0.75,0.125,0.125,0.125,0.125].pack("e*")
+    file=@files.last;file.rewind;header=file.read(44);file.rewind;file.write(header+samples);file.flush
+    range={mode:"cycle",startFrame:2,endFrame:6,transportStartFrame:2,takeNumber:4,complete:false,contentFrames:2}
+    metadata=@metadata.merge(sessionId:SecureRandom.uuid,startProjectFrame:2,compensationFrames:1,calibration:"manual",capturedFrames:20,rangeTake:range,edit:{mode:"overwrite",baseFrames:8,startFrame:2,endFrame:4})
+    post recording_api_project_track_path(@project,@track),params:{metadata:metadata.to_json,expectedUpdatedAt:@track.updated_at.iso8601(3),replaceChecksum:@track.audio.checksum,audio:Rack::Test::UploadedFile.new(file.path,"audio/wav")}
+    assert_response :success
+    selected=@track.reload.recording_version_id;selected_audio=@track.audio.download
+    patch api_project_path(@project),params:{name:"Loop session"},as: :json
+    assert_response :success
+    get api_project_path(@project);assert_response :success
+    data=response.parsed_body;row=data.fetch("tracks").find{|entry|entry["id"]==@track.id}
+    assert_equal "Loop session",data["name"]
+    assert_equal range.stringify_keys,row.dig("recording","rangeTake")
+    assert_equal sound,row["presetSnapshot"]
+    assert_equal 37,row["volume"];assert_equal(-12,row["pan"])
+    assert_equal selected,row["recordingVersionId"]
+    assert_equal original[44,8],selected_audio[44,8]
+    assert_equal [0.75,0.75].pack("e*"),selected_audio[52,8]
+    assert_equal original[60..],selected_audio[60..]
+    restore(first["recordingVersionId"]);assert_response :success
+    assert_equal original,@track.reload.audio.download
+    restore(selected);assert_response :success
+    assert_equal selected_audio,@track.reload.audio.download
+    assert_equal 37,@track.volume;assert_equal(-12,@track.pan)
+  end
   def restore(token, expected: @track.reload.updated_at.iso8601(3))
     patch recording_version_api_project_track_path(@project,@track),params:{versionId:token,expectedUpdatedAt:expected,expectedChecksum:@track.audio.blob&.checksum},as: :json
   end

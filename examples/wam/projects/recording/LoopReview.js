@@ -13,16 +13,39 @@ export class LoopReview {
     if(!this.available)return;const r=this.recording,w=r.workspace,after=this.after;
     if(number===0){if(after){if(w.runHistory)await w.runHistory(false);else await w.history.step(false);}r.render();return;}
     if(after&&number===this.selected)return;
-    let result;w.saving=true;w.player.base.pause();r.render();
-    try{result=await this.recorder.selectLoopTake(number);if(w.project!==this.active.project||w.accountLoadEpoch!==this.active.epoch||!this.adjacent)throw Error('Project changed during take selection.');}
-    finally{if(w.project===this.active.project&&w.accountLoadEpoch===this.active.epoch){w.saving=false;w.render();}}
-    if(after){const changed=w.runHistory?await w.runHistory(false):await w.history.step(false);if(!changed)return;}
-    const version=r.buildVersion(this.active,result),h=r.takeHistory,refs=this.version.history;
+    const h=r.takeHistory,refs=this.version.history;
+    const current=()=>w.project===this.active.project&&w.accountLoadEpoch===this.active.epoch&&this.adjacent;
+    let version;
+    w.saving=true;w.player.base.pause();r.render();
+    try{
+      const result=await this.recorder.selectLoopTake(number);
+      if(!current())throw Error('Project changed during take selection.');
+      // Prepare everything before Undo: a failed allocation must not change audio.
+      version=r.buildVersion(this.active,result);
+    }finally{if(w.project===this.active.project&&w.accountLoadEpoch===this.active.epoch){w.saving=false;w.render();}}
+    if(after){
+      let changed;
+      try{changed=w.runHistory?await w.runHistory(false):await w.history.step(false);}
+      catch(error){URL.revokeObjectURL(version.take.url);version.take.file=null;throw error;}
+      if(!changed){URL.revokeObjectURL(version.take.url);version.take.file=null;return;}
+    }
+    const oldNext={...refs.next},oldTakes=refs.command.recordingTakes,oldSelected=this.selected;
     version.take.linkPreviousId=id=>{refs.previous.serverId=id;};h.resources.add(version.take);
     Object.assign(refs.next,h.version(version.track,version.take,version.wave));
-    refs.command.recordingTakes=[this.active.beforeTake,version.take].filter(Boolean);
-    const changed=w.runHistory?await w.runHistory(true):await w.history.step(true);
-    if(changed)this.selected=number;h.collect();r.render();
+    // Both versions stay rooted until replay has succeeded or rolled back.
+    refs.command.recordingTakes=[...oldTakes,version.take];this.selected=number;
+    try{
+      const changed=w.runHistory?await w.runHistory(true):await w.history.step(true);
+      if(!changed)throw Error('Take selection was interrupted.');
+      refs.command.recordingTakes=[this.active.beforeTake,version.take].filter(Boolean);
+    }catch(error){
+      Object.assign(refs.next,oldNext);refs.command.recordingTakes=oldTakes;this.selected=oldSelected;
+      if(current()){
+        if(after){if(w.runHistory)await w.runHistory(true);else await w.history.step(true);}
+        else await h.apply(refs.previous,this.active.project,this.active.epoch,this.active.trackId);
+      }
+      throw error;
+    }finally{h.collect();r.render();}
     w.player.base.seek(this.active.metadata.rangeRecording.startFrame/r.context.sampleRate);
     w.report('Loop take selected. Play to compare; Save project keeps this version and closes the other loop choices.');
   }

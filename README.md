@@ -327,8 +327,9 @@ keeps the previous WAV. With a valid A/B selection, **Loop off** punches only in
 continues past B. **Loop on** records repeated passes from A after one count-in;
 Stop selects the latest complete pass. **Loop take** offers Original, retained
 complete passes and the last incomplete pass (up to three complete passes plus
-one fragment, bounded by100MiB). Choose then Play to audition. Save keeps the
-selected version and closes the other RAM choices. Loop auditions share one
+one fragment, bounded by100MiB). Choose then Play to audition. Only a fully successful project save closes the other RAM choices. Failed upload,
+project update or preset export retains them for retry; already uploaded audio is
+reused. Save keeps the selected version. Loop auditions share one
 Undo command. No valid A/B range means free recording until Stop. Undo/Redo
 works before and after Save in the open session, with two audio operations retained;
 reloading clears the session history. Rails retains at most two inactive take

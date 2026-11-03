@@ -293,7 +293,6 @@ export class StudioRecording {
       if (w.player?.base?.adoptAudioReference) w.player.base.adoptAudioReference(id, take.url, track.audio, release);
       else release();
     }
-    this.loopReview?.close();
   }
   render() {
     const w = this.workspace, $ = w.$, track = w.selectedTrack, eligible = this.eligible;
