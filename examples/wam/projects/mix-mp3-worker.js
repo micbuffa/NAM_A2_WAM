@@ -4,7 +4,7 @@ let encoder;
 onmessage=async({data})=>{
   try {
     if(data.type==='init') {
-      const {MixMp3Core}=await import('./MixMp3Core.js');encoder=new MixMp3Core(lamejs.Mp3Encoder,data.frames);postMessage({type:'ready'});
+      const {MixMp3Core}=await import('./MixMp3Core.js');encoder=new MixMp3Core(lamejs.Mp3Encoder,data.frames,data.sampleRate);postMessage({type:'ready'});
     } else if(data.type==='packet') {
       encoder.append(data.left,data.right);postMessage({type:'accepted'});
     } else if(data.type==='finish') {

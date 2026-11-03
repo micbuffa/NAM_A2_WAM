@@ -16,6 +16,7 @@ class Track < ApplicationRecord
   belongs_to :separation, optional: true
   has_many :source_separations, class_name: "Separation", foreign_key: :source_track_id, dependent: :restrict_with_error
   belongs_to :preset, optional: true
+  has_many :recording_revisions, dependent: :destroy
   has_one_attached :audio
 
   normalizes :name, with: ->(name) { name.squish }

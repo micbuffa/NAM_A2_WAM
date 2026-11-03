@@ -39,8 +39,8 @@ test('shared Stop stops playback or cancels/stops capture; finalization never in
  for(const state of ['preparing','counting','recording']){r.state=state;r.stop=async()=>calls.push([state]);await r.stopTransport();}
  r.state='finalizing';r.render();assert.equal(nodes.get('projectRecordStop').disabled,true);await r.stopTransport();assert.equal(calls.length,4);
 });
-test('saved audio, removed tracks, read-only projects, previews and pending take limits cannot record through the global button',()=>{
- for(const change of [f=>f.w.project.tracks[0].audio={},f=>f.w.project.tracks[0].removedAt='now',f=>f.w.owned=false,f=>f.w.saving=true,f=>f.w.separation={busy:true},f=>f.w.separation={result:{engine:{complete:true}}},f=>f.r.pending=new Map([[3,{}],[4,{}]])]){
+test('removed tracks, read-only projects, previews and pending take limits cannot record through the global button',()=>{
+ for(const change of [f=>f.w.project.tracks[0].removedAt='now',f=>f.w.owned=false,f=>f.w.saving=true,f=>f.w.separation={busy:true},f=>f.w.separation={result:{engine:{complete:true}}},f=>f.r.pending=new Map([[3,{}],[4,{}]])]){
   const f=setup();change(f);f.r.render();assert.equal(f.nodes.get('projectRecord').disabled,true);
  }
 });

@@ -201,6 +201,8 @@
           </div>
           <div class="studio-separation-options"><label>Saved separations<select id="studioSavedResult" aria-label="Saved separations"></select></label></div>
             <label>Mix export range<select id="studioExportRange" aria-label="Mix export range" hidden><option value="song">Export entire song</option><option value="loop">Export A/B loop only</option></select></label>
+            <label>Effect tail (seconds)<input id="studioExportTail" type="number" min="0" max="10" step="0.5" value="2"></label>
+            <p class="host-help">For entire-song exports with track effects. A/B exports keep their exact length.</p>
             <label>Separation model<select id="studioModel" aria-label="Separation model"></select></label>
             <p id="studioModelHelp" class="host-help"></p>
             <p class="host-help">Direct WebNN: experimental 4 or 6 tracks, enabled only when WebNN is exposed. No ONNX Runtime or WASM inference in the direct path. Six-track compilation can be slow; WebGPU remains the quick-start recommendation. ONNX → WebNN remains limited to 4 tracks with per-block WASM checks. CPU/GPU/NPU are requested devices, not verified hardware.</p>
@@ -234,6 +236,8 @@
             <tl-icon-button id="recordOptions" size="sm" icon="settings" aria-label="Recording settings" title="Recording settings, current Tone sound and unsaved take" aria-haspopup="dialog"></tl-icon-button>
           </header>
           <div id="projectTempoSuggestion" class="project-tempo-suggestion" hidden><span id="projectTempoEstimate" role="status"></span><tl-button id="projectApplyTempo" size="sm">Use estimated tempo</tl-button><tl-icon-button id="projectDismissTempo" size="sm" icon="close" aria-label="Dismiss tempo suggestion"></tl-icon-button></div>
+          <div id="recordLoopReview" class="record-actions" hidden><label>Loop take <select id="recordLoopTake" aria-label="Loop take to audition"></select></label><span id="recordLoopHelp" class="host-help"></span></div>
+          <div class="record-actions" id="recordComparison" hidden><span>Compare take</span><tl-button id="recordCompareBefore" size="sm" variant="ghost">Before</tl-button><tl-button id="recordCompareAfter" size="sm" variant="ghost">After</tl-button></div>
           <div id="recordStatusBar" class="record-status-bar" hidden><strong id="recordTrackName"></strong><span id="recordStatus" role="status"></span></div>
             <div id="recordOptionsPanel" class="studio-options-content" hidden>
               <p id="recordSettingsTrack" class="host-help"></p>

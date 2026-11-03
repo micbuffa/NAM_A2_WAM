@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_02_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -101,6 +101,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_090000) do
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
 
+  create_table "recording_revisions", force: :cascade do |t|
+    t.integer "track_id", null: false
+    t.string "token", null: false
+    t.json "state", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["track_id", "token"], name: "index_recording_revisions_on_track_id_and_token", unique: true
+    t.index ["track_id"], name: "index_recording_revisions_on_track_id"
+  end
+
   create_table "separation_parts", force: :cascade do |t|
     t.integer "separation_id", null: false
     t.string "role", null: false
@@ -181,6 +191,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_090000) do
     t.json "recording"
     t.json "preset_snapshot"
     t.string "snapshot_id"
+    t.string "recording_version_id"
     t.index ["creator_id"], name: "index_tracks_on_creator_id"
     t.index ["preset_id"], name: "index_tracks_on_preset_id"
     t.index ["project_id", "position"], name: "index_tracks_on_project_id_and_position"
@@ -207,6 +218,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_090000) do
   add_foreign_key "project_shares", "users"
   add_foreign_key "projects", "separations", column: "active_separation_id", on_delete: :nullify
   add_foreign_key "projects", "users"
+  add_foreign_key "recording_revisions", "tracks"
   add_foreign_key "separation_parts", "separations"
   add_foreign_key "separations", "projects"
   add_foreign_key "separations", "tracks", column: "source_track_id"

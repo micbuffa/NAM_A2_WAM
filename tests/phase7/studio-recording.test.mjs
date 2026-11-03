@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
+import {RangeCapture} from '../../examples/wam/projects/recording/RangeCapture.js';
 import {RingBuffer} from '../../examples/wam/source-separation/vendor/ringbuf/index.js';
 import {CaptureWriter} from '../../examples/wam/projects/recording/CaptureWriter.js';
 import {encodeTake, takeLayout, MAX_TAKE_BYTES, IncrementalTake} from '../../examples/wam/projects/recording/TakePCM.js';
@@ -54,20 +55,20 @@ test('bad metadata, missing PCM, nonfinite values, empty and oversized takes are
 test('worker drains all accepted frames only after producer StopAck, ignoring stale finish messages',async()=>{
   const {writer, storage, control}=queue(), messages=[];
   const script=(await readFile(new URL('../../examples/wam/projects/recording/capture-worker.js',import.meta.url),'utf8')).replace(/^import .*;\n/gm,'');
-  const scope={RingBuffer,IncrementalTake,Float32Array,Int32Array,Atomics,performance:{now:()=>1000},postMessage:data=>messages.push(data),setInterval:()=>1,clearInterval:()=>{}};
+  const scope={RangeCapture,RingBuffer,IncrementalTake,Float32Array,Int32Array,Atomics,performance:{now:()=>1000},postMessage:data=>messages.push(data),setInterval:()=>1,clearInterval:()=>{}};
   vm.createContext(scope);vm.runInContext(script,scope);
-  scope.onmessage({data:{type:'init',sessionId:'a',metadata,storage,control}});
+  await scope.onmessage({data:{type:'init',sessionId:'a',metadata,storage,control}});
   writer.process(Float32Array.of(.1,.2,.3,.4),0,4);writer.stop();
-  scope.onmessage({data:{type:'finish',sessionId:'stale',frames:4}});assert.equal(messages.filter(m=>m.type==='complete').length,0);
-  scope.onmessage({data:{type:'finish',sessionId:'a',frames:4}});
+  await scope.onmessage({data:{type:'finish',sessionId:'stale',frames:4}});assert.equal(messages.filter(m=>m.type==='complete').length,0);
+  await scope.onmessage({data:{type:'finish',sessionId:'a',frames:4}});
   const complete=messages.find(m=>m.type==='complete');assert.equal(complete.capturedFrames,4);assert.equal(complete.audio.size,60);
 });
 test('worker refuses finalization before producer acknowledgement',async()=>{
   const {storage,control}=queue(), messages=[];
   const script=(await readFile(new URL('../../examples/wam/projects/recording/capture-worker.js',import.meta.url),'utf8')).replace(/^import .*;\n/gm,'');
-  const scope={RingBuffer,IncrementalTake,Float32Array,Int32Array,Atomics,performance:{now:()=>1000},postMessage:data=>messages.push(data),setInterval:()=>1,clearInterval:()=>{}};
-  vm.createContext(scope);vm.runInContext(script,scope);scope.onmessage({data:{type:'init',sessionId:'a',metadata,storage,control}});
-  scope.onmessage({data:{type:'finish',sessionId:'a',frames:0}});assert.match(messages.at(-1).error,/not stopped/);
+  const scope={RangeCapture,RingBuffer,IncrementalTake,Float32Array,Int32Array,Atomics,performance:{now:()=>1000},postMessage:data=>messages.push(data),setInterval:()=>1,clearInterval:()=>{}};
+  vm.createContext(scope);vm.runInContext(script,scope);await scope.onmessage({data:{type:'init',sessionId:'a',metadata,storage,control}});
+  await scope.onmessage({data:{type:'finish',sessionId:'a',frames:0}});assert.match(messages.at(-1).error,/not stopped/);
 });
 const node=()=>({gain:{value:1,setTargetAtTime(){}},pan:{setTargetAtTime(){}},connect(){return this;},disconnect(){}});
 function context() {return {currentTime:1,createGain:node,createStereoPanner:node,createBufferSource(){return {...node(),start(when,offset){this.started=[when,offset];},stop(){}};}};}
@@ -118,10 +119,10 @@ test('monitoring copies an unsaved current Tone independently and does not arm a
   await recording.monitor();const copy=w.selectedTrack.presetSnapshot;assert.notEqual(copy,state);assert.equal(recording.armedId,undefined);assert.equal(w.selectedTrack.inputMonitoring,true);
   state.a.entries[0].gain=.9;assert.equal(copy.a.entries[0].gain,.4);
 });
-test('first milestone refuses occupied, accompaniment, shared and over-budget track recording',()=>{
+test('replacement is eligible on personal audio, while accompaniment, shared and excess pending tracks remain blocked',()=>{
   const r=Object.create(StudioRecording.prototype);r.pending=new Map();const track={id:1,origin:'personal',instrument:'guitar'};
   r.workspace={owned:true,selectedTrack:track};assert.equal(r.eligible,true);
-  track.audio={url:'/old.wav'};assert.equal(r.eligible,false);delete track.audio;
+  track.audio={url:'/old.wav'};assert.equal(r.eligible,true);delete track.audio;
   track.origin='stem';assert.equal(r.eligible,false);track.origin='personal';
   r.workspace.owned=false;assert.equal(r.eligible,false);r.workspace.owned=true;
   r.pending=new Map([[2,{}],[3,{}]]);assert.equal(r.eligible,false);

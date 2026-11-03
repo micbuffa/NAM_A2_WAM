@@ -1,0 +1,708 @@
+{
+  "date": "2026-11-03T05:37:29.315Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "rate": 48000,
+  "scope": "all",
+  "rows": [
+    {
+      "uri": "./deathgate/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.3359253406524658,
+        "rms": 0.08085636813066235,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.3359253406524658,
+        "rms": 0.08085636813066235,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./TS9_OverdriveFaustGenerated/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.07797710597515106,
+        "rms": 0.022193274050346542,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.07797710597515106,
+        "rms": 0.022193274050346542,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./AutoWahMB/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.20002639293670654,
+        "rms": 0.04360022908391011,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.20002639293670654,
+        "rms": 0.04360022908391011,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./sweetWah/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.100030317902565,
+        "rms": 0.020570310385955113,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.100030317902565,
+        "rms": 0.020570310385955113,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./WAMChorusMB/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.2519996166229248,
+        "rms": 0.05391160405187659,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.2519996166229248,
+        "rms": 0.05391160405187659,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./StonePhaserStereo/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.22800707817077637,
+        "rms": 0.04594592148221381,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.22800707817077637,
+        "rms": 0.04594592148221381,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./faustPingPongDelay/plugin/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.20000000298023224,
+        "rms": 0.05947613248627291,
+        "tailRms": 0.0456160969400247
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.20000000298023224,
+        "rms": 0.05947613248627291,
+        "tailRms": 0.0456160969400247
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./greyhole/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.4560088813304901,
+        "rms": 0.08594947269996815,
+        "tailRms": 0.03335296672331147
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.4560088813304901,
+        "rms": 0.08594947269996815,
+        "tailRms": 0.03335296672331147
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./StereoEnhancer/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.16365788877010345,
+        "rms": 0.0407975077669284,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.16365788877010345,
+        "rms": 0.0407975077669284,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./tuner_machine/src/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.20000000298023224,
+        "rms": 0.0408002956321295,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.20000000298023224,
+        "rms": 0.0408002956321295,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "../../../src/nam-wam/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.7529626488685608,
+        "rms": 0.14134413192585926,
+        "tailRms": 0.00008369322313230343
+      },
+      "model": "[AMP] UBER--m689732.nam",
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.7529626488685608,
+        "rms": 0.14134413192585926,
+        "tailRms": 0.00008369322313230343
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "../../../src/cabinet-wam/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.5980107188224792,
+        "rms": 0.09773051758282171,
+        "tailRms": 4.556547937762337e-13
+      },
+      "model": null,
+      "ir": "V30 LL 4FB 4x12 SM57 0.50in 0--m239290.wav",
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.5980107188224792,
+        "rms": 0.09773051758282171,
+        "tailRms": 4.556547937762337e-13
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./EndUserAmp1/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.12514914572238922,
+        "rms": 0.01692565770569414,
+        "tailRms": 0.0004319229728216964
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.12514914572238922,
+        "rms": 0.01692565770569414,
+        "tailRms": 0.0004319229728216964
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./EndUserAmp2/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.27494117617607117,
+        "rms": 0.06220784202543183,
+        "tailRms": 0.0015282021956110373
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.27494117617607117,
+        "rms": 0.06220784202543183,
+        "tailRms": 0.0015282021956110373
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./BigMuff/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.08626903593540192,
+        "rms": 0.019334144856438733,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.08626903593540192,
+        "rms": 0.019334144856438733,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./CompressorGuitarix/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.20000000298023224,
+        "rms": 0.028791156162615836,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.20000000298023224,
+        "rms": 0.028791156162615836,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./DualPitchShifter/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.1995842009782791,
+        "rms": 0.01832805511359404,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.1995842009782791,
+        "rms": 0.01832805511359404,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./kbverb/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.37629908323287964,
+        "rms": 0.07023565186546261,
+        "tailRms": 0.020759606506150694
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.37629908323287964,
+        "rms": 0.07023565186546261,
+        "tailRms": 0.020759606506150694
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./Kpp_fuzz/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.20036569237709045,
+        "rms": 0.04403752896875001,
+        "tailRms": 1.0317040435595373e-25
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.20036569237709045,
+        "rms": 0.04403752896875001,
+        "tailRms": 1.0317040435595373e-25
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./kppdistorder/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.05738665163516998,
+        "rms": 0.015034755580831444,
+        "tailRms": 4.03537917339042e-18
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.05738665163516998,
+        "rms": 0.015034755580831444,
+        "tailRms": 4.03537917339042e-18
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./Octaver/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.19990812242031097,
+        "rms": 0.029829930395726633,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.19990812242031097,
+        "rms": 0.029829930395726633,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./OscTube/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.20010896027088165,
+        "rms": 0.04306047889591397,
+        "tailRms": 0.000026583457989605617
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.20010896027088165,
+        "rms": 0.04306047889591397,
+        "tailRms": 0.000026583457989605617
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./OverdriveRix/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.17500385642051697,
+        "rms": 0.04119045206591269,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.17500385642051697,
+        "rms": 0.04119045206591269,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./OwlDirty/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.1368783563375473,
+        "rms": 0.02961219598477588,
+        "tailRms": 0.012744279802783169
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.1368783563375473,
+        "rms": 0.02961219598477588,
+        "tailRms": 0.012744279802783169
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./OwlShimmer/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.12286844104528427,
+        "rms": 0.03178355553430006,
+        "tailRms": 0.018806985859843722
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.12286844104528427,
+        "rms": 0.03178355553430006,
+        "tailRms": 0.018806985859843722
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./SmoothDelay/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.20000000298023224,
+        "rms": 0.038155823907797475,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.20000000298023224,
+        "rms": 0.038155823907797475,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./StereoFreqShifter/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.19948989152908325,
+        "rms": 0.02698574292624187,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.19948989152908325,
+        "rms": 0.02698574292624187,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./temper/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.8044528961181641,
+        "rms": 0.20856099786625318,
+        "tailRms": 1.5590178909274797e-8
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.8044528961181641,
+        "rms": 0.20856099786625318,
+        "tailRms": 1.5590178909274797e-8
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./ThruZeroFlanger/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.26911503076553345,
+        "rms": 0.05344950562999593,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.26911503076553345,
+        "rms": 0.05344950562999593,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./WeirdPhaser/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.0998142808675766,
+        "rms": 0.026912142320171983,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.0998142808675766,
+        "rms": 0.026912142320171983,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./bluesmachine/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.4004456102848053,
+        "rms": 0.0365910830920719,
+        "tailRms": 0.0030602018077433243
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.4004456102848053,
+        "rms": 0.0365910830920719,
+        "tailRms": 0.0030602018077433243
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./cleanmachine/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.15052039921283722,
+        "rms": 0.015752233667886688,
+        "tailRms": 0.006556888079524291
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.15052039921283722,
+        "rms": 0.01575223366855978,
+        "tailRms": 0.006556888078282477
+      },
+      "repeatDifferenceRms": 4.148182617257025e-9
+    },
+    {
+      "uri": "./metalmachine/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.018963702023029327,
+        "rms": 0.0021770477705635757,
+        "tailRms": 0.0001914193888482556
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.018963702023029327,
+        "rms": 0.0021770477705635757,
+        "tailRms": 0.0001914193888482556
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "./ampsimutility/index.js",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 0.1679183542728424,
+        "rms": 0.04042361460005507,
+        "tailRms": 0
+      },
+      "model": null,
+      "ir": null,
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 0.1679183542728424,
+        "rms": 0.04042361460005507,
+        "tailRms": 0
+      },
+      "repeatDifferenceRms": 0
+    },
+    {
+      "uri": "NAM → cabinet (chain)",
+      "stage": "complete",
+      "status": "pass",
+      "metrics": {
+        "finite": true,
+        "peak": 1.9317874908447266,
+        "rms": 0.3228795042762378,
+        "tailRms": 0.000005666915305339297
+      },
+      "model": "[AMP] UBER--m689732.nam",
+      "ir": "V30 LL 4FB 4x12 SM57 0.50in 0--m239290.wav",
+      "restoredMetrics": {
+        "finite": true,
+        "peak": 1.9317874908447266,
+        "rms": 0.3228795042762378,
+        "tailRms": 0.000005666915305339297
+      },
+      "repeatDifferenceRms": 0
+    }
+  ]
+}

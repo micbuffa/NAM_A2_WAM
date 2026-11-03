@@ -1,11 +1,25 @@
 # Enregistrer une guitare ou une basse dans Studio
 
-Mise à jour : 2 novembre 2026. **Implémenté sur `codex/studio-integration` : prise mono DI sur une piste personnelle vide et assistant de calibration aller-retour ; validation matérielle restante.**
+Mise à jour : 3 novembre 2026. **Implémenté sur `codex/studio-integration` : prise mono DI, écrasement partiel confirmé, comparaison Avant/Après et Undo/Redo des prises et assistant de calibration aller-retour ; validation matérielle restante.**
 
 
 Commandes dans les en-têtes personnels : **microphone** pour armer, **haut-parleur** pour écouter l’entrée. **Record / Stop** se trouvent dans le transport commun, sans panneau d’enregistrement séparé. La touche **R** arme/désarme la piste personnelle sélectionnée, sauf dans un champ de saisie, un dialogue ou pendant une prise. Une seule piste est armée à la fois. L’armement initialise l’entrée et le vumètre DI sans activer le monitoring. La sélection d’une piste ou le chargement de son preset ne rend jamais l’entrée audible. Tone ne double pas le monitoring de Studio.
 
 Parcours : ajouter une piste personnelle guitare/basse vide, choisir l’entrée/canal dans Tone, **Arm track → Record → décompte → prise → Stop recording → Save project**. Le haut-parleur reste optionnel, commutable pendant la prise. Sans preset de piste, le son courant de Tone est copié, même non sauvegardé ; **Use current Tone sound** refait cette copie sans forcer le monitoring. À l’arrêt, le vumètre de la piste armée observe la DI ; en lecture normale il observe l’audio lu après traitement/volume/pan. Le réglage explicite du haut-parleur est conservé après Stop.
+
+### Zone A/B : punch et prises en boucle — implémentés le 3 novembre 2026
+
+Une sélection A/B valide limite l’enregistrement, indépendamment de l’interrupteur Loop :
+
+- **Loop décoché : punch A/B.** Placer le playhead avant A, armer et lancer **Record** : décompte, lecture depuis ce point, conservation de la DI uniquement à partir de A. Fin automatique de la prise à B, puis lecture continuant après B. Un départ dans A/B enregistre de ce point jusqu’à B ; un départ après B est refusé. Stop avant B conserve seulement le fragment effectivement joué ; Stop avant A ne crée aucune prise. Pas de nouveau fichier audio avant A ou après B.
+- **Loop coché : prises successives.** Départ à A après un seul décompte ; accompagnements bouclés jusqu’à Stop. Un flux de capture continu est réparti en passages sur l’horloge audio après compensation. Jusqu’à **trois passages complets récents et un dernier passage incomplet** sont retenus, avec budget de100MiB pour les clips ; le nombre de complets est réduit automatiquement pour les boucles longues, ou la plage trop longue est refusée. La capture est limitée à une heure par session. L’ancienne prise ne joue pas sous la nouvelle dans A/B.
+- À Stop, sélection par défaut de la dernière prise complète (ou du fragment incomplet si aucun passage complet). Menu **Loop take : Original / Take n · complete / Take n · incomplete**. Choisir puis Play pour comparer ; seules les données du passage choisi sont intégrées dans A/B. Un fragment incomplet ne remplace que son début, le reste de l’original reste intact. Le preset reste commun à la piste.
+- Les choix partagent **une seule commande Undo/Redo**, sans créer une commande par audition. La commande doit être adjacente au curseur de l’historique ; après d’autres éditions, utiliser Undo/Redo pour y revenir. **Save project** conserve la version affichée et ferme les alternatives non choisies en RAM. Elles ne constituent pas une collection durable de takes. Rechargement, abandon ou nouvelle capture les libère aussi ; les WAV encore retenus par Undo restent disponibles dans les limites habituelles.
+- Sans plage A/B valide, enregistrement libre depuis le playhead jusqu’à Stop. Le clic suit la grille répétée de A/B en mode boucle, même si les bornes ne tombent pas sur des mesures. Le décompte ne se répète pas à chaque tour.
+
+L’écriture utile est bornée en frames : le processeur s’arrête exactement à la limite de capture du punch, en conservant le retour retardé par la compensation. L’accompagnement reste indépendant et continue après B. Un Stop manuel arrête immédiatement le transport puis draine la fin retardée de la DI pendant la compensation avant de finaliser. Le Worker élimine le pré-roll et les échantillons décalés hors de la plage ; aucune seconde compensation lors du choix ou d’Undo. L’extérieur de A/B reste identique. Le nouvel audio doit se charger avant Play ; sa position d’audition n’est plus ramenée à zéro pendant ce chargement.
+
+Limites conservées : DI mono Float32 à la fréquence courante pour réenregistrer une piste existante, pas de régions, comping, crossfade automatique ou overdub additif. Le test synthétique ne qualifie pas une carte son physique. Voir docs/RANGE_RECORDING_VALIDATION.md.
 
 ### Décompte, métronome et tempo — implémentés
 
@@ -17,11 +31,27 @@ Parcours : ajouter une piste personnelle guitare/basse vide, choisir l’entrée
 
 La capture WAM utilise le même AudioContext que les accompagnements, un timestamp commun en frames et un ring buffer SPSC de deux secondes vers un Worker. La DI mono est prélevée avant trim logiciel/effets ; le mix et le monitoring ne sont jamais réenregistrés. Le Worker publie des peaks compacts à 10 Hz et finalise uniquement après StopAck du producteur. Débordement, rupture de frames, perte/changement d’entrée et échec du processeur invalident la prise.
 
-Après Stop, le WAV Float32 sans perte et le snapshot restent en RAM. **Save project** publie ensemble audio, métadonnées et snapshot sur une piste encore vide, avec contrôle de version, droits propriétaire, quotas et jeton de session idempotent. Un échec permet de réessayer les mêmes octets. **Discard unsaved take**, avec confirmation, rend la piste vide pour recommencer. Au maximum deux prises non sauvegardées ; 100 MiB par WAV, silence initial compris. Rechargement/abandon du projet perd les prises en RAM (avertissement).
+Après Stop, le WAV Float32 sans perte et le snapshot restent en RAM. **Save project** publie ensemble audio, métadonnées et snapshot avec contrôle de version, droits propriétaire, quotas et jeton de session idempotent. Un échec permet de réessayer les mêmes octets. **Discard unsaved take**, avec confirmation, rétablit le dernier état sauvegardé (éventuellement vide). Au maximum deux prises non sauvegardées ; 100 MiB par WAV, silence initial compris. Rechargement/abandon du projet perd les prises en RAM (avertissement).
 
-**Limites explicites de cet incrément :** remplacement de pistes contenant déjà de l’audio désactivé ; undo/redo d’une prise et catalogue communautaire non implémentés. Assistant de calibration aller-retour désormais disponible, validé synthétiquement ; qualification matérielle restante. Compensation manuelle 0–2000 ms conservée, valeur initiale **14 ms** (estimation manuelle non mesurée, ajustable y compris à zéro) ; placement par padding/crop, une seule correction. La boucle n’est pas exécutée pendant une prise ; le transport continue au-delà de la fin des accompagnements. Les changements de transport/projet et la séparation sont bloqués pendant la capture/finalisation. FX et choix de preset disponibles sur une prise en RAM après Stop ; la lecture utilise le nouveau son sans réécrire la DI. Export de mix traité contenant ce preset encore bloqué, pour éviter d’exporter silencieusement la DI brute. Pas de régions, punch, overdub ou prise stéréo dans cet incrément.
+**Limites explicites de cet incrément :** catalogue communautaire non implémenté. Remplacement et Undo/Redo sont décrits ci-dessous. Assistant de calibration aller-retour désormais disponible, validé synthétiquement ; qualification matérielle restante. Compensation manuelle 0–2000 ms conservée, valeur initiale **14 ms** (estimation manuelle non mesurée, ajustable y compris à zéro) ; placement par padding/crop, une seule correction. La sélection A/B détermine le punch ou les prises en boucle comme décrit ci-dessus ; sans plage valide, prise libre jusqu’à Stop. Les changements de transport/projet et la séparation sont bloqués pendant la capture/finalisation. FX et choix de preset disponibles sur une prise en RAM après Stop ; la lecture utilise le nouveau son sans réécrire la DI. Export du mix traité disponible via un rack offline compatible avec la fréquence du modèle ; voir docs/PROCESSED_MIX_EXPORT.md. Pas de régions, comping, overdub additif ou prise stéréo dans cet incrément.
 
 Les exigences ci-dessous restent la cible complète ; les contrôles manuels ne constituent pas une mesure de latence matérielle.
+
+## Remplacement et Undo/Redo — livraison du 3 novembre 2026
+
+Armer une piste personnelle existante puis cliquer Record demande confirmation avant de démarrer. La nouvelle prise écrase uniquement l’intervalle enregistré, de la position de départ jusqu’à Stop, après compensation de latence. Le préfixe et le suffixe de la DI restent identiques. Si la prise dépasse la fin, la piste est prolongée ; un départ après la fin insère du silence entre les deux. L’ancienne prise n’est pas jouée pendant la capture. Monitoring reste indépendant. Annulation du dialogue ou du décompte, déconnexion et échec de finalisation conservent l’audio et la waveform précédents.
+
+Les boutons **Before / After** comparent les versions via Undo/Redo : la lecture se met en pause, puis Play permet d’écouter la version affichée. Save project conserve cette version. Ces boutons sont disponibles quand la commande de prise de la piste sélectionnée est adjacente au curseur de l’historique ; après d’autres modifications, utiliser Undo/Redo standard pour y revenir. Ce n’est pas un catalogue illimité de takes.
+
+L’écrasement partiel exige pour le moment une DI mono Float32 WAV à la fréquence de capture courante (format de nos prises Studio). Format ou fréquence incompatible : refus avant capture, ancien audio intact ; enregistrer sur une nouvelle piste. Aucun rééchantillonnage implicite de l’ancienne DI. Les échantillons conservés restent exacts ; pas de crossfade automatique aux raccords dans cette version. Le preset de lecture reste commun à la piste entière. La copie capture et l’intervalle corrigé sont conservés dans les métadonnées.
+
+La composition finale utilise des slices de Blob dans le Worker, sans reconstruction du PCM sur le thread UI. La waveform ancienne est préparée une fois et reste visible, puis seules les colonnes de capture changent ; l’enveloppe finale est recalculée une fois dans le Worker.
+
+Une capture réussie crée une commande audio dans l’historique Studio : Undo/Redo réutilise les fichiers WAV et snapshots exacts, sans nouvelle compensation. Cela fonctionne en RAM et après Save project, dans la session ouverte. Les réglages courants de volume/pan/mute/solo sont conservés. Maximum 30 commandes, dont deux opérations audio, Undo et Redo réunis ; confirmation si une nouvelle prise fait sortir une ancienne action de l’historique. Pas de copies PCM dans le journal.
+
+Rails conserve au maximum **deux versions de prise inactives par projet**, partagées via leurs blobs immuables, en plus des prises courantes. Chaque WAV est limité à100MiB : jusqu’à200MiB pour ces versions inactives. Elles sont comptées dans le quota ; un blob encore référencé ailleurs n’est pas purgé. Upload et restauration vérifient propriétaire, timestamp et checksum ; retries idempotents. Un échec laisse la version courante intacte. Le rechargement remet la pile Undo/Redo à zéro : pas encore d’interface de récupération des versions après rechargement ni d’expiration24h. Ces limites ne purgent pas les autres archives historiques du projet.
+
+Migration nécessaire au déploiement : `bin/rails db:migrate` (recording_revisions et recording_version_id), déjà appliquée dans le container local. Qualification synthétique et tests serveur : docs/RECORDING_REPLACEMENT_VALIDATION.md. Une vraie prise avec carte son reste à vérifier.
 
 ## Décisions et périmètre
 
@@ -30,9 +60,9 @@ Un projet reste une liste nommée de pistes. Les pistes issues d’une séparati
 Décisions confirmées par Michel :
 
 - Conserver **la DI brute et une copie complète du preset**, pour changer le son après la prise.
-- Sur une piste contenant déjà de l’audio, **demander confirmation avant remplacement**. Une annulation ou une prise échouée conserve l’ancien audio.
+- Sur une piste contenant déjà de l’audio, **demander confirmation avant écrasement de l’intervalle enregistré**. Une annulation ou une prise échouée conserve l’ancien audio.
 - Entendre son instrument traité avant d’enregistrer ; armer explicitement la piste avant Record.
-- Aucune région, édition par découpage, prise en boucle ou gestion de plusieurs takes dans cette première version.
+- Pas de régions ni d’édition par découpage ; prises A/B multiples bornées, sans comping.
 
 Hypothèses de première livraison : une seule piste armée à la fois, entrée mono sélectionnable, enregistrement depuis le playhead courant et jusqu’à Stop. Les pistes d’accompagnement continuent à jouer. Le compte propriétaire peut enregistrer ; le partage reste en lecture seule tant qu’un modèle de collaboration avec droits d’écriture n’a pas été spécifié.
 
@@ -352,3 +382,8 @@ Qualification :577 tests JS,143 tests Rails /1248 assertions réussis. Banc nati
 ### Préférence de notation des commandes — 2 novembre 2026
 
 Settings → Appearance → Track control style : Logic-like I/R, Ableton-like IN/cercle Record , Reaper-like haut-parleur/microphone (défaut conservé) ou Cubase-like haut-parleur/cercle Record vide. Variantes visuelles inspirées, sans modification du fonctionnement : monitoring binaire indépendant, armement avec R. Même bouton, mêmes labels accessibles, états et handlers ; seuls les glyphes affichés changent par CSS. Préférence locale persistante, indépendante du thème, du projet et du preset. Pas de mode Auto ajouté au monitoring. Tests581 JS /143 Rails, toutes validations réussies.
+
+
+### Export des prises avec leur son — 3 novembre 2026
+
+Use mix in Tone rend désormais la DI dans un rack offline propre à la piste, sans modifier sa capture ni le rack live. Même trim d'entrée DI que la lecture TrackTones, même routage A/B, pans/gains/Mute/Solo ; variante NAM Lite comme la lecture normale Studio. Fréquence vérifiée dans les modèles et IR avant conversion, MP3 conservé à48kHz si possible. Queue0–10s (2s par défaut) pour morceau entier ; A/B exactement borné après prélecture depuis le début. Preset manquant/erreur incompatible/ancienne IR à fréquence inconnue : refus explicite, pas de DI sèche de substitution. Snapshot et révision du preset de bibliothèque sont vérifiés lors de la publication. Méthode et qualification dans docs/PROCESSED_MIX_EXPORT.md.

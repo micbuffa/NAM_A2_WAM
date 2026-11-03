@@ -76,12 +76,14 @@ export default class AccountApi {
   updateTrack(projectId, id, attributes, audio = null) {
     return this.request('PATCH', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}`, trackBody(attributes, audio));
   }
-  saveRecording(projectId, id, metadata, audio, expectedUpdatedAt) {
+  saveRecording(projectId, id, metadata, audio, expectedUpdatedAt, replaceChecksum = null) {
     const body = new FormData();
     body.append('metadata', JSON.stringify(metadata)); body.append('expectedUpdatedAt', expectedUpdatedAt);
+    if(replaceChecksum)body.append('replaceChecksum',replaceChecksum);
     body.append('audio', audio, audio.name);
     return this.request('POST', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}/recording`, body);
   }
+  restoreRecording(projectId,id,versionId,expectedUpdatedAt,expectedChecksum=null) { return this.request('PATCH', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}/recording_version`, {versionId,expectedUpdatedAt,expectedChecksum}); }
   setTrackVisibility(projectId, command) { return this.request('PATCH', `${projectPath(projectId)}/tracks/visibility`, command); }
   restoreTrack(projectId, id) { return this.request('PATCH', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}/restore`); }
   deleteTrack(projectId, id) { return this.request('DELETE', `${projectPath(projectId)}/tracks/${encodeURIComponent(id)}`); }

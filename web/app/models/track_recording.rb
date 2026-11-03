@@ -9,6 +9,27 @@ module TrackRecording
     raise ArgumentError, "Invalid recording rate or compensation" unless (8000..192000).cover?(rate) && captured.positive? && compensation <= rate * 2
     validate_calibration!(data)
     expected_frames = [start - compensation, 0].max + captured - [captured, [compensation - start, 0].max].min
+    range_start = nil
+    if data.key?("rangeTake")
+      r = data["rangeTake"]
+      keys = %w[mode startFrame endFrame transportStartFrame takeNumber complete contentFrames]
+      valid = r.is_a?(Hash) && r.keys.sort == keys.sort && %w[punch cycle].include?(r["mode"]) && %w[startFrame endFrame transportStartFrame takeNumber contentFrames].all? { |key| r[key].is_a?(Integer) && r[key] >= 0 } && [true, false].include?(r["complete"])
+      raise ArgumentError, "Invalid A/B take metadata" unless valid
+      length = r["endFrame"] - r["startFrame"]
+      valid = length.positive? && 44 + r["endFrame"] * 4 <= Track::MAX_AUDIO_BYTES && r["transportStartFrame"] == start && start <= r["startFrame"] && r["takeNumber"].positive? && r["contentFrames"].positive? && r["contentFrames"] <= length && r["complete"] == (r["contentFrames"] == length)
+      valid &&= r["mode"] == "cycle" ? start == r["startFrame"] : r["takeNumber"] == 1
+      required = r["startFrame"] - start + compensation + (r["takeNumber"] - 1) * length + r["contentFrames"]
+      raise ArgumentError, "Inconsistent A/B take interval" unless valid && captured >= required
+      range_start = r["startFrame"]
+      expected_frames = range_start + r["contentFrames"]
+    end
+    if data.key?("edit")
+      edit = data["edit"]
+      start_frame = range_start || [start - compensation, 0].max
+      valid = edit.is_a?(Hash) && edit.keys.sort == %w[baseFrames endFrame mode startFrame].sort && edit["mode"] == "overwrite" && edit["baseFrames"].is_a?(Integer) && edit["baseFrames"].positive? && edit["startFrame"] == start_frame && edit["endFrame"] == expected_frames && expected_frames > start_frame
+      raise ArgumentError, "Invalid overwrite interval" unless valid
+      expected_frames = [expected_frames, edit["baseFrames"]].max
+    end
     raise ArgumentError, "Invalid recording length" unless frames.positive? && frames == expected_frames && file.size == 44 + frames * 4 && file.size <= Track::MAX_AUDIO_BYTES
     state = data["capturePresetSnapshot"]
     raise ArgumentError, "Missing complete preset snapshot" unless state.is_a?(Hash) && state["version"] == 2 && state["a"].is_a?(Hash) && state.to_json.bytesize <= Preset::MAX_STATE_BYTES

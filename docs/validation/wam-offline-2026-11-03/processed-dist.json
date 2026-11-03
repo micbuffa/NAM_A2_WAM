@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "outputRate": 48000,
+  "frames": 72000,
+  "sourceUnchanged": true,
+  "contextRates": [
+    48000,
+    48000,
+    48000,
+    48000,
+    48000,
+    48000,
+    48000,
+    48000,
+    48000,
+    48000,
+    48000,
+    48000,
+    48000
+  ],
+  "wetPeak": 2.2160069942474365,
+  "playbackRackMaxError": 0,
+  "routedDualRackMaxError": 0,
+  "loopPrerollMaxError": 0,
+  "mp3Rate": 48000,
+  "mp3Duration": 1.536,
+  "mp3Bytes": 36864,
+  "cancelledRackReleased": true,
+  "mixedRateContexts": [
+    48000,
+    44100,
+    48000,
+    48000
+  ],
+  "mixedRateMaxError": 0.0000023955787710784604,
+  "delayTailPeak": 0.014999999664723873,
+  "cabinetIrAdapted": true
+}

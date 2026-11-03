@@ -1,0 +1,31 @@
+{
+  "lifecyclePass": true,
+  "monitorDuringTake": true,
+  "otherControlsLocked": true,
+  "armedSilently": true,
+  "rawMeterWorks": true,
+  "captureAligned": true,
+  "countInBeats": 4,
+  "incremental": true,
+  "liveStats": {
+    "packets": 23,
+    "peakValues": 144,
+    "stableCanvas": true,
+    "ordinaryRendersDuringCapture": 0,
+    "fullRepaints": 1,
+    "drawnColumns": 108
+  },
+  "liveWaveform": true,
+  "playReady": true,
+  "playing": true,
+  "metered": true,
+  "playbackOnly": true,
+  "liveBeforePlayDb": -5.509075081513739,
+  "duringPlayDb": -21.072099845131355,
+  "peak": 0.125,
+  "state": "idle",
+  "pendingTakes": 1,
+  "capturedFrames": 125408,
+  "savedAudioStillEmpty": true,
+  "transportUnlocked": true
+}

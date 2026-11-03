@@ -33,7 +33,7 @@ module ProjectJson
   def track(track)
     { id: track.id, position: track.position, timelineVisible: track.timeline_visible, removedAt: track.removed_at, name: track.name, origin: track.origin, instrument: track.instrument,
       importMetadata: track.import_metadata, creatorId: track.creator_id, separationId: track.separation_id, sourceRole: track.source_role, presetId: track.preset_id, presetName: track.preset&.name, factoryPreset: track.factory_preset,
-      recording: track.recording, presetSnapshot: track.preset_snapshot, snapshotId: track.snapshot_id,
+      recording: track.recording, recordingVersionId: track.recording_version_id, previousRecordingVersionId: track.recording&.dig("previousVersionId"), presetSnapshot: track.preset_snapshot, snapshotId: track.snapshot_id,
       volume: track.volume, pan: track.pan, mute: track.mute, solo: track.solo, inputMonitoring: track.input_monitoring,
       waveform: track.waveform_peaks && { peaks: track.waveform_peaks, duration: track.separation.manifest["frames"].to_f / 44100 },
       audio: audio(track), updatedAt: track.updated_at }
@@ -41,7 +41,7 @@ module ProjectJson
 
   def backing(track)
     { id: "studio-#{track.id}", title: track.name, projectId: track.project_id, projectName: track.project.name,
-      url: audio(track)[:url], filename: track.audio.filename.to_s, duration: track.mix_manifest["frames"].to_f / 44100,
+      url: audio(track)[:url], filename: track.audio.filename.to_s, duration: track.mix_manifest["frames"].to_f / (track.mix_manifest["sampleRate"] || 44100),
       origin: "studio", manifest: track.mix_manifest, createdAt: track.created_at }
   end
 

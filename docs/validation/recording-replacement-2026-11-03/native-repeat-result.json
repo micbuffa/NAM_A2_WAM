@@ -1,0 +1,13 @@
+{
+  "replacementPass": true,
+  "refusalSafe": true,
+  "countInSafe": true,
+  "oldTakeNotPlaying": true,
+  "undoExact": true,
+  "redoExact": true,
+  "firstFrames": 125152,
+  "secondFrames": 24032,
+  "newSignalMaxError": 0,
+  "historyAudioOperations": 2,
+  "sourceSavedAudioUnchanged": true
+}

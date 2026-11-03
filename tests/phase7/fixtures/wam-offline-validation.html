@@ -1,0 +1,9 @@
+<!doctype html><meta charset="utf-8"><title>WAM offline qualification</title>
+<style>body{font:15px system-ui;background:#181b1f;color:#eee;padding:24px}button,select{padding:8px}pre{white-space:pre-wrap}td,th{padding:6px;text-align:left;border-bottom:1px solid #555}</style>
+<h1>WAM offline qualification</h1>
+<p>Real bundled plugins, headless OfflineAudioContext, synthetic input; no microphone, speakers or account writes. A successful render is not a full realtime/audio-quality equivalence test. Reload this page before changing sample rate for an isolated run.</p>
+<label>Plugins <select id="scope"><option value="core">NAM + cabinet</option><option value="all">All enabled catalogue plugins</option></select></label>
+<label>Sample rate <select id="rate"><option>44100</option><option>48000</option></select></label>
+<button id="run">Run offline qualification</button><p id="status" role="status">Ready</p>
+<table><thead><tr><th>Plugin</th><th>Stage</th><th>Result</th><th>Peak</th><th>RMS</th><th>Tail RMS</th></tr></thead><tbody id="rows"></tbody></table><details><summary>Raw JSON measurements</summary><pre id="result"></pre></details>
+<script type="module" src="./wam-offline-validation.js"></script>

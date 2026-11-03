@@ -1,0 +1,17 @@
+{
+  "rangePass": true,
+  "mode": "punch",
+  "outsideError": 0,
+  "playbackContinues": true,
+  "position": 1.0313333333333332,
+  "metadata": {
+    "mode": "punch",
+    "startFrame": 24000,
+    "endFrame": 48000,
+    "transportStartFrame": 9600,
+    "takeNumber": 1,
+    "complete": true,
+    "contentFrames": 24000
+  },
+  "frames": 125664
+}

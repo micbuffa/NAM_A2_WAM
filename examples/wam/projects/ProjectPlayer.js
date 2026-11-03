@@ -48,7 +48,7 @@ export class ProjectPlayer extends EventTarget {
   }
 
   get duration() {
-    return Math.max(this.recording ? this.offset + Math.max(0, this.context.currentTime - this.startedAt) : 0, ...[...this.channels.values()].map((channel) => channel.buffer?.duration ?? 0));
+    return Math.max(this.recording && !this.looping ? this.offset + Math.max(0, this.context.currentTime - this.startedAt) : 0, ...[...this.channels.values()].map((channel) => channel.buffer?.duration ?? 0));
   }
 
   get position() {
@@ -238,12 +238,26 @@ export class ProjectPlayer extends EventTarget {
   }
 
   // Capture and every backing source share this exact context timestamp.
-  startRecording(when, offset) {
+  startRecording(when, offset, excludeTrackId = null, range = null) {
     this.pause();
-    this.offset = offset; this.startedAt = when; this.playing = true; this.recording = true; this.looping = false;
-    for (const channel of this.channels.values()) this.startVoice(channel, when, offset);
+    this.offset = offset; this.startedAt = when; this.playing = true; this.recording = true; this.looping = range?.mode==='cycle';this.recordingTrackId=excludeTrackId;
+    if(this.looping){
+      this.loop={...this.loop,start:range.startFrame/this.context.sampleRate,end:range.endFrame/this.context.sampleRate};
+      this.scheduledUntil=this.turnEnd(when);
+      for(const [id,channel] of this.channels)if(id!==excludeTrackId)this.startVoice(channel,when,offset,this.scheduledUntil);
+      this.armLoop();
+    }else for (const [id,channel] of this.channels){
+      if(id!==excludeTrackId)this.startVoice(channel,when,offset);
+      else if(range?.mode==='punch'){
+        const a=range.startFrame/this.context.sampleRate,b=range.endFrame/this.context.sampleRate;
+        if(offset<a)this.startVoice(channel,when,offset,when+a-offset);
+        this.startVoice(channel,when+b-offset,b);
+      }
+    }
     this.changed();
   }
+
+  finishRecording(){this.recording=false;this.recordingTrackId=null;this.changed();}
 
   async play() {
     if (this.playing || !this.duration) return;
@@ -276,7 +290,7 @@ export class ProjectPlayer extends EventTarget {
       const end = turn + this.loop.end - this.loop.start;
       // A late timer starts the turn now, at the position it should have reached.
       const when = Math.max(turn, this.context.currentTime + START_DELAY);
-      for (const channel of this.channels.values()) this.startVoice(channel, when, this.loop.start + when - turn, end);
+      for (const [id,channel] of this.channels) if(!this.recording||id!==this.recordingTrackId)this.startVoice(channel, when, this.loop.start + when - turn, end);
       this.scheduledUntil = end;
       this.armLoop();
     }, delay * 1000);
@@ -284,6 +298,7 @@ export class ProjectPlayer extends EventTarget {
 
   // A track loaded during playback joins it in time (and its next loop turn if already scheduled).
   joinPlayback(channel) {
+    if(this.recording&&channel===this.channels.get(this.recordingTrackId))return;
     const when = this.context.currentTime + START_DELAY;
     if (!this.looping) return this.startVoice(channel, when, this.positionAt(when));
     const end = Math.min(this.turnEnd(when), this.scheduledUntil);
@@ -314,7 +329,8 @@ export class ProjectPlayer extends EventTarget {
   seek(seconds) {
     const playing = this.playing;
     this.pause();
-    this.offset = Math.max(0, Math.min(this.duration, Number(seconds) || 0));
+    const requested=Number(seconds),limit=[...this.channels.values()].some(channel=>channel.key&&!channel.buffer)?Infinity:this.duration;
+    this.offset = Math.max(0, Math.min(limit, Number.isFinite(requested)?requested:0));
     this.changed();
     if (playing) return this.play();
   }

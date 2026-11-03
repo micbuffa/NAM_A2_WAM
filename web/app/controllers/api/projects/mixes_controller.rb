@@ -20,7 +20,8 @@ class Api::Projects::MixesController < Api::BaseController
       end
       # Recognize the encoder's MPEG Layer III frame header, not a renamed file.
       header = file.tempfile.read(4).bytes; file.tempfile.rewind
-      unless header.length == 4 && header[0] == 255 && (header[1] & 0xe0) == 0xe0 && (header[1] & 0x18) == 0x18 && (header[1] & 6) == 2 && (header[2] & 0xfc) == 0xb0 && (header[3] & 0xc0) != 0xc0
+      rate_index = [44100, 48000, 32000].index(manifest["sampleRate"])
+      unless header.length == 4 && header[0] == 255 && (header[1] & 0xe0) == 0xe0 && (header[1] & 0x18) == 0x18 && (header[1] & 6) == 2 && (header[2] >> 4) == 11 && ((header[2] >> 2) & 3) == rate_index && (header[3] & 0xc0) != 0xc0
         return invalid("Invalid MP3 audio")
       end
       if Separation.storage_bytes(Project.where(id: project.id)) + file.size > Separation::PROJECT_QUOTA || Separation.storage_bytes(current_user.projects) + file.size > Separation::USER_QUOTA

@@ -1,3 +1,15 @@
+## 3 novembre 2026 — Punch A/B et prises en boucle [DONE]
+
+Loop décoché : Record depuis un point avant A lance la lecture, écrit uniquement A/B et finalise automatiquement à B, en laissant la lecture continuer. Départ dans la plage et Stop anticipé produisent un fragment borné ; après B, départ refusé. Loop coché : départ à A, un décompte, accompagnement en boucle et une prise par passage, sélection de la dernière complète à Stop. Menu Original / prises complètes / dernier passage incomplet, puis Play ; Save conserve le choix et libère les alternatives RAM. Une seule commande audio pour la session et toutes ses auditions. Jusqu’à3complets+1incomplet, budget100MiB, limite1h. Découpage en frames après compensation, extérieur de la plage exact. Sans plage A/B valide, enregistrement libre. Pas de régions ni comping. Spécification et preuves : RECORD_TRACKS_SPECIFICATION.md, docs/RANGE_RECORDING_VALIDATION.md.
+
+## 3 novembre 2026 — Écrasement partiel et comparaison des prises [DONE]
+
+L’enregistrement sur une DI existante écrase uniquement l’intervalle compensé, en gardant le préfixe/suffixe exacts et le preset commun à toute la piste. Composition du WAV dans le Worker, anciennes références protégées. Before/After comparent via Undo/Redo la commande de prise adjacente ; lecture en pause, Play auditionne, Save conserve la version affichée. Limite initiale : DI mono Float32 à la fréquence de capture courante, sinon refus sans altération. Pas de régions/crossfades/take browser. Voir RECORD_TRACKS_SPECIFICATION.md et docs/RECORDING_REPLACEMENT_VALIDATION.md.
+
+## 3 novembre 2026 — Remplacement confirmé des prises [DONE]
+
+Piste personnelle vide ou occupée : armer puis Record ; confirmation sur audio existant et avertissement d’éviction de l’historique. Annulation/échec conserve la prise précédente. Undo/Redo des WAV et snapshots exacts avant/après Save, sans recalcul de compensation ; mixer conservé. Deux opérations audio dans la session, deux versions inactives serveur maximum par projet, quotas et cleanup des blobs partagés protégés. Pas de régions ni de récupération UI après rechargement. Migration et validation : RECORD_TRACKS_SPECIFICATION.md, docs/RECORDING_REPLACEMENT_VALIDATION.md.
+
 ## 28 octobre 2026 — Mix provisoire vers Play Along sans sauvegarde
 
 **[DONE]** Après arrêt de la séparation, **Use mix in Tone** est disponible dès qu’un bloc audio est prêt. Une séparation complète encore en RAM est également exportable. Le rendu utilise seulement la durée publiée, ou la boucle A/B valide sélectionnée, sans silence ajouté pour la partie non calculée. Volume, pan, mute et solo du mix courant sont appliqués. Les changements non sauvegardés des pistes enregistrées peuvent aussi être envoyés sans Save Project. Le rendu de pistes avec preset WAM ou monitoring actif reste hors périmètre.
@@ -34,7 +46,7 @@ Download MP3 est disponible pour toutes les origines : bibliothèque, fichier lo
 
 **[DONE] Historique de session** : commandes locales (mix, noms, ordre, preset associé, tempo, boucle), ajout/suppression/restauration de piste, imports dans le projet ouvert et groupes de séparation publiés. Deux flèches SVG près de Save project ; ⌘Z/⌘⇧Z sur Mac, Ctrl+Z/Ctrl+Shift+Z/Ctrl+Y sur Windows/Linux. Un drag = une commande, limite30dont2opérations audio, aucune copie PCM ; Save conserve la pile, rechargement/changement de projet ou de compte la réinitialise. Les champs texte/dialogues/WAM gardent leurs raccourcis. Publication/Undo de visibilité d’un groupe atomique, préconditions de conflit, retries idempotents. Les previews RAM utilisent Stop/Cancel jusqu’à publication.
 
-**[TODO] Rétention durable bornée** : récupération après rechargement, budget512MiB, délai24h et purge protégée des blobs ; pas de suppression de fichiers historiques dans cette livraison. Le remplacement de prise sera raccordé avec l’enregistrement futur. Détails et statut dans [UNDO_REDO_SPECIFICATION.md](UNDO_REDO_SPECIFICATION.md).
+**[TODO] Rétention durable bornée** : récupération après rechargement, budget512MiB, délai24h et purge protégée des blobs ; pas de suppression de fichiers historiques dans cette livraison. Le remplacement de prise et Undo/Redo sont livrés le 3 novembre : deux versions de prise inactives conservées côté serveur par projet, cleanup protégé des blobs non référencés. Les autres archives restent hors de cette purge. Détails et statut dans [UNDO_REDO_SPECIFICATION.md](UNDO_REDO_SPECIFICATION.md).
 
 ## 27 octobre 2026 — Undo / Redo borné à préparer
 
@@ -561,7 +573,7 @@ La politique par défaut conserve les modèles installés jusqu’à suppression
 
 ## 12. P5 — Intégration Guitar Studio : Tone / Studio et Rails
 
-**Statut : P5.1 [DONE] ; P5.2 [DONE] ; P5.3 [DONE] ; P5.4 accompagnement [DONE] ; P5.4b rendu WAM [TODO]. Branche d’intégration : `codex/studio-integration`.**
+**Statut : P5.1 [DONE] ; P5.2 [DONE] ; P5.3 [DONE] ; P5.4 accompagnement [DONE] ; P5.4b rendu WAM [CURRENT]. Branche d’intégration : `codex/studio-integration`.**
 
 Cette section consigne les échanges et décisions du 25 octobre 2026. Elle prévaut sur les anciens choix d’intégration P4.5 et de persistance locale pour la nouvelle version produit. Les autres résultats techniques et scientifiques conservent leurs statuts ; leur présence dans ce document ne vaut pas admission dans l’interface publique.
 
@@ -725,12 +737,12 @@ Chaque incrément d’implémentation nécessite des tests unitaires pertinents 
 | **P5.2 — Séparation dans Studio** | **[DONE]** | Deux modèles, téléchargement/cache, GPU préféré et CPU visible, original préservé, preview progressive et stop. Vérifier les 4/6 sources stéréo, alignement, raccords, starvation, seek, fluidité UI, changement de modèle/projet et messages tardifs sur de vrais extraits. |
 | **P5.3 — Sauvegarde des résultats Rails** | **[DONE]** | Originaux/stems, métadonnées et statuts, publication cohérente, quotas et chargement à la demande. Test de réouverture sur une autre session/navigateur, accès propriétaire/partagé, refus des accès étrangers, uploads partiels et échecs de stockage. |
 | **P5.4 — Mix Studio vers Tone** | **[DONE — stems et pistes sèches]** | Créer un backing persistant, le retrouver dans Play along et revenir au projet source. Tests audio volume/pan/mute/solo, durée/stéréo, non-inclusion du live, absence de double routage et lecture non automatique. Validation dédiée du rendu WAM avant export de pistes personnelles traitées. |
-| **P5.4b — Qualification du rendu WAM** | **[TODO]** | Rendre et comparer les inserts des prises personnelles (NAM, cabinet, pédales), queues d’effets, états/automations et plugins ne supportant pas OfflineAudioContext. Export traité bloqué jusque-là, sans fallback sec trompeur. |
+| **P5.4b — Qualification du rendu WAM** | **[CURRENT]** | Export offline des prises avec preset implémenté : horloges modèles/IR, routage A/B, trim DI, queues réglables, MP3 à fréquence réelle, provenance vérifiée. Comparaisons natives NAM/cabinet, deux chaînes et delay réussies. Qualification plus large des presets/navigateurs en cours ; aucun fallback DI sec. |
 | **P5.4a — Backing Tone vers Studio** | **[DONE]** | Import local/bibliothèque/mix autorisé comme original privé ; réutilisation du blob Rails, provenance, ouverture sans calcul automatique. |
 | **P5.5 — YouTube dans Rails** | **[DONE]** | Jobs, dépendances du conteneur, progression/annulation, provenance et quotas. Tests API/CSRF/propriété des tâches, URL et métadonnées, interruption/nettoyage, limites, service absent ; essai réel documenté après les tests contrôlés. |
 | **P5.6 — WebNN avancé expérimental** | **[CURRENT — WebNN direct intégré, validation native Studio à poursuivre]** | Admission par modèle/configuration après parité et lecture progressive ; préférences CPU/GPU/NPU, runtime isolé, perte de contexte et invalidation de session. Mesurer réellement préparation/premier audio/débit et vérifier le repli annoncé, sans promettre un NPU physique. |
 | **P5.7 — Contributions au projet partagé** | **[TODO — règles à préciser]** | Confirmer les permissions puis étendre le partage actuel : auteur des pistes, rôles, mix temporaire/commun, révisions et conflits. Tests à deux comptes modifiant le même projet, sauvegarde périmée, droits révoqués, contribution d’autrui, fichiers privés et presets partagés. |
-| **P5.8 — Enregistrement personnel** | **[PARTIEL — capture DI, FX et sauvegarde implémentés ; qualification matérielle, remplacement et undo des prises restants]** | Ajouter une piste guitare/basse personnelle, choisir son preset, monitoring, prise alignée au projet, sauvegarde et réécoute. Préparer les contrats dans P5.1/P5.3/P5.7 ; implémenter et tester l’enregistrement séparément, notamment latence, permissions micro, pause/reprise et séparation source DI/rendu. |
+| **P5.8 — Enregistrement personnel** | **[PARTIEL — capture DI, FX et sauvegarde implémentés ; remplacement confirmé et Undo/Redo implémentés ; qualification matérielle restante]** | Ajouter une piste guitare/basse personnelle, choisir son preset, monitoring, prise alignée au projet, sauvegarde et réécoute. Préparer les contrats dans P5.1/P5.3/P5.7 ; implémenter et tester l’enregistrement séparément, notamment latence, permissions micro, pause/reprise et séparation source DI/rendu. |
 
 P5.1 à P5.5 constituent le premier parcours intégré de préparation d’accompagnement. P5.6 et P5.7 restent des incréments identifiés ; P5.8 introduit ensuite l’enregistrement. Ne pas annoncer la contribution enregistrée d’un ami tant que P5.7 et P5.8 ne sont pas opérationnels. L’ordre peut être ajusté après discussion sans déplacer une tâche non réalisée en DONE.
 
@@ -909,3 +921,19 @@ Validation : tests unitaires des destinations, du mode sans séparation, de la l
 - Rails accepte et conserve les backends directs avec leur provenance distincte, pour les deux modèles. Les anciens projets et preuves ORT restent valides.
 - Master commun0…100%, valeurinitiale100%, rampe10ms, agit sur lecture sauvegardée, préécoute et monitoring Studio. Niveau d'écoute conservé pendant la session, sans modification du mix enregistré ou du DI.
 - Dist et Rails embarquent graphes/binaires/notice directs ; les outils de benchmark restent absents de la distribution produit.
+
+
+### P5.4b — offline feasibility checkpoint, 3 November 2026
+
+Native browser check:34/34 enabled catalogue WAMs plus NAM→cabinet render offline at48kHz, including state restore (35/35). The default NAM model requires48kHz; the existing44.1kHz-only export context must change, with explicit resampling for the MP3 encoder. Fresh-page44.1kHz supports the other33 plugins; a mixed-rate repeated suite had non-reproduced restoration anomalies retained in raw results. Prefer offline for bundled WAMs, rather than introducing a realtime fallback without evidence it is needed. Product rendering/export still TODO: no guards removed by this verification. Full method,limits,results and next renderer requirements: docs/WAM_OFFLINE_RENDERING_VALIDATION.md.
+
+
+### P5.4b — export traité à fréquence adaptée, 3 novembre 2026
+
+Implémentation dans OfflinePresetRenderer/OfflinePresetRack et ExportSampleRate. Use mix in Tone traite maintenant les pistes personnelles avec preset, y compris les prises RAM. Chaque piste est rendue dans un graphe indépendant à la fréquence exigée par ses NAM ; le mix conserve cette fréquence si elle est commune et encodable. Sans contrainte modèle, priorité à la fréquence réelle du contexte de l'hôte ; seuls les taux MP3 non pris en charge sont adaptés vers48kHz. Deux pistes peuvent avoir des modèles de fréquences différentes, avec adaptation native avant leur somme. Deux NAM actifs incompatibles dans un même rack sont refusés.
+
+Les nouvelles IR mémorisent la fréquence de leurs samples décodés. Adaptation seulement si cette fréquence est différente ; anciennes IR : fréquence connue de la prise utilisable, sinon refus explicite d'une conversion inter-fréquence inconnue. Le preset original et la DI restent intacts. Racks offline sans GUI/périphériques, même routage/lane gains/pans et trim DI que TrackTones ; variante NAM Lite pour correspondre à la lecture Studio. Pas de remplacement sec si plugin manquant/erreur.
+
+Whole song : queue d'effet0–10s,2s par défaut, réglable dans Project options. L'entrée zéro maintient les worklets Faust actifs après la fin du fichier. A/B : rendu depuis le début du projet puis extraction exacte ; aucune queue ajoutée, ni prétention de reproduire une boucle répétée à l'état stationnaire. Somme incrémentale par blocs avec rendus de pistes successifs et limite de travail512MiB.
+
+MP3 Worker encode à32/44.1/48kHz selon les samples, paquets d'une seconde à cette fréquence ; API Rails valide contrat et en-tête réel, calcule la durée selon la fréquence, conserve provenance du rendu et refuse les révisions de son devenues obsolètes. Même comportement pour export temporaire et mix persistant. La liste complète des limites/mesures figure dans docs/PROCESSED_MIX_EXPORT.md. P5.4b reste CURRENT pour qualification étendue des presets et navigateurs ; l'export natif de base est opérationnel.

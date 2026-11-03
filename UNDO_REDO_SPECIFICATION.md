@@ -2,7 +2,17 @@
 
 Date : 27 octobre 2026. **[IMPLEMENTED — historique de session ; rétention serveur à compléter]**
 
-## Livraison du 27 octobre 2026
+## Prises A/B — mise à jour du 3 novembre 2026
+
+Un punch A/B ou une session de prises en boucle crée une seule commande audio après finalisation réussie. Les auditions du menu Loop take mettent à jour la version « après » de cette commande, sans grossir la pile. Original applique son inverse ; une prise complète ou incomplète réapplique le WAV choisi. L’extérieur de l’intervalle reste identique. Le choix demande que la commande soit adjacente au curseur ; une modification ultérieure utilise l’historique standard. Save conserve la version affichée et libère les clips de passages non choisis ; le WAV sélectionné et l’original restent dans Undo/Redo selon le plafond30/2. Les alternatives sont en RAM dans un Worker, au plus trois complets et un incomplet, budget100MiB ; pas d’historique permanent des prises.
+
+## Mise à jour du 3 novembre 2026
+
+Les prises DI et leur écrasement partiel confirmé sont raccordés à Undo/Redo, avant et après Save dans la session ouverte. Le journal conserve des références WAV/snapshots, sans copies PCM. Rails garde deux versions de prise inactives maximum par projet (100MiB chacune), comptées dans le quota, et ne purge un blob évincé que s’il n’est référencé nulle part ailleurs. Confirmation avant une nouvelle prise qui évince une action audio. Annulation/échec préserve la prise précédente ; restauration sans réappliquer la compensation. Migration `recording_revisions` nécessaire. Les boutons Before/After réutilisent l’inverse/la réapplication de la commande de prise adjacente : même limite et même version sauvegardée que Undo/Redo. Audio hors intervalle inchangé ; pas de régions.
+
+La récupération après rechargement, les baux/expiration24h et le budget global512MiB restent à implémenter. Les anciennes archives de séparation/suppression ne sont pas purgées par cette livraison. Voir RECORD_TRACKS_SPECIFICATION.md et docs/RECORDING_REPLACEMENT_VALIDATION.md.
+
+## Livraison du 27 octobre 2026 (historique)
 
 **Fonctionnel dans Studio** : boutons SVG Annuler/Rétablir et raccourcis Mac/Windows/Linux ; volume/pan (un geste = une action), mute/solo, noms/instrument/preset associé, ordre des pistes, nom/tempo du projet, boucle A/B, création de piste et suppression/restauration. Les imports dans le projet ouvert et les séparations publiées/changements de résultat sont groupés et annulables sans relancer l’inférence. Une piste ou un projet chargé initialement constitue le point de départ ; l’import dans un nouveau projet ne supprime pas ce projet par Undo.
 
@@ -10,7 +20,7 @@ Pile limitée à **30 commandes dont deux opérations audio**, Undo et Redo réu
 
 Les commandes structurelles utilisent les fichiers déjà sauvegardés ; visibilité et sélection de séparation sont modifiées atomiquement avec préconditions côté Rails. Un groupe déjà entièrement dans l’état demandé est accepté comme retry idempotent ; un état intermédiaire ou divergent est refusé. La suppression/restauration simple est également réessayable. Les contrôles sont bloqués pendant une commande en cours et une réponse tardive ne modifie pas le nouveau projet.
 
-**Encore à faire** : récupération audio bornée après rechargement, budget serveur de 512 MiB, délai de 24 h, baux et nettoyage des blobs. Les plafonds 30/2 bornent les commandes de cette session, **pas encore l’ensemble du stockage des archives existantes**. Aucune purge d’audio n’est exécutée par cette livraison. Le raccordement de la future prise DI reste à faire lorsque l’enregistrement sera implémenté.
+**Encore à faire** : récupération audio bornée après rechargement, budget serveur de 512 MiB, délai de 24 h, baux et nettoyage des blobs. Les plafonds 30/2 bornent les commandes de cette session, **pas encore l’ensemble du stockage des archives existantes**. Aucune purge d’audio n’est exécutée par cette livraison. Le raccordement DI a été livré le 3 novembre (voir ci-dessus).
 
 
 ## Proposition
@@ -30,7 +40,7 @@ Michel souhaite un historique limité, notamment pour les fichiers audio, et év
 
 Les plafonds de nombre, de taille et de durée s’appliquent ensemble. Deux opérations audio restent un maximum, pas une garantie si leurs fichiers dépassent le budget disponible. Le projet courant, ses fichiers nécessaires et ses originaux réservés ne sont pas supprimés pour satisfaire le budget d’Undo.
 
-Le document conserve ci-dessous le plan complet de rétention à terme. **La livraison décrite en tête ajoute Undo/Redo et ne purge aucun audio.**
+Le document conserve ci-dessous le plan complet de rétention à terme. **La livraison initiale ne purgeait aucun audio ; la mise à jour du 3 novembre borne et nettoie uniquement les versions de prise inactives.**
 
 ## Périmètre fonctionnel
 

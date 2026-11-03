@@ -2,11 +2,12 @@
 <style>body{background:#181b1f;color:#eee;font:17px system-ui;margin:32px}button{padding:12px;font-size:17px}pre{white-space:pre-wrap}</style>
 <h1>DI capture · synthetic input qualification</h1><p>No microphone, account writes or audible output. Runs the real capture WAM, ring buffer and Worker.</p>
 <button id="run">Run synthetic capture</button><pre id="result" role="status">Ready</pre>
-<button id="tempo">Run tempo-worker qualification</button><button id="cancelcount">Run count-in cancellation</button><button id="lifecycle">Run Studio recording lifecycle</button><div id="bench" hidden></div>
+<button id="tempo">Run tempo-worker qualification</button><button id="cancelcount">Run count-in cancellation</button><button id="lifecycle">Run Studio recording lifecycle</button><button id="replacement">Run replacement and Undo/Redo</button><button id="punchrange">Run A/B punch</button><button id="cyclerange">Run loop takes</button><button id="finishreview" hidden>Finish loop audition</button><div id="bench" hidden></div>
 <script type="module">
 import initializeWamHost from '../../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import {DIRecorder} from '../../../examples/wam/projects/recording/DIRecorder.js';
 import {TempoDetection} from '../../../examples/wam/projects/TempoDetection.js';
+import {StudioHistory} from '../../../examples/wam/projects/StudioHistory.js';
 import {StudioRecording} from '../../../examples/wam/projects/recording/StudioRecording.js';
 import {StudioPlayer} from '../../../examples/wam/projects/StudioPlayer.js';
 import {TrackMeters} from '../../../examples/wam/projects/TrackMeters.js';
@@ -46,7 +47,10 @@ document.querySelector('#tempo').onclick=()=>{
  output.textContent='Analysing synthetic 120 BPM pulses…';detector.analyse({length:pcm.length,sampleRate,getChannelData:()=>pcm});
 };
 
-let cancelCountIn=false;
+let cancelCountIn=false,replacementRun=false,rangeRun=null;
+document.querySelector('#punchrange').onclick=()=>{rangeRun='punch';document.querySelector('#lifecycle').click();};
+document.querySelector('#cyclerange').onclick=()=>{rangeRun='cycle';document.querySelector('#lifecycle').click();};
+document.querySelector('#replacement').onclick=()=>{replacementRun=true;document.querySelector('#lifecycle').click();};
 document.querySelector('#cancelcount').onclick=()=>{cancelCountIn=true;document.querySelector('#lifecycle').click();};
 document.querySelector('#lifecycle').onclick=async()=>{
  let context,recording,player,osc,meters,liveOsc,originalStart;
@@ -58,6 +62,7 @@ document.querySelector('#lifecycle').onclick=async()=>{
   const ids=['recordStatusBar','recordCurrentTone','recordDiscard','projectRecord','projectRecordStop','recordCompensation','recordStatus','inspectorPreset','inspectorEditPreset'];
   bench.replaceChildren(...ids.map(id=>Object.assign(document.createElement(id==='recordCompensation'?'input':'button'),{id})));
   document.querySelector('#recordCompensation').value='0';
+  const comparison=document.createElement('div');comparison.id='recordComparison';comparison.append(Object.assign(document.createElement('button'),{id:'recordCompareBefore',textContent:'Before (Undo)'}),Object.assign(document.createElement('button'),{id:'recordCompareAfter',textContent:'After (Redo)'}));bench.append(comparison);const review=document.createElement('div');review.id='recordLoopReview';review.hidden=true;review.append(Object.assign(document.createElement('select'),{id:'recordLoopTake'}),Object.assign(document.createElement('span'),{id:'recordLoopHelp'}));bench.append(review);
   const root=document.createElement('section'),list=document.createElement('ol'),ruler=document.createElement('div');
   root.style.width='900px';root.append(ruler,list);bench.append(root);bench.hidden=false;
   const noop=()=>{};
@@ -75,9 +80,10 @@ document.querySelector('#lifecycle').onclick=async()=>{
   meters=new TrackMeters({context,player,timeline});
   const w={owned:true,project:{id:1,bpm:120,timeSignature:'4/4',tracks:[track]},saved:{tracks:[structuredClone(track)]},selectedId:1,player,accountLoadEpoch:1,
     get selectedTrack(){return this.project.tracks[0];},$:id=>document.getElementById(id),
-    timeline,renderLength(){},render(){timeline.render(this.project.tracks,{editable:true,selectedId:1});recording?.render();},report(text){output.textContent=text;},
+    timeline,renderLength(){},render(){player.setTracks(this.project.tracks,1);timeline.render(this.project.tracks,{editable:true,selectedId:1});recording?.render();},report(text){output.textContent=text;},
     setTracks(tracks){this.project.tracks=tracks;player.setTracks(tracks,1);timeline.render(tracks,{editable:true,selectedId:1});},
     tones:{status:()=>({state:'ready'}),tones:new Map([[1,{rack:{getState:async()=>structuredClone(state)}}]])}};
+  w.history=new StudioHistory({changed:()=>recording?.takeHistory?.collect()});
   recording=new StudioRecording(w,{context,groupId,source,rack:{getState:async()=>structuredClone(state)},enableLive:async()=>{}});
   player.addEventListener('statechange',()=>recording.render());
   meters.inputFor=id=>recording.meterSource(id);
@@ -105,6 +111,60 @@ document.querySelector('#lifecycle').onclick=async()=>{
   const liveWaveform=!!timeline.waves.get(1)?.peaks?.some(value=>value>0);
   await recording.stopTransport();
   if(!player.ready)await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Recorded audio did not load')),5000);player.addEventListener('load',()=>{clearTimeout(timer);resolve();},{once:true});});
+  if(rangeRun){
+    const original=recording.pending.get(1),oldFile=original.file;
+    osc.stop();osc=context.createConstantSource();osc.offset.value=.25;osc.start();
+    player.setLoop({enabled:rangeRun==='cycle',start:.5,end:1});player.base.seek(.2);
+    recording.metronome.countInBars=0;recording.confirmReplace=async()=>true;
+    await recording.arm();
+    DIRecorder.prototype.start=function(input,frame){
+      if(rangeRun==='cycle')for(let i=0;i<10;i++)osc.offset.setValueAtTime(.25+i*.0625,(frame+480+i*24000)/48000);
+      return originalStart.call(this,input,frame);
+    };
+    document.querySelector('#recordCompensation').value='10';
+    await recording.start();DIRecorder.prototype.start=originalStart;
+    if(rangeRun==='punch'){
+      await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(Error('Punch did not finalize automatically: '+output.textContent)),5000),timer=setInterval(()=>{if(recording.state==='idle'){clearInterval(timer);clearTimeout(timeout);resolve();}},20);});
+    }else{await new Promise(resolve=>setTimeout(resolve,2370));await recording.stopTransport();}
+    const selected=recording.pending.get(1),view=new DataView(await selected.file.arrayBuffer()),before=new DataView(await oldFile.arrayBuffer()),range=selected.metadata.rangeTake;
+    let outsideError=0;for(let i=0;i<selected.metadata.frames;i++)if(i<range.startFrame||i>=range.startFrame+range.contentFrames)outsideError=Math.max(outsideError,Math.abs(view.getFloat32(44+i*4,true)-before.getFloat32(44+i*4,true)));
+    let insideError=0;const expected=rangeRun==='cycle'?.25+(range.takeNumber-1)*.0625:.25;
+    for(let i=range.startFrame;i<range.startFrame+range.contentFrames;i++)insideError=Math.max(insideError,Math.abs(view.getFloat32(44+i*4,true)-expected));
+    const playbackContinues=rangeRun==='punch'?player.playing&&player.position>=1:!player.playing;
+    const details={rangePass:outsideError===0&&insideError===0&&playbackContinues,mode:rangeRun,outsideError,insideError,playbackContinues,position:player.position,metadata:selected.metadata.rangeTake,frames:selected.metadata.frames};
+    if(rangeRun==='cycle'){
+      const review=recording.loopReview,options=review.options;details.options=options;details.defaultComplete=options.find(t=>t.number===selected.metadata.rangeTake.takeNumber)?.complete;
+      await review.choose(0);details.originalExact=recording.pending.get(1)===original;
+      await review.choose(options[0].number);details.selectedNumber=recording.pending.get(1).metadata.rangeTake.takeNumber;
+      const partial=options.find(t=>!t.complete);if(partial){await review.choose(partial.number);details.partialChosen=recording.pending.get(1).metadata.rangeTake.complete===false;}
+      details.audioCommands=w.history.entries.filter(c=>c.audio).length;
+      details.rangePass&&=details.defaultComplete&&details.originalExact&&details.selectedNumber===options[0].number&&details.partialChosen&&details.audioCommands===2;
+    }
+    output.textContent=JSON.stringify(details,null,2);
+    if(rangeRun==='cycle'){const finish=document.querySelector('#finishreview');finish.hidden=false;await new Promise(resolve=>finish.onclick=()=>{finish.hidden=true;resolve();});}
+    return;
+  }
+  if(replacementRun){
+    const firstTake=recording.pending.get(1),firstFile=firstTake.file,firstUrl=w.selectedTrack.audio.url;
+    await recording.arm();recording.confirmReplace=async()=>false;await recording.start();
+    const refusalSafe=recording.state==='idle'&&w.selectedTrack.audio.url===firstUrl&&recording.pending.get(1)===firstTake;
+    recording.confirmReplace=async()=>true;await recording.start();await recording.stopTransport();
+    const countInSafe=recording.state==='idle'&&recording.pending.get(1)===firstTake&&w.selectedTrack.audio.url===firstUrl;
+    osc.stop();osc=context.createBufferSource();const newSignal=context.createBuffer(1,48000,48000);newSignal.getChannelData(0).fill(.25);osc.buffer=newSignal;osc.loop=true;osc.start();
+    player.base.seek(.5);await recording.arm();recording.metronome.countInBars=0;await recording.start();
+    const oldTakeNotPlaying=player.channels.get(1).voices.size===0;
+    await new Promise(resolve=>setTimeout(resolve,650));await recording.stopTransport();const second=recording.pending.get(1);
+    if(!second||second===firstTake)throw Error('Replacement not installed');
+    const secondUrl=w.selectedTrack.audio.url;
+    await recording.takeHistory.compare(false);const undoExact=recording.pending.get(1)===firstTake&&firstTake.file===firstFile&&w.selectedTrack.audio.url===firstUrl;
+    await recording.takeHistory.compare(true);const redoExact=recording.pending.get(1)===second&&w.selectedTrack.audio.url===secondUrl;
+    const firstAudio=await context.decodeAudioData(await firstFile.arrayBuffer()),secondAudio=await context.decodeAudioData(await second.file.arrayBuffer());
+    const a=firstAudio.getChannelData(0),b=secondAudio.getChannelData(0),edit=second.metadata.edit;
+    let signalError=0,preservedError=0;
+    for(let i=0;i<b.length;i++)if(i>=edit.startFrame&&i<edit.endFrame)signalError=Math.max(signalError,Math.abs(b[i]-.25));else preservedError=Math.max(preservedError,Math.abs(b[i]-a[i]));
+    const pass=refusalSafe&&countInSafe&&oldTakeNotPlaying&&undoExact&&redoExact&&secondAudio.length===firstAudio.length&&signalError===0&&preservedError===0&&edit.startFrame===24000;
+    output.textContent=JSON.stringify({replacementPass:pass,refusalSafe,countInSafe,oldTakeNotPlaying,undoExact,redoExact,firstFrames:firstAudio.length,secondFrames:secondAudio.length,newSignalMaxError:signalError,preservedPrefixSuffixError:preservedError,edit,historyAudioOperations:w.history.entries.filter(c=>c.audio).length,sourceSavedAudioUnchanged:w.saved.tracks[0].audio===null},null,2);return;
+  }
   const playReady=player.ready;
   // A much louder live input must disappear from the track during Play.
   liveOsc=context.createBufferSource();const liveBuffer=context.createBuffer(1,48000,48000);liveBuffer.getChannelData(0).fill(.75);liveOsc.buffer=liveBuffer;liveOsc.loop=true;liveOsc.start();
@@ -120,6 +180,6 @@ document.querySelector('#lifecycle').onclick=async()=>{
   const take=recording.pending.get(1),pass=monitorDuringTake&&otherControlsLocked&&armedSilently&&rawMeterWorks&&captureAligned&&countInBeats===4&&incremental&&liveWaveform&&playReady&&playing&&metered&&playbackOnly&&recording.state==='idle'&&!!take&&w.saved.tracks[0].audio===null&&!!w.selectedTrack.presetSnapshot&&take.metadata.capturedFrames>10000&&!player.recordingLock;
   output.textContent=JSON.stringify({lifecyclePass:pass,monitorDuringTake,otherControlsLocked,armedSilently,rawMeterWorks,captureAligned,countInBeats,incremental,liveStats,liveWaveform,playReady,playing,metered,playbackOnly,liveBeforePlayDb,duringPlayDb,peak:take?.peak,state:recording.state,pendingTakes:recording.pending.size,capturedFrames:take?.metadata.capturedFrames,savedAudioStillEmpty:w.saved.tracks[0].audio===null,transportUnlocked:!player.recordingLock},null,2);
  }catch(error){output.textContent=`FAIL: ${error.stack}`;}
- finally{cancelCountIn=false;if(originalStart)DIRecorder.prototype.start=originalStart;meters?.destroy();player?.destroy();recording?.clear();osc?.stop();liveOsc?.stop();await context?.close();}
+ finally{cancelCountIn=false;replacementRun=false;rangeRun=null;if(originalStart)DIRecorder.prototype.start=originalStart;meters?.destroy();player?.destroy();recording?.clear();osc?.stop();liveOsc?.stop();await context?.close();}
 };
 </script></html>

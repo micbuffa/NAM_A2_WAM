@@ -215,7 +215,7 @@ export class ProjectTimeline {
     if (!wave?.live) { wave = {live: true, peaks: [], sampleRate, peakFrames, duration: 0}; this.waves.set(id, wave); }
     if (wave.sampleRate !== sampleRate || wave.peakFrames !== peakFrames) throw Error('Waveform scale changed within a take.');
     for (let i = 0; i < peaks.length; i++) wave.peaks[peakStart + i] = peaks[i];
-    wave.duration = timelineFrames / sampleRate;
+    wave.duration = wave.preserveTail ? Math.max(wave.duration,timelineFrames / sampleRate) : timelineFrames / sampleRate;
     this.drawWave(id, {start: peakStart, end: peakStart + peaks.length});
   }
 

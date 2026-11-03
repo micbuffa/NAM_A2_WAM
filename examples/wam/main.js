@@ -1,3 +1,5 @@
+import {OfflinePresetRenderer} from './projects/OfflinePresetRenderer.js';
+import {createOfflinePresetRack} from './projects/OfflinePresetRack.js';
 import './backing-track-player/BackingTrackPlayerElement.js';
 import {StudioBackingLibrary, useYoutubeInTone, useBackingInTone, returnToStudio} from './projects/StudioBackingLibrary.js';
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
@@ -320,6 +322,7 @@ async function initialize() {
   projectPlayer.output.connect(context.destination);
   // A track rack is a whole preset rack (lanes A and B), fed by the player.
   const createTrackRack=async()=>new FxRack({context,a:await createLane('',false),source:new TrackSource(),createLane:()=>createLane('b-',false)});
+  projects.mixExporter.sampleRate=()=>context.sampleRate;
   trackTones=new TrackTones({context,player:projectPlayer,createRack:createTrackRack,
     resolvePreset:async(track,projectId)=>{
       // The owner's own preset, even before the project is saved; a shared project's through its track.
@@ -329,6 +332,16 @@ async function initialize() {
         :projects.owned?await api.getPreset(track.presetId):await api.getTrackPreset(projectId,track.id);
       return state.nam&&!state.a&&!state.entries?legacyPresetToRack(state):state;
     }});
+  projects.mixExporter.toneRenderer=new OfflinePresetRenderer({
+    createRack:(offlineContext,state,{check})=>createOfflinePresetRack(offlineContext,state,{registry,check}),
+    resolveSound:async track=>{
+      if(track.presetSnapshot)return{state:structuredClone(track.presetSnapshot),provenance:{snapshotId:track.snapshotId,updatedAt:track.updatedAt}};
+      const result=track.factoryPreset?await accountIntegration.factoryStore.get(track.factoryPreset):await accountIntegration.account.api.getPreset(track.presetId);
+      const state=result.state.nam&&!result.state.a&&!result.state.entries?await legacyPresetToRack(result.state):result.state;
+      return{state,provenance:{presetId:track.presetId??null,factoryPreset:track.factoryPreset??null,updatedAt:track.updatedAt,presetUpdatedAt:result.updatedAt??null}};
+    }
+  });
+  projects.renderMixExport();
   let calibrationMuted=false;
   const syncMonitoring=()=>{
     const id=workspaces.current==='projects'?projectPlayer.liveId:null;

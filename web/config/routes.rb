@@ -40,6 +40,7 @@ Rails.application.routes.draw do
       resources :tracks, only: %i[create update destroy], module: :projects do
         patch :visibility, on: :collection
         post :recording, on: :member
+        patch :recording_version, on: :member
         patch :restore, on: :member
         patch :order, on: :collection, action: :reorder
         get :audio, on: :member, to: "track_audios#show"

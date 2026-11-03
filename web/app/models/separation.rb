@@ -33,6 +33,7 @@ class Separation < ApplicationRecord
   def self.storage_bytes(projects)
     attachments = ActiveStorage::Attachment.where(record_type: "Track", record_id: Track.where(project_id: projects.select(:id)).select(:id))
       .or(ActiveStorage::Attachment.where(record_type: "SeparationPart", record_id: SeparationPart.where(separation_id: where(project_id: projects.select(:id)).select(:id)).select(:id)))
+    attachments = attachments.or(ActiveStorage::Attachment.where(record_type: "RecordingRevision", record_id: RecordingRevision.where(track_id: Track.where(project_id: projects.select(:id)).select(:id)).select(:id)))
     ActiveStorage::Blob.where(id: attachments.select(:blob_id)).sum(:byte_size)
   end
 

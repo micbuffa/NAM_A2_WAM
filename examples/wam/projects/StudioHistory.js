@@ -8,14 +8,14 @@ export class StudioHistory {
   }
   get undoLabel() { return this.entries[this.cursor - 1]?.label ?? ''; }
   get redoLabel() { return this.entries[this.cursor]?.label ?? ''; }
-  clear() { this.entries = []; this.cursor = 0; this.generation++; this.changed(); }
+  clear() { for(const command of this.entries)command.dispose?.();this.entries = []; this.cursor = 0; this.generation++; this.changed(); }
   record(command) {
     if (this.busy || !command) return;
-    this.entries.splice(this.cursor);
+    for(const command of this.entries.splice(this.cursor))command.dispose?.();
     const previous = this.entries.at(-1);
     if (command.group && previous?.group === command.group && previous.merge) { previous.merge(command); if (previous.empty) this.entries.pop(); }
     else this.entries.push(command);
-    while (this.entries.length > this.limit || this.entries.filter(entry => entry.audio).length > this.audioLimit) this.entries.shift();
+    while (this.entries.length > this.limit || this.entries.filter(entry => entry.audio).length > this.audioLimit) this.entries.shift().dispose?.();
     this.cursor = this.entries.length; this.changed();
   }
   async step(redo = false) {

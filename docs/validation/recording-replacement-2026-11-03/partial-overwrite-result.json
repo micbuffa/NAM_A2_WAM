@@ -1,0 +1,20 @@
+{
+  "replacementPass": true,
+  "refusalSafe": true,
+  "countInSafe": true,
+  "oldTakeNotPlaying": true,
+  "undoExact": true,
+  "redoExact": true,
+  "firstFrames": 126176,
+  "secondFrames": 126176,
+  "newSignalMaxError": 0,
+  "preservedPrefixSuffixError": 0,
+  "edit": {
+    "mode": "overwrite",
+    "baseFrames": 126176,
+    "startFrame": 24000,
+    "endFrame": 48032
+  },
+  "historyAudioOperations": 2,
+  "sourceSavedAudioUnchanged": true
+}

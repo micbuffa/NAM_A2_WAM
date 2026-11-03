@@ -318,7 +318,23 @@ for the tested workflows and remaining physical/browser checks.
 settings in a dialog. **Recording settings** opens compensation/calibration.
 Closing these dialogs preserves control values and does not stop audio or
 separation. Progress/Stop remain in the Studio strip.
-Recording over existing audio, take undo/redo and processed DI mix export remain pending. See
+Record on an occupied personal track asks for confirmation and overwrites only the
+compensated capture interval after successful capture. Audio before/after stays
+byte-identical. Currently requires an existing mono Float32 DI WAV at the capture
+sample rate; incompatible audio is safely refused. Before / After buttons compare
+via Undo/Redo (Play auditions the displayed version; Save keeps it). Cancel/failure
+keeps the previous WAV. With a valid A/B selection, **Loop off** punches only inside A/B and playback
+continues past B. **Loop on** records repeated passes from A after one count-in;
+Stop selects the latest complete pass. **Loop take** offers Original, retained
+complete passes and the last incomplete pass (up to three complete passes plus
+one fragment, bounded by100MiB). Choose then Play to audition. Save keeps the
+selected version and closes the other RAM choices. Loop auditions share one
+Undo command. No valid A/B range means free recording until Stop. Undo/Redo
+works before and after Save in the open session, with two audio operations retained;
+reloading clears the session history. Rails retains at most two inactive take
+versions per project, without duplicating shared blobs. Run `bin/rails db:migrate`
+when deploying this update. Processed DI mix export is also available; see
+[Processed mix export](docs/PROCESSED_MIX_EXPORT.md). See
 [RECORD_TRACKS_SPECIFICATION.md](RECORD_TRACKS_SPECIFICATION.md).
 
 In **Studio**, import accompaniment audio, choose Demucs (4 instruments, guitar
@@ -344,9 +360,19 @@ and **Open in Studio**. A message beside the export button explains when saved
 audio is loading or a track failed; **Retry audio loading** retries only failed
 files. Transient server/network failures get bounded retries, without polling.
 Live guitar and listening levels are excluded; a common
-attenuation prevents PCM clipping. Studio exports support separated instruments
-and dry recorded tracks. Preset-treated personal tracks remain blocked until
-WAM rendering is qualified (P5.4b); a dry DI is never substituted silently.
+attenuation prevents PCM clipping. Studio exports support separated instruments,
+dry recordings and personal tracks through independent headless offline preset racks.
+They retain the actual model rate when possible: a48kHz NAM can produce a48kHz MP3
+without a44.1kHz round trip. Different track model rates are adapted only for the
+final mix; incompatible NAM rates within one rack are refused. MP3 supports32,
+44.1 and48kHz here. **Project options → Effect tail (seconds)** adds0–10s to
+whole-song processed exports (2s default); A/B remains exact and is processed
+with preceding DI history. Playback's Lite NAM variant is used, with the same
+DI trim, routing, lane gains and pans. The original DI/preset is retained.
+Missing plugins, unknown IR clocks requiring conversion and processor errors
+stop export rather than substituting dry DI. Older IR presets may need their
+impulse response reloaded in Tone before a change of frequency.
+See [processed export qualification](docs/PROCESSED_MIX_EXPORT.md) for limits.
 See [Studio validation](docs/STUDIO_SEPARATION_VALIDATION.md).
 Rails requires `bin/rails db:migrate` after this schema change; restart the server
 to refresh its schema cache. A static deployment still has no account persistence.

@@ -34,39 +34,76 @@ class Api::Projects::TracksController < Api::BaseController
     render json: ProjectJson.track(track)
   end
 
-  # First recording milestone: publish a complete lossless DI to an EMPTY
-  # personal track. Retrying the session is idempotent. Never overwrite audio.
+  # Publish a complete lossless DI atomically. Occupied tracks require an
+  # explicit replacement checksum; old versions stay in bounded Undo storage.
   def recording
     row = track
     file = json_body["audio"]
     metadata = JSON.parse(json_body["metadata"].to_s)
     unless file.is_a?(ActionDispatch::Http::UploadedFile) && row.origin == "personal" && row.plays_through_preset? && row.timeline_visible && !row.removed_at
-      return render json: { error: "Record into an empty personal guitar or bass track" }, status: :unprocessable_content
+      return render json: { error: "Record into a personal guitar or bass track" }, status: :unprocessable_content
     end
     TrackRecording.validate!(metadata, file)
     blob = nil
+    previous = nil
     current_user.with_lock do
       row.reload
       if row.recording&.fetch("sessionId", nil) == metadata["sessionId"] && row.audio.attached?
         return render json: ProjectJson.track(row)
       end
-      unless !row.audio.attached? && row.updated_at.iso8601(3) == json_body["expectedUpdatedAt"].to_s
+      replacement = !row.audio.attached? || (json_body["replaceChecksum"].present? && row.audio.checksum == json_body["replaceChecksum"])
+      unless replacement && row.updated_at.iso8601(3) == json_body["expectedUpdatedAt"].to_s && !row.recording_revisions.exists?(token: metadata["sessionId"])
         return render json: { error: "Track changed or already contains audio. Reopen the project." }, status: :conflict
       end
       if Separation.storage_bytes(Project.where(id: row.project_id)) + file.size > Separation::PROJECT_QUOTA || Separation.storage_bytes(current_user.projects) + file.size > Separation::USER_QUOTA
         return render json: { error: "Audio storage quota exceeded" }, status: :unprocessable_content
       end
-      # Upload first, attach only after storage succeeds; the row stays empty on failure.
+      # Upload first: failures leave the current audio, sound and revision intact.
       blob = ActiveStorage::Blob.create_and_upload!(io: file.tempfile, filename: "di-#{metadata.fetch('sessionId')}.wav", content_type: "audio/wav", identify: false)
-      row.assign_attributes(recording: metadata, preset_snapshot: metadata.fetch("capturePresetSnapshot"), snapshot_id: metadata.fetch("sessionId"), preset_id: nil, factory_preset: nil, input_monitoring: false)
+      previous = RecordingRevision.archive!(row)
+      row.audio.detach
+      playback_sound = row.attributes.slice("preset_snapshot", "snapshot_id", "preset_id", "factory_preset") if metadata["edit"]
+      row.assign_attributes(recording_version_id: metadata["sessionId"], recording: metadata.merge("previousVersionId" => previous.token), preset_snapshot: metadata.fetch("capturePresetSnapshot"), snapshot_id: metadata.fetch("sessionId"), preset_id: nil, factory_preset: nil, input_monitoring: false)
+      row.assign_attributes(playback_sound) if playback_sound
       row.audio.attach(blob)
       row.save!
+      RecordingRevision.prune!(row.project)
     end
-    render json: ProjectJson.track(row)
+    render json: ProjectJson.track(row).merge(previousRecordingVersionId: previous.token)
   rescue JSON::ParserError, ArgumentError => error
     render json: { error: error.message }, status: :unprocessable_content
   ensure
     blob&.purge if blob && !blob.attachments.exists?
+  end
+
+  # Undo/Redo switches immutable versions; it never reapplies compensation.
+  def recording_version
+    row = track
+    unless row.origin == "personal" && row.plays_through_preset? && row.timeline_visible && !row.removed_at
+      return render json: {error: "Only personal timeline recordings have versions"}, status: :unprocessable_content
+    end
+    current_user.with_lock do
+      row.reload
+      token = json_body["versionId"]
+      return render json: ProjectJson.track(row) if token.present? && row.recording_version_id == token
+      unless row.updated_at.iso8601(3) == json_body["expectedUpdatedAt"] && row.audio.blob&.checksum == json_body["expectedChecksum"]
+        return render json: {error: "Track changed. Reopen the project before restoring a take."}, status: :conflict
+      end
+      revision = row.recording_revisions.find_by(token: token)
+      return render json: {error: "This take is outside the two-version recovery history."}, status: :conflict unless revision
+      if revision.state["preset_id"].present? && !current_user.presets.exists?(id: revision.state["preset_id"])
+        return render json: {error: "The original library preset no longer exists; the current take is unchanged."}, status: :conflict
+      end
+      blob = revision.audio.blob if revision.audio.attached?
+      RecordingRevision.archive!(row)
+      row.audio.detach
+      row.assign_attributes(revision.state.merge("recording_version_id" => revision.token, "input_monitoring" => false))
+      row.audio.attach(blob) if blob
+      row.save!
+      revision.release!
+      RecordingRevision.prune!(row.project)
+    end
+    render json: ProjectJson.track(row)
   end
 
   # Keep audio and separation provenance: removing an instrument must not

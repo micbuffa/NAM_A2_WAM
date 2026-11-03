@@ -6,3 +6,5 @@ Encoded using `MixMp3Core` and the pinned `vendor/lamejs/lame.min.js`, stereo
 192 kbit/s; 3134 bytes. Tests use it for private upload/download byte equality,
 format and persistence. Encoder padding is expected. Upstream encoder notices
 are retained in its vendor directory. No user audio is included.
+
+Adaptive-rate fixtures `studio-mix-32000.mp3` and `studio-mix-48000.mp3`: generated with the same pinned lamejs/MixMp3Core, stereo192kbps,0.1s of a440Hz sine at amplitude0.1 in both channels. They qualify real MPEG sample-rate headers and Rails backing duration; no external audio. Encoder padding remains in the decoded files.
