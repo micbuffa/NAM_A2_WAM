@@ -14,8 +14,8 @@ export function armShortcut(event,{visible=true,busy=false,dialog=false}={}) {
 // Mono takes overwrite only the captured interval after successful finalization.
 // Immutable prior versions remain available through bounded Undo/Redo.
 export class StudioRecording {
-  constructor(workspace, {context, groupId, source, rack, enableLive, beginCalibration, lock = () => {}}) {
-    Object.assign(this, {workspace, context, groupId, source, rack, enableLive, lock});
+  constructor(workspace, {context, groupId, source, rack, enableLive, beginCalibration, monitoringChanged = () => {}, lock = () => {}}) {
+    Object.assign(this, {workspace, context, groupId, source, rack, enableLive, lock, monitoringChanged});
     this.armedId = null; this.state = 'idle'; this.pending = new Map();this.takeHistory=new RecordingHistory(this);
     this.metronome = new Metronome(context, workspace.player.output);
     this.metronome.addEventListener('tick',()=>{
@@ -295,6 +295,7 @@ export class StudioRecording {
     }
   }
   render() {
+    this.monitoringChanged?.();
     const w = this.workspace, $ = w.$, track = w.selectedTrack, eligible = this.eligible;
     if (!$('projectRecord')) return;
     this.takeHistory?.renderComparison?.();

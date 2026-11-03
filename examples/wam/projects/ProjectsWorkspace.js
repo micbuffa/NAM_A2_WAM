@@ -528,15 +528,17 @@ export class ProjectsWorkspace extends EventTarget {
   async deleteTrack(id, {confirm = confirmDialog} = {}) {
     const project = this.project, epoch = this.accountLoadEpoch;
     const track = timelineTracks(project).find(entry => entry.id === id);
-    if (!this.owned || this.saving || this.recording?.busy || this.recording?.pending.size || this.separation?.busy || this.separation?.result || !track) return;
+    if (!this.owned || this.saving || this.recording?.busy || this.separation?.busy || this.separation?.result || !track) return;
     const confirmed = await confirm({title: 'Delete track?', confirmLabel: 'Delete',
-      message: `Remove “${track.name}” from the timeline and mix? Its audio is kept in history. You can restore it from Options.`});
-    if (!confirmed || this.project !== project || this.accountLoadEpoch !== epoch || this.saving || this.separation?.busy || this.separation?.result) return;
+      message: this.recording?.pending.has(id)
+        ? `Remove “${track.name}” from the timeline and mix? Its unsaved take stays in RAM while retained by Undo history (the last two audio operations).`
+        : `Remove “${track.name}” from the timeline and mix? Its audio is kept in history. You can restore it from Options.`});
+    if (!confirmed || this.project !== project || this.accountLoadEpoch !== epoch || !this.owned || this.saving || this.recording?.busy || this.separation?.busy || this.separation?.result || !timelineTracks(project).some(entry=>entry.id===id)) return;
     if (await this.mutateTrackVisibility(id, false)) this.rememberVisibility(id, false, `Delete ${track.name}`, Boolean(track.audio));
   }
 
   async restoreTrack(id) {
-    if (!this.owned || this.saving || this.separation?.busy || this.separation?.result || !this.project?.tracks.some(track => track.id === id && track.removedAt)) return;
+    if (!this.owned || this.saving || this.recording?.busy || this.separation?.busy || this.separation?.result || !this.project?.tracks.some(track => track.id === id && track.removedAt)) return;
     const track = this.project.tracks.find(track => track.id === id);
     if (await this.mutateTrackVisibility(id, true)) this.rememberVisibility(id, true, `Restore ${track.name}`, Boolean(track.audio));
   }
@@ -550,9 +552,11 @@ export class ProjectsWorkspace extends EventTarget {
       if (this.project !== project || this.accountLoadEpoch !== epoch) return;
       // Keep unsaved names and mixer settings; only the removal is saved now.
       const merge = tracks => tracks.map(track => track.id === id ? {...track,
-        removedAt: changed.removedAt, timelineVisible: changed.timelineVisible, inputMonitoring: false} : track);
+        removedAt: changed.removedAt, timelineVisible: changed.timelineVisible, inputMonitoring: false,
+        ...(changed.updatedAt ? {updatedAt:changed.updatedAt} : {})} : track);
       project.tracks = merge(project.tracks);
       this.saved.tracks = merge(this.saved.tracks);
+      this.recording?.takeHistory?.visibilityChanged(id,restore);
       this.separation?.restore(project);
       if (!timelineTracks(project).some(track => track.id === this.selectedId)) this.selectedId = timelineTracks(project)[0]?.id ?? null;
       this.replaceSummary(project);
@@ -684,7 +688,8 @@ export class ProjectsWorkspace extends EventTarget {
       if (this.project?.id !== projectId || this.accountLoadEpoch !== epoch) throw Error('Project changed.');
       if (!await this.mutateTrackVisibility(id, visible)) throw Error('Track change was not applied.');
     };
-    this.history.record({label, audio, undo: () => apply(!restore), redo: () => apply(restore)});
+    const take=this.recording?.pending.get(id)??this.recording?.takeHistory?.removed.get(id);
+    this.history.record({label, audio, recordingTakes:take?[take]:[], undo: () => apply(!restore), redo: () => apply(restore)});
   }
 
   editPresetInTone(id=this.selectedId) {

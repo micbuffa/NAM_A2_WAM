@@ -1,3 +1,5 @@
+import {toneMonitoringGain} from './LiveMonitoring.js';
+import {inputGainDialog} from './InputGainView.js';
 import {OfflinePresetRenderer} from './projects/OfflinePresetRenderer.js';
 import {createOfflinePresetRack} from './projects/OfflinePresetRack.js';
 import './backing-track-player/BackingTrackPlayerElement.js';
@@ -289,8 +291,8 @@ async function initialize() {
   };
   rack=new FxRack({context,a:chain,source:sourceManager,createLane:()=>createLane()});
   window.phase3Debug.rack=rack;
-  // While the live guitar plays through a project track (the monitoring or
-  // selected one, liveTrackId()), Tone's rack is silenced (toneGate).
+  // Studio uses only track monitoring. Keep physical capture available for
+  // arming/meters, but never sum the Tone rack into Studio monitoring.
   const toneGate=context.createGain();
   toneGate.connect(context.destination);
   // Play along (Tone): a backing track mixed with the guitar, before toneGate.
@@ -346,7 +348,7 @@ async function initialize() {
   const syncMonitoring=()=>{
     const id=workspaces.current==='projects'?projectPlayer.liveId:null;
     projectPlayer.setLiveInput(trackSoundEditor?.audioEditing||id===null?null:sourceManager.sourceTrim);
-    toneGate.gain.setTargetAtTime(!calibrationMuted&&!trackSoundEditor?.audioEditing&&workspaces.current==='tone'?1:0,context.currentTime,.01);
+    toneGate.gain.setTargetAtTime(toneMonitoringGain({workspace:workspaces.current, editingAudio:trackSoundEditor?.audioEditing, calibrationMuted}),context.currentTime,.01);
   };
   projectPlayer.addEventListener('statechange',syncMonitoring);
   workspaces.addEventListener('change',syncMonitoring);
@@ -430,6 +432,17 @@ async function initialize() {
   $('#sourceTrim').oninput = () => {
     const value = sourceManager.setTrimDb(Number($('#sourceTrim').value), trackSoundEditor?.audioEditing||$('#audioSource').value === 'live' ? 'live' : 'file');
     $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;trackSoundEditor?.syncInputGain();presets.scheduleCheck();
+  };
+  const autoGain = (channel, apply) => {
+    try { inputGainDialog({context,source:sourceManager,channel,apply,allowed:()=>!projects.recording?.busy&&!trackSoundEditor?.active&&!calibrationMuted}); }
+    catch(error) { message(error.message,true); }
+  };
+  $('#chainInputAuto').onclick=()=>autoGain(sourceManager.liveInput?.channelIndex, db=>{
+    $('#sourceTrim').value=db;$('#sourceTrim').dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  $('#chainBInputAuto').onclick=()=>{
+    if(rack.route)return message('Chain B uses the routed signal from A. Adjust Input A instead.',true);
+    autoGain(rack.channelB,db=>rack.setInputDbB(db));
   };
   $('#chainInputReset').onclick=()=>{
     const mode=trackSoundEditor?.audioEditing||$('#audioSource').value==='live'?'live':'file';
@@ -550,7 +563,7 @@ async function initialize() {
   }});
   for(const [id,operation]of [['trackSoundPlay',()=>trackSoundEditor.togglePlay()],['trackSoundLoop',()=>trackSoundEditor.toggleLoop()],['trackSoundSave',()=>trackSoundEditor.finish()],['trackSoundCancel',()=>trackSoundEditor.cancel()]])$('#'+id).onclick=()=>Promise.resolve().then(operation).catch(error=>message(error.message,true));
   window.phase3Debug.trackSoundEditor=trackSoundEditor;
-  projects.attachRecording({context, groupId, source: sourceManager, rack, beginCalibration: () => {
+  projects.attachRecording({context, groupId, source: sourceManager, rack, monitoringChanged:syncMonitoring, beginCalibration: () => {
     calibrationMuted=true;
     const release=guardCalibrationAudio({context,source:sourceManager,outputs:[toneGate,projectPlayer.output],
       pause:()=>{ window.phase3Debug.tuner?.close(); projectPlayer.preview?.pause();projectPlayer.base.pause();playAlong.engine.pause();sourceManager.player.pause();syncMonitoring(); },
@@ -561,6 +574,7 @@ async function initialize() {
     if (!liveInputEnabled) { $('#audioSource').value = 'live'; setPlayerEnabled(false); selectedDeviceId = $('#inputDevice').value; await activateSelectedLiveInput(); }
     await resumed;
   }, lock: locked => {
+    syncMonitoring();
     $('#workspaceSwitch').disabled = locked; $('#settingsButton').disabled = locked;
     $('#enableLive').disabled = locked;
     $('#devices-title').closest('.host-card').inert = locked;

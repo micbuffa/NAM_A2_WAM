@@ -27,6 +27,10 @@ La préparation d’un autre passage doit réussir avant toute modification de l
 
 Les alternatives de boucle sont libérées **uniquement après réussite de la sauvegarde complète** (audio, paramètres du projet et éventuel preset réutilisable). Si l’upload a réussi mais qu’une étape suivante échoue, il n’est pas répété inutilement et les alternatives restent disponibles. L’utilisateur peut même choisir une autre prise avant de réessayer. À la réouverture, seule la prise choisie est restaurée, avec sa DI, son preset et ses réglages ; les autres passages temporaires ne sont pas un historique permanent. Détails : docs/LOOP_TAKE_RECOVERY_VALIDATION.md.
 
+### Carte de tempo et drums suivant une prise — [SPECIFIED / NOT IMPLEMENTED]
+
+Voir [TEMPO_MAP_SPECIFICATION.md](TEMPO_MAP_SPECIFICATION.md). Prévoir Beat This! final0 pour l’analyse beats/downbeats d’un import à tempo variable ou d’une rythmique guitare/basse après Stop, y compris en RAM. Proposition à valider avant application au projet, grille/Click suivant la carte, puis patterns drums rendus en accompagnement aligné. DI/placement/compensation inchangés ; aucun time-stretch. Le comportement ci-dessous reste celui du tempo fixe actuel.
+
 ### Décompte, métronome et tempo — implémentés
 
 - Par défaut, **une mesure avant la prise**, puis clic désactivé pendant la prise. Menu Off / 1 bar / 2 bars ; bouton métronome pour activer/couper le clic pendant la prise.
@@ -393,3 +397,13 @@ Settings → Appearance → Track control style : Logic-like I/R, Ableton-like I
 ### Export des prises avec leur son — 3 novembre 2026
 
 Use mix in Tone rend désormais la DI dans un rack offline propre à la piste, sans modifier sa capture ni le rack live. Même trim d'entrée DI que la lecture TrackTones, même routage A/B, pans/gains/Mute/Solo ; variante NAM Lite comme la lecture normale Studio. Fréquence vérifiée dans les modèles et IR avant conversion, MP3 conservé à48kHz si possible. Queue0–10s (2s par défaut) pour morceau entier ; A/B exactement borné après prélecture depuis le début. Preset manquant/erreur incompatible/ancienne IR à fréquence inconnue : refus explicite, pas de DI sèche de substitution. Snapshot et révision du preset de bibliothèque sont vérifiés lors de la publication. Méthode et qualification dans docs/PROCESSED_MIX_EXPORT.md.
+
+### Niveau live entre Tone et Studio et gain automatique (3 novembre 2026)
+
+Dans Studio, seul le monitoring des pistes peut rendre l’entrée audible : le rack live Tone est coupé dans cet onglet, même sans piste armée. L’entrée physique reste disponible pour les vu-mètres et le DI. Le bouton global Live input reste uniquement dans Tone ; Studio active l’entrée lors de l’armement ou du monitoring. Le retour dans Tone restitue le niveau existant sans changer gain/preset. L’armement avec monitoring coupé conserve le silence, y compris au décompte et pendant la prise. Le master Studio ne règle pas la sortie live de Tone. L’isolation de la calibration round-trip et de l’édition FX d’un audio existant reste prioritaire.
+
+Dans Tone, **Auto-calibrate** (bouton principal accentué) sur l’entrée demande de mettre le volume de la guitare à fond et de gratter fort pendant cinq secondes. Mesure du canal physique choisi avant trim/effets, maximum des crêtes, cible −6 dBFS ; bornes existantes −48/+12 dB et pas de0,5 dB. Signal absent/trop faible ou entrée saturée : ne pas modifier le gain, expliquer comment recommencer. Ce réglage logiciel ne répare pas une saturation de la carte son. Annulation, changement d’entrée et suspension audio libèrent le tap sans application. Input B indépendant dispose de la même commande ; B routé depuis A renvoie vers A. Interdit pendant une prise/calibration/édition FX, aucune modification du DI ni de sa compensation de latence.
+
+### Suppression après Stop (3 novembre 2026)
+
+Une prise en RAM non sauvegardée ne bloque pas la suppression des pistes. Suppression avec confirmation, interdite pendant la capture/finalisation. Si la piste supprimée contient une prise non sauvegardée, la retirer de la file d’envoi sans perdre le Blob : Undo/Redo et restauration la rétablissent tant que l’historique limité aux deux dernières opérations audio la retient. L’expiration libère les ressources ; Options peut toujours restaurer le dernier audio sauvegardé. Une restauration met à jour la précondition de version serveur pour permettre ensuite Save project sans conflit artificiel. Une erreur de suppression laisse la piste et la prise inchangées.

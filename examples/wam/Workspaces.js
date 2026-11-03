@@ -1,6 +1,7 @@
 // Tone / Studio workspaces (topbar switch), as in the TONELAB mockup.
-// Switching only changes what is shown (body[data-workspace] + CSS): the rack
-// and the open project keep playing (the Play along pauses outside Tone). The choice is remembered in this browser.
+// The open project can keep playing across views; Play along pauses outside
+// Tone. Host routing mutes Tone in Studio, where track monitoring owns live audio.
+// The choice is remembered in this browser.
 export const WORKSPACES = ['tone', 'projects'];
 const STORAGE_KEY = 'nam-a2-wam.workspace';
 const RENAMED = {tracks: 'projects'}; // remembered before the Tracks tab became Projects (now Studio)

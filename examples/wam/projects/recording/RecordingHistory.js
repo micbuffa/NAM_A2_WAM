@@ -2,7 +2,24 @@
 export const RECORDING_FIELDS=['audio','recording','presetSnapshot','snapshotId','presetId','factoryPreset','recordingVersionId'];
 const fields=track=>Object.fromEntries(RECORDING_FIELDS.map(key=>[key,structuredClone(track?.[key]??null)]));
 export class RecordingHistory {
-  constructor(recording){this.recording=recording;this.resources=new Set();}
+  constructor(recording){this.recording=recording;this.resources=new Set();this.removed=new Map();}
+  // Deleted RAM takes stay in bounded Undo history, not in the upload queue.
+  // Soft deletion/restoration updates the server timestamp used by the next save.
+  visibilityChanged(id,visible){
+    const r=this.recording,w=r.workspace;
+    if(visible){
+      const take=this.removed.get(id);
+      if(take){
+        const saved=w.saved.tracks.find(t=>t.id===id);
+        take.expectedUpdatedAt=saved.updatedAt;take.replaceChecksum=saved.audio?.checksum??null;
+        r.pending.set(id,take);this.removed.delete(id);
+      }
+    }else{
+      const take=r.pending.get(id);
+      if(take){this.removed.set(id,take);r.pending.delete(id);}
+      if(r.armedId===id){r.armedId=null;r.releaseMeter();}
+    }
+  }
   version(track,take=null,wave=null){return{trackId:track?.id,fields:fields(track),take,wave,serverId:track?.recordingVersionId??null};}
   remember(before,after,take,beforeTake,beforeWave,afterWave){
     const r=this.recording,w=r.workspace,project=w.project,epoch=w.accountLoadEpoch;
@@ -70,9 +87,15 @@ export class RecordingHistory {
   collect(){
     const r=this.recording,w=r.workspace,keep=new Set([...r.pending.values(),r.active?.beforeTake].filter(Boolean));
     for(const command of w.history?.entries??[])for(const take of command.recordingTakes??[])keep.add(take);
+    for(const [id,take] of this.removed)if(!keep.has(take)){
+      // Once the bounded history expires, Options restores the last saved audio.
+      const saved=w.saved?.tracks.find(t=>t.id===id);
+      if(saved&&w.project)w.project.tracks=w.project.tracks.map(t=>t.id===id?{...t,...fields(saved)}:t);
+      this.removed.delete(id);
+    }
     for(const take of this.resources)if(!keep.has(take)){
       if(!take.adopting)URL.revokeObjectURL(take.url);take.file=null;this.resources.delete(take);
     }
   }
-  clear(){for(const take of this.resources){if(!take.adopting)URL.revokeObjectURL(take.url);take.file=null;}this.resources.clear();}
+  clear(){for(const take of this.resources){if(!take.adopting)URL.revokeObjectURL(take.url);take.file=null;}this.resources.clear();this.removed.clear();}
 }

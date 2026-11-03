@@ -81,3 +81,54 @@ test('removing the last track and restoring it works with an empty saved deck', 
   await w.restoreTrack(1);
   assert.deepEqual(w.displayTracks.map(t => t.id), [1]); assert.equal(w.selectedId, 1);
 });
+
+test('a stopped unsaved take does not prevent deleting another track',async()=>{
+  const w=workspace(),take={url:'blob:take'};w.recording={busy:false,pending:new Map([[1,take]])};
+  let asked=0;await w.deleteTrack(2,{confirm:async()=>{asked++;return true;}});
+  assert.equal(asked,1);assert.deepEqual(w.playingIds,[1]);assert.equal(w.recording.pending.get(1),take);
+});
+
+test('starting capture during the confirmation prevents a late deletion',async()=>{
+  const w=workspace();w.recording={busy:false,pending:new Map()};let called=false;
+  w.api.deleteTrack=async()=>{called=true;};
+  await w.deleteTrack(1,{confirm:async()=>{w.recording.busy=true;return true;}});
+  assert.equal(called,false);
+});
+
+import {StudioHistory} from '../../examples/wam/projects/StudioHistory.js';
+import {RecordingHistory} from '../../examples/wam/projects/recording/RecordingHistory.js';
+import {StudioRecording} from '../../examples/wam/projects/recording/StudioRecording.js';
+function withTake(){
+  const w=workspace(),r=w.recording={workspace:w,busy:false,armedId:1,pending:new Map(),releaseMeter(){this.released=true;}};
+  w.project.tracks[0]={...w.project.tracks[0],origin:'personal',instrument:'guitar',audio:{url:'blob:take'},recording:{sessionId:'new'},presetSnapshot:{version:2},updatedAt:'old'};
+  w.saved.tracks[0]={...w.saved.tracks[0],origin:'personal',instrument:'guitar',audio:{url:'/saved.wav',checksum:'saved'},updatedAt:'old'};
+  const take={url:'blob:take',file:new Blob(['DI']),metadata:{sessionId:'new'},expectedUpdatedAt:'old',replaceChecksum:'saved'};
+  r.pending.set(1,take);r.takeHistory=new RecordingHistory(r);r.takeHistory.resources.add(take);
+  w.history=new StudioHistory({changed:()=>r.takeHistory.collect()});
+  w.api.deleteTrack=async()=>({removedAt:'date',timelineVisible:false,updatedAt:'deleted'});
+  w.api.restoreTrack=async()=>({removedAt:null,timelineVisible:true,updatedAt:'restored'});
+  return{w,r,take};
+}
+test('deleting the recorded RAM track supports Undo/Redo without losing its take or uploading hidden audio',async()=>{
+  const {w,r,take}=withTake();
+  await w.deleteTrack(1,{confirm:async()=>true});
+  assert.deepEqual(w.playingIds,[2]);assert.equal(r.pending.size,0);assert.equal(r.takeHistory.removed.get(1),take);
+  assert.equal(r.armedId,null);assert.equal(r.released,true);assert.equal(w.history.entries[0].recordingTakes[0],take);
+  let uploads=0;w.api.saveRecording=async()=>{uploads++;throw Error('must not upload a removed take');};
+  await StudioRecording.prototype.save.call(r);assert.equal(uploads,0);
+  await w.history.step(false);assert.deepEqual(w.playingIds,[1,2]);assert.equal(r.pending.get(1),take);
+  assert.equal(take.expectedUpdatedAt,'restored');assert.equal(take.replaceChecksum,'saved');assert.equal(w.project.tracks[0].audio.url,'blob:take');
+  await w.history.step(true);assert.equal(r.pending.size,0);assert.equal(take.file.size,2);
+  await w.restoreTrack(1);assert.equal(r.pending.get(1),take);assert.equal(w.project.tracks[0].recording.sessionId,'new');
+});
+test('failed soft deletion keeps the unsaved take queued and the track unchanged',async()=>{
+  const {w,r,take}=withTake();w.api.deleteTrack=async()=>{throw Error('offline');};
+  await w.deleteTrack(1,{confirm:async()=>true});assert.equal(r.pending.get(1),take);
+  assert.equal(r.takeHistory.removed.size,0);assert.equal(w.history.entries.length,0);assert.equal(w.project.tracks[0].removedAt,undefined);
+});
+test('bounded deletion history frees its RAM take and Options restores the saved audio after expiry',async()=>{
+  const {w,r,take}=withTake();await w.deleteTrack(1,{confirm:async()=>true});
+  w.history.record({label:'Audio change 1',audio:true});w.history.record({label:'Audio change 2',audio:true});
+  assert.equal(r.takeHistory.removed.size,0);assert.equal(take.file,null);assert.equal(r.takeHistory.resources.size,0);
+  await w.restoreTrack(1);assert.equal(r.pending.size,0);assert.equal(w.project.tracks[0].audio.url,'/saved.wav');
+});

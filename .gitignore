@@ -39,3 +39,6 @@
 __pycache__/
 
 /examples/wam/source-separation/model-assets/direct-webnn/
+
+# Local Beat This qualification weights (downloaded on demand in the browser)
+/examples/wam/source-separation/model-assets/beat-this/

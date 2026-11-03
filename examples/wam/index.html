@@ -43,8 +43,9 @@
         <label>Output <tl-select icon="headphones"><select id="outputDevice" title="Output device"><option value="">System default</option></select></tl-select></label>
         <tl-button class="host-secondary" id="authorizeOutput" block icon="headphones">Choose output</tl-button>
         <p class="host-help" id="outputSupport"></p>
-        <tl-button class="host-secondary live-toggle" id="enableLive" block variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button>
-        <p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p>
+        <tl-button class="host-secondary live-toggle" id="enableLive" data-workspace="tone" block variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button>
+        <p class="host-help" id="inputChannelStatus" data-workspace="tone">Enable live input to detect the available channels.</p>
+        <p class="host-help" data-workspace="projects">Arm a track to enable its input and meter. Use its monitoring button to hear your instrument.</p>
         <tl-button class="host-secondary" id="recoverAudio" block variant="danger" icon="power" hidden>Recover audio</tl-button>
       </section>
 
@@ -116,7 +117,7 @@
       <div class="rack-canvas">
       <p class="fx-help">Drop on a card to swap · Drop on + to insert at that position · Alt + ← / → to move. All plugins can be removed and added with +.</p>
       <section class="fx-rack" aria-label="Processing chain A">
-        <aside class="fx-endpoint" aria-label="Chain A input">
+        <aside class="fx-endpoint fx-input-strip" aria-label="Chain A input">
           <header class="fx-endpoint-head"><span class="fx-endpoint-badge" aria-hidden="true">IN</span><div class="fx-endpoint-titles"><small>Input</small><strong>Input A</strong></div><i class="fx-endpoint-dot" aria-hidden="true"></i></header>
           <div class="fx-endpoint-routing">
             <label class="fx-select-label" id="inputChannelRow" hidden><span>Input channel</span><tl-select size="sm" icon="guitar"><select id="inputChannel" title="Input channel"><option value="0">Input 1</option></select></tl-select></label></div>
@@ -124,8 +125,11 @@
             <div><span aria-hidden="true">L</span><i class="fx-hbar" id="chainInputMeterL" role="meter" aria-label="Input left level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"><b></b></i><output id="chainInputLevelL">−∞</output></div>
             <div><span aria-hidden="true">R</span><i class="fx-hbar" id="chainInputMeterR" role="meter" aria-label="Input right level dBFS" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"><b></b></i><output id="chainInputLevelR">−∞</output></div>
           </div>
-          <tl-knob class="fx-gain" label="Input gain"><input id="sourceTrim" aria-label="Input gain" type="range" min="-48" max="12" step="0.5" value="0"><output slot="value" id="sourceTrimValue">0.0 dB</output></tl-knob>
-          <tl-button class="fx-endpoint-reset" id="chainInputReset" size="sm" aria-label="Reset input gain">Reset</tl-button>
+          <div class="fx-input-gain-row">
+            <tl-knob class="fx-gain" label="Input gain"><input id="sourceTrim" aria-label="Input gain" type="range" min="-48" max="12" step="0.5" value="0"><output slot="value" id="sourceTrimValue">0.0 dB</output></tl-knob>
+            <tl-button class="fx-endpoint-reset" id="chainInputReset" size="sm" aria-label="Reset input gain">Reset</tl-button>
+          </div>
+          <tl-button class="fx-input-auto" id="chainInputAuto" variant="primary" size="sm" aria-label="Auto-calibrate input gain" title="Strum hard for 5 seconds to set input gain automatically">Auto-calibrate</tl-button>
         </aside>
         <section class="fx-chain" id="fxChain" aria-label="Effects — click to select, double-click or Enter to edit, drag or Alt + arrow keys to move, Delete to remove"></section>
         <aside class="fx-endpoint fx-output-strip" aria-label="Chain A output">

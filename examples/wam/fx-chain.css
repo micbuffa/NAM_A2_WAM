@@ -273,3 +273,10 @@
 
 /* The catalog thumbnail and title also support double-click insertion/replacement. */
 .fx-menu-item { cursor: pointer; }
+
+/* Keep calibration legible and full-height instead of letting flex shrink it. */
+.fx-input-strip { gap: 4px; }
+.fx-input-gain-row { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 82px; flex: none; }
+.fx-input-gain-row .fx-gain { margin: 0; }
+.fx-input-gain-row .fx-endpoint-reset { margin: 0; padding-inline: 5px; font-size: 10px; }
+.fx-input-auto { flex: none; box-sizing: border-box; min-height: 30px; width: 100%; margin-top: auto; font-size: 11px; }

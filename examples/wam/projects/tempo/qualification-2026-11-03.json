@@ -1,0 +1,237 @@
+{
+  "date": "2026-11-03",
+  "status": "T1-T2-local-numerical-and-preview-qualification",
+  "model": {
+    "id": "beat-this-final0",
+    "version": "25308706dda545c0d5950065bb0604ad71bcf1f5",
+    "sha256": "1337dc6c21257ed6b803418efc320df42b5d8eb296ef16648ef60457cd4b9e55"
+  },
+  "browserRuntime": "onnxruntime-web 1.30.0",
+  "referenceVersions": {
+    "torch": "2.15.0",
+    "torchaudio": "2.11.1",
+    "beat-this": "1.1.0",
+    "onnxruntime": "1.31.1",
+    "numpy": "2.5.4"
+  },
+  "scope": "Numerical qualification on controlled inputs; no annotated beat accuracy or cross-device performance claim.",
+  "toleranceMaxAbs": 0.002,
+  "musicLong": {
+    "description": "Three consecutive copies of the existing CC BY 3.0 Slow Motion Dream excerpt, decoded by ffmpeg to stereo float32, arithmetic-mean downmix, Python soxr resampling to22050, quantized PCM16. Repetition deliberately exercises shifted-tail overlap; not three independent musical examples.",
+    "attribution": "Steven M Bryant (2011), CSoul, Alex Beroza & Robert Siekawitch; existing Spleeter fixture; see source-separation/fixtures/music/NOTICE.md.",
+    "audioSha256": "945a5bfd9574872c0c6d2221426a136859867091413e7b4d6d4f414e6ab8b8fc",
+    "pcmSha256": "069d959814152cf6f200d10e4bb939c572e4f84a7e67f7529af51b9315000702",
+    "duration": 32.64163265306122,
+    "sampleRate": 22050,
+    "frames": 1633,
+    "starts": [
+      -6,
+      139
+    ],
+    "torchVsOnnxMaxAbs": [
+      {
+        "beat": 0.00012302398681640625,
+        "downbeat": 9.679794311523438e-05
+      },
+      {
+        "beat": 8.7738037109375e-05,
+        "downbeat": 6.389617919921875e-05
+      }
+    ],
+    "browserComparison": {
+      "maxAbs": {
+        "beat": 4.9591064453125e-05,
+        "downbeat": 5.340576171875e-05
+      },
+      "beatsIdentical": true,
+      "downbeatsIdentical": true
+    },
+    "beats": 61,
+    "downbeats": 16,
+    "medianBpm": 111.1111111111111,
+    "timingMs": {
+      "cacheVerifyMs": 171.19999998807907,
+      "featuresMs": 66.7150000333786,
+      "sessionSetupMs": 884.0849999785423,
+      "windowsMs": [
+        3944.639999985695,
+        3898.7950000166893
+      ],
+      "parityMs": 0,
+      "postprocessMs": 0.9299999475479126,
+      "processingMs": 7843.435000002384,
+      "totalMs": 8966.785000026226
+    },
+    "timingCaution": "Single run in development browser, no warmup/repeated statistical benchmark; total excludes file decode, includes cache verification/features/session/inference/postprocess.",
+    "torchOnnxEventsIdentical": true
+  },
+  "shortContextFailure": {
+    "duration": 10.880544217687074,
+    "staticBeats": 11,
+    "staticDownbeats": 5,
+    "officialDynamicBeats": 21,
+    "officialDynamicDownbeats": 6,
+    "conclusion": "Zero padding short inputs to1500 frames changes attention context. Static-graph parity does not qualify the original variable-length pipeline."
+  },
+  "gpuRejection": {
+    "input": "12s synthetic 120 BPM pulse pattern, mono22050",
+    "runtimesTested": [
+      "onnxruntime-web1.22.0",
+      "onnxruntime-web1.30.0"
+    ],
+    "nativeObservedMaxAbs": 10.514699935913086,
+    "wasmCounts": [
+      25,
+      10
+    ],
+    "gpuCountsBeforeGate": [
+      25,
+      7
+    ],
+    "policy": "Reject if any window logits exceed0.002 or final events differ from WASM. No hidden fallback; select CPU explicitly. Root GPU operator cause not isolated."
+  },
+  "tests": {
+    "javascript": 648,
+    "newTempoTests": 24,
+    "failed": 0,
+    "skipped": 0,
+    "native": [
+      "remote pinned download and verified cache",
+      "CPU musical and synthetic inference",
+      "exact WAV input",
+      "two overlapping windows",
+      "generation/cancel resets controls",
+      "GPU divergent result rejection"
+    ]
+  },
+  "remaining": [
+    "Qualify dynamic/short-context export",
+    "Cross-browser/device validation of GPU workaround",
+    "Independent annotated live/DI guitar corpus and device tests",
+    "Studio tempo-map integration T2–T5"
+  ],
+  "gpuWorkaround": {
+    "status": "validated on development Chromium browser; per-analysis WASM gate retained",
+    "cause": "ReduceL2 WebGPU normalization: same-rank reductions with different widths reuse a shader whose loop bound is generated from a particular shape. Intermediate tensors match until the first width64 normalization. Minimal two-width all-ones reproduction produces sqrt(64) for the width32 reduction.",
+    "upstreamSource": "https://github.com/microsoft/onnxruntime/blob/v1.30.0/js/web/lib/wasm/jsep/webgpu/ops/reduce.ts",
+    "minimalRepro": {
+      "input": [
+        1500,
+        1,
+        32
+      ],
+      "values": "ones",
+      "secondInput": "Concat(x,x) on last axis",
+      "cpuFirst": {
+        "width32": 5.656854152679443,
+        "width64": 8
+      },
+      "gpuUnpatchedFirst": {
+        "width32": 8,
+        "width64": 8
+      }
+    },
+    "patch": "beat-this-webgpu-patch.json",
+    "generator": "tools/prepare-beat-this-webgpu.py",
+    "patchIdentity": {
+      "patchSha256": "334717a4b3329869e910b677fcbd712096690f5d9d4c65fa6bf8452399de24ff",
+      "targetSha256": "7cc392e287c12ce27642fd5f04f0d4dfb47102d20eabe51b466a38a0786b3ba3",
+      "targetSize": 190670576,
+      "reductions": 25
+    },
+    "implementation": "GPU only: hash-bound byte patch replaces25 ReduceL2 with Mul(x,x), ReduceSum using equivalent axes/keepdims, Sqrt; copied learned parameters unchanged. Original WASM model remains the reference.",
+    "initializersIdentical": true,
+    "initializerCount": 561,
+    "sourceReduceL2": 25,
+    "targetReduceL2": 0,
+    "nativeOriginalVsPatchedMaxAbs": {
+      "beat": 3.719329833984375e-05,
+      "downbeat": 3.8623809814453125e-05
+    },
+    "userAudio": {
+      "description": "User-provided320s stereo MP3 rock mix, analysed first30s locally. No audio or features included in this repository/report.",
+      "duration": 30,
+      "frames": 1501,
+      "starts": [
+        -6,
+        7
+      ],
+      "beats": 50,
+      "downbeats": 13,
+      "medianBpm": 100.00000000000036,
+      "eventsIdenticalToOriginalWasm": true,
+      "parity": [
+        {
+          "passed": true,
+          "maxAbs": 5.435943603515625e-05,
+          "tolerance": 0.002
+        },
+        {
+          "passed": true,
+          "maxAbs": 6.580352783203125e-05,
+          "tolerance": 0.002
+        }
+      ],
+      "timingMs": {
+        "cacheVerifyMs": 164.375,
+        "featuresMs": 63.855000019073486,
+        "graphPreparationMs": 193.55500000715256,
+        "sessionSetupMs": 1152.5649999976158,
+        "windowsMs": [
+          236.38999998569489,
+          151.90499997138977
+        ],
+        "parityMs": 8300.52999997139,
+        "postprocessMs": 0.8100000023841858,
+        "processingMs": 388.29499995708466,
+        "totalMs": 10264.649999976158
+      }
+    },
+    "synthetic": {
+      "duration": 12,
+      "bpm": 120,
+      "beats": 25,
+      "downbeats": 10,
+      "eventsIdenticalToOriginalWasm": true
+    },
+    "performanceCaution": "GPU processing is measured separately from the intentionally expensive original-WASM parity check and graph-patch preparation. Single development runs, no statistical speed claim."
+  },
+  "shortDynamic": {
+    "durationSeconds": 10.880544217687074,
+    "frames": 557,
+    "beats": 21,
+    "downbeats": 6,
+    "browserVsNativeMaxAbs": 3.33786e-05,
+    "officialEventsMatch": true,
+    "shapeProbeFrames": [
+      14,
+      37,
+      113,
+      557,
+      613,
+      1013,
+      1499,
+      1500
+    ],
+    "torchVsNativeMaxAbs": 6.08e-06,
+    "gpuPreferredLayout": "NCHW",
+    "recipeSha256": "d75c4f7a8a355a673a8fcc4a2627d44e63f521db0fb96f2e7ae29981fe8dfeb7",
+    "graphSha256": "51c8c97f3013190b8d49d2f79dc40173f0cd4d7d4e3df598537821ae440a77cb",
+    "description": "Same existing CC BY musical excerpt as musicLong, single copy; real short context, technical borders only."
+  },
+  "preview": {
+    "projectModified": false,
+    "unitTests": 16,
+    "nativeUi": [
+      "half/double/reset",
+      "first beat and three-beat grouping",
+      "A=1 B=6 audition",
+      "click off retains original audio",
+      "Stop releases audition",
+      "dynamic session reused at 5 seconds",
+      "dynamic-to-fixed transition: 32.6416s / 61 beats / 16 downbeats, WASM parity passed",
+      "fixed-to-dynamic transition: synthetic 12s / 120BPM / 24 beats / 7 downbeats, WASM parity passed"
+    ],
+    "limitations": "No annotated musical accuracy or multi-device claims; map persistence and Studio transport are future tasks."
+  }
+}
