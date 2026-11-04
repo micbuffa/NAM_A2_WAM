@@ -76,7 +76,7 @@ export class RecordingCalibration {
     Object.assign(level,{type:'range',min:-30,max:-6,step:3,value:-18});level.setAttribute('aria-label','Test signal level');levelValue.textContent='-18 dBFS';levelLabel.append('Test signal level ',level,levelValue);
     const acknowledgement=document.createElement('label'),check=document.createElement('input'),checkText=document.createTextNode('');check.type='checkbox';check.disabled=r.source.mode!=='live';acknowledgement.append(check,checkText);
     const describe=()=>{
-      const common='All microphone routes into Tone/Studio are disconnected for the entire assistant. Input is disabled on close before restoring the outputs.';
+      const common='All microphone routes into Play/Studio are disconnected for the entire assistant. Input is disabled on close before restoring the outputs.';
       instructions.textContent=method.value==='acoustic'?`Speakers → microphone test: start with a moderate speaker volume in a quiet room. Six chirps measure the speaker, microphone and acoustic propagation together. This is an acoustic estimate, not a cable calibration. ${common}`:`Disconnect the instrument and connect output ${Number(this.$('recordCalibrationOutput').value)+1} to input ${(r.source.liveInput?.channelIndex??0)+1} on the audio interface. Turn off hardware direct monitoring and speakers. Use a moderate input gain, without clipping. Six test signals take about seven seconds. ${common} Remove the cable before enabling input again.`;
       checkText.textContent=method.value==='acoustic'?' Speaker volume moderate; ready for acoustic test':' Cable connected; hardware direct monitoring and speakers off';
     };
@@ -127,7 +127,7 @@ export class RecordingCalibration {
     try{
       finish=this.beginCalibration();r.armedId=null;r.setState('calibrating');dialog.showModal();
       if(r.source.mode!=='live'){
-        status.textContent='Opening calibration input with Tone/Studio monitoring disconnected…';
+        status.textContent='Opening calibration input with Play/Studio monitoring disconnected…';
         await r.enableLive();
         if(!dialog.open)return;
         if(r.source.mode!=='live')throw Error('No live input available.');

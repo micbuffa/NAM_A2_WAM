@@ -3,9 +3,9 @@ import {isFactoryPreset} from './FactoryPresets.js';
 
 const LAST_PRESET_KEY = 'nam-a2-wam.last-preset';
 
-// Presets, as in the TONELAB mockup: the sidebar picker (#presetsPanel, "My
-// presets" then "Factory") and "New preset", plus the preset header above
-// the rack (name, rename, Delete, Save). A preset is the whole rack. My
+// Presets: the rack header holds the picker (#presetsPanel, "My presets"
+// then "Factory") and "New preset", next to the preset's name, rename,
+// Delete and Save. A preset is the whole rack. My
 // presets use the account store when signed in; without accounts (static
 // distribution), IndexedDB. Factory
 // presets are read-only recipes (FactoryPresets.js). The preset last loaded
@@ -88,7 +88,7 @@ export default class PresetsPanel extends EventTarget {
     this.$('presetSaveButton').onclick = () => this.save();
     this.$('presetDelete').onclick = () => this.active && this.remove(this.active);
     this.$('presetRename').onclick = () => this.active && this.rename(this.active);
-    this.$('presetRevert').onclick = () => this.active && this.load(this.active.id);
+    this.$('presetRevert').onclick = () => this.externalEditor ? this.externalEditor.revert().catch(error=>this.report(error.message,true)) : this.active && this.load(this.active.id);
     this.account?.addEventListener('change', ({detail: {previous, user}}) => {
       this.syncing = this.accountChanged({signedOut: Boolean(previous && !user)})
         .catch((error) => this.report(`Presets not updated: ${error.message}`, true));
@@ -258,7 +258,7 @@ export default class PresetsPanel extends EventTarget {
       return element;
     };
     const select = this.$('presetSelect');
-    const placeholder = Object.assign(new Option('Untitled rack', ''), {disabled: true, hidden: true});
+    const placeholder = Object.assign(new Option(this.externalEditor ? 'Load a preset…' : 'Untitled rack', ''), {disabled: true, hidden: true});
     select.replaceChildren(placeholder, group('My presets', this.presets, this.needsSignIn ? 'Sign in to save presets' : 'No preset saved yet'), ...(this.factory.length ? [group('Factory', this.factory)] : []));
     select.value = this.activeId === null ? '' : String(this.activeId);
     select.disabled = this.busy;
@@ -267,11 +267,17 @@ export default class PresetsPanel extends EventTarget {
     this.$('presetDelete').hidden=false;
     if(this.externalEditor){
       const editor=this.externalEditor;select.value=editor.selectedPreset;
-      this.$('presetTitle').textContent=editor.title;this.$('presetMeta').textContent=`Studio · ${editor.projectName} · independent track sound`;
-      this.$('presetUnsaved').hidden=!editor.modified;this.$('presetRename').hidden=this.$('presetRevert').hidden=this.$('presetDelete').hidden=true;
-      this.$('presetNew').disabled=true;const save=this.$('presetSaveButton');save.textContent='Return to Studio';save.disabled=editor.busy;save.title='Apply this sound locally and return to Studio. Save the project there.';save.toggleAttribute('dot',editor.modified);return;
+      this.$('presetKicker').textContent='Track sound';this.$('presetTitle').textContent=editor.title;
+      // One line: the library preset the sound comes from, and whether it was changed since.
+      const origin=editor.origin;
+      this.$('presetMeta').textContent=editor.busy?'Loading the track sound…':origin?`From “${origin.name}”${editor.originModified?' · modified':''}`:'Own sound';
+      const unsaved=this.$('presetUnsaved');unsaved.textContent='Not applied';unsaved.title='Apply to track, then Save project';unsaved.hidden=!editor.modified;this.$('presetRename').hidden=this.$('presetDelete').hidden=true;
+      const revert=this.$('presetRevert');revert.hidden=false;revert.disabled=editor.busy||!editor.modified;revert.title='Revert to the sound applied to the track';revert.setAttribute('aria-label',revert.title);
+      this.$('presetNew').disabled=true;const save=this.$('presetSaveButton');save.textContent='Apply to track';save.disabled=editor.busy||!editor.modified;save.title='Apply this sound to the track. Use Save project to keep it.';save.toggleAttribute('dot',editor.modified);return;
     }
-    this.$('presetSaveButton').textContent='Save Preset';
+    this.$('presetSaveButton').textContent='Save Preset';this.$('presetKicker').textContent='Current preset';
+    this.$('presetUnsaved').textContent='Unsaved changes';this.$('presetUnsaved').title='';
+    this.$('presetRevert').title='Reload the preset, discarding unsaved changes';this.$('presetRevert').setAttribute('aria-label','Revert to saved preset');
 
     const active = this.active;
     const mine = active && !active.factory;
@@ -402,7 +408,7 @@ export default class PresetsPanel extends EventTarget {
   // Nothing to save while the rack matches its preset (or the default rack):
   // Save then turns neutral and inactive; New preset still copies the rack.
   renderSave() {
-    if(this.externalEditor){this.$('presetSaveButton').disabled=this.externalEditor.busy;return;}
+    if(this.externalEditor){this.$('presetSaveButton').disabled=this.externalEditor.busy||!this.externalEditor.modified;return;}
     const save = this.$('presetSaveButton');
     save.disabled = this.busy || !this.modified;
     save.setAttribute('variant', this.modified ? 'primary' : 'secondary');

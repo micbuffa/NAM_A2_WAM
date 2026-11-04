@@ -1,6 +1,6 @@
 import {TempoDetection} from './TempoDetection.js';
 import {TIME_SIGNATURES, signatureOf} from './ProjectTiming.js';
-import {copiedTrackSound} from './TrackSoundState.js';
+import {copiedTrackSound, withOrigin, soundLabel} from './TrackSoundState.js';
 import {TrackMeters} from './TrackMeters.js';
 import {StudioRecording, armShortcut} from './recording/StudioRecording.js';
 import {StudioHistory, editState, editCommand, historyShortcut} from './StudioHistory.js';
@@ -12,7 +12,7 @@ import {audioImportDialog, importDestinationFields} from './AudioImportDialog.js
 // saved at once; name, tempo and track edits (mix, preset, rename) stay local
 // until "Save project". Shared projects are read-only: their mix can be tried
 // but is never saved. The transport plays the open project (ProjectPlayer);
-// it keeps playing in Tone, to play along with the live guitar. Guitar and
+// it keeps playing in Play, to play along with the live guitar. Guitar and
 // bass tracks play through their preset (TrackTones, attached once the rack
 // engine is up).
 import {actionsRow, button, confirmDialog, createDialog} from '../account/dialogs.js';
@@ -50,13 +50,12 @@ const element = (tag, properties = {}) => Object.assign(document.createElement(t
 export class ProjectsWorkspace extends EventTarget {
   // api: AccountApi (null without accounts); account: Account (sign in/out);
   // requestSignIn(): opens the sign-in dialog; report(text, error): toasts;
-  // onEditPreset(value): loads "factory:…" or an account preset id in Tone;
   // player: ProjectPlayer; createRenderer(options): a WaveSurfer renderer;
   // liveInputEnabled(): whether the live guitar is on (for input monitoring).
-  constructor({api = null, account = null, requestSignIn = () => {}, report = () => {}, onEditPreset = () => {}, player = null,
+  constructor({api = null, account = null, requestSignIn = () => {}, report = () => {}, player = null,
     createRenderer, liveInputEnabled = () => true, root = document, storage = globalThis.localStorage}) {
     super();
-    Object.assign(this, {api, account, requestSignIn, report, onEditPreset, player, storage});
+    Object.assign(this, {api, account, requestSignIn, report, player, storage});
     this.$ = (id) => root.getElementById(id);
     this.projects = [];
     this.tempoDetection = new TempoDetection({onResult: result => {
@@ -85,7 +84,6 @@ export class ProjectsWorkspace extends EventTarget {
       onSelect: (id) => this.select(id),
       onChange: (id, fields) => this.updateTrack(id, fields),
       onEdit: (id) => this.editTrackDialog(id),
-      onEditSound: id => this.editPresetInTone(id),
       onDelete: (id) => this.deleteTrack(id),
       onGestureStart: key => { if (this.historyGesture?.key !== key) this.historyGesture = {key}; },
       onGestureEnd: () => { this.historyGesture = null; },
@@ -124,7 +122,6 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectAddTrack').onclick = () => this.addTrackDialog();
     this.$('projectsEmptyAction').onclick = () => this.emptyAction?.();
     this.$('inspectorPreset').onchange = (event) => void this.chooseTrackPreset(this.selectedId,event.target.value).catch(error=>this.report(error.message,true));
-    this.$('inspectorEditPreset').onclick = () => this.editPresetInTone();
     this.$('projectPlay').onclick = () => (this.player?.playing ? this.player.pause() : this.player?.play());
     if(this.$('projectMasterVolume'))this.$('projectMasterVolume').oninput=event=>this.player?.setMasterVolume(Number(event.target.value)/100);
     this.$('projectRewind').onclick = () => this.player?.stop();
@@ -182,7 +179,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.syncPlayer();
   }
 
-  // A preset of mine was created, saved, renamed or deleted in Tone: the
+  // A preset of mine was created, saved, renamed or deleted in the rack dock: the
   // inspector lists it again, and its tracks play it as saved. A deleted
   // preset leaves its tracks without one, as the server does.
   async presetChanged({action, id, state}) {
@@ -318,7 +315,13 @@ export class ProjectsWorkspace extends EventTarget {
     const candidate={...track,...presetFields(value),presetSnapshot:null,snapshotId:null};
     const state=await this.tones.resolvePreset(candidate,project.id);
     if(this.project!==project||this.accountLoadEpoch!==epoch||this.soundSelections.get(id)!==seq||this.saving||this.recording?.busy)return;
-    this.updateTrack(id,copiedTrackSound(state));
+    this.updateTrack(id,copiedTrackSound(withOrigin(state,{name:this.libraryPresetName(value)})));
+  }
+
+  // The name shown for a library preset value ("factory:…" id or "account:<id>").
+  libraryPresetName(value) {
+    const mine=this.presets?.find(preset=>`account:${preset.id}`===value);if(mine)return mine.name;
+    const factory=FACTORY_PRESETS.find(preset=>preset.id===value);return factory?`${factory.name} · ${factory.category}`:null;
   }
 
   // Local edit of a track; the row is updated in place (a fader keeps its drag).
@@ -426,7 +429,7 @@ export class ProjectsWorkspace extends EventTarget {
           (status,progress=null)=>this.separation?.setStatus(status,progress));
         if(this.project!==project||epoch!==this.accountLoadEpoch)throw new DOMException('Project or account changed during export','AbortError');
         if(await this.onUseMix?.(entry)===false)throw Error('Temporary backing could not be loaded.');
-        this.report('Temporary mix ready in Tone · project remains unsaved.');return;
+        this.report('Temporary mix ready in Play · project remains unsaved.');return;
       }
       const entry = await this.mixExporter.export({project,tracks:this.displayTracks,channels:this.player.channels,range,
         separationId:null, selection:this.$('studioExportRange').value,tailSeconds:Number(this.$('studioExportTail')?.value??2)},
@@ -692,16 +695,6 @@ export class ProjectsWorkspace extends EventTarget {
     this.history.record({label, audio, recordingTakes:take?[take]:[], undo: () => apply(!restore), redo: () => apply(restore)});
   }
 
-  editPresetInTone(id=this.selectedId) {
-    if(this.onEditTrackSound){void this.onEditTrackSound(id).catch(error=>this.report(error.message,true));return;}
-    if (!this.selectedTrack || !usesTrackPreset(this.selectedTrack)) return;
-    if (this.selectedTrack?.presetSnapshot) {
-      this.onEditSnapshot?.(structuredClone(this.selectedTrack.presetSnapshot)); return;
-    }
-    const value = presetValue(this.selectedTrack);
-    if (value) this.onEditPreset(value.startsWith('account:') ? value.slice(8) : value);
-  }
-
   // Dialogs ------------------------------------------------------------------
 
   async createProjectDialog() {
@@ -745,14 +738,14 @@ export class ProjectsWorkspace extends EventTarget {
     const url=element('input',{id:`${id}-url`,type:'url',required:true,placeholder:'https://www.youtube.com/watch?v=…',autocomplete:'off'});
     const label=element('label',{htmlFor:url.id,textContent:'Video URL'});
     const start=button('Import audio',{type:'submit',primary:true});
-    const cancel=button('Cancel import'),open=button(onImported ? 'Use in Tone' : 'Open in Studio',{primary:true}),close=button('Close');
+    const cancel=button('Cancel import'),open=button(onImported ? 'Use in Play' : 'Open in Studio',{primary:true}),close=button('Close');
     const status=element('p',{role:'status',textContent:'Checking server…'});
     const progress=element('progress',{max:100,hidden:true});
     const provenance=element('p',{className:'host-help'});
     let job=null,available=false,pending=false,closed=false;
     const render=value=>{
       job=value;const active=importActive(job);
-      status.textContent=(onImported && job?.state==='ready' ? 'Audio ready. Use in Tone to load it without separation.' : job?.message || job?.state) || 'Ready. Up to 30 minutes / 100 MiB. Import audio you are allowed to use.';
+      status.textContent=(onImported && job?.state==='ready' ? 'Audio ready. Use in Play to load it without separation.' : job?.message || job?.state) || 'Ready. Up to 30 minutes / 100 MiB. Import audio you are allowed to use.';
       progress.hidden=!active;
       if(Number.isFinite(job?.progress))progress.value=job.progress;else progress.removeAttribute('value');
       start.disabled=!available||active||pending;url.disabled=active||pending;destination.root.inert=active||pending;
@@ -783,7 +776,7 @@ export class ProjectsWorkspace extends EventTarget {
       if (onImported) {
         if (pending || job?.state !== 'ready') return;
         const imported = job, epoch = this.accountLoadEpoch;
-        pending = true; open.disabled = true; status.textContent = 'Loading audio in Tone…';
+        pending = true; open.disabled = true; status.textContent = 'Loading audio in Play…';
         try {
           await onImported(imported);
           if (this.accountLoadEpoch === epoch && !closed) dialog.close();
@@ -1142,6 +1135,7 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   renderInspector() {
+    this.onTrackSoundContext?.(); // the rack dock follows the selected track
     const track = this.selectedTrack;
     this.$('trackInspector').hidden = !track;
     this.recording?.render();
@@ -1154,12 +1148,10 @@ export class ProjectsWorkspace extends EventTarget {
     if(imported){
       const metadata=track.importMetadata;
       imported.hidden=!metadata;
-      imported.textContent=metadata?.kind==='youtube' ? `YouTube source: ${metadata.url} · ${metadata.duration} s` : metadata?.kind==='studio_mix' ? `Imported from Studio project ${metadata.sourceProjectId}, mix ${metadata.sourceTrackId}.` : metadata?.kind==='bundled' ? 'Imported from the Tone backing library.' : metadata ? 'Imported from a local file.' : '';
+      imported.textContent=metadata?.kind==='youtube' ? `YouTube source: ${metadata.url} · ${metadata.duration} s` : metadata?.kind==='studio_mix' ? `Imported from Studio project ${metadata.sourceProjectId}, mix ${metadata.sourceTrackId}.` : metadata?.kind==='bundled' ? 'Imported from the Play backing library.' : metadata ? 'Imported from a local file.' : '';
     }
     const tone = usesTrackPreset(track);
     this.$('inspectorPresetField').hidden = !tone;
-    this.$('inspectorEditPreset').hidden = !tone || !this.owned;
-    this.$('inspectorEditPreset').disabled = !this.onEditTrackSound && !presetValue(track);
     this.$('inspectorPresetHelp').textContent = !tone ? 'Accompaniment audio plays as recorded. Presets are reserved for your personal guitar and bass parts.'
       : this.toneHelp(track);
     if (tone) this.renderPresetSelect(track);
@@ -1174,7 +1166,7 @@ export class ProjectsWorkspace extends EventTarget {
       return optgroup;
     };
     const options = [new Option('No preset', '')];
-    if (track.presetSnapshot) options.push(new Option('Copied Tone preset', value));
+    if (track.presetSnapshot) options.push(new Option(soundLabel(track.presetSnapshot), value));
     if (this.owned) {
       options.push(group('Factory', FACTORY_PRESETS.map((preset) => new Option(`${preset.name} · ${preset.category}`, preset.id))));
       if (this.presets.length) options.push(group('My presets', this.presets.map((preset) => new Option(preset.name, `account:${preset.id}`))));
@@ -1206,7 +1198,7 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   presetName(track) {
-    if (track.presetSnapshot) return 'Copied Tone preset';
+    if (track.presetSnapshot) return soundLabel(track.presetSnapshot);
     if (track.factoryPreset) return FACTORY_PRESETS.find((preset) => preset.id === track.factoryPreset)?.name ?? track.factoryPreset;
     if (track.presetId) return this.presets.find((preset) => preset.id === track.presetId)?.name ?? track.presetName ?? 'Account preset';
     return '';

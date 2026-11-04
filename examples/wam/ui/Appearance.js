@@ -12,7 +12,7 @@ export function registerAppearance(settings, appearance = globalThis.NamAppearan
     const sync = () => { select.value = appearance.preference; };
     globalThis.addEventListener('nam-appearance-change', sync);
     const note = document.createElement('p'); note.className = 'host-help';
-    note.textContent = 'Applies to Tone, Studio and host dialogs. Saved on this browser. Plugin interfaces may keep their own appearance.';
+    note.textContent = 'Applies to Play, Studio and host dialogs. Saved on this browser. Plugin interfaces may keep their own appearance.';
     const field = document.createElement('div'); field.className = 'appearance-field'; field.append(label, select);
     container.append(heading, field, note);
     const release=trackControls?appendTrackControlPreference(container,trackControls):null;

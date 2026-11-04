@@ -17,8 +17,8 @@ export class ProjectTimeline {
   // onSelect(id); onChange(id, fields); onEdit(id): rename dialog; onMonitor(id): toggle input monitoring;
   // onMove(id, index): reorder; onSeek(seconds); onLoop({start, end}): a drawn loop region;
   // createRenderer(options): a WaveSurfer renderer.
-  constructor(list, {root, ruler, onSelect, onChange, onEdit, onEditSound, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, createRenderer}) {
-    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onEditSound, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, createRenderer});
+  constructor(list, {root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, createRenderer}) {
+    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, createRenderer});
     this.rows = new Map();
     globalThis.addEventListener?.('nam-appearance-change', () => {
       // Repaint cached envelopes only; transport, PCM and recording append state stay intact.
@@ -302,7 +302,6 @@ export class ProjectTimeline {
     }
     row.name.title=`${track.name} · ${row.meta.textContent}`;
     row.name.setAttribute('aria-description',row.meta.textContent);
-    if(row.fx)row.fx.hidden=!usesTrackPreset(track);
     row.modes.inputMonitoring.hidden=!usesTrackPreset(track);
     if(!this.locked)row.modes.inputMonitoring.disabled = !usesTrackPreset(track);
     row.modes.inputMonitoring.title = usesTrackPreset(track)
@@ -339,11 +338,6 @@ export class ProjectTimeline {
     const title = element('div', 'track-title-row');
     const name = element('strong', 'track-name');
     title.append(name);
-    let fx=null;
-    if(editable&&this.onEditSound){
-      fx=document.createElement('tl-button');fx.className='track-fx-button';fx.setAttribute('size','sm');fx.setAttribute('variant','ghost');fx.setAttribute('icon','sliders');fx.textContent='FX';fx.title='Edit track sound in Tone';
-      fx.onclick=event=>{event.stopPropagation();this.onSelect(id);this.onEditSound(id);};title.append(fx);structuralControls.push(fx);labels.push([fx,'Edit sound for']);
-    }
     if (editable) {
       const rename = document.createElement('tl-icon-button');
       Object.entries({icon: 'edit', size: 'sm', variant: 'ghost', 'aria-label': `Edit ${track.name}`, title: 'Edit track'})
@@ -462,6 +456,6 @@ export class ProjectTimeline {
     };
     lane.append(area);
     root.append(label, lane);
-    return {root, track, structuralControls, fx, icon, name, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, labels};
+    return {root, track, structuralControls, icon, name, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, labels};
   }
 }

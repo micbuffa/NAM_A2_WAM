@@ -1,10 +1,10 @@
 // Guitar and bass tracks play through their preset: each one gets its own rack
-// (NAM, cabinet and pedals, exactly as the preset sounds in Tone), built when
+// (NAM, cabinet and pedals, exactly as the preset sounds in Play), built when
 // the project opens or the preset changes, and plugged into the ProjectPlayer
 // as the track's insert. The recorded DI gets the preset's file trim; the live
-// guitar (input monitoring) arrives already trimmed by the Tone input.
+// guitar (input monitoring) arrives already trimmed by the Play input.
 // NAM A2 models run in their Lite variant on playback tracks (measured: four
-// Full racks beside Tone already underrun, eight Lite ones do not); the track
+// Full racks beside Play already underrun, eight Lite ones do not); the track
 // you play through live (input monitoring, or the selected track) gets the Full variant.
 import {DEFAULT_SOURCE_TRIM_DB} from '../SourceManager.js';
 import {presetValue, usesTrackPreset} from './ProjectsModel.js';
@@ -36,7 +36,7 @@ export class TrackTones extends EventTarget {
     this.liveId = null;
   }
 
-  // Borrow Tone's visible rack for one recorded track during editing. A late
+  // Borrow the rack dock's visible rack for one recorded track during editing. A late
   // headless build must not replace this temporary insert.
   setOverride(id,insert) {
     if(insert)this.overrides.set(id,insert);else this.overrides.delete(id);

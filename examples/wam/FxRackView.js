@@ -6,7 +6,8 @@ export class FxRackView {
     const input=this.root.querySelector('[aria-label="Chain A input"]'),output=this.root.querySelector('[aria-label="Chain A output"]'),strip=document.querySelector('#fxChain');
     const header=el('div','fx-rack-controls');this.toggle=el('tl-segmented');this.toggle.id='toggleChains';this.toggle.setAttribute('aria-label','Chains');this.toggle.setAttribute('aria-controls','fxChainB');this.toggle.append(new Option('1 Chain','1'),new Option('2 Chains','2'));
     // 1 Chain / 2 Chains sits in the preset header; devices and live input in the sidebar.
-    (document.getElementById('chainToggleSlot')||header).append(this.toggle);
+    const slot=document.getElementById('chainToggleSlot');if(slot)this.toggle.setAttribute('size','sm'); // compact rack dock header
+    (slot||header).append(this.toggle);
     this.status=el('span','fx-rack-status');header.append(this.status);this.root.before(header);
     this.left=el('div','fx-endpoints');this.right=el('div','fx-endpoints');
     const cell=panel=>{const c=el('div','fx-endpoint-cell');c.append(panel);return c;};this.left.append(cell(input));this.right.append(cell(output));

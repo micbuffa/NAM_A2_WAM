@@ -21,7 +21,11 @@ button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity:
 input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color: var(--tl-accent); }
 
 /* Layout: topbar across, sidebar + main below. */
-.host-shell { min-height: 100vh; display: grid; grid-template-columns: 286px minmax(0, 1fr); grid-template-rows: var(--tl-topbar-height) minmax(0, 1fr); }
+.host-shell { min-height: 100vh; display: grid; grid-template-columns: 286px minmax(0, 1fr); grid-template-rows: var(--tl-topbar-height) minmax(0, 1fr) auto; }
+/* Sidebar on the left of both rows; the workspace above the rack dock (RackDock.js) in the last column. */
+.host-sidebar { grid-row: 2 / 4; }
+.rack-stage, .tracks-stage { grid-column: -2; grid-row: 2; }
+.rack-dock { grid-column: -2; grid-row: 3; }
 /* Workspaces (Workspaces.js): only what belongs to the current one is shown; audio keeps running. */
 body[data-workspace="tone"] [data-workspace="projects"], body[data-workspace="projects"] [data-workspace="tone"] { display: none !important; }
 
@@ -137,7 +141,7 @@ body[data-workspace="tone"] [data-workspace="projects"], body[data-workspace="pr
 .host-kbd { margin-left: 3px; padding: 2px 4px; color: var(--tl-text-faint); background: var(--tl-surface-sunken); border: 1px solid var(--tl-border);
   border-radius: 3px; font: 500 8px var(--tl-font-mono); }
 
-/* Presets (account/PresetsPanel.js): sidebar picker + New preset, preset header, New preset dialog. */
+/* Presets (account/PresetsPanel.js): picker + New preset in the rack header, New preset dialog. */
 .host-count { margin-left: auto; padding: 1px 6px; color: var(--tl-text-muted); background: var(--tl-surface-3); border-radius: var(--tl-radius-pill);
   font: 500 var(--tl-fs-xs) var(--tl-font-mono); letter-spacing: 0; }
 .host-count:empty { display: none; }
@@ -150,6 +154,14 @@ body[data-workspace="tone"] [data-workspace="projects"], body[data-workspace="pr
 .preset-meta { margin: 6px 0 0; color: var(--tl-text-muted); font-size: var(--tl-fs-sm); }
 .preset-header-actions { display: flex; align-items: center; gap: var(--tl-space-2); }
 .preset-header-actions[hidden] { display: none; }
+/* Preset picker + New, in the rack header (was a sidebar card). */
+.rack-presets { display: flex; align-items: center; gap: var(--tl-space-2); }
+.rack-presets[hidden] { display: none; }
+.rack-presets .preset-picker { width: 240px; }
+.preset-status { margin-top: 2px; font-size: var(--tl-fs-xs); }
+.preset-scope { color: var(--tl-text-faint); }
+/* A track's sound (rack dock in Studio): only the picker to load a preset, and one meta line. */
+body[data-track-sound-edit="true"] :is(#presetNew, #presetCount, .preset-status) { display: none; }
 .new-preset-dialog form { display: grid; gap: 7px; }
 .track-sound-dialog form { display: grid; gap: var(--tl-space-3); }
 .track-sound-dialog label { display: grid; gap: var(--tl-space-2); color: var(--tl-text-muted); font-size: var(--tl-fs-sm); }
@@ -180,10 +192,40 @@ body[data-workspace="tone"] [data-workspace="projects"], body[data-workspace="pr
 .rack-kicker { margin: 0; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); font-weight: 600; letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
 .rack-header h2 { margin: 7px 0 0; font-size: var(--tl-fs-xl); font-weight: 600; line-height: 1; letter-spacing: var(--tl-tracking-title); }
 .rack-canvas { flex: 1; min-width: 0; padding: var(--tl-space-7) 30px; }
-/* Play along dock (backing-track-player/): stays at the bottom of the window while the rack scrolls. */
-.rack-stage > backing-track-player { position: sticky; bottom: 0; z-index: 5; }
-/* Toasts sit above the dock (main.js keeps --play-along-height to its height). */
-body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast-offset: calc(var(--play-along-height, 60px) + 24px); }
+/* Rack dock (RackDock.js), shared by Play and Studio: preset header + chains,
+   glued to the bottom of the screen at its natural height (at most 70%, then it
+   scrolls). Collapsed, only its header stays. In Studio it shows the sound of
+   the track being edited (TrackSoundEditor), otherwise a placeholder. */
+.rack-dock { display: flex; flex-direction: column; min-width: 0; background: var(--tl-surface-0); border-top: 1px solid var(--tl-border-subtle); }
+/* Its parts keep their height: the dock scrolls instead of squeezing them. */
+.rack-dock > * { flex-shrink: 0; }
+.rack-dock-placeholder { margin: 0; padding: var(--tl-space-4) 30px; }
+body:is([data-workspace="tone"], [data-track-sound-edit="true"]) .rack-dock-placeholder,
+body[data-workspace="projects"]:not([data-track-sound-edit="true"]) .rack-dock > :not(.rack-dock-placeholder) { display: none; }
+.rack-dock-toggle { flex: none; }
+/* Compact dock header: one slim row (title + origin on the left, controls on the right). */
+.rack-dock > .rack-header { min-height: 0; padding: var(--tl-space-3) 30px; gap: var(--tl-space-3); }
+.rack-dock .rack-kicker { font-size: var(--tl-fs-2xs); }
+.rack-dock .preset-title-row { margin-top: 2px; }
+.rack-dock .rack-header .preset-title-row h2 { font-size: 16px; line-height: 1.25; }
+.rack-dock .preset-meta { margin-top: 1px; font-size: var(--tl-fs-xs); }
+.rack-dock > .rack-canvas { padding-top: var(--tl-space-4); }
+/* Inside the dock's own scroll, a chain must not stick over the header. */
+.rack-dock .fx-rack { position: relative; top: auto; }
+.rack-dock-toggle::part(icon), .rack-dock-toggle tl-icon { transition: transform .15s; }
+body[data-rack-dock="collapsed"] .rack-dock > .rack-canvas { display: none; }
+body[data-rack-dock="collapsed"] .rack-dock > .rack-header { border-bottom: 0; }
+body[data-rack-dock="collapsed"] .rack-dock .preset-status { display: none; }
+body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); }
+@media (min-width: 1100px) and (min-height: 650px) {
+  .host-shell { height: 100dvh; min-height: 0; }
+  .rack-stage, .tracks-stage { min-height: 0; overflow: hidden; }
+  .rack-stage > backing-track-player { flex: 0 1 auto; min-height: 62px; overflow: auto; scrollbar-width: thin; }
+  .rack-dock { max-height: min(var(--rack-dock-fit, 70dvh), 70dvh); overflow: auto; scrollbar-width: thin; box-shadow: 0 -12px 28px rgba(0, 0, 0, .22); }
+  .rack-dock > .rack-header { position: sticky; top: 0; z-index: 4; }
+  /* Studio keeps room for the timeline above a track's sound. */
+  body[data-workspace="projects"] .rack-dock { max-height: min(var(--rack-dock-fit, 40dvh), 40dvh); }
+}
 
 /* Projects workspace (projects/ProjectsWorkspace.js): sidebar picker, header, empty state, track list. */
 .project-stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--tl-space-2); margin-top: var(--tl-space-3); }
@@ -339,6 +381,7 @@ body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast
 }
 @media (max-width: 720px) {
   .host-shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; align-content: start; }
+  .host-sidebar, .rack-stage, .tracks-stage, .rack-dock { grid-row: auto; }
   .host-topbar { position: static; height: auto; flex-wrap: wrap; padding: var(--tl-space-3) var(--tl-space-4); }
   .host-topbar-actions { flex-wrap: wrap; gap: var(--tl-space-3); }
   .host-divider, .account-chip-text, .host-kbd { display: none; }
@@ -400,10 +443,6 @@ body[data-workspace="tone"]:has(.rack-stage > backing-track-player) { --tl-toast
 .record-calibration progress[hidden] { display: none; }
 .record-calibration label { display: flex; align-items: center; gap: 8px; }
 
-.track-sound-editor:not([hidden]) { display: grid; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--tl-border); background: var(--tl-surface-2, #20251d); }
-body[data-track-sound-edit="true"] .rack-stage > backing-track-player { display: none; }
-body[data-track-sound-edit="true"] { --play-along-height: 0px; }
-.track-fx-button { flex-shrink: 0; }
 
 .project-master{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tl-text-muted)}.project-master input{width:100px;accent-color:var(--tl-accent)}.project-master output{min-width:36px;font-variant-numeric:tabular-nums}
 
@@ -513,7 +552,6 @@ body[data-workspace="projects"][data-studio-density="compact"] .track-level-mete
 .track-mode[hidden] { display: none; }
 body[data-workspace="projects"] .project-timeline-head { gap: 6px; }
 body[data-workspace="projects"] .project-master input { width: 72px; }
-body[data-workspace="projects"][data-studio-density="compact"] .track-fx-button { height: 22px; padding-inline: 4px; font-size: 10px; }
 
 /* Visual conventions only; button identity, state, labels and actions are shared. */
 .track-control-glyph { display: none; }

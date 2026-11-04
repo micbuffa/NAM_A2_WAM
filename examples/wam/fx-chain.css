@@ -236,7 +236,7 @@
 @media (max-width: 900px) {
   .fx-rack { --rack-gap: 4px; grid-template-columns: 150px minmax(0, 1fr) 150px; padding: 0 6px; }
   .fx-endpoint { --pad: 7px; }
-  .rack-stage { padding-left: 10px; padding-right: 10px; }
+  .rack-dock { padding-left: 10px; padding-right: 10px; }
 }
 /* Sticky would cover the page on phones, where the rack is most of the viewport. */
 @media (max-width: 720px) { .fx-rack { position: relative; top: auto; } }

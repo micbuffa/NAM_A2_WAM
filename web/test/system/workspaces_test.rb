@@ -32,6 +32,56 @@ class WorkspacesTest < ApplicationSystemTestCase
     assert_selector "#projectsWorkspace", visible: true # the workspace is remembered
   end
 
+  test "Play shows the Play along above the rack dock, whose header holds the presets" do
+    assert_selector ".rack-stage > backing-track-player:first-child", visible: true
+    assert_selector "#rackDock .rack-header #presetsPanel #presetSelect", visible: true
+    assert_no_selector ".host-sidebar #presetsPanel", visible: :all
+    along, rack = page.evaluate_script(<<~JS)
+      [document.querySelector("backing-track-player"), document.querySelector("#rackDock")].map((e) => e.getBoundingClientRect().top)
+    JS
+    assert_operator along, :<, rack
+  end
+
+  test "the rack dock is as tall as its header and chain A; chain B is reached by scrolling" do
+    page.execute_script("const t = document.querySelector('#toggleChains'); t.value = '2'; t.dispatchEvent(new Event('change', {bubbles: true}))")
+    assert_selector "#fxChainB", visible: true
+    geometry = -> {
+      page.evaluate_script(<<~JS)
+        (() => {
+          const dock = document.querySelector("#rackDock"), header = dock.querySelector(".rack-header");
+          const a = document.querySelector("#fxChain").getBoundingClientRect(), b = document.querySelector("#fxChainB").getBoundingClientRect();
+          return {headerBottom: header.getBoundingClientRect().bottom, aTop: a.top, aBottom: a.bottom, bTop: b.top,
+            dockBottom: dock.getBoundingClientRect().bottom, scrollable: dock.scrollHeight > dock.clientHeight + 1};
+        })()
+      JS
+    }
+    g = nil
+    deadline = Time.now + 10
+    until (g = geometry.call)["scrollable"] && g["aBottom"] <= g["dockBottom"] + 1
+      flunk "the dock never fitted chain A: #{g}" if Time.now > deadline
+      sleep 0.1
+    end
+    assert_operator g["aTop"], :>=, g["headerBottom"], "chain A must not cover the dock header"
+    assert_operator g["bTop"], :>=, g["dockBottom"] - 40, "chain B starts below the visible part"
+    page.execute_script("const t = document.querySelector('#toggleChains'); t.value = '1'; t.dispatchEvent(new Event('change', {bubbles: true}))")
+  end
+
+  test "the rack dock collapses to its header and stays collapsed across workspaces and reloads" do
+    find("#rackDockToggle").click
+    assert_no_selector ".fx-rack", visible: true
+    assert_selector "#presetSelect", visible: true
+
+    switch_to "projects"
+    assert_selector "#rackDock .rack-dock-placeholder", visible: true
+
+    visit "/rack/"
+    wait_for_rack
+    switch_to "tone"
+    assert_no_selector ".fx-rack", visible: true
+    find("#rackDockToggle").click
+    assert_selector ".fx-rack", visible: true
+  end
+
   test "a guest is invited to sign in to use projects" do
     switch_to "projects"
     assert_selector "#projectsPanel", visible: true

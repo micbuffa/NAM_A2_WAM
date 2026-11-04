@@ -1,4 +1,4 @@
-/* Play along dock (Tone). Shadow DOM: TONELAB tokens (ui/tokens.css) inherit from the host page;
+/* Play along dock (Play). Shadow DOM: TONELAB tokens (ui/tokens.css) inherit from the host page;
    each var() keeps a colour fallback for standalone use (validation.html).
    Collapsed: one transport row. Expanded: library, waveform and mix tools below it. */
 :host{display:block;container-type:inline-size;color:var(--tl-text,#f3f5f1);font:var(--tl-fs-sm,11px) var(--tl-font-ui,system-ui)}
@@ -16,6 +16,10 @@ header{display:grid;grid-template-columns:28px minmax(140px,220px) auto minmax(1
 .dock-toggle tl-icon{transform:rotate(180deg);transition:transform .15s}
 .dock-toggle[aria-expanded=true]{border-color:var(--tl-accent-border,#63733e);background:var(--tl-accent-tint,#192017);color:var(--tl-accent,#c7f65b)}
 .dock-toggle[aria-expanded=true] tl-icon{transform:none}
+/* placement="top" (above the rack in Play): the library opens downwards. */
+:host([placement=top]) section{border-top:0;border-bottom:1px solid var(--tl-border,#303532);box-shadow:0 12px 28px rgba(0,0,0,.28)}
+:host([placement=top]) .dock-toggle tl-icon{transform:none}
+:host([placement=top]) .dock-toggle[aria-expanded=true] tl-icon{transform:rotate(180deg)}
 .now-playing{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
 .eyebrow{color:var(--tl-text-muted,#6f7773);font-size:var(--tl-fs-2xs,9px);font-weight:700;letter-spacing:var(--tl-tracking-label,.12em);text-transform:uppercase}
 .track-title{max-width:100%;margin:1px 0 0 -4px;padding:1px 4px;overflow:hidden;background:none;border:0;border-radius:var(--tl-radius-sm,5px);

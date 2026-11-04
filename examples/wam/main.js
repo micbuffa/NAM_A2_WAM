@@ -26,6 +26,7 @@ import {registerAppearance} from './ui/Appearance.js';
 import {Workspaces} from './Workspaces.js';
 import {registerStudioSettings} from './projects/StudioSettings.js';
 import {StudioLayout} from './projects/StudioLayout.js';
+import {RackDock} from './RackDock.js';
 import {ProjectsWorkspace, takeLinkedProject} from './projects/ProjectsWorkspace.js';
 import {StudioPlayer as ProjectPlayer} from './projects/StudioPlayer.js';
 import {TrackSoundEditor} from './projects/TrackSoundEditor.js';
@@ -66,6 +67,7 @@ registerAppearance(settings, undefined, new TrackControlStyle());
 const engine = new EngineStatus({element: $('#engineStatus'), context});
 const workspaces = new Workspaces({control: $('#workspaceSwitch')});
 new StudioLayout({workspaces, button: $('#studioSidebarToggle'), sidebar: $('#hostSidebar'), densityControl: $('#projectTrackDensity')});
+const rackDock = new RackDock({button: $('#rackDockToggle'), dock: $('#rackDock')});
 if (takeLinkedProject()) workspaces.show('projects');
 // Settings > Audio: what the browser chose (it does not let a page set the buffer size).
 const milliseconds = (seconds) => Number.isFinite(seconds) && seconds > 0 ? `${(seconds * 1000).toFixed(1)} ms` : 'Not reported';
@@ -178,7 +180,7 @@ async function detectSelectedInputChannels() {
 }
 
 function syncSourceTrim() {
-  const value = trackSoundEditor?.audioEditing ? sourceManager.trimDb.live : sourceManager.activeTrimDb;
+  const value = trackSoundEditor?.active ? sourceManager.trimDb.live : sourceManager.activeTrimDb;
   $('#sourceTrim').value = value;
   $('#sourceTrim').dispatchEvent(new Event('change'));
   $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;
@@ -255,14 +257,7 @@ async function initialize() {
   const accountIntegration = setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseResponseLibrary});
   projects = new ProjectsWorkspace({api: accountIntegration.account?.api ?? null, account: accountIntegration.account,
     requestSignIn: () => $('#accountSignIn').click(), report: message,
-    player: projectPlayer, createRenderer: (options) => new Renderer(options), liveInputEnabled: () => liveInputEnabled,
-    // A track's preset opens in Tone through the presets picker ("factory:…" or an account preset id).
-    onEditPreset: (value) => {
-      const select = $('#presetSelect');
-      if (![...select.options].some((option) => option.value === String(value))) return message('This preset is not available in Tone.', true);
-      if (select.value !== String(value)) { select.value = String(value); select.dispatchEvent(new Event('change')); }
-      workspaces.show('tone');
-    }});
+    player: projectPlayer, createRenderer: (options) => new Renderer(options), liveInputEnabled: () => liveInputEnabled});
   void projects.load();
   const [groupId] = await initializeWamHost(context, 'nam-a2-phase3-host');
   plugin = await NamPlugin.createInstance(groupId, context, {});
@@ -295,9 +290,9 @@ async function initialize() {
   // arming/meters, but never sum the Tone rack into Studio monitoring.
   const toneGate=context.createGain();
   toneGate.connect(context.destination);
-  // Play along (Tone): a backing track mixed with the guitar, before toneGate.
-  playAlong=document.createElement('backing-track-player');$('.rack-stage').append(playAlong);
-  new ResizeObserver(()=>document.body.style.setProperty('--play-along-height',`${playAlong.offsetHeight}px`)).observe(playAlong);
+  // Play along (Play): a backing track mixed with the guitar, before toneGate.
+  // Top of Play, above the rack dock: the library opens downwards (placement="top").
+  playAlong=document.createElement('backing-track-player');playAlong.setAttribute('placement','top');$('.rack-stage').prepend(playAlong);
   const studioLibrary=new StudioBackingLibrary({account:accountIntegration.account});
   await playAlong.initialize({audioContext:context,library:studioLibrary,
     importYoutube: projects.available ? () => projects.youtubeImportDialog({onImported: job => useYoutubeInTone({job,library:studioLibrary,player:playAlong,projectPlayer,workspaces})}) : null});
@@ -347,8 +342,9 @@ async function initialize() {
   let calibrationMuted=false;
   const syncMonitoring=()=>{
     const id=workspaces.current==='projects'?projectPlayer.liveId:null;
-    projectPlayer.setLiveInput(trackSoundEditor?.audioEditing||id===null?null:sourceManager.sourceTrim);
-    toneGate.gain.setTargetAtTime(toneMonitoringGain({workspace:workspaces.current, editingAudio:trackSoundEditor?.audioEditing, calibrationMuted}),context.currentTime,.01);
+    // A track shown in the rack dock keeps Studio's monitoring: its insert is the dock's rack.
+    projectPlayer.setLiveInput(id===null?null:sourceManager.sourceTrim);
+    toneGate.gain.setTargetAtTime(toneMonitoringGain({workspace:workspaces.current, calibrationMuted}),context.currentTime,.01);
   };
   projectPlayer.addEventListener('statechange',syncMonitoring);
   workspaces.addEventListener('change',syncMonitoring);
@@ -430,11 +426,11 @@ async function initialize() {
     $('#chainOutputGainValue').textContent=`${db.toFixed(1)} dB`;
   };
   $('#sourceTrim').oninput = () => {
-    const value = sourceManager.setTrimDb(Number($('#sourceTrim').value), trackSoundEditor?.audioEditing||$('#audioSource').value === 'live' ? 'live' : 'file');
+    const value = sourceManager.setTrimDb(Number($('#sourceTrim').value), trackSoundEditor?.active||$('#audioSource').value === 'live' ? 'live' : 'file');
     $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;trackSoundEditor?.syncInputGain();presets.scheduleCheck();
   };
   const autoGain = (channel, apply) => {
-    try { inputGainDialog({context,source:sourceManager,channel,apply,allowed:()=>!projects.recording?.busy&&!trackSoundEditor?.active&&!calibrationMuted}); }
+    try { inputGainDialog({context,source:sourceManager,channel,apply,allowed:()=>!projects.recording?.busy&&!trackSoundEditor?.busy&&!calibrationMuted}); }
     catch(error) { message(error.message,true); }
   };
   $('#chainInputAuto').onclick=()=>autoGain(sourceManager.liveInput?.channelIndex, db=>{
@@ -445,7 +441,7 @@ async function initialize() {
     autoGain(rack.channelB,db=>rack.setInputDbB(db));
   };
   $('#chainInputReset').onclick=()=>{
-    const mode=trackSoundEditor?.audioEditing||$('#audioSource').value==='live'?'live':'file';
+    const mode=trackSoundEditor?.active||$('#audioSource').value==='live'?'live':'file';
     $('#sourceTrim').value=DEFAULT_SOURCE_TRIM_DB[mode];
     $('#sourceTrim').dispatchEvent(new Event('input',{bubbles:true}));
   };
@@ -551,16 +547,11 @@ async function initialize() {
   // Factory presets build on the default rack, known once the presets are attached.
   projects.attachTones(trackTones);
   registerStudioSettings({settings,projectPanel:$('#studioOptionsPanel'),recordPanel:$('#recordOptionsPanel'),projectButton:$('#studioOptions'),recordButton:$('#recordOptions')});
-  trackSoundEditor=new TrackSoundEditor({workspace:projects,rack,source:sourceManager,presets,workspaces,context,route:()=>{syncMonitoring();syncSourceTrim();},pauseAlong:()=>playAlong.engine.pause(),view:editor=>{
-    const active=!!editor.active;$('#trackSoundEditor').hidden=!active;document.body.dataset.trackSoundEdit=String(active);$('#workspaceSwitch').disabled=active;
-    if(!active)return;
-    $('#trackSoundContext').textContent=`${editor.projectName} / ${editor.title}`;
-    $('#trackSoundPlay').textContent=projectPlayer.playing?'Pause project':'Play project';$('#trackSoundPlay').disabled=editor.busy||!projectPlayer.ready;
-    $('#trackSoundLoop').disabled=editor.busy||!projectPlayer.duration;$('#trackSoundLoop').setAttribute('aria-pressed',String(projectPlayer.loop.enabled));
-    $('#trackSoundSave').disabled=$('#trackSoundCancel').disabled=editor.busy;
-    $('#trackSoundStatus').textContent=editor.busy?'Loading track sound…':editor.modified?'Sound edited · Return to Studio, then Save project':'Editing a copy · Return to Studio at any time';
+  // The rack dock shows the selected guitar/bass track in Studio (CSS: body[data-track-sound-edit]).
+  trackSoundEditor=new TrackSoundEditor({workspace:projects,rack,source:sourceManager,presets,workspaces,context,route:()=>{syncMonitoring();syncSourceTrim();},view:editor=>{
+    document.body.dataset.trackSoundEdit=String(!!editor.active);
   }});
-  for(const [id,operation]of [['trackSoundPlay',()=>trackSoundEditor.togglePlay()],['trackSoundLoop',()=>trackSoundEditor.toggleLoop()],['trackSoundSave',()=>trackSoundEditor.finish()],['trackSoundCancel',()=>trackSoundEditor.cancel()]])$('#'+id).onclick=()=>Promise.resolve().then(operation).catch(error=>message(error.message,true));
+  void trackSoundEditor.sync();
   window.phase3Debug.trackSoundEditor=trackSoundEditor;
   projects.attachRecording({context, groupId, source: sourceManager, rack, monitoringChanged:syncMonitoring, beginCalibration: () => {
     calibrationMuted=true;

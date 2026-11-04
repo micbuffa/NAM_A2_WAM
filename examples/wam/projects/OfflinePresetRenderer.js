@@ -9,7 +9,7 @@ export async function prepareOfflineImpulseResponses(state,rate,{hostRate,record
     const ir=entry.state?.ir;if(entry.bypass||entry.kind!=='cabinet'||!ir?.samples)continue;
     const sourceRate=ir.sampleRate??recordingRate;
     if(sourceRate===undefined){
-      if(rate!==hostRate)throw Error('This older cabinet preset has no IR sample rate. Reload its impulse response in Tone before exporting at another frequency.');
+      if(rate!==hostRate)throw Error('This older cabinet preset has no IR sample rate. Reload its impulse response in Play before exporting at another frequency.');
       continue;
     }
     if(!Number.isInteger(sourceRate)||sourceRate<8000||sourceRate>192000)throw Error('Invalid cabinet impulse sample rate.');

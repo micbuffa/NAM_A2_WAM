@@ -72,7 +72,7 @@ test('export availability explains unsaved, loading, failed, unsupported and rea
   assert.equal(state(input).ready,true);
   assert.equal(state({...input,pending:true}).ready,true);assert.match(state({...input,pending:true}).message,/temporary.*without saving/);
   assert.match(state({...input,separating:true}).message,/Stop separation/);
-  assert.match(state({...input,toneReady:false}).message,/Preparing.*Tone/);
+  assert.match(state({...input,toneReady:false}).message,/Preparing.*Play/);
   const unloaded=new Map([[1,{buffer:{duration:2}}],[2,{loading:true}]]);
   assert.match(state({...input,channels:unloaded}).message,/1\/2/);
   unloaded.get(2).loading=false;unloaded.get(2).error=Error('HTTP 500');

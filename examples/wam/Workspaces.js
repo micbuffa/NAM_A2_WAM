@@ -1,6 +1,7 @@
-// Tone / Studio workspaces (topbar switch), as in the TONELAB mockup.
+// Play / Studio workspaces (topbar switch), as in the TONELAB mockup. Play was
+// called Tone: its internal value stays 'tone', so the remembered choice survives.
 // The open project can keep playing across views; Play along pauses outside
-// Tone. Host routing mutes Tone in Studio, where track monitoring owns live audio.
+// Play. Host routing mutes Play in Studio, where track monitoring owns live audio.
 // The choice is remembered in this browser.
 export const WORKSPACES = ['tone', 'projects'];
 const STORAGE_KEY = 'nam-a2-wam.workspace';

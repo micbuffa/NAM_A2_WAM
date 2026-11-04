@@ -250,7 +250,7 @@ npm run dist
 ```
 
 This rebuilds the Factory manifests and produces a deployable static distribution.
-The default product build keeps Tone/Studio, their waveform dependencies and
+The default product build keeps Play/Studio, their waveform dependencies and
 the approved four/six-instrument separation runtimes, but excludes the standalone
 source-separation laboratory and local model weights.
 To include the research prototype from the current checkout, pass
@@ -269,23 +269,24 @@ track and its meter. Live monitoring resumes on pause, and remains available
 during recording, only when its speaker toggle is explicitly enabled.
 
 First recording increment: add an empty **personal guitar/bass** track, choose the
-input/channel in Tone, then **Arm track (microphone icon or R) → Record →
+input/channel in Play, then **Arm track (microphone icon or R) → Record →
 Stop recording → Save project**. Arming enables input metering without speaker
 feedback; the speaker icon independently toggles monitoring, including during a
 take. Record starts after one bar of count-in by default (Off/1/2 bars). The
 metronome button optionally keeps clicks during the take. Click the tempo label
 to edit quarter-note BPM and time signature (default 4/4). Imported audio offers
-an approximate tempo suggestion, applied only on request. The current unsaved Tone sound is copied by
+an approximate tempo suggestion, applied only on request. The current unsaved Play sound is copied by
 default; the take stores raw mono DI plus a preset snapshot as a lossless WAV.
 Up to two takes can remain in RAM (100 MiB each); Discard unsaved take allows a
 retry. Manual latency compensation is available, initially uncalibrated.
 Assisted loopback calibration is available (hardware qualification pending).
-Click **FX** in a personal guitar/bass track header to edit its sound in Tone,
-even while the take is still in RAM. **Return to Studio** applies changed sound
-locally, without a server save or a question; an unchanged visit creates no edit.
-**Play project** auditions the same DI through the visible rack. The previous
-Tone rack is restored on return. **Discard edits & return** abandons only the
-current editing session. In Studio, **Save project** saves audio and the edited
+Select a personal guitar/bass track and its sound appears in the rack dock at the bottom of Studio, even while the
+take is still in RAM and without pausing the project: playback, and explicit
+input monitoring, go through the rack shown. **Apply to track** applies changed
+sound locally, without a server save or a question; selecting another track,
+switching to Play or **Save project** applies pending edits too, and an
+unchanged visit creates no edit. **Revert** (↶ next to the name) reloads the
+sound last applied to the track. Play gets its own rack back when you return. In Studio, **Save project** saves audio and the edited
 sound, with an optional checkbox to also create a reusable Tone preset. This
 question appears only for a changed FX sound. Failed saves retain local edits;
 preset creation retries reuse the same request token. Uploading a new take keeps
@@ -298,7 +299,7 @@ headers (microphone/speaker by default). Arm with the microphone (or R), then us
 shared transport. Record targets the armed track, even after selecting another
 row. **Stop** stops playback or the take; during count-in it cancels the take.
 The armed speaker remains available during capture, independently from arming.
-The transport gear opens **Recording settings**, including current Tone sound,
+The transport gear opens **Recording settings**, including current Play sound,
 discarding a selected RAM take and calibration. There is no separate large
 recording panel. Track density defaults **Compact**; choose **Comfortable** in
 Project options. This browser-local preference changes layout only.
@@ -354,9 +355,9 @@ can be retried with Save project while the preview remains open; after reload,
 completed uploads can be published and unfinished uploads discarded. Limits are
 512 MiB per stem, 2 GiB per project and 5 GiB per account for separation uploads.
 Shared listeners can listen/remix locally but cannot save over the owner's mix.
-Use **Use mix in Tone** to render a persistent stereo MP3 (192 kbit/s) from the
+Use **Use mix in Play** to render a persistent stereo MP3 (192 kbit/s) from the
 saved deck. **Mix export range** defaults to the entire song; A/B-only is explicit.
-The backing appears in Tone / Play along without autoplay, with **Download MP3**
+The backing appears in Play / Play along without autoplay, with **Download MP3**
 and **Open in Studio**. A message beside the export button explains when saved
 audio is loading or a track failed; **Retry audio loading** retries only failed
 files. Transient server/network failures get bounded retries, without polling.
@@ -372,7 +373,7 @@ with preceding DI history. Playback's Lite NAM variant is used, with the same
 DI trim, routing, lane gains and pans. The original DI/preset is retained.
 Missing plugins, unknown IR clocks requiring conversion and processor errors
 stop export rather than substituting dry DI. Older IR presets may need their
-impulse response reloaded in Tone before a change of frequency.
+impulse response reloaded in Play before a change of frequency.
 See [processed export qualification](docs/PROCESSED_MIX_EXPORT.md) for limits.
 See [Studio validation](docs/STUDIO_SEPARATION_VALIDATION.md).
 Rails requires `bin/rails db:migrate` after this schema change; restart the server
@@ -505,8 +506,8 @@ git diff --cached --name-only
 ```
 
 Studio **Import audio** now offers **file / YouTube** through Rails; progress,
-cancellation and source metadata are retained in the account. Tone's **Import audio**
-offers a local file or YouTube too; **Use in Tone** loads the downloaded source
+cancellation and source metadata are retained in the account. Play's **Import audio**
+offers a local file or YouTube too; **Use in Play** loads the downloaded source
 without separation or autoplay. YouTube originals stay in the private backing library.
 **Download MP3** is available for every loaded backing (also via the download icon
 in the collapsed dock). Existing MP3s download directly; other formats are converted
@@ -520,15 +521,15 @@ WebGPU/WASM remain the normal engines.
 
 ### WebNN in integrated Studio
 
-On `codex/studio-integration`, choose **Execution engine** in Studio’s **Separate instruments** dialog, also used by imports from Tone/Play Along. WebNN CPU/GPU/NPU is opt-in for Demucs4; SW6 stays on WebGPU/WASM. Choices are disabled with an explanation if the browser does not expose WebNN. Firefox experimental builds and Canary use the same API detection. Closing the dialog preserves the previous engine.
+On `codex/studio-integration`, choose **Execution engine** in Studio’s **Separate instruments** dialog, also used by imports from Play / Play along. WebNN CPU/GPU/NPU is opt-in for Demucs4; SW6 stays on WebGPU/WASM. Choices are disabled with an explanation if the browser does not expose WebNN. Firefox experimental builds and Canary use the same API detection. Closing the dialog preserves the previous engine.
 
-### Use a stopped or unsaved instrument mix in Tone
+### Use a stopped or unsaved instrument mix in Play
 
-After stopping separation once some audio is ready, click **Use mix in Tone** without saving. The available audio is mixed using current volume/pan/mute/solo and encoded as a temporary MP3. Completed RAM previews and unsaved recorded-track mixer changes work too. **Return to Studio** preserves the current unsaved preview. Temporary mixes are session-only (two recent entries, one per project); use **Save Project** separately to keep the stems or **Download MP3** to keep the mix file.
+After stopping separation once some audio is ready, click **Use mix in Play** without saving. The available audio is mixed using current volume/pan/mute/solo and encoded as a temporary MP3. Completed RAM previews and unsaved recorded-track mixer changes work too. **Return to Studio** preserves the current unsaved preview. Temporary mixes are session-only (two recent entries, one per project); use **Save Project** separately to keep the stems or **Download MP3** to keep the mix file.
 
 
 ### Studio appearance and compact UI roadmap
 
-Settings → Appearance offers Dark (default), Studio Light, Warm Studio and Follow system. The choice is stored in this browser, applies to Tone/Studio/host dialogs and does not modify projects or presets. Plugin interfaces may keep their own appearance.
+Settings → Appearance offers Dark (default), Studio Light, Warm Studio and Follow system. The choice is stored in this browser, applies to Play/Studio/host dialogs and does not modify projects or presets. Plugin interfaces may keep their own appearance.
 
 [STUDIO_UI_SPECIFICATION.md](STUDIO_UI_SPECIFICATION.md) describes five incremental tasks: appearance and viewport layout (implemented), secondary dialogs, compact track/recording headers, then responsive and end-to-end qualification. Desktop Studio keeps the project bar and transport visible, with a shared scrolling track/ruler area. The panel icon beside the project name collapses the sidebar; Import audio and New project are now in the top project bar. Smaller or zoomed windows retain normal page scrolling for accessibility.

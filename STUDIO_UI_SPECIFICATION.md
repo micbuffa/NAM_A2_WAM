@@ -1,6 +1,6 @@
 # Studio UI — compact workspace and appearance
 
-Branch: `codex/studio-integration`. Scope: the guitar/bass studio, its Tone round trip and shared host UI. No DAW regions, new audio engine or change to separation/recording algorithms.
+Branch: `codex/studio-integration`. Scope: the guitar/bass studio, the rack dock it shares with Play (formerly Tone) and shared host UI. No DAW regions, new audio engine or change to separation/recording algorithms.
 
 ## Goals and layout
 
@@ -8,14 +8,15 @@ Studio should use the available viewport rather than grow into a long document. 
 
 ```mermaid
 flowchart TB
-  A[Host bar: Tone / Studio · account · settings] --> B[Project bar: name · Undo / Redo · Import · Add · Save]
+  A[Host bar: Play / Studio · account · settings] --> B[Project bar: name · Undo / Redo · Import · Add · Save]
   B --> C[Transport: Play / Stop · Record · Master · time · Loop A/B]
   C --> D[Track viewport: compact headers · waveform lanes · ruler]
   B --> E[Import / separation dialog: file or YouTube · destination · model / backend · duration]
   E --> F[Slim progress strip · Stop separation]
   F --> D
   A --> G[Settings: audio · appearance · recording calibration · advanced]
-  D --> H[Per-track Input / Monitor / Arm / FX]
+  D --> H[Per-track Input / Monitor / Arm]
+  D --> I[Selected track → rack dock at the bottom: track sound · Load a preset · Apply to track · Revert]
 ```
 
 Desktop target: 1280×720 and larger at 100% zoom; comfortable at 1440×900. Header and transport remain visible. Track area consumes remaining height with internal vertical scrolling when necessary; horizontal scrolling is reserved for timeline zoom. Never shrink indefinitely to show arbitrary track counts. At small viewports, high zoom or large text, prioritise access and readable controls over strict no-scroll. Dialogs may scroll internally. No page-wide overflow hiding that makes controls inaccessible.
@@ -116,3 +117,10 @@ A joined Rails journey covers generated file import → stopped four-stem separa
 Validation: 582 JavaScript tests and 144 Rails tests /1285 assertions pass. Native fixtures pass capture/count-in cancellation, incremental waveform, 11ms synthetic loopback compensation, OfflineAudioContext mix/resampling/MP3, master and local FX return/save. Three themes at1280×719,20-track keyboard scroll and640×360 fallback checked; four icon conventions retain labels and handlers. Full matrix and limits: docs/STUDIO_UI_VALIDATION.md. Dist rebuilt and Rails rack synced.
 
 Task5 remains CURRENT for physical-interface/browser and endurance qualification: no real YouTube download, concurrent full-model inference load, physical microphone/interface latency or experimental Firefox/WebNN test is claimed by these synthetic checks. These require the relevant hardware/browser and test session; software qualification is complete for this increment.
+
+
+### Play rename and shared rack dock — 4 November 2026
+
+The Tone workspace is labelled **Play** (internal value and remembered choice stay `tone`). The rack and its preset management moved into one **rack dock** shared by Play and Studio, glued to the bottom of the screen on desktop windows (≥1100×650) and collapsible to its header (`RackDock.js`, remembered in this browser). Its header holds the preset picker, New preset, chains toggle, Delete and Save; the sidebar Presets card is gone. In Play the Play along sits above the dock and opens downwards; the dock is at most 70% of the height.
+
+FX editing no longer leaves Studio, and the dock follows the selection (the per-track FX button is gone): a selected personal guitar/bass track shows its sound in the dock (at most 40% of the height so several lanes stay visible); other tracks show "plays as recorded". The track's insert is the dock's rack, so playback and explicit monitoring are heard through it; nothing is paused, the loop and monitoring are untouched. The header reads **Track sound**, its picker **Load a preset…**, Save becomes **Apply to track** (stays on the track) and Revert reloads the applied sound. Selecting another track, switching to Play (no longer locked) or Save project applies pending edits locally; Play then gets its own rack back. Long operations (recording, saving, separation) freeze the dock until they end. Save semantics are unchanged: Apply is local, Save project offers the optional reusable preset.
