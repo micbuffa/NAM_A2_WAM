@@ -17,7 +17,7 @@ Branch: `codex/studio-integration`. Synthetic browser tests use the actual UI/au
 | Mix |15 native OfflineAudioContext pan/mute/solo/master cases | Maximum error2.25e-8;48→44.1kHz resampling error8.29e-5 |
 | MP3 | Native encoder Worker then decode |25077 bytes, stereo,1.0449s decoded duration for1s source (codec padding) |
 | Master | Saved/preview audio ×1,.25,0 | All6 native gain checks pass |
-| FX round trip | Native real editor/player with synthetic gain rack | Unchanged return0 saves; edited return remains local; Studio Save persists gain3 vs capture gain2, identical DI,0 reusable presets unless requested |
+| Track sound dock | Native fixture `track-sound-editor.html`, real editor/player/TrackTones/PresetsPanel with synthetic gain racks, “Run qualification” (14 checks) | Selection shows the track sound while playing (peak .1414 at gain 2, .2828 at gain 4, no pause); another selection applies the edit and the solo keeps it on its own rack; Revert; Play rack and preset restored; origin “· modified”; one Save, reusable preset only on request; capture gain 2, same DI, library preset .25 — 4 November 2026 |
 | Persistence journey | New joined Rails integration test,37 assertions | Imported original retained,4 partial stems, linked Tone mix, DI+capture snapshot preserved, playback snapshot editable, reopen5 tracks,delete/restore same blobs |
 | Export safety | Same joined journey | Server rejects project-local preset snapshots until WAM-rendered export qualified; previously only library/factory IDs checked |
 | Reduced motion | Host and shared shadow CSS contracts | Decorative animations/transitions disabled by system preference; native OS preference not emulated in this run |

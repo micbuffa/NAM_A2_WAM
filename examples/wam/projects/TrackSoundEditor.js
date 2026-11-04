@@ -7,7 +7,7 @@ export function trackSoundSaveDialog({name,reusable=false}) {
     const {dialog,body}=createDialog({title:'Save project',eyebrow:name,className:'track-sound-dialog'});
     const form=document.createElement('form');form.method='dialog';
     const label=document.createElement('label');label.className='track-sound-reuse';
-    const scope=document.createElement('input');scope.type='checkbox';scope.checked=reusable;scope.setAttribute('aria-label','Also create a reusable Tone preset');label.append(scope,document.createTextNode('Also create a reusable Tone preset'));
+    const scope=document.createElement('input');scope.type='checkbox';scope.checked=reusable;scope.setAttribute('aria-label','Also create a reusable Play preset');label.append(scope,document.createTextNode('Also create a reusable Play preset'));
     const nameLabel=document.createElement('label');nameLabel.textContent='New preset name';
     const input=document.createElement('input');input.setAttribute('aria-label','New preset name');input.value=name;input.maxLength=100;nameLabel.append(input);
     const update=()=>{nameLabel.hidden=!scope.checked;input.required=scope.checked;};scope.onchange=update;update();

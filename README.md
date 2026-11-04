@@ -287,7 +287,7 @@ sound locally, without a server save or a question; selecting another track,
 switching to Play or **Save project** applies pending edits too, and an
 unchanged visit creates no edit. **Revert** (↶ next to the name) reloads the
 sound last applied to the track. Play gets its own rack back when you return. In Studio, **Save project** saves audio and the edited
-sound, with an optional checkbox to also create a reusable Tone preset. This
+sound, with an optional checkbox to also create a reusable Play preset. This
 question appears only for a changed FX sound. Failed saves retain local edits;
 preset creation retries reuse the same request token. Uploading a new take keeps
 the original capture preset as provenance and preserves the retouched playback
