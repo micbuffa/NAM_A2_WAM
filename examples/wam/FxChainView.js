@@ -53,6 +53,7 @@ export class FxChainView {
     const gesture=()=>{clearTimeout(this.gestureTimer);this.gestureTimer=setTimeout(()=>this.chain.changed(),150);};
     for(const type of ['pointerup','keyup','wheel','input','change'])this.mount.addEventListener(type,gesture,{passive:true});
     this.mount.addEventListener('editor-tab-change',event=>{if(event.target===this.gui)this.syncTabs();});
+    this.mount.addEventListener('request-close-editor',event=>{if(event.target===this.gui&&this.dialog.open){event.stopPropagation();this.close();}});
     close.onclick=()=>this.close();this.dialog.addEventListener('cancel',event=>{event.preventDefault();this.close();});
     this.confirmation=element('dialog','fx-confirm tl-modal');document.body.append(this.confirmation);
     chain.addEventListener('change',()=>this.render());chain.addEventListener('error',e=>report(e.detail.message,true));
@@ -216,6 +217,7 @@ export class FxChainView {
         add(entry);const card=attrs(element('tl-module','fx-card'),{kicker:kindLabel(entry),heading:entry.record?.name||entry.kind});
         card.addEventListener('module-toggle',()=>this.toggle(entry.id));card.addEventListener('module-remove',()=>this.confirmRemove(entry.id));
         const photo=element('button','fx-photo'),image=element('img');const inputMeter=this.createThinMeter('Plugin input level'),outputMeter=this.createThinMeter('Plugin output level');inputMeter.classList.add('fx-card-input-meter');outputMeter.classList.add('fx-card-output-meter');photo.append(inputMeter,image,outputMeter);image.draggable=false;
+        if(entry.kind==='nam'||entry.kind==='cabinet'){image.crossOrigin='anonymous';image.referrerPolicy='no-referrer';}
         card.addEventListener('module-edit',()=>this.open(entry.id,photo));
         // A click only selects (so a card can be grabbed or targeted safely); double-click or Enter edits,
         // like the header's edit button.

@@ -1,3 +1,13 @@
+## 2026-11-04 — Clean NAM default, capture confirmation and remote artwork
+
+User requested Deluxe Reverb ’65 Reissue Clean / NEW VERSION Fender DRRI Clean SM57 + Royer R-121 (No Room) Full Rig. Nonvisual default loader now selects tone51649/model383469 exactly for new NAM instances, preserves supplied/concurrently restored state and cabinet default. Native fresh rack verifies the requested capture selected, including headless creation path shared by inserted NAM modules.
+
+Added “OK, use this model/capture” beneath Factory/Favorites capture lists and remote TONE3000 selection; generic downloaded/external lists also have confirmation. Selected captures still load live; remote browsing no longer auto-dismisses on every selection. Confirmation closes model picker and emits guarded request-close-editor to host, returning directly to rack; standalone falls back to amp view. Buttons disabled while selection pending/not loaded. Native Factory→confirmation→both dialogs closed verified in source and rebuilt Rails.
+
+Rack NAM/Cabinet photo now uses anonymous CORS/no-referrer before src, matching plugin browser, so COEP require-corp does not reject public CORS-only images. Shared toneArtwork helper normalizes string/object image arrays and image_url/imageUrl/image fields; GUI and headless OAuth callback both use it. Existing thumbnail fallback retained. Native isolated rack test with independent localhost CORS-only/no-CORP image server loads real1000px photo (not fallback); no TONE3000 login/tokens/account writes or API-specific availability claim. Temp fixture test-data/nam-ui ignored; temp image server stopped after validation.
+
+Full686JS tests pass, no failures/skips: exact manifest default and existing restore race, image shapes/scheme rejection, delayed capture selection and explicit close event. Dist/Rails rack rebuilt. Screenshot /tmp/nam-factory-use-capture.png shows new button and correct capture; /tmp/nam-remote-artwork-fixed.png is isolated image test. No backend/schema changes, no commit/push requested.
+
 ## 2026-11-03 — Unified Studio preferences and direct Record; track-tempo entry deferred
 
 Studio/Recording settings register persistent panels in global SettingsView via StudioSettings, preserving IDs/handlers. Existing shortcut buttons select those sections in the same dialog; count-in moved to Recording preferences, Click stays in transport. Legacy StudioOptionsDialog retained only for old tests/compatibility, not instantiated in product.

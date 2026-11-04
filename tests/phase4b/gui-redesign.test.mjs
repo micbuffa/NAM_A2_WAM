@@ -77,7 +77,7 @@ test('NAM GUI keeps calibration in amp settings and opens the model catalogue di
   assert.match(gui, /class="currentToneImage"/u);
   assert.match(gui, /class="tone3000Image"[^>]*crossorigin="anonymous"/u);
   assert.match(gui, /class="currentToneImage"[^>]*crossorigin="anonymous"/u);
-  assert.match(gui, /tone\.images/u);
+  assert.match(gui, /import \{getToneImageUrl\} from '\.\.\/shared\/toneArtwork\.js'/u);
   assert.match(gui, /imageUrl:\s*getToneImageUrl\(this\._tone\)/u);
   assert.match(gui, /class="tone3000DownloadedList"/u);
   assert.match(gui, /class="tone3000Clear"/u);
@@ -195,7 +195,7 @@ test('NAM GUI keeps calibration in amp settings and opens the model catalogue di
   assert.match(gui, /const captureCountLabel = \(count\) =>/u);
   assert.match(gui, /captureLabel\.textContent=captureCountLabel\(assets\.length\)/u);
   assert.match(gui, /this\.controls\.toneCaptureLabel\.textContent = captureCountLabel\(this\._toneModels\.length\)/u);
-  assert.match(gui, /media\.append\(title,meta,viewer,filename,footer\);details\.append\(captureLabel,captureList\)/u);
+  assert.match(gui, /media\.append\(title,meta,viewer,filename,footer\);details\.append\(captureLabel,captureList,use\)/u);
   assert.match(gui, /this\.updateOutputGlow\(peakDb,rmsDb\)/u);
   assert.match(gui, /strip\.style\.boxShadow=/u);
   assert.match(gui, /syncEqEnabledVisual\(\)/u);

@@ -1,3 +1,4 @@
+import {getToneImageUrl} from './toneArtwork.js';
 import Tone3000Client from '../nam-wam/tone3000/Tone3000Client.js';
 import {TONE3000_CALLBACK_CHANNEL, TONE3000_CALLBACK_STORAGE_KEY} from '../nam-wam/tone3000/Tone3000Auth.js';
 import Tone3000Downloads from '../nam-wam/tone3000/Tone3000Downloads.js';
@@ -32,7 +33,7 @@ export class ToneCallbackSession {
     const node=this.plugin.audioNode,revision=node.assetRevision;
     const [tone,models]=await Promise.all([this.client.getTone(result.toneId,{architecture:this.kind==='nam'?'2':''}),this.kind==='nam'?this.client.getCompatibleModels(result.toneId):this.client.listModels(result.toneId,{architecture:''})]);
     const model=models[0];if(!model)throw Error('No compatible captures found');
-    const provenance={source:'TONE3000',toneId:result.toneId,modelId:model.id,identity:`tone3000${this.kind==='nam'?'':'-ir'}:${result.toneId}:${model.id}`,title:tone.title||tone.name,gear:tone.gear,license:tone.license,creator:tone.user?.username||tone.creator?.name,imageUrl:tone.images?.[0]||tone.image_url||''};
+    const provenance={source:'TONE3000',toneId:result.toneId,modelId:model.id,identity:`tone3000${this.kind==='nam'?'':'-ir'}:${result.toneId}:${model.id}`,title:tone.title||tone.name,gear:tone.gear,license:tone.license,creator:tone.user?.username||tone.creator?.name,imageUrl:getToneImageUrl(tone)};
     if(this.kind==='nam'){
       const download=await this.client.downloadModel(model);if(this.disposed||node.assetRevision!==revision)return;
       await node.loadModelText(download.text,download.name,provenance);
