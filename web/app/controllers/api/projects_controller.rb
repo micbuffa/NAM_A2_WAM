@@ -4,7 +4,7 @@ class Api::ProjectsController < Api::BaseController
   include ProjectAccess
 
   def index
-    projects = Project.visible_to(current_user).includes(:user, :tracks).order(updated_at: :desc)
+    projects = Project.visible_to(current_user).includes(:user, tracks: { audio_attachment: :blob }).order(updated_at: :desc)
     render json: projects.map { |project| ProjectJson.summary(project, current_user) }
   end
 

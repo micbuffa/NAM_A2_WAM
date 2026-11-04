@@ -2,15 +2,15 @@
 module ProjectJson
   extend self
 
-  def summary(project, viewer, track_count: nil)
+  def summary(project, viewer, track_count: nil, tracks: project.tracks)
     { id: project.id, name: project.name, bpm: project.bpm, timeSignature: project.time_signature, owned: project.owned_by?(viewer),
-      owner: { id: project.user.id, name: project.user.display_name }, trackCount: track_count || visible_track_count(project),
-      createdAt: project.created_at, updatedAt: project.updated_at }
+      owner: { id: project.user.id, name: project.user.display_name }, trackCount: track_count || visible_track_count(project, tracks),
+      duration: duration(tracks), createdAt: project.created_at, updatedAt: project.updated_at }
   end
 
   def full(project, viewer)
     tracks = project.tracks.with_attached_audio.includes(:preset, :separation).to_a
-    json = summary(project, viewer, track_count: visible_track_count(project, tracks)).merge(tracks: tracks.map { |track| self.track(track) })
+    json = summary(project, viewer, track_count: visible_track_count(project, tracks), tracks: tracks).merge(tracks: tracks.map { |track| self.track(track) })
     batches = viewer && project.owned_by?(viewer) ? project.separations : project.separations.where(state: "ready")
     json[:separations] = batches.includes(:creator, :parts).order(:created_at).map { |separation| self.separation(separation) }
     json[:activeSeparationId] = project.active_separation_id
@@ -20,8 +20,15 @@ module ProjectJson
 
   # Count the restored deck, not the archive of every separation and mix.
   def visible_track_count(project, tracks = project.tracks)
-    tracks.count { |track| track.timeline_visible && !track.removed_at && track.origin != "mix" }
+    tracks.count { |track| visible?(track) }
   end
+
+  # Seconds of the longest visible track, from the analyzed audio (nil until analyzed).
+  def duration(tracks)
+    tracks.select { |track| visible?(track) && track.audio.attached? }.filter_map { |track| track.audio.blob.metadata["duration"] }.max
+  end
+
+  def visible?(track) = track.timeline_visible && !track.removed_at && track.origin != "mix"
 
   def separation(separation)
     { id: separation.id, state: separation.state, sourceTrackId: separation.source_track_id,

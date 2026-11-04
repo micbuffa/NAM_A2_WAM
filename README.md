@@ -257,6 +257,13 @@ To include the research prototype from the current checkout, pass
 `npm run dist -- --include-research`. The more recent research work remains on
 branch `multitracks`; Studio integration is developed on `codex/studio-integration`.
 
+The left column is the navigation: **Play**, **Studio**, **Audio devices** (a popup with the input
+and output devices), and **Settings** / **Account** at the bottom; **Collapse** reduces it to an icon
+rail. Play's guitar source (live input or a dry file and its player) is the bar at the top of Play.
+**Studio** always opens on its project list (title, creator, creation date, tracks, BPM, duration);
+click a row to open the project, **Delete** to remove one of yours, **New project** to start one.
+Click Studio in the navigation to come back to the list.
+
 Studio distinguishes personal parts from accompaniment audio. Choose **Track type**
 when adding or importing audio: only personal guitar/bass parts use tone presets.
 Existing projects retain their presets through the `legacy` migration origin.

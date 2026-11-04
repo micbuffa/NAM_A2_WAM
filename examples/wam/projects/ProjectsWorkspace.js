@@ -1,12 +1,14 @@
 import {TempoDetection} from './TempoDetection.js';
 import {TIME_SIGNATURES, signatureOf} from './ProjectTiming.js';
-import {copiedTrackSound, withOrigin, soundLabel} from './TrackSoundState.js';
+import {soundLabel} from './TrackSoundState.js';
 import {TrackMeters} from './TrackMeters.js';
 import {StudioRecording, armShortcut} from './recording/StudioRecording.js';
 import {StudioHistory, editState, editCommand, historyShortcut} from './StudioHistory.js';
 import {audioImportDialog, importDestinationFields} from './AudioImportDialog.js';
-// Projects workspace (TONELAB mockup): the sidebar project picker and track
-// inspector, the project header, the track timeline and their dialogs.
+// Projects workspace (Studio): Home is a table of the projects (mine and shared
+// with me) that opens one; the navigation's Studio entry leads back to it. The
+// project view has the header, the track timeline and their dialogs. The selected track's
+// details are shown in the rack dock.
 // Projects live in the Rails account (/api/projects): the static distribution
 // and guests get an explanation. Creating, importing, adding and deleting are
 // saved at once; name, tempo and track edits (mix, preset, rename) stay local
@@ -23,8 +25,8 @@ import {StudioMixExporter, exportRange, mixExportAvailability} from './StudioMix
 import {SeparationPersistence} from './SeparationPersistence.js';
 import {StudioSeparationView} from './StudioSeparationView.js';
 import {ProjectTimeline} from './ProjectTimeline.js';
-import {AUDIO_ACCEPT, BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, groupProjects, projectTrackCount, timelineTracks,
-  initials, instrumentLabel, originLabel, liveTrackId, loopAround, loopFromBars, loopLabel, loopToBars, moveTrack, rememberLoop, rememberedLoop, nameFromFile, orderChanged, shareSummary, plural, presetFields, presetValue, projectOptionLabel, timelineLength, toggleMonitoring,
+import {AUDIO_ACCEPT, BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, projectTrackCount, timelineTracks,
+  initials, instrumentLabel, originLabel, liveTrackId, loopAround, loopFromBars, loopLabel, loopToBars, moveTrack, rememberLoop, rememberedLoop, nameFromFile, orderChanged, shareSummary, plural, presetValue, timelineLength, toggleMonitoring,
   trackChanges, twoDigits, usesTrackPreset, withInstrument} from './ProjectsModel.js';
 
 const LAST_PROJECT_KEY = 'nam-a2-wam.project';
@@ -46,6 +48,11 @@ export function takeLinkedProject({location = globalThis.location, history = glo
 const moveAll = (saved, current) => current.map((track) => saved.find((entry) => entry.id === track.id)).filter(Boolean);
 
 const element = (tag, properties = {}) => Object.assign(document.createElement(tag), properties);
+// 3:05, or 1:02:09 past an hour.
+const formatDuration = (seconds) => {
+  const total = Math.round(seconds), hours = Math.floor(total / 3600), minutes = Math.floor(total / 60) % 60, rest = String(total % 60).padStart(2, '0');
+  return hours ? `${hours}:${String(minutes).padStart(2, '0')}:${rest}` : `${minutes}:${rest}`;
+};
 
 export class ProjectsWorkspace extends EventTarget {
   // api: AccountApi (null without accounts); account: Account (sign in/out);
@@ -53,9 +60,9 @@ export class ProjectsWorkspace extends EventTarget {
   // player: ProjectPlayer; createRenderer(options): a WaveSurfer renderer;
   // liveInputEnabled(): whether the live guitar is on (for input monitoring).
   constructor({api = null, account = null, requestSignIn = () => {}, report = () => {}, player = null,
-    createRenderer, liveInputEnabled = () => true, root = document, storage = globalThis.localStorage}) {
+    createRenderer, liveInputEnabled = () => true, openLinked = false, root = document, storage = globalThis.localStorage}) {
     super();
-    Object.assign(this, {api, account, requestSignIn, report, player, storage});
+    Object.assign(this, {api, account, requestSignIn, report, player, storage, openLinked});
     this.$ = (id) => root.getElementById(id);
     this.projects = [];
     this.tempoDetection = new TempoDetection({onResult: result => {
@@ -104,7 +111,6 @@ export class ProjectsWorkspace extends EventTarget {
         if (this.selectedTrack?.inputMonitoring && !liveInputEnabled()) this.report('Input monitoring: enable live input to play through this track.', true);
       },
     });
-    this.$('projectSelect').onchange = (event) => this.open(event.target.value);
     this.$('projectNew').onclick = () => this.createProjectDialog();
     this.$('projectImport').onclick = () => this.importAudioDialog();
     this.$('projectEdit').onclick = () => this.editProjectDialog();
@@ -121,7 +127,6 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectResetMix').onclick = () => this.setTracks(structuredClone(this.saved.tracks));
     this.$('projectAddTrack').onclick = () => this.addTrackDialog();
     this.$('projectsEmptyAction').onclick = () => this.emptyAction?.();
-    this.$('inspectorPreset').onchange = (event) => void this.chooseTrackPreset(this.selectedId,event.target.value).catch(error=>this.report(error.message,true));
     this.$('projectPlay').onclick = () => (this.player?.playing ? this.player.pause() : this.player?.play());
     if(this.$('projectMasterVolume'))this.$('projectMasterVolume').oninput=event=>this.player?.setMasterVolume(Number(event.target.value)/100);
     this.$('projectRewind').onclick = () => this.player?.stop();
@@ -223,14 +228,31 @@ export class ProjectsWorkspace extends EventTarget {
       try { [this.projects, this.presets] = await Promise.all([this.api.listProjects(), this.api.listPresets()]); }
       catch (error) { this.report(`Projects not loaded: ${error.message}`, true); }
     }
-    const remembered = this.remembered();
-    const first = this.projects.find((project) => String(project.id) === remembered) || this.projects[0];
-    if (first) await this.open(first.id, {confirm: false});
-    else this.render();
+    // Studio opens on Home; only a shared-project link (takeLinkedProject) opens one, once signed in.
+    const linked = this.openLinked ? this.remembered() : null;
+    if (this.signedIn) this.openLinked = false;
+    const target = linked && this.projects.find((project) => String(project.id) === linked);
+    if (target) await this.open(target.id, {confirm: false});
+    else { this.render(); this.dispatchEvent(new CustomEvent('change', {detail: {project: null}})); }
+  }
+
+  // Back to Home: closes the open project, after confirming unsaved work. Returns whether it closed.
+  async home() {
+    if (!this.project) { this.render(); return true; }
+    if (this.saving || this.recording?.busy) return false;
+    if (this.dirty) {
+      const discard = await confirmDialog({title: 'Discard unsaved changes?', message: `“${this.project.name}” has unsaved changes.`, confirmLabel: 'Discard'});
+      if (!discard) return false;
+    }
+    if (!await this.confirmPreviewDiscard()) return false;
+    this.setProject(null);
+    this.render();
+    this.dispatchEvent(new CustomEvent('change', {detail: {project: null}}));
+    return true;
   }
 
   async open(id, {confirm = true, historyLabel = null} = {}) {
-    if (this.saving || this.recording?.busy) return this.renderPicker();
+    if (this.saving || this.recording?.busy) return this.renderHome();
     if (confirm && this.dirty && String(id) !== String(this.project?.id)) {
       const discard = await confirmDialog({title: 'Discard unsaved changes?', message: `“${this.project.name}” has unsaved changes.`,
         confirmLabel: 'Discard'});
@@ -304,24 +326,6 @@ export class ProjectsWorkspace extends EventTarget {
     for (const track of this.displayTracks) this.timeline.update(track, track.id === id);
     this.syncPlayer();
     this.renderInspector();
-  }
-
-  async chooseTrackPreset(id,value) {
-    if(!this.owned||this.saving||this.recording?.busy)return;
-    const track=this.project.tracks.find(t=>t.id===id);if(!track||!usesTrackPreset(track)||value===presetValue(track))return;
-    this.soundSelections??=new Map();const seq=(this.soundSelections.get(id)??0)+1;this.soundSelections.set(id,seq);
-    const project=this.project,epoch=this.accountLoadEpoch;
-    if(!value){this.updateTrack(id,{presetSnapshot:null,snapshotId:null,presetId:null,factoryPreset:null});return;}
-    const candidate={...track,...presetFields(value),presetSnapshot:null,snapshotId:null};
-    const state=await this.tones.resolvePreset(candidate,project.id);
-    if(this.project!==project||this.accountLoadEpoch!==epoch||this.soundSelections.get(id)!==seq||this.saving||this.recording?.busy)return;
-    this.updateTrack(id,copiedTrackSound(withOrigin(state,{name:this.libraryPresetName(value)})));
-  }
-
-  // The name shown for a library preset value ("factory:…" id or "account:<id>").
-  libraryPresetName(value) {
-    const mine=this.presets?.find(preset=>`account:${preset.id}`===value);if(mine)return mine.name;
-    const factory=FACTORY_PRESETS.find(preset=>preset.id===value);return factory?`${factory.name} · ${factory.category}`:null;
   }
 
   // Local edit of a track; the row is updated in place (a fader keeps its drag).
@@ -493,20 +497,6 @@ export class ProjectsWorkspace extends EventTarget {
       await this.load();
     } catch (error) {
       this.report(`Project not left: ${error.message}`, true);
-    }
-  }
-
-  async destroy() {
-    const {project} = this;
-    const confirmed = await confirmDialog({title: 'Delete project?', confirmLabel: 'Delete',
-      message: `“${project.name}”, its ${plural(project.tracks.length, 'track')} and their audio files will be deleted.`});
-    if (!confirmed) return;
-    try {
-      await this.api.deleteProject(project.id);
-      this.report(`“${project.name}” deleted`);
-      await this.load();
-    } catch (error) {
-      this.report(`Project not deleted: ${error.message}`, true);
     }
   }
 
@@ -713,7 +703,7 @@ export class ProjectsWorkspace extends EventTarget {
   async editProjectDialog() {
     if (!this.owned) return;
     const values = await projectDialog({title: 'Edit project', confirmLabel: 'Apply', name: this.project.name, bpm: this.project.bpm, timeSignature: signatureOf(this.project.timeSignature),
-      intro: 'Update the project name and tempo, then save the project.', onDelete: () => this.destroy()});
+      intro: 'Update the project name and tempo, then save the project.'});
     if (values) this.edit(values);
   }
 
@@ -926,7 +916,7 @@ export class ProjectsWorkspace extends EventTarget {
   // Rendering ----------------------------------------------------------------
 
   render() {
-    this.renderPicker();
+    this.renderHome();
     this.renderHeader();
     this.renderEmpty();
     this.renderTracks();
@@ -1036,23 +1026,61 @@ export class ProjectsWorkspace extends EventTarget {
     this.timeline.setPosition(seconds);
   }
 
-  renderPicker() {
-    const select = this.$('projectSelect');
-    const {mine, shared} = groupProjects(this.projects);
-    const group = (label, projects) => {
-      const optgroup = element('optgroup', {label});
-      optgroup.append(...projects.map((project) => new Option(projectOptionLabel(project), project.id)));
-      return optgroup;
-    };
-    select.replaceChildren(...[mine.length && group('My projects', mine), shared.length && group('Shared with me', shared)].filter(Boolean));
-    if (!this.projects.length) select.append(new Option(this.signedIn ? 'No projects yet' : 'Sign in to see your projects', ''));
-    select.value = this.project ? String(this.project.id) : '';
-    select.disabled = this.saving || !this.projects.length;
-    this.$('projectCount').textContent = this.projects.length ? twoDigits(this.projects.length) : '';
-    this.$('projectTrackCount').textContent = twoDigits(this.displayTracks.length);
-    this.$('projectBpm').textContent = this.project ? String(this.project.bpm) : '—';
+  // Home: one table of the projects (mine and shared with me), and New project
+  // (only there). A row opens its project; Delete is offered on owned ones.
+  // Without projects, #projectsEmpty explains.
+  renderHome() {
+    const home = this.$('studioHome');
+    this.$('projectNew').hidden = Boolean(this.project);
     this.$('projectNew').disabled = this.saving || !this.available;
     this.$('projectImport').disabled = this.saving || !this.available;
+    if (!home) return;
+    home.hidden = Boolean(this.project) || !this.projects.length;
+    if (home.hidden) return home.replaceChildren();
+    const table = element('table', {className: 'studio-projects'});
+    const head = element('tr');
+    head.append(...['Title', 'Created by', 'Created', 'Tracks', 'BPM', 'Duration', 'Action'].map((label) => element('th', {scope: 'col', textContent: label})));
+    table.append(element('thead'), element('tbody'));
+    table.tHead.append(head);
+    for (const project of this.projects) {
+      const row = element('tr');
+      const open = element('button', {type: 'button', className: 'studio-project-open', textContent: project.name, title: `Open “${project.name}”`});
+      open.onclick = () => void this.open(project.id);
+      row.onclick = (event) => { if (!event.target.closest('button, tl-button')) void this.open(project.id); };
+      const created = project.createdAt ? new Date(project.createdAt) : null;
+      const cells = [open, project.owned ? 'You' : project.owner?.name || 'Another user',
+        created && !Number.isNaN(created.getTime()) ? created.toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'}) : '—',
+        String(projectTrackCount(project)), project.bpm ? String(project.bpm) : '—', Number.isFinite(project.duration) ? formatDuration(project.duration) : '—'];
+      row.append(...cells.map((content) => { const cell = element('td'); cell.append(content); return cell; }));
+      const action = element('td', {className: 'studio-project-action'});
+      if (project.owned) {
+        const remove = element('tl-button', {textContent: 'Delete'});
+        remove.setAttribute('size', 'sm'); remove.setAttribute('variant', 'ghost'); remove.setAttribute('icon', 'trash');
+        remove.title = `Delete “${project.name}”`;
+        remove.disabled = this.saving;
+        remove.onclick = (event) => { event.stopPropagation(); void this.deleteProject(project); };
+        action.append(remove);
+      }
+      row.append(action);
+      table.tBodies[0].append(row);
+    }
+    home.replaceChildren(table);
+  }
+
+  // Delete from Home (the project is not open): confirm, then drop it from the list.
+  async deleteProject(project) {
+    if (this.saving || !project.owned) return;
+    const confirmed = await confirmDialog({title: 'Delete project?', confirmLabel: 'Delete',
+      message: `“${project.name}”, its ${plural(projectTrackCount(project), 'track')} and their audio files will be deleted.`});
+    if (!confirmed) return;
+    try {
+      await this.api.deleteProject(project.id);
+      this.projects = this.projects.filter((entry) => entry.id !== project.id);
+      this.report(`“${project.name}” deleted`);
+    } catch (error) {
+      this.report(`Project not deleted: ${error.message}`, true);
+    }
+    this.render();
   }
 
   renderMixExport() {
@@ -1081,7 +1109,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectKicker').textContent = description?.kicker ?? 'Studio';
     this.$('projectTitle').textContent = this.project?.name ?? 'Studio';
     this.$('projectTitle').title = this.$('projectTitle').textContent;
-    this.$('projectMeta').textContent = description?.meta ?? 'Record and mix your ideas track by track.';
+    this.$('projectMeta').textContent = description?.meta ?? (this.projects.length ? 'Open a project, or start a new one.' : 'Record and mix your ideas track by track.');
     this.$('projectMeta').title = this.$('projectMeta').textContent;
     this.$('projectEdit').hidden = !owned;
     const state = this.$('projectSaveState');
@@ -1100,7 +1128,6 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectAddTrack').title = this.separation?.busy ? 'Stop separation before adding a track; partial instruments are preserved.' : 'Add track';
     if (this.saving) state.textContent = this.history?.busy ? 'Updating project…' : 'Saving audio…';
     this.$('projectAddTrack').hidden = !owned;
-    this.$('projectTrackCount').textContent = twoDigits(this.displayTracks.length);
     this.renderMixExport();
     this.renderRemovedTracks();
     this.renderHistory();
@@ -1108,7 +1135,7 @@ export class ProjectsWorkspace extends EventTarget {
 
   renderEmpty() {
     const empty = this.$('projectsEmpty');
-    empty.hidden = Boolean(this.project);
+    empty.hidden = Boolean(this.project) || this.projects.length > 0;
     this.$('projectTimeline').hidden = !this.project;
     if (this.project) return;
     const [title, text, action, run] = !this.available
@@ -1134,51 +1161,28 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectTracksEmpty').textContent = this.owned ? 'No tracks yet: add one from an audio file.' : 'This project has no tracks yet.';
   }
 
+  // The selected track, in the rack dock: a summary line under its sound, or,
+  // when its sound is not editable here (accompaniment, shared project), the dock's message.
   renderInspector() {
     this.onTrackSoundContext?.(); // the rack dock follows the selected track
     const track = this.selectedTrack;
-    this.$('trackInspector').hidden = !track;
     this.recording?.render();
-    if (!track) return;
-    const index = this.displayTracks.indexOf(track);
-    this.$('inspectorTrackName').textContent = track.name;
-    this.$('inspectorTrackNumber').textContent = `Track ${twoDigits(index + 1)}`;
-    this.$('inspectorTrackMeta').textContent = [originLabel(track), instrumentLabel(track.instrument), track.audio?.filename ?? 'No audio file'].join(' · ');
-    const imported=this.$('inspectorImportHelp');
-    if(imported){
-      const metadata=track.importMetadata;
-      imported.hidden=!metadata;
-      imported.textContent=metadata?.kind==='youtube' ? `YouTube source: ${metadata.url} · ${metadata.duration} s` : metadata?.kind==='studio_mix' ? `Imported from Studio project ${metadata.sourceProjectId}, mix ${metadata.sourceTrackId}.` : metadata?.kind==='bundled' ? 'Imported from the Play backing library.' : metadata ? 'Imported from a local file.' : '';
+    const meta = this.$('inspectorTrackMeta'), imported = this.$('inspectorImportHelp'), placeholder = this.$('rackDockPlaceholder');
+    if (placeholder) this.dockHint ??= placeholder.textContent;
+    const summary = track ? [`Track ${twoDigits(this.displayTracks.indexOf(track) + 1)}`, originLabel(track), instrumentLabel(track.instrument), track.audio?.filename ?? 'No audio file'].join(' · ') : '';
+    if (meta) meta.textContent = summary;
+    if (imported) {
+      const metadata = track?.importMetadata;
+      imported.hidden = !metadata;
+      imported.textContent = metadata?.kind==='youtube' ? `YouTube source: ${metadata.url} · ${metadata.duration} s` : metadata?.kind==='studio_mix' ? `Imported from Studio project ${metadata.sourceProjectId}, mix ${metadata.sourceTrackId}.` : metadata?.kind==='bundled' ? 'Imported from the Play backing library.' : metadata ? 'Imported from a local file.' : '';
     }
-    const tone = usesTrackPreset(track);
-    this.$('inspectorPresetField').hidden = !tone;
-    this.$('inspectorPresetHelp').textContent = !tone ? 'Accompaniment audio plays as recorded. Presets are reserved for your personal guitar and bass parts.'
-      : this.toneHelp(track);
-    if (tone) this.renderPresetSelect(track);
+    if (!placeholder) return;
+    if (!track) { placeholder.textContent = this.dockHint; return; }
+    const sound = !usesTrackPreset(track) ? 'Accompaniment audio plays as recorded. Presets are reserved for your personal guitar and bass parts.'
+      : `${this.presetName(track) ? `Preset: ${this.presetName(track)}. ` : ''}${this.toneHelp(track)}`;
+    placeholder.textContent = `${track.name} · ${summary}. ${sound}`;
   }
 
-  renderPresetSelect(track) {
-    const select = this.$('inspectorPreset');
-    const value = presetValue(track);
-    const group = (label, options) => {
-      const optgroup = element('optgroup', {label});
-      optgroup.append(...options);
-      return optgroup;
-    };
-    const options = [new Option('No preset', '')];
-    if (track.presetSnapshot) options.push(new Option(soundLabel(track.presetSnapshot), value));
-    if (this.owned) {
-      options.push(group('Factory', FACTORY_PRESETS.map((preset) => new Option(`${preset.name} · ${preset.category}`, preset.id))));
-      if (this.presets.length) options.push(group('My presets', this.presets.map((preset) => new Option(preset.name, `account:${preset.id}`))));
-    } else if (value) {
-      options.push(new Option(this.presetName(track), value));
-    }
-    select.replaceChildren(...options);
-    select.value = value;
-    select.disabled = !this.owned;
-  }
-
-  // The row's preset, with the state of its rack.
   toneLabel(track) {
     if (!usesTrackPreset(track)) return '';
     const name = this.presetName(track);
@@ -1247,7 +1251,7 @@ function formActions(dialog, confirmLabel, onDelete, deleteLabel) {
 }
 
 // Name + tempo. Resolves {name, bpm}, or null when cancelled.
-function projectDialog({title, confirmLabel, intro, name = '', bpm = BPM_RANGE.default, timeSignature = '4/4', onDelete = null}) {
+function projectDialog({title, confirmLabel, intro, name = '', bpm = BPM_RANGE.default, timeSignature = '4/4'}) {
   return new Promise((resolve) => {
     const {dialog, body, id} = createDialog({title, eyebrow: 'Studio', className: 'project-dialog'});
     const form = element('form', {method: 'dialog'});
@@ -1261,7 +1265,7 @@ function projectDialog({title, confirmLabel, intro, name = '', bpm = BPM_RANGE.d
     tempo.append(bpmInput, element('strong', {textContent: 'BPM'}));
     const [tempoLabel] = field('Tempo · quarter-note BPM', bpmInput);
     form.append(element('p', {textContent: intro}), ...field('Project name', nameInput), tempoLabel, tempo, ...field('Time signature',signature),
-      formActions(dialog, confirmLabel, onDelete, 'Delete project'));
+      formActions(dialog, confirmLabel));
     body.append(form);
     dialog.addEventListener('close', () => resolve(dialog.returnValue === 'ok' && nameInput.value.trim()
       ? {name: nameInput.value.trim(), bpm: clampBpm(bpmInput.value), timeSignature:signature.value} : null), {once: true});

@@ -43,7 +43,7 @@ export function describeProject(project, {dirty = false, previewTracks = null} =
     kicker: previewTracks ? `Project · ${plural(previewTracks.length, 'track')} · unsaved instruments` : [project.owned ? 'Project' : `Shared by ${project.owner?.name || 'another user'}`, plural(tracks, 'track'),
       project.owned && shareSummary(project.shares)].filter(Boolean).join(' · '),
     meta: previewTracks ? 'Listen and remix the separated instruments here. Save project to keep their audio. The original remains available for a new separation.' : project.owned
-      ? 'Import audio, separate instruments when needed, and mix your tracks. Presets are for your personal guitar and bass parts.'
+      ? ''
       : 'Read-only: you can listen and try a mix, but changes are not saved.',
     saveState: previewTracks ? 'Unsaved instruments' : !project.owned ? 'Read-only' : dirty ? 'Unsaved changes' : 'Saved',
   };

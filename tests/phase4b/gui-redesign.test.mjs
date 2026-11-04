@@ -21,7 +21,7 @@ test('Phase 4b.2 host uses a sidebar and rack without duplicating plugin control
   assert.match(html, /<summary>Automated test results<\/summary>/u);
   assert.match(html, /opened with <code>\?auto=1<\/code>/u);
   assert.doesNotMatch(html, /host-(?:inputGain|outputGain|bypass)|id="cabinetMode"/u);
-  assert.match(css, /grid-template-columns:\s*286px minmax\(0, 1fr\)/u);
+  assert.match(css, /grid-template-columns:\s*var\(--host-nav-width\) minmax\(0, 1fr\)/u);
   assert.match(css, /@media \(max-width: 720px\)/u);
   assert.match(main, /chain.initialize\(plugin,cabinetPlugin\)/u);
   assert.match(main, /new BackingTrackMix\(context,rack\.output,playAlong,\{destination:toneGate\}\)/u);

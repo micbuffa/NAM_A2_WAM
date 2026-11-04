@@ -24,6 +24,8 @@ import {SettingsView} from './SettingsView.js';
 import {TrackControlStyle} from './ui/TrackControlStyle.js';
 import {registerAppearance} from './ui/Appearance.js';
 import {Workspaces} from './Workspaces.js';
+import {HostNav} from './HostNav.js';
+import {AudioDevicesDialog} from './AudioDevicesDialog.js';
 import {registerStudioSettings} from './projects/StudioSettings.js';
 import {StudioLayout} from './projects/StudioLayout.js';
 import {RackDock} from './RackDock.js';
@@ -65,10 +67,13 @@ const projectPlayer = new ProjectPlayer(context);
 const settings = new SettingsView({button: $('#settingsButton')});
 registerAppearance(settings, undefined, new TrackControlStyle());
 const engine = new EngineStatus({element: $('#engineStatus'), context});
-const workspaces = new Workspaces({control: $('#workspaceSwitch')});
-new StudioLayout({workspaces, button: $('#studioSidebarToggle'), sidebar: $('#hostSidebar'), densityControl: $('#projectTrackDensity')});
+const hostNav = new HostNav({nav: $('#hostSidebar'), toggle: $('#hostNavToggle')});
+const workspaces = new Workspaces({control: hostNav});
+new AudioDevicesDialog({dialog: $('#audioDevicesDialog'), nav: hostNav, item: $('[data-nav="devices"]'), recover: $('#recoverAudio'), input: $('#inputDevice')});
+new StudioLayout({densityControl: $('#projectTrackDensity')});
 const rackDock = new RackDock({button: $('#rackDockToggle'), dock: $('#rackDock')});
-if (takeLinkedProject()) workspaces.show('projects');
+const linkedProject = takeLinkedProject();
+if (linkedProject) workspaces.show('projects');
 // Settings > Audio: what the browser chose (it does not let a page set the buffer size).
 const milliseconds = (seconds) => Number.isFinite(seconds) && seconds > 0 ? `${(seconds * 1000).toFixed(1)} ms` : 'Not reported';
 settings.addSection({id: 'audio', label: 'Audio', icon: 'audio', order: 1, render: (container) => {
@@ -257,7 +262,9 @@ async function initialize() {
   const accountIntegration = setupAccount({NamPlugin, CabinetPlugin, ModelFavorites, ImpulseResponseLibrary});
   projects = new ProjectsWorkspace({api: accountIntegration.account?.api ?? null, account: accountIntegration.account,
     requestSignIn: () => $('#accountSignIn').click(), report: message,
-    player: projectPlayer, createRenderer: (options) => new Renderer(options), liveInputEnabled: () => liveInputEnabled});
+    player: projectPlayer, createRenderer: (options) => new Renderer(options), liveInputEnabled: () => liveInputEnabled, openLinked: linkedProject});
+  // Studio in the navigation leads to the project list (Home).
+  hostNav.addEventListener('home', () => void projects.home());
   void projects.load();
   const [groupId] = await initializeWamHost(context, 'nam-a2-phase3-host');
   plugin = await NamPlugin.createInstance(groupId, context, {});
@@ -292,7 +299,7 @@ async function initialize() {
   toneGate.connect(context.destination);
   // Play along (Play): a backing track mixed with the guitar, before toneGate.
   // Top of Play, above the rack dock: the library opens downwards (placement="top").
-  playAlong=document.createElement('backing-track-player');playAlong.setAttribute('placement','top');$('.rack-stage').prepend(playAlong);
+  playAlong=document.createElement('backing-track-player');playAlong.setAttribute('placement','top');$('#playSource').after(playAlong);
   const studioLibrary=new StudioBackingLibrary({account:accountIntegration.account});
   await playAlong.initialize({audioContext:context,library:studioLibrary,
     importYoutube: projects.available ? () => projects.youtubeImportDialog({onImported: job => useYoutubeInTone({job,library:studioLibrary,player:playAlong,projectPlayer,workspaces})}) : null});
@@ -565,9 +572,9 @@ async function initialize() {
     await resumed;
   }, lock: locked => {
     syncMonitoring();
-    $('#workspaceSwitch').disabled = locked; $('#settingsButton').disabled = locked;
+    hostNav.disabled = locked; $('#settingsButton').disabled = locked;
     $('#enableLive').disabled = locked;
-    $('#devices-title').closest('.host-card').inert = locked;
+    $('#audioDevicesBody').inert = locked;
   }});
   engine.ready();
   message('Chain ready. Click a photo to edit, or + to insert an effect.');

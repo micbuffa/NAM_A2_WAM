@@ -131,14 +131,6 @@ test('real workspace edits preserve explicit sound copies while legacy library a
   assert.equal(w.project.tracks[0].audio,audio);assert.equal(w.project.tracks[0].recording,recording);
   w.updateTrack(1,{presetId:9});assert.equal(w.project.tracks[0].presetSnapshot,null);
 });
-test('preset selection copies the last requested sound, not a library link; stale responses do not win',async()=>{
-  const w=Object.create(ProjectsWorkspace.prototype),one=deferred(),two=deferred(),library=state(3);
-  w.project={id:1,owned:true,tracks:[{id:1,origin:'personal',instrument:'guitar',presetSnapshot:state(1),snapshotId:'one'}]};w.accountLoadEpoch=1;w.recording={pending:new Map()};w.tones={resolvePreset:track=>track.presetId===1?one.promise:two.promise};
-  w.updateTrack=(id,fields)=>{w.project.tracks[0]={...w.project.tracks[0],...fields};};
-  const first=w.chooseTrackPreset(1,'account:1'),last=w.chooseTrackPreset(1,'account:2');two.resolve(library);await last;one.resolve(state(99));await first;
-  const track=w.project.tracks[0];assert.equal(track.presetId,null);assert.equal(track.presetSnapshot.a.entries[0].state.gain,3);
-  library.a.entries[0].state.gain=8;assert.equal(track.presetSnapshot.a.entries[0].state.gain,3);
-});
 test('external track editing cannot save/overwrite a global preset or its draft, including in-flight draft capture',async()=>{
   const panel=Object.create(PresetsPanel.prototype),wait=deferred(),writes=[];panel.render=()=>{};panel.draftStore={put:(...args)=>writes.push(args),delete:(...args)=>writes.push(args)};panel.account=null;panel.captureState=()=>wait.promise;panel.baseline='{}';panel.activeId=9;panel.loadingId=null;
   const draft=panel.writeDraft(),calls=[];panel.setExternalEditor({busy:false,save(){},finish:async choice=>calls.push(['save',choice]),loadPreset:async id=>calls.push(['load',id]),checkModified:async()=>{}});

@@ -24,6 +24,21 @@ class Api::ProjectsTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
+  test "lists each project's duration: its longest visible track, once the audio is analyzed" do
+    sign_in_as users(:alice)
+    project = projects(:alice_song)
+    short, long = project.tracks.order(:position).first(2)
+    short.audio.attach(io: file_fixture("silence.wav").open, filename: "short.wav", content_type: "audio/wav")
+    long.audio.attach(io: file_fixture("silence.wav").open, filename: "long.wav", content_type: "audio/wav")
+    short.audio.blob.update!(metadata: { "duration" => 12.5, "analyzed" => true })
+    long.audio.blob.update!(metadata: { "duration" => 95.25, "analyzed" => true })
+    get api_projects_path, as: :json
+    assert_equal 95.25, response.parsed_body.find { |entry| entry["id"] == project.id }["duration"]
+    long.update!(removed_at: Time.current)
+    get api_projects_path, as: :json
+    assert_equal 12.5, response.parsed_body.find { |entry| entry["id"] == project.id }["duration"]
+  end
+
   test "lists owned projects and the ones shared with the user" do
     sign_in_as users(:alice)
     get api_projects_path

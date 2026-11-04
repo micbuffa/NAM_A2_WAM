@@ -21,78 +21,71 @@
         <span class="host-brand-mark"><svg viewBox="0 0 128 128" width="36" height="36" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M64 13 C82 13 104 16 110 32 C117 51 100 79 84 101 C74 115 54 119 42 106 C24 87 10 58 15 37 C19 20 41 13 64 13 Z"/><path d="M30 65 L41 65 C46 65 46 49 51 49 C57 49 56 82 62 82 C68 82 69 38 75 38 C81 38 80 72 86 72 C90 72 91 62 96 62 L100 62"/></svg></span>
         <div class="host-brand-text"><h1>FRETWORK</h1><p>Guitar &amp; bass studio online</p></div>
       </div>
-      <tl-segmented class="host-workspaces" id="workspaceSwitch" value="tone" aria-label="Workspace"><option value="tone">Play</option><option value="projects">Studio</option></tl-segmented>
       <div class="host-topbar-actions">
         <tl-button id="tunerButton" class="host-tuner-button" icon="tuner" size="sm" title="Open tuner (T)" aria-haspopup="dialog" aria-keyshortcuts="T" disabled>Tuner<kbd class="host-kbd">T</kbd></tl-button>
         <tl-badge id="engineStatus" class="host-engine" dot role="status" tone="warning" data-state="starting">Starting audio engine…</tl-badge>
+      </div>
+    </header>
+    <aside class="host-sidebar" id="hostSidebar" aria-label="Navigation">
+      <nav class="host-nav" id="hostNav" aria-label="Main">
+        <button class="host-nav-item" type="button" data-nav="tone" title="Play"><tl-icon name="guitar"></tl-icon><span>Play</span></button>
+        <button class="host-nav-item" type="button" data-nav="projects" title="Studio"><tl-icon name="audio"></tl-icon><span>Studio</span></button>
+        <button class="host-nav-item" type="button" data-nav="devices" title="Audio devices" aria-haspopup="dialog"><tl-icon name="headphones"></tl-icon><span>Audio devices</span></button>
+      </nav>
+      <div class="host-nav host-nav-bottom">
+        <button class="host-nav-item" id="settingsButton" type="button" title="Settings" disabled><tl-icon name="settings"></tl-icon><span>Settings</span></button>
         <div class="host-account" id="accountPanel" hidden>
-          <span class="host-divider"></span>
-          <tl-button id="accountSignIn" icon="user" size="sm" aria-haspopup="dialog" title="Keep presets, favorites and preferences on every device">Sign in</tl-button>
-          <button class="account-chip" id="accountChip" type="button" aria-haspopup="dialog" title="Account" hidden>
+          <button class="host-nav-item" id="accountSignIn" type="button" aria-haspopup="dialog" title="Sign in: keep presets, favorites and preferences on every device"><tl-icon name="user"></tl-icon><span>Sign in</span></button>
+          <button class="host-nav-item account-chip" id="accountChip" type="button" aria-haspopup="dialog" title="Account" hidden>
             <span class="account-avatar" id="accountAvatar" aria-hidden="true"></span>
             <span class="account-chip-text"><strong id="accountEmail"></strong><span class="account-sync"><i></i>Synced</span></span>
           </button>
         </div>
-        <tl-icon-button id="settingsButton" icon="settings" aria-label="Settings" title="Settings" disabled></tl-icon-button>
+        <button class="host-nav-item host-nav-toggle" id="hostNavToggle" type="button" aria-controls="hostSidebar" aria-expanded="true" aria-label="Collapse navigation" title="Collapse navigation"><tl-icon name="panel"></tl-icon><span>Collapse</span></button>
       </div>
-    </header>
-    <aside class="host-sidebar" id="hostSidebar" aria-label="Host controls">
-      <section class="host-card host-devices" aria-labelledby="devices-title">
-        <h2 id="devices-title"><span class="host-dot violet"></span>Audio devices<tl-button class="host-heading-action" id="refreshDevices" size="sm" variant="ghost" title="Look for connected audio devices again">Refresh</tl-button></h2>
-        <label>Input <tl-select icon="guitar"><select id="inputDevice" title="Input device"></select></tl-select></label>
-        <label>Output <tl-select icon="headphones"><select id="outputDevice" title="Output device"><option value="">System default</option></select></tl-select></label>
-        <tl-button class="host-secondary" id="authorizeOutput" block icon="headphones">Choose output</tl-button>
-        <p class="host-help" id="outputSupport"></p>
-        <tl-button class="host-secondary live-toggle" id="enableLive" data-workspace="tone" block variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button>
-        <p class="host-help" id="inputChannelStatus" data-workspace="tone">Enable live input to detect the available channels.</p>
-        <p class="host-help" data-workspace="projects">Arm a track to enable its input and meter. Use its monitoring button to hear your instrument.</p>
-        <tl-button class="host-secondary" id="recoverAudio" block variant="danger" icon="power" hidden>Recover audio</tl-button>
-      </section>
-
-      <section class="host-card host-projects" id="projectsPanel" aria-labelledby="projects-title" data-workspace="projects">
-        <h2 id="projects-title"><span class="host-dot green"></span>Projects<span class="host-count" id="projectCount"></span></h2>
-        <label>Open project <tl-select icon="audio"><select id="projectSelect" aria-label="Open project"></select></tl-select></label>
-        <div class="project-stats"><span><small>Tracks</small><strong id="projectTrackCount">00</strong></span><span><small>Tempo</small><strong id="projectBpm">—</strong></span></div>
-      </section>
-
-      <section class="host-card host-track-inspector" id="trackInspector" aria-labelledby="inspectorTrackName" data-workspace="projects" hidden>
-        <h2><span class="host-dot violet"></span><span class="inspector-track-name" id="inspectorTrackName"></span><span class="host-count" id="inspectorTrackNumber"></span></h2>
-        <p class="host-help inspector-track-meta" id="inspectorTrackMeta"></p>
-        <p id="inspectorImportHelp" class="host-help" hidden></p>
-        <label id="inspectorPresetField">Tone preset <tl-select icon="sliders"><select id="inspectorPreset" aria-label="Tone preset"></select></tl-select></label>
-        <p class="host-help" id="inspectorPresetHelp"></p>
-
-      </section>
-
-      <section class="host-card" aria-labelledby="source-title" data-workspace="tone">
-        <h2 id="source-title"><span class="host-dot violet"></span>Guitar source</h2>
-        <label>Source <tl-select icon="audio"><select id="audioSource"><option>Live input</option></select></tl-select></label>
-        <div class="embedded-player" id="playerPanel" hidden>
-          <p class="embedded-player-title"><span class="host-dot amber"></span>Audio player</p>
-          <div class="transport" role="group" aria-label="Audio transport">
-            <button class="player-control" id="play" type="button" aria-label="Play">▶</button>
-            <button class="player-control" id="pause" type="button" aria-label="Pause">Ⅱ</button>
-            <button class="player-control" id="stop" type="button" aria-label="Stop">■</button>
-            <label class="loop-control"><tl-checkbox variant="switch"><input class="player-control" id="loop" type="checkbox"></tl-checkbox> Loop</label>
-          </div>
-          <label class="host-range">Position
-            <tl-slider><input class="player-control" id="seek" type="range" min="0" max="1" step="0.001" value="0"></tl-slider>
-          </label>
-          <audio id="player" preload="metadata"></audio>
-        </div>
-        <p class="host-help" id="discovery"></p>
-      </section>
-
     </aside>
 
+    <dialog class="tl-modal host-devices-dialog" id="audioDevicesDialog" aria-labelledby="devices-title">
+      <header class="tl-modal-header">
+        <div><p class="tl-eyebrow">Input &amp; output</p><h2 class="tl-modal-title" id="devices-title">Audio devices</h2></div>
+        <tl-icon-button icon="close" variant="ghost" aria-label="Close" data-close></tl-icon-button>
+      </header>
+      <section class="tl-modal-body host-devices" id="audioDevicesBody">
+        <label>Input <tl-select icon="guitar"><select id="inputDevice" title="Input device"></select></tl-select></label>
+        <label>Output <tl-select icon="headphones"><select id="outputDevice" title="Output device"><option value="">System default</option></select></tl-select></label>
+        <tl-button id="authorizeOutput" block icon="headphones">Choose output</tl-button>
+        <p class="host-help" id="outputSupport"></p>
+        <p class="host-help" data-workspace="projects">Arm a track to enable its input and meter. Use its monitoring button to hear your instrument.</p>
+        <tl-button id="recoverAudio" block variant="danger" icon="power" hidden>Recover audio</tl-button>
+        <div class="tl-modal-actions"><tl-button id="refreshDevices" variant="ghost" title="Look for connected audio devices again">Refresh devices</tl-button></div>
+      </section>
+    </dialog>
+
     <main class="rack-stage" data-workspace="tone" aria-label="Play">
-      <!-- Play along (main.js) is inserted here, above the rack dock. -->
+      <section class="play-source" id="playSource" aria-labelledby="source-title">
+        <div class="play-source-row">
+          <h2 class="play-source-title" id="source-title"><span class="host-dot violet"></span>Guitar source</h2>
+          <tl-select class="play-source-select" icon="audio"><select id="audioSource" aria-label="Guitar source"><option>Live input</option></select></tl-select>
+          <tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button>
+          <div class="embedded-player" id="playerPanel" hidden>
+            <div class="transport" role="group" aria-label="Audio transport">
+              <button class="player-control" id="play" type="button" aria-label="Play">▶</button>
+              <button class="player-control" id="pause" type="button" aria-label="Pause">Ⅱ</button>
+              <button class="player-control" id="stop" type="button" aria-label="Stop">■</button>
+            </div>
+            <tl-slider class="play-source-seek"><input class="player-control" id="seek" type="range" min="0" max="1" step="0.001" value="0" aria-label="Position"></tl-slider>
+            <label class="loop-control"><tl-checkbox variant="switch"><input class="player-control" id="loop" type="checkbox"></tl-checkbox> Loop</label>
+            <audio id="player" preload="metadata"></audio>
+          </div>
+        </div>
+        <div class="play-source-notes"><p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p><p class="host-help" id="discovery"></p></div>
+      </section>
+      <!-- Play along (main.js) is inserted below the guitar source, above the rack dock. -->
     </main>
 
     <main class="tracks-stage projects-stage" id="projectsWorkspace" data-workspace="projects" aria-label="Studio">
       <header class="rack-header projects-header">
         <div class="rack-heading">
-          <tl-icon-button id="studioSidebarToggle" icon="panel" size="sm" aria-label="Hide sidebar" title="Hide sidebar" aria-controls="hostSidebar" aria-expanded="true"></tl-icon-button>
           <div>
             <p class="rack-kicker" id="projectKicker">Studio</p>
             <div class="preset-title-row"><h2 id="projectTitle">Studio</h2><tl-icon-button id="projectEdit" icon="edit" size="sm" variant="ghost" aria-label="Edit project" title="Edit project" aria-haspopup="dialog" hidden></tl-icon-button></div>
@@ -119,6 +112,7 @@
           <p id="projectsEmptyText"></p>
           <tl-button id="projectsEmptyAction" variant="primary" hidden></tl-button>
         </section>
+        <section class="studio-home" id="studioHome" aria-label="Projects" hidden></section>
         <section id="studioSeparation" class="studio-separation" aria-label="Separate instruments" hidden>
           <div class="studio-separation-actions">
             <tl-button id="studioSeparate" variant="primary" disabled>Separate instruments</tl-button>
@@ -207,13 +201,15 @@
 
     <!-- Rack dock, shared by Play and Studio: glued to the bottom of the screen, collapsible (RackDock.js). -->
     <section class="rack-dock" id="rackDock" aria-label="Rack and presets">
-      <p class="rack-dock-placeholder host-help">Select one of your guitar or bass tracks to see and edit its sound here. Other tracks play as recorded.</p>
+      <p class="rack-dock-placeholder host-help" id="rackDockPlaceholder">Select one of your guitar or bass tracks to see and edit its sound here. Other tracks play as recorded.</p>
       <header class="rack-header">
         <div class="rack-heading">
           <div class="preset-heading">
             <p class="rack-kicker" id="presetKicker">Current preset</p>
             <div class="preset-title-row"><h2 id="presetTitle">Untitled rack</h2><tl-icon-button id="presetRename" icon="edit" size="sm" variant="ghost" aria-label="Rename preset" title="Rename preset" hidden></tl-icon-button><tl-icon-button id="presetRevert" icon="undo" size="sm" variant="ghost" aria-label="Revert to saved preset" title="Reload the preset, discarding unsaved changes" hidden></tl-icon-button><tl-badge id="presetUnsaved" class="preset-unsaved" variant="eyebrow" tone="warning" dot role="status" hidden>Unsaved changes</tl-badge></div>
             <p class="preset-meta" id="presetMeta">Not saved as a preset</p>
+            <p class="preset-meta rack-track-meta" id="inspectorTrackMeta" data-workspace="projects"></p>
+            <p class="preset-meta rack-track-meta" id="inspectorImportHelp" data-workspace="projects" hidden></p>
             <p class="preset-meta preset-status"><span id="presetStatus" role="status" aria-live="polite"></span> <span class="preset-scope" id="presetScope"></span></p>
           </div>
         </div>
