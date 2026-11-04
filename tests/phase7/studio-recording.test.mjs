@@ -152,14 +152,16 @@ test('every track type has a post-fader meter; voice changes and removed tracks 
   rows.delete(3);meters.update();assert.equal(meters.entries.has(3),false);assert.ok(calls.some(call=>call[0]==='disconnect'&&call[1]==='preview'));
 });
 
-test('Play isolates recorded audio from live monitoring; pause restores monitoring and Record keeps it',async()=>{
+test('explicit monitoring survives Play, mix refresh, Pause and Record; switching it off auditions the recording',async()=>{
   const c=context();c.resume=async()=>{};const p=new ProjectPlayer(c);
   const input={targets:new Set(),connect(to){this.targets.add(to);},disconnect(to){this.targets.delete(to);}};
   const gain=()=>({value:1,setTargetAtTime(value){this.value=value;}});
   const channel={buffer:{duration:10},playback:{...node(),gain:gain()},gain:{...node(),gain:gain()},pan:node(),voices:new Set(),monitoring:true,insert:{live:node()}};
   p.channels.set(1,channel);p.liveTrack=1;p.setLiveInput(input);assert.equal(p.liveId,1);assert.ok(input.targets.has(channel.insert.live));
-  await p.play();assert.equal(p.liveId,null);assert.equal(input.targets.size,0);assert.equal(channel.playback.gain.value,1,'monitoring must not silence the recorded file during Play');
-  p.changed();assert.equal(input.targets.size,0,'a UI/mix state refresh must not reconnect live input during playback');
+  await p.play();assert.equal(p.liveId,1);assert.ok(input.targets.has(channel.insert.live));assert.equal(channel.playback.gain.value,0,'monitoring replaces only this track recording');
+  p.changed();assert.equal(input.targets.size,1,'a UI/mix state refresh preserves one live route');
+  channel.monitoring=false;p.changed();assert.equal(p.liveId,null);assert.equal(input.targets.size,0);assert.equal(channel.playback.gain.value,1,'monitor off auditions the recorded audio during Play');
+  channel.monitoring=true;p.changed();assert.equal(p.liveId,1);assert.equal(input.targets.size,1);
   p.pause();assert.equal(p.liveId,1);assert.ok(input.targets.has(channel.insert.live));assert.equal(channel.playback.gain.value,0);
   p.startRecording(2,0);assert.equal(p.liveId,1);assert.ok(input.targets.has(channel.insert.live));p.pause();
 });

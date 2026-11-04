@@ -146,20 +146,12 @@ export class StudioRecording {
   }
   async start() {
     const w = this.workspace;
-    if(this.busy||this.confirming||w.separation?.result)return;
+    if(this.busy||w.separation?.result)return;
     // The transport records the armed track, even after selecting another row.
     if(!this.busy&&this.armedId!=null&&this.canArm(w.project?.tracks.find(t=>t.id===this.armedId)))w.select?.(this.armedId);
     if (!this.eligible || this.armedId !== w.selectedId || this.busy) return;
     const track = w.selectedTrack, project = w.project, epoch = w.accountLoadEpoch;
-    const audioHistory=w.history?.entries.slice(0,w.history.cursor).filter(command=>command.audio)??[];
-    const expires=audioHistory.length>=(w.history?.audioLimit??2);
-    let range=recordingRange(w.player.loop,w.player.position,this.context.sampleRate);
-    if(track.audio||expires){
-      this.confirming=true;let confirmed;
-      try{confirmed=await (this.confirmReplace??confirmDialog)({title:track.audio?'Record over this interval?':'Record with bounded Undo history?',message:`Record on “${track.name}” ${range?range.mode==='cycle'?'in repeated A/B takes (up to three recent complete takes plus the final incomplete take)':'only inside A/B, without looping; playback continues after B':'from the playhead until Stop'}? Audio outside the recording interval stays intact. The previous audio stays intact if capture fails. Undo keeps two audio operations.${expires?` After success, “${audioHistory[0].label}” will leave Undo history.`:''}`,confirmLabel:track.audio?'Record over interval':'Record take'});}finally{this.confirming=false;}
-      if(!confirmed||w.project!==project||w.accountLoadEpoch!==epoch||w.selectedId!==track.id||w.selectedTrack!==track||!this.eligible||this.armedId!==track.id||w.selectedTrack.audio?.url!==track.audio?.url)return;
-    }
-    range=recordingRange(w.player.loop,w.player.position,this.context.sampleRate);
+    const range=recordingRange(w.player.loop,w.player.position,this.context.sampleRate);
     this.loopReview?.close();
     w.player.base.pause();
     const startProjectFrame = range?.transportStartFrame ?? Math.round(w.player.position * this.context.sampleRate);
@@ -318,7 +310,7 @@ export class StudioRecording {
       }
       if(row.arm){
         row.arm.disabled=row.structuralLocked||this.busy||!this.canArm(row.track);
-        row.arm.title=row.structuralLocked||w.separation?.busy?'Stop separation and save its instruments before arming.':row.track.audio?'Record asks for confirmation. A/B limits the recorded interval; Loop keeps multiple takes.':this.pending.size>=2?'Save pending takes before arming another track.':`${armed?'Disarm':'Arm'} ${row.track.name} (R) · input ${(this.source.liveInput?.channelIndex??0)+1}`;
+        row.arm.title=row.structuralLocked||w.separation?.busy?'Stop separation and save its instruments before arming.':row.track.audio?'Record replaces the captured interval (Undo available). A/B limits the recorded interval; Loop keeps multiple takes.':this.pending.size>=2?'Save pending takes before arming another track.':`${armed?'Disarm':'Arm'} ${row.track.name} (R) · input ${(this.source.liveInput?.channelIndex??0)+1}`;
         row.arm.classList.toggle('active',armed);row.arm.setAttribute('aria-pressed',String(armed));
       }
     }

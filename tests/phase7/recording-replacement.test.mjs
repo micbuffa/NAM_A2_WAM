@@ -33,11 +33,14 @@ test('a saved take undo uses the immutable server version and leaves the cursor 
  f.w.api={restoreRecording:async()=>{throw Error('conflict');}};await assert.rejects(f.w.history.step(),/conflict/);assert.equal(f.w.history.cursor,1);assert.equal(f.w.project.tracks[0].snapshotId,'session1');
  let finish;f.w.api.restoreRecording=()=>new Promise(resolve=>finish=resolve);const pending=f.w.history.step();f.w.project={id:10,tracks:[]};finish({...base(),recordingVersionId:'blank'});await assert.rejects(pending,/Project changed/);assert.equal(f.w.project.id,10);f.h.clear();
 });
-test('replacement confirmation precedes transport/input changes and stale confirmation cannot start capture',async()=>{
- const r=Object.create(StudioRecording.prototype),track={...base(),audio:{url:'/old',checksum:'old'}};let pauses=0,dialogs=0,finish;
- Object.assign(r,{state:'idle',pending:new Map(),armedId:1,context:{sampleRate:48000}});r.workspace={owned:true,selectedId:1,project:{id:2,tracks:[track]},get selectedTrack(){return this.project.tracks[0];},accountLoadEpoch:1,player:{base:{pause(){pauses++;}}}};
- r.confirmReplace=async()=>{dialogs++;return false;};await r.start();assert.equal(pauses,0);assert.equal(dialogs,1);assert.equal(r.workspace.selectedTrack.audio.url,'/old');
- r.confirmReplace=()=>{dialogs++;return new Promise(resolve=>finish=resolve);};const pending=r.start();await r.start();assert.equal(dialogs,2);r.workspace.project.tracks=[{...track}];finish(true);await pending;assert.equal(pauses,0);assert.equal(r.confirming,false);
+test('Record starts without confirmation and repeated clicks cannot prepare two captures',async()=>{
+ const r=Object.create(StudioRecording.prototype),track={...base(),audio:{url:'/old',checksum:'old'}};let pauses=0,dialogs=0,release;
+ Object.assign(r,{state:'idle',pending:new Map(),armedId:1,source:{},context:{sampleRate:48000,resume:()=>new Promise(done=>release=done)}});
+ r.workspace={owned:true,selectedId:1,project:{id:2,tracks:[track]},get selectedTrack(){return this.project.tracks[0];},accountLoadEpoch:1,player:{position:0,base:{pause(){pauses++;}}},$:()=>({value:'14'}),timeline:{}};
+ r.confirmReplace=()=>{dialogs++;throw Error('must not ask');};r.setState=state=>r.state=state;
+ r.waitForBacking=async()=>{throw Error('capture sentinel');};r.abort=()=>r.active=null;
+ const pending=r.start();assert.equal(r.state,'preparing');assert.equal(pauses,1);await r.start();assert.equal(pauses,1);
+ release();await pending;assert.equal(dialogs,0);assert.equal(track.audio.url,'/old','preparing does not destructively replace old audio');
 });
 test('recording backing excludes the replaced track even with monitoring disabled',()=>{
  const node=()=>({gain:{setTargetAtTime(){}},connect(){return this;},disconnect(){}}),context={currentTime:1,createGain:node,createBufferSource:()=>({...node(),start(){},stop(){}})},player=new ProjectPlayer(context);
@@ -55,10 +58,10 @@ test('publishing a take does not assign its baseline version to another empty tr
  f.h.published(t,{id:1,previousRecordingVersionId:'blank-one',recordingVersionId:'one'},f.w.saved.tracks[0]);assert.equal(unrelated.serverId,null);f.h.clear();
 });
 
-test('an empty track at the audio-history limit warns about eviction before preparing capture',async()=>{
+test('Record starts without an eviction dialog even at the bounded history limit',async()=>{
  const r=Object.create(StudioRecording.prototype),track=base();let prompt,failed;
  Object.assign(r,{state:'idle',pending:new Map(),armedId:1,source:{},context:{sampleRate:48000,resume:async()=>{}}});
  r.workspace={owned:true,selectedId:1,project:{id:2,tracks:[track]},get selectedTrack(){return this.project.tracks[0];},accountLoadEpoch:1,history:{audioLimit:2,cursor:2,entries:[{audio:true,label:'Old take'},{audio:true,label:'New take'}]},player:{position:0,base:{pause(){}}},$:()=>({value:'0'}),timeline:{}};
  r.confirmReplace=async options=>{prompt=options;return true;};r.setState=()=>{};r.waitForBacking=async()=>{throw Error('capture sentinel');};r.abort=error=>failed=error;
- await r.start();assert.match(prompt.message,/Old take.*leave Undo/);assert.equal(failed.message,'capture sentinel');
+ await r.start();assert.equal(prompt,undefined);assert.equal(failed.message,'capture sentinel');
 });

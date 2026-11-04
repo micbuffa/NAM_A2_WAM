@@ -24,7 +24,7 @@ import {SettingsView} from './SettingsView.js';
 import {TrackControlStyle} from './ui/TrackControlStyle.js';
 import {registerAppearance} from './ui/Appearance.js';
 import {Workspaces} from './Workspaces.js';
-import {StudioOptionsDialog} from './projects/StudioOptionsDialog.js';
+import {registerStudioSettings} from './projects/StudioSettings.js';
 import {StudioLayout} from './projects/StudioLayout.js';
 import {ProjectsWorkspace, takeLinkedProject} from './projects/ProjectsWorkspace.js';
 import {StudioPlayer as ProjectPlayer} from './projects/StudioPlayer.js';
@@ -550,8 +550,7 @@ async function initialize() {
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
   // Factory presets build on the default rack, known once the presets are attached.
   projects.attachTones(trackTones);
-  new StudioOptionsDialog({button:$('#studioOptions'),panel:$('#studioOptionsPanel'),title:'Project options',workspaces,workspace:projects});
-  new StudioOptionsDialog({button:$('#recordOptions'),panel:$('#recordOptionsPanel'),title:'Recording settings',workspaces,workspace:projects});
+  registerStudioSettings({settings,projectPanel:$('#studioOptionsPanel'),recordPanel:$('#recordOptionsPanel'),projectButton:$('#studioOptions'),recordButton:$('#recordOptions')});
   trackSoundEditor=new TrackSoundEditor({workspace:projects,rack,source:sourceManager,presets,workspaces,context,route:()=>{syncMonitoring();syncSourceTrim();},pauseAlong:()=>playAlong.engine.pause(),view:editor=>{
     const active=!!editor.active;$('#trackSoundEditor').hidden=!active;document.body.dataset.trackSoundEdit=String(active);$('#workspaceSwitch').disabled=active;
     if(!active)return;

@@ -6,10 +6,10 @@
 // A track can play through an insert (a guitar or bass track's preset rack):
 //   playback ─► insert.input ─┐
 //   live ─────► insert.live ──┴─► insert.output ─► gain ─► pan ─► output
-// The live guitar plays through one track (liveTrackId()): with input
-// monitoring it replaces the track's recorded part; the selected track plays
-// it while stopped, once its preset rack is in. Ordinary Play auditions the
-// recorded audio exclusively on these track channels; recording keeps monitoring.
+// The live guitar plays through the explicitly monitoring track (liveTrackId()),
+// through its preset, replacing only that track's recorded part.
+// Explicit monitoring stays on during Play and recording;
+// turn it off to audition the recorded audio on that channel.
 //
 // A loop (setLoop) replays one region of every track: each turn restarts all
 // tracks together on the audio clock, scheduled slightly ahead, so tracks of
@@ -89,9 +89,6 @@ export class ProjectPlayer extends EventTarget {
   // The track the live guitar plays through now, if any: a monitoring track
   // (dry without its preset), a selected one once its preset rack is in.
   get liveId() {
-    // Audition recorded tracks during Play. Live monitoring resumes on pause,
-    // and remains available while actually recording a new part.
-    if (this.playing && !this.recording) return null;
     const channel = this.channels.get(this.liveTrack);
     return channel?.monitoring ? this.liveTrack : null;
   }
@@ -377,8 +374,7 @@ export class ProjectPlayer extends EventTarget {
   }
 
   changed() {
-    const playback = this.playing && !this.recording;
-    for (const channel of this.channels.values()) channel.playback.gain.setTargetAtTime(playback || !channel.monitoring ? 1 : 0, this.context.currentTime, RAMP);
+    for (const channel of this.channels.values()) channel.playback.gain.setTargetAtTime(channel.monitoring ? 0 : 1, this.context.currentTime, RAMP);
     this.routeLive();
     this.dispatchEvent(new Event('statechange'));
   }

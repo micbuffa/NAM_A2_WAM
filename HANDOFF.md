@@ -1,3 +1,19 @@
+## 2026-11-03 — Unified Studio preferences and direct Record; track-tempo entry deferred
+
+Studio/Recording settings register persistent panels in global SettingsView via StudioSettings, preserving IDs/handlers. Existing shortcut buttons select those sections in the same dialog; count-in moved to Recording preferences, Click stays in transport. Legacy StudioOptionsDialog retained only for old tests/compatibility, not instantiated in product.
+
+Removed Record overwrite/history-limit confirmations per user: armed track enters preparing synchronously (double click guarded), then count-in/capture, immutable old audio until finalization, existing Undo/Redo. Discard/delete confirmations remain. Regression tests cover immediate-start/double-click/no premature overwrite and no history-limit dialog.
+
+User explicitly declined the incomplete Studio tempo integration after learning variable maps cannot yet drive the project. Removed the newly added track Tempo button/dialog/iframe bridge/tests/fixture; standalone Beat This benchmark is unchanged. Keep T3–T5 pending; do not expose a partial analysis workflow in Studio before actual map integration. Existing fixed BPM import estimator remains unchanged.
+
+Native Rails global preferences and value retention verified before this withdrawal. After removing the incomplete entry point, full683JS tests pass (0 failures/skips); dist rebuilt and Rails rack synced, obsolete bridge assets removed. No backend/schema change or commit/push requested.
+
+## 2026-11-03 — Monitoring persists during backing playback
+
+User reported guitar monitor audible when stopped but disappearing on Play over separated instruments. ProjectPlayer.liveId explicitly returned null during ordinary playback, and changed() enabled recorded audio despite monitor-on state. Removed the transport-dependent override: explicit track monitoring routes the input continuously through its preset, while only that channel’s recorded playback stays muted. Monitor-off immediately disconnects live and enables its recording; other stems remain audible. Tone remains muted in Studio, arming/DI capture unchanged.
+
+Updated obsolete playback-isolation regression; added real StudioPlayer graph regression with four stem buffers plus empty monitored guitar, Play/mix refresh/loop/off/on/Stop/destroy, checking connections and other playback gains. Full682JS tests pass (49 targeted), no failures/skips. Dist/Rails rack synced. No physical guitar listening claim, no backend/schema change, no commit/push requested.
+
 ## 2026-11-03 — Explicit Studio monitoring ownership / prominent Auto-calibrate
 
 User revised the live routing: Tone should not keep sounding in Studio alongside track monitoring. Tone gate now unity only in Tone (unless existing audio-FX editing/calibration isolation), zero in Studio regardless of track arm/play state. Physical input remains available for DI capture/meters; Studio arm/monitor automatically enables it as before. No forced device teardown or preset/gain changes on tab switch; returning to Tone restores its existing live sound. Global live toggle and its activation hint are Tone-only; Studio sidebar explains arm/meter vs track monitor.

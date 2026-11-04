@@ -368,3 +368,24 @@ test('single timeline labels separate processing, stopped unsaved audio and comp
  assert.match(separationTrackState({busy:false,result:{engine:{partial:true}}}),/Unsaved.*stopped.*Save project/);
  assert.equal(separationTrackState({busy:false,result:{engine:{partial:false}}}), 'Unsaved instruments · Save project');
 });
+
+test('an empty guitar track keeps monitoring while four separated tracks play, loop and stop',async()=>{
+  const c=context(),player=new StudioPlayer(c);
+  const stems=Array.from({length:4},(_,i)=>({id:i+1,origin:'stem',volume:80,pan:0}));
+  const guitar={id:5,origin:'personal',instrument:'guitar',volume:80,pan:0,inputMonitoring:true};
+  player.setTracks([...stems,guitar],5);
+  for(const stem of stems)player.channels.get(stem.id).buffer=c.createBuffer(1,441000,44100);
+  const insert={input:c.createGain(),live:c.createGain(),output:c.createGain()},input=c.createGain();
+  player.setInsert(5,insert);player.setLiveInput(input);
+  assert.equal(player.liveId,5);assert.ok(input.targets.has(insert.live));
+  await player.play();assert.equal(player.playing,true);assert.equal(player.liveId,5);
+  assert.ok(input.targets.has(insert.live));assert.equal(c.sources.length,4,'empty guitar adds no playback voice');
+  for(const stem of stems)assert.equal(player.channels.get(stem.id).playback.gain.value,1);
+  player.setTracks([...stems,{...guitar,volume:65}],5);assert.ok(input.targets.has(insert.live));assert.equal(input.targets.size,1);
+  await player.setLoop({enabled:true,start:1,end:3});assert.equal(player.liveId,5);assert.ok(input.targets.has(insert.live));
+  player.setTracks([...stems,{...guitar,inputMonitoring:false}],5);
+  assert.equal(player.liveId,null);assert.equal(input.targets.size,0);assert.equal(player.playing,true);
+  player.setTracks([...stems,guitar],5);assert.equal(input.targets.size,1);
+  player.stop();assert.equal(player.liveId,5);assert.equal(input.targets.size,1);
+  player.destroy();assert.equal(input.targets.size,0);
+});

@@ -1,11 +1,11 @@
 # Enregistrer une guitare ou une basse dans Studio
 
-Mise à jour : 3 novembre 2026. **Implémenté sur `codex/studio-integration` : prise mono DI, écrasement partiel confirmé, comparaison Avant/Après et Undo/Redo des prises et assistant de calibration aller-retour ; validation matérielle restante.**
+Mise à jour : 3 novembre 2026. **Implémenté sur `codex/studio-integration` : prise mono DI, écrasement partiel avec Undo/Redo, comparaison Avant/Après et Undo/Redo des prises et assistant de calibration aller-retour ; validation matérielle restante.**
 
 
 Commandes dans les en-têtes personnels : **microphone** pour armer, **haut-parleur** pour écouter l’entrée. **Record / Stop** se trouvent dans le transport commun, sans panneau d’enregistrement séparé. La touche **R** arme/désarme la piste personnelle sélectionnée, sauf dans un champ de saisie, un dialogue ou pendant une prise. Une seule piste est armée à la fois. L’armement initialise l’entrée et le vumètre DI sans activer le monitoring. La sélection d’une piste ou le chargement de son preset ne rend jamais l’entrée audible. Tone ne double pas le monitoring de Studio.
 
-Parcours : ajouter une piste personnelle guitare/basse vide, choisir l’entrée/canal dans Tone, **Arm track → Record → décompte → prise → Stop recording → Save project**. Le haut-parleur reste optionnel, commutable pendant la prise. Sans preset de piste, le son courant de Tone est copié, même non sauvegardé ; **Use current Tone sound** refait cette copie sans forcer le monitoring. À l’arrêt, le vumètre de la piste armée observe la DI ; en lecture normale il observe l’audio lu après traitement/volume/pan. Le réglage explicite du haut-parleur est conservé après Stop.
+Parcours : ajouter une piste personnelle guitare/basse vide, choisir l’entrée/canal dans Tone, **Arm track → Record → décompte → prise → Stop recording → Save project**. Le haut-parleur reste optionnel, commutable pendant la prise. Sans preset de piste, le son courant de Tone est copié, même non sauvegardé ; **Use current Tone sound** refait cette copie sans forcer le monitoring. À l’arrêt, le vumètre de la piste armée observe la DI ; en lecture normale il observe l’audio lu après traitement/volume/pan. Le réglage explicite du haut-parleur est conservé pendant Play, les boucles et après Stop : la lecture ne coupe pas le monitoring. Monitoring activé, l’entrée live remplace le fichier de cette seule piste ; les autres pistes continuent à jouer. Monitoring désactivé, on écoute la prise enregistrée.
 
 ### Zone A/B : punch et prises en boucle — implémentés le 3 novembre 2026
 
@@ -49,7 +49,7 @@ Les exigences ci-dessous restent la cible complète ; les contrôles manuels ne 
 
 ## Remplacement et Undo/Redo — livraison du 3 novembre 2026
 
-Armer une piste personnelle existante puis cliquer Record demande confirmation avant de démarrer. La nouvelle prise écrase uniquement l’intervalle enregistré, de la position de départ jusqu’à Stop, après compensation de latence. Le préfixe et le suffixe de la DI restent identiques. Si la prise dépasse la fin, la piste est prolongée ; un départ après la fin insère du silence entre les deux. L’ancienne prise n’est pas jouée pendant la capture. Monitoring reste indépendant. Annulation du dialogue ou du décompte, déconnexion et échec de finalisation conservent l’audio et la waveform précédents.
+Armer une piste personnelle existante puis cliquer Record lance directement la préparation et le décompte configuré, sans dialogue de confirmation. La nouvelle prise écrase uniquement l’intervalle enregistré, de la position de départ jusqu’à Stop, après compensation de latence. Le préfixe et le suffixe de la DI restent identiques. Si la prise dépasse la fin, la piste est prolongée ; un départ après la fin insère du silence entre les deux. L’ancienne prise n’est pas jouée pendant la capture. Monitoring reste indépendant. Annulation du décompte, déconnexion et échec de finalisation conservent l’audio et la waveform précédents.
 
 Les boutons **Before / After** comparent les versions via Undo/Redo : la lecture se met en pause, puis Play permet d’écouter la version affichée. Save project conserve cette version. Ces boutons sont disponibles quand la commande de prise de la piste sélectionnée est adjacente au curseur de l’historique ; après d’autres modifications, utiliser Undo/Redo standard pour y revenir. Ce n’est pas un catalogue illimité de takes.
 
@@ -57,7 +57,7 @@ L’écrasement partiel exige pour le moment une DI mono Float32 WAV à la fréq
 
 La composition finale utilise des slices de Blob dans le Worker, sans reconstruction du PCM sur le thread UI. La waveform ancienne est préparée une fois et reste visible, puis seules les colonnes de capture changent ; l’enveloppe finale est recalculée une fois dans le Worker.
 
-Une capture réussie crée une commande audio dans l’historique Studio : Undo/Redo réutilise les fichiers WAV et snapshots exacts, sans nouvelle compensation. Cela fonctionne en RAM et après Save project, dans la session ouverte. Les réglages courants de volume/pan/mute/solo sont conservés. Maximum 30 commandes, dont deux opérations audio, Undo et Redo réunis ; confirmation si une nouvelle prise fait sortir une ancienne action de l’historique. Pas de copies PCM dans le journal.
+Une capture réussie crée une commande audio dans l’historique Studio : Undo/Redo réutilise les fichiers WAV et snapshots exacts, sans nouvelle compensation. Cela fonctionne en RAM et après Save project, dans la session ouverte. Les réglages courants de volume/pan/mute/solo sont conservés. Maximum 30 commandes, dont deux opérations audio, Undo et Redo réunis ; aucune confirmation à Record, même si une ancienne action sort de l’historique limité. Pas de copies PCM dans le journal.
 
 Rails conserve au maximum **deux versions de prise inactives par projet**, partagées via leurs blobs immuables, en plus des prises courantes. Chaque WAV est limité à100MiB : jusqu’à200MiB pour ces versions inactives. Elles sont comptées dans le quota ; un blob encore référencé ailleurs n’est pas purgé. Upload et restauration vérifient propriétaire, timestamp et checksum ; retries idempotents. Un échec laisse la version courante intacte. Le rechargement remet la pile Undo/Redo à zéro : pas encore d’interface de récupération des versions après rechargement ni d’expiration24h. Ces limites ne purgent pas les autres archives historiques du projet.
 
@@ -70,7 +70,7 @@ Un projet reste une liste nommée de pistes. Les pistes issues d’une séparati
 Décisions confirmées par Michel :
 
 - Conserver **la DI brute et une copie complète du preset**, pour changer le son après la prise.
-- Sur une piste contenant déjà de l’audio, **demander confirmation avant écrasement de l’intervalle enregistré**. Une annulation ou une prise échouée conserve l’ancien audio.
+- Sur une piste contenant déjà de l’audio, **démarrer Record sans dialogue**, après armement explicite ; ne remplacer l’intervalle qu’après finalisation réussie, avec Undo/Redo. Un décompte annulé ou une prise échouée conserve l’ancien audio.
 - Entendre son instrument traité avant d’enregistrer ; armer explicitement la piste avant Record.
 - Pas de régions ni d’édition par découpage ; prises A/B multiples bornées, sans comping.
 
@@ -120,7 +120,7 @@ Ces observations sont des limites du code inspecté, pas des mesures de désynch
 2. Choisir l’entrée, activer Monitor et régler le niveau en jouant. Entendre uniquement la chaîne de cette piste, avec vumètre entrée/écrêtage.
 3. Choisir un autre preset via un sélecteur simple ou « Edit in Tone ». Le retour retrouve le même projet et la même piste. Changer le preset ne modifie jamais la DI.
 4. Armer la piste : bouton R distinct de Monitor. Afficher le preset et la calibration applicable. Désactiver Record tant que l’entrée, le rack et le recorder ne sont pas prêts.
-5. Positionner le playhead puis Record. Si l’audio doit être remplacé, demander confirmation avec le nom de la piste, avant le départ. Pas de suppression anticipée.
+5. Positionner le playhead puis Record. Aucune confirmation supplémentaire : l’armement et Record expriment le choix. Pas de suppression anticipée ; Undo/Redo après finalisation.
 6. Pendant la prise : écouter le backing et son instrument, afficher waveform, durée et vumètre. Le playhead suit l’horloge audio. La waveform représente la DI.
 7. Stop : finaliser les derniers frames, appliquer une seule compensation, encoder hors UI, puis proposer/assurer la sauvegarde explicite. La lecture de la prise traverse la copie du preset.
 8. Save project sauvegarde DI, snapshot et métadonnées. Recharger doit retrouver le même son ou signaler précisément une ressource manquante.
@@ -269,7 +269,7 @@ stateDiagram-v2
   [*] --> Idle
   Idle --> Monitoring: Monitor + entrée et preset prêts
   Monitoring --> Armed: Arm
-  Armed --> Recording: Record / confirmation remplacement / frame planifié
+  Armed --> Recording: Record / décompte configuré / frame planifié
   Recording --> Finalizing: StopAck / dernier frame
   Finalizing --> LocalTake: drainage + compensation + encodage
   LocalTake --> Uploading: Save project
@@ -287,7 +287,7 @@ Monitor peut rester actif après Stop, sans laisser le recorder écrire. Arm n�
 
 | Étape | Livraison | Validation avant essai utilisateur |
 |---|---|---|
-| R1 · [DONE] logiciel | DI + snapshot, publication et écrasement partiel confirmé, pistes vides/existantes | snapshot indépendant, droits, quotas, retries et conservation de l’ancien audio testés |
+| R1 · [DONE] logiciel | DI + snapshot, publication et écrasement partiel avec Undo/Redo, pistes vides/existantes | snapshot indépendant, droits, quotas, retries et conservation de l’ancien audio testés |
 | R2 · PARTIEL | Monitoring/armement/preset et entrée partagée Tone implémentés ; qualification matérielle restante | absence de doublage et de recapture du mix ; écoute du preset courant non sauvegardé |
 | R3 · IMPLÉMENTÉ, VALIDATION SYNTHÉTIQUE | Capture WAM/ring buffer/worker, waveform incrémentale et StopAck | ordre, conservation exacte du PCM, débordement visible, fermeture propre |
 | R4 · IMPLÉMENTÉ, VALIDATION MATÉRIELLE RESTANTE | Transport commun, assistant loopback et compensation mesurée ; profils locaux | alignement synthétique puis matériel, unités et dérive longue |
@@ -304,7 +304,7 @@ Chaque étape nécessite ses tests automatisés avant de demander un essai. Les 
 - Horloge : retard synthétique connu corrigé à ±1 frame ; produire des probes en début/milieu/fin. Une tâche UI artificiellement longue ne modifie pas le placement audio.
 - Matériel : boucle filaire avec signaux connus, au moins cinq mesures par configuration, médiane/dispersion et résidu publiés. Objectif initial résidu ≤2 ms sur matériel validé, sans le confondre avec une garantie universelle à l’échantillon. Répéter sur prise de dix minutes pour mesurer la dérive ; si elle est significative, ne pas masquer le problème par une correction fixe.
 - Son : DI identique indépendamment du preset de monitoring ; changer le preset change la lecture, jamais la DI. Aucun doubling, larsen logiciel, backing ou effets imprimés dans la capture.
-- UI : monitor avant arm, Record réellement désactivé pendant préparation, confirmation remplaçable/annulable, waveform append-only, boutons clavier accessibles, erreur audio lisible, aucune publication d’une session périmée.
+- UI : monitor avant arm, Record réellement désactivé pendant préparation, démarrage direct sans dialogue, décompte annulable, waveform append-only, boutons clavier accessibles, erreur audio lisible, aucune publication d’une session périmée.
 - Serveur : propriétaire/partage/CSRF, formats et quotas, retries idempotents, conflits de version, maintien de l’ancien blob pendant échec/cancel, réouverture du même projet/preset.
 - Performance : long backing + rack de guitare + waveform ; journaliser frames perdus, mémoire, temps de finalisation et longs blocages UI. La queue n’est pas une solution aux DSP trop coûteux : surveiller aussi les underruns de rendu et la charge des WAM.
 
@@ -407,3 +407,9 @@ Dans Tone, **Auto-calibrate** (bouton principal accentué) sur l’entrée deman
 ### Suppression après Stop (3 novembre 2026)
 
 Une prise en RAM non sauvegardée ne bloque pas la suppression des pistes. Suppression avec confirmation, interdite pendant la capture/finalisation. Si la piste supprimée contient une prise non sauvegardée, la retirer de la file d’envoi sans perdre le Blob : Undo/Redo et restauration la rétablissent tant que l’historique limité aux deux dernières opérations audio la retient. L’expiration libère les ressources ; Options peut toujours restaurer le dernier audio sauvegardé. Une restauration met à jour la précondition de version serveur pour permettre ensuite Save project sans conflit artificiel. Une erreur de suppression laisse la piste et la prise inchangées.
+
+### Préférences unifiées et lancement direct de Record
+
+Les réglages Studio et Recording sont des sections des préférences globales (roue dentée). Les raccourcis Studio settings / Recording settings ouvrent ce même dialogue, avec les mêmes nœuds et handlers. Le décompte est dans Recording, avec compensation/calibration ; Play/Record/Stop/Click restent des actions du transport, BPM/signature restent des données du projet.
+
+L’accès à une carte de tempo depuis une piste est différé jusqu’à son intégration effective au projet. Le banc expérimental reste séparé ; aucun bouton Tempo supplémentaire n’est exposé dans Studio pour l’instant.
