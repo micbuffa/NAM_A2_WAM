@@ -30,7 +30,7 @@ test('count-in/capture keeps only the armed speaker usable; controls, selection,
  r.setState('counting');const armed=rows.get(1),other=rows.get(2);
  assert.equal(nodes.get('projectTracks').inert,false);assert.equal(w.timeline.locked,true);assert.equal(armed.modes.inputMonitoring.disabled,false);assert.equal(other.modes.inputMonitoring.disabled,true);
  for(const c of [...armed.structuralControls,armed.volume,armed.pan,armed.modes.mute,armed.modes.solo])assert.equal(c.disabled,true);
- assert.equal(armed.lane.inert,true);assert.equal(nodes.get('projectRuler').inert,true);assert.equal(nodes.get('projectRecordStop').disabled,false);assert.equal(nodes.get('recordOptions').disabled,true);
+ assert.equal(armed.lane.inert,true);assert.equal(nodes.get('projectRuler').inert,true);assert.equal(nodes.get('projectRecordStop').disabled,false);
  await r.monitor();assert.equal(w.selectedTrack.inputMonitoring,true);await r.monitor();assert.equal(w.selectedTrack.inputMonitoring,false);assert.equal(calls.filter(c=>c[0]==='tracks').length,2);
  r.setState('idle');assert.equal(w.timeline.locked,false);assert.equal(armed.volume.disabled,false);assert.equal(other.volume.disabled,true);assert.equal(armed.lane.inert,false);assert.equal(armed.arm.disabled,false);
 });
@@ -46,8 +46,8 @@ test('removed tracks, read-only projects, previews and pending take limits canno
 });
 test('the product keeps one Record/Stop pair, no duplicate monitor/arm panel, and secondary commands in settings',async()=>{
  const html=await readFile(new URL('../../examples/wam/index.html',import.meta.url),'utf8');
- assert.doesNotMatch(html,/id="record(?:Panel|Arm|Monitor)"/);
- for(const id of ['projectRecord','projectRecordStop','recordStatus','recordOptions','recordCurrentTone','recordDiscard'])assert.equal(html.split(`id="${id}"`).length-1,1);
+ assert.doesNotMatch(html,/id="record(?:Panel|Arm|Monitor|Options)"|id="studioOptions"/);
+ for(const id of ['projectRecord','projectRecordStop','recordStatus','recordCurrentTone','recordDiscard'])assert.equal(html.split(`id="${id}"`).length-1,1);
  assert.match(html,/<div class="project-transport"[^>]*>[\s\S]*id="projectRecord"[\s\S]*id="projectRecordStop"[\s\S]*?<\/div>/);
  assert.match(html,/id="recordOptionsPanel"[\s\S]*id="recordCurrentTone"[\s\S]*id="recordDiscard"/);
 });

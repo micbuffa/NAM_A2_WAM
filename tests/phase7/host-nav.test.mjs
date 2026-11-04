@@ -74,10 +74,10 @@ test('locking (recording) disables workspace entries but keeps Audio devices', (
   assert.equal(workspaces.current, 'projects');
 });
 
-test('the left column holds navigation entries, with the collapse toggle at the bottom', async () => {
+test('the left column holds navigation entries, Audio devices at the bottom, then the collapse toggle', async () => {
   const html = await readFile(new URL('../../examples/wam/index.html', import.meta.url), 'utf8');
   const sidebar = html.slice(html.indexOf('<aside class="host-sidebar"'), html.indexOf('<main class="rack-stage"'));
   for (const nav of ['tone', 'projects', 'devices']) assert.match(sidebar, new RegExp(`data-nav="${nav}"`));
-  assert.match(sidebar, /class="host-nav host-nav-bottom"[\s\S]*id="hostNavToggle"[^>]*aria-controls="hostSidebar"/);
+  assert.match(sidebar, /class="host-nav host-nav-bottom">\s*<button[^>]*data-nav="devices"[\s\S]*id="settingsButton"[\s\S]*id="hostNavToggle"[^>]*aria-controls="hostSidebar"/);
   assert.doesNotMatch(html, /id="workspaceSwitch"|id="studioSidebarToggle"|data-nav="home"/);
 });

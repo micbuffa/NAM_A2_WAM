@@ -23,15 +23,18 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
 /* Layout: topbar across, sidebar + main below. */
 .host-shell { --host-nav-width: 260px; min-height: 100vh; display: grid; grid-template-columns: var(--host-nav-width) minmax(0, 1fr); grid-template-rows: var(--tl-topbar-height) minmax(0, 1fr) auto; }
 /* Sidebar on the left of both rows; the workspace above the rack dock (RackDock.js) in the last column. */
-.host-sidebar { grid-row: 2 / 4; }
+.host-sidebar { grid-row: 1 / 4; }
 .rack-stage, .tracks-stage { grid-column: -2; grid-row: 2; }
 .rack-dock { grid-column: -2; grid-row: 3; }
 /* Workspaces (Workspaces.js): only what belongs to the current one is shown; audio keeps running. */
 body[data-workspace="tone"] [data-workspace="projects"], body[data-workspace="projects"] [data-workspace="tone"] { display: none !important; }
 
-.host-topbar { grid-column: 1 / -1; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: var(--tl-space-6);
+.host-topbar { grid-column: -2; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: flex-end; gap: var(--tl-space-6);
   padding: 0 var(--tl-space-7); background: var(--tl-topbar-bg); border-bottom: 1px solid var(--tl-border-subtle); backdrop-filter: blur(8px); }
-.host-brand { display: flex; align-items: center; gap: var(--tl-space-3); min-width: 0; }
+/* Brand at the top of the navigation column; collapsed, only the mark remains. */
+.host-brand { display: flex; flex: none; align-items: center; gap: var(--tl-space-3); min-width: 0; height: var(--tl-topbar-height); padding: 0 var(--tl-space-4); border-bottom: 1px solid var(--tl-border-subtle); }
+body[data-host-nav="collapsed"] .host-brand { justify-content: center; padding: 0; }
+body[data-host-nav="collapsed"] .host-brand-text { display: none; }
 .host-brand-mark { display: grid; place-items: center; flex: none; width: 38px; height: 38px; color: var(--tl-accent); }
 .host-brand-text { display: flex; flex-direction: column; min-width: 0; }
 .host-brand h1 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: .18em; line-height: 1.1; }
@@ -43,7 +46,8 @@ body[data-workspace="tone"] [data-workspace="projects"], body[data-workspace="pr
 .host-engine { font-size: var(--tl-fs-control); }
 
 /* Sidebar: flat sections separated by rules, as in the mockup. */
-.host-sidebar { position: sticky; top: var(--tl-topbar-height); height: calc(100vh - var(--tl-topbar-height)); overflow-y: auto; display: flex; flex-direction: column;
+/* z-index: above the topbar and stages, so the collapse toggle on its border is not covered. */
+.host-sidebar { position: sticky; z-index: 11; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column;
   background: var(--tl-surface-0); border-right: 1px solid var(--tl-border-subtle); scrollbar-width: thin; scrollbar-color: var(--tl-border) transparent; }
 .host-sidebar[hidden] { display: none; }
 /* Navigation column (HostNav.js): entries on top, Settings/Account stacked at the bottom; collapses to an icon rail. */
@@ -63,7 +67,12 @@ body[data-host-nav="collapsed"] .host-shell { --host-nav-width: 56px; }
 .host-nav-item[data-alert]::after { content: ""; position: absolute; top: 8px; left: 24px; width: 7px; height: 7px; border-radius: 50%; background: var(--tl-warning); box-shadow: 0 0 0 2px var(--tl-surface-0); }
 body[data-host-nav="collapsed"] .host-nav-item { justify-content: center; padding: 0; }
 body[data-host-nav="collapsed"] .host-nav-item > span:not(.account-avatar) { display: none; }
-body[data-host-nav="collapsed"] .host-nav-toggle tl-icon { transform: scaleX(-1); }
+/* Collapse toggle: a round chevron on the column's right border, at the brand's rule (fixed, so the column's scroll does not clip it). */
+.host-nav-toggle { position: fixed; z-index: 20; top: calc(var(--tl-topbar-height) - 14px); left: calc(var(--host-nav-width) - 14px); display: grid; place-items: center;
+  width: 28px; height: 28px; min-height: 0; padding: 0; border: 1px solid var(--tl-border); border-radius: 50%; background: var(--tl-surface-0); color: var(--tl-text-2); }
+.host-nav-toggle:hover { border-color: var(--tl-border-hover); background: var(--tl-surface-3); color: var(--tl-text); }
+.host-nav-toggle tl-icon { transform: rotate(90deg); transition: transform .15s; }
+body[data-host-nav="collapsed"] .host-nav-toggle tl-icon { transform: rotate(-90deg); }
 .host-card { margin: 0; padding: var(--tl-space-6) var(--tl-space-5); border-bottom: 1px solid var(--tl-border-subtle); }
 .host-card h2 { display: flex; align-items: center; gap: var(--tl-space-2); margin: 0 0 var(--tl-space-4); color: var(--tl-text-2); font-size: var(--tl-fs-sm); font-weight: 700;
   letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
@@ -408,7 +417,8 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
   .host-topbar { position: static; height: auto; flex-wrap: wrap; padding: var(--tl-space-3) var(--tl-space-4); }
   .host-topbar-actions { flex-wrap: wrap; gap: var(--tl-space-3); }
   .host-divider, .account-chip-text, .host-kbd { display: none; }
-  .host-sidebar { position: static; height: auto; overflow: visible; border-right: 0; border-bottom: 1px solid var(--tl-border-subtle); }
+  .host-sidebar { order: -1; position: static; height: auto; overflow: visible; border-right: 0; border-bottom: 1px solid var(--tl-border-subtle); }
+  .host-brand { height: auto; padding: var(--tl-space-3) var(--tl-space-4); }
   .host-nav { flex-direction: row; flex-wrap: wrap; }
   .host-nav-item { width: auto; }
   .host-nav-bottom { margin-top: 0; border-top: 0; }

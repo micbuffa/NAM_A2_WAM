@@ -17,22 +17,22 @@
 <body>
   <div class="host-shell">
     <header class="host-topbar">
-      <div class="host-brand">
-        <span class="host-brand-mark"><svg viewBox="0 0 128 128" width="36" height="36" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M64 13 C82 13 104 16 110 32 C117 51 100 79 84 101 C74 115 54 119 42 106 C24 87 10 58 15 37 C19 20 41 13 64 13 Z"/><path d="M30 65 L41 65 C46 65 46 49 51 49 C57 49 56 82 62 82 C68 82 69 38 75 38 C81 38 80 72 86 72 C90 72 91 62 96 62 L100 62"/></svg></span>
-        <div class="host-brand-text"><h1>FRETWORK</h1><p>Guitar &amp; bass studio online</p></div>
-      </div>
       <div class="host-topbar-actions">
         <tl-button id="tunerButton" class="host-tuner-button" icon="tuner" size="sm" title="Open tuner (T)" aria-haspopup="dialog" aria-keyshortcuts="T" disabled>Tuner<kbd class="host-kbd">T</kbd></tl-button>
         <tl-badge id="engineStatus" class="host-engine" dot role="status" tone="warning" data-state="starting">Starting audio engine…</tl-badge>
       </div>
     </header>
     <aside class="host-sidebar" id="hostSidebar" aria-label="Navigation">
+      <div class="host-brand">
+        <span class="host-brand-mark"><svg viewBox="0 0 128 128" width="36" height="36" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M64 13 C82 13 104 16 110 32 C117 51 100 79 84 101 C74 115 54 119 42 106 C24 87 10 58 15 37 C19 20 41 13 64 13 Z"/><path d="M30 65 L41 65 C46 65 46 49 51 49 C57 49 56 82 62 82 C68 82 69 38 75 38 C81 38 80 72 86 72 C90 72 91 62 96 62 L100 62"/></svg></span>
+        <div class="host-brand-text"><h1>FRETWORK</h1><p>Guitar &amp; bass studio online</p></div>
+      </div>
       <nav class="host-nav" id="hostNav" aria-label="Main">
         <button class="host-nav-item" type="button" data-nav="tone" title="Play"><tl-icon name="guitar"></tl-icon><span>Play</span></button>
         <button class="host-nav-item" type="button" data-nav="projects" title="Studio"><tl-icon name="audio"></tl-icon><span>Studio</span></button>
-        <button class="host-nav-item" type="button" data-nav="devices" title="Audio devices" aria-haspopup="dialog"><tl-icon name="headphones"></tl-icon><span>Audio devices</span></button>
       </nav>
       <div class="host-nav host-nav-bottom">
+        <button class="host-nav-item" type="button" data-nav="devices" title="Audio devices" aria-haspopup="dialog"><tl-icon name="headphones"></tl-icon><span>Audio devices</span></button>
         <button class="host-nav-item" id="settingsButton" type="button" title="Settings" disabled><tl-icon name="settings"></tl-icon><span>Settings</span></button>
         <div class="host-account" id="accountPanel" hidden>
           <button class="host-nav-item" id="accountSignIn" type="button" aria-haspopup="dialog" title="Sign in: keep presets, favorites and preferences on every device"><tl-icon name="user"></tl-icon><span>Sign in</span></button>
@@ -41,8 +41,8 @@
             <span class="account-chip-text"><strong id="accountEmail"></strong><span class="account-sync"><i></i>Synced</span></span>
           </button>
         </div>
-        <button class="host-nav-item host-nav-toggle" id="hostNavToggle" type="button" aria-controls="hostSidebar" aria-expanded="true" aria-label="Collapse navigation" title="Collapse navigation"><tl-icon name="panel"></tl-icon><span>Collapse</span></button>
       </div>
+      <button class="host-nav-toggle" id="hostNavToggle" type="button" aria-controls="hostSidebar" aria-expanded="true" aria-label="Collapse navigation" title="Collapse navigation"><tl-icon name="chevron" size="16"></tl-icon></button>
     </aside>
 
     <dialog class="tl-modal host-devices-dialog" id="audioDevicesDialog" aria-labelledby="devices-title">
@@ -121,7 +121,6 @@
             <span id="studioTrackState" class="studio-track-state" role="status" hidden></span>
           <tl-button id="studioUseMix" variant="primary" hidden disabled>Use mix in Play</tl-button>
           <tl-button id="studioRetryAudio" hidden>Retry audio loading</tl-button>
-          <tl-button id="studioOptions" size="sm" icon="settings" aria-haspopup="dialog" title="Open global Studio settings">Studio settings</tl-button>
           </div>
           <p id="studioExportHelp" class="host-help" role="status" aria-live="polite" hidden></p>
           <div id="studioUnfinished" class="host-help"></div>
@@ -173,7 +172,6 @@
             <tl-button class="project-tempo" id="projectTimelineTempo" size="sm" variant="ghost" title="Project tempo and time signature"></tl-button>
             <tl-button id="projectMetronome" size="sm" icon="metronome" aria-pressed="false" title="Click during the take">Click</tl-button>
 
-            <tl-icon-button id="recordOptions" size="sm" icon="settings" aria-label="Recording settings" title="Recording settings, current Play sound and unsaved take" aria-haspopup="dialog"></tl-icon-button>
           </header>
           <div id="projectTempoSuggestion" class="project-tempo-suggestion" hidden><span id="projectTempoEstimate" role="status"></span><tl-button id="projectApplyTempo" size="sm">Use estimated tempo</tl-button><tl-icon-button id="projectDismissTempo" size="sm" icon="close" aria-label="Dismiss tempo suggestion"></tl-icon-button></div>
           <div id="recordLoopReview" class="record-actions" hidden><label>Loop take <select id="recordLoopTake" aria-label="Loop take to audition"></select></label><span id="recordLoopHelp" class="host-help"></span></div>

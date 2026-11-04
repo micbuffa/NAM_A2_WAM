@@ -20,7 +20,7 @@ const $=id=>document.getElementById(id),query=new URLSearchParams(location.searc
 const workspaces=new Workspaces({control:new HostNav({nav:$('hostSidebar'),toggle:$('hostNavToggle'),storage:null}),storage:null});workspaces.show('projects',{remember:false});
 const preferences=new SettingsView({button:$('settingsButton'),home:$('settingsPanels')});registerAppearance(preferences,globalThis.NamAppearance,new TrackControlStyle({storage:null}));
 new StudioLayout({densityControl:$('projectTrackDensity'),storage:null});
-registerStudioSettings({settings:preferences,projectPanel:$('studioOptionsPanel'),recordPanel:$('recordOptionsPanel'),projectButton:$('studioOptions'),recordButton:$('recordOptions')});
+registerStudioSettings({settings:preferences,projectPanel:$('studioOptionsPanel'),recordPanel:$('recordOptionsPanel')});
 $('projectTitle').textContent='Studio layout · '+count+' tracks';$('projectMeta').textContent='Long project descriptions remain accessible without stretching the toolbar.';
 for(const id of ['projectSaveState','projectShare','projectUndo','projectRedo','projectSave','projectAddTrack'])$(id).hidden=false;
 $('projectSaveState').textContent='Saved';

@@ -553,7 +553,7 @@ async function initialize() {
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
   // Factory presets build on the default rack, known once the presets are attached.
   projects.attachTones(trackTones);
-  registerStudioSettings({settings,projectPanel:$('#studioOptionsPanel'),recordPanel:$('#recordOptionsPanel'),projectButton:$('#studioOptions'),recordButton:$('#recordOptions')});
+  registerStudioSettings({settings,projectPanel:$('#studioOptionsPanel'),recordPanel:$('#recordOptionsPanel')});
   // The rack dock shows the selected guitar/bass track in Studio (CSS: body[data-track-sound-edit]).
   trackSoundEditor=new TrackSoundEditor({workspace:projects,rack,source:sourceManager,presets,workspaces,context,route:()=>{syncMonitoring();syncSourceTrim();},view:editor=>{
     document.body.dataset.trackSoundEdit=String(!!editor.active);

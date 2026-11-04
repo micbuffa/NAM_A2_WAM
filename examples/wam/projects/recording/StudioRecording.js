@@ -319,7 +319,6 @@ export class StudioRecording {
     if($('recordTrackName')){$('recordTrackName').textContent=armedTrack?.name??(usesTrackPreset(track??{})?track.name:'Recording');$('recordTrackName').title=$('recordTrackName').textContent;}
     if($('recordSettingsTrack'))$('recordSettingsTrack').textContent=track?`Selected track: ${track.name}`:'Select a personal guitar or bass track.';
     $('recordCurrentTone').disabled=!eligible||this.busy;
-    if($('recordOptions')){$('recordOptions').hidden=!w.owned;$('recordOptions').disabled=this.busy||w.saving;}
     $('projectRecord').hidden=!w.owned;
     $('projectRecord').disabled=!recordable||this.busy;
     $('projectRecord').setAttribute('aria-pressed',String(['counting','recording'].includes(this.state)));
