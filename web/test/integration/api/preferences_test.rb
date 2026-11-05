@@ -28,4 +28,14 @@ class Api::PreferencesTest < ActionDispatch::IntegrationTest
     patch api_preferences_path, params: { playAlong: "loud" }, as: :json
     assert_equal({}, response.parsed_body["playAlong"], "a non-object leaves the stored value")
   end
+
+  test "song presets keep valid track and preset ids only" do
+    sign_in_as users(:alice)
+    patch api_preferences_path, params: { songPresets: { "bt-e593dafe4c5eefe3" => "factory:twin-clean", "studio-12" => 7,
+      "../etc/passwd" => 3, "studio-13" => "drop table", "studio-14" => nil, "studio-15" => -2 } }, as: :json
+    assert_equal({ "bt-e593dafe4c5eefe3" => "factory:twin-clean", "studio-12" => 7 }, response.parsed_body["songPresets"])
+
+    patch api_preferences_path, params: { songPresets: "loud" }, as: :json
+    assert_equal({ "bt-e593dafe4c5eefe3" => "factory:twin-clean", "studio-12" => 7 }, response.parsed_body["songPresets"], "a non-object leaves the stored value")
+  end
 end

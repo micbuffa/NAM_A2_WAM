@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  PREFERENCE_KEYS = %w[autoLevel modelVariant lastPresetId playAlong].freeze
+  PREFERENCE_KEYS = %w[autoLevel modelVariant lastPresetId playAlong songPresets].freeze
   # Play along (Tone): the last bundled backing track and its settings, as numbers in their player ranges.
   PLAY_ALONG_TRACK_FORMAT = /\A(?:bt-[0-9a-f]{16}|studio-[1-9][0-9]*)\z/
   PLAY_ALONG_RANGES = { "rate" => 0.7..1.3, "volumeDb" => -60..6, "mix" => 0..1, "guitarPan" => -1..1 }.freeze
@@ -7,6 +7,8 @@ class User < ApplicationRecord
   PLAY_ALONG_VIEWS = %w[library track].freeze
   # The preset the rack reopens: an account preset id, a Factory one, or none.
   LAST_PRESET_FORMAT = /\Afactory:[a-z0-9-]{1,64}\z/
+  # Song presets (Play): the preset each library track plays through, the most recent choices kept.
+  SONG_PRESETS_MAX = 500
 
   has_many :audio_imports, dependent: :destroy
   has_many :sessions, dependent: :destroy
@@ -39,6 +41,10 @@ class User < ApplicationRecord
       play_along = sanitize_play_along(values["playAlong"])
       play_along ? values["playAlong"] = play_along : values.delete("playAlong")
     end
+    if values.key?("songPresets")
+      song_presets = sanitize_song_presets(values["songPresets"])
+      song_presets ? values["songPresets"] = song_presets : values.delete("songPresets")
+    end
     values
   end
 
@@ -58,6 +64,14 @@ class User < ApplicationRecord
       result["loop"] = loop.slice("enabled", "startSeconds", "endSeconds") if seconds && [ true, false ].include?(loop["enabled"])
     end
     result
+  end
+
+  # {track id => preset id} with valid ids only (the last SONG_PRESETS_MAX); nil when it is not an object.
+  def self.sanitize_song_presets(value)
+    return unless value.is_a?(Hash)
+    value.to_h.stringify_keys
+      .select { |track_id, preset_id| track_id.match?(PLAY_ALONG_TRACK_FORMAT) && !preset_id.nil? && valid_last_preset_id?(preset_id) }
+      .to_a.last(SONG_PRESETS_MAX).to_h
   end
 
   def self.valid_last_preset_id?(value)

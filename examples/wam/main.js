@@ -7,6 +7,7 @@ import {StudioBackingLibrary, useYoutubeInTone, useBackingInTone} from './projec
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
 import {linkPlayAlong, linkSpaceKey} from './backing-track-player/PlayAlong.js';
 import {PlayAlongMemory} from './backing-track-player/PlayAlongMemory.js';
+import {SongPresets, linkSongPresets} from './backing-track-player/SongPresets.js';
 import {toast} from './ui/components/tl-toast.js';
 import initializeWamHost from '../../third_party/wam-examples/packages/sdk/src/initializeWamHost.js';
 import NamPlugin from '../../src/nam-wam/index.js';
@@ -565,6 +566,11 @@ async function initialize() {
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
   // Factory presets build on the default rack, known once the presets are attached.
   projects.attachTones(trackTones);
+  // In Play, each backing track opens the rack on its preset.
+  const songPresets=new SongPresets({account:accountIntegration.account});
+  void linkSongPresets({player:playAlong,presets,songs:songPresets,dock:rackDock,isPlay:()=>workspaces.current==='tone',report:message})
+    .catch(error=>message(`Song preset not loaded: ${error.message}`,true));
+  Object.assign(window.phase3Debug,{songPresets});
   registerStudioSettings({settings,projectPanel:$('#studioOptionsPanel'),recordPanel:$('#recordOptionsPanel')});
   // The rack dock shows the selected guitar/bass track in Studio (CSS: body[data-track-sound-edit]).
   trackSoundEditor=new TrackSoundEditor({workspace:projects,rack,source:sourceManager,presets,workspaces,context,route:()=>{syncMonitoring();syncSourceTrim();},view:editor=>{

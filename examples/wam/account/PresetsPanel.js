@@ -22,7 +22,9 @@ const LAST_PRESET_KEY = 'nam-a2-wam.last-preset';
 // back when the page loads; saving, loading or reverting drops the draft.
 // While the rack differs from that preset, the header shows "Unsaved
 // changes" and Save gets a dot (checked checkDelay after each change);
-// otherwise Save is disabled.
+// otherwise Save is disabled. 'preset-chosen' (detail {id}) fires when the
+// user picks a preset in the list or creates one (not when one is reopened or
+// loaded by code): Play remembers it for the open song (SongPresets.js).
 export default class PresetsPanel extends EventTarget {
   // requestSignIn(reason): resolves with true once signed in, false if cancelled.
   // watchRack(listener): calls listener whenever the rack changes.
@@ -83,7 +85,7 @@ export default class PresetsPanel extends EventTarget {
   async attach() {
     this.$('presetsPanel').hidden = false;
     this.$('presetHeaderActions').hidden = false;
-    this.$('presetSelect').onchange = (event) => { const id = event.target.value; if (id) this.load(id); };
+    this.$('presetSelect').onchange = (event) => { const id = event.target.value; if (id) this.load(id, {chosen: true}); };
     this.$('presetNew').onclick = () => this.create();
     this.$('presetSaveButton').onclick = () => this.save();
     this.$('presetDelete').onclick = () => this.active && this.remove(this.active);
@@ -379,6 +381,7 @@ export default class PresetsPanel extends EventTarget {
       if (request.source === 'default') await this.applyState(structuredClone(state));
       const created = await this.store.create(request.name, state);
       this.setActive(created.id);
+      this.chosen(created.id);
       await this.settle();
       await this.refresh();
       this.status(`Created “${request.name}”.`);
@@ -414,7 +417,9 @@ export default class PresetsPanel extends EventTarget {
     save.setAttribute('variant', this.modified ? 'primary' : 'secondary');
   }
 
-  async load(id) {
+  chosen(id) { this.dispatchEvent(new CustomEvent('preset-chosen', {detail: {id}})); }
+
+  async load(id, {chosen = false} = {}) {
     if(this.externalEditor)return this.externalEditor.loadPreset(id).catch(error=>this.report(error.message,true));
     const preset = this.find(id);
     if (!preset || this.busy) return;
@@ -425,6 +430,7 @@ export default class PresetsPanel extends EventTarget {
       const {state} = await (isFactoryPreset(preset.id) ? this.factoryStore : this.store).get(preset.id);
       await this.applyState(state);
       this.setActive(preset.id);
+      if (chosen) this.chosen(preset.id);
       await this.settle();
       this.status(`Loaded “${preset.name}”.`);
       this.report(`Preset “${preset.name}” active.`);

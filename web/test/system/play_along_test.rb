@@ -15,7 +15,7 @@ class PlayAlongTest < ApplicationSystemTestCase
   teardown do
     next unless page.has_css?("[data-nav=tone]", wait: 0)
     switch_to "tone"
-    page.execute_script("localStorage.removeItem('nam-a2-wam.playAlong')") # the next test starts from the defaults
+    page.execute_script("localStorage.removeItem('nam-a2-wam.playAlong'); localStorage.removeItem('nam-a2-wam.songPresets')") # the next test starts from the defaults
   end
 
   test "the panel opens on the library table, a row opens the track, and leaving Play pauses it" do
@@ -96,6 +96,26 @@ class PlayAlongTest < ApplicationSystemTestCase
     assert mine.has_css?("tr[aria-selected=true]", text: "my-backing.mp3")
     assert mine.has_css?("td.origin", text: "This device")
     shadow.find("#list tbody:last-of-type").assert_no_text "my-backing.mp3"
+  end
+
+  test "opening a track in Play opens the rack on the track's preset, and a preset picked for it is kept" do
+    find("#rackDockToggle").click if page.has_css?("body[data-rack-dock=expanded]", wait: 0)
+    assert_selector "body[data-rack-dock=collapsed]"
+    shadow = find("backing-track-player").shadow_root
+    open_track shadow, "Killing In The Name - Rage Against The Machine"
+    assert_selector "body[data-rack-dock=expanded]"
+    assert_selector "#presetTitle", exact_text: "Modern Metal", wait: 30 # its preset in tracks.json
+
+    find("#presetSelect").find("option", exact_text: "British Edge · Crunch").select_option
+    assert_selector "#presetTitle", exact_text: "British Edge", wait: 30
+
+    switch_to "tone"
+    open_track shadow, "Where Is My Mind - Pixies"
+    assert_selector "#presetTitle", exact_text: "Twin Clean", wait: 30
+
+    switch_to "tone"
+    open_track shadow, "Killing In The Name - Rage Against The Machine"
+    assert_selector "#presetTitle", exact_text: "British Edge", wait: 30 # the preset picked for it
   end
 
   private

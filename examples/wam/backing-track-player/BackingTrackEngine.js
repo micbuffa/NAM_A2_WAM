@@ -38,7 +38,7 @@ export class BackingTrackEngine extends EventTarget {
     if(this.destroyed)throw Error('Player destroyed');
     const generation=++this.generation;this.abort?.abort();const abort=this.abort=new AbortController();
     this.loading=true;
-    this.emit('load-progress',{title:track.title,progress:0,phase:'transfer'});
+    this.emit('load-progress',{title:track.title,id:track.id,local:!!track.local,progress:0,phase:'transfer'});
     try {
       let bytes;
       if(file)bytes=await file.arrayBuffer();

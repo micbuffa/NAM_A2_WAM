@@ -272,6 +272,19 @@ test('the rack reopens the last preset when the page loads', async () => {
   assert.deepEqual(gone.rack.state, {sound: 'default'});
 });
 
+test('only a preset picked in the list is announced as chosen, not one reopened or loaded by code', async () => {
+  const {panel} = presetHarness({last: 2});
+  const chosen = [];
+  panel.addEventListener('preset-chosen', ({detail}) => chosen.push(detail.id));
+  await panel.attach();
+  await panel.load(1);
+  assert.deepEqual(chosen, [], 'the reopened preset and a load by code are not choices');
+  panel.$('presetSelect').onchange({target: {value: '2'}});
+  await panel.settle();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.deepEqual(chosen, [2]);
+});
+
 test('signing in reopens the account preset unless the rack has unsaved changes', async () => {
   const account = Object.assign(new EventTarget(), {signedIn: false, user: null,
     updatePreference(key, value) { this.user.preferences[key] = value; return Promise.resolve(); }});
