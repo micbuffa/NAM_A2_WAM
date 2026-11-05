@@ -187,10 +187,8 @@ body[data-host-nav="collapsed"] .host-nav-toggle tl-icon { transform: rotate(-90
 .rack-presets { display: flex; align-items: center; gap: var(--tl-space-2); }
 .rack-presets[hidden] { display: none; }
 .rack-presets .preset-picker { width: 240px; }
-.preset-status { margin-top: 2px; font-size: var(--tl-fs-xs); }
-.preset-scope { color: var(--tl-text-faint); }
 /* A track's sound (rack dock in Studio): only the picker to load a preset, and one meta line. */
-body[data-track-sound-edit="true"] :is(#presetNew, #presetCount, .preset-status) { display: none; }
+body[data-track-sound-edit="true"] :is(#presetNew, #presetCount) { display: none; }
 .new-preset-dialog form { display: grid; gap: 7px; }
 .track-sound-dialog form { display: grid; gap: var(--tl-space-3); }
 .track-sound-dialog label { display: grid; gap: var(--tl-space-2); color: var(--tl-text-muted); font-size: var(--tl-fs-sm); }
@@ -245,7 +243,6 @@ body[data-workspace="projects"]:not([data-track-sound-edit="true"]) .rack-dock >
 .rack-dock-toggle::part(icon), .rack-dock-toggle tl-icon { transition: transform .15s; }
 body[data-rack-dock="collapsed"] .rack-dock > .rack-canvas { display: none; }
 body[data-rack-dock="collapsed"] .rack-dock > .rack-header { border-bottom: 0; }
-body[data-rack-dock="collapsed"] .rack-dock .preset-status { display: none; }
 body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); }
 @media (min-width: 1100px) and (min-height: 650px) {
   .host-shell { height: 100dvh; min-height: 0; }

@@ -37,7 +37,7 @@ class RackPresetsTest < ApplicationSystemTestCase
     add_pedal_and_gains
 
     click_on "Save"
-    assert_selector "#presetStatus", text: "Saved “Clean”."
+    assert_toast "Preset “Clean” saved."
     load_preset "Other"
     assert_equal "nam>cabinet", rack["chain"]
     load_preset "Clean"
@@ -118,7 +118,7 @@ class RackPresetsTest < ApplicationSystemTestCase
 
     def load_preset(label)
       find("#presetSelect").find("option", exact_text: label).select_option
-      assert_selector "#presetStatus", exact_text: "Loaded “#{label.split(" · ").first}”.", wait: 30
+      assert_toast "Preset “#{label.split(" · ").first}” active.", wait: 30
     end
 
     def add_pedal_and_gains

@@ -339,7 +339,6 @@ test('saving asks a guest to sign in, then saves the rack as it is', async () =>
   assert.deepEqual(panel.presets, [], 'a guest has no presets of their own, only Factory ones');
   const dom = panel.$('presetSelect').children[1].children[0];
   assert.deepEqual([dom.text, dom.disabled], ['Sign in to save presets', true]);
-  assert.match(panel.$('presetScope').textContent, /^Sign in to save your presets/);
 
   await panel.save();
   await panel.create();

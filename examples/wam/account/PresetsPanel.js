@@ -178,7 +178,6 @@ export default class PresetsPanel extends EventTarget {
     this.baseline = from || draft.presetId === null ? draft.baseline ?? null : null;
     this.modified = true;
     this.render();
-    this.status('Restored your unsaved changes.');
     this.report('Restored your unsaved rack.');
     return true;
   }
@@ -224,11 +223,8 @@ export default class PresetsPanel extends EventTarget {
     }
   }
 
-  status(text, error = false) {
-    const element = this.$('presetStatus');
-    element.textContent = text;
-    element.classList.toggle('error', error);
-  }
+  // Outcomes are toasts (report): the rack header shows only the preset itself.
+  status(text, error = false) { if (text) this.report(text, error); }
 
   scopeText() {
     return this.account?.signedIn ? `Synced to ${this.account.user.email}` : 'Stored in this browser';
@@ -236,13 +232,9 @@ export default class PresetsPanel extends EventTarget {
 
   // A guest who must sign in to save has no presets of their own: only Factory.
   async refresh() {
-    this.$('presetScope').textContent = this.account?.signedIn ? `My presets are synced to ${this.account.user.email}.`
-      : this.needsSignIn ? 'Sign in to save your presets and find them on every device.'
-        : 'My presets are stored in this browser. Sign in to keep them on every device.';
     this.factory = this.factoryStore ? await this.factoryStore.list() : [];
     try {
       this.presets = this.needsSignIn ? [] : await this.store.list();
-      this.status('');
     } catch (error) {
       this.presets = [];
       this.status(`Presets unavailable: ${error.message}`, true);
@@ -384,7 +376,6 @@ export default class PresetsPanel extends EventTarget {
       this.chosen(created.id);
       await this.settle();
       await this.refresh();
-      this.status(`Created “${request.name}”.`);
       this.report(`Preset “${request.name}” created.`);
     } catch (error) { this.status(`Could not create the preset: ${error.message}`, true); }
     finally { this.$('presetNew').disabled = this.busy; }
@@ -402,7 +393,6 @@ export default class PresetsPanel extends EventTarget {
       await this.store.update(active.id, {state: await this.captureState()});
       await this.settle();
       await this.refresh();
-      this.status(`Saved “${active.name}”.`);
       this.report(`Preset “${active.name}” saved.`);
     } catch (error) { this.status(`Could not save “${active.name}”: ${error.message}`, true); }
     finally { this.renderSave(); }
@@ -425,17 +415,14 @@ export default class PresetsPanel extends EventTarget {
     if (!preset || this.busy) return;
     this.loadingId = preset.id;
     this.render();
-    this.status(`Loading “${preset.name}”…`);
     try {
       const {state} = await (isFactoryPreset(preset.id) ? this.factoryStore : this.store).get(preset.id);
       await this.applyState(state);
       this.setActive(preset.id);
       if (chosen) this.chosen(preset.id);
       await this.settle();
-      this.status(`Loaded “${preset.name}”.`);
       this.report(`Preset “${preset.name}” active.`);
     } catch (error) {
-      this.status(`Could not load “${preset.name}”: ${error.message}`, true);
       this.report(`Could not load preset “${preset.name}”: ${error.message}`, true);
     } finally {
       this.loadingId = null;

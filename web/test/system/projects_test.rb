@@ -307,7 +307,7 @@ class ProjectsTest < ApplicationSystemTestCase
       rack.a.insert(pedal, rack.a.entries[0].id).then(() => done());
     JS
     click_on "Save"
-    assert_selector "#presetStatus", text: "Saved “Clean”."
+    assert_toast "Preset “Clean” saved."
     switch_to_projects
     assert_selector ".track-meta", text: /\AGuitar · Clean\z/, wait: 20
     assert_equal [ false, "effect>nam>cabinet" ], JSON.parse(page.evaluate_async_script(<<~JS))

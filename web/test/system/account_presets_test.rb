@@ -60,7 +60,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
     assert_not_equal saved["params"], chain_snapshot["params"]
 
     find("#presetRevert").click # the preset is still the active one: reload it
-    assert_selector "#presetStatus", text: "Loaded “System test crunch”.", wait: 20
+    assert_toast "Preset “System test crunch” active.", wait: 20
     assert_equal saved, chain_snapshot
     assert_selector "#presetTitle", exact_text: "System test crunch"
 
@@ -220,7 +220,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
 
     set_input_gain(3)
     sign_in_as_by_link "comeback@example.com"
-    assert_text "My presets are synced to comeback@example.com"
+    assert_text "comeback@example.com" # signed in (navigation column)
     assert_selector "#presetTitle", exact_text: "Untitled rack"
     assert_equal 3, chain_snapshot.dig("params", "inputGain"), "unsaved changes stay until the user saves them"
   end
@@ -230,7 +230,6 @@ class AccountPresetsTest < ApplicationSystemTestCase
     visit "/rack/"
     wait_for_rack(wait: 40)
     assert_selector "#presetSelect option[disabled]", text: "Sign in to save presets", visible: :all
-    assert_text "Sign in to save your presets and find them on every device."
     set_input_gain(-5)
 
     click_on "Save"
@@ -288,7 +287,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
 
     visit "/rack/"
     wait_for_rack(wait: 40)
-    assert_selector "#presetStatus", text: "Restored your unsaved changes."
+    assert_toast "Restored your unsaved rack."
     assert_selector "#presetUnsaved", text: /unsaved changes/i
     assert_equal(-9, chain_snapshot.dig("params", "inputGain"))
     assert_selector "#presetTitle", exact_text: "Untitled rack"
@@ -309,7 +308,7 @@ class AccountPresetsTest < ApplicationSystemTestCase
     visit "/rack/"
     wait_for_rack(wait: 40)
     assert_selector "#presetTitle", exact_text: "Kept"
-    assert_no_selector "#presetStatus", text: "Restored"
+    assert_no_toast "Restored"
   end
 
   private

@@ -40,4 +40,13 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
       Promise.all(['nam-a2-wam-presets', 'nam-a2-wam-draft'].map(remove)).then(() => done());
     JS
   end
+
+  # Outcomes (preset saved, loaded…) are toasts at the bottom of the page.
+  def assert_toast(text, **options)
+    find("tl-toast", visible: :all).shadow_root.assert_selector(".toast", text:, **options)
+  end
+
+  def assert_no_toast(text)
+    find("tl-toast", visible: :all).shadow_root.assert_no_selector(".toast", text:)
+  end
 end
