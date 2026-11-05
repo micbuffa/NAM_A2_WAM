@@ -97,18 +97,18 @@ body[data-host-nav="collapsed"] .host-nav-toggle tl-icon { transform: rotate(-90
   border-radius: var(--tl-radius-md); font: 10px/1.45 var(--tl-font-mono); white-space: pre-wrap; }
 .validation-panel pre:empty { display: none; }
 
-/* Guitar source bar at the top of Play (live input or a dry file with its player). */
-.play-source { flex: none; padding: var(--tl-space-3) var(--tl-space-6); border-bottom: 1px solid var(--tl-border-subtle); }
-.play-source-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tl-space-3); }
-.play-source-select { width: min(260px, 100%); }
-.embedded-player { display: flex; flex: 1 1 320px; align-items: center; gap: var(--tl-space-3); min-width: 0; }
+/* Guitar source (developer tool) in the navigation column, above Audio devices: Play only, hidden when the column is collapsed. */
+.play-source { display: flex; flex-direction: column; gap: var(--tl-space-2); margin-bottom: var(--tl-space-2); padding: var(--tl-space-2) 10px var(--tl-space-3); border-bottom: 1px solid var(--tl-border-subtle); }
+.play-source[hidden], body:not([data-workspace="tone"]) .play-source, body[data-host-nav="collapsed"] .play-source { display: none; }
+.play-source-title { margin: 0; color: var(--tl-text-muted); font-size: var(--tl-fs-sm); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.play-source-select { width: 100%; }
+.embedded-player { display: flex; flex-direction: column; gap: var(--tl-space-2); min-width: 0; }
 .embedded-player[hidden] { display: none; }
-.play-source-seek { flex: 1 1 120px; min-width: 100px; }
+.play-source-row { display: flex; align-items: center; justify-content: space-between; gap: var(--tl-space-3); }
+.play-source-seek { width: 100%; }
 .transport { display: flex; gap: 6px; align-items: center; }
-.transport button { width: 34px; padding: 0; }
+.transport button { width: 30px; height: 28px; padding: 0; }
 .loop-control { display: inline-flex; align-items: center; gap: 6px; color: var(--tl-text-2); font-size: var(--tl-fs-sm); white-space: nowrap; }
-.play-source-notes { display: flex; flex-wrap: wrap; gap: 0 var(--tl-space-5); }
-.play-source-notes:not(:has(.host-help:not(:empty))) { display: none; }
 
 /* Account (bottom of the navigation column + account dialog, account/AccountPanel.js). */
 .host-account { display: grid; gap: 2px; min-width: 0; }

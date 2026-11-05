@@ -11,6 +11,8 @@ class RackController < ApplicationController
     return redirect_to("/rack/", status: :moved_permanently) unless path.end_with?("/", "/index.html")
 
     @current_user_payload = current_user&.account_json
+    # FRETWORK_DEV_TOOLS=1 (web/.env in development, see .env.example) shows developer tools in the rack.
+    @dev_tools = ENV["FRETWORK_DEV_TOOLS"] == "1"
     # In development and test the page is built from examples/wam/index.html
     # on every request (see lib/dev_sources.rb), so it never needs bin/rack-sync.
     if Rails.env.local?

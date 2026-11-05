@@ -259,7 +259,7 @@ branch `multitracks`; Studio integration is developed on `codex/studio-integrati
 
 The left column is the navigation: **Play**, **Studio**, **Audio devices** (a popup with the input
 and output devices), **Tuner** (also the T key), and **Settings** / **Account** at the bottom (the audio engine status appears there only when the engine is offline); **Collapse** reduces it to an icon
-rail. Play opens on its title, with **Enable live input** on the right; the guitar source choice (live input or a dry file and its player) is hidden for now and stays on live input.
+rail. Play opens on its title, with **Enable live input** on the right; the guitar source choice (live input or a dry file and its player) is a developer tool: it appears in the left column, above Audio devices, on Play only and only with `FRETWORK_DEV_TOOLS=1` in `web/.env` (see `web/README.md`); otherwise the source stays live input.
 **Studio** always opens on its project list (title, creator, creation date, tracks, BPM, duration);
 click a row to open the project, **Delete** to remove one of yours, **New project** to start one.
 Click Studio in the navigation to come back to the list.

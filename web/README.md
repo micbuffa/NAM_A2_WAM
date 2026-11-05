@@ -49,6 +49,18 @@ the sources directly and builds the page from `../examples/wam/index.html` on
 every request. No copy, no restart. Only C++ changes need a WASM rebuild
 (`cmake --build ../build-wasm`).
 
+Local options go in `web/.env` (not committed), read by
+[dotenv](https://github.com/bkeepers/dotenv) in development and test; restart
+the server after changing it. Start from the example:
+
+```sh
+cp .env.example .env
+```
+
+| Variable | Effect |
+| --- | --- |
+| `FRETWORK_DEV_TOOLS=1` | Shows developer tools in the rack: the **guitar source** in the left column (above Audio devices, on Play), to play a dry file from `../examples/wam/assets/audio/` through the rack instead of live input. Rails passes it to the page as `<meta name="fretwork-dev-tools">`; the file list (`/api/test-audio-files`) only exists in development and test. |
+
 In development, sign-in emails are opened by
 [letter_opener](https://github.com/ryanb/letter_opener) (files under
 `tmp/letter_opener/`) and jobs run in-process.

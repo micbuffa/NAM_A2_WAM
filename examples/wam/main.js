@@ -99,14 +99,23 @@ function message(text, error = false) {
   toast(text, {tone: error ? 'danger' : 'accent', duration: Math.max(error ? 6000 : 2400, text.length * 45)});
 }
 
+// Developer tools (guitar source in the navigation column) need FRETWORK_DEV_TOOLS=1 in web/.env;
+// Rails says so in <meta name="fretwork-dev-tools">. The static server.mjs page has no such meta.
+const devTools = document.querySelector('meta[name="fretwork-dev-tools"]')?.content === 'true';
+
+// Dry guitar files for the guitar source, listed by the development host only. Without developer
+// tools or files, the source block stays hidden and the source stays Live input.
 async function discoverFiles() {
   let files=[];
-  try { const response = await fetch('/api/test-audio-files', {cache: 'no-store'}); if (response.ok) files=await response.json(); }
-  catch { /* Optional development-host audio catalog; Factory catalogs are plugin manifests. */ }
+  if (devTools) {
+    try { const response = await fetch('/api/test-audio-files', {cache: 'no-store'}); if (response.ok) files=await response.json(); }
+    catch { /* Optional development-host audio catalog; Factory catalogs are plugin manifests. */ }
+  }
   const selector = $('#audioSource');
   selector.replaceChildren(new Option('Live input', 'live'));
   for (const filename of files) selector.add(new Option(filename, `file:${filename}`));
-  $('#discovery').textContent = files.length ? `${files.length} dry guitar audio file(s) discovered dynamically` : 'Optional audio catalog unavailable; use Live input or plugin Factory browsers';
+  $('#discovery').textContent = files.length ? `${files.length} dry guitar audio file(s) discovered dynamically` : '';
+  $('#playSource').hidden = !files.length;
   return files;
 }
 
@@ -299,7 +308,7 @@ async function initialize() {
   toneGate.connect(context.destination);
   // Play along (Play): a backing track mixed with the guitar, before toneGate.
   // Top of Play, above the rack dock: the library opens downwards (placement="top").
-  playAlong=document.createElement('backing-track-player');playAlong.setAttribute('placement','top');$('#playSource').after(playAlong);
+  playAlong=document.createElement('backing-track-player');playAlong.setAttribute('placement','top');$('.play-header').after(playAlong);
   const studioLibrary=new StudioBackingLibrary({account:accountIntegration.account});
   await playAlong.initialize({audioContext:context,library:studioLibrary,
     importYoutube: projects.available ? () => projects.youtubeImportDialog({onImported: job => useYoutubeInTone({job,library:studioLibrary,player:playAlong,projectPlayer,workspaces})}) : null});

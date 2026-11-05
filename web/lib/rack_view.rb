@@ -12,6 +12,7 @@ module RackView
     <%# Generated from examples/wam/index.html by bin/rack-sync (lib/rack_view.rb); edit the source, not this file. %>
     <%= csrf_meta_tags %>
     <script type="application/json" id="currentUser"><%= json_escape(@current_user_payload.to_json).html_safe %></script>
+    <meta name="fretwork-dev-tools" content="<%= @dev_tools %>">
   ERB
 
   def self.generate(source = File.read(SOURCE))

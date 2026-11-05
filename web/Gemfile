@@ -38,6 +38,9 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Loads web/.env (not committed; see .env.example) into ENV at boot
+  gem "dotenv"
 end
 
 group :development do

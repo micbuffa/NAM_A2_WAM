@@ -28,6 +28,25 @@
       <div class="host-nav host-nav-bottom">
         <!-- Shown only when the audio engine is offline (EngineStatus.js). -->
         <tl-badge id="engineStatus" class="host-engine" dot role="status" tone="warning" data-state="starting">Starting audio engine…</tl-badge>
+        <!-- Guitar source for Play: live input or a dry audio file with its own player. Developer tool, shown by main.js
+             only when FRETWORK_DEV_TOOLS=1 (web/.env) and the dry file catalogue answers; the input notes stay hidden. -->
+        <section class="play-source" id="playSource" aria-labelledby="playSourceTitle" hidden>
+          <h2 class="play-source-title" id="playSourceTitle">Guitar source</h2>
+          <tl-select class="play-source-select" icon="audio"><select id="audioSource" aria-label="Guitar source"><option>Live input</option></select></tl-select>
+          <div class="embedded-player" id="playerPanel" hidden>
+            <div class="play-source-row">
+              <div class="transport" role="group" aria-label="Guitar file transport">
+                <button class="player-control" id="play" type="button" aria-label="Play">▶</button>
+                <button class="player-control" id="pause" type="button" aria-label="Pause">Ⅱ</button>
+                <button class="player-control" id="stop" type="button" aria-label="Stop">■</button>
+              </div>
+              <label class="loop-control"><tl-checkbox variant="switch"><input class="player-control" id="loop" type="checkbox"></tl-checkbox> Loop</label>
+            </div>
+            <tl-slider class="play-source-seek"><input class="player-control" id="seek" type="range" min="0" max="1" step="0.001" value="0" aria-label="Position"></tl-slider>
+            <audio id="player" preload="metadata"></audio>
+          </div>
+          <div class="play-source-notes" hidden><p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p><p class="host-help" id="discovery"></p></div>
+        </section>
         <button class="host-nav-item" type="button" data-nav="devices" title="Audio devices" aria-haspopup="dialog"><tl-icon name="headphones"></tl-icon><span>Audio devices</span></button>
         <button class="host-nav-item" id="tunerButton" type="button" title="Open tuner (T)" aria-haspopup="dialog" aria-keyshortcuts="T" disabled><tl-icon name="tuner"></tl-icon><span>Tuner</span><kbd class="host-kbd">T</kbd></button>
         <button class="host-nav-item" id="settingsButton" type="button" title="Settings" disabled><tl-icon name="settings"></tl-icon><span>Settings</span></button>
@@ -68,25 +87,7 @@
         </div>
         <div class="preset-header-actions"><tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button></div>
       </header>
-      <!-- Guitar source (live input or a dry audio file) and the input notes are hidden until they get a place;
-           main.js still drives them, so the source stays Live input. -->
-      <section class="play-source" id="playSource" aria-label="Guitar source" hidden>
-        <div class="play-source-row">
-          <tl-select class="play-source-select" icon="audio"><select id="audioSource" aria-label="Guitar source"><option>Live input</option></select></tl-select>
-          <div class="embedded-player" id="playerPanel" hidden>
-            <div class="transport" role="group" aria-label="Audio transport">
-              <button class="player-control" id="play" type="button" aria-label="Play">▶</button>
-              <button class="player-control" id="pause" type="button" aria-label="Pause">Ⅱ</button>
-              <button class="player-control" id="stop" type="button" aria-label="Stop">■</button>
-            </div>
-            <tl-slider class="play-source-seek"><input class="player-control" id="seek" type="range" min="0" max="1" step="0.001" value="0" aria-label="Position"></tl-slider>
-            <label class="loop-control"><tl-checkbox variant="switch"><input class="player-control" id="loop" type="checkbox"></tl-checkbox> Loop</label>
-            <audio id="player" preload="metadata"></audio>
-          </div>
-        </div>
-        <div class="play-source-notes"><p class="host-help" id="inputChannelStatus">Enable live input to detect the available channels.</p><p class="host-help" id="discovery"></p></div>
-      </section>
-      <!-- Play along (main.js) is inserted below the page header, above the rack dock. -->
+      <!-- Play along (main.js) is inserted right after this header, above the rack dock. -->
     </main>
 
     <main class="tracks-stage projects-stage" id="projectsWorkspace" data-workspace="projects" aria-label="Studio">

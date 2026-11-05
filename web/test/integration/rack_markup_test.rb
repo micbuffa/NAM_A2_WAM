@@ -15,6 +15,13 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=csrf-token]"
     assert_select "script#currentUser[type='application/json']", text: "null"
   end
+
+  test "rack page tells whether developer tools are on (FRETWORK_DEV_TOOLS=1)" do
+    with_dev_tools(nil) { get "/rack/" }
+    assert_select "meta[name=fretwork-dev-tools][content=false]"
+    with_dev_tools("1") { get "/rack/" }
+    assert_select "meta[name=fretwork-dev-tools][content=true]"
+  end
   test "Studio exposes one separation entry and leaves duration selection to its dialog" do
     get "/rack/"
     assert_select "#studioSeparation[hidden]", count: 1
@@ -66,4 +73,13 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "#projectRuler[aria-label='Timeline and A/B loop']", count: 1
   end
 
+  private
+    # web/.env may set the flag on this machine; each test sets it explicitly.
+    def with_dev_tools(value)
+      previous = ENV["FRETWORK_DEV_TOOLS"]
+      ENV["FRETWORK_DEV_TOOLS"] = value
+      yield
+    ensure
+      ENV["FRETWORK_DEV_TOOLS"] = previous
+    end
 end
