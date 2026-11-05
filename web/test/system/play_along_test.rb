@@ -22,7 +22,8 @@ class PlayAlongTest < ApplicationSystemTestCase
     shadow = find("backing-track-player").shadow_root
     shadow.assert_no_selector "#expand, #miniWave", visible: :all # it no longer collapses
     shadow.assert_selector "#libraryView"
-    shadow.assert_no_selector "#back"
+    shadow.assert_no_selector "#back, #title, #filter, #count, #import", visible: :all # the page header names the track and holds Import audio
+    assert_selector "#playImport:not([disabled])", text: "Import audio"
     assert_equal [ "my tracks", "factory" ], shadow.all("#list th.section").map { |th| th.text.sub(/\s*\d+\z/, "").downcase } # shown uppercase
     assert_equal 0, shadow.all("#list tbody:first-of-type button").size, "no personal track when signed out"
     assert_equal 29, shadow.all("#list tbody:last-of-type button").size
@@ -30,7 +31,9 @@ class PlayAlongTest < ApplicationSystemTestCase
     open_track shadow, "Born To Be Wild - Steppenwolf"
     shadow.assert_no_selector "#libraryView"
     shadow.assert_no_selector "#openStudio", visible: :all
-    assert_equal 1, shadow.all("*", text: "Born To Be Wild - Steppenwolf", exact_text: true).size, "the name appears once"
+    assert_selector "#playTitle", text: "Born To Be Wild - Steppenwolf" # the page header names the track, like a Studio project
+    assert_selector "#playMeta", text: /\AFactory · \d+:\d\d/
+    assert_equal 0, shadow.all("*", text: "Born To Be Wild - Steppenwolf", exact_text: true).size, "the name appears once, in the page header"
     loop_on = shadow.find("#loop")["aria-pressed"]
     shadow.find("#loop").click
     assert_not_equal loop_on, shadow.find("#loop")["aria-pressed"], "the Loop button toggles the A-B loop"
@@ -39,11 +42,11 @@ class PlayAlongTest < ApplicationSystemTestCase
     shadow.assert_selector "#play[icon=pause]"
     assert playing?
 
-    shadow.find("#back").click
+    switch_to "tone" # Play in the navigation leads back to the library, like Studio to its projects
     shadow.assert_selector "#libraryView"
-    shadow.assert_no_selector "#back"
     shadow.assert_selector "#list tr[aria-selected=true]", text: "Born To Be Wild - Steppenwolf"
     assert playing?, "going back to the library keeps playing"
+    assert_selector "#playTitle", text: "Play", exact_text: true
 
     switch_to "projects"
     assert_no_selector "backing-track-player", visible: true
@@ -61,13 +64,13 @@ class PlayAlongTest < ApplicationSystemTestCase
     visit "/rack/"
     wait_for_rack
     shadow = find("backing-track-player").shadow_root
-    shadow.assert_selector "#title", text: "Born To Be Wild - Steppenwolf", wait: 20
+    assert_selector "#playTitle", text: "Born To Be Wild - Steppenwolf", wait: 20
     shadow.assert_selector "#trackView", wait: 20
     assert_equal 10, page.evaluate_script("window.phase3Debug.playAlong.engine.loop.startSeconds")
     assert_not playing?
   end
 
-  test "space plays and pauses from the waveform, not while typing in the filter" do
+  test "space plays and pauses from the waveform" do
     shadow = find("backing-track-player").shadow_root
     open_track shadow, "Born To Be Wild - Steppenwolf"
     shadow.find("#wave").click
@@ -75,8 +78,6 @@ class PlayAlongTest < ApplicationSystemTestCase
     shadow.assert_selector "#play[icon=pause]"
     shadow.find("#wave").send_keys(:space)
     shadow.assert_selector "#play[icon=play]"
-    shadow.find("#back").click
-    shadow.find("#filter").send_keys(" ")
     assert_not playing?
   end
 
@@ -88,9 +89,9 @@ class PlayAlongTest < ApplicationSystemTestCase
       fetch(url).then((response) => response.blob()).then((blob) => player.openFile(new File([blob], "my-backing.mp3", {type: "audio/mpeg"})));
     JS
     shadow.assert_selector "#trackView", wait: 20
-    shadow.assert_selector "#title", text: "my-backing.mp3", wait: 20
+    assert_selector "#playTitle", text: "my-backing.mp3", wait: 20
 
-    shadow.find("#back").click
+    switch_to "tone"
     mine = shadow.find("#list tbody:first-of-type")
     assert mine.has_css?("tr[aria-selected=true]", text: "my-backing.mp3")
     assert mine.has_css?("td.origin", text: "This device")
@@ -102,7 +103,7 @@ class PlayAlongTest < ApplicationSystemTestCase
 
     def open_track(shadow, title)
       shadow.find("#list button", text: title).click
-      shadow.assert_selector "#title", text: title, wait: 20
+      assert_selector "#playTitle", text: title, wait: 20
       shadow.assert_selector "#trackView"
     end
 

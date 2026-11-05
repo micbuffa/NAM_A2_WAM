@@ -274,6 +274,8 @@ async function initialize() {
     player: projectPlayer, createRenderer: (options) => new Renderer(options), liveInputEnabled: () => liveInputEnabled, openLinked: linkedProject});
   // Studio in the navigation leads to the project list (Home).
   hostNav.addEventListener('home', () => void projects.home());
+  // Play in the navigation leads to the backing track library, the same way.
+  hostNav.addEventListener('library', () => playAlong?.setView('library'));
   void projects.load();
   const [groupId] = await initializeWamHost(context, 'nam-a2-phase3-host');
   plugin = await NamPlugin.createInstance(groupId, context, {});
@@ -312,6 +314,10 @@ async function initialize() {
   const studioLibrary=new StudioBackingLibrary({account:accountIntegration.account});
   await playAlong.initialize({audioContext:context,library:studioLibrary,
     importYoutube: projects.available ? () => projects.youtubeImportDialog({onImported: job => useYoutubeInTone({job,library:studioLibrary,player:playAlong,projectPlayer,workspaces})}) : null});
+  // Play header, like Studio's: the open track's name and details, or Play over the library.
+  const playHeader=({title,meta})=>{$('#playTitle').textContent=title??'Play';$('#playTitle').title=title??'';$('#playMeta').textContent=meta??'Pick a backing track and play along through your rig.';$('#playMeta').title=meta??'';};
+  playAlong.addEventListener('headline-change',({detail})=>playHeader(detail));playHeader(playAlong.headline);
+  $('#playImport').addEventListener('click',()=>playAlong.openImport());$('#playImport').disabled=false;
   projects.onUseMix=entry=>useBackingInTone({entry,library:studioLibrary,player:playAlong,projectPlayer,workspaces});
   projects.renderMixExport();
   accountIntegration.account?.addEventListener('change',()=>{

@@ -20,14 +20,13 @@ export class BackingTrackPlayerElement extends HTMLElement {
  <link rel="stylesheet" href="${new URL('./backing-track-player.css',import.meta.url)}">
  <section aria-label="Play along" tabindex="-1">
  <header id="transport">
-  <div class="heading"><button id="back" class="back" hidden><tl-icon name="chevron" size="14"></tl-icon>Library</button><div class="now-playing"><span class="eyebrow">Play along</span><button id="title" class="track-title">Choose a backing track</button></div></div>
   <div class="transport-buttons"><tl-icon-button id="stop" icon="rewind" size="sm" aria-label="Back to start"></tl-icon-button><tl-icon-button id="play" class="play" icon="play" aria-label="Play backing track"></tl-icon-button></div>
   <output id="clock" class="clock"><span id="position">0:00</span> <span class="separator">/</span> <span id="duration">0:00</span></output>
   <label class="volume"><span>Vol</span><tl-slider><input id="volume" type="range" min="-60" max="6" step=".5" value="-12" aria-label="Backing track volume"></tl-slider></label>
   <tl-button id="mute" size="sm" aria-pressed="false">Mute</tl-button>
  </header>
  <div id="status" role="status" aria-live="polite">Loading library\u2026</div>
- <div id="body"><div id="libraryView" class="library-view"><div class="library-toolbar"><span class="library-head">Library <span id="count">0</span></span><input id="filter" type="search" placeholder="Search tracks\u2026" aria-label="Search backing tracks"><button id="import" class="import"><tl-icon name="plus" size="14"></tl-icon>Import audio</button></div><div id="listScroll" class="list-scroll"><table id="list" aria-label="Backing tracks"><thead><tr><th class="title" scope="col">Title</th><th class="origin" scope="col">Origin</th><th class="added" scope="col">Added</th><th class="num duration" scope="col">Time</th><th class="num bpm" scope="col">BPM</th><th class="num key" scope="col">Key</th></tr></thead></table></div></div>
+ <div id="body"><div id="libraryView" class="library-view"><div class="library-toolbar"><h3 class="library-head">Library</h3></div><div id="listScroll" class="list-scroll"><table id="list" aria-label="Backing tracks"><thead><tr><th class="title" scope="col">Title</th><th class="origin" scope="col">Origin</th><th class="added" scope="col">Added</th><th class="num duration" scope="col">Time</th><th class="num bpm" scope="col">BPM</th><th class="num key" scope="col">Key</th></tr></thead></table></div></div>
  <div id="trackView" class="track-view" hidden><div class="wave-container"><div id="wave" tabindex="0" role="slider" aria-label="Position in backing track" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><canvas></canvas><div id="region" class="region"></div><div id="head" class="head"></div><span class="hint">Click to seek \u00b7 Drag to loop \u00b7 Drop audio \u00b7 Space to play</span><strong id="empty" class="empty">Choose or import a backing track</strong></div><div id="loadProgress" hidden><div id="loadRing" role="progressbar" aria-label="Audio download" aria-valuemin="0" aria-valuemax="100"><svg viewBox="0 0 80 80" aria-hidden="true"><circle class="load-track" cx="40" cy="40" r="33"/><circle id="loadArc" cx="40" cy="40" r="33" pathLength="100"/></svg><strong id="loadPercent">0%</strong></div><span id="loadPhase">Downloading\u2026</span></div></div>
  <div class="studio-mix-actions"><tl-button id="separateInstruments" size="sm" disabled>Separate instruments</tl-button><tl-button id="downloadMix" size="sm" hidden title="Download the entire source as MP3, without the live guitar or playback settings">Download MP3</tl-button></div><div class="tools">
   <div class="tool"><span class="tool-head">Speed <output id="rateValue">100%</output></span><tl-slider bipolar><input id="rate" type="range" min=".7" max="1.3" step=".01" value="1" disabled aria-label="Playback speed"></tl-slider><tl-button id="rateReset" size="sm" variant="ghost">Reset</tl-button></div>
@@ -62,15 +61,23 @@ export class BackingTrackPlayerElement extends HTMLElement {
  }
  get view(){return this.$('trackView').hidden?'library':'track';}
  // Library (table) or track (waveform and tools); the track view needs a loaded or loading track.
- // The transport row shows the track name once, with a Library button in the track view.
+ // The page header names the track (headline); Play in the navigation goes back to the library.
  setView(view){
   const track=view==='track'&&(!!this.engine?.buffer||!!this.engine?.loading);
   if(track===(this.view==='track'))return;
-  this.$('libraryView').hidden=track;this.$('trackView').hidden=!track;this.$('back').hidden=!track;this.setAttribute('view',track?'track':'library');
-  this.$('title').title=track?'Show the library':'Show the track';
+  this.$('libraryView').hidden=track;this.$('trackView').hidden=!track;this.setAttribute('view',track?'track':'library');
   if(track)this.draw();else this.revealSelected();
-  this.dispatchEvent(new CustomEvent('view-change',{detail:{view:this.view},bubbles:true,composed:true}));
+  this.dispatchEvent(new CustomEvent('view-change',{detail:{view:this.view},bubbles:true,composed:true}));this.announceHeadline();
  }
+ // What the Play page header shows, like a Studio project: the track's name and its details in the track view, nothing in the library.
+ get headline(){
+  const track=this.view==='track'?this.engine?.track:null;if(!track)return {view:'library',title:null,meta:null};
+  const seconds=this.engine.duration||Number(track.duration);
+  return {view:'track',title:track.title,meta:[ORIGINS[originOf(track)][0],seconds>0?time(seconds):null,track.bpm?`${Math.round(track.bpm)} BPM`:null,track.key||null].filter(Boolean).join(' \u00b7 ')};
+ }
+ announceHeadline(){const headline=this.headline,key=JSON.stringify(headline);if(key===this.lastHeadline)return;this.lastHeadline=key;this.dispatchEvent(new CustomEvent('headline-change',{detail:headline,bubbles:true,composed:true}));}
+ // Import audio lives in the Play page header: an audio file from this device, or a YouTube video when Studio is available.
+ openImport(){playAlongImportDialog({local:()=>this.$('file').click(),youtube:this.importYoutube,error:error=>this.status(error.message,true)});}
  openTrack(track){return this.act(async()=>{
   const e=this.engine;
   if(track.id===e.track?.id&&e.buffer){this.setView('track');return;}
@@ -84,12 +91,12 @@ export class BackingTrackPlayerElement extends HTMLElement {
   on('separateInstruments','click',()=>{if(e.buffer&&!e.loading)this.dispatchEvent(new CustomEvent('separate-instruments',{detail:{track:{...e.track},file:e.sourceFile??null},bubbles:true,composed:true}));});
   on('downloadMix','click',()=>this.downloadMp3());
   on('play','click',()=>e.playing?e.pause():e.play());on('stop','click',()=>e.stop());
-  on('title','click',()=>this.setView(this.view==='track'?'library':'track'));on('back','click',()=>this.setView('library'));
+
   on('volume','input',()=>e.setVolumeDb(this.$('volume').value));on('mute','click',()=>e.setMuted(!e.muted));
   for(const [id,setter,reset] of [['rate','setRate',1],['pan','setGuitarPan',0],['balance','setMix',.5]]){on(id,'input',()=>e[setter](this.$(id).value));on(id+'Reset','click',()=>e[setter](reset));}
   on('loop','click',()=>e.setLoop({enabled:!e.loop.enabled}));
   on('full','click',()=>e.setLoop({startSeconds:0,endSeconds:e.duration}));on('normalize','click',()=>e.setNormalized(!e.normalized));on('auto','change',()=>{e.autoNormalize=this.$('auto').checked;e.changed();});
-  on('filter','input',()=>this.renderList());on('import','click',()=>playAlongImportDialog({local:()=>this.$('file').click(),youtube:this.importYoutube,error:error=>this.status(error.message,true)}));this.$('file').addEventListener('change',()=>{const file=this.$('file').files[0];this.$('file').value='';if(file)this.openFile(file);},{signal:this.listeners.signal});
+this.$('file').addEventListener('change',()=>{const file=this.$('file').files[0];this.$('file').value='';if(file)this.openFile(file);},{signal:this.listeners.signal});
   const wave=this.$('wave'),coordinate=event=>Math.max(0,Math.min(1,(event.clientX-wave.getBoundingClientRect().left)/wave.clientWidth))*e.duration;
   wave.addEventListener('pointerdown',event=>{if(e.loading||event.button!==0||!e.buffer)return;this.drag={x:event.clientX,start:coordinate(event),end:coordinate(event)};wave.setPointerCapture(event.pointerId);});
   wave.addEventListener('pointermove',event=>{if(this.drag){this.drag.end=coordinate(event);this.updateRegion(this.drag.start,this.drag.end);}});
@@ -114,13 +121,12 @@ export class BackingTrackPlayerElement extends HTMLElement {
  }
  // Library table: a My tracks section then a Factory section, each a tbody headed by its name and count.
  renderList(){
-  const query=this.$('filter').value.toLocaleLowerCase(),current=this.engine.track;
-  const tracks=[...(current?.local?[current]:[]),...this.library.tracks],match=track=>track.title.toLocaleLowerCase().includes(query);
-  const sections=[['My tracks',tracks.filter(track=>!isFactory(track)),query?'No track matches.':this.importYoutube?'Import an audio file or a YouTube video to add your own tracks.':'Import an audio file to play along with it.'],['Factory',tracks.filter(isFactory),'No track matches.']];
-  this.$('count').textContent=String(tracks.length);
+  const current=this.engine.track;
+  const tracks=[...(current?.local?[current]:[]),...this.library.tracks];
+  const sections=[['My tracks',tracks.filter(track=>!isFactory(track)),this.importYoutube?'Import an audio file or a YouTube video to add your own tracks.':'Import an audio file to play along with it.'],['Factory',tracks.filter(isFactory),'No factory track.']];
   const cell=(tag,className,content)=>{const element=document.createElement(tag);element.className=className;if(content!=null)element.append(content);return element;};
   const bodies=sections.map(([name,all,emptyText])=>{
-   const body=document.createElement('tbody'),head=document.createElement('tr'),th=cell('th','section',name),shown=all.filter(match);
+   const body=document.createElement('tbody'),head=document.createElement('tr'),th=cell('th','section',name),shown=all;
    th.colSpan=6;th.scope='colgroup';th.append(cell('span','section-count',String(all.length)));head.append(th);body.append(head);
    for(const track of shown){
     const row=document.createElement('tr'),button=document.createElement('button'),selected=track.id===current?.id,[label,tone]=ORIGINS[originOf(track)],badge=document.createElement('tl-badge');
@@ -139,10 +145,11 @@ export class BackingTrackPlayerElement extends HTMLElement {
  }
  // Scrolls the table only (scrollIntoView would also scroll the page), below its sticky header.
  revealSelected(){const scroll=this.$('listScroll'),row=this.$('list').querySelector('tr[aria-selected=true]');if(!row||!scroll.clientHeight)return;const head=this.$('list').tHead.offsetHeight,top=row.offsetTop;if(top-head<scroll.scrollTop||top+row.offsetHeight>scroll.scrollTop+scroll.clientHeight)scroll.scrollTop=top-head-(scroll.clientHeight-head-row.offsetHeight)/2;}
- sync(){const e=this.engine;if(!e)return;this.$('downloadMix').hidden=!e.buffer;this.$('downloadMix').disabled=!!e.loading||!!this.downloading;this.$('downloadMix').textContent=this.downloading?'Preparing MP3…':'Download MP3';this.$('title').textContent=e.track?.title||'Choose a backing track';if(!e.buffer&&!e.loading&&this.view==='track')this.setView('library');this.$('play').setAttribute('icon',e.playing?'pause':'play');this.$('play').setAttribute('aria-label',e.playing?'Pause backing track':'Play backing track');this.$('play').disabled=!!e.loading||!e.buffer;this.$('separateInstruments').disabled=!!e.loading||!e.buffer;this.$('loadProgress').hidden=!e.loading;this.$('transport').classList.toggle('loading',!!e.loading);this.$('transport').setAttribute('aria-busy',String(!!e.loading));this.$('wave').inert=!!e.loading;this.$('wave').setAttribute('aria-disabled',String(!!e.loading));if(e.loading)this.drag=null;this.$('stop').disabled=!e.buffer;
+ sync(){const e=this.engine;if(!e)return;this.$('downloadMix').hidden=!e.buffer;this.$('downloadMix').disabled=!!e.loading||!!this.downloading;this.$('downloadMix').textContent=this.downloading?'Preparing MP3…':'Download MP3';if(!e.buffer&&!e.loading&&this.view==='track')this.setView('library');this.$('play').setAttribute('icon',e.playing?'pause':'play');this.$('play').setAttribute('aria-label',e.playing?'Pause backing track':'Play backing track');this.$('play').disabled=!!e.loading||!e.buffer;this.$('separateInstruments').disabled=!!e.loading||!e.buffer;this.$('loadProgress').hidden=!e.loading;this.$('transport').classList.toggle('loading',!!e.loading);this.$('transport').setAttribute('aria-busy',String(!!e.loading));this.$('wave').inert=!!e.loading;this.$('wave').setAttribute('aria-disabled',String(!!e.loading));if(e.loading)this.drag=null;this.$('stop').disabled=!e.buffer;
   for(const [id,value]of [['volume',e.volumeDb],['rate',e.rate],['pan',e.guitarPan],['balance',e.mix]])if(this.shadowRoot.activeElement!==this.$(id))this.$(id).value=value;
   this.$('rate').disabled=!e.stretchReady;this.$('rateReset').disabled=!e.stretchReady||e.rate===1;this.$('rateValue').textContent=`${Math.round(e.rate*100)}%`;{const db=`${e.volumeDb.toFixed(0)} dB`;this.$('volume').title=db;this.$('volume').setAttribute('aria-valuetext',db);}this.$('panValue').textContent=Math.abs(e.guitarPan)<.01?'C':`${e.guitarPan<0?'L':'R'} ${Math.round(Math.abs(e.guitarPan)*100)}`;this.$('balanceValue').textContent=`${Math.round((1-e.mix)*100)} / ${Math.round(e.mix*100)}`;
   this.$('loop').setAttribute('aria-pressed',String(e.loop.enabled));this.$('loop').querySelector('span').textContent=e.loop.enabled?'On':'Off';this.$('empty').hidden=!!e.buffer||!!e.loading;this.$('auto').checked=e.autoNormalize;this.$('normalize').setAttribute('aria-pressed',String(e.normalized));this.$('mute').setAttribute('aria-pressed',String(e.muted));this.$('wave').setAttribute('aria-valuemax',e.duration);this.updateRegion(e.loop.startSeconds,e.loop.endSeconds);
+  this.announceHeadline();
  }
  updateRegion(a,b){const duration=this.engine.duration||1,whole=!this.drag&&Math.min(a,b)<=0&&Math.max(a,b)>=duration;const region=this.$('region');region.style.left=`${Math.min(a,b)/duration*100}%`;region.style.width=`${Math.abs(b-a)/duration*100}%`;region.style.opacity=whole?'0':this.engine.loop.enabled||this.drag?'1':'.25';}
  draw(){this.drawWave(this.$('wave'));}

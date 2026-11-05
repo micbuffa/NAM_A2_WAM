@@ -250,7 +250,8 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 @media (min-width: 1100px) and (min-height: 650px) {
   .host-shell { height: 100dvh; min-height: 0; }
   .rack-stage, .tracks-stage { min-height: 0; overflow: hidden; }
-  .rack-stage > backing-track-player { flex: 0 1 auto; min-height: 62px; overflow: auto; scrollbar-width: thin; }
+  /* Play along takes the height left above the rack: its library fills it (its track view keeps its own height). */
+  .rack-stage > backing-track-player { flex: 1 1 auto; min-height: 62px; overflow: auto; scrollbar-width: thin; }
   .rack-dock { max-height: min(var(--rack-dock-fit, 70dvh), 70dvh); overflow: auto; scrollbar-width: thin; box-shadow: 0 -12px 28px rgba(0, 0, 0, .22); }
   .rack-dock > .rack-header { position: sticky; top: 0; z-index: 4; }
   /* Studio keeps room for the timeline above a track's sound. */

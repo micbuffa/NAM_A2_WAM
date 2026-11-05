@@ -82,10 +82,10 @@
         <div class="rack-heading">
           <div>
             <div class="preset-title-row"><h2 id="playTitle">Play</h2></div>
-            <p class="preset-meta">Pick a backing track and play along through your rig.</p>
+            <p class="preset-meta" id="playMeta">Pick a backing track and play along through your rig.</p>
           </div>
         </div>
-        <div class="preset-header-actions"><tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button></div>
+        <div class="preset-header-actions"><tl-button id="playImport" size="sm" icon="audio" aria-haspopup="dialog" disabled>Import audio</tl-button><tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button></div>
       </header>
       <!-- Play along (main.js) is inserted right after this header, above the rack dock. -->
     </main>

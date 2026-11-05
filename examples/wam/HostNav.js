@@ -2,7 +2,7 @@
 // entries stacked at the bottom. It is the Workspaces control (value + 'change'),
 // so Play/Studio keep their internal values ('tone', 'projects').
 // Studio opens Studio and fires 'home' (Studio always starts on its project
-// list); Audio devices fires 'devices'.
+// list); Play likewise fires 'library' (Play along's track list); Audio devices fires 'devices'.
 // Collapsing keeps an icon rail (titles stay as tooltips). UI-only preference,
 // remembered in this browser; never touches audio, presets or projects.
 const KEY = 'nam-a2.host-nav';
@@ -38,6 +38,7 @@ export class HostNav extends EventTarget {
       if (this.locked) return;
       if (workspace !== this.current) { this.current = workspace; this.render(); this.dispatchEvent(new Event('change')); }
       if (workspace === 'projects') this.dispatchEvent(new Event('home'));
+      if (workspace === 'tone') this.dispatchEvent(new Event('library'));
       return;
     }
     this.dispatchEvent(new Event(target));
