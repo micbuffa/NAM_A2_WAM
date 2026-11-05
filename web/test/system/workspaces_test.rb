@@ -16,16 +16,19 @@ class WorkspacesTest < ApplicationSystemTestCase
   test "each workspace shows its own panels" do
     assert_selector "#presetsPanel", visible: true
     assert_selector ".fx-rack", visible: true
-    assert_selector "#enableLive", visible: true # in the Play header (the guitar source bar is hidden for now)
+    assert_selector "#enableLive", visible: true # in the Play header
     assert_no_selector "#projectsWorkspace", visible: true
 
     switch_to "projects"
     assert_selector "#projectsWorkspace", visible: true
-    assert_selector "#projectsPanel", visible: true
+    assert_selector ".projects-header h2", visible: true # Studio's own page header
     assert_no_selector "#enableLive", visible: true
     assert_no_selector "#presetsPanel", visible: true
     assert_no_selector ".fx-rack", visible: true
-    assert_selector "#inputDevice", visible: true # Audio devices belong to both
+    find("[data-nav=devices]").click # Audio devices belong to both, in a popup
+    assert_selector "#audioDevicesDialog[open] #inputDevice", visible: true
+    find("#audioDevicesDialog [data-close]").click
+    assert_no_selector "#audioDevicesDialog[open]"
 
     visit "/rack/"
     wait_for_rack
@@ -85,9 +88,10 @@ class WorkspacesTest < ApplicationSystemTestCase
 
   test "a guest is invited to sign in to use projects" do
     switch_to "projects"
-    assert_selector "#projectsPanel", visible: true
+    assert_selector "#projectsEmpty", visible: true # instead of the project list
     assert_selector "#projectsEmptyTitle", text: "Sign in to use projects"
-    assert_selector "#projectSelect option", text: "Sign in to see your projects", visible: :all
+    assert_selector "#projectsEmptyAction", text: "Sign in", visible: true
+    assert_no_selector "#studioHome", visible: true
   end
 
   private

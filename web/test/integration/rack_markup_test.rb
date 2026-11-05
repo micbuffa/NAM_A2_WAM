@@ -30,9 +30,10 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     # The chooser creates this field dynamically; the whole-song default and
     # excerpt dispatch are covered by the StudioSeparationView unit tests.
     assert_select "#studioExcerpt", count: 0
-    assert_select "#studioOptions[aria-haspopup=dialog]", count: 1
+    # Studio and recording settings are sections of Settings (StudioSettings.js), not buttons of the project view.
+    assert_select "#settingsButton", count: 1
+    assert_select "#studioOptions, #recordOptions", count: 0
     assert_select "#studioOptionsPanel[hidden]", count: 1
-    assert_select "#recordOptions[aria-haspopup=dialog]", count: 1
     assert_select "#recordOptionsPanel[hidden]", count: 1
     assert_select "#studioProgress[aria-label='Separation progress']", count: 1
     assert_select "#studioOriginal, #studioInstruments", count: 0
@@ -45,11 +46,11 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "#projectMasterValue", text:"100%"
   end
 
-  test "Studio toolbar remains reachable with sidebar collapsed and shares a track scrollport" do
+  test "Studio toolbar stays in its header, the navigation column collapses, and tracks share a scrollport" do
     get "/rack/"
     assert_select ".projects-header #projectImport", count: 1
     assert_select ".projects-header #projectNew", count: 1
-    assert_select "#studioSidebarToggle[aria-controls='hostSidebar'][aria-expanded='true']", count: 1
+    assert_select "#hostSidebar #hostNavToggle[aria-controls='hostSidebar'][aria-expanded='true']", count: 1 # on the column's border
     assert_select "#projectTrackViewport[role='region'][tabindex='0']" do
       assert_select "#projectRuler", count: 1
       assert_select "#projectTracks", count: 1
