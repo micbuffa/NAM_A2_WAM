@@ -11,29 +11,33 @@ class WorkspacesTest < ApplicationSystemTestCase
     wait_for_rack
   end
 
-  teardown { switch_to "tone" if page.has_css?("#workspaceSwitch", wait: 0) }
+  teardown { switch_to "tone" if page.has_css?("[data-nav=tone]", wait: 0) }
 
   test "each workspace shows its own panels" do
     assert_selector "#presetsPanel", visible: true
     assert_selector ".fx-rack", visible: true
-    assert_selector "#audioSource", visible: true # DI files play through the rack in Tone
+    assert_selector "#enableLive", visible: true # in the Play header
     assert_no_selector "#projectsWorkspace", visible: true
 
     switch_to "projects"
     assert_selector "#projectsWorkspace", visible: true
-    assert_selector "#projectsPanel", visible: true
-    assert_no_selector "#audioSource", visible: true
+    assert_selector ".projects-header h2", visible: true # Studio's own page header
+    assert_no_selector "#enableLive", visible: true
     assert_no_selector "#presetsPanel", visible: true
     assert_no_selector ".fx-rack", visible: true
-    assert_selector "#inputDevice", visible: true # Audio devices belong to both
+    find("[data-nav=devices]").click # Audio devices belong to both, in a popup
+    assert_selector "#audioDevicesDialog[open] #inputDevice", visible: true
+    find("#audioDevicesDialog [data-close]").click
+    assert_no_selector "#audioDevicesDialog[open]"
 
     visit "/rack/"
     wait_for_rack
     assert_selector "#projectsWorkspace", visible: true # the workspace is remembered
   end
 
-  test "Play shows the Play along above the rack dock, whose header holds the presets" do
-    assert_selector ".rack-stage > backing-track-player:first-child", visible: true
+  test "Play shows its title, then the Play along above the rack dock, whose header holds the presets" do
+    assert_selector ".rack-stage > .play-header:first-child h2", text: "Play", visible: true
+    assert_selector ".rack-stage > .play-header ~ backing-track-player", visible: true
     assert_selector "#rackDock .rack-header #presetsPanel #presetSelect", visible: true
     assert_no_selector ".host-sidebar #presetsPanel", visible: :all
     along, rack = page.evaluate_script(<<~JS)
@@ -84,14 +88,15 @@ class WorkspacesTest < ApplicationSystemTestCase
 
   test "a guest is invited to sign in to use projects" do
     switch_to "projects"
-    assert_selector "#projectsPanel", visible: true
+    assert_selector "#projectsEmpty", visible: true # instead of the project list
     assert_selector "#projectsEmptyTitle", text: "Sign in to use projects"
-    assert_selector "#projectSelect option", text: "Sign in to see your projects", visible: :all
+    assert_selector "#projectsEmptyAction", text: "Sign in", visible: true
+    assert_no_selector "#studioHome", visible: true
   end
 
   private
     def switch_to(workspace)
-      page.execute_script("const s = document.getElementById('workspaceSwitch'); s.value = arguments[0]; s.dispatchEvent(new Event('change'))", workspace)
+      find("[data-nav=#{workspace}]").click # Play and Studio are entries of the left navigation column
       assert_selector "body[data-workspace=#{workspace}]"
     end
 end

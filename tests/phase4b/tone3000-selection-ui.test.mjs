@@ -50,7 +50,7 @@ test('TONE3000 capture list and arrows load the selected model directly', async 
   assert.equal(gui.controls.toneCapturePrevious.disabled, false);
   assert.equal(gui.controls.toneCaptureList.children[1].classList.contains('loaded'), true);
   assert.equal(gui.controls.toneCounter.textContent, '2 / 2 · loaded');
-  assert.deepEqual(views,['amp']);assert.deepEqual(events,[]);
+  assert.deepEqual(views,[],'keep the capture list open until explicit confirmation');assert.deepEqual(events,[]);
   gui.tone3000.downloadModel=async()=>{throw Error('Offline');};
   await gui.loadTone3000Model(0);assert.deepEqual(events,[]);
 });
@@ -152,4 +152,10 @@ test('Factory highlights only the loaded model and capture, including failed sel
     assert.ok(captures(build('a')).every(button=>!button.classList.contains('selected')));
     assert.deepEqual(captures(build('b')).map(button=>button.classList.contains('selected')),[true,false]);
   } finally {globalThis.document=previousDocument;globalThis.requestAnimationFrame=previousFrame;}
+});
+
+test('confirming a loaded capture closes model browsing and requests the host editor close, never during a load',()=>{
+ const gui=new Gui(),views=[],events=[];gui.node={getModelSnapshot:()=>({name:'Clean.nam'})};gui.setPluginTab=view=>views.push(view);gui.dispatchEvent=e=>events.push(e);
+ assert.equal(gui.useCurrentCapture(),true);assert.deepEqual(views,['amp']);assert.equal(events[0].type,'request-close-editor');assert.equal(events[0].bubbles,true);
+ gui._toneModelLoading=true;assert.equal(gui.useCurrentCapture(),false);gui._toneModelLoading=false;gui._mainCaptureLoading=true;assert.equal(gui.useCurrentCapture(),false);assert.equal(events.length,1);
 });

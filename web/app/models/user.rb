@@ -4,6 +4,7 @@ class User < ApplicationRecord
   PLAY_ALONG_TRACK_FORMAT = /\A(?:bt-[0-9a-f]{16}|studio-[1-9][0-9]*)\z/
   PLAY_ALONG_RANGES = { "rate" => 0.7..1.3, "volumeDb" => -60..6, "mix" => 0..1, "guitarPan" => -1..1 }.freeze
   PLAY_ALONG_FLAGS = %w[muted normalized autoNormalize expanded].freeze
+  PLAY_ALONG_VIEWS = %w[library track].freeze
   # The preset the rack reopens: an account preset id, a Factory one, or none.
   LAST_PRESET_FORMAT = /\Afactory:[a-z0-9-]{1,64}\z/
 
@@ -49,6 +50,7 @@ class User < ApplicationRecord
     result["trackId"] = value["trackId"] if value["trackId"].nil? || value["trackId"].to_s.match?(PLAY_ALONG_TRACK_FORMAT)
     PLAY_ALONG_RANGES.each { |key, range| result[key] = value[key] if value[key].is_a?(Numeric) && range.cover?(value[key]) }
     PLAY_ALONG_FLAGS.each { |key| result[key] = value[key] if [ true, false ].include?(value[key]) }
+    result["view"] = value["view"] if PLAY_ALONG_VIEWS.include?(value["view"])
     loop = value["loop"]
     if loop.is_a?(Hash)
       loop = loop.stringify_keys

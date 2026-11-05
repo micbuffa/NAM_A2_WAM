@@ -409,6 +409,7 @@ DEPENDENCIES
   bundler-audit
   capybara
   debug
+  dotenv
   kamal
   letter_opener
   litestream (~> 0.14.0)

@@ -3,7 +3,7 @@ import {inputGainDialog} from './InputGainView.js';
 import {OfflinePresetRenderer} from './projects/OfflinePresetRenderer.js';
 import {createOfflinePresetRack} from './projects/OfflinePresetRack.js';
 import './backing-track-player/BackingTrackPlayerElement.js';
-import {StudioBackingLibrary, useYoutubeInTone, useBackingInTone, returnToStudio} from './projects/StudioBackingLibrary.js';
+import {StudioBackingLibrary, useYoutubeInTone, useBackingInTone} from './projects/StudioBackingLibrary.js';
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
 import {linkPlayAlong, linkSpaceKey} from './backing-track-player/PlayAlong.js';
 import {PlayAlongMemory} from './backing-track-player/PlayAlongMemory.js';
@@ -99,14 +99,23 @@ function message(text, error = false) {
   toast(text, {tone: error ? 'danger' : 'accent', duration: Math.max(error ? 6000 : 2400, text.length * 45)});
 }
 
+// Developer tools (guitar source in the navigation column) need FRETWORK_DEV_TOOLS=1 in web/.env;
+// Rails says so in <meta name="fretwork-dev-tools">. The static server.mjs page has no such meta.
+const devTools = document.querySelector('meta[name="fretwork-dev-tools"]')?.content === 'true';
+
+// Dry guitar files for the guitar source, listed by the development host only. Without developer
+// tools or files, the source block stays hidden and the source stays Live input.
 async function discoverFiles() {
   let files=[];
-  try { const response = await fetch('/api/test-audio-files', {cache: 'no-store'}); if (response.ok) files=await response.json(); }
-  catch { /* Optional development-host audio catalog; Factory catalogs are plugin manifests. */ }
+  if (devTools) {
+    try { const response = await fetch('/api/test-audio-files', {cache: 'no-store'}); if (response.ok) files=await response.json(); }
+    catch { /* Optional development-host audio catalog; Factory catalogs are plugin manifests. */ }
+  }
   const selector = $('#audioSource');
   selector.replaceChildren(new Option('Live input', 'live'));
   for (const filename of files) selector.add(new Option(filename, `file:${filename}`));
-  $('#discovery').textContent = files.length ? `${files.length} dry guitar audio file(s) discovered dynamically` : 'Optional audio catalog unavailable; use Live input or plugin Factory browsers';
+  $('#discovery').textContent = files.length ? `${files.length} dry guitar audio file(s) discovered dynamically` : '';
+  $('#playSource').hidden = !files.length;
   return files;
 }
 
@@ -265,6 +274,8 @@ async function initialize() {
     player: projectPlayer, createRenderer: (options) => new Renderer(options), liveInputEnabled: () => liveInputEnabled, openLinked: linkedProject});
   // Studio in the navigation leads to the project list (Home).
   hostNav.addEventListener('home', () => void projects.home());
+  // Play in the navigation leads to the backing track library, the same way.
+  hostNav.addEventListener('library', () => playAlong?.setView('library'));
   void projects.load();
   const [groupId] = await initializeWamHost(context, 'nam-a2-phase3-host');
   plugin = await NamPlugin.createInstance(groupId, context, {});
@@ -299,10 +310,14 @@ async function initialize() {
   toneGate.connect(context.destination);
   // Play along (Play): a backing track mixed with the guitar, before toneGate.
   // Top of Play, above the rack dock: the library opens downwards (placement="top").
-  playAlong=document.createElement('backing-track-player');playAlong.setAttribute('placement','top');$('#playSource').after(playAlong);
+  playAlong=document.createElement('backing-track-player');playAlong.setAttribute('placement','top');$('.play-header').after(playAlong);
   const studioLibrary=new StudioBackingLibrary({account:accountIntegration.account});
   await playAlong.initialize({audioContext:context,library:studioLibrary,
     importYoutube: projects.available ? () => projects.youtubeImportDialog({onImported: job => useYoutubeInTone({job,library:studioLibrary,player:playAlong,projectPlayer,workspaces})}) : null});
+  // Play header, like Studio's: the open track's name and details, or Play over the library.
+  const playHeader=({title,meta})=>{$('#playTitle').textContent=title??'Play';$('#playTitle').title=title??'';$('#playMeta').textContent=meta??'Pick a backing track and play along through your rig.';$('#playMeta').title=meta??'';};
+  playAlong.addEventListener('headline-change',({detail})=>playHeader(detail));playHeader(playAlong.headline);
+  $('#playImport').addEventListener('click',()=>playAlong.openImport());$('#playImport').disabled=false;
   projects.onUseMix=entry=>useBackingInTone({entry,library:studioLibrary,player:playAlong,projectPlayer,workspaces});
   projects.renderMixExport();
   accountIntegration.account?.addEventListener('change',()=>{
@@ -314,9 +329,6 @@ async function initialize() {
   });
   playAlong.addEventListener('separate-instruments',async({detail})=>{
     if(await projects.importFromTone(detail.track,detail.file)){projectPlayer.pause();workspaces.show('projects');}
-  });
-  playAlong.addEventListener('open-studio',async({detail:{projectId}})=>{
-    await returnToStudio({projectId,workspace:projects,backingPlayer:playAlong.engine,workspaces});
   });
   const playAlongMix=new BackingTrackMix(context,rack.output,playAlong,{destination:toneGate});
   linkPlayAlong({engine:playAlong.engine,projectPlayer,workspaces});

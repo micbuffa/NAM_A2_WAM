@@ -1,4 +1,4 @@
-// Topbar audio engine badge (#engineStatus), as in the TONELAB mockup: its dot
+// Audio engine badge (#engineStatus, navigation column; host.css shows it only offline): its dot
 // and text follow the AudioContext. data-state is starting (rack not built
 // yet), ready (running), idle (suspended until live input or playback) or
 // offline (closed, interrupted, or the rack failed to start).

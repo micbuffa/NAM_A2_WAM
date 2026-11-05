@@ -48,7 +48,7 @@ test('nav drives Workspaces: Studio always leads to its Home, devices is an acti
   assert.equal(root.dataset.workspace, 'tone');
   assert.equal(f.by.tone.getAttribute('aria-current'), 'page');
   const events = [];
-  for (const name of ['home', 'devices']) f.hostNav.addEventListener(name, () => events.push(name));
+  for (const name of ['home', 'library', 'devices']) f.hostNav.addEventListener(name, () => events.push(name));
   f.hostNav.click({target: f.by.projects});
   assert.equal(workspaces.current, 'projects');
   assert.equal(f.by.projects.getAttribute('aria-current'), 'page');
@@ -58,6 +58,10 @@ test('nav drives Workspaces: Studio always leads to its Home, devices is an acti
   f.hostNav.click({target: f.by.devices});
   assert.deepEqual(events, ['home', 'home', 'devices']);
   assert.equal(workspaces.current, 'projects');
+  f.hostNav.click({target: f.by.tone});
+  f.hostNav.click({target: f.by.tone});
+  assert.deepEqual(events.slice(3), ['library', 'library'], 'Play leads to its library, even when already there');
+  assert.equal(workspaces.current, 'tone');
 });
 
 test('locking (recording) disables workspace entries but keeps Audio devices', () => {
@@ -74,10 +78,10 @@ test('locking (recording) disables workspace entries but keeps Audio devices', (
   assert.equal(workspaces.current, 'projects');
 });
 
-test('the left column holds navigation entries, Audio devices at the bottom, then the collapse toggle', async () => {
+test('the left column holds navigation entries, Audio devices and Tuner at the bottom, then the collapse toggle', async () => {
   const html = await readFile(new URL('../../examples/wam/index.html', import.meta.url), 'utf8');
   const sidebar = html.slice(html.indexOf('<aside class="host-sidebar"'), html.indexOf('<main class="rack-stage"'));
   for (const nav of ['tone', 'projects', 'devices']) assert.match(sidebar, new RegExp(`data-nav="${nav}"`));
-  assert.match(sidebar, /class="host-nav host-nav-bottom">\s*<button[^>]*data-nav="devices"[\s\S]*id="settingsButton"[\s\S]*id="hostNavToggle"[^>]*aria-controls="hostSidebar"/);
+  assert.match(sidebar, /class="host-nav host-nav-bottom">[\s\S]*?<button[^>]*data-nav="devices"[^>]*>[\s\S]*?<\/button>\s*<button[^>]*id="tunerButton"[\s\S]*id="settingsButton"[\s\S]*id="hostNavToggle"[^>]*aria-controls="hostSidebar"/);
   assert.doesNotMatch(html, /id="workspaceSwitch"|id="studioSidebarToggle"|data-nav="home"/);
 });

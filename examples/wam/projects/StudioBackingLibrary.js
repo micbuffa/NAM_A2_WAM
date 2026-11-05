@@ -26,17 +26,9 @@ export async function useBackingInTone({entry,library,player,projectPlayer,works
   player.renderList();
   const loaded=await player.engine.loadTrack(entry.id);
   if(!loaded)return false;
-  player.setExpanded(true);workspaces.show('tone');return true;
+  player.setView('track');workspaces.show('tone');return true;
 }
 
-
-// Return to the source project of a generated mix, or simply switch back to
-// the current Studio project for an external backing. Never reimport audio.
-export async function returnToStudio({projectId,workspace,backingPlayer,workspaces}) {
-  if (projectId && workspace.project?.id !== projectId) await workspace.open(projectId);
-  if (projectId && workspace.project?.id !== projectId) return false;
-  backingPlayer.pause();workspaces.show('projects');return true;
-}
 
 // Load the already downloaded MP3, without opening Studio or starting inference.
 export async function useYoutubeInTone({job, library, player, projectPlayer, workspaces}) {
@@ -51,5 +43,5 @@ export async function useYoutubeInTone({job, library, player, projectPlayer, wor
   }
   if(!id)throw Error('This older import has no unique available source. Import the video again.');
   if(!await player.engine.loadTrack(id))throw Error('YouTube audio was not loaded. Try again.');
-  player.setExpanded(true);workspaces.show('tone');return true;
+  player.setView('track');workspaces.show('tone');return true;
 }

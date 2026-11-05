@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {timelineTracks,projectTrackCount} from '../../examples/wam/projects/ProjectsModel.js';
 import {audioImportDialog,importDestinationFields} from '../../examples/wam/projects/AudioImportDialog.js';
 import {ProjectsWorkspace} from '../../examples/wam/projects/ProjectsWorkspace.js';
-import {returnToStudio} from '../../examples/wam/projects/StudioBackingLibrary.js';
 import {StudioSeparation} from '../../examples/wam/projects/StudioSeparation.js';
 import AccountApi from '../../examples/wam/account/api.js';
 
@@ -54,15 +53,6 @@ test('YouTube destination is sent explicitly to Rails, rather than inferred late
  body=JSON.parse(options.body);return{ok:true,status:202,json:async()=>({state:'queued'})};}});
  await api.startAudioImport('https://youtu.be/9rPbKNMjuzI',{projectId:7});
  assert.deepEqual(body,{url:'https://youtu.be/9rPbKNMjuzI',projectId:7});
-});
-
-test('return from a Studio mix reopens its source project, preserves current edits if already open, and never reimports',async()=>{
- const calls=[],project={id:7,tracks:[{id:1,volume:53}]},workspace={project,async open(id){calls.push(id);this.project={id};}};
- const input={workspace,backingPlayer:{pause:()=>calls.push('pause')},workspaces:{show:name=>calls.push(name)}};
- assert.equal(await returnToStudio({...input,projectId:7}),true);assert.equal(workspace.project,project);assert.deepEqual(calls,['pause','projects']);
- calls.length=0;assert.equal(await returnToStudio({...input,projectId:9}),true);assert.deepEqual(calls,[9,'pause','projects']);
- calls.length=0;assert.equal(await returnToStudio({...input,projectId:null}),true);assert.equal(workspace.project.id,9);assert.deepEqual(calls,['pause','projects']);
- calls.length=0;workspace.open=async()=>{};assert.equal(await returnToStudio({...input,projectId:10}),false);assert.deepEqual(calls,[]);
 });
 
 

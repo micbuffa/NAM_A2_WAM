@@ -59,7 +59,7 @@ test('removed instance cannot publish an asynchronously created GUI',async()=>{
 test('nonvisual defaults do not overwrite provided state or a concurrent restore',async()=>{
   let fetches=0;await loadDefaultAsset({getState:()=>({model:{data:'restored'}})},'nam','https://example.test/models-manifest.json',()=>{fetches++;});assert.equal(fetches,0);
   const node={assetRevision:0,getState:()=>({}),loadModelText(){throw Error('must not replace restore');}};
-  const fetchImpl=async url=>String(url).endsWith('json')?{ok:true,json:async()=>({assets:[{category:'guitar',provenance:{toneId:80705},relativePath:'model.nam',filename:'model.nam'}]})}:{ok:true,text:async()=>{node.assetRevision++;return '{}';}};
+  const fetchImpl=async url=>String(url).endsWith('json')?{ok:true,json:async()=>({assets:[{category:'guitar',provenance:{toneId:51649,modelId:383469},relativePath:'model.nam',filename:'model.nam'}]})}:{ok:true,text:async()=>{node.assetRevision++;return '{}';}};
   await loadDefaultAsset(node,'nam','https://example.test/models-manifest.json',fetchImpl);
 });
 

@@ -15,6 +15,13 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=csrf-token]"
     assert_select "script#currentUser[type='application/json']", text: "null"
   end
+
+  test "rack page tells whether developer tools are on (FRETWORK_DEV_TOOLS=1)" do
+    with_dev_tools(nil) { get "/rack/" }
+    assert_select "meta[name=fretwork-dev-tools][content=false]"
+    with_dev_tools("1") { get "/rack/" }
+    assert_select "meta[name=fretwork-dev-tools][content=true]"
+  end
   test "Studio exposes one separation entry and leaves duration selection to its dialog" do
     get "/rack/"
     assert_select "#studioSeparation[hidden]", count: 1
@@ -23,9 +30,10 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     # The chooser creates this field dynamically; the whole-song default and
     # excerpt dispatch are covered by the StudioSeparationView unit tests.
     assert_select "#studioExcerpt", count: 0
-    assert_select "#studioOptions[aria-haspopup=dialog]", count: 1
+    # Studio and recording settings are sections of Settings (StudioSettings.js), not buttons of the project view.
+    assert_select "#settingsButton", count: 1
+    assert_select "#studioOptions, #recordOptions", count: 0
     assert_select "#studioOptionsPanel[hidden]", count: 1
-    assert_select "#recordOptions[aria-haspopup=dialog]", count: 1
     assert_select "#recordOptionsPanel[hidden]", count: 1
     assert_select "#studioProgress[aria-label='Separation progress']", count: 1
     assert_select "#studioOriginal, #studioInstruments", count: 0
@@ -38,11 +46,11 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "#projectMasterValue", text:"100%"
   end
 
-  test "Studio toolbar remains reachable with sidebar collapsed and shares a track scrollport" do
+  test "Studio toolbar stays in its header, the navigation column collapses, and tracks share a scrollport" do
     get "/rack/"
     assert_select ".projects-header #projectImport", count: 1
     assert_select ".projects-header #projectNew", count: 1
-    assert_select "#studioSidebarToggle[aria-controls='hostSidebar'][aria-expanded='true']", count: 1
+    assert_select "#hostSidebar #hostNavToggle[aria-controls='hostSidebar'][aria-expanded='true']", count: 1 # on the column's border
     assert_select "#projectTrackViewport[role='region'][tabindex='0']" do
       assert_select "#projectRuler", count: 1
       assert_select "#projectTracks", count: 1
@@ -66,4 +74,13 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "#projectRuler[aria-label='Timeline and A/B loop']", count: 1
   end
 
+  private
+    # web/.env may set the flag on this machine; each test sets it explicitly.
+    def with_dev_tools(value)
+      previous = ENV["FRETWORK_DEV_TOOLS"]
+      ENV["FRETWORK_DEV_TOOLS"] = value
+      yield
+    ensure
+      ENV["FRETWORK_DEV_TOOLS"] = previous
+    end
 end
