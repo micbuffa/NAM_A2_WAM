@@ -9,7 +9,7 @@ export async function loadDefaultAsset(node, kind, manifestUrl, fetchImpl = glob
   if (!response.ok) throw new Error(`Factory manifest: HTTP ${response.status}`);
   const {assets = []} = await response.json();
   const asset = kind === 'nam'
-    ? assets.find(a => a.category === 'guitar' && Number(a.provenance?.toneId) === 80705)
+    ? assets.find(a => a.category === 'guitar' && Number(a.provenance?.toneId) === 51649 && Number(a.provenance?.modelId) === 383469)
     : assets.find(a => a.filename === 'V30 LL 4FB 4x12 SM57 0.50in 0--m239290.wav');
   if (!asset) throw new Error(`Default ${kind} asset missing`);
   const folder = kind === 'nam' ? 'models' : 'IRs';
