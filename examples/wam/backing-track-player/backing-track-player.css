@@ -5,6 +5,14 @@
 :host{display:block;container-type:inline-size;color:var(--tl-text,#f3f5f1);font:var(--tl-fs-sm,11px) var(--tl-font-ui,system-ui)}
 *{box-sizing:border-box}
 section{outline:none;background:var(--tl-surface-1,#131615);border-top:1px solid var(--tl-border,#303532);box-shadow:0 -12px 28px rgba(0,0,0,.28)}
+/* placement="top" (in Play): no panel of its own, it sits on the page like the Studio Home table. */
+:host([placement=top]) :is(section,header,#body){background:none;box-shadow:none}
+/* Lined up with the page title (Play header inset: 16px): the table and its first column start there. */
+:host([placement=top]) :is(header,.library-view,.track-view){padding-inline:16px}
+:host([placement=top]) #status{padding-inline:16px}
+:host([placement=top]) #list :is(th,td):first-child,:host([placement=top]) #list td.title button{padding-left:0}
+:host([placement=top]) #list :is(th,td):last-child{padding-right:0}
+:host([placement=top]) #list tr[aria-selected=true] td.title{box-shadow:none} /* the row tint and the accent title mark it; an edge bar would sit on the dot */
 button,input{font:inherit;color:inherit}
 input:focus-visible,#wave:focus-visible,button:focus-visible{outline:none;box-shadow:var(--tl-focus-ring,0 0 0 2px #c7f65b)}
 output{font-family:var(--tl-font-mono,monospace);font-variant-numeric:tabular-nums}
@@ -13,7 +21,7 @@ output{font-family:var(--tl-font-mono,monospace);font-variant-numeric:tabular-nu
 header{display:grid;grid-template-columns:minmax(0,1fr) auto auto minmax(90px,130px) auto;align-items:center;gap:var(--tl-space-3,12px);
   min-height:62px;padding:var(--tl-space-2,8px) var(--tl-space-6,24px);background:linear-gradient(180deg,var(--tl-surface-4,#191d1b),var(--tl-surface-1,#131615))}
 /* placement="top" (above the rack in Play). */
-:host([placement=top]) section{border-top:0;border-bottom:1px solid var(--tl-border,#303532);box-shadow:0 12px 28px rgba(0,0,0,.28)}
+:host([placement=top]) section{border-top:0;border-bottom:1px solid var(--tl-border-subtle,#252928)}
 .heading{display:flex;align-items:center;gap:var(--tl-space-3,12px);min-width:0}
 .now-playing{display:flex;flex:1 1 auto;flex-direction:column;align-items:flex-start;min-width:0}
 .eyebrow{color:var(--tl-text-muted,#6f7773);font-size:var(--tl-fs-2xs,9px);font-weight:700;letter-spacing:var(--tl-tracking-label,.12em);text-transform:uppercase}
@@ -48,23 +56,25 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto minmax(90px,13
 #filter:focus{border-color:var(--tl-accent-border,#63733e)}
 /* Library table: sticky column header, one tbody per section (My tracks, Factory). */
 .list-scroll{position:relative;flex:1;min-height:0;margin-top:8px;overflow:auto;scrollbar-width:thin;scrollbar-color:var(--tl-border-strong,#3d433f) transparent}
-#list{width:100%;min-width:640px;border-collapse:collapse;table-layout:fixed}
-#list th,#list td{height:32px;padding:0 6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:left}
-#list thead th{position:sticky;top:0;z-index:1;height:24px;background:var(--tl-surface-1,#131615);border-bottom:1px solid var(--tl-border-subtle,#252928);
-  color:var(--tl-text-muted,#6f7773);font-size:var(--tl-fs-2xs,9px);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-#list .origin{width:84px}#list .added{width:112px}#list .duration{width:44px}#list .bpm{width:38px}#list .key{width:40px}
+#list{width:100%;min-width:720px;border-collapse:collapse;table-layout:fixed}
+#list th,#list td{height:40px;padding:0 var(--tl-space-4,16px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:left}
+/* Same look as the Studio Home table (host.css .studio-projects): uppercase muted head, rows ruled, no panel. */
+#list thead th{position:sticky;top:0;z-index:1;height:32px;background:var(--tl-bg,#090b0b);border-bottom:1px solid var(--tl-border-subtle,#252928);
+  color:var(--tl-text-muted,#6f7773);font-size:var(--tl-fs-xs,10px);font-weight:700;letter-spacing:var(--tl-tracking-label,.12em);text-transform:uppercase}
+#list tbody td{color:var(--tl-text-2,#aab1ad);font-size:var(--tl-fs-control,12px);border-bottom:1px solid var(--tl-border-subtle,#252928)}
+#list .origin{width:104px}#list .added{width:136px}#list .duration{width:84px}#list .bpm{width:64px}#list .key{width:68px}
 #list .num{text-align:right;font-family:var(--tl-font-mono,monospace);font-variant-numeric:tabular-nums}
-#list td.num,#list td.added{color:var(--tl-text-muted,#6f7773);font-size:var(--tl-fs-xs,10px)}
+#list td.num,#list td.added{color:var(--tl-text-2,#aab1ad);font-size:var(--tl-fs-control,12px)}
 #list td.added{font-variant-numeric:tabular-nums}
 #list th.section{height:28px;padding-top:8px;color:var(--tl-text-2,#aab1ad);font-size:var(--tl-fs-2xs,9px);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 .section-count{margin-left:6px;color:var(--tl-text-faint,#4f5652);font:500 var(--tl-fs-2xs,9px) var(--tl-font-mono,monospace);letter-spacing:0}
 #list tbody tr:has(td:not(.empty)){cursor:pointer}
-#list tbody tr:has(td:not(.empty)):hover{background:var(--tl-surface-4,#191d1b)}
+#list tbody tr:has(td:not(.empty)):hover{background:var(--tl-surface-2,#151817)}
 #list tr[aria-selected=true]{background:var(--tl-accent-tint,#192017)}
 #list tr[aria-selected=true] td.title{box-shadow:inset 2px 0 0 var(--tl-accent,#c7f65b)}
 #list td.title{padding:0}
-#list td.title button{display:grid;grid-template-columns:5px minmax(0,1fr);align-items:center;gap:8px;width:100%;height:32px;padding:0 6px 0 8px;background:none;border:0;border-radius:var(--tl-radius-sm,5px);
-  color:var(--tl-text-1,#e6eae7);font-size:var(--tl-fs-sm,11px);font-weight:600;text-align:left;cursor:pointer}
+#list td.title button{display:grid;grid-template-columns:5px minmax(0,1fr);align-items:center;gap:8px;width:100%;height:40px;padding:0 var(--tl-space-4,16px);background:none;border:0;border-radius:var(--tl-radius-sm,5px);
+  color:var(--tl-text,#f3f5f1);font-size:var(--tl-fs-control,12px);font-weight:600;text-align:left;cursor:pointer}
 #list button[aria-pressed=true]{color:var(--tl-accent,#c7f65b)}
 /* The table scrolls, so an outer ring would be clipped: the focus ring sits inside. */
 #list button:focus-visible{box-shadow:inset 0 0 0 2px var(--tl-accent,#c7f65b)}

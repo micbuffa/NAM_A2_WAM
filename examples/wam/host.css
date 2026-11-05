@@ -54,7 +54,8 @@ body[data-host-nav="collapsed"] .host-nav-item > .host-kbd { display: none; }
 .host-sidebar[hidden] { display: none; }
 /* Navigation column (HostNav.js): entries on top, Settings/Account stacked at the bottom; collapses to an icon rail. */
 body[data-host-nav="collapsed"] .host-shell { --host-nav-width: 56px; }
-.host-nav { display: flex; flex-direction: column; gap: 2px; padding: var(--tl-space-3) var(--tl-space-2); }
+.host-nav { display: flex; flex-direction: column; gap: 2px; padding: var(--tl-space-7) var(--tl-space-2) var(--tl-space-3); } /* Play/Studio sit a little lower than the brand */
+.host-nav-bottom { padding-top: var(--tl-space-3); }
 .host-nav-bottom { margin-top: auto; border-top: 1px solid var(--tl-border-subtle); }
 .host-nav-item { display: flex; align-items: center; gap: var(--tl-space-3); width: 100%; min-height: 36px; padding: 0 10px; border: 1px solid transparent; border-radius: var(--tl-radius-md);
   background: none; color: var(--tl-text-2); font: inherit; font-size: var(--tl-fs-control); font-weight: 600; text-align: left; white-space: nowrap; cursor: pointer; }
@@ -98,7 +99,8 @@ body[data-host-nav="collapsed"] .host-nav-toggle tl-icon { transform: rotate(-90
 .validation-panel pre:empty { display: none; }
 
 /* Guitar source (developer tool) in the navigation column, above Audio devices: Play only, hidden when the column is collapsed. */
-.play-source { display: flex; flex-direction: column; gap: var(--tl-space-2); margin-bottom: var(--tl-space-2); padding: var(--tl-space-2) 10px var(--tl-space-3); border-bottom: 1px solid var(--tl-border-subtle); }
+/* Bleeds over the nav padding so its rule spans the whole column, like the one above the bottom entries. */
+.play-source { display: flex; flex-direction: column; gap: var(--tl-space-2); margin: 0 calc(-1 * var(--tl-space-2)) var(--tl-space-2); padding: var(--tl-space-2) calc(10px + var(--tl-space-2)) var(--tl-space-3); border-bottom: 1px solid var(--tl-border-subtle); }
 .play-source[hidden], body:not([data-workspace="tone"]) .play-source, body[data-host-nav="collapsed"] .play-source { display: none; }
 .play-source-title { margin: 0; color: var(--tl-text-muted); font-size: var(--tl-fs-sm); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .play-source-select { width: 100%; }
@@ -218,6 +220,7 @@ body[data-track-sound-edit="true"] :is(#presetNew, #presetCount, .preset-status)
 .rack-source-actions { display: flex; align-items: center; gap: var(--tl-space-2); flex-wrap: wrap; }
 .rack-kicker { margin: 0; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); font-weight: 600; letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
 .rack-header h2 { margin: 7px 0 0; font-size: var(--tl-fs-xl); font-weight: 600; line-height: 1; letter-spacing: var(--tl-tracking-title); }
+#playTitle, #projectTitle { font-size: 25px; }
 .rack-canvas { flex: 1; min-width: 0; padding: var(--tl-space-7) 30px; }
 /* Rack dock (RackDock.js), shared by Play and Studio: preset header + chains,
    glued to the bottom of the screen at its natural height (at most 70%, then it
@@ -259,12 +262,15 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .projects-header-actions tl-badge { margin-right: var(--tl-space-2); }
 .projects-header-actions [hidden] { display: none; }
 /* Studio Home (ProjectsWorkspace.renderHome): one table of the projects. */
+/* The table and its first column line up with the page title (header and canvas inset: 16px). */
 .studio-home { padding: var(--tl-space-2) 0 var(--tl-space-7); overflow-x: auto; }
 .studio-home[hidden] { display: none; }
 .studio-projects { width: 100%; border-collapse: collapse; font-size: var(--tl-fs-control); }
 .studio-projects th { padding: 0 var(--tl-space-4) var(--tl-space-3); color: var(--tl-text-muted); font-size: var(--tl-fs-xs); font-weight: 700; letter-spacing: var(--tl-tracking-label);
   text-align: left; text-transform: uppercase; white-space: nowrap; border-bottom: 1px solid var(--tl-border-subtle); }
 .studio-projects td { padding: var(--tl-space-3) var(--tl-space-4); color: var(--tl-text-2); white-space: nowrap; border-bottom: 1px solid var(--tl-border-subtle); }
+.studio-projects :is(td, th):first-child { padding-left: 0; }
+.studio-projects :is(td, th):last-child { padding-right: 0; }
 .studio-projects :is(td, th):is(:nth-child(4), :nth-child(5), :nth-child(6)) { font-variant-numeric: tabular-nums; text-align: right; }
 .studio-projects tbody tr { cursor: pointer; }
 .studio-projects tbody tr:hover td { background: var(--tl-surface-2); }
