@@ -82,12 +82,31 @@
         <div class="rack-heading">
           <div>
             <div class="preset-title-row"><h2 id="playTitle">Play</h2></div>
-            <p class="preset-meta" id="playMeta">Pick a backing track and play along through your rig.</p>
+            <p class="preset-meta" id="playMeta">Plug in and play through your rig, alone or over a backing track.</p>
           </div>
         </div>
-        <div class="preset-header-actions"><tl-button id="playImport" size="sm" icon="audio" aria-haspopup="dialog" disabled>Import audio</tl-button><tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button></div>
       </header>
-      <!-- Play along (main.js) is inserted right after this header, above the rack dock. -->
+      <!-- Play live (PlayLive.js): the guitar through the rack, with or without a backing track. -->
+      <section class="play-live" id="playLive" aria-labelledby="playLiveTitle" data-live="off">
+        <p class="play-section-kicker">Play live</p>
+        <div class="play-live-card">
+          <div class="play-live-text">
+            <h3 id="playLiveTitle">Just you and your rig</h3>
+            <p class="play-live-meta"><span class="play-live-dot" aria-hidden="true"></span><span id="playLiveInput">Input off</span> &middot; <span id="playLivePreset">Untitled rack</span></p>
+            <p class="play-live-reminder" id="playLiveReminder">Your input is off: turn it on to hear your guitar over the track.</p>
+          </div>
+          <tl-meter id="playLiveMeter" aria-label="Guitar input level" aria-valuemin="-60" aria-valuemax="0"></tl-meter>
+          <div class="play-live-actions"><tl-button class="live-toggle" id="enableLive" variant="primary" icon="guitar" aria-pressed="false" disabled>Enable live input</tl-button></div>
+        </div>
+      </section>
+      <section class="play-along-section" aria-labelledby="playAlongKicker">
+        <div class="play-section-head" id="playAlongHead">
+          <p class="play-section-kicker" id="playAlongKicker">Play on a backing track</p>
+          <tl-button id="playImport" size="sm" icon="audio" aria-haspopup="dialog" disabled>Import audio</tl-button>
+        </div>
+        <!-- Play along (main.js) is inserted in this card, above the rack dock. -->
+        <div class="play-along-card" id="playAlongCard"></div>
+      </section>
     </main>
 
     <main class="tracks-stage projects-stage" id="projectsWorkspace" data-workspace="projects" aria-label="Studio">

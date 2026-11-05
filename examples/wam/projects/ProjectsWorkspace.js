@@ -712,11 +712,10 @@ export class ProjectsWorkspace extends EventTarget {
     const {dialog, body} = createDialog({title:'Import audio'});
     const local = button('Import from a file', {primary:true});
     const youtube = button('Import from YouTube');
-    const done = button('Close');
     local.onclick=()=>{dialog.close();void this.importFileDialog();};
     youtube.onclick=()=>{dialog.close();void this.youtubeImportDialog();};
-    done.onclick=()=>dialog.close();
-    body.append(element('p',{textContent:'Add audio to a project, with or without instrument separation.'}),actionsRow(local),actionsRow(youtube),actionsRow(done));
+    // One row, like Play's: the close button and a click outside dismiss it.
+    body.append(element('p',{textContent:'Add audio to a project, with or without instrument separation.'}),actionsRow(youtube,local));
     dialog.showModal();
   }
 

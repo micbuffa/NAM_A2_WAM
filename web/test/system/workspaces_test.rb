@@ -16,7 +16,7 @@ class WorkspacesTest < ApplicationSystemTestCase
   test "each workspace shows its own panels" do
     assert_selector "#presetsPanel", visible: true
     assert_selector ".fx-rack", visible: true
-    assert_selector "#enableLive", visible: true # in the Play header
+    assert_selector "#enableLive", visible: true # in the Play live card
     assert_no_selector "#projectsWorkspace", visible: true
 
     switch_to "projects"
@@ -35,15 +35,24 @@ class WorkspacesTest < ApplicationSystemTestCase
     assert_selector "#projectsWorkspace", visible: true # the workspace is remembered
   end
 
-  test "Play shows its title, then the Play along above the rack dock, whose header holds the presets" do
+  test "Play shows its title, Play live, then the Play along above the rack dock, whose header holds the presets" do
     assert_selector ".rack-stage > .play-header:first-child h2", text: "Play", visible: true
-    assert_selector ".rack-stage > .play-header ~ backing-track-player", visible: true
+    assert_selector ".rack-stage > .play-header + #playLive #enableLive", text: "Enable live input", visible: true
+    assert_selector "#playLive #playLiveInput", text: "Input off"
+    assert_selector "#playLive tl-meter#playLiveMeter", visible: true
+    assert_no_selector "#playLive tl-icon, #playLiveRig", visible: :all # no icon, no Edit rig: the dock below shows the rig
+    assert_selector ".rack-stage > #playLive + .play-along-section #playAlongHead #playImport", visible: true
+    assert_selector ".play-along-section > #playAlongCard > backing-track-player", visible: true
     assert_selector "#rackDock .rack-header #presetsPanel #presetSelect", visible: true
     assert_no_selector ".host-sidebar #presetsPanel", visible: :all
     along, rack = page.evaluate_script(<<~JS)
       [document.querySelector("backing-track-player"), document.querySelector("#rackDock")].map((e) => e.getBoundingClientRect().top)
     JS
     assert_operator along, :<, rack
+  end
+
+  test "Play live names the current preset" do
+    assert_equal page.evaluate_script("document.querySelector('#presetTitle').textContent.trim()"), find("#playLivePreset").text
   end
 
   test "the rack dock is as tall as its header and chain A; chain B is reached by scrolling" do

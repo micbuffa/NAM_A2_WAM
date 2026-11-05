@@ -30,6 +30,7 @@ import {AudioDevicesDialog} from './AudioDevicesDialog.js';
 import {registerStudioSettings} from './projects/StudioSettings.js';
 import {StudioLayout} from './projects/StudioLayout.js';
 import {RackDock} from './RackDock.js';
+import {PlayLive} from './PlayLive.js';
 import {ProjectsWorkspace, takeLinkedProject} from './projects/ProjectsWorkspace.js';
 import {StudioPlayer as ProjectPlayer} from './projects/StudioPlayer.js';
 import {TrackSoundEditor} from './projects/TrackSoundEditor.js';
@@ -61,7 +62,7 @@ let selectedDeviceId = audioPreferences.inputDeviceId;
 let selectedInputChannel = audioPreferences.inputChannel;
 let liveInputEnabled = false;
 let outputDeviceManager;
-let chain, chainView, rack, trackTones, playAlong;
+let chain, chainView, rack, trackTones, playAlong, playLive;
 let projects;
 // The open project plays beside the rack's live guitar, in both workspaces.
 const projectPlayer = new ProjectPlayer(context);
@@ -214,6 +215,7 @@ function syncLiveInputButton() {
   button.textContent = liveInputEnabled ? 'Disable live input' : 'Enable live input';
   button.setAttribute('aria-pressed', String(liveInputEnabled));
   button.classList.toggle('live-active', liveInputEnabled);
+  playLive?.sync();
 }
 
 async function activateSelectedLiveInput() {
@@ -310,14 +312,16 @@ async function initialize() {
   const toneGate=context.createGain();
   toneGate.connect(context.destination);
   // Play along (Play): a backing track mixed with the guitar, before toneGate.
-  // Top of Play, above the rack dock: the library opens downwards (placement="top").
-  playAlong=document.createElement('backing-track-player');playAlong.setAttribute('placement','top');$('.play-header').after(playAlong);
+  // Below Play live, above the rack dock: the library opens downwards (placement="top").
+  playAlong=document.createElement('backing-track-player');playAlong.setAttribute('placement','top');$('#playAlongCard').append(playAlong);
+  playLive=new PlayLive({context,input:chain.input,source:sourceManager,workspaces,isLive:()=>liveInputEnabled});
   const studioLibrary=new StudioBackingLibrary({account:accountIntegration.account});
   await playAlong.initialize({audioContext:context,library:studioLibrary,
     importYoutube: projects.available ? () => projects.youtubeImportDialog({onImported: job => useYoutubeInTone({job,library:studioLibrary,player:playAlong,projectPlayer,workspaces})}) : null});
   // Play header, like Studio's: the open track's name and details, or Play over the library.
-  const playHeader=({title,meta})=>{$('#playTitle').textContent=title??'Play';$('#playTitle').title=title??'';$('#playMeta').textContent=meta??'Pick a backing track and play along through your rig.';$('#playMeta').title=meta??'';};
+  const playHeader=({title,meta})=>{$('#playTitle').textContent=title??'Play';$('#playTitle').title=title??'';$('#playMeta').textContent=meta??'Plug in and play through your rig, alone or over a backing track.';$('#playMeta').title=meta??'';};
   playAlong.addEventListener('headline-change',({detail})=>playHeader(detail));playHeader(playAlong.headline);
+  playAlong.addEventListener('view-change',({detail})=>playLive.setOverTrack(detail.view==='track'));playLive.setOverTrack(playAlong.view==='track');
   $('#playImport').addEventListener('click',()=>playAlong.openImport());$('#playImport').disabled=false;
   projects.onUseMix=entry=>useBackingInTone({entry,library:studioLibrary,player:playAlong,projectPlayer,workspaces});
   projects.renderMixExport();
@@ -509,7 +513,7 @@ async function initialize() {
     chain.lane.input.channelIndex=selectedInputChannel;
     saveAudioDevicePreferences({inputDeviceId:selectedDeviceId,inputChannel:selectedInputChannel});
     if($('#audioSource').value!=='live'||!selectedDeviceId||!liveInputEnabled)return;
-    try{sourceManager.selectLiveChannel(selectedInputChannel);}
+    try{sourceManager.selectLiveChannel(selectedInputChannel);playLive?.sync();}
     catch(error){await disableLiveInput();message(`Cannot select input channel: ${error.message}`,true);}
   };
   $('#outputDevice').onchange = async () => {

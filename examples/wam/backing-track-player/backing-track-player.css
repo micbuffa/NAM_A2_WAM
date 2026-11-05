@@ -103,7 +103,9 @@ canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
 .led-toggle i{width:6px;height:6px;border-radius:50%;background:var(--tl-border-strong,#3d433f)}
 .led-toggle[aria-pressed=true]{border-color:var(--tl-accent-border,#63733e);background:var(--tl-accent-tint,#192017);color:var(--tl-accent,#c7f65b)}
 .led-toggle[aria-pressed=true] i{background:var(--tl-accent,#c7f65b);box-shadow:var(--tl-glow-led,none)}
-.normalize{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--tl-text-muted,#6f7773)}
+/* Loop A-B and Level: the title, then their controls on one row. */
+.tool-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:30px;color:var(--tl-text-muted,#6f7773)}
+.tool-row .led-toggle{height:30px;padding:0 10px}
 
 #loadProgress{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;background:color-mix(in srgb,var(--tl-bg,#090b0b) 60%,transparent);border-radius:var(--tl-radius-md,8px);cursor:wait}
 #loadProgress[hidden]{display:none}

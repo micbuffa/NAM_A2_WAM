@@ -248,7 +248,11 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
   .host-shell { height: 100dvh; min-height: 0; }
   .rack-stage, .tracks-stage { min-height: 0; overflow: hidden; }
   /* Play along takes the height left above the rack: its library fills it (its track view keeps its own height). */
-  .rack-stage > backing-track-player { flex: 1 1 auto; min-height: 62px; overflow: auto; scrollbar-width: thin; }
+  .play-along-section { flex: 1 1 auto; min-height: 0; }
+  .play-along-card { flex: 1 1 auto; min-height: 0; }
+  .play-along-card > backing-track-player { flex: 1 1 auto; min-height: 62px; overflow: auto; scrollbar-width: thin; }
+  /* The track view keeps its own height: the card ends below its tools (the library fills the card). */
+  .play-along-card:has(> backing-track-player[view="track"]) { flex: 0 1 auto; }
   .rack-dock { max-height: min(var(--rack-dock-fit, 70dvh), 70dvh); overflow: auto; scrollbar-width: thin; box-shadow: 0 -12px 28px rgba(0, 0, 0, .22); }
   .rack-dock > .rack-header { position: sticky; top: 0; z-index: 4; }
   /* Studio keeps room for the timeline above a track's sound. */
@@ -614,4 +618,36 @@ body[data-workspace="projects"] .project-master input { width: 72px; }
 /* Respect reduced-motion for host controls; transport/meter values still update. */
 @media (prefers-reduced-motion: reduce) {
   body[data-workspace="projects"] .tracks-stage *, .tl-modal, .tl-modal * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+/* Play page in two parts: Play live (PlayLive.js: input, preset, level meter,
+   live toggle) above Play on a backing track (the Play along library/track). */
+.play-section-kicker { margin: 0; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); font-weight: 600; letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
+.play-live { flex: none; display: grid; gap: 8px; padding: 12px 16px 16px; }
+.play-live-card, .play-along-card { min-width: 0; background: var(--tl-surface-1); border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-md, 8px); }
+.play-live-card { display: flex; align-items: center; gap: 14px; padding: 12px 16px; transition: border-color .15s, box-shadow .15s; }
+/* The Play along keeps its own 16px inner padding; the card only frames it. */
+.play-along-section { display: flex; flex-direction: column; padding: 0 16px 14px; }
+.play-along-card { display: flex; flex-direction: column; overflow: hidden; }
+.play-live[data-live="on"] .play-live-card { border-color: color-mix(in srgb, var(--tl-success) 55%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--tl-success) 20%, transparent); }
+.play-live-text { flex: 1 1 auto; min-width: 0; }
+.play-live-text h3 { margin: 0; font-size: var(--tl-fs-md, 14px); font-weight: 600; line-height: 1.3; }
+.play-live-meta { display: flex; align-items: center; gap: 5px; margin: 3px 0 0; overflow: hidden; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); white-space: nowrap; }
+.play-live-meta > span:not(.play-live-dot) { overflow: hidden; text-overflow: ellipsis; }
+.play-live-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--tl-text-muted); opacity: .5; }
+.play-live[data-live="on"] .play-live-dot { background: var(--tl-success); opacity: 1; box-shadow: 0 0 6px var(--tl-success); }
+#playLiveMeter { flex: 0 1 160px; min-width: 80px; height: 10px; }
+.play-live[data-live="off"] #playLiveMeter { opacity: .45; }
+.play-live-actions { flex: none; display: flex; align-items: center; gap: 6px; }
+.play-live-actions tl-button { height: 30px; padding-inline: 9px; font-size: 11px; }
+.play-section-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 28px; margin-bottom: 8px; }
+.play-section-head tl-button { height: 28px; padding-inline: 9px; font-size: 11px; }
+.play-live-reminder { display: none; margin: 3px 0 0; color: var(--tl-danger); font-size: var(--tl-fs-xs); font-weight: 600; }
+/* Over an open backing track with the input off, the reminder replaces the input/preset line. */
+.play-live[data-track][data-live="off"] .play-live-meta { display: none; }
+.play-live[data-track][data-live="off"] .play-live-reminder { display: block; }
+@media (max-width: 720px) {
+  .play-live-card { flex-wrap: wrap; }
+  #playLiveMeter { order: 3; flex: 1 1 100%; }
+  .play-live-actions { order: 4; flex: 1 1 100%; justify-content: flex-end; }
 }

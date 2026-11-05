@@ -5,15 +5,17 @@ export function audioImportChoices({local, youtube = null}) {
   return [{label:'Import from a file', run:local}, {label:'Import from YouTube', run:youtube}];
 }
 export function playAlongImportDialog(options) {
+  // One row of choices (the file import, primary, on the right); the close
+  // button and a click outside dismiss it, so there is no Cancel.
   const {dialog,body}=createDialog({title:'Import audio'});
-  for(const choice of audioImportChoices(options)) {
+  const controls=audioImportChoices(options).map(choice=>{
     const control=button(choice.label,{primary:choice.label==='Import from a file'});
     control.disabled=!choice.run;
     control.onclick=()=>{dialog.close();Promise.resolve().then(choice.run).catch(options.error ?? (()=>{}));};
-    body.append(actionsRow(control));
-  }
+    return control;
+  }).reverse();
   if(!options.youtube){const help=document.createElement('p');help.textContent='YouTube import requires the online Rails host and an account.';body.append(help);}
-  const close=button('Cancel');close.onclick=()=>dialog.close();body.append(actionsRow(close));dialog.showModal();return dialog;
+  body.append(actionsRow(...controls));dialog.showModal();return dialog;
 }
 export const mp3Filename = name => `${String(name||'backing-track').replace(/\.(mp3|wav|aiff?|flac|ogg|m4a|aac|webm)$/iu,'').replace(/[\\/:*?"<>|\u0000-\u001f]/gu,'_').trim()||'backing-track'}.mp3`;
 export function mp3Header(bytes) {

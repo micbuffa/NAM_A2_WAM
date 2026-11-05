@@ -22,6 +22,8 @@ class PlayAlongTest < ApplicationSystemTestCase
     shadow = find("backing-track-player").shadow_root
     shadow.assert_no_selector "#expand, #miniWave", visible: :all # it no longer collapses
     shadow.assert_selector "#libraryView"
+    assert_selector "#playLive:not([data-track])", visible: true # the Play live card over the library
+    assert_no_selector "#playLiveReminder", visible: true
     shadow.assert_no_selector "#back, #title, #filter, #count, #import", visible: :all # the page header names the track and holds Import audio
     assert_selector "#playImport:not([disabled])", text: "Import audio"
     assert_equal [ "my tracks", "factory" ], shadow.all("#list th.section").map { |th| th.text.sub(/\s*\d+\z/, "").downcase } # shown uppercase
@@ -33,6 +35,10 @@ class PlayAlongTest < ApplicationSystemTestCase
     shadow.assert_no_selector "#openStudio", visible: :all
     assert_selector "#playTitle", text: "Born To Be Wild - Steppenwolf" # the page header names the track, like a Studio project
     assert_selector "#playMeta", text: /\AFactory · \d+:\d\d/
+    assert_selector "#playLive[data-track][data-live=off]" # same card over the track...
+    assert_selector "#playLiveTitle", text: "Just you and your rig", visible: true
+    assert_selector "#playLiveReminder", text: "Your input is off", visible: true # ...whose reminder replaces the input/preset line
+    assert_no_selector "#playLiveInput", visible: true
     assert_equal 0, shadow.all("*", text: "Born To Be Wild - Steppenwolf", exact_text: true).size, "the name appears once, in the page header"
     loop_on = shadow.find("#loop")["aria-pressed"]
     shadow.find("#loop").click
