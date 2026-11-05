@@ -11,18 +11,18 @@ class WorkspacesTest < ApplicationSystemTestCase
     wait_for_rack
   end
 
-  teardown { switch_to "tone" if page.has_css?("#workspaceSwitch", wait: 0) }
+  teardown { switch_to "tone" if page.has_css?("[data-nav=tone]", wait: 0) }
 
   test "each workspace shows its own panels" do
     assert_selector "#presetsPanel", visible: true
     assert_selector ".fx-rack", visible: true
-    assert_selector "#audioSource", visible: true # DI files play through the rack in Tone
+    assert_selector "#enableLive", visible: true # in the Play header (the guitar source bar is hidden for now)
     assert_no_selector "#projectsWorkspace", visible: true
 
     switch_to "projects"
     assert_selector "#projectsWorkspace", visible: true
     assert_selector "#projectsPanel", visible: true
-    assert_no_selector "#audioSource", visible: true
+    assert_no_selector "#enableLive", visible: true
     assert_no_selector "#presetsPanel", visible: true
     assert_no_selector ".fx-rack", visible: true
     assert_selector "#inputDevice", visible: true # Audio devices belong to both
@@ -32,8 +32,9 @@ class WorkspacesTest < ApplicationSystemTestCase
     assert_selector "#projectsWorkspace", visible: true # the workspace is remembered
   end
 
-  test "Play shows the Play along above the rack dock, whose header holds the presets" do
-    assert_selector ".rack-stage > backing-track-player:first-child", visible: true
+  test "Play shows its title, then the Play along above the rack dock, whose header holds the presets" do
+    assert_selector ".rack-stage > .play-header:first-child h2", text: "Play", visible: true
+    assert_selector ".rack-stage > .play-header ~ backing-track-player", visible: true
     assert_selector "#rackDock .rack-header #presetsPanel #presetSelect", visible: true
     assert_no_selector ".host-sidebar #presetsPanel", visible: :all
     along, rack = page.evaluate_script(<<~JS)
@@ -91,7 +92,7 @@ class WorkspacesTest < ApplicationSystemTestCase
 
   private
     def switch_to(workspace)
-      page.execute_script("const s = document.getElementById('workspaceSwitch'); s.value = arguments[0]; s.dispatchEvent(new Event('change'))", workspace)
+      find("[data-nav=#{workspace}]").click # Play and Studio are entries of the left navigation column
       assert_selector "body[data-workspace=#{workspace}]"
     end
 end

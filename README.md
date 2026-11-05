@@ -258,8 +258,8 @@ To include the research prototype from the current checkout, pass
 branch `multitracks`; Studio integration is developed on `codex/studio-integration`.
 
 The left column is the navigation: **Play**, **Studio**, **Audio devices** (a popup with the input
-and output devices), and **Settings** / **Account** at the bottom; **Collapse** reduces it to an icon
-rail. Play's guitar source (live input or a dry file and its player) is the bar at the top of Play.
+and output devices), **Tuner** (also the T key), and **Settings** / **Account** at the bottom (the audio engine status appears there only when the engine is offline); **Collapse** reduces it to an icon
+rail. Play opens on its title, with **Enable live input** on the right; the guitar source choice (live input or a dry file and its player) is hidden for now and stays on live input.
 **Studio** always opens on its project list (title, creator, creation date, tracks, BPM, duration);
 click a row to open the project, **Delete** to remove one of yours, **New project** to start one.
 Click Studio in the navigation to come back to the list.
@@ -516,10 +516,9 @@ Studio **Import audio** now offers **file / YouTube** through Rails; progress,
 cancellation and source metadata are retained in the account. Play's **Import audio**
 offers a local file or YouTube too; **Use in Play** loads the downloaded source
 without separation or autoplay. YouTube originals stay in the private backing library.
-**Download MP3** is available for every loaded backing (also via the download icon
-in the collapsed dock). Existing MP3s download directly; other formats are converted
+**Download MP3** is available for every loaded backing, in the track view. Existing MP3s download directly; other formats are converted
 locally to MP3 in a worker. Downloads contain the full source, without the live guitar,
-loop cropping or playback settings. The expanded player also has **Separate instruments**
+loop cropping or playback settings. The track view also has **Separate instruments**
 to create a Studio original from the selected backing. YouTube needs the updated Rails container, not just a static
 dist. See [Rails deployment and import limits](web/README.md#studio-audio-imports-26-october-2026).
 Advanced WebNN CPU/GPU/NPU is experimental for Demucs4 only, with strict per-block

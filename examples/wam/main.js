@@ -3,7 +3,7 @@ import {inputGainDialog} from './InputGainView.js';
 import {OfflinePresetRenderer} from './projects/OfflinePresetRenderer.js';
 import {createOfflinePresetRack} from './projects/OfflinePresetRack.js';
 import './backing-track-player/BackingTrackPlayerElement.js';
-import {StudioBackingLibrary, useYoutubeInTone, useBackingInTone, returnToStudio} from './projects/StudioBackingLibrary.js';
+import {StudioBackingLibrary, useYoutubeInTone, useBackingInTone} from './projects/StudioBackingLibrary.js';
 import {BackingTrackMix} from './backing-track-player/BackingTrackMix.js';
 import {linkPlayAlong, linkSpaceKey} from './backing-track-player/PlayAlong.js';
 import {PlayAlongMemory} from './backing-track-player/PlayAlongMemory.js';
@@ -314,9 +314,6 @@ async function initialize() {
   });
   playAlong.addEventListener('separate-instruments',async({detail})=>{
     if(await projects.importFromTone(detail.track,detail.file)){projectPlayer.pause();workspaces.show('projects');}
-  });
-  playAlong.addEventListener('open-studio',async({detail:{projectId}})=>{
-    await returnToStudio({projectId,workspace:projects,backingPlayer:playAlong.engine,workspaces});
   });
   const playAlongMix=new BackingTrackMix(context,rack.output,playAlong,{destination:toneGate});
   linkPlayAlong({engine:playAlong.engine,projectPlayer,workspaces});

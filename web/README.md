@@ -248,7 +248,7 @@ is not a backup.
 ## Studio audio imports (26 October 2026)
 
 The Rails rack is at `/rack/`. Studio **Import audio** offers a local file or a
-YouTube video. Tone's expanded Play along player also has **Separate instruments**:
+YouTube video. Play's Play along track view also has **Separate instruments**:
 this creates a Studio original from the selected backing. An authorized saved
 mix reuses its existing blob; bundled audio is resolved from the server manifest,
 never from an arbitrary browser URL. Local files are uploaded once. This action

@@ -54,7 +54,7 @@ test('private catalogue changes are metadata-only, reject late account data, and
   const library=new StudioBackingLibrary({account});library.bundled=[{id:'bt-public'}];
   const loading=library.list();library.clearAccount();account.signedIn=false;resolve([{id:'studio-9',url:'/private'}]);await loading;assert.deepEqual(library.tracks,library.bundled);
   const calls=[],engine={playing:true,pause(){this.playing=false;calls.push('pause');},async loadTrack(id){assert.equal(this.playing,false);calls.push(id);return true;}};
-  await useBackingInTone({entry:{id:'studio-9'},library:{list:async()=>calls.push('metadata')},player:{engine,renderList(){},setExpanded(value){assert.equal(value,true);}},projectPlayer:{pause(){calls.push('studio pause');}},workspaces:{show(name){calls.push(name);}}});
+  await useBackingInTone({entry:{id:'studio-9'},library:{list:async()=>calls.push('metadata')},player:{engine,renderList(){},setView(value){assert.equal(value,'track');}},projectPlayer:{pause(){calls.push('studio pause');}},workspaces:{show(name){calls.push(name);}}});
   assert.deepEqual(calls,['studio pause','pause','metadata','studio-9','tone']);assert.equal(engine.playing,false);
 });
 
@@ -125,7 +125,7 @@ test('temporary mix uses local MP3, never uploads, and invalidated exports canno
 
 test('temporary library entries stay in memory, use local bytes without server fetch and are bounded and cleared on signout',async()=>{
  const library=new StudioBackingLibrary();library.bundled=[{id:'public'}];library.tracks=[...library.bundled];
- const calls=[],player={engine:{pause(){},async loadTrack(id){const e=library.resolve(id);assert.equal(e.file.type,'audio/mpeg');calls.push(id);return true;}},renderList(){},setExpanded(){}},workspaces={show:id=>calls.push(id)};
+ const calls=[],player={engine:{pause(){},async loadTrack(id){const e=library.resolve(id);assert.equal(e.file.type,'audio/mpeg');calls.push(id);return true;}},renderList(){},setView(){}},workspaces={show:id=>calls.push(id)};
  const entry=id=>({id:`studio-preview-${id}`,projectId:id,ephemeral:true,title:'Mix',file:new File(['mp3'],'mix.mp3',{type:'audio/mpeg'})});
  library.list=()=>assert.fail('temporary handoff needs no API');
  await useBackingInTone({entry:entry(1),library,player,projectPlayer:{pause(){}},workspaces});assert.deepEqual(calls,['studio-preview-1','tone']);

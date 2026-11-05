@@ -1,4 +1,4 @@
-/* Rack page shell (topbar, sidebar, preset header, canvas). Every value comes from the TONELAB
+/* Rack page shell (navigation column, page headers, preset header, canvas). Every value comes from the TONELAB
    tokens in ui/tokens.css; tl-* components style themselves. The --host-* aliases stay for
    older code (plugin views, fx-chain.css) until those are migrated. */
 :root {
@@ -20,33 +20,35 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
 button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity: .45; }
 input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color: var(--tl-accent); }
 
-/* Layout: topbar across, sidebar + main below. */
-.host-shell { --host-nav-width: 260px; min-height: 100vh; display: grid; grid-template-columns: var(--host-nav-width) minmax(0, 1fr); grid-template-rows: var(--tl-topbar-height) minmax(0, 1fr) auto; }
+/* Layout: navigation column on the left, the workspace above the rack dock on the right. */
+.host-shell { --host-nav-width: 260px; min-height: 100vh; display: grid; grid-template-columns: var(--host-nav-width) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto;
+  column-gap: var(--host-gutter, 20px); } /* gutter between the navigation column and the workspace */
 /* Sidebar on the left of both rows; the workspace above the rack dock (RackDock.js) in the last column. */
-.host-sidebar { grid-row: 1 / 4; }
-.rack-stage, .tracks-stage { grid-column: -2; grid-row: 2; }
-.rack-dock { grid-column: -2; grid-row: 3; }
+.host-sidebar { grid-row: 1 / 3; }
+.rack-stage, .tracks-stage { grid-column: -2; grid-row: 1; }
+.rack-dock { grid-column: -2; grid-row: 2; margin-left: calc(-1 * var(--host-gutter, 20px)); } /* the preset dock stays against the navigation column */
 /* Workspaces (Workspaces.js): only what belongs to the current one is shown; audio keeps running. */
 body[data-workspace="tone"] [data-workspace="projects"], body[data-workspace="projects"] [data-workspace="tone"] { display: none !important; }
 
-.host-topbar { grid-column: -2; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: flex-end; gap: var(--tl-space-6);
-  padding: 0 var(--tl-space-7); background: var(--tl-topbar-bg); border-bottom: 1px solid var(--tl-border-subtle); backdrop-filter: blur(8px); }
 /* Brand at the top of the navigation column; collapsed, only the mark remains. */
-.host-brand { display: flex; flex: none; align-items: center; gap: var(--tl-space-3); min-width: 0; height: var(--tl-topbar-height); padding: 0 var(--tl-space-4); border-bottom: 1px solid var(--tl-border-subtle); }
+.host-brand { display: flex; flex: none; align-items: center; gap: var(--tl-space-3); min-width: 0; height: var(--tl-topbar-height); padding: 0 var(--tl-space-4); }
 body[data-host-nav="collapsed"] .host-brand { justify-content: center; padding: 0; }
 body[data-host-nav="collapsed"] .host-brand-text { display: none; }
 .host-brand-mark { display: grid; place-items: center; flex: none; width: 38px; height: 38px; color: var(--tl-accent); }
 .host-brand-text { display: flex; flex-direction: column; min-width: 0; }
-.host-brand h1 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: .18em; line-height: 1.1; }
+.host-brand h1 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .18em; line-height: 1.1; }
 .host-brand p { margin: 3px 0 0; color: var(--tl-text-muted); font-size: var(--tl-fs-sm); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
-.host-topbar-actions { display: flex; align-items: center; gap: 18px; min-width: 0; }
 .host-divider { width: 1px; height: 26px; flex: none; background: var(--tl-border-subtle); }
 
-/* Audio engine badge (EngineStatus.js); one-off messages are toasts. */
-.host-engine { font-size: var(--tl-fs-control); }
+/* Audio engine badge (EngineStatus.js), in the navigation column: shown only when the engine is offline; one-off messages are toasts. */
+.host-engine { padding: 6px 10px; font-size: var(--tl-fs-control); }
+.host-engine:not([data-state="offline"]) { display: none; }
+body[data-host-nav="collapsed"] .host-engine { justify-content: center; padding: 6px 0; font-size: 0; }
+.host-nav-item > .host-kbd { margin-left: auto; }
+body[data-host-nav="collapsed"] .host-nav-item > .host-kbd { display: none; }
 
 /* Sidebar: flat sections separated by rules, as in the mockup. */
-/* z-index: above the topbar and stages, so the collapse toggle on its border is not covered. */
+/* z-index: above the stages, so the collapse toggle on its border is not covered. */
 .host-sidebar { position: sticky; z-index: 11; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column;
   background: var(--tl-surface-0); border-right: 1px solid var(--tl-border-subtle); scrollbar-width: thin; scrollbar-color: var(--tl-border) transparent; }
 .host-sidebar[hidden] { display: none; }
@@ -98,8 +100,6 @@ body[data-host-nav="collapsed"] .host-nav-toggle tl-icon { transform: rotate(-90
 /* Guitar source bar at the top of Play (live input or a dry file with its player). */
 .play-source { flex: none; padding: var(--tl-space-3) var(--tl-space-6); border-bottom: 1px solid var(--tl-border-subtle); }
 .play-source-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tl-space-3); }
-.play-source-title { display: flex; align-items: center; gap: var(--tl-space-2); margin: 0; color: var(--tl-text-2); font-size: var(--tl-fs-sm); font-weight: 700;
-  letter-spacing: var(--tl-tracking-label); text-transform: uppercase; white-space: nowrap; }
 .play-source-select { width: min(260px, 100%); }
 .embedded-player { display: flex; flex: 1 1 320px; align-items: center; gap: var(--tl-space-3); min-width: 0; }
 .embedded-player[hidden] { display: none; }
@@ -414,8 +414,7 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 @media (max-width: 720px) {
   .host-shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; align-content: start; }
   .host-sidebar, .rack-stage, .tracks-stage, .rack-dock { grid-row: auto; }
-  .host-topbar { position: static; height: auto; flex-wrap: wrap; padding: var(--tl-space-3) var(--tl-space-4); }
-  .host-topbar-actions { flex-wrap: wrap; gap: var(--tl-space-3); }
+  .rack-dock { margin-left: 0; }
   .host-divider, .account-chip-text, .host-kbd { display: none; }
   .host-sidebar { order: -1; position: static; height: auto; overflow: visible; border-right: 0; border-bottom: 1px solid var(--tl-border-subtle); }
   .host-brand { height: auto; padding: var(--tl-space-3) var(--tl-space-4); }
@@ -494,17 +493,18 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 
 /* Studio task 2: compact project bar at every size. Small/zoomed windows keep
    normal document flow, so no control is hidden merely to satisfy a viewport. */
-body[data-workspace="projects"] { --tl-topbar-height: 56px; }
-.projects-header { min-height: 64px; padding: 10px 16px; gap: 12px; }
-.projects-header .rack-heading { flex: 1 1 150px; flex-wrap: nowrap; gap: 8px; }
-.projects-header .rack-heading > div { min-width: 0; }
-.projects-header .preset-title-row { min-width: 0; flex-wrap: nowrap; }
-.projects-header h2 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 18px; line-height: 1.3; }
+/* Play shares the same compact page header (title size and vertical spacing). */
+body[data-workspace] { --tl-topbar-height: 66px; } /* brand rule level with the page header bottom */
+.projects-header, .play-header { min-height: 64px; padding: 10px 16px; gap: 12px; border-bottom: 0; } /* no rule under the brand and page headers */
+.projects-header .rack-heading, .play-header .rack-heading { flex: 1 1 150px; flex-wrap: nowrap; gap: 8px; }
+.projects-header .rack-heading > div, .play-header .rack-heading > div { min-width: 0; }
+.projects-header .preset-title-row, .play-header .preset-title-row { min-width: 0; flex-wrap: nowrap; }
+.projects-header h2, .play-header h2 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 18px; line-height: 1.3; }
 .projects-header .rack-kicker { display: none; }
-.projects-header .preset-meta { margin: 2px 0 0; font-size: 10px; }
+.projects-header .preset-meta, .play-header .preset-meta { margin: 2px 0 0; font-size: 10px; }
 .projects-header .preset-meta:empty { display: none; }
 .projects-header-actions { flex-wrap: wrap; gap: 6px; }
-.projects-header-actions tl-button { height: 30px; padding-inline: 9px; font-size: 11px; }
+.projects-header-actions tl-button, .play-header .preset-header-actions tl-button { height: 30px; padding-inline: 9px; font-size: 11px; }
 .projects-header-actions tl-icon-button { width: 30px; height: 30px; }
 .projects-header-actions tl-badge { margin: 0; }
 .project-track-viewport { min-width: 0; }

@@ -75,7 +75,7 @@ function fakeDock(state = {}) {
       muted: false, normalized: false, autoNormalize: true, mix: .5, guitarPan: 0, ...state},
     getState() { return structuredClone(this.state); },
     async setState(next) { this.applied = next; this.state = structuredClone(next); }};
-  const dock = Object.assign(new EventTarget(), {engine, expanded: false, setExpanded(value) { this.expanded = value; }});
+  const dock = Object.assign(new EventTarget(), {engine, view: 'library', setView(value) { this.view = value; }});
   return dock;
 }
 const tick = (ms = 5) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -86,20 +86,21 @@ test('Play along settings are saved in this browser, without position or a local
   await memory.restore();
   dock.engine.state = {...dock.engine.state, track: {id: 'bt-e593dafe4c5eefe3', title: 'Cryin'}, position: 42, rate: .85,
     loop: {enabled: true, startSeconds: 10, endSeconds: 20}};
-  dock.expanded = true;
+  dock.view = 'track';
   dock.dispatchEvent(new Event('transport-change')); // the element forwards the engine's events
   await tick();
   const saved = JSON.parse(storage.values.get(STORAGE_KEY));
   assert.equal(saved.trackId, 'bt-e593dafe4c5eefe3');
   assert.equal(saved.rate, .85);
-  assert.equal(saved.expanded, true);
+  assert.equal(saved.view, 'track');
+  assert.equal('expanded' in saved, false, 'the dock no longer collapses');
   assert.deepEqual(saved.loop, {enabled: true, startSeconds: 10, endSeconds: 20});
   assert.equal('position' in saved, false);
-  assert.equal(playAlongSettings({...dock.engine.state, track: {id: 'local:x', local: true}}, false).trackId, null, 'device files are not remembered');
+  assert.equal(playAlongSettings({...dock.engine.state, track: {id: 'local:x', local: true}}).trackId, null, 'device files are not remembered');
 });
 
 test('restoring loads the remembered track at its loop start, without playing', async () => {
-  const settings = {trackId: 'bt-e593dafe4c5eefe3', rate: .9, volumeDb: -6, mix: .7, guitarPan: .2, expanded: true,
+  const settings = {trackId: 'bt-e593dafe4c5eefe3', rate: .9, volumeDb: -6, mix: .7, guitarPan: .2, view: 'track',
     loop: {enabled: true, startSeconds: 12, endSeconds: 30}};
   const dock = fakeDock();
   await new PlayAlongMemory({player: dock, storage: memoryStorage({[STORAGE_KEY]: JSON.stringify(settings)})}).restore();
@@ -107,7 +108,7 @@ test('restoring loads the remembered track at its loop start, without playing', 
   assert.deepEqual(applied.track, {id: 'bt-e593dafe4c5eefe3'});
   assert.deepEqual([applied.rate, applied.volumeDb, applied.mix, applied.guitarPan, applied.position], [.9, -6, .7, .2, 12]);
   assert.equal(applied.autoNormalize, true, 'missing keys keep the engine defaults');
-  assert.equal(dock.expanded, true);
+  assert.equal(dock.view, 'track', 'the track view comes back with its track');
 });
 
 test('signed in, the account settings win and changes are saved to the account', async () => {

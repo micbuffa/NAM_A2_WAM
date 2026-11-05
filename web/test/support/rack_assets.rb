@@ -11,8 +11,8 @@ module RackAssets
     skip "build-wasm/dist/nam-simd.wasm is missing: run npm run setup" unless RackAssets.built?
   end
 
-  # The rack is built once the topbar engine badge leaves "starting".
+  # The rack is built once the engine badge leaves "starting" (the badge itself is shown only offline).
   def wait_for_rack(wait: 40)
-    assert_selector "#engineStatus[data-state=ready], #engineStatus[data-state=idle]", wait:
+    assert_selector "#engineStatus[data-state=ready], #engineStatus[data-state=idle]", visible: :all, wait:
   end
 end

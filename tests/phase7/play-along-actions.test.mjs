@@ -49,14 +49,14 @@ test('download anchors use safe filenames and release their temporary blob URLs'
  assert.deepEqual(calls,[['download','blob:audio','Song.mp3'],'remove','blob:audio']);
 });
 test('a ready YouTube job opens its original MP3 in Tone without separation or autoplay',async()=>{
- const calls=[],player={engine:{pause(){calls.push('pause');},async loadTrack(id){calls.push(id);return true;}},renderList(){},setExpanded(value){assert.equal(value,true);}};
+ const calls=[],player={engine:{pause(){calls.push('pause');},async loadTrack(id){calls.push(id);return true;}},renderList(){},setView(value){assert.equal(value,'track');}};
  await useYoutubeInTone({job:{sourceTrackId:42},library:{list:async()=>calls.push('list')},player,
   projectPlayer:{pause(){calls.push('studio pause');}},workspaces:{show(name){calls.push(name);}}});
  assert.deepEqual(calls,['studio pause','pause','list','studio-source-42','tone']);
 });
 
 test('older YouTube jobs resolve only a unique authorized source within their own project',async()=>{
- const calls=[],player={engine:{pause(){},loadTrack:async id=>{calls.push(id);return true;}},renderList(){},setExpanded(){}};
+ const calls=[],player={engine:{pause(){},loadTrack:async id=>{calls.push(id);return true;}},renderList(){},setView(){}};
  const input={job:{projectId:12,metadata:{videoId:'vid'}},player,projectPlayer:{pause(){}},workspaces:{show(){}},
   library:{list:async()=>{},tracks:[{id:'studio-source-10',origin:'youtube',projectId:12,videoId:'vid'},{id:'studio-source-20',origin:'youtube',projectId:13,videoId:'vid'}]}};
  await useYoutubeInTone(input);assert.deepEqual(calls,['studio-source-10']);
