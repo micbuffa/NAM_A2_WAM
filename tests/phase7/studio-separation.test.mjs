@@ -289,11 +289,18 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
       assert.equal(runs.length,1,'a dialog opened under another account cannot start inference');
     }
     const f=await fixture({webnn:true}),view=Object.create(StudioSeparationView.prototype);
+    f.separation.directAssets={available:true};
     Object.assign(view,{workspace:{owned:true,project:{id:7,tracks:[f.source]},accountLoadEpoch:1},controller:f.separation,ready:Promise.resolve(),$:()=>({value:String(f.source.id)})});
     const runs=[];f.separation.run=async options=>runs.push({backend:f.separation.backend,...options});
     await view.chooseModel();
     let body=view.modelDialog.children[1],engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
     assert.equal(engine.children.filter(option=>option.value.startsWith('webnn')&&!option.disabled).length,6);
+    view.modelDialog.close();f.separation.directAssets={available:false};await view.chooseModel();
+    body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
+    assert.equal(engine.children.filter(option=>option.value.startsWith('webnn')&&!option.disabled).length,3,'no native direct choice without deployed assets');
+    assert.throws(()=>f.separation.configure('htdemucs_4s_onnx','webnn-direct-cpu'),/not included/);
+    view.modelDialog.close();f.separation.directAssets={available:true};await view.chooseModel();
+    body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
     engine.value='webnn-npu';engine.onchange();view.modelDialog.close();assert.equal(f.separation.backend,'webgpu','cancel keeps previous backend');
     await view.chooseModel();body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
     engine.value='webnn-npu';engine.onchange();const choices=body.children.find(e=>e.className==='studio-model-choices').children;

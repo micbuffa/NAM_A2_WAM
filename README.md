@@ -8,7 +8,25 @@ WebGPU remains the quick-start default. The reference run on `multitracks` measu
 
 The **Master** slider beside Studio Play controls listening level (0–100%, default100%) for saved projects, progressive separation previews and Studio monitoring. It is session-level listening gain: it does not alter track faders, recorded DI, presets or exported mix files. A10ms ramp avoids abrupt gain steps.
 
-Deployment now includes `source-separation/model-assets/direct-webnn/` (~908MB raw constants total). Graph JSON, index and both weight binaries must stay together. The browser verifies pinned source identity, byte counts and SHA-256; weights use the browser HTTP cache, distinct from the ONNX model manager cache. For a clean checkout, prepare the pinned checkpoints listed in `tools/export-direct-webnn.py`, install Python3.12 with `onnx==1.20.0`, `onnxruntime==1.22.0` and NumPy, then run that script before building. Generated recipes/weights are ignored by Git. Missing assets fail the distribution preflight before replacing the previous dist. Existing checkpoint notices apply to converted constants; no new training is performed.
+Direct WebNN weights are **optional for the ordinary static build**. `npm run build`, `npm run dist` and `node tools/build-static-dist.mjs` work without the Git-ignored exports. Complete local exports are included automatically; absent/incomplete exports produce an availability index without weights and disable only the native **Direct WebNN** options in Studio. WebGPU, CPU/WASM and the separate ONNX→WebNN backend remain usable as supported by the browser. Model weights for those backends are downloaded explicitly through the model manager.
+
+- `npm run dist -- --without-direct-webnn`: deliberately omit native exports, even if available locally.
+- `npm run dist -- --require-direct-webnn`: release build requiring both complete pinned native exports; fails **before replacing the previous dist** if unavailable.
+- For a CSS/UI-only rebuild using existing WASM/manifests: `node tools/build-static-dist.mjs --no-build --no-regenerate`.
+
+To prepare native WebNN on a fresh checkout (explicit downloads, approximately 900 MB of generated constants afterwards):
+
+```sh
+npm run prepare:direct-webnn
+python3.12 -m venv .venv-direct-webnn
+. .venv-direct-webnn/bin/activate
+python -m pip install onnx==1.20.0 onnxruntime==1.22.0 numpy
+python tools/export-direct-webnn.py
+npm run dist -- --require-direct-webnn
+npm run test:direct-webnn:assets
+```
+
+`prepare:direct-webnn` retrieves the two pinned checkpoints from the URLs in `studio-models.json`, writes the exact paths expected by the exporter, and checks size/SHA-256 before installation. It reuses verified files, refuses to overwrite an existing mismatched checkpoint, and is **never run automatically by the build**. Generated graphs, index and weights must be deployed together. The browser still verifies hashes before inference. Existing checkpoint notices apply to converted constants; no new training is performed.
 
 `web/bin/rack-sync` builds the distribution and copies it to Rails. If the local Ruby locale is US-ASCII, generate the template with `ruby -E UTF-8:UTF-8 web/lib/rack_view.rb`. Test the served rack at `http://localhost:3001/rack/`.
 
@@ -402,21 +420,18 @@ Direct WebNN unit tests use tiny synthetic graphs/weights, including loader iden
 and integrity failures; no model download is needed for these tests. Three additional
 checks validate the full generated models in source and distribution. `npm test`
 reports them as **skipped** with instructions when their generated directory is
-absent (these ~908 MB assets are Git-ignored). A present but incomplete directory
-still fails. The remaining distribution tests still require a prepared product dist.
+absent (these ~908 MB assets are Git-ignored), or when the dist explicitly advertises native WebNN as unavailable. A present but incomplete native export still fails its full-asset validation. The remaining distribution tests still require a prepared product dist.
 
 Before deploying Direct WebNN, export the pinned checkpoints with
 `python3 tools/export-direct-webnn.py` (dependencies/preparation described above),
-build with `npm run dist`, then run the mandatory full-asset checks:
+build with `npm run dist -- --require-direct-webnn`, then run the mandatory full-asset checks:
 
 ```sh
 npm run test:direct-webnn:assets
 ```
 
 This command never skips missing models. CI/release jobs can also set
-`REQUIRE_DIRECT_WEBNN_ASSETS=1` when running `npm test`. Distribution preflight
-continues to reject missing native model files; skipping optional integration
-fixtures in the default test run does not enable an incomplete deployment.
+`REQUIRE_DIRECT_WEBNN_ASSETS=1` when running `npm test`. The strict distribution preflight (`--require-direct-webnn`) rejects missing or truncated native exports. The ordinary distribution explicitly disables native choices when they are absent; it does not advertise incomplete native support.
 
 To compare native and WASM rendering for a reference model:
 

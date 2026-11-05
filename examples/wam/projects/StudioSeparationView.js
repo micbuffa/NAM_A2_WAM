@@ -1,3 +1,4 @@
+import {directWebNNAvailability} from '../source-separation/DirectWebNNAssets.js';
 import {backendLabel, isDirectWebNN, studioRecommendation, isWebNN, studioBackendOptions} from '../source-separation/StudioWebNN.js';
 import {StudioSeparation, separationSources} from './StudioSeparation.js';
 
@@ -80,7 +81,7 @@ export class StudioSeparationView {
     c.addEventListener('audio', () => {
       if (!this.waveTimer) this.waveTimer = setTimeout(() => { this.waveTimer = null; this.flushWaves(); }, 250);
     });
-    this.ready = c.init().catch(error => c.setStatus(`Separation unavailable: ${error.message}`));
+    this.ready = Promise.all([c.init(),directWebNNAvailability()]).then(([,state])=>{c.directAssets=state;this.render();}).catch(error => c.setStatus(`Separation unavailable: ${error.message}`));
   }
   async chooseModel({sourceId = null, allowUnseparated = false} = {}) {
     if (this.workspace?.recording?.busy || this.workspace?.recording?.pending.size) { this.workspace.report('Save the new DI take before separating instruments.', true); return; }
@@ -105,7 +106,7 @@ export class StudioSeparationView {
     durationLabel.append(duration);
     const engineLabel = document.createElement('label'), engine = document.createElement('select');
     engineLabel.textContent = 'Execution engine';engine.id = 'studioDialogBackend';
-    for(const {value,label,disabled} of studioBackendOptions({webgpu:c.gpu,webnn:c.webnn})){
+    for(const {value,label,disabled} of studioBackendOptions({webgpu:c.gpu,webnn:c.webnn,directAvailable:!!c.directAssets?.available})){
       const option=document.createElement('option');Object.assign(option,{value,textContent:label,disabled});engine.append(option);
     }
     engine.value=c.backend;engineLabel.append(engine);
@@ -129,7 +130,7 @@ export class StudioSeparationView {
     }
     const updateEngine=()=>{
       for(const choice of choices.children)choice.disabled=isWebNN(engine.value)&&!isDirectWebNN(engine.value)&&choice.dataset.modelId!=='htdemucs_4s_onnx';
-      engineHelp.textContent=!c.webnn?'WebNN is not exposed by this browser. Use a WebNN-enabled build to enable CPU / GPU / NPU choices.':isWebNN(engine.value)?(isDirectWebNN(engine.value)?'Direct WebNN supports 4 or 6 tracks. Six-track compilation can take about 110 s in the reference run; subsequent processing is faster. Device requests do not prove hardware placement.':'ONNX → WebNN is experimental for 4 tracks only. Each block is checked against WASM before playback.'):'WebGPU is recommended for fast startup. Direct WebNN is available experimentally for both models. Reference timings are device-specific.';
+      engineHelp.textContent=c.webnn&&!c.directAssets?.available?'Direct WebNN models are not included in this deployment. Use WebGPU, CPU / WASM or ONNX → WebNN for 4 tracks.':!c.webnn?'WebNN is not exposed by this browser. Use a WebNN-enabled build to enable CPU / GPU / NPU choices.':isWebNN(engine.value)?(isDirectWebNN(engine.value)?'Direct WebNN supports 4 or 6 tracks. Six-track compilation can take about 110 s in the reference run; subsequent processing is faster. Device requests do not prove hardware placement.':'ONNX → WebNN is experimental for 4 tracks only. Each block is checked against WASM before playback.'):'WebGPU is recommended for fast startup. Direct WebNN is available experimentally for both models. Reference timings are device-specific.';
     };
     engine.onchange=updateEngine;updateEngine();
     body.append(durationLabel,engineLabel,engineHelp,choices);
@@ -223,7 +224,7 @@ export class StudioSeparationView {
     for(const option of select.options)option.disabled=isWebNN(c.backend)&&!isDirectWebNN(c.backend)&&option.value!=='htdemucs_4s_onnx';
     this.$('studioBackend').value = c.backend;
     this.$('studioBackend').querySelector('[value="webgpu"]').disabled = !c.gpu;
-    for(const {value,disabled} of studioBackendOptions({webgpu:c.gpu,webnn:c.webnn,modelId:c.modelId}))this.$('studioBackend').querySelector(`[value="${value}"]`).disabled=disabled;
+    for(const {value,disabled} of studioBackendOptions({webgpu:c.gpu,webnn:c.webnn,modelId:c.modelId,directAvailable:!!c.directAssets?.available}))this.$('studioBackend').querySelector(`[value="${value}"]`).disabled=disabled;
     const savedBackend = !c.result && c.mode === 'stems' ? batches.find(batch => batch.id === c.activeSavedId)?.manifest.backend : null;
     this.$('studioBackendLabel').textContent = `${c.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4'} · ${backendLabel(savedBackend ?? c.effectiveBackend ?? c.backend)}`;
     this.$('studioSeparate').hidden = Boolean(c.busy || !w.owned);
@@ -242,13 +243,15 @@ export class StudioSeparationView {
     progress.hidden = !c.busy && !w.saving;
     if (c.progress === null) progress.removeAttribute('value');
     else progress.value = c.progress;
-    if (this.lastModelId !== c.modelId || this.lastBackend !== c.backend) {
+    if (this.lastModelId !== c.modelId || this.lastBackend !== c.backend || this.lastDirectAvailable !== c.directAssets?.available) {
+      this.lastDirectAvailable=c.directAssets?.available;
       this.lastBackend=c.backend;
       this.lastModelId = c.modelId;
       this.$('studioCacheStatus').textContent = isDirectWebNN(c.backend)?'Direct WebNN weights use browser HTTP cache and are SHA-256 verified at startup. Cache buttons below apply to ONNX weights.':'Downloaded on demand. Use Check cache to verify an existing download.';
       this.$('studioModelHelp').textContent = !model ? 'Preparing available models…' : model.id === 'htdemucs_4s_onnx'
         ? '4 instruments: guitar is included in Other. '+studioRecommendation('htdemucs_4s_onnx')
         : studioRecommendation('bs_roformer_sw_6s');
+      if(c.directAssets&&!c.directAssets.available)this.$('studioModelHelp').textContent+=' Direct WebNN is unavailable: its weights are not included in this deployment.';
       this.$('studioModelSize').textContent = model ? isDirectWebNN(c.backend)?`Direct weights: ${model.id==='bs_roformer_sw_6s'?'667':'199'} MiB · browser cache.`:`Model download: ${(model.files.reduce((sum, file) => sum + file.size, 0) / 1024 ** 2).toFixed(0)} MiB.` : '';
     }
   }

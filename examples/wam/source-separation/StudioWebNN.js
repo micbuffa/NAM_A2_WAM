@@ -11,11 +11,11 @@ export function validateWebNNEvidence(evidence) {
 }
 
 // Availability is API-based: Firefox builds and Canary use the same menu.
-export function studioBackendOptions({webgpu=false,webnn=false,modelId='htdemucs_4s_onnx'}={}) {
+export function studioBackendOptions({webgpu=false,webnn=false,modelId='htdemucs_4s_onnx',directAvailable=true}={}) {
  return [
   {value:'webgpu',label:'WebGPU',disabled:!webgpu},
   {value:'wasm',label:'CPU / WASM',disabled:false},
-  ...WEBNN_BACKENDS.map(value=>({value,label:isDirectWebNN(value)?`Direct WebNN / ${value.slice(13).toUpperCase()} · experimental`:`ONNX → WebNN / ${value.slice(6).toUpperCase()} · experimental`,disabled:!webnn||!isDirectWebNN(value)&&modelId!=='htdemucs_4s_onnx'})),
+  ...WEBNN_BACKENDS.map(value=>({value,label:isDirectWebNN(value)?`Direct WebNN / ${value.slice(13).toUpperCase()} · experimental`:`ONNX → WebNN / ${value.slice(6).toUpperCase()} · experimental`,disabled:!webnn||isDirectWebNN(value)&&!directAvailable||!isDirectWebNN(value)&&modelId!=='htdemucs_4s_onnx'})),
  ];
 }
 

@@ -1,3 +1,4 @@
+import {inspectDirectAssets,copyDirectAssets} from './direct-webnn-distribution.mjs';
 import { cp, mkdir, readFile, rm, writeFile, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,12 +13,15 @@ const noBuild = process.argv.includes('--no-build');
 // The standalone research prototype remains an explicit opt-in.
 const includeResearch = process.argv.includes('--include-research');
 const run = (command, args) => { const r = spawnSync(command, args, {cwd: root, stdio: 'inherit'}); if (r.error) throw r.error; if (r.status !== 0) throw Error(`${command} failed (${r.status})`); };
-const copy = (source, target) => cp(join(root, source), join(dist, target), {recursive: true, force: true});
+const directSource=join(root,'examples/wam/source-separation/model-assets/direct-webnn');
+// Direct models are assembled separately, including for research builds.
+const copy = (source, target) => cp(join(root, source), join(dist, target), {recursive: true, force: true, filter:path=>path!==directSource&&!path.startsWith(directSource+'/')});
 const required = async (path) => { try { await stat(path); } catch { throw Error(`Required distribution file is missing: ${path}`); } };
 
+const directAssets=await inspectDirectAssets(directSource,{required:process.argv.includes('--require-direct-webnn'),exclude:process.argv.includes('--without-direct-webnn')});
+console.log(directAssets.available?'Direct WebNN: including complete local exports.':`${directAssets.reason} Building with WebGPU/WASM and ONNX→WebNN; native direct backends will be disabled.`);
 if (!noRegenerate) run(join(root, 'tools/regenerate-factory-assets.sh'), []);
 if (!noBuild) run('cmake', ['--build', join(root, 'build-wasm'), '-j', '8']);
-for(const file of ['index.json','demucs4.graph.json','demucs4.weights.bin','roformer6.graph.json','roformer6.weights.bin'])await required(join(root,'examples/wam/source-separation/model-assets/direct-webnn',file));
 await rm(dist, {recursive: true, force: true});
 await mkdir(dist, {recursive: true});
 for (const [source, target] of [
@@ -34,8 +38,7 @@ for (const [source, target] of [
   ['build-wasm/dist/nam-simd.wasm', 'plugins/nam-wam/nam-simd.wasm'], ['build-wasm/dist/nam-simd.wasm', 'plugins/cabinet-wam/nam-simd.wasm'],
 ]) await copy(source, target);
 
-// Native WebNN recipes and verified weights are product runtime assets.
-for(const file of ['index.json','demucs4.graph.json','demucs4.weights.bin','roformer6.graph.json','roformer6.weights.bin'])await required(join(dist,'source-separation/model-assets/direct-webnn',file));
+await copyDirectAssets(directSource,join(dist,'source-separation/model-assets/direct-webnn'),directAssets);
 
 const cataloguePath=join(dist,'wamPlugins/plugins.json');
 await writeFile(cataloguePath,(await readFile(cataloguePath,'utf8')).replaceAll('../../../src/','../plugins/'));

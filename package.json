@@ -15,6 +15,8 @@
     "test:separation:wasm": "node tools/validate-demucs-wasm.cjs",
     "test:direct-webnn:assets": "node --test tests/phase6/direct-webnn.test.mjs tests/phase7/studio-distribution.test.mjs",
     "dist:wasabi-amps": "node examples/WAP_amp_sims/michel/WAM/tools/build-dist.mjs",
-    "install:wasabi-amps": "node examples/WAP_amp_sims/michel/WAM/tools/install-host.mjs"
+    "install:wasabi-amps": "node examples/WAP_amp_sims/michel/WAM/tools/install-host.mjs",
+    "prepare:direct-webnn": "node tools/prepare-direct-webnn.mjs",
+    "build": "./tools/build-static-distribution.sh"
   }
 }

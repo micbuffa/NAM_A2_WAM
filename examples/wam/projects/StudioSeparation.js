@@ -81,6 +81,7 @@ export class StudioSeparation extends EventTarget {
   configure(modelId, backend) {
     if (!this.models.some(model => model.id === modelId) || !['webgpu', 'wasm', ...WEBNN_BACKENDS].includes(backend) || (backend === 'webgpu' && !this.gpu)) throw Error('Unavailable model or backend');
     validateWebNNSelection(modelId, backend);
+    if(isDirectWebNN(backend)&&this.directAssets&&!this.directAssets.available)throw Error('Direct WebNN models are not included in this deployment. Select WebGPU / WASM.');
     if(isWebNN(backend)&&!this.webnn)throw Error('WebNN is not exposed by this browser. Use a WebNN-enabled browser build or select WebGPU / WASM.');
     this.stop({reset: true});
     this.modelId = modelId;

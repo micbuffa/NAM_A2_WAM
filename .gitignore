@@ -42,3 +42,6 @@ __pycache__/
 
 # Local Beat This qualification weights (downloaded on demand in the browser)
 /examples/wam/source-separation/model-assets/beat-this/
+
+# Optional offline ONNX export environment
+/.venv-direct-webnn/
