@@ -1193,9 +1193,11 @@ export class ProjectsWorkspace extends EventTarget {
       imported.textContent = metadata?.kind==='youtube' ? `YouTube source: ${metadata.url} · ${metadata.duration} s` : metadata?.kind==='studio_mix' ? `Imported from Studio project ${metadata.sourceProjectId}, mix ${metadata.sourceTrackId}.` : metadata?.kind==='bundled' ? 'Imported from the Play backing library.' : metadata ? 'Imported from a local file.' : '';
     }
     if (!placeholder) return;
+    // Accompaniment tracks play as recorded: nothing to say about their sound.
+    placeholder.hidden = Boolean(track) && !usesTrackPreset(track);
     if (!track) { placeholder.textContent = this.dockHint; return; }
-    const sound = !usesTrackPreset(track) ? 'Accompaniment audio plays as recorded. Presets are reserved for your personal guitar and bass parts.'
-      : `${this.presetName(track) ? `Preset: ${this.presetName(track)}. ` : ''}${this.toneHelp(track)}`;
+    if (placeholder.hidden) return;
+    const sound = `${this.presetName(track) ? `Preset: ${this.presetName(track)}. ` : ''}${this.toneHelp(track)}`;
     placeholder.textContent = `${track.name} · ${summary}. ${sound}`;
   }
 
