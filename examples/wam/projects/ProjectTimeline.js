@@ -24,8 +24,8 @@ export class ProjectTimeline {
   // onSelect(id); onChange(id, fields); onEdit(id): rename dialog; onMonitor(id): toggle input monitoring;
   // onMove(id, index): reorder; onSeek(seconds); onLoop({start, end}): a drawn loop region;
   // createRenderer(options): a WaveSurfer renderer.
-  constructor(list, {root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, createRenderer}) {
-    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, createRenderer});
+  constructor(list, {root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, onRetry, createRenderer}) {
+    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, onRetry, createRenderer});
     this.rows = new Map();
     globalThis.addEventListener?.('nam-appearance-change', () => {
       // Repaint cached envelopes only; transport, PCM and recording append state stay intact.
@@ -261,6 +261,7 @@ export class ProjectTimeline {
     row.note.textContent = !row.track.audio ? 'No audio file' : wave?.state === 'error' ? `${row.track.audio.filename} · not loaded`
       : `${row.track.audio.filename} · loading…`;
     row.lane.classList.toggle('empty', !wave?.peaks && (!row.track.audio || wave?.state === 'error'));
+    if (row.retry) row.retry.hidden = wave?.state !== 'error' || !row.track.audio || !this.onRetry;
     if (!wave?.live && row.liveRenderer) { row.liveRenderer.destroy(); row.liveRenderer = null; }
     if (!wave?.peaks) return;
     this.placeClip(id);
@@ -461,7 +462,10 @@ export class ProjectTimeline {
     const wave = element('div', 'track-wave');
     clip.append(clipName, wave);
     const note = element('span', 'track-lane-note');
-    area.append(clip, note, element('i', 'playhead'));
+    // Shown beside "· not loaded": retries this track's saved audio.
+    const retry = element('button', 'track-lane-retry', {type: 'button', textContent: 'Retry', title: 'Retry loading this audio', hidden: true});
+    retry.onclick = (event) => { event.stopPropagation(); this.onRetry?.(track.id); };
+    area.append(clip, note, retry, element('i', 'playhead'));
     area.onclick = (event) => {
       if(this.locked)return;
       const rect = area.getBoundingClientRect();
@@ -469,6 +473,6 @@ export class ProjectTimeline {
     };
     lane.append(area);
     root.append(label, lane);
-    return {root, track, structuralControls, icon, name, menu, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, labels};
+    return {root, track, structuralControls, icon, name, menu, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, retry, labels};
   }
 }

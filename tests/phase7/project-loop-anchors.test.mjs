@@ -81,3 +81,11 @@ test('A/B keyboard resizing activates the loop; ruler clicks and drawing keep wo
   timeline.renderRuler();assert.ok(ruler.children.includes(a));assert.ok(ruler.children.includes(b));
   assert.equal(a.attributes['aria-label'],'Loop start A');assert.equal(b.attributes['aria-label'],'Loop end B');
 }));
+
+test('a track whose saved audio failed to load shows Retry on its row, hidden otherwise',()=>fixture(({timeline})=>{
+  const row={track:{id:1,audio:{filename:'take.wav'}},clip:{},note:{},retry:{hidden:true},lane:{classList:{toggle(){}}}};
+  timeline.rows.set(1,row);timeline.onRetry=()=>{};
+  timeline.setWave(1,{state:'error'});assert.equal(row.retry.hidden,false);assert.equal(row.note.textContent,'take.wav · not loaded');
+  timeline.setWave(1,{state:'loading'});assert.equal(row.retry.hidden,true);
+  timeline.onRetry=undefined;timeline.setWave(1,{state:'error'});assert.equal(row.retry.hidden,true);
+}));

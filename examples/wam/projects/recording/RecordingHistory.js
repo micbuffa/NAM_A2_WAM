@@ -56,7 +56,7 @@ export class RecordingHistory {
     }
     current();project.tracks=project.tracks.map(t=>t.id===id?{...t,...version.fields,audio,recordingVersionId:serverId??version.fields.recordingVersionId,updatedAt:saved.updatedAt,inputMonitoring:false}:t);
     w.selectedId=id;
-    if(w.separation){w.separation.projectTracks=project.tracks;if(w.separation.savedTracks)w.separation.savedTracks.splice(0,w.separation.savedTracks.length,...project.tracks.filter(t=>t.timelineVisible!==false&&!t.removedAt&&t.origin!=='mix'));}
+    w.syncSeparationTracks?.();
     w.timeline.setWave(id,version.wave);w.render();
   }
   comparison(){

@@ -55,7 +55,7 @@ export class StudioRecording {
         const w=this.workspace,id=w.selectedId;
         w.project.tracks=w.project.tracks.map(t=>({...t,inputMonitoring:t.id===id?!t.inputMonitoring:false}));
         const tracks=timelineTracks(w.project);
-        if(w.separation){w.separation.projectTracks=w.project.tracks;if(w.separation.savedTracks)w.separation.savedTracks.splice(0,w.separation.savedTracks.length,...tracks);}
+        w.syncSeparationTracks?.();
         w.player.base.setTracks(tracks,liveTrackId(tracks,id));
         for(const track of w.project.tracks)w.timeline.update(track,track.id===id);
         this.render();
@@ -278,6 +278,7 @@ export class StudioRecording {
       // Keep local mixer edits; only replace audio/provenance fields from the server.
       const fields = {audio: track.audio, recording: track.recording, recordingVersionId:track.recordingVersionId, updatedAt: track.updatedAt};
       project.tracks = project.tracks.map(t => t.id === id ? {...t, ...fields} : t);
+      w.syncSeparationTracks?.();
       w.saved.tracks = w.saved.tracks.map(t => t.id === id ? {...t, ...fields, presetSnapshot:track.presetSnapshot,snapshotId:track.snapshotId,presetId: null, factoryPreset: null} : t);
       if(this.takeHistory)this.takeHistory.published(take,track,baseline);else take.savedTrack=track;take.file=null;
       this.pending.delete(id);take.adopting=true;

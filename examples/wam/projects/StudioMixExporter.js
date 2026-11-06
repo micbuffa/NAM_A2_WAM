@@ -151,7 +151,7 @@ export function mixExportAvailability({owned,working,separating,pending,temporar
   const audio=tracks.filter(track=>track.audio);
   if(!audio.length)return blocked('Import an audio file before creating a backing track.');
   const failed=audio.filter(track=>channels.get(track.id)?.error);
-  if(failed.length)return blocked(`Saved audio could not be loaded: ${failed.map(track=>`${track.name} (${channels.get(track.id).error.message})`).join(', ')}. Your saved project is kept. Retry audio loading.`,failed.map(track=>track.id));
+  if(failed.length)return blocked(`Saved audio could not be loaded: ${failed.map(track=>`${track.name} (${channels.get(track.id).error.message})`).join(', ')}. Your saved project is kept. Use Retry on the track.`,failed.map(track=>track.id));
   const loaded=audio.filter(track=>channels.get(track.id)?.buffer).length;
   if(loaded<audio.length)return blocked(`Preparing saved audio · ${loaded}/${audio.length} tracks ready. The button becomes available when all tracks are loaded.`);
   if(!presetRendering&&audio.some(track=>track.presetId || track.factoryPreset || track.presetSnapshot))return blocked('Export a separated-instrument mix or tracks without presets. WAM preset rendering is not available yet.');

@@ -272,6 +272,29 @@ test('saved WAV adoption retains one AudioBuffer and does not refetch or redecod
   }
 });
 
+test('saving a take refreshes the displayed track copies so the player never refetches the revoked blob',async()=>{
+  const {ProjectsWorkspace}=await import('../../examples/wam/projects/ProjectsWorkspace.js');
+  const c=context(),urls=[],revoked=new Set(),revoke=URL.revokeObjectURL;
+  URL.revokeObjectURL=url=>revoked.add(url);
+  try{
+    const p=new ProjectPlayer(c,{fetchAudio:async url=>{urls.push(url);if(revoked.has(url))throw new TypeError('Failed to fetch');return {ok:true,arrayBuffer:async()=>new ArrayBuffer(4)};}});
+    c.decodeAudioData=async()=>({duration:1});
+    const take={file:new File(['raw'],'take.wav'),metadata:{sessionId:'take'},url:'blob:take',expectedUpdatedAt:'v1'};
+    const recorded={id:1,name:'test',volume:80,pan:0,audio:{url:'blob:take',filename:'take.wav',byteSize:4}};
+    const w=Object.create(ProjectsWorkspace.prototype);
+    w.project={id:2,tracks:[recorded]};w.saved={tracks:[{id:1,audio:{url:'/old.wav',checksum:'old'}}]};w.accountLoadEpoch=1;w.player={base:p};
+    w.separation={mode:'stems',result:null,savedTracks:[recorded],get viewTracks(){return this.savedTracks;}};
+    w.api={saveRecording:async()=>({id:1,audio:{url:'/saved.wav?v=new',filename:'take.wav',byteSize:4,checksum:'new'},updatedAt:'v2'})};
+    p.setTracks(w.displayTracks);await new Promise(resolve=>setTimeout(resolve,0));
+    const recording=Object.create(StudioRecording.prototype);recording.pending=new Map([[1,take]]);recording.workspace=w;
+    await recording.save();
+    assert.equal(w.displayTracks[0].audio.url,'/saved.wav?v=new');
+    p.setTracks(w.displayTracks);await new Promise(resolve=>setTimeout(resolve,0));
+    assert.deepEqual(urls,['blob:take']);assert.ok(revoked.has('blob:take'));
+    assert.equal(p.channels.get(1).error,null);assert.equal(p.channels.get(1).url,'/saved.wav?v=new');p.destroy();
+  }finally{URL.revokeObjectURL=revoke;}
+});
+
 test('failed publication before Add track preserves stopped preview and never creates a personal track',async()=>{
  const {ProjectsWorkspace}=await import('../../examples/wam/projects/ProjectsWorkspace.js');
  const w=Object.create(ProjectsWorkspace.prototype),result={engine:{complete:true,availableFrames:44100}};

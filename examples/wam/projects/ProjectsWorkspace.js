@@ -87,6 +87,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.timeline = new ProjectTimeline(this.$('projectTracks'), {
       root: this.$('projectTimeline'), ruler: this.$('projectRuler'), createRenderer,
       onSeek: (seconds) => this.player?.seek(seconds),
+      onRetry: () => this.retryAudio(),
       onLoop: (region) => this.setLoop({enabled: true, ...region}),
       onSelect: (id) => this.select(id),
       onChange: (id, fields) => this.updateTrack(id, fields),
@@ -119,10 +120,6 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectSave').onclick = () => this.save();
     this.mixExporter = new StudioMixExporter({api});
     if (this.$('studioUseMix')) this.$('studioUseMix').onclick = () => void this.confirmMixExport();
-    if (this.$('studioRetryAudio')) this.$('studioRetryAudio').onclick = () => {
-      for (const track of this.displayTracks) if (this.player?.channels.get(track.id)?.error) this.timeline.setWave(track.id,{state:'loading'});
-      void this.player?.retryFailed();
-    };
     this.$('projectShare').onclick = () => this.shareDialog();
     this.$('projectLeave').onclick = () => this.leave();
     this.$('projectResetMix').onclick = () => this.setTracks(structuredClone(this.saved.tracks));
@@ -348,8 +345,7 @@ export class ProjectsWorkspace extends EventTarget {
     if (this.saving || this.history?.busy || this.recording?.busy) return;
     const before = this.historyState();
     this.project.tracks = tracks;
-    if (this.separation) this.separation.projectTracks = tracks;
-    if (this.separation?.savedTracks) this.separation.savedTracks.splice(0, this.separation.savedTracks.length, ...timelineTracks(this.project));
+    this.syncSeparationTracks();
     this.rememberEdit(before, label);
     this.timeline.order(this.displayTracks);
     for (const track of tracks) this.timeline.update(track, track.id === this.selectedId);
@@ -357,6 +353,15 @@ export class ProjectsWorkspace extends EventTarget {
     this.renderHeader();
     this.renderInspector();
     this.dispatchEvent(new CustomEvent('tracks', {detail: {tracks}}));
+  }
+
+  // The Studio displays the separation's copies of the track list
+  // (displayTracks): refresh them whenever project.tracks is replaced, or the
+  // player is handed stale tracks (e.g. a saved take's revoked blob: URL).
+  syncSeparationTracks() {
+    if (!this.separation) return;
+    this.separation.projectTracks = this.project.tracks;
+    if (this.separation.savedTracks) this.separation.savedTracks.splice(0, this.separation.savedTracks.length, ...timelineTracks(this.project));
   }
 
   // Recording uses one persisted project deck. Promote a stopped preview with
@@ -419,6 +424,13 @@ export class ProjectsWorkspace extends EventTarget {
     }
     this.saving = false;
     this.render();return success;
+  }
+
+  // A track row's Retry: reloads every saved audio that failed to load.
+  retryAudio() {
+    if (this.saving) return;
+    for (const track of this.displayTracks) if (this.player?.channels.get(track.id)?.error) this.timeline.setWave(track.id,{state:'loading'});
+    void this.player?.retryFailed();
   }
 
   // ⋯ › Export to play along: says what the export does (saved or session-only backing) before running it.
@@ -654,9 +666,8 @@ export class ProjectsWorkspace extends EventTarget {
       try { this.storage?.setItem(LOOPS_KEY, JSON.stringify(rememberLoop(this.loops(), this.project.id, loopToBars(this.player.loop, this.project.bpm, this.project.timeSignature)))); } catch { /* Browser storage unavailable. */ }
     }
     if (this.separation) {
-      this.separation.projectTracks = this.project.tracks;
       this.separation.savedProject = this.project;
-      if (this.separation.savedTracks) this.separation.savedTracks.splice(0, this.separation.savedTracks.length, ...timelineTracks(this.project));
+      this.syncSeparationTracks();
     }
     this.render();
   }
@@ -1109,11 +1120,11 @@ export class ProjectsWorkspace extends EventTarget {
     button.disabled=!state.ready;button.title=state.message;
     const help=this.$('studioExportHelp');
     if(help){
-      help.hidden=!this.owned || Boolean(this.separation?.busy) || (state.ready&&!this.pendingSeparation&&!this.dirty);
+      // A track that failed to load is reported by a notification and on its
+      // row; the button's title still explains why export is unavailable.
+      help.hidden=!this.owned || Boolean(this.separation?.busy) || state.failedIds.length>0 || (state.ready&&!this.pendingSeparation&&!this.dirty);
       help.textContent=state.message;
     }
-    const retry=this.$('studioRetryAudio');
-    if(retry){retry.hidden=!this.owned || !state.failedIds.length;retry.disabled=Boolean(this.saving);}
 
     range.disabled=Boolean(this.saving);
   }

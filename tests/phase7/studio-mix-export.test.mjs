@@ -85,7 +85,7 @@ test('export availability explains unsaved, loading, failed, unsupported and rea
 
 test('compact Studio hides export during separation and exposes unsaved mixes after Stop', async () => {
   const {ProjectsWorkspace} = await import('../../examples/wam/projects/ProjectsWorkspace.js');
-  const label={},fields=Object.fromEntries(['studioUseMix','studioExportRange','studioExportHelp','studioRetryAudio'].map(id=>[id,{}]));
+  const label={},fields=Object.fromEntries(['studioUseMix','studioExportRange','studioExportHelp'].map(id=>[id,{}]));
   fields.studioExportRange.closest=()=>label;
   const w={owned:true,saving:false,separation:{busy:true},pendingSeparation:false,displayTracks:tracks,player:{channels},onUseMix(){},$:id=>fields[id]};
   const render=()=>ProjectsWorkspace.prototype.renderMixExport.call(w);
@@ -96,7 +96,8 @@ test('compact Studio hides export during separation and exposes unsaved mixes af
   w.pendingSeparation=false;render();
   assert.equal(fields.studioUseMix.hidden,false);assert.equal(fields.studioUseMix.disabled,false);assert.equal(fields.studioExportHelp.hidden,true);
   w.player.channels=new Map([[1,{buffer:{duration:2}}],[2,{error:Error('HTTP 500')}]]);render();
-  assert.equal(fields.studioUseMix.disabled,true);assert.equal(fields.studioRetryAudio.hidden,false);assert.equal(fields.studioExportHelp.hidden,false);
+  assert.equal(fields.studioUseMix.disabled,true);assert.equal(fields.studioExportHelp.hidden,true);
+  assert.match(fields.studioUseMix.title,/Saved audio could not be loaded/);
   w.owned=false;render();assert.equal(fields.studioUseMix.hidden,true);assert.equal(label.hidden,true);
 });
 
@@ -148,4 +149,14 @@ test('unsaved recorded-track mix keeps current settings and renders locally with
  const unsaved=[track(-1,{volume:47,pan:-30,audio:{filename:'local'}})];
  const result=await exporter.preview({project:{id:7,name:'Dirty'},tracks:unsaved,channels:new Map(),range:{start:0,end:1}});
  assert.equal(result.ephemeral,true);assert.equal(options.persisted,false);assert.equal(options.tracks[0].volume,47);assert.equal(options.tracks[0].pan,-30);assert.notEqual(options.tracks,unsaved);
+});
+
+test('Retry on a track row reloads failed saved audio, never while saving', async () => {
+  const {ProjectsWorkspace} = await import('../../examples/wam/projects/ProjectsWorkspace.js');
+  const waves=[];let retries=0;
+  const w={saving:true,displayTracks:[{id:1},{id:2}],timeline:{setWave:(id,wave)=>waves.push([id,wave])},
+    player:{channels:new Map([[1,{buffer:{}}],[2,{error:Error('Failed to fetch')}]]),retryFailed:async()=>{retries++;}}};
+  ProjectsWorkspace.prototype.retryAudio.call(w);assert.equal(retries,0);
+  w.saving=false;ProjectsWorkspace.prototype.retryAudio.call(w);
+  assert.equal(retries,1);assert.deepEqual(waves,[[2,{state:'loading'}]]);
 });
