@@ -62,7 +62,6 @@ document.querySelector('#lifecycle').onclick=async()=>{
   const ids=['recordStatusBar','recordCurrentTone','recordDiscard','projectRecord','projectRecordStop','recordCompensation','recordStatus','inspectorPreset','inspectorEditPreset'];
   bench.replaceChildren(...ids.map(id=>Object.assign(document.createElement(id==='recordCompensation'?'input':'button'),{id})));
   document.querySelector('#recordCompensation').value='0';
-  const comparison=document.createElement('div');comparison.id='recordComparison';comparison.append(Object.assign(document.createElement('button'),{id:'recordCompareBefore',textContent:'Before (Undo)'}),Object.assign(document.createElement('button'),{id:'recordCompareAfter',textContent:'After (Redo)'}));bench.append(comparison);const review=document.createElement('div');review.id='recordLoopReview';review.hidden=true;review.append(Object.assign(document.createElement('select'),{id:'recordLoopTake'}),Object.assign(document.createElement('span'),{id:'recordLoopHelp'}));bench.append(review);
   const root=document.createElement('section'),list=document.createElement('ol'),ruler=document.createElement('div');
   root.style.width='900px';root.append(ruler,list);bench.append(root);bench.hidden=false;
   const noop=()=>{};

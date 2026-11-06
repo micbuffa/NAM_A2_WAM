@@ -23,10 +23,12 @@ export class ProjectTimeline {
   // root: carries the playhead and bar grid variables; ruler: the bar numbers.
   // onSelect(id); onChange(id, fields); onEdit(id): rename dialog; onMonitor(id): toggle input monitoring;
   // onMove(id, index): reorder; onSeek(seconds); onLoop({start, end}): a drawn loop region;
+  // onTake(id, value): a version picked in the track's take selector (see setTakes);
   // createRenderer(options): a WaveSurfer renderer.
-  constructor(list, {root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, onRetry, createRenderer}) {
-    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, onRetry, createRenderer});
+  constructor(list, {root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, onRetry, onTake, createRenderer}) {
+    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, onRetry, onTake, createRenderer});
     this.rows = new Map();
+    this.takes = new Map();
     globalThis.addEventListener?.('nam-appearance-change', () => {
       // Repaint cached envelopes only; transport, PCM and recording append state stay intact.
       for (const [id, row] of this.rows) {
@@ -293,6 +295,46 @@ export class ProjectTimeline {
     row.meter.setAttribute('aria-valuetext', peak > .00001 ? `${db.toFixed(1)} dBFS` : 'Silence');
   }
 
+  // Unsaved take versions shown on their track: Map of id → {options: [[value, label]], value, disabled, title}.
+  // Tracks missing from the map hide their selector.
+  setTakes(takes) {
+    this.takes = takes;
+    for (const id of this.rows.keys()) this.renderTakes(id);
+  }
+
+  renderTakes(id) {
+    const row = this.rows.get(id), state = this.takes.get(id);
+    if (!row?.takes) return;
+    row.takes.hidden = !state;
+    if (!state) { if (row.takeList.matches?.(':popover-open')) row.takeList.hidePopover(); return; }
+    const count = state.options.filter(([value]) => value !== 0).length;
+    row.takes.textContent = `${count} take${count > 1 ? 's' : ''}`;
+    row.takes.title = state.title ?? '';
+    row.takes.disabled = Boolean(state.disabled);
+    row.takeList.replaceChildren(...state.options.map(([value, label]) => {
+      const item = element('button', '', {type: 'button', textContent: label, disabled: Boolean(state.disabled)});
+      item.setAttribute('role', 'menuitemradio');
+      item.setAttribute('aria-checked', String(value === state.value));
+      item.onclick = (event) => {
+        event.stopPropagation(); row.takeList.hidePopover();
+        if (value !== state.value) this.onTake?.(id, value);
+      };
+      return item;
+    }));
+  }
+
+  // The take list: a popover (top layer, light dismiss, Esc) under the chip, so the clip does not clip it.
+  showTakes(id) {
+    const row = this.rows.get(id);
+    if (!row || row.takes.disabled) return;
+    row.takeList.showPopover();
+    const anchor = row.takes.getBoundingClientRect(), box = row.takeList.getBoundingClientRect();
+    row.takeList.style.left = `${Math.max(8, Math.min(anchor.left, innerWidth - box.width - 8))}px`;
+    const below = anchor.bottom + 4, above = anchor.top - box.height - 4;
+    row.takeList.style.top = `${below + box.height > innerHeight - 8 && above > 8 ? above : below}px`;
+    (row.takeList.querySelector('[aria-checked="true"]') ?? row.takeList.firstElementChild)?.focus();
+  }
+
   update(track, selected) {
     const row = this.rows.get(track.id);
     if (!row) return;
@@ -324,6 +366,7 @@ export class ProjectTimeline {
     const audioChanged = row.track.audio?.url !== track.audio?.url || row.track.audio?.byteSize !== track.audio?.byteSize;
     row.track = track;
     if (audioChanged) this.drawWave(track.id);
+    this.renderTakes(track.id);
   }
 
   row(track, editable) {
@@ -460,12 +503,33 @@ export class ProjectTimeline {
     const clip = element('div', 'track-clip', {hidden: true});
     const clipName = element('span', 'track-clip-name');
     const wave = element('div', 'track-wave');
-    clip.append(clipName, wave);
+    const head = element('div', 'track-clip-head');
+    head.append(clipName);
+    clip.append(head, wave);
     const note = element('span', 'track-lane-note');
     // Shown beside "· not loaded": retries this track's saved audio.
     const retry = element('button', 'track-lane-retry', {type: 'button', textContent: 'Retry', title: 'Retry loading this audio', hidden: true});
     retry.onclick = (event) => { event.stopPropagation(); this.onRetry?.(track.id); };
-    area.append(clip, note, retry, element('i', 'playhead'));
+    // Unsaved recording: "3 takes ▾" before the file name lists the versions (Original, takes) to audition.
+    const takes = element('button', 'track-takes', {type: 'button', hidden: true});
+    takes.setAttribute('aria-haspopup', 'menu');
+    labels.push([takes, 'Takes of']);
+    const takeList = element('div', 'track-take-list');
+    takeList.popover = 'auto';
+    takeList.setAttribute('role', 'menu');
+    // A press on the chip while open only closes the list (light dismiss), instead of reopening it.
+    let wasOpen = false;
+    takes.onpointerdown = () => { wasOpen = takeList.matches(':popover-open'); };
+    takes.onclick = (event) => { event.stopPropagation(); if (wasOpen) { wasOpen = false; return; } this.showTakes(track.id); };
+    takeList.addEventListener('toggle', (event) => takes.setAttribute('aria-expanded', String(event.newState === 'open')));
+    takeList.onkeydown = (event) => {
+      const items = [...takeList.querySelectorAll('button:not(:disabled)')], index = items.indexOf(document.activeElement);
+      const step = {ArrowDown: 1, ArrowUp: -1}[event.key];
+      if (step) { event.preventDefault(); items[(index + step + items.length) % items.length]?.focus(); }
+    };
+    takeList.onclick = (event) => event.stopPropagation();
+    head.prepend(takes);
+    area.append(clip, note, retry, takeList, element('i', 'playhead'));
     area.onclick = (event) => {
       if(this.locked)return;
       const rect = area.getBoundingClientRect();
@@ -473,6 +537,6 @@ export class ProjectTimeline {
     };
     lane.append(area);
     root.append(label, lane);
-    return {root, track, structuralControls, icon, name, menu, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, retry, labels};
+    return {root, track, structuralControls, icon, name, menu, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, retry, takes, takeList, labels};
   }
 }

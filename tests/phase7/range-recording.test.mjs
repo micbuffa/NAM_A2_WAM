@@ -55,7 +55,9 @@ test('auditioning retained loop alternatives updates one audio command, Original
  const version=r.buildVersion(active,result(1));project.tracks=[version.track];r.pending.set(1,version.take);version.history=r.takeHistory.remember(before,version.track,version.take,null,null,version.wave);
  let released=false;const review=r.loopReview=new LoopReview(r,{selectLoopTake:async number=>result(number),destroy(){released=true;}},active,result(1),version);
  await review.choose(0);assert.equal(project.tracks[0].audio.url,'/original');
- await review.choose(2);const take=r.pending.get(1);assert.equal(take.metadata.rangeTake.takeNumber,2);assert.equal(w.history.entries.length,1);assert.equal(w.history.cursor,1);
+ await review.choose(2);const takes=new Map();review.takeChoices(takes);
+ assert.deepEqual(takes.get(1).options,[[0,'Original'],[1,'Take 1 · 0.00 s'],[2,'Take 2 · 0.00 s · incomplete']]);assert.equal(takes.get(1).value,2);
+ const take=r.pending.get(1);assert.equal(take.metadata.rangeTake.takeNumber,2);assert.equal(w.history.entries.length,1);assert.equal(w.history.cursor,1);
  await review.choose(0);await review.choose(1);assert.equal(w.history.entries.length,1);assert.equal(r.pending.get(1).metadata.rangeTake.takeNumber,1);assert.equal(take.file,null);
  w.history.clear();assert.equal(released,true);assert.equal(r.pending.get(1).linkPreviousId,null);r.takeHistory.clear();
 });

@@ -8,7 +8,8 @@ export class LoopReview {
   }
   get adjacent(){const w=this.recording.workspace,h=w.history,i=h?.entries.indexOf(this.version.history.command);return i>=0&&(h.cursor===i||h.cursor===i+1);}
   get after(){const h=this.recording.workspace.history;return h.cursor===h.entries.indexOf(this.version.history.command)+1;}
-  get available(){const w=this.recording.workspace;return this.adjacent&&w.project===this.active.project&&w.accountLoadEpoch===this.active.epoch&&w.selectedId===this.active.trackId&&!w.historyBlocked&&!w.saving&&!this.recording.busy;}
+  get ready(){const w=this.recording.workspace;return this.adjacent&&w.project===this.active.project&&w.accountLoadEpoch===this.active.epoch&&!w.historyBlocked&&!w.saving&&!this.recording.busy;}
+  get available(){return this.ready&&this.recording.workspace.selectedId===this.active.trackId;}
   async choose(number){
     if(!this.available)return;const r=this.recording,w=r.workspace,after=this.after;
     if(number===0){if(after){if(w.runHistory)await w.runHistory(false);else await w.history.step(false);}r.render();return;}
@@ -49,15 +50,12 @@ export class LoopReview {
     w.player.base.seek(this.active.metadata.rangeRecording.startFrame/r.context.sampleRate);
     w.report('Loop take selected. Play to compare; Save project keeps this version and closes the other loop choices.');
   }
-  render(){
-    const r=this.recording,w=r.workspace,panel=w.$('recordLoopReview'),select=w.$('recordLoopTake');if(!panel||!select)return;
-    panel.hidden=w.selectedId!==this.active.trackId||!this.adjacent;
-    const signature=this.options.map(t=>`${t.number}:${t.frames}`).join('|');
-    if(select.dataset.takes!==signature){
-      select.replaceChildren(new Option('Original', '0'),...this.options.map(t=>new Option(`Take ${t.number} · ${t.complete?'complete':'incomplete'} · ${(t.frames/r.context.sampleRate).toFixed(2)} s`,String(t.number))));select.dataset.takes=signature;
-    }
-    select.value=String(this.after?this.selected:0);select.disabled=!this.available;
-    if(w.$('recordLoopHelp'))w.$('recordLoopHelp').textContent=`Last ${this.limit} complete takes + final incomplete take kept in RAM. Play to compare; Save keeps the selection and closes these choices.`;
+  // The loop takes, offered on the recorded track's row (replaces its Original / New take choice).
+  takeChoices(takes){
+    if(!this.adjacent)return;const rate=this.recording.context.sampleRate;
+    takes.set(this.active.trackId,{options:[[0,'Original'],...this.options.map(t=>[t.number,`Take ${t.number} · ${(t.frames/rate).toFixed(2)} s${t.complete?'':' · incomplete'}`])],
+      value:this.after?this.selected:0,disabled:!this.ready,
+      title:`Loop takes: the last ${this.limit} complete takes and the final incomplete one stay in memory. Press Play to audition; Save project keeps the selected take and drops the others.`});
   }
-  close(){this.recorder?.destroy();this.recorder=null;if(this.recording.loopReview===this)this.recording.loopReview=null;const panel=this.recording.workspace.$('recordLoopReview');if(panel)panel.hidden=true;}
+  close(){this.recorder?.destroy();this.recorder=null;if(this.recording.loopReview===this)this.recording.loopReview=null;this.recording.renderTakes?.();}
 }

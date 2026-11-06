@@ -91,8 +91,9 @@ test('compact Studio hides export during separation and exposes unsaved mixes af
   const render=()=>ProjectsWorkspace.prototype.renderMixExport.call(w);
   render();assert.equal(fields.studioUseMix.hidden,true);assert.equal(fields.studioExportHelp.hidden,true);
   w.separation.busy=false;w.pendingSeparation=true;render();
-  assert.equal(fields.studioUseMix.hidden,false);assert.equal(fields.studioUseMix.disabled,false);assert.equal(fields.studioExportHelp.hidden,false);
-  assert.match(fields.studioExportHelp.textContent,/temporary/);
+  // Ready: no note under the title, the export confirmation says the backing track is temporary.
+  assert.equal(fields.studioUseMix.hidden,false);assert.equal(fields.studioUseMix.disabled,false);assert.equal(fields.studioExportHelp.hidden,true);
+  assert.match(fields.studioUseMix.title,/temporary/);
   w.pendingSeparation=false;render();
   assert.equal(fields.studioUseMix.hidden,false);assert.equal(fields.studioUseMix.disabled,false);assert.equal(fields.studioExportHelp.hidden,true);
   w.player.channels=new Map([[1,{buffer:{duration:2}}],[2,{error:Error('HTTP 500')}]]);render();

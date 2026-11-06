@@ -383,10 +383,29 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
   border-radius: var(--tl-radius-sm); font: 600 var(--tl-fs-xs) var(--tl-font-ui); cursor: pointer; }
 .track-lane-retry:hover { color: var(--tl-text); border-color: var(--tl-border-hover); }
 .track-lane-retry:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
+.track-takes { flex: none; height: 12px; pointer-events: auto; padding: 0 2px; color: var(--tl-accent); background: none;
+  border: 0; border-radius: var(--tl-radius-sm); font: 600 9px/12px var(--tl-font-ui); white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; }
+.track-takes[hidden] { display: none; }
+/* The ▾ that opens the take list, larger than the 9px label. */
+.track-takes::after { content: "\25BE"; margin-left: 3px; font-size: 13px; line-height: 0; vertical-align: -1px; }
+.track-takes:hover:not(:disabled) { color: var(--tl-text); text-decoration: underline; }
+.track-takes:disabled { opacity: .55; cursor: default; }
+.track-takes:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
+.track-take-list { margin: 0; inset: auto; position: fixed; min-width: 180px; padding: 4px; border: 1px solid var(--tl-border); border-radius: var(--tl-radius-md);
+  background: var(--tl-surface-2); color: var(--tl-text-2); box-shadow: var(--tl-shadow-panel); }
+.track-take-list:popover-open { display: flex; flex-direction: column; gap: 1px; }
+.track-take-list button { display: flex; align-items: center; gap: 8px; padding: 5px 10px 5px 8px; color: inherit; background: transparent; border: 0;
+  border-radius: var(--tl-radius-sm); font: 500 var(--tl-fs-xs) var(--tl-font-ui); text-align: left; cursor: pointer; }
+.track-take-list button::before { content: ""; width: 12px; color: var(--tl-accent); }
+.track-take-list button[aria-checked="true"] { color: var(--tl-text); }
+.track-take-list button[aria-checked="true"]::before { content: "\2713"; }
+.track-take-list button:hover:not(:disabled), .track-take-list button:focus-visible { outline: none; color: var(--tl-text); background: var(--tl-surface-4); }
+.track-take-list button:disabled { opacity: .5; cursor: default; }
 .track-clip { position: relative; min-width: 24px; height: 62px; overflow: hidden; background: var(--tl-clip-bg);
   border: 1px solid var(--tl-accent-border); border-radius: var(--tl-radius-sm); }
-.track-clip-name { position: absolute; top: 3px; left: 6px; z-index: 1; max-width: calc(100% - 12px); overflow: hidden; color: var(--tl-accent-muted);
-  font-size: 9px; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
+/* "3 takes ▾" (when there are unsaved takes), then the file name. */
+.track-clip-head { position: absolute; top: 1px; left: 4px; right: 6px; z-index: 2; display: flex; align-items: center; gap: 5px; min-width: 0; height: 12px; pointer-events: none; }
+.track-clip-name { min-width: 0; overflow: hidden; color: var(--tl-accent-muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .track-wave { position: absolute; inset: 13px 0 1px; }
 .playhead { position: absolute; top: 0; bottom: 0; left: calc(var(--playhead) * 100%); z-index: 2; width: 1px; background: var(--tl-accent);
   box-shadow: 0 0 6px var(--tl-accent-glow); pointer-events: none; }

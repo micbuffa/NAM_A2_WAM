@@ -27,8 +27,6 @@ export class StudioRecording {
     if($('projectCountIn'))$('projectCountIn').onchange=()=>{if(!this.busy)this.metronome.countInBars=Number($('projectCountIn').value);};
     $('recordCurrentTone').onclick = () => this.act(() => this.monitor(true));
     $('recordDiscard').onclick = () => this.act(() => this.discard());
-    for(const [id,after] of [['recordCompareBefore',false],['recordCompareAfter',true]])if($(id))$(id).onclick=()=>this.act(()=>this.takeHistory.compare(after));
-    if($('recordLoopTake'))$('recordLoopTake').onchange=()=>this.act(()=>this.loopReview?.choose(Number($('recordLoopTake').value)));
     $('projectRecord').onclick = () => this.act(() => this.toggleRecording());
     if ($('recordCalibrate')) this.calibration = new RecordingCalibration(this, {beginCalibration});
     this.sourceChanged = () => {
@@ -47,6 +45,16 @@ export class StudioRecording {
     const w = this.workspace;
     return w.owned && track && track.origin === 'personal' && !track.removedAt && usesTrackPreset(track)
       && (this.pending.has(track.id)||this.pending.size < 2) && !w.history?.busy && !w.saving && !w.separation?.busy && (!w.separation?.result || w.separation.result.engine.complete);
+  }
+  // Take selector of a track row: 0 = Original, otherwise the new take (or loop take number).
+  async chooseTake(id,value){
+    const w=this.workspace;w.select?.(id);if(w.selectedId!==id){this.renderTakes();return;}
+    const review=this.loopReview?.active.trackId===id?this.loopReview:null;
+    await this.act(()=>review?review.choose(value):this.takeHistory.compare(value!==0));
+  }
+  renderTakes(){
+    const takes=new Map();this.takeHistory?.takeChoices(takes);this.loopReview?.takeChoices(takes);
+    this.workspace.timeline?.setTakes?.(takes);
   }
   async act(operation) { try { await operation(); } catch (error) { this.workspace.report(error.message, true); } this.render(); }
   async monitor(useCurrent = false) {
@@ -291,8 +299,7 @@ export class StudioRecording {
     this.monitoringChanged?.();
     const w = this.workspace, $ = w.$, track = w.selectedTrack, eligible = this.eligible;
     if (!$('projectRecord')) return;
-    this.takeHistory?.renderComparison?.();
-    this.loopReview?.render();
+    this.renderTakes();
     const armedTrack=w.project?.tracks.find(t=>t.id===this.armedId&&!t.removedAt),recordable=this.canArm(armedTrack)&&!w.separation?.result,statusTrack=armedTrack??track;
     const lockControl=control=>{if(!control)return;this.disabled??=new Map();if(!this.disabled.has(control))this.disabled.set(control,control.disabled);control.disabled=true;};
     // Keep only the armed track's speaker available during a take. Disabling
@@ -315,7 +322,8 @@ export class StudioRecording {
         row.arm.classList.toggle('active',armed);row.arm.setAttribute('aria-pressed',String(armed));
       }
     }
-    const showContext=w.owned&&(this.busy||armedTrack||usesTrackPreset(track??{})||this.pending.size);
+    // Only while something is happening: a take, an armed track, or takes waiting for Save.
+    const showContext=w.owned&&(this.busy||armedTrack||this.pending.size);
     if($('recordStatusBar'))$('recordStatusBar').hidden=!showContext;
     if($('recordTrackName')){$('recordTrackName').textContent=armedTrack?.name??(usesTrackPreset(track??{})?track.name:'Recording');$('recordTrackName').title=$('recordTrackName').textContent;}
     if($('recordSettingsTrack'))$('recordSettingsTrack').textContent=track?`Selected track: ${track.name}`:'Select a personal guitar or bass track.';
@@ -324,6 +332,8 @@ export class StudioRecording {
     $('projectRecord').disabled=this.busy?!this.stoppable:!recordable;
     $('projectRecord').setAttribute('aria-pressed',String(['counting','recording'].includes(this.state)));
     const ab=w.player.loop,rangeLabel=ab&&ab.end-ab.start>=.05?(ab.enabled?'A/B loop · multiple takes':'A/B punch · playback continues after B'):'Free recording · click Record again to stop';
+    // What Record will do on a track that already has audio, given the A/B range.
+    const replaceLabel=ab&&ab.end-ab.start>=.05?(ab.enabled?'Loop on: each A/B pass records a new take':'Replaces the audio between A and B; playback continues after B'):'Replaces the audio from the playhead until you stop';
     $('projectRecord').title=this.state==='recording'?'Stop recording':this.stoppable?'Cancel take':this.state==='calibrating'?'Calibration in progress':this.busy?'Finishing the take…':w.separation?.result?'Save the separated instruments before recording.':recordable?`Record to ${armedTrack.name} · ${rangeLabel} · count-in ${this.metronome?.countInBars??1} bar(s)`:'Arm a personal guitar or bass track using its microphone icon (R).';
     if($('projectMetronome')){$('projectMetronome').setAttribute('aria-pressed',String(Boolean(this.metronome?.enabled)));$('projectMetronome').title='Click during the take: '+(this.metronome?.enabled?'on':'off');}
     if($('projectCountIn'))$('projectCountIn').disabled=this.busy;
@@ -331,7 +341,7 @@ export class StudioRecording {
     $('recordCompensation').disabled = this.busy;
     $('recordDiscard').hidden = !this.pending.has(track?.id); $('recordDiscard').disabled = this.busy || w.saving;
     $('recordStatus').textContent = this.busy ? `${this.state === 'counting' ? `Count-in · ${this.metronome.count || 'Get ready'}` : this.state === 'recording' ? `Recording DI${this.active?.metadata.rangeRecording?.mode==='cycle'?` · take ${this.active.rangePass??1} · last ${this.active.liveTakeLimit??3} complete takes retained`:this.active?.metadata.rangeRecording?' · A/B punch':''}` : this.state === 'preparing' ? 'Preparing capture' : this.state === 'calibrating' ? 'Calibrating latency' : 'Finalizing take'} · ${((this.frames ?? 0) / this.context.sampleRate).toFixed(1)} s`
-      : this.pending.has(statusTrack?.id) ? `Take in RAM · ${this.pending.get(statusTrack.id).peak > .00001 ? `peak ${(20 * Math.log10(this.pending.get(statusTrack.id).peak)).toFixed(1)} dBFS · Play to listen` : 'silence detected: check input/channel'} · Save project to keep it.` : statusTrack?.audio ? 'Ready · A/B limits recording; Loop records multiple takes · Undo keeps two audio operations.'
+      : this.pending.has(statusTrack?.id) ? `Take in RAM · ${this.pending.get(statusTrack.id).peak > .00001 ? `peak ${(20 * Math.log10(this.pending.get(statusTrack.id).peak)).toFixed(1)} dBFS · Play to listen` : 'silence detected: check input/channel'} · Save project to keep it.` : statusTrack?.audio ? `${armedTrack?'Armed':'Ready'} · ${replaceLabel}`
       : this.pending.size >= 2 ? 'Two takes are already in RAM. Save project before recording another track.'
       : `${armedTrack?'Armed · ':''}${this.source.liveInput?.label ?? 'Input not enabled'} · input ${(this.source.liveInput?.channelIndex ?? 0) + 1} · ${this.calibration?.active ? this.calibration.statusLabel : 'manual compensation (uncalibrated)'}`;
     if(this.state==='recording'&&this.active?.metadata.rangeRecording?.mode==='punch'&&w.player.position<this.active.metadata.rangeRecording.startFrame/this.context.sampleRate)$('recordStatus').textContent='Playing before A · recording will be kept only between A and B';

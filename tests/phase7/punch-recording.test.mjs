@@ -31,7 +31,10 @@ test('comparison buttons replay only the adjacent selected-track recording comma
  let position=1.2,changes=0;const w={selectedId:1,player:{get position(){return position;},base:{seek:n=>position=n}},report(){}};
  const r={workspace:w},h=new RecordingHistory(r);w.history=new StudioHistory();
  w.history.record({compareTrackId:1,recordingVersions:[{fields:{audio:{url:'a'}}}],undo:()=>{changes--;position=0;},redo:()=>{changes++;position=0;}});
+ const choices=()=>{const takes=new Map();h.takeChoices(takes);return takes;};
+ assert.deepEqual(choices().get(1).options,[[0,'Original'],[1,'New take']]);assert.equal(choices().get(1).value,1);
  assert.equal(h.comparison().after,true);await h.compare(false);assert.equal(changes,-1);assert.equal(position,1.2);assert.equal(h.comparison().after,false);
+ assert.equal(choices().get(1).value,0);w.selectedId=2;assert.equal(choices().get(1).value,0);w.selectedId=1;
  await h.compare(true);assert.equal(changes,0);assert.equal(position,1.2);
- w.history.record({label:'Volume',undo(){},redo(){}});assert.equal(h.comparison(),null);w.selectedId=2;assert.equal(h.comparison(),null);
+ w.history.record({label:'Volume',undo(){},redo(){}});assert.equal(h.comparison(),null);assert.equal(choices().size,0);w.selectedId=2;assert.equal(h.comparison(),null);
 });

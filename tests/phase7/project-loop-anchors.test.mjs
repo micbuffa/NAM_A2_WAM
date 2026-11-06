@@ -89,3 +89,17 @@ test('a track whose saved audio failed to load shows Retry on its row, hidden ot
   timeline.setWave(1,{state:'loading'});assert.equal(row.retry.hidden,true);
   timeline.onRetry=undefined;timeline.setWave(1,{state:'error'});assert.equal(row.retry.hidden,true);
 }));
+test('unsaved takes show "N takes ▾" before the file name; the list checks the heard version and reports a new choice',()=>fixture(({timeline})=>{
+  const picks=[],takes=new Node(),takeList=new Node();takeList.hidePopover=()=>{takeList.closed=true;};
+  timeline.rows.set(1,{track:{id:1},takes,takeList});timeline.onTake=(id,value)=>picks.push([id,value]);
+  timeline.setTakes(new Map([[1,{options:[[0,'Original'],[1,'Take 1'],[2,'Take 2'],[3,'Take 3 · incomplete']],value:2,title:'help'}]]));
+  assert.equal(takes.hidden,false);assert.equal(takes.textContent,'3 takes');assert.equal(takes.title,'help');
+  assert.deepEqual(takeList.children.map(item=>[item.textContent,item.attributes['aria-checked']]),
+    [['Original','false'],['Take 1','false'],['Take 2','true'],['Take 3 · incomplete','false']]);
+  const click=item=>item.onclick({stopPropagation(){}});
+  click(takeList.children[2]);assert.deepEqual(picks,[]);assert.equal(takeList.closed,true);
+  click(takeList.children[0]);assert.deepEqual(picks,[[1,0]]);
+  timeline.setTakes(new Map([[1,{options:[[0,'Original'],[1,'New take']],value:0,disabled:true}]]));
+  assert.equal(takes.textContent,'1 take');assert.equal(takes.disabled,true);assert.equal(takeList.children[1].disabled,true);
+  timeline.setTakes(new Map());assert.equal(takes.hidden,true);
+}));

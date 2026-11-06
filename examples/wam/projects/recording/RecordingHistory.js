@@ -59,19 +59,18 @@ export class RecordingHistory {
     w.syncSeparationTracks?.();
     w.timeline.setWave(id,version.wave);w.render();
   }
-  comparison(){
-    const w=this.recording.workspace,h=w.history,id=w.selectedId;
+  comparison(id=this.recording.workspace.selectedId){
+    const h=this.recording.workspace.history;
     for(const [command,after] of [[h?.entries[h.cursor-1],true],[h?.entries[h.cursor],false]])if(command?.compareTrackId===id&&command.recordingVersions?.[0].fields.audio)return {command,after};
     return null;
   }
-  renderComparison(){
-    const w=this.recording.workspace,panel=w.$?.('recordComparison');if(!panel)return;
-    const state=this.comparison();panel.hidden=!state;
-    for(const [id,after] of [['recordCompareBefore',false],['recordCompareAfter',true]]){
-      const button=w.$(id);if(!button)continue;
-      button.disabled=!state||state.after===after||this.recording.busy||w.historyBlocked||w.history.busy||w.saving||w.separation?.busy;
-      button.setAttribute('aria-pressed',String(state?.after===after));
-      button.title='Compare via Undo/Redo. Playback pauses; press Play to audition. Saving stores the displayed version.';
+  // Before/After of a re-recorded track, offered as Original / New take on its row.
+  takeChoices(takes){
+    const w=this.recording.workspace,h=w.history,locked=this.recording.busy||w.historyBlocked||h?.busy||w.saving||w.separation?.busy;
+    for(const command of [h?.entries[h.cursor-1],h?.entries[h.cursor]]){
+      const id=command?.compareTrackId,state=id!=null&&this.comparison(id);
+      if(state)takes.set(id,{options:[[0,'Original'],[1,'New take']],value:state.after?1:0,disabled:locked,
+        title:'Compare the audio before and after this recording (Undo/Redo). Press Play to audition; Save project keeps the selected version.'});
     }
   }
   async compare(after){
@@ -81,7 +80,7 @@ export class RecordingHistory {
     const changed=w.runHistory?await w.runHistory(after):await w.history.step(after);
     if(!changed)return;
     w.player.base.seek?.(position);
-    this.renderComparison();
+    this.recording.renderTakes?.();
     w.report?.('Comparison switched via Undo/Redo. Press Play to audition. Save project keeps the displayed version.');
   }
   collect(){

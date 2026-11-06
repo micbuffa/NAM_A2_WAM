@@ -75,7 +75,7 @@ export class ProjectsWorkspace extends EventTarget {
     this.saved = null; // the project as last loaded or saved
     this.selectedId = null;
     this.presets = []; // the user's account presets, for the inspector
-    this.history = new StudioHistory({changed: () => {this.recording?.takeHistory?.collect();this.recording?.takeHistory?.renderComparison();this.recording?.loopReview?.render();this.renderHistory();}});
+    this.history = new StudioHistory({changed: () => {this.recording?.takeHistory?.collect();this.recording?.renderTakes?.();this.renderHistory();}});
     this.isMac = /Mac|iPhone|iPad/.test(globalThis.navigator?.platform ?? '');
     this.$('projectUndo').onclick = () => this.runHistory(false);
     this.$('projectRedo').onclick = () => this.runHistory(true);
@@ -88,6 +88,7 @@ export class ProjectsWorkspace extends EventTarget {
       root: this.$('projectTimeline'), ruler: this.$('projectRuler'), createRenderer,
       onSeek: (seconds) => this.player?.seek(seconds),
       onRetry: () => this.retryAudio(),
+      onTake: (id, value) => this.recording?.chooseTake(id, value),
       onLoop: (region) => this.setLoop({enabled: true, ...region}),
       onSelect: (id) => this.select(id),
       onChange: (id, fields) => this.updateTrack(id, fields),
@@ -1120,9 +1121,10 @@ export class ProjectsWorkspace extends EventTarget {
     button.disabled=!state.ready;button.title=state.message;
     const help=this.$('studioExportHelp');
     if(help){
-      // A track that failed to load is reported by a notification and on its
-      // row; the button's title still explains why export is unavailable.
-      help.hidden=!this.owned || Boolean(this.separation?.busy) || state.failedIds.length>0 || (state.ready&&!this.pendingSeparation&&!this.dirty);
+      // Only why export is unavailable: when it is ready, its confirmation says whether the backing
+      // track is saved or temporary. A track that failed to load is reported by a notification and on
+      // its row; the button's title still explains why export is unavailable.
+      help.hidden=!this.owned || Boolean(this.separation?.busy) || state.failedIds.length>0 || state.ready;
       help.textContent=state.message;
     }
 
