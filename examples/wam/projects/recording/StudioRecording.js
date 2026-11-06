@@ -339,7 +339,7 @@ export class StudioRecording {
     if(!this.busy&&!armedTrack&&!usesTrackPreset(track??{})&&this.pending.size)$('recordStatus').textContent=`${this.pending.size} take(s) in RAM · Select a personal track to edit its sound · Save project to keep audio.`;
     if($('recordStatus'))$('recordStatus').title=$('recordStatus').textContent;
     this.calibration?.render();
-    for (const id of ['projectNew', 'projectImport', 'projectAddTrack', 'projectEdit', 'projectShare', 'projectLeave', 'projectSave', 'projectUndo', 'projectRedo', 'projectPlay', 'projectRewind', 'projectLoop', 'projectLoopReset']) {
+    for (const id of ['projectNew', 'projectImport', 'projectMenuImport', 'projectResetMix', 'projectAddTrack', 'projectEdit', 'projectShare', 'projectLeave', 'projectSave', 'projectUndo', 'projectRedo', 'projectPlay', 'projectRewind', 'projectLoop', 'projectLoopReset']) {
       if (this.busy && $(id)) { this.disabled ??= new Map(); if (!this.disabled.has($(id))) this.disabled.set($(id), $(id).disabled); $(id).disabled = true; }
     }
     if ($('studioUseMix') && this.busy) $('studioUseMix').disabled = true;

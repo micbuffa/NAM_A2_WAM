@@ -12,6 +12,7 @@ import './components/tl-meter.js';
 import './components/tl-segmented.js';
 import './components/tl-toast.js';
 import './components/tl-module.js';
+import './components/tl-menu.js';
 
 import {installLightDismiss} from './light-dismiss.js';
 installLightDismiss();

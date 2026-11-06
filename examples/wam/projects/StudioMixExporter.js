@@ -146,7 +146,7 @@ export function mixExportAvailability({owned,working,separating,pending,temporar
   if(previewEngine){
     if(!previewEngine.complete||!previewEngine.availableFrames)return blocked('Stop separation after some audio is ready before using its mix.');
     if(!toneReady)return blocked('Preparing the Play backing-track player…');
-    return {ready:true,failedIds:[],message:'Use the available instrument mix in Play without saving. This temporary MP3 lasts for this session.'};
+    return {ready:true,failedIds:[],message:'Export to play along: play over the available instrument mix in Play, without saving. This temporary MP3 lasts for this session.'};
   }
   const audio=tracks.filter(track=>track.audio);
   if(!audio.length)return blocked('Import an audio file before creating a backing track.');
@@ -157,5 +157,5 @@ export function mixExportAvailability({owned,working,separating,pending,temporar
   if(!presetRendering&&audio.some(track=>track.presetId || track.factoryPreset || track.presetSnapshot))return blocked('Export a separated-instrument mix or tracks without presets. WAM preset rendering is not available yet.');
   if(audio.some(track=>track.inputMonitoring))return blocked('Turn off input monitoring before exporting the recorded mix.');
   if(!toneReady)return blocked('Preparing the Play backing-track player…');
-  return {ready:true,failedIds:[],message:pending||temporary?'Ready: Use mix in Play opens a temporary MP3 without saving your project.':'Ready: Use mix in Play creates a saved MP3 backing and opens Tone. Press Play there to listen.'};
+  return {ready:true,failedIds:[],message:pending||temporary?'Export to play along: turn this mix into a temporary backing track and play over it in Play, without saving.':'Export to play along: turn this mix into a saved backing track and play over it in Play. Press Play there to listen.'};
 }

@@ -114,21 +114,23 @@
         <div class="rack-heading">
           <div>
             <p class="rack-kicker" id="projectKicker">Studio</p>
-            <div class="preset-title-row"><h2 id="projectTitle">Studio</h2><tl-icon-button id="projectEdit" icon="edit" size="sm" variant="ghost" aria-label="Edit project" title="Edit project" aria-haspopup="dialog" hidden></tl-icon-button></div>
+            <div class="preset-title-row"><h2 id="projectTitle">Studio</h2><tl-icon-button id="projectEdit" icon="edit" size="sm" variant="ghost" aria-label="Edit project" title="Edit project" aria-haspopup="dialog" hidden></tl-icon-button><tl-badge id="projectSaveState" variant="eyebrow" dot role="status" hidden></tl-badge></div>
             <p class="preset-meta" id="projectMeta">Record and mix your ideas track by track.</p>
           </div>
         </div>
         <div class="preset-header-actions projects-header-actions">
-          <tl-icon-button id="projectNew" icon="plus" size="sm" aria-label="New project" title="New project" aria-haspopup="dialog"></tl-icon-button>
           <tl-button id="projectImport" size="sm" icon="audio" aria-haspopup="dialog">Import audio</tl-button>
-          <tl-badge id="projectSaveState" variant="eyebrow" dot role="status" hidden></tl-badge>
-          <tl-button id="projectResetMix" icon="undo" title="Back to the owner's mix" hidden>Reset mix</tl-button>
+          <tl-button id="projectNew" size="sm" variant="primary" icon="plus" aria-haspopup="dialog">New project</tl-button>
           <tl-button id="projectShare" icon="share" aria-haspopup="dialog" hidden>Share</tl-button>
-          <tl-button id="projectLeave" icon="close" aria-haspopup="dialog" title="Stop seeing this project" hidden>Leave</tl-button>
           <tl-button id="projectUndo" size="sm" icon="undo" aria-label="Undo" title="Undo" disabled hidden>Undo</tl-button>
           <tl-button id="projectRedo" size="sm" icon="redo" aria-label="Redo" title="Redo" disabled hidden>Redo</tl-button>
           <tl-button id="projectSave" variant="primary" icon="save" hidden disabled>Save project</tl-button>
-          <tl-button id="projectAddTrack" variant="primary" icon="plus" aria-haspopup="dialog" hidden>Add track</tl-button>
+          <tl-menu id="projectMore" label="More project actions">
+            <button id="studioUseMix" type="button" aria-haspopup="dialog" hidden disabled><tl-icon name="play" size="15"></tl-icon>Export to play along</button>
+            <button id="projectMenuImport" type="button" aria-haspopup="dialog" hidden><tl-icon name="audio" size="15"></tl-icon>Import audio</button>
+            <button id="projectResetMix" type="button" title="Back to the owner's mix" hidden><tl-icon name="undo" size="15"></tl-icon>Reset mix</button>
+            <button id="projectLeave" type="button" aria-haspopup="dialog" title="Stop seeing this project" hidden><tl-icon name="close" size="15"></tl-icon>Leave project</button>
+          </tl-menu>
         </div>
       </header>
       <div class="rack-canvas tracks-canvas" id="tracksCanvas">
@@ -145,7 +147,6 @@
             <tl-button id="studioStop" hidden>Stop separation</tl-button>
             <span id="studioBackendLabel" class="host-help"></span>
             <span id="studioTrackState" class="studio-track-state" role="status" hidden></span>
-          <tl-button id="studioUseMix" variant="primary" hidden disabled>Use mix in Play</tl-button>
           <tl-button id="studioRetryAudio" hidden>Retry audio loading</tl-button>
           </div>
           <p id="studioExportHelp" class="host-help" role="status" aria-live="polite" hidden></p>
@@ -218,6 +219,7 @@
           <div class="project-ruler-row"><span aria-hidden="true"></span><div class="project-ruler-track"><div class="project-ruler" id="projectRuler" aria-label="Timeline and A/B loop"></div></div></div>
           <ol class="project-tracks" id="projectTracks"></ol>
           <p class="host-help project-tracks-empty" id="projectTracksEmpty">No tracks yet.</p>
+          <div class="project-add-track-row"><tl-button id="projectAddTrack" size="sm" variant="ghost" icon="plus" aria-haspopup="dialog" hidden>Add track</tl-button></div>
           </div>
         </section>
       </div>

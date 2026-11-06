@@ -113,11 +113,12 @@ export class ProjectsWorkspace extends EventTarget {
     });
     this.$('projectNew').onclick = () => this.createProjectDialog();
     this.$('projectImport').onclick = () => this.importAudioDialog();
+    this.$('projectMenuImport').onclick = () => this.importAudioDialog();
     this.$('projectEdit').onclick = () => this.editProjectDialog();
     if(this.$('projectTimelineTempo'))this.$('projectTimelineTempo').onclick=()=>{if(this.owned)void this.editProjectDialog();};
     this.$('projectSave').onclick = () => this.save();
     this.mixExporter = new StudioMixExporter({api});
-    if (this.$('studioUseMix')) this.$('studioUseMix').onclick = () => this.useMixInTone();
+    if (this.$('studioUseMix')) this.$('studioUseMix').onclick = () => void this.confirmMixExport();
     if (this.$('studioRetryAudio')) this.$('studioRetryAudio').onclick = () => {
       for (const track of this.displayTracks) if (this.player?.channels.get(track.id)?.error) this.timeline.setWave(track.id,{state:'loading'});
       void this.player?.retryFailed();
@@ -420,6 +421,17 @@ export class ProjectsWorkspace extends EventTarget {
     this.render();return success;
   }
 
+  // ⋯ › Export to play along: says what the export does (saved or session-only backing) before running it.
+  async confirmMixExport() {
+    const project = this.project;
+    if (!project) return;
+    const temporary = Boolean((this.separation?.mode === 'stems' && this.separation.result?.engine) || this.dirty || this.pendingSeparation);
+    const confirmed = await confirmDialog({title: 'Export to play along?', confirmLabel: 'Export',
+      message: `The current mix of “${project.name}” (volumes, pans, mutes and effects) becomes a backing track, opened in Play so you can play over it. `
+        + (temporary ? 'There are unsaved changes, so this backing track is temporary and lasts for this session.' : 'The MP3 is saved: find it again anytime in Play on a backing track.')});
+    if (confirmed && this.project === project) await this.useMixInTone();
+  }
+
   async useMixInTone() {
     if (!this.owned || this.saving || this.recording?.busy || this.separation?.busy) return;
     const project = this.project;
@@ -689,8 +701,7 @@ export class ProjectsWorkspace extends EventTarget {
 
   async createProjectDialog() {
     if (!(await this.ensureSignedIn()) || !await this.confirmPreviewDiscard()) return;
-    const values = await projectDialog({title: 'Create a project', confirmLabel: 'Create project',
-      intro: 'A new project starts empty: add tracks from audio files.'});
+    const values = await projectDialog({title: 'Create a project', confirmLabel: 'Create project'});
     if (!values) return;
     try {
       await this.create(values);
@@ -818,7 +829,7 @@ export class ProjectsWorkspace extends EventTarget {
   async editTrackDialog(id) {
     const track = this.project.tracks.find((entry) => entry.id === id);
     if (!track || !this.owned) return;
-    const values = await editTrackDialog({track, eyebrow: this.project.name, onDelete: () => this.deleteTrack(id)});
+    const values = await editTrackDialog({track, eyebrow: this.project.name});
     if (values) this.setTracks(this.project.tracks.map((entry) => (entry.id === id ? withInstrument({...entry, name: values.name}, values.instrument) : entry)), {label: `Edit ${track.name}`});
   }
 
@@ -1033,6 +1044,10 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectNew').hidden = Boolean(this.project);
     this.$('projectNew').disabled = this.saving || !this.available;
     this.$('projectImport').disabled = this.saving || !this.available;
+    // In a project, Import audio moves to the ⋯ menu: the header keeps the frequent actions.
+    this.$('projectImport').hidden = Boolean(this.project);
+    this.$('projectMenuImport').hidden = !this.project;
+    this.$('projectMenuImport').disabled = this.saving || !this.available;
     if (!home) return;
     home.hidden = Boolean(this.project) || !this.projects.length;
     if (home.hidden) return home.replaceChildren();
@@ -1112,7 +1127,6 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectMeta').title = this.$('projectMeta').textContent;
     this.$('projectEdit').hidden = !owned;
     const state = this.$('projectSaveState');
-    state.hidden = !this.project;
     state.textContent = description?.saveState ?? '';
     state.setAttribute('tone', dirty ? 'warning' : owned ? 'success' : 'neutral');
     this.$('projectShare').hidden = !owned;
@@ -1126,6 +1140,8 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectAddTrack').disabled = Boolean(this.saving || this.separation?.busy);
     this.$('projectAddTrack').title = this.separation?.busy ? 'Stop separation before adding a track; partial instruments are preserved.' : 'Add track';
     if (this.saving) state.textContent = this.history?.busy ? 'Updating project…' : 'Saving audio…';
+    // Only news is shown: unsaved work, saving, read-only. Nothing to say once everything is saved.
+    state.hidden = !this.project || (!this.saving && description?.saveState === 'Saved');
     this.$('projectAddTrack').hidden = !owned;
     this.renderMixExport();
     this.renderRemovedTracks();
@@ -1236,17 +1252,10 @@ function instrumentSelect(id, value = 'guitar') {
   return {select, wrapper};
 }
 
-function formActions(dialog, confirmLabel, onDelete, deleteLabel) {
+function formActions(dialog, confirmLabel) {
   const cancel = button('Cancel', {value: 'cancel'});
   cancel.onclick = () => dialog.close('cancel');
-  const actions = actionsRow(cancel, button(confirmLabel, {type: 'submit', primary: true, value: 'ok'}));
-  if (onDelete) {
-    const remove = button(deleteLabel);
-    remove.classList.add('tl-btn-danger', 'project-dialog-delete');
-    remove.onclick = () => { dialog.close('cancel'); onDelete(); };
-    actions.prepend(remove);
-  }
-  return actions;
+  return actionsRow(cancel, button(confirmLabel, {type: 'submit', primary: true, value: 'ok'}));
 }
 
 // Name + tempo. Resolves {name, bpm}, or null when cancelled.
@@ -1321,7 +1330,7 @@ function trackDialog({title, confirmLabel, intro, nameLabel, eyebrow = 'Studio',
 }
 
 // Rename + instrument of an existing track. Resolves {name, instrument}, or null.
-function editTrackDialog({track, eyebrow, onDelete}) {
+function editTrackDialog({track, eyebrow}) {
   return new Promise((resolve) => {
     const {dialog, body, id} = createDialog({title: 'Edit track', eyebrow, className: 'project-dialog'});
     const form = element('form', {method: 'dialog'});
@@ -1331,7 +1340,7 @@ function editTrackDialog({track, eyebrow, onDelete}) {
     const [instrumentLabel$] = field('Instrument', instrument);
     const note = element('p', {className: 'host-help', textContent: 'Only personal guitar and bass parts play through a tone preset. Accompaniment audio keeps its recorded sound.'});
     form.append(element('p', {textContent: 'Choose a clear name for this part in your arrangement.'}), ...field('Track name', nameInput),
-      instrumentLabel$, wrapper, note, formActions(dialog, 'Apply', onDelete, 'Delete track'));
+      instrumentLabel$, wrapper, note, formActions(dialog, 'Apply'));
     body.append(form);
     dialog.addEventListener('close', () => resolve(dialog.returnValue === 'ok' && nameInput.value.trim()
       ? {name: nameInput.value.trim(), instrument: instrument.value} : null), {once: true});

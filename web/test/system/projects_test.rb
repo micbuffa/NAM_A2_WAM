@@ -21,7 +21,7 @@ class ProjectsTest < ApplicationSystemTestCase
     end
     assert_selector "#projectTitle", text: "Late night"
     assert_selector "#projectBpm", text: "84"
-    assert_selector "#projectSaveState", text: /\ASaved\z/i
+    assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
     assert_selector "#projectSelect optgroup[label='My projects'] option", text: "Late night · 0 tracks", visible: :all
 
     find("#projectEdit").click
@@ -33,7 +33,7 @@ class ProjectsTest < ApplicationSystemTestCase
     assert_equal "Late night", Project.last.name
 
     click_on "Save project"
-    assert_selector "#projectSaveState", text: /\ASaved\z/i
+    assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
     assert_equal [ "Later night", 84 ], Project.last.values_at(:name, :bpm)
   end
 
@@ -118,7 +118,7 @@ class ProjectsTest < ApplicationSystemTestCase
     assert_selector "#projectSaveState", text: /\AUnsaved changes\z/i
 
     click_on "Save project"
-    assert_selector "#projectSaveState", text: /\ASaved\z/i
+    assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
     assert_equal [ true, 60, "factory:svt-bass" ], Track.find_by(name: "Bass 1").values_at(:mute, :volume, :factory_preset)
   end
 
@@ -138,7 +138,7 @@ class ProjectsTest < ApplicationSystemTestCase
     open_rack_signed_in "alice@example.com"
     switch_to_projects
     find("#projectSelect").find("option", text: "Alice song").select_option
-    within(".track-row", text: "Rhythm") { find("tl-icon-button[aria-label='Edit Rhythm']").click }
+    edit_track "Rhythm"
     within("dialog[open]") do
       fill_in "Track name", with: "Lead vocal"
       select "Vocals", from: "Instrument"
@@ -146,11 +146,10 @@ class ProjectsTest < ApplicationSystemTestCase
     end
     assert_selector ".track-row.selected .track-name", text: "Lead vocal"
     click_on "Save project"
-    assert_selector "#projectSaveState", text: /\ASaved\z/i
+    assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
     assert_equal [ "Lead vocal", "vocals", nil ], tracks(:alice_rhythm).reload.values_at(:name, :instrument, :preset_id)
 
-    within(".track-row", text: "Lead vocal") { find("tl-icon-button[aria-label='Edit Lead vocal']").click }
-    within("dialog[open]") { click_on "Delete track" }
+    track_menu "Lead vocal", "Delete track"
     within("dialog[open]") { click_on "Delete" }
     assert_no_selector ".track-row", text: "Lead vocal"
     assert_not Track.exists?(tracks(:alice_rhythm).id)
@@ -164,26 +163,26 @@ class ProjectsTest < ApplicationSystemTestCase
     assert_equal %w[Drums Rhythm], all(".track-name").map(&:text)
     assert_selector "#projectSaveState", text: /unsaved/i
     click_on "Save project"
-    assert_selector "#projectSaveState", text: /\ASaved\z/i
+    assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
     assert_equal %w[Drums Rhythm], projects(:alice_song).tracks.reload.map(&:name)
 
     find("button[aria-label='Move Drums']").send_keys(:arrow_down)
     assert_equal %w[Rhythm Drums], all(".track-name").map(&:text)
     assert_selector "#inspectorTrackNumber", text: /Track 02/i
     click_on "Save project"
-    assert_selector "#projectSaveState", text: /\ASaved\z/i
+    assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
     assert_equal %w[Rhythm Drums], projects(:alice_song).tracks.reload.map(&:name)
 
     find("#projectSelect").find("option", text: "Bob jam").select_option
     assert_selector ".track-name", text: "Bass"
-    assert_no_selector ".track-grip"
+    assert_no_selector ".track-handle[draggable=true]"
   end
 
   test "a shared project's mix can be tried but not saved" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects
     find("#projectSelect").find("option", text: "Bob jam").select_option
-    assert_no_selector "tl-icon-button[aria-label='Edit Bass']"
+    assert_no_selector "tl-menu[label='Track actions: Bass']"
     find("button[aria-label='Mute Bass']").click
     assert_selector "button[aria-label='Mute Bass'][aria-pressed=true]"
     assert_selector "#projectSaveState", text: /\ARead-only\z/i
@@ -339,6 +338,15 @@ class ProjectsTest < ApplicationSystemTestCase
     end
 
     def switch_to_projects = switch_workspace("projects")
+
+    # Edit track and Delete track live in the track's ⋯ menu (tl-menu: the button is in its shadow root).
+    def track_menu(name, action)
+      menu = find("tl-menu[label='Track actions: #{name}']")
+      menu.shadow_root.find("[part=trigger]").click
+      within(menu) { click_on action }
+    end
+
+    def edit_track(name) = track_menu(name, "Edit track")
 
     def switch_workspace(name)
       page.execute_script("const s = document.getElementById('workspaceSwitch'); s.value = arguments[0]; s.dispatchEvent(new Event('change'))", name)

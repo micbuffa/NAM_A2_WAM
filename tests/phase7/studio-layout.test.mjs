@@ -12,12 +12,15 @@ function fixture(saved = null, broken = false, densityControl) {
 test('one import/new control in the persistent Studio toolbar; ruler and tracks share one viewport', async () => {
   const html = await readFile(new URL('../../examples/wam/index.html',import.meta.url),'utf8');
   const header = html.slice(html.indexOf('<header class="rack-header projects-header">'),html.indexOf('<div class="rack-canvas tracks-canvas"'));
-  for (const id of ['projectImport','projectNew','projectSave','projectAddTrack','projectUndo','projectRedo']) {
+  for (const id of ['projectImport','projectNew','projectSave','projectUndo','projectRedo']) {
     assert.match(header,new RegExp(`id="${id}"`));assert.equal(html.split(`id="${id}"`).length-1,1);
   }
   assert.match(html, /class="project-track-viewport"[^>]*aria-label="Tracks and timeline"[^>]*tabindex="0"/);
   const viewport=html.slice(html.indexOf('class="project-track-viewport"'));
   assert.ok(viewport.indexOf('project-ruler-row')<viewport.indexOf('id="projectTracks"'));
+  // Add track sits under the last track, not in the header.
+  assert.doesNotMatch(header,/id="projectAddTrack"/);
+  assert.ok(viewport.indexOf('id="projectTracks"')<viewport.indexOf('id="projectAddTrack"'));
 });
 
 test('track density defaults compact, persists locally and leaves project/audio state untouched',()=>{

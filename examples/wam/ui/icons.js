@@ -7,6 +7,7 @@ export const icons = {
   metronome: '<path d="M8 3h8l4 18H4L8 3ZM12 16l6-12M8 17h8"/>',
   audio: '<path d="M4 9v6"/><path d="M8 6v12"/><path d="M12 3v18"/><path d="M16 7v10"/><path d="M20 10v4"/>',
   chevron: '<path d="m8 10 4 4 4-4"/>',
+  more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
   close: '<path d="m6 6 12 12"/><path d="M18 6 6 18"/>',
   copy: '<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
   device: '<rect x="5" y="2.5" width="14" height="19" rx="3"/><circle cx="12" cy="16" r="2.5"/><path d="M9 7h6"/>',

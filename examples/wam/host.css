@@ -261,7 +261,6 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 
 /* Projects workspace (projects/ProjectsWorkspace.js): sidebar picker, header, empty state, track list. */
 .projects-header-actions { display: flex; align-items: center; gap: var(--tl-space-2); }
-.projects-header-actions tl-badge { margin-right: var(--tl-space-2); }
 .projects-header-actions [hidden] { display: none; }
 /* Studio Home (ProjectsWorkspace.renderHome): one table of the projects. */
 /* The table and its first column line up with the page title (header and canvas inset: 16px). */
@@ -332,11 +331,10 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .project-tracks { margin: 0; padding: 0; list-style: none; }
 .track-row { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); min-height: 92px; border-bottom: 1px solid var(--tl-border-subtle); cursor: pointer; }
 .track-row:last-child { border-bottom: 0; }
-.track-label:has(.track-grip) { padding-left: 4px; }
-.track-grip { flex: none; display: grid; place-items: center; width: 20px; height: 30px; padding: 0; color: var(--tl-text-faint); background: none;
-  border: 0; border-radius: var(--tl-radius-sm); cursor: grab; }
-.track-grip:hover { color: var(--tl-text-2); background: var(--tl-surface-3); }
-.track-grip:active { cursor: grabbing; }
+/* Icon + name drag the track (ProjectTimeline): no separate grip. */
+.track-handle { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.track-handle[draggable="true"] { cursor: grab; }
+.track-handle[draggable="true"]:active { cursor: grabbing; }
 /* Drag to reorder: the row being moved fades, a line marks where it lands. */
 .track-row { position: relative; }
 .track-row.dragging { opacity: .4; }
@@ -347,13 +345,15 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .track-label { display: flex; gap: var(--tl-space-3); min-width: 0; padding: 12px 14px 12px 16px; background: var(--tl-surface-1); border-right: 1px solid var(--tl-border-subtle); }
 .track-row:hover .track-label { background: var(--tl-surface-2); }
 .track-row.selected .track-label { background: var(--tl-surface-4); box-shadow: inset 3px 0 var(--tl-accent); }
-.track-icon { flex: none; display: grid; place-items: center; width: 30px; height: 30px; color: var(--tl-text-2); background: var(--tl-surface-3);
-  border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-sm); }
-.track-row.selected .track-icon { color: var(--tl-accent); border-color: var(--tl-accent-border); background: var(--tl-accent-tint); }
+.track-icon { flex: none; display: grid; place-items: center; color: var(--tl-text-2); }
+.track-row.selected .track-icon { color: var(--tl-accent); }
 .track-strip { flex: 1; min-width: 0; display: grid; gap: 4px; align-content: start; }
 .track-title-row { display: flex; align-items: center; gap: 4px; min-width: 0; min-height: 22px; }
 .track-name { min-width: 0; overflow: hidden; color: var(--tl-text); font-size: var(--tl-fs-md); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .track-title-row tl-icon-button { flex: none; width: 22px; height: 22px; }
+.track-menu { flex: none; margin-left: auto; }
+.track-menu::part(trigger) { width: 22px; height: 22px; border-color: transparent; background: none; }
+.track-menu::part(trigger):hover { background: var(--tl-surface-5); }
 .track-meta { overflow: hidden; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); text-overflow: ellipsis; white-space: nowrap; }
 .track-controls { display: flex; align-items: center; gap: var(--tl-space-3); margin-top: 4px; }
 .track-modes { display: flex; gap: 3px; }
@@ -362,6 +362,7 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .track-mode:hover:not(:disabled) { color: var(--tl-text); border-color: var(--tl-border-hover); }
 .track-mode:focus-visible { outline: none; box-shadow: var(--tl-focus-ring); }
 .track-mode:disabled { opacity: .35; cursor: not-allowed; }
+.track-mode.track-mode-placeholder { visibility: hidden; } /* I/R not used by this track: keeps the faders aligned */
 .track-mode-m.active { color: #121212; background: var(--tl-warning); border-color: var(--tl-warning); }
 .track-mode-s.active { color: #121212; background: #6cc4ff; border-color: #6cc4ff; }
 .track-mode-i.active { color: var(--tl-on-accent); background: var(--tl-accent); border-color: var(--tl-accent); }
@@ -387,10 +388,14 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
   .track-lane { min-height: 70px; border-top: 1px solid var(--tl-border-subtle); } }
 .project-tracks-empty { margin: 0; padding: 14px 18px; }
 .project-tracks-empty[hidden] { display: none; }
+/* Add track: a row under the last track, aligned with the track headers. */
+.project-add-track-row { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); border-top: 1px solid var(--tl-border-subtle); }
+.project-add-track-row tl-button { justify-self: start; margin: 8px 12px; }
+.project-add-track-row:has(> tl-button[hidden]) { display: none; }
+@media (max-width: 760px) { .project-add-track-row { grid-template-columns: minmax(0, 1fr); } }
 .project-dialog .project-bpm-field { display: flex; align-items: center; gap: var(--tl-space-2); }
 .project-dialog .project-bpm-field input { max-width: 110px; }
 .project-dialog .project-bpm-field strong { color: var(--tl-text-muted); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
-.project-dialog .project-dialog-delete { margin-right: auto; }
 .project-dialog tl-select { display: flex; }
 .share-add-row { display: flex; gap: var(--tl-space-2); }
 .share-add-row input { flex: 1; min-width: 0; }
@@ -509,11 +514,13 @@ body[data-workspace] { --tl-topbar-height: 66px; } /* brand rule level with the 
 .projects-header .preset-title-row, .play-header .preset-title-row { min-width: 0; flex-wrap: nowrap; }
 .projects-header h2, .play-header h2 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 18px; line-height: 1.3; }
 .projects-header .rack-kicker { display: none; }
+.projects-header .preset-title-row tl-badge[hidden] { display: none; }
+.projects-header .preset-title-row tl-badge { flex: none; }
 .projects-header .preset-meta, .play-header .preset-meta { margin: 2px 0 0; font-size: 10px; }
 .projects-header .preset-meta:empty { display: none; }
 .projects-header-actions { flex-wrap: wrap; gap: 6px; }
 .projects-header-actions tl-button, .play-header .preset-header-actions tl-button { height: 30px; padding-inline: 9px; font-size: 11px; }
-.projects-header-actions tl-icon-button { width: 30px; height: 30px; }
+.projects-header-actions tl-icon-button, .projects-header-actions tl-menu::part(trigger) { width: 30px; height: 30px; }
 .projects-header-actions tl-badge { margin: 0; }
 .project-track-viewport { min-width: 0; }
 .project-track-viewport:focus-visible { outline: 2px solid var(--tl-accent); outline-offset: -2px; }
@@ -589,7 +596,6 @@ body[data-workspace="projects"] .project-master input { width:80px; }
 .track-row.recording .track-lane { box-shadow: inset 0 0 0 1px var(--tl-danger); }
 body[data-workspace="projects"][data-studio-density="compact"] .track-row { min-height: 76px; }
 body[data-workspace="projects"][data-studio-density="compact"] .track-label { padding: 6px 8px 6px 4px; gap: 6px; align-items: center; }
-body[data-workspace="projects"][data-studio-density="compact"] .track-icon { width: 24px; height: 24px; }
 body[data-workspace="projects"][data-studio-density="compact"] .track-meta { display: none; }
 body[data-workspace="projects"][data-studio-density="compact"] .track-controls { margin-top: 0; gap: 6px; }
 body[data-workspace="projects"][data-studio-density="compact"] .track-lane { padding-block: 6px; }

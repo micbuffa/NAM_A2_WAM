@@ -380,7 +380,7 @@ can be retried with Save project while the preview remains open; after reload,
 completed uploads can be published and unfinished uploads discarded. Limits are
 512 MiB per stem, 2 GiB per project and 5 GiB per account for separation uploads.
 Shared listeners can listen/remix locally but cannot save over the owner's mix.
-Use **Use mix in Play** to render a persistent stereo MP3 (192 kbit/s) from the
+Use **⋯ › Export to play along** to render a persistent stereo MP3 (192 kbit/s) from the
 saved deck. **Mix export range** defaults to the entire song; A/B-only is explicit.
 The backing appears in Play / Play along without autoplay, with **Download MP3**
 and **Open in Studio**. A message beside the export button explains when saved
@@ -546,7 +546,7 @@ On `codex/studio-integration`, choose **Execution engine** in Studio’s **Separ
 
 ### Use a stopped or unsaved instrument mix in Play
 
-After stopping separation once some audio is ready, click **Use mix in Play** without saving. The available audio is mixed using current volume/pan/mute/solo and encoded as a temporary MP3. Completed RAM previews and unsaved recorded-track mixer changes work too. **Return to Studio** preserves the current unsaved preview. Temporary mixes are session-only (two recent entries, one per project); use **Save Project** separately to keep the stems or **Download MP3** to keep the mix file.
+After stopping separation once some audio is ready, click **⋯ › Export to play along** without saving. The available audio is mixed using current volume/pan/mute/solo and encoded as a temporary MP3. Completed RAM previews and unsaved recorded-track mixer changes work too. **Return to Studio** preserves the current unsaved preview. Temporary mixes are session-only (two recent entries, one per project); use **Save Project** separately to keep the stems or **Download MP3** to keep the mix file.
 
 
 ### Studio appearance and compact UI roadmap

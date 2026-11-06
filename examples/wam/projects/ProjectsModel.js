@@ -68,6 +68,8 @@ export const usesPreset = (instrument) => PRESET_INSTRUMENTS.includes(instrument
 // Missing origin is accepted for older API payloads. Explicit accompaniment
 // origins never acquire a tone by changing their instrument label.
 export const usesTrackPreset = (track) => ['personal', 'legacy'].includes(track.origin ?? 'legacy') && usesPreset(track.instrument);
+// Recording (R) and input monitoring (I) belong to your own guitar and bass tracks.
+export const recordableTrack = (track) => Boolean(track) && track.origin === 'personal' && usesTrackPreset(track);
 export const originLabel = (track) => ({personal: 'Personal part', original: 'Accompaniment', stem: 'Separated stem', mix: 'Backing mix', legacy: 'Existing part'}[track.origin ?? 'legacy'] ?? 'Audio');
 export const instrumentLabel = (id) => INSTRUMENTS.find((entry) => entry.id === id)?.label ?? id;
 

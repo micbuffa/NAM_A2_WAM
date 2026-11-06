@@ -5,12 +5,19 @@ import {LiveWaveform} from './recording/LiveWaveform.js';
 // built once per track list and updated in place, so a fader keeps its drag.
 // Each lane draws its file's waveform with the WaveSurfer renderer, on the
 // shared time axis of the bar ruler; the playhead crosses every lane. The
-// owner reorders tracks by dragging their grip (or with its arrow keys).
+// owner reorders tracks by dragging their icon and name (or with Alt+Up/Down).
 // Dragging on the ruler draws the loop region (whole bars, Alt: exact
 // positions), shown on the ruler and across every lane; a click seeks.
-import {formatClock, instrumentLabel, originLabel, panLabel, resizeLoop, rulerBars, snapLoop, usesTrackPreset, volumeLabel} from './ProjectsModel.js';
+import {formatClock, instrumentLabel, originLabel, panLabel, recordableTrack, resizeLoop, rulerBars, snapLoop, usesTrackPreset, volumeLabel} from './ProjectsModel.js';
 
 const element = (tag, className, properties = {}) => Object.assign(document.createElement(tag), {className, ...properties});
+// A track control that does not apply to this track: invisible and out of reach, but still taking its place.
+const placeholder = (button, unused) => {
+  button.classList.toggle('track-mode-placeholder', unused);
+  button.toggleAttribute('aria-hidden', unused);
+  button.tabIndex = unused ? -1 : 0;
+  if (unused) button.disabled = true;
+};
 
 export class ProjectTimeline {
   // root: carries the playhead and bar grid variables; ruler: the bar numbers.
@@ -293,6 +300,7 @@ export class ProjectTimeline {
     row.root.setAttribute('aria-current', String(selected));
     row.name.textContent = track.name;
     for (const [control, label] of row.labels) control.setAttribute('aria-label', `${label} ${track.name}`);
+    row.menu?.setAttribute('label', `Track actions: ${track.name}`);
     row.meta.textContent = [originLabel(track), instrumentLabel(track.instrument), usesTrackPreset(track) && (this.presetName(track) || 'No preset')]
       .filter(Boolean).join(' · ');
     row.icon.setAttribute('name', usesTrackPreset(track) ? 'guitar' : 'audio');
@@ -302,10 +310,11 @@ export class ProjectTimeline {
     }
     row.name.title=`${track.name} · ${row.meta.textContent}`;
     row.name.setAttribute('aria-description',row.meta.textContent);
-    row.modes.inputMonitoring.hidden=!usesTrackPreset(track);
     if(!this.locked)row.modes.inputMonitoring.disabled = !usesTrackPreset(track);
+    placeholder(row.modes.inputMonitoring, !usesTrackPreset(track));
+    if (row.arm) placeholder(row.arm, !recordableTrack(track));
     row.modes.inputMonitoring.title = usesTrackPreset(track)
-      ? 'Input monitoring: play your guitar through this track’s preset' : 'Input monitoring is for personal guitar and bass parts';
+      ? 'Input monitoring: play your guitar through this track’s preset' : 'Input monitoring is for your own guitar and bass tracks';
     row.volume.dataset.popupValue = volumeLabel(track.volume);
     if (Number(row.volume.value) !== track.volume) row.volume.value = track.volume;
     if (Number(row.pan.value) !== track.pan) row.pan.value = track.pan;
@@ -327,6 +336,8 @@ export class ProjectTimeline {
     icon.setAttribute('size', '16');
     const badge = element('span', 'track-icon');
     badge.append(icon);
+    // Icon + name: the handle that drags the track to a new place (owner only).
+    const handle = element('span', 'track-handle');
     const meter = element('div', 'track-level-meter');
     meter.setAttribute('role', 'meter'); meter.setAttribute('aria-label', `Level ${track.name}`);
     meter.setAttribute('aria-valuemin', '-60'); meter.setAttribute('aria-valuemax', '0'); meter.setAttribute('aria-valuenow', '-60');
@@ -337,22 +348,26 @@ export class ProjectTimeline {
     const labels = []; // [control, verb]: aria-labels follow renames
     const title = element('div', 'track-title-row');
     const name = element('strong', 'track-name');
-    title.append(name);
+    handle.append(badge, name);
+    title.append(handle);
+    // Edit and Delete: in the track's ⋯ menu, at the right end of its title row.
+    let menu = null;
     if (editable) {
-      const rename = document.createElement('tl-icon-button');
-      Object.entries({icon: 'edit', size: 'sm', variant: 'ghost', 'aria-label': `Edit ${track.name}`, title: 'Edit track'})
-        .forEach(([key, value]) => rename.setAttribute(key, value));
-      rename.onclick = (event) => { event.stopPropagation(); this.onSelect(id); this.onEdit(id); };
-      title.append(rename); structuralControls.push(rename);
-      labels.push([rename, 'Edit']);
-      if (this.onDelete) {
-        const remove = document.createElement('tl-icon-button');
-        Object.entries({icon: 'trash', size: 'sm', variant: 'ghost', title: 'Delete track'})
-          .forEach(([key, value]) => remove.setAttribute(key, value));
-        remove.onclick = event => { event.stopPropagation(); this.onDelete(id); };
-        title.append(remove); structuralControls.push(remove);
-        labels.push([remove, 'Delete']);
-      }
+      menu = document.createElement('tl-menu');
+      menu.className = 'track-menu';
+      menu.setAttribute('size', 'sm');
+      const item = (icon, text, action) => {
+        const button = element('button', '', {type: 'button'});
+        const glyph = document.createElement('tl-icon');
+        glyph.setAttribute('name', icon); glyph.setAttribute('size', '15');
+        button.append(glyph, text);
+        button.onclick = (event) => { event.stopPropagation(); action(); };
+        menu.append(button);
+      };
+      item('edit', 'Edit track', () => { this.onSelect(id); this.onEdit(id); });
+      if (this.onDelete) item('trash', 'Delete track', () => this.onDelete(id));
+      menu.onclick = (event) => event.stopPropagation();
+      title.append(menu); structuralControls.push(menu);
     }
     const meta = element('small', 'track-meta');
 
@@ -377,8 +392,9 @@ export class ProjectTimeline {
       inputMonitoring: mode('inputMonitoring', 'I', 'Input monitoring', () => this.onMonitor(id)),
     };
 
-    const arm = editable && track.origin === 'personal' && usesTrackPreset(track) && this.onArm
-      ? mode('armed', 'R', 'Arm recording', () => this.onArm(id)) : null;
+    // I and R exist on every track of an editable project but only show on your own guitar and
+    // bass tracks; elsewhere they keep their place (see placeholder()), so the faders line up.
+    const arm = editable && this.onArm ? mode('armed', 'R', 'Arm recording', () => this.onArm(id)) : null;
 
     if (arm) structuralControls.push(arm);
     const volume = element('input', '', {type: 'range', min: 0, max: 100, step: 1, value: track.volume});
@@ -420,26 +436,23 @@ export class ProjectTimeline {
     controls.append(modeGroup, fader, knob);
     strip.append(title, meta, controls);
     if (editable) {
-      const grip = element('button', 'track-grip', {type: 'button', draggable: true, title: 'Drag to reorder (or use the arrow keys)'});
-      const gripIcon = document.createElement('tl-icon');
-      gripIcon.setAttribute('name', 'grip');
-      gripIcon.setAttribute('size', '16');
-      grip.append(gripIcon);
-      labels.push([grip, 'Move']);
-      grip.onclick = (event) => event.stopPropagation();
-      grip.ondragstart = (event) => this.startDrag(event, id);
-      grip.ondragend = () => this.endDrag();
-      grip.onkeydown = (event) => {
-        const step = {ArrowUp: -1, ArrowDown: 1}[event.key];
+      handle.draggable = true;
+      handle.title = 'Drag to reorder · Alt+↑/↓';
+      handle.ondragstart = (event) => this.startDrag(event, id);
+      handle.ondragend = () => this.endDrag();
+      structuralControls.push(handle);
+      // Alt+Up/Down moves the track from any of its controls. Captured first, so a focused
+      // fader or knob does not also take the arrow.
+      root.addEventListener('keydown', (event) => {
+        const step = event.altKey && !event.ctrlKey && !event.metaKey && {ArrowUp: -1, ArrowDown: 1}[event.key];
         if (!step) return;
-        event.preventDefault();
+        event.preventDefault(); event.stopPropagation();
+        if (this.locked || this.rows.get(id)?.structuralLocked) return;
         const index = this.ids().indexOf(id) + step;
         if (index >= 0 && index < this.rows.size) this.onMove(id, index);
-      };
-      structuralControls.push(grip);
-      label.append(grip);
+      }, true);
     }
-    label.append(badge, strip);
+    label.append(strip);
 
     const lane = element('div', 'track-lane');
     const area = element('div', 'track-lane-area');
@@ -456,6 +469,6 @@ export class ProjectTimeline {
     };
     lane.append(area);
     root.append(label, lane);
-    return {root, track, structuralControls, icon, name, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, labels};
+    return {root, track, structuralControls, icon, name, menu, meta, modes, arm, meter, volume, pan, lane, clip, clipName, wave, note, labels};
   }
 }

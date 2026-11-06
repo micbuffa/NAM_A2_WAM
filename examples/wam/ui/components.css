@@ -69,3 +69,11 @@
   tl-select > select optgroup option { margin-top: 2px; letter-spacing: normal; text-transform: none; }
   tl-select > select optgroup option:not(:checked, :hover, :focus-visible) { color: var(--tl-text-2); }
 }
+
+/* tl-menu items (components/tl-menu.js): light-DOM <button>s so app code keeps ids and handlers. */
+tl-menu > button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 30px; margin: 0; padding: 6px 10px;
+  border: 0; border-radius: var(--tl-radius-sm); background: none; color: var(--tl-text-2); box-shadow: none;
+  font: 500 12px/1.2 var(--tl-font-ui); text-align: left; white-space: nowrap; cursor: pointer; }
+tl-menu > button:hover, tl-menu > button:focus-visible { border: 0; background: var(--tl-surface-5); color: var(--tl-text); outline: none; box-shadow: none; }
+tl-menu > button[hidden] { display: none; }
+tl-menu > button:disabled { opacity: .4; background: none; cursor: not-allowed; }
