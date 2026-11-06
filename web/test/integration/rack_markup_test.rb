@@ -27,6 +27,8 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "#studioSeparation[hidden]", count: 1
     assert_select "#studioSeparate", text: "Separate instruments"
     assert_select "#studioStop[hidden]", text: "Stop separation"
+    # Once separated, Separate again… moves to the project's ⋯ menu (hidden until then).
+    assert_select "#projectMore #projectSeparateAgain[hidden][aria-haspopup=dialog]", text: "Separate again…"
     # The chooser creates this field dynamically; the whole-song default and
     # excerpt dispatch are covered by the StudioSeparationView unit tests.
     assert_select "#studioExcerpt", count: 0
@@ -60,7 +62,13 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
   test "recording shares the transport and has no redundant input panel" do
     get "/rack/"
     assert_select ".project-transport #projectRecord[aria-label=Record]", count: 1
-    assert_select ".project-transport #projectRecordStop[aria-label=Stop]", count: 1
+    assert_select "#projectRecordStop", count: 0
+    assert_select ".project-transport #projectPlay[icon=play][size=sm]", count: 1
+    # Loop is one LED toggle; the × that clears the region starts hidden.
+    assert_select ".project-loop #projectLoop.led-toggle", count: 1
+    assert_select ".project-loop #projectLoopReset[hidden][aria-label=?]", "Clear the loop", count: 1
+    assert_select ".project-loop-head", count: 0
+    assert_select ".project-position #projectClock + #projectBarBeat", count: 1
     assert_select "#recordPanel, #recordArm, #recordMonitor", count: 0
     assert_select "#recordStatusBar #recordStatus[role=status]", count: 1
     assert_select "#recordOptionsPanel #recordCurrentTone", count: 1

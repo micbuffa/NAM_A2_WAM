@@ -978,7 +978,7 @@ export class ProjectsWorkspace extends EventTarget {
     if(this.$('projectMasterVolume')){const volume=Math.round((player?.masterVolume??1)*100);this.$('projectMasterVolume').value=String(volume);this.$('projectMasterVolume').setAttribute('aria-valuetext',volume+'%');this.$('projectMasterValue').textContent=volume+'%';}
     const play = this.$('projectPlay');
     play.disabled = player?.ready === false || !player?.duration;
-    play.textContent = playing ? '❚❚ Pause' : '▶ Play';
+    play.setAttribute('icon', playing ? 'pause' : 'play');
     play.title = play.disabled ? 'Record or import audio first; playback becomes available when audio is ready.' : playing ? 'Pause' : 'Play';
     play.setAttribute('aria-label', playing ? 'Pause' : 'Play');
     play.setAttribute('aria-pressed', String(playing));
@@ -988,9 +988,10 @@ export class ProjectsWorkspace extends EventTarget {
     const loopButton = this.$('projectLoop');
     loopButton.disabled = !player?.duration;
     loopButton.setAttribute('aria-pressed', String(loop.enabled));
-    loopButton.querySelector('span').textContent = loop.enabled ? 'On' : 'Off';
     const region = loopLabel(loop, this.project?.bpm ?? BPM_RANGE.default, this.project?.timeSignature);
     loopButton.title = `Loop (L)${region ? ` · ${region}` : ''} · drag on the bar ruler to choose the bars`;
+    // Clear the loop: only shown once a loop region exists.
+    this.$('projectLoopReset').hidden = !(loop.end > loop.start);
     this.$('projectLoopReset').disabled = !player?.duration || !(loop.end > loop.start);
     this.timeline.setLoop(loop);
     this.renderMixExport();

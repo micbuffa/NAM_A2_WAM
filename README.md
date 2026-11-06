@@ -295,7 +295,7 @@ during recording, only when its speaker toggle is explicitly enabled.
 
 First recording increment: add an empty **personal guitar/bass** track, choose the
 input/channel in Play, then **Arm track (microphone icon or R) → Record →
-Stop recording → Save project**. Arming enables input metering without speaker
+Record again to stop → Save project**. Arming enables input metering without speaker
 feedback; the speaker icon independently toggles monitoring, including during a
 take. Record starts after one bar of count-in by default (Off/1/2 bars). The
 metronome button optionally keeps clicks during the take. Click the tempo label
@@ -356,7 +356,7 @@ complete passes and the last incomplete pass (up to three complete passes plus
 one fragment, bounded by100MiB). Choose then Play to audition. Only a fully successful project save closes the other RAM choices. Failed upload,
 project update or preset export retains them for retry; already uploaded audio is
 reused. Save keeps the selected version. Loop auditions share one
-Undo command. No valid A/B range means free recording until Stop. Undo/Redo
+Undo command. No valid A/B range means free recording until Record is clicked again. Undo/Redo
 works before and after Save in the open session, with two audio operations retained;
 reloading clears the session history. Rails retains at most two inactive take
 versions per project, without duplicating shared blobs. Run `bin/rails db:migrate`

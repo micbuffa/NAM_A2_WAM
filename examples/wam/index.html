@@ -127,6 +127,7 @@
           <tl-button id="projectSave" variant="primary" icon="save" hidden disabled>Save project</tl-button>
           <tl-menu id="projectMore" label="More project actions">
             <button id="studioUseMix" type="button" aria-haspopup="dialog" hidden disabled><tl-icon name="play" size="15"></tl-icon>Export to play along</button>
+            <button id="projectSeparateAgain" type="button" aria-haspopup="dialog" hidden disabled><tl-icon name="sliders" size="15"></tl-icon>Separate again…</button>
             <button id="projectMenuImport" type="button" aria-haspopup="dialog" hidden><tl-icon name="audio" size="15"></tl-icon>Import audio</button>
             <button id="projectResetMix" type="button" title="Back to the owner's mix" hidden><tl-icon name="undo" size="15"></tl-icon>Reset mix</button>
             <button id="projectLeave" type="button" aria-haspopup="dialog" title="Stop seeing this project" hidden><tl-icon name="close" size="15"></tl-icon>Leave project</button>
@@ -184,19 +185,23 @@
           <header class="project-timeline-head">
             <div class="project-transport" role="group" aria-label="Transport">
               <tl-icon-button id="projectRewind" icon="rewind" size="sm" aria-label="Return to start" title="Return to start" disabled></tl-icon-button>
-              <tl-button id="projectPlay" variant="primary" aria-label="Play" title="Play" aria-pressed="false" disabled>▶ Play</tl-button>
+              <tl-icon-button id="projectPlay" size="sm" icon="play" aria-label="Play" title="Play" aria-pressed="false" disabled></tl-icon-button>
               <tl-icon-button id="projectRecord" size="sm" icon="record" aria-label="Record" title="Arm a personal track using its microphone icon, then Record" aria-pressed="false" disabled></tl-icon-button>
-              <tl-icon-button id="projectRecordStop" size="sm" icon="stop" aria-label="Stop" title="Stop playback or recording" disabled></tl-icon-button>
             </div>
+            <span class="project-head-sep" aria-hidden="true"></span>
             <label class="project-master">Master <input id="projectMasterVolume" type="range" min="0" max="100" step="1" value="100" aria-label="Studio master volume"><output id="projectMasterValue" for="projectMasterVolume">100%</output></label>
-            <strong class="project-clock" id="projectClock" role="timer" aria-label="Position">00:00.00</strong>
-            <span class="project-bar" id="projectBarBeat" title="Bar.beat">1.1</span>
+            <span class="project-head-sep" aria-hidden="true"></span>
+            <div class="project-position" role="group" aria-label="Time">
+              <strong class="project-clock" id="projectClock" role="timer" aria-label="Position">00:00.00</strong>
+              <span class="project-bar" id="projectBarBeat" title="Bar.beat">1.1</span>
+            </div>
+            <span class="project-head-sep" aria-hidden="true"></span>
             <div class="project-loop" role="group" aria-label="Loop">
-              <span class="project-loop-head">Loop</span>
-              <button id="projectLoop" class="led-toggle" type="button" aria-pressed="false" aria-label="Loop" disabled><i></i><span>Off</span></button>
-              <tl-button id="projectLoopReset" size="sm" variant="ghost" title="Clear the loop" disabled>Reset</tl-button>
+              <button id="projectLoop" class="led-toggle" type="button" aria-pressed="false" disabled><i></i>Loop</button>
+              <tl-icon-button id="projectLoopReset" size="sm" variant="ghost" icon="close" aria-label="Clear the loop" title="Clear the loop" hidden disabled></tl-icon-button>
             </div>
             <tl-button class="project-tempo" id="projectTimelineTempo" size="sm" variant="ghost" title="Project tempo and time signature"></tl-button>
+            <span class="project-head-sep" aria-hidden="true"></span>
             <tl-button id="projectMetronome" size="sm" icon="metronome" aria-pressed="false" title="Click during the take">Click</tl-button>
 
           </header>

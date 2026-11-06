@@ -29,8 +29,7 @@ export class StudioRecording {
     $('recordDiscard').onclick = () => this.act(() => this.discard());
     for(const [id,after] of [['recordCompareBefore',false],['recordCompareAfter',true]])if($(id))$(id).onclick=()=>this.act(()=>this.takeHistory.compare(after));
     if($('recordLoopTake'))$('recordLoopTake').onchange=()=>this.act(()=>this.loopReview?.choose(Number($('recordLoopTake').value)));
-    $('projectRecord').onclick = () => this.act(() => this.start());
-    $('projectRecordStop').onclick = () => this.act(() => this.stopTransport());
+    $('projectRecord').onclick = () => this.act(() => this.toggleRecording());
     if ($('recordCalibrate')) this.calibration = new RecordingCalibration(this, {beginCalibration});
     this.sourceChanged = () => {
       if (this.calibration?.running) this.calibration.cancel('Audio input changed. Calibration cancelled.');
@@ -140,10 +139,11 @@ export class StudioRecording {
       tones?.addEventListener('change', changed); changed();
     });
   }
-  async stopTransport() {
-    if(['preparing','counting','recording'].includes(this.state))return this.stop();
-    if(!this.busy)this.workspace.player.stop();
+  // Record is a toggle: it starts a take, and stops it (cancels it during preparation or count-in).
+  async toggleRecording() {
+    return this.stoppable ? this.stop() : this.start();
   }
+  get stoppable() { return ['preparing','counting','recording'].includes(this.state); }
   async start() {
     const w = this.workspace;
     if(this.busy||w.separation?.result)return;
@@ -320,12 +320,10 @@ export class StudioRecording {
     if($('recordSettingsTrack'))$('recordSettingsTrack').textContent=track?`Selected track: ${track.name}`:'Select a personal guitar or bass track.';
     $('recordCurrentTone').disabled=!eligible||this.busy;
     $('projectRecord').hidden=!w.owned;
-    $('projectRecord').disabled=!recordable||this.busy;
+    $('projectRecord').disabled=this.busy?!this.stoppable:!recordable;
     $('projectRecord').setAttribute('aria-pressed',String(['counting','recording'].includes(this.state)));
-    const ab=w.player.loop,rangeLabel=ab&&ab.end-ab.start>=.05?(ab.enabled?'A/B loop · multiple takes':'A/B punch · playback continues after B'):'Free recording · until Stop';
-    $('projectRecord').title=w.separation?.result?'Save the separated instruments before recording.':recordable?`Record to ${armedTrack.name} · ${rangeLabel} · count-in ${this.metronome?.countInBars??1} bar(s)`:'Arm a personal guitar or bass track using its microphone icon (R).';
-    $('projectRecordStop').disabled=this.busy?!['preparing','counting','recording'].includes(this.state):!w.player?.playing&&!(w.player?.position>0);
-    $('projectRecordStop').title=this.busy?'Stop recording (during count-in: cancel take)':'Stop playback';
+    const ab=w.player.loop,rangeLabel=ab&&ab.end-ab.start>=.05?(ab.enabled?'A/B loop · multiple takes':'A/B punch · playback continues after B'):'Free recording · click Record again to stop';
+    $('projectRecord').title=this.state==='recording'?'Stop recording':this.stoppable?'Cancel take':this.state==='calibrating'?'Calibration in progress':this.busy?'Finishing the take…':w.separation?.result?'Save the separated instruments before recording.':recordable?`Record to ${armedTrack.name} · ${rangeLabel} · count-in ${this.metronome?.countInBars??1} bar(s)`:'Arm a personal guitar or bass track using its microphone icon (R).';
     if($('projectMetronome')){$('projectMetronome').setAttribute('aria-pressed',String(Boolean(this.metronome?.enabled)));$('projectMetronome').title='Click during the take: '+(this.metronome?.enabled?'on':'off');}
     if($('projectCountIn'))$('projectCountIn').disabled=this.busy;
     if($('projectTimelineTempo'))$('projectTimelineTempo').disabled=this.busy;
@@ -342,7 +340,7 @@ export class StudioRecording {
     for (const id of ['projectNew', 'projectImport', 'projectMenuImport', 'projectResetMix', 'projectAddTrack', 'projectEdit', 'projectShare', 'projectLeave', 'projectSave', 'projectUndo', 'projectRedo', 'projectPlay', 'projectRewind', 'projectLoop', 'projectLoopReset']) {
       if (this.busy && $(id)) { this.disabled ??= new Map(); if (!this.disabled.has($(id))) this.disabled.set($(id), $(id).disabled); $(id).disabled = true; }
     }
-    if ($('studioUseMix') && this.busy) $('studioUseMix').disabled = true;
+    for (const id of ['studioUseMix', 'projectSeparateAgain']) if ($(id) && this.busy) $(id).disabled = true;
     if($('projectTracks'))$('projectTracks').inert=Boolean(w.saving);
     for (const id of ['projectRuler','studioSeparation']) if($(id))$(id).inert=this.busy||Boolean(w.saving);
   }

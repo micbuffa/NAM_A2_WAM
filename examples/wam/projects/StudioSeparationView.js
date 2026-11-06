@@ -37,6 +37,7 @@ export class StudioSeparationView {
       }
     };
     this.$('studioSeparate').onclick = () => this.chooseModel();
+    this.$('projectSeparateAgain').onclick = () => this.chooseModel();
     this.$('studioStop').onclick = () => c.stop();
     this.$('studioModel').onchange = this.$('studioBackend').onchange = async () => {
       const model = this.$('studioModel').value, backend = this.$('studioBackend').value;
@@ -225,20 +226,27 @@ export class StudioSeparationView {
     this.$('studioBackend').value = c.backend;
     this.$('studioBackend').querySelector('[value="webgpu"]').disabled = !c.gpu;
     for(const {value,disabled} of studioBackendOptions({webgpu:c.gpu,webnn:c.webnn,modelId:c.modelId,directAvailable:!!c.directAssets?.available}))this.$('studioBackend').querySelector(`[value="${value}"]`).disabled=disabled;
-    const savedBackend = !c.result && c.mode === 'stems' ? batches.find(batch => batch.id === c.activeSavedId)?.manifest.backend : null;
-    this.$('studioBackendLabel').textContent = `${c.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4'} · ${backendLabel(savedBackend ?? c.effectiveBackend ?? c.backend)}`;
-    this.$('studioSeparate').hidden = Boolean(c.busy || !w.owned);
-    this.$('studioSeparate').textContent = c.result || c.activeSavedId ? 'Separate again' : 'Separate instruments';
+    // Model · engine that WILL be used: shown before the first separation and while one runs,
+    // not beside a saved separation (it would read as the engine of that old result).
+    const backendLabelEl = this.$('studioBackendLabel');
+    backendLabelEl.hidden = !c.busy && Boolean(c.activeSavedId || c.result);
+    backendLabelEl.textContent = backendLabelEl.hidden ? '' : `${c.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4'} · ${backendLabel(c.busy ? c.effectiveBackend ?? c.backend : c.backend)}`;
+    // Separate instruments is the panel's main action until the project is separated;
+    // after that, Separate again… lives in the project's ⋯ menu.
+    const separated = Boolean(c.result || c.activeSavedId);
+    this.$('studioSeparate').hidden = Boolean(c.busy || !w.owned || separated);
+    this.$('projectSeparateAgain').hidden = !w.owned || !separated;
     this.$('studioSeparate').setAttribute('variant', c.hasAudio ? 'ghost' : 'primary');
     const trackState = this.$('studioTrackState');
     trackState.textContent = separationTrackState(c);
     trackState.hidden = !trackState.textContent;
-    this.$('studioSeparate').disabled = w.saving || !w.owned || c.busy || !sources.length || !model;
+    this.$('studioSeparate').disabled = this.$('projectSeparateAgain').disabled = w.saving || !w.owned || c.busy || !sources.length || !model;
     this.$('studioStop').hidden = !c.busy;
     this.$('studioSource').disabled = w.saving || c.busy;
     this.$('studioCheckCache').disabled = this.$('studioRemoveCache').disabled = c.busy || !model || isDirectWebNN(c.backend);
     const status = `${c.status}${c.result && c.busy ? ` · ${c.result.engine.availableDuration.toFixed(1)} s ready${w.player.waiting ? ' · buffering' : ''}` : ''}`;
     if (this.$('studioStatus').textContent !== status) this.$('studioStatus').textContent = status;
+    this.$('studioStatus').title = c.statusDetail || '';
     const progress = this.$('studioProgress');
     progress.hidden = !c.busy && !w.saving;
     if (c.progress === null) progress.removeAttribute('value');

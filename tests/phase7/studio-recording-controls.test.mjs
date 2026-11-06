@@ -30,25 +30,28 @@ test('count-in/capture keeps only the armed speaker usable; controls, selection,
  r.setState('counting');const armed=rows.get(1),other=rows.get(2);
  assert.equal(nodes.get('projectTracks').inert,false);assert.equal(w.timeline.locked,true);assert.equal(armed.modes.inputMonitoring.disabled,false);assert.equal(other.modes.inputMonitoring.disabled,true);
  for(const c of [...armed.structuralControls,armed.volume,armed.pan,armed.modes.mute,armed.modes.solo])assert.equal(c.disabled,true);
- assert.equal(armed.lane.inert,true);assert.equal(nodes.get('projectRuler').inert,true);assert.equal(nodes.get('projectRecordStop').disabled,false);
+ assert.equal(armed.lane.inert,true);assert.equal(nodes.get('projectRuler').inert,true);assert.equal(nodes.get('projectRecord').disabled,false);assert.equal(nodes.get('projectRecord').title,'Cancel take');
  await r.monitor();assert.equal(w.selectedTrack.inputMonitoring,true);await r.monitor();assert.equal(w.selectedTrack.inputMonitoring,false);assert.equal(calls.filter(c=>c[0]==='tracks').length,2);
  r.setState('idle');assert.equal(w.timeline.locked,false);assert.equal(armed.volume.disabled,false);assert.equal(other.volume.disabled,true);assert.equal(armed.lane.inert,false);assert.equal(armed.arm.disabled,false);
 });
-test('shared Stop stops playback or cancels/stops capture; finalization never invokes another stop',async()=>{
- const {r,w,nodes,calls}=setup();w.player.playing=true;r.render();assert.equal(nodes.get('projectRecordStop').disabled,false);await r.stopTransport();assert.deepEqual(calls,[['stop']]);
- for(const state of ['preparing','counting','recording']){r.state=state;r.stop=async()=>calls.push([state]);await r.stopTransport();}
- r.state='finalizing';r.render();assert.equal(nodes.get('projectRecordStop').disabled,true);await r.stopTransport();assert.equal(calls.length,4);
+test('Record toggles: it starts a take, cancels or stops it, and is locked while the take is finishing',async()=>{
+ const {r,nodes,calls}=setup();r.start=async()=>calls.push(['start']);r.stop=async()=>calls.push(['stop '+r.state]);
+ await r.toggleRecording();assert.deepEqual(calls,[['start']]);
+ for(const state of ['preparing','counting','recording']){r.state=state;r.render();assert.equal(nodes.get('projectRecord').disabled,false);await r.toggleRecording();}
+ assert.deepEqual(calls.slice(1),[['stop preparing'],['stop counting'],['stop recording']]);
+ r.state='recording';r.render();assert.equal(nodes.get('projectRecord').title,'Stop recording');assert.equal(nodes.get('projectRecord').getAttribute('aria-pressed'),'true');
+ for(const state of ['finalizing','calibrating']){r.state=state;r.render();assert.equal(nodes.get('projectRecord').disabled,true);}
 });
 test('removed tracks, read-only projects, previews and pending take limits cannot record through the global button',()=>{
  for(const change of [f=>f.w.project.tracks[0].removedAt='now',f=>f.w.owned=false,f=>f.w.saving=true,f=>f.w.separation={busy:true},f=>f.w.separation={result:{engine:{complete:true}}},f=>f.r.pending=new Map([[3,{}],[4,{}]])]){
   const f=setup();change(f);f.r.render();assert.equal(f.nodes.get('projectRecord').disabled,true);
  }
 });
-test('the product keeps one Record/Stop pair, no duplicate monitor/arm panel, and secondary commands in settings',async()=>{
+test('the product keeps one Record toggle and no Stop button, no duplicate monitor/arm panel, and secondary commands in settings',async()=>{
  const html=await readFile(new URL('../../examples/wam/index.html',import.meta.url),'utf8');
  assert.doesNotMatch(html,/id="record(?:Panel|Arm|Monitor|Options)"|id="studioOptions"/);
- for(const id of ['projectRecord','projectRecordStop','recordStatus','recordCurrentTone','recordDiscard'])assert.equal(html.split(`id="${id}"`).length-1,1);
- assert.match(html,/<div class="project-transport"[^>]*>[\s\S]*id="projectRecord"[\s\S]*id="projectRecordStop"[\s\S]*?<\/div>/);
+ for(const id of ['projectRecord','recordStatus','recordCurrentTone','recordDiscard'])assert.equal(html.split(`id="${id}"`).length-1,1);
+ assert.match(html,/<div class="project-transport"[^>]*>[\s\S]*id="projectRecord"[\s\S]*?<\/div>/);assert.doesNotMatch(html,/id="projectRecordStop"/);
  assert.match(html,/id="recordOptionsPanel"[\s\S]*id="recordCurrentTone"[\s\S]*id="recordDiscard"/);
 });
 

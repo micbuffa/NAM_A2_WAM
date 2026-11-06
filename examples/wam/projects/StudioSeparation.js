@@ -46,7 +46,8 @@ export class StudioSeparation extends EventTarget {
   get viewTracks() { return this.result?.tracks ?? (this.mode === 'stems' ? this.savedTracks : null); }
   get hasAudio() { return Boolean(this.result?.engine.availableFrames || (!this.result && this.savedTracks?.length)); }
   changed() { this.dispatchEvent(new Event('change')); }
-  setStatus(status, progress = null) { this.status = status; this.progress = progress; this.changed(); }
+  // detail: technical facts shown as the status line's tooltip (saved separation only).
+  setStatus(status, progress = null, detail = '') { this.status = status; this.progress = progress; this.statusDetail = detail; this.changed(); }
   async init() {
     const [models, capabilities] = await Promise.all([this.loadModels(), this.capabilities()]);
     this.models = PRODUCT_MODELS.map(id => models.find(model => model.id === id));
@@ -109,7 +110,10 @@ export class StudioSeparation extends EventTarget {
     this.mode = this.savedTracks?.length ? 'stems' : 'original';
     const batch = this.savedBatches.find(batch => batch.id === this.activeSavedId);
     if (batch && PRODUCT_MODELS.includes(batch.manifest.modelId)) this.modelId = batch.manifest.modelId;
-    this.setStatus(batch ? `Saved project · ${this.savedTracks?.length ?? 0} tracks · ${backendLabel(batch.manifest.backend)} · ${(batch.manifest.frames / 44100).toFixed(1)} s${batch.manifest.partial ? ' · interrupted result' : ''}` : 'Choose accompaniment audio to separate.');
+    // A saved separation only says where the tracks come from (count, engine and length add nothing here).
+    const detail = batch && [batch.manifest.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4', `${this.savedTracks?.length ?? 0} tracks`,
+      backendLabel(batch.manifest.backend), `${(batch.manifest.frames / 44100).toFixed(1)} s separated`].join(' · ');
+    this.setStatus(batch ? `From instrument separation${batch.manifest.partial ? ' · interrupted, partial result' : ''}` : 'Choose accompaniment audio to separate.', null, detail || '');
   }
   updateTrack(id, fields) {
     const track = this.result?.tracks.find(track => track.id === id);
