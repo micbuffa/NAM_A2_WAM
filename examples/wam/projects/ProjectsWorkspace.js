@@ -142,6 +142,11 @@ export class ProjectsWorkspace extends EventTarget {
       event.preventDefault();
       this.toggleLoop();
     });
+    // The track area is focusable to scroll with the keyboard. A click focuses it too, and Chrome then
+    // shows its focus ring at the first key press: keep the ring for focus that came from Tab.
+    const viewport = this.$('projectTrackViewport');
+    viewport?.addEventListener('pointerdown', () => { viewport.dataset.pointerFocus = ''; });
+    viewport?.addEventListener('blur', () => { delete viewport.dataset.pointerFocus; });
     player?.addEventListener('statechange', () => this.renderTransport());
     player?.addEventListener('load', ({detail: {id, buffer}}) => {
       this.maybeDetectTempo(id,buffer);

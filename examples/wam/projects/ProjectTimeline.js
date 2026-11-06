@@ -4,7 +4,7 @@ import {LiveWaveform} from './recording/LiveWaveform.js';
 // volume fader and pan knob on the left, the audio lane on the right. Rows are
 // built once per track list and updated in place, so a fader keeps its drag.
 // Each lane draws its file's waveform with the WaveSurfer renderer, on the
-// shared time axis of the bar ruler; the playhead crosses every lane. The
+// shared time axis of the bar ruler; one playhead line (index.html overlay) crosses every lane. The
 // owner reorders tracks by dragging their icon and name (or with Alt+Up/Down).
 // Dragging on the ruler draws the loop region (whole bars, Alt: exact
 // positions), shown on the ruler and across every lane; a click seeks.
@@ -529,7 +529,7 @@ export class ProjectTimeline {
     };
     takeList.onclick = (event) => event.stopPropagation();
     head.prepend(takes);
-    area.append(clip, note, retry, takeList, element('i', 'playhead'));
+    area.append(clip, note, retry, takeList);
     area.onclick = (event) => {
       if(this.locked)return;
       const rect = area.getBoundingClientRect();
