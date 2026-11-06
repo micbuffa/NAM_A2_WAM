@@ -310,7 +310,7 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .led-toggle[aria-pressed="true"] i { background: var(--tl-accent); box-shadow: var(--tl-glow-led, none); }
 .project-tempo { margin-left: auto; color: var(--tl-text-muted); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
 /* Ruler and lanes share the track rows' grid and the lanes' inset, so bar 1 lines up with the clips. */
-.project-ruler-row { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); height: 46px; background: var(--tl-bg);
+.project-ruler-row { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); height: 54px; background: var(--tl-bg);
   border-bottom: 1px solid var(--tl-border-subtle); }
 .project-ruler-row > span { border-right: 1px solid var(--tl-border-subtle); }
 .project-ruler-track { padding: 0 18px; }
@@ -325,7 +325,7 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .project-timeline.loop-off .loop-region, .project-timeline.loop-off .track-lane-area::before { opacity: .35; }
 .project-ruler span { position: absolute; top: 7px; padding-left: 4px; border-left: 1px solid var(--tl-border); line-height: 1; }
 /* A and B side by side under the bar numbers, so they line up and leave the numbers readable. */
-.loop-anchor { position: absolute; z-index: 5; top: 20px; width: 22px; height: 16px; min-height: 0; padding: 0; box-sizing: border-box; /* inside the 46px ruler, clear of track 1 */
+.loop-anchor { position: absolute; z-index: 5; top: 19px; width: 22px; height: 16px; min-height: 0; padding: 0; box-sizing: border-box; /* inside the 54px ruler, above the playhead head */
   border: 1px solid var(--tl-accent); border-radius: 4px; background: var(--tl-accent); color: var(--tl-bg);
   font: 700 11px/1 var(--tl-font-mono); cursor: ew-resize; touch-action: none; }
 /* Square on the side of their line: A's left edge and B's right edge sit on it. */
@@ -422,7 +422,7 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .project-timeline.loop-off .timeline-line-a, .project-timeline.loop-off .timeline-line-b { opacity: .3; }
 @media (max-width: 760px) { .timeline-overlay { grid-template-columns: minmax(0, 1fr); } .timeline-overlay > span { display: none; } }
 /* The playhead's head, in the ruler under the bar numbers (it stays in view while the tracks scroll). */
-.project-ruler .playhead { position: absolute; bottom: 2px; left: calc(var(--playhead) * 100%); z-index: 2; width: 11px; height: 14px; transform: translateX(-50%);
+.project-ruler .playhead { position: absolute; bottom: 2px; left: calc(var(--playhead) * 100%); z-index: 2; width: 11px; height: 12px; transform: translateX(-50%);
   background: var(--tl-accent); clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%); border-radius: 2px 2px 0 0; pointer-events: none; }
 .track-row.selected .track-lane { background-color: rgba(255, 255, 255, .015); }
 .track-row.muted .track-lane, .track-row.muted .track-name { opacity: .45; }
