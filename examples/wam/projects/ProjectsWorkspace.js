@@ -129,6 +129,10 @@ export class ProjectsWorkspace extends EventTarget {
     this.$('projectPlay').onclick = () => (this.player?.playing ? this.player.pause() : this.player?.play());
     if(this.$('projectMasterVolume'))this.$('projectMasterVolume').oninput=event=>this.player?.setMasterVolume(Number(event.target.value)/100);
     this.$('projectRewind').onclick = () => this.player?.stop();
+    // A click on a transport button leaves the focus where it was (Chrome would show the ring at the next
+    // key press, e.g. Space); Tab still reaches them.
+    for (const id of ['projectRewind', 'projectPlay', 'projectRecord'])
+      this.$(id)?.addEventListener('mousedown', event => event.preventDefault());
     this.$('projectLoop').onclick = () => this.toggleLoop();
     this.$('projectLoopReset').onclick = () => this.player?.duration && this.setLoop({enabled: false, start: 0, end: 0});
     root.addEventListener?.('keydown',event=>{
