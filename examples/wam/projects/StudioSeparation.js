@@ -34,6 +34,7 @@ export class StudioSeparation extends EventTarget {
     this.models = [];
     this.backend = 'wasm';
     this.status = 'Choose accompaniment audio to separate.';
+    this.idle = true; // the status is only an invitation: nothing to show
     this.mode = 'original';
     this.manager.addEventListener('progress', ({detail}) => {
       if (!this.busy || detail.id !== this.model?.id) return;
@@ -47,7 +48,9 @@ export class StudioSeparation extends EventTarget {
   get hasAudio() { return Boolean(this.result?.engine.availableFrames || (!this.result && this.savedTracks?.length)); }
   changed() { this.dispatchEvent(new Event('change')); }
   // detail: technical facts shown as the status line's tooltip (saved separation only).
-  setStatus(status, progress = null, detail = '') { this.status = status; this.progress = progress; this.statusDetail = detail; this.changed(); }
+  setStatus(status, progress = null, detail = '') { this.idle = false; this.status = status; this.progress = progress; this.statusDetail = detail; this.changed(); }
+  // An invitation to separate, not news: the view keeps it out of sight.
+  prompt(status) { this.idle = true; this.status = status; this.progress = null; this.statusDetail = ''; this.changed(); }
   async init() {
     const [models, capabilities] = await Promise.all([this.loadModels(), this.capabilities()]);
     this.models = PRODUCT_MODELS.map(id => models.find(model => model.id === id));
@@ -56,7 +59,7 @@ export class StudioSeparation extends EventTarget {
     this.gpu = capabilities.webgpu;
     this.webnn = !!capabilities.webnn;
     this.backend = this.gpu ? 'webgpu' : 'wasm';
-    if (!this.activeSavedId) this.setStatus('Choose accompaniment audio, then Separate instruments.');
+    if (!this.activeSavedId) this.prompt('Choose accompaniment audio, then Separate instruments.');
   }
   // Invalidates every async callback before terminating workers. A late decode,
   // cache lookup or old worker message cannot publish into a different project.
@@ -70,7 +73,8 @@ export class StudioSeparation extends EventTarget {
     if (reset) {
       this.clearResult();
     }
-    this.setStatus(reset ? 'Ready for a new separation.' : this.hasAudio ? 'Separation stopped · partial result kept in RAM.' : 'Separation stopped.');
+    if (reset) return this.prompt('Ready for a new separation.');
+    this.setStatus(this.hasAudio ? 'Separation stopped · partial result kept in RAM.' : 'Separation stopped.');
   }
   clearResult() {
     this.player.setPreview(null);
@@ -87,7 +91,7 @@ export class StudioSeparation extends EventTarget {
     this.stop({reset: true});
     this.modelId = modelId;
     this.backend = backend;
-    this.setStatus(`${this.model.label} · ${backendLabel(backend)} · ready to download or use cache.`);
+    this.prompt(`${this.model.label} · ${backendLabel(backend)} · ready to download or use cache.`);
   }
   show(mode) {
     if (!['original', 'stems'].includes(mode) || (mode === 'stems' && !this.result && !this.savedTracks?.length)) return;
@@ -113,7 +117,8 @@ export class StudioSeparation extends EventTarget {
     // A saved separation only says where the tracks come from (count, engine and length add nothing here).
     const detail = batch && [batch.manifest.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4', `${this.savedTracks?.length ?? 0} tracks`,
       backendLabel(batch.manifest.backend), `${(batch.manifest.frames / 44100).toFixed(1)} s separated`].join(' · ');
-    this.setStatus(batch ? `From instrument separation${batch.manifest.partial ? ' · interrupted, partial result' : ''}` : 'Choose accompaniment audio to separate.', null, detail || '');
+    if (!batch) return this.prompt('Choose accompaniment audio to separate.');
+    this.setStatus(`From instrument separation${batch.manifest.partial ? ' · interrupted, partial result' : ''}`, null, detail);
   }
   updateTrack(id, fields) {
     const track = this.result?.tracks.find(track => track.id === id);

@@ -127,7 +127,7 @@
           <tl-button id="projectSave" variant="primary" icon="save" hidden disabled>Save project</tl-button>
           <tl-menu id="projectMore" label="More project actions">
             <button id="studioUseMix" type="button" aria-haspopup="dialog" hidden disabled><tl-icon name="play" size="15"></tl-icon>Export to play along</button>
-            <button id="projectSeparateAgain" type="button" aria-haspopup="dialog" hidden disabled><tl-icon name="sliders" size="15"></tl-icon>Separate again…</button>
+            <button id="projectSeparate" type="button" aria-haspopup="dialog" hidden disabled><tl-icon name="sliders" size="15"></tl-icon><span>Separate instruments…</span></button>
             <button id="projectMenuImport" type="button" aria-haspopup="dialog" hidden><tl-icon name="audio" size="15"></tl-icon>Import audio</button>
             <button id="projectResetMix" type="button" title="Back to the owner's mix" hidden><tl-icon name="undo" size="15"></tl-icon>Reset mix</button>
             <button id="projectLeave" type="button" aria-haspopup="dialog" title="Stop seeing this project" hidden><tl-icon name="close" size="15"></tl-icon>Leave project</button>
@@ -144,7 +144,6 @@
         <section class="studio-home" id="studioHome" aria-label="Projects" hidden></section>
         <section id="studioSeparation" class="studio-separation" aria-label="Separate instruments" hidden>
           <div class="studio-separation-actions">
-            <tl-button id="studioSeparate" variant="primary" disabled>Separate instruments</tl-button>
             <tl-button id="studioStop" hidden>Stop separation</tl-button>
             <span id="studioBackendLabel" class="host-help"></span>
             <span id="studioTrackState" class="studio-track-state" role="status" hidden></span>

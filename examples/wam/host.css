@@ -460,6 +460,9 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 /* Studio separation uses the host's tokens and the existing track timeline. */
 .studio-separation { margin-bottom: 12px; padding: 0 0 12px; border: 0; border-bottom: 1px solid var(--tl-border, #30352c); background: transparent; }
 .studio-separation[hidden] { display: none; }
+/* Nothing running, nothing to report: no empty strip with its divider under the title. */
+.studio-separation:not(:has(#studioStop:not([hidden]), #studioBackendLabel:not([hidden]), #studioTrackState:not([hidden]), #studioRetryAudio:not([hidden]),
+  #studioExportHelp:not([hidden]), #studioUnfinished:not(:empty), #studioStatus:not([hidden]), #studioProgress:not([hidden]))) { display: none; }
 .studio-separation-options { display: grid; grid-template-columns: 1fr .8fr; gap: 12px; }
 .studio-separation label { display: grid; gap: 6px; min-width: 0; font-size: 12px; color: var(--tl-text-muted, #a1a59c); }
 .studio-separation select { width: 100%; min-width: 0; padding: 8px; color: inherit; background: var(--tl-surface-2); border: 1px solid var(--tl-border); border-radius: 6px; }
