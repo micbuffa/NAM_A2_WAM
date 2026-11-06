@@ -52,7 +52,7 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     get "/rack/"
     assert_select ".projects-header #projectImport", count: 1
     assert_select ".projects-header #projectNew", count: 1
-    assert_select "#hostSidebar #hostNavToggle[aria-controls='hostSidebar'][aria-expanded='true']", count: 1 # on the column's border
+    assert_select "#hostSidebar #hostNavToggle[aria-controls='hostSidebar'][aria-expanded='true']", count: 1 # last entry of the column
     assert_select "#projectTrackViewport[role='region'][tabindex='0']" do
       assert_select "#projectRuler", count: 1
       assert_select "#projectTracks", count: 1

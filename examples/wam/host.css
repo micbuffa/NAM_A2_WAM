@@ -70,10 +70,8 @@ body[data-host-nav="collapsed"] .host-shell { --host-nav-width: 56px; }
 .host-nav-item[data-alert]::after { content: ""; position: absolute; top: 8px; left: 24px; width: 7px; height: 7px; border-radius: 50%; background: var(--tl-warning); box-shadow: 0 0 0 2px var(--tl-surface-0); }
 body[data-host-nav="collapsed"] .host-nav-item { justify-content: center; padding: 0; }
 body[data-host-nav="collapsed"] .host-nav-item > span:not(.account-avatar) { display: none; }
-/* Collapse toggle: a round chevron on the column's right border, at the brand's rule (fixed, so the column's scroll does not clip it). */
-.host-nav-toggle { position: fixed; z-index: 20; top: calc(var(--tl-topbar-height) - 14px); left: calc(var(--host-nav-width) - 14px); display: grid; place-items: center;
-  width: 28px; height: 28px; min-height: 0; padding: 0; border: 1px solid var(--tl-border); border-radius: 50%; background: var(--tl-surface-0); color: var(--tl-text-2); }
-.host-nav-toggle:hover { border-color: var(--tl-border-hover); background: var(--tl-surface-3); color: var(--tl-text); }
+/* Collapse toggle: the last entry of the column (a chevron, not a Back button), under the account. */
+.host-nav-toggle { margin-top: var(--tl-space-2); color: var(--tl-text-muted); }
 .host-nav-toggle tl-icon { transform: rotate(90deg); transition: transform .15s; }
 body[data-host-nav="collapsed"] .host-nav-toggle tl-icon { transform: rotate(-90deg); }
 .host-card { margin: 0; padding: var(--tl-space-6) var(--tl-space-5); border-bottom: 1px solid var(--tl-border-subtle); }
