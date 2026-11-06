@@ -25,9 +25,9 @@ import {StudioMixExporter, exportRange, mixExportAvailability} from './StudioMix
 import {SeparationPersistence} from './SeparationPersistence.js';
 import {StudioSeparationView} from './StudioSeparationView.js';
 import {ProjectTimeline} from './ProjectTimeline.js';
-import {AUDIO_ACCEPT, BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, projectTrackCount, timelineTracks,
+import {BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, projectTrackCount, timelineTracks,
   initials, instrumentLabel, originLabel, liveTrackId, loopAround, loopFromBars, loopLabel, loopToBars, moveTrack, rememberLoop, rememberedLoop, nameFromFile, orderChanged, shareSummary, plural, presetValue, timelineLength, toggleMonitoring,
-  trackChanges, twoDigits, usesTrackPreset, withInstrument} from './ProjectsModel.js';
+  trackChanges, twoDigits, usesPreset, usesTrackPreset, withInstrument} from './ProjectsModel.js';
 
 const LAST_PROJECT_KEY = 'nam-a2-wam.project';
 const LOOPS_KEY = 'nam-a2-wam.project-loops'; // each project's loop, in bars (this browser only)
@@ -830,11 +830,8 @@ export class ProjectsWorkspace extends EventTarget {
     if (!this.owned || this.saving) return;
     if (this.separation?.busy) { this.report('Stop separation before adding a track. Its partial instruments will be kept.', true); return; }
     const projectId = this.project.id, epoch = this.accountLoadEpoch;
-    const values = await trackDialog({title: 'Add a track', confirmLabel: 'Add track', eyebrow: this.project.name,
-      nameLabel: 'Track name', defaultName: (instrument) => defaultTrackName(instrument, this.project.tracks),
-      intro: 'Choose the instrument and the audio file of this part. The file can also be added later.'});
+    const values = await trackDialog({eyebrow: this.project.name, defaultName: (instrument) => defaultTrackName(instrument, this.project.tracks)});
     if (!values || this.project?.id !== projectId || this.accountLoadEpoch !== epoch) return;
-    if (values.file) this.report(`Uploading ${values.file.name}…`);
     try {
       const track = await this.addTrack({...values, name: values.name || defaultTrackName(values.instrument, this.project.tracks)});
       this.report(`${track.name} added`);
@@ -1263,9 +1260,9 @@ export class ProjectsWorkspace extends EventTarget {
 
 const field = (labelText, control) => [element('label', {htmlFor: control.id, textContent: labelText}), control];
 
-function instrumentSelect(id, value = 'guitar') {
+function instrumentSelect(id, value = 'guitar', instruments = INSTRUMENTS) {
   const select = element('select', {id});
-  select.append(...INSTRUMENTS.map(({id: instrument, label}) => new Option(label, instrument)));
+  select.append(...instruments.map(({id: instrument, label}) => new Option(label, instrument)));
   select.value = value;
   const wrapper = document.createElement('tl-select');
   wrapper.append(select);
@@ -1303,49 +1300,23 @@ function projectDialog({title, confirmLabel, intro, name = '', bpm = BPM_RANGE.d
   });
 }
 
-// Audio file + name + instrument (Import audio, Add track). Resolves
-// {file, name, instrument, origin} (file may be null unless fileRequired), or null.
-function trackDialog({title, confirmLabel, intro, nameLabel, eyebrow = 'Studio', fileRequired = false, defaultName = null, initialOrigin = 'personal'}) {
+// Empty personal guitar/bass part to record into (Add track). Audio files go
+// through Import audio. Resolves {name, instrument, origin}, or null.
+function trackDialog({eyebrow, defaultName}) {
   return new Promise((resolve) => {
-    const {dialog, body, id} = createDialog({title, eyebrow, className: 'project-dialog'});
+    const {dialog, body, id} = createDialog({title: 'Add a track', eyebrow, className: 'project-dialog'});
     const form = element('form', {method: 'dialog'});
-    const fileInput = element('input', {id: `${id}-file`, type: 'file', accept: AUDIO_ACCEPT, required: fileRequired});
-    const drop = element('label', {className: 'audio-upload-field', htmlFor: fileInput.id});
-    const formats = `MP3, WAV, M4A, AIFF, OGG or FLAC · up to 100 MB${fileRequired ? '' : ' · optional'}`;
-    const fileName = element('strong', {textContent: 'Choose an audio file'});
-    const fileMeta = element('small', {textContent: formats});
-    const icon = document.createElement('tl-icon');
-    icon.setAttribute('name', 'audio');
-    icon.setAttribute('size', '22');
-    const text = document.createElement('span');
-    text.append(fileName, fileMeta);
-    drop.append(fileInput, icon, text);
-    const nameInput = element('input', {id: `${id}-name`, maxLength: defaultName ? 80 : 120, autocomplete: 'off'});
-    const {select: instrument, wrapper} = instrumentSelect(`${id}-instrument`);
-    const origin = element('select', {id: `${id}-origin`});
-    origin.append(new Option('My personal part (DI guitar / bass)', 'personal'), new Option('Accompaniment audio (no preset)', 'original'));
-    origin.value = initialOrigin;
-    if (initialOrigin === 'original') instrument.value = 'other';
-    const placeholder = () => {
-      const file = fileInput.files[0];
-      nameInput.placeholder = defaultName ? defaultName(instrument.value) : file ? nameFromFile(file.name) : 'Uses the file name by default';
-    };
-    fileInput.onchange = () => {
-      const file = fileInput.files[0];
-      fileName.textContent = file?.name ?? 'Choose an audio file';
-      fileMeta.textContent = file ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : formats;
-      placeholder();
-    };
+    const nameInput = element('input', {id: `${id}-name`, maxLength: 80, autocomplete: 'off'});
+    const {select: instrument, wrapper} = instrumentSelect(`${id}-instrument`, 'guitar', INSTRUMENTS.filter(({id}) => usesPreset(id)));
+    const placeholder = () => { nameInput.placeholder = defaultName(instrument.value); };
     instrument.onchange = placeholder;
     placeholder();
     const [instrumentLabel$] = field('Instrument', instrument);
-    form.append(element('p', {textContent: intro}), drop, ...field(nameLabel, nameInput), ...field('Track type', origin), instrumentLabel$, wrapper,
-      formActions(dialog, confirmLabel));
+    form.append(element('p', {textContent: 'Add an empty guitar or bass part to record into. To add an audio file, use Import audio.'}),
+      ...field('Track name', nameInput), instrumentLabel$, wrapper, formActions(dialog, 'Add track'));
     body.append(form);
-    dialog.addEventListener('close', () => {
-      const file = fileInput.files[0] ?? null;
-      resolve(dialog.returnValue === 'ok' && (file || !fileRequired) ? {file, name: nameInput.value.trim(), instrument: instrument.value, origin: origin.value} : null);
-    }, {once: true});
+    dialog.addEventListener('close', () => resolve(dialog.returnValue === 'ok'
+      ? {name: nameInput.value.trim(), instrument: instrument.value, origin: 'personal'} : null), {once: true});
     dialog.showModal();
   });
 }

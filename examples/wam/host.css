@@ -454,14 +454,6 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .share-person-text strong, .share-person-text small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .share-person-text strong { color: var(--tl-text); font-size: var(--tl-fs-md); font-weight: 600; }
 .share-person-text small { color: var(--tl-text-muted); font-size: var(--tl-fs-xs); }
-.audio-upload-field { position: relative; display: flex; align-items: center; gap: var(--tl-space-3); padding: 14px; cursor: pointer; background: var(--tl-surface-2);
-  border: 1px dashed var(--tl-border-strong); border-radius: var(--tl-radius-md); }
-.audio-upload-field:hover, .audio-upload-field:focus-within { border-color: var(--tl-accent-border); }
-.audio-upload-field input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.audio-upload-field tl-icon { color: var(--tl-accent); }
-.audio-upload-field span { display: grid; gap: 3px; min-width: 0; }
-.audio-upload-field strong { overflow: hidden; color: var(--tl-text); text-overflow: ellipsis; white-space: nowrap; }
-.audio-upload-field small { color: var(--tl-text-muted); font-weight: 400; letter-spacing: 0; text-transform: none; }
 
 @media (max-width: 1060px) {
   .rack-header { gap: var(--tl-space-3); }
