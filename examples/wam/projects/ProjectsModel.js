@@ -1,4 +1,5 @@
 import {timing} from './ProjectTiming.js';
+import {FACTORY_PRESETS} from '../account/FactoryPresets.js';
 // Pure helpers of the Projects workspace (unit-tested under Node).
 export const BPM_RANGE = {min: 30, max: 300, default: 120};
 export const INSTRUMENTS = [
@@ -83,14 +84,28 @@ export function volumeLabel(volume) {
 export const panLabel = (pan) => (Number(pan) === 0 ? 'Center' : `${Number(pan) < 0 ? 'Left' : 'Right'} ${Math.abs(Number(pan))}`);
 
 // "Guitar 3" for the third guitar track.
+// A new personal part starts on a bass preset when it is a bass; a guitar part
+// has none and records through Play's current rack.
+export const DEFAULT_BASS_PRESET = 'factory:svt-bass';
+export const defaultPresetFields = (instrument) => (instrument === 'bass' ? {factoryPreset: DEFAULT_BASS_PRESET} : {});
 export function defaultTrackName(instrument, tracks = []) {
   const count = tracks.filter((track) => track.instrument === instrument).length + 1;
   return `${instrumentLabel(instrument)} ${count}`;
 }
 
-// A change of instrument drops a preset the new instrument cannot use.
+const isBassFactory = (id) => FACTORY_PRESETS.find((preset) => preset.id === id)?.category === 'Bass';
+
+// A change of instrument drops a preset the new instrument cannot use. Between
+// guitar and bass, a track not recorded yet and without one of your presets
+// follows the instrument: to bass, it gets the bass default unless it already has
+// a Factory bass preset; to guitar, a Factory bass preset is removed.
 export function withInstrument(track, instrument) {
-  return usesTrackPreset({...track, instrument}) ? {...track, instrument} : {...track, instrument, presetId: null, factoryPreset: null, ...(track.presetSnapshot ? {presetSnapshot: null, snapshotId: null} : {}), ...(track.inputMonitoring ? {inputMonitoring: false} : {})};
+  if (usesTrackPreset({...track, instrument})) {
+    if (track.instrument === instrument || track.audio || track.presetSnapshot || track.presetId) return {...track, instrument};
+    if (instrument === 'bass') return {...track, instrument, factoryPreset: isBassFactory(track.factoryPreset) ? track.factoryPreset : DEFAULT_BASS_PRESET};
+    return {...track, instrument, factoryPreset: isBassFactory(track.factoryPreset) ? null : track.factoryPreset ?? null};
+  }
+  return {...track, instrument, presetId: null, factoryPreset: null, ...(track.presetSnapshot ? {presetSnapshot: null, snapshotId: null} : {}), ...(track.inputMonitoring ? {inputMonitoring: false} : {})};
 }
 
 // Input monitoring plays the live guitar through one track's preset: one track at a time.

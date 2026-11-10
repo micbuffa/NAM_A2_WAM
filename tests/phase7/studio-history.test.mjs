@@ -152,6 +152,17 @@ test('empty track creation is undone by removal, never by irreversible destructi
   assert.deepEqual(calls,['remove','restore']);assert.equal(w.project.tracks[2].id,3);
 });
 
+test('a new bass part starts on the SVT Bass preset; guitar and accompaniment tracks get none', async () => {
+  const w=workspace(), sent=[]; let id=10;
+  w.api={createTrack:async(_,attributes)=>{sent.push(attributes);return{id:id++,timelineVisible:true,...attributes};}};
+  await w.addTrack({name:'Bass 1',instrument:'bass'});
+  await w.addTrack({name:'Guitar 1',instrument:'guitar'});
+  await w.addTrack({name:'Bass stem',instrument:'bass',origin:'original'});
+  assert.equal(sent[0].factoryPreset,'factory:svt-bass');
+  assert.equal('factoryPreset' in sent[1],false);
+  assert.equal('factoryPreset' in sent[2],false);
+});
+
 test('undoing a fader preserves the selected track and separation settings', async () => {
   const w = workspace(); w.selectedId = 2;
   w.separation = {savedTracks: [...w.project.tracks], modelId:'chosen-model', updateTrack:()=>false,

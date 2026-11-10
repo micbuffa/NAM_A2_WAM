@@ -1,7 +1,7 @@
 // Read-only presets shipped with the rack. A Factory preset is a recipe, not a
 // saved state: a Factory NAM model plus a few parameters, applied on top of
 // the default (guest) rack when loaded, so no model data is duplicated here.
-// The four captures are full rigs or amp+cab captures: the cabinet stage
+// Every capture is a full rig or an amp+cab capture: the cabinet stage
 // stays on AUTO, which bypasses it for them.
 const factoryAssetUrl = (manifestUrl, relativePath) =>
   new URL(`models/${relativePath.split('/').map(encodeURIComponent).join('/')}`, manifestUrl);
@@ -19,6 +19,15 @@ export const FACTORY_PRESETS = [
   {id: 'factory:svt-bass', name: 'SVT Bass', category: 'Bass',
     model: 'factory:OLD/Bass/Ampeg SVT Classic with 6x10/Ampeg SVT - MD 421.nam',
     parameters: {bass: 6, middle: 5, treble: 4}},
+  {id: 'factory:markbass-punch', name: 'Markbass Punch', category: 'Bass',
+    model: 'factory:OLD/Bass/MarkBass amp TA501 , cab 151HR , mic Dynamic Beta 52.nam',
+    parameters: {bass: 6, middle: 5, treble: 6}},
+  {id: 'factory:tube-bass', name: 'Tube Bass', category: 'Bass',
+    model: 'factory:OLD/Bass/Markbass-LittleMarkTube-104HF-Dynamic57.nam',
+    parameters: {bass: 6, middle: 6, treble: 4}},
+  {id: 'factory:fuzz-bass', name: 'Fuzz Bass', category: 'Bass',
+    model: 'factory:tone3000/studioampcaptures/Hartke LH1000 Bass Amp - Gallien Krueger 4X10 Cab--t5867/captures/Hartke LH1000 Bass Amp Head Full Rig GK 4X10 Swollen Pickle Fuzz 3 SAC--m413046.nam',
+    parameters: {noiseEnabled: 1, noise: -58, bass: 5, middle: 6, treble: 5}},
 ];
 
 export const isFactoryPreset = (id) => String(id).startsWith('factory:');

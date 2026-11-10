@@ -28,7 +28,7 @@ import {separationSources} from './StudioSeparation.js';
 import {ProjectTimeline} from './ProjectTimeline.js';
 import {BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, projectTrackCount, timelineTracks,
   initials, instrumentLabel, originLabel, liveTrackId, loopAround, loopFromBars, loopLabel, loopToBars, moveTrack, rememberLoop, rememberedLoop, nameFromFile, orderChanged, shareSummary, plural, presetValue, timelineLength, toggleMonitoring,
-  trackChanges, twoDigits, usesPreset, usesTrackPreset, withInstrument} from './ProjectsModel.js';
+  trackChanges, twoDigits, usesPreset, usesTrackPreset, withInstrument, defaultPresetFields} from './ProjectsModel.js';
 
 const LAST_PROJECT_KEY = 'nam-a2-wam.project';
 const LOOPS_KEY = 'nam-a2-wam.project-loops'; // each project's loop, in bars (this browser only)
@@ -544,7 +544,8 @@ export class ProjectsWorkspace extends EventTarget {
     if (this.separation?.busy) throw Error('Stop separation before adding a track.');
     this.separation?.show?.('original');
     const {project} = this;
-    const track = await this.api.createTrack(project.id, {name, instrument, origin}, file);
+    const preset = origin === 'personal' ? defaultPresetFields(instrument) : {};
+    const track = await this.api.createTrack(project.id, {name, instrument, origin, ...preset}, file);
     project.tracks = [...project.tracks, track];
     this.saved.tracks = [...this.saved.tracks, structuredClone(track)];
     this.selectedId = track.id;

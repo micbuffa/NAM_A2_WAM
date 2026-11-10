@@ -286,6 +286,12 @@ Studio distinguishes personal parts from accompaniment audio. Choose **Track typ
 when adding or importing audio: only personal guitar/bass parts use tone presets.
 Existing projects retain their presets through the `legacy` migration origin.
 Changing the instrument never converts an accompaniment into a personal DI.
+A new personal **bass** track starts on the **SVT Bass** Factory preset (other Factory
+bass presets: Markbass Punch, Tube Bass, Fuzz Bass); a new guitar track has no preset and
+records through Play's current rack. Switching an unrecorded part between guitar and
+bass in **Edit track** follows the instrument (to bass: SVT Bass unless it already has a
+Factory bass preset; to guitar: a Factory bass preset is removed). Your own presets and
+recorded takes are never changed.
 
 After stopping a separation, **Keep instruments & arm** saves the partial
 instruments as project tracks before arming the newly added guitar. A failed

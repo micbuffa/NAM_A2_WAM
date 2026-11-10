@@ -63,6 +63,21 @@ test('volume is 0..100 with 80 at 0 dB, pan is -100..100', () => {
   assert.deepEqual([panLabel(0), panLabel(-30), panLabel(100)], ['Center', 'Left 30', 'Right 100']);
 });
 
+test('switching an unrecorded part between guitar and bass follows the instrument, never your presets or takes', () => {
+  const guitar = {id: 1, origin: 'personal', instrument: 'guitar', presetId: null, factoryPreset: null};
+  assert.equal(withInstrument(guitar, 'bass').factoryPreset, 'factory:svt-bass');
+  assert.equal(withInstrument({...guitar, factoryPreset: 'factory:twin-clean'}, 'bass').factoryPreset, 'factory:svt-bass');
+  assert.equal(withInstrument({...guitar, factoryPreset: 'factory:tube-bass'}, 'bass').factoryPreset, 'factory:tube-bass');
+  const bass = {...guitar, instrument: 'bass', factoryPreset: 'factory:fuzz-bass'};
+  assert.equal(withInstrument(bass, 'guitar').factoryPreset, null);
+  assert.equal(withInstrument({...bass, factoryPreset: 'factory:modern-metal'}, 'guitar').factoryPreset, 'factory:modern-metal');
+  assert.equal(withInstrument(bass, 'bass').factoryPreset, 'factory:fuzz-bass', 'renaming keeps the preset');
+  for (const kept of [{presetId: 4}, {audio: {url: '/di.wav'}}, {presetSnapshot: {}, snapshotId: 's'}]) {
+    assert.equal(withInstrument({...guitar, ...kept}, 'bass').factoryPreset, null);
+    assert.equal(withInstrument({...bass, ...kept}, 'guitar').factoryPreset, 'factory:fuzz-bass');
+  }
+});
+
 test('new tracks are numbered per instrument', () => {
   const tracks = [{instrument: 'guitar'}, {instrument: 'bass'}, {instrument: 'guitar'}];
   assert.equal(defaultTrackName('guitar', tracks), 'Guitar 3');
