@@ -36,7 +36,6 @@ export class StudioSeparationView {
         if (workspace.project?.id === project?.id && workspace.accountLoadEpoch === epoch) { workspace.saving = false; workspace.render(); }
       }
     };
-    this.$('projectSeparate').onclick = () => this.chooseModel();
     this.$('studioStop').onclick = () => c.stop();
     this.$('studioModel').onchange = this.$('studioBackend').onchange = async () => {
       const model = this.$('studioModel').value, backend = this.$('studioBackend').value;
@@ -89,7 +88,8 @@ export class StudioSeparationView {
     await this.ready;
     if (w.saving || !w.owned || !c.model || this.modelDialog) return;
     const projectId = w.project?.id, accountEpoch = w.accountLoadEpoch;
-    if (sourceId !== null) this.$('studioSource').value = String(sourceId);
+    // The track whose ⋯ menu (or import) asked; without one, the first separable track.
+    const sourceKey = String(sourceId ?? separationSources(w.project?.tracks ?? [])[0]?.id ?? '');
     const {createDialog, button} = await import('../account/dialogs.js');
     const {dialog, body} = createDialog({title: allowUnseparated ? 'Keep audio or separate instruments' : 'Separate instruments'});
     this.modelDialog = dialog;
@@ -123,7 +123,7 @@ export class StudioSeparationView {
         const backend = requestedBackend;
         if (w.project?.id !== projectId || w.accountLoadEpoch !== accountEpoch || w.saving || !w.owned) return;
         c.configure(id, backend);
-        const track = separationSources(w.project?.tracks ?? []).find(track => String(track.id) === this.$('studioSource').value);
+        const track = separationSources(w.project?.tracks ?? []).find(track => String(track.id) === sourceKey);
         if (track) void c.run({track, projectId, seconds});
       };
       choice.title=studioRecommendation(id);choice.dataset.modelId=id;choices.append(choice);
@@ -210,14 +210,6 @@ export class StudioSeparationView {
     this.$('projectTracks').inert = Boolean(w.saving);
     this.$('studioModel').disabled = this.$('studioBackend').disabled = Boolean(w.saving);
 
-    const sources = separationSources(w.project?.tracks ?? []), source = this.$('studioSource');
-    const signature = sources.map(track => `${track.id}:${track.name}`).join('|');
-    if (signature !== this.sourceSignature) {
-      this.sourceSignature = signature;
-      const selected = source.value;
-      source.replaceChildren(...(sources.length ? sources.map(track => new Option(track.name, String(track.id))) : [new Option('Import accompaniment audio first', '')]));
-      if (sources.some(track => String(track.id) === selected)) source.value = selected;
-    }
     const select = this.$('studioModel');
     if (select.options.length !== c.models.length) select.replaceChildren(...c.models.map(model => new Option(model.label, model.id)));
     if (c.modelId) select.value = c.modelId;
@@ -229,16 +221,10 @@ export class StudioSeparationView {
     const backendLabelEl = this.$('studioBackendLabel');
     backendLabelEl.hidden = !c.busy;
     backendLabelEl.textContent = backendLabelEl.hidden ? '' : `${c.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4'} · ${backendLabel(c.busy ? c.effectiveBackend ?? c.backend : c.backend)}`;
-    // Separating is a one-off project action: it lives in the project's ⋯ menu.
-    const separate = this.$('projectSeparate');
-    separate.hidden = Boolean(c.busy || !w.owned || !w.project);
-    separate.querySelector('span').textContent = c.result || c.activeSavedId ? 'Separate again…' : 'Separate instruments…';
     const trackState = this.$('studioTrackState');
     trackState.textContent = separationTrackState(c);
     trackState.hidden = !trackState.textContent;
-    separate.disabled = w.saving || !w.owned || c.busy || !sources.length || !model;
     this.$('studioStop').hidden = !c.busy;
-    this.$('studioSource').disabled = w.saving || c.busy;
     this.$('studioCheckCache').disabled = this.$('studioRemoveCache').disabled = c.busy || !model || isDirectWebNN(c.backend);
     const status = `${c.status}${c.result && c.busy ? ` · ${c.result.engine.availableDuration.toFixed(1)} s ready${w.player.waiting ? ' · buffering' : ''}` : ''}`;
     if (this.$('studioStatus').textContent !== status) this.$('studioStatus').textContent = status;

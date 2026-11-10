@@ -27,8 +27,8 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "#studioSeparation[hidden]", count: 1
     assert_select "#studioSeparate", count: 0
     assert_select "#studioStop[hidden]", text: "Stop separation"
-    # Separating lives in the project's ⋯ menu (Separate again… once separated).
-    assert_select "#projectMore #projectSeparate[hidden][aria-haspopup=dialog]", text: "Separate instruments…"
+    # Separating starts from a track's ⋯ menu (ProjectTimeline), not the project's.
+    assert_select "#projectSeparate", count: 0
     # The chooser creates this field dynamically; the whole-song default and
     # excerpt dispatch are covered by the StudioSeparationView unit tests.
     assert_select "#studioExcerpt", count: 0

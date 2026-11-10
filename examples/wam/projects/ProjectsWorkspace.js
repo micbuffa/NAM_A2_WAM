@@ -24,6 +24,7 @@ import {AudioImportWatcher, importActive} from './AudioImportWatcher.js';
 import {StudioMixExporter, exportRange, mixExportAvailability} from './StudioMixExporter.js';
 import {SeparationPersistence} from './SeparationPersistence.js';
 import {StudioSeparationView} from './StudioSeparationView.js';
+import {separationSources} from './StudioSeparation.js';
 import {ProjectTimeline} from './ProjectTimeline.js';
 import {BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, projectTrackCount, timelineTracks,
   initials, instrumentLabel, originLabel, liveTrackId, loopAround, loopFromBars, loopLabel, loopToBars, moveTrack, rememberLoop, rememberedLoop, nameFromFile, orderChanged, shareSummary, plural, presetValue, timelineLength, toggleMonitoring,
@@ -94,6 +95,7 @@ export class ProjectsWorkspace extends EventTarget {
       onChange: (id, fields) => this.updateTrack(id, fields),
       onEdit: (id) => this.editTrackDialog(id),
       onDelete: (id) => this.deleteTrack(id),
+      onSeparate: (id) => void this.separationView?.chooseModel({sourceId: id}),
       onGestureStart: key => { if (this.historyGesture?.key !== key) this.historyGesture = {key}; },
       onGestureEnd: () => { this.historyGesture = null; },
       onMove: (id, index) => {
@@ -1188,9 +1190,17 @@ export class ProjectsWorkspace extends EventTarget {
     this.emptyAction = run;
   }
 
+  // A separable track's ⋯ entry: "again" once it has a result (in RAM or saved).
+  separateLabel(track) {
+    if (!this.separationView || !separationSources([track]).length) return '';
+    const separated = this.separation?.result?.sourceId === track.id
+      || (this.project?.separations ?? []).some((batch) => batch.state === 'ready' && batch.sourceTrackId === track.id);
+    return separated ? 'Separate again…' : 'Separate instruments…';
+  }
+
   renderTracks() {
     const tracks = this.displayTracks;
-    this.timeline.render(tracks, {selectedId: this.selectedId, editable: this.owned, structuralLock: this.separation?.result ? (this.separation.busy ? 'Stop separation, then Save project to edit these instruments.' : 'Save project to edit these instruments and enable Undo/Redo.') : '', presetName: (track) => this.toneLabel(track)});
+    this.timeline.render(tracks, {selectedId: this.selectedId, editable: this.owned, structuralLock: this.separation?.result ? (this.separation.busy ? 'Stop separation, then Save project to edit these instruments.' : 'Save project to edit these instruments and enable Undo/Redo.') : '', presetName: (track) => this.toneLabel(track), separateLabel: (track) => this.separateLabel(track)});
     this.$('projectTimelineTempo').textContent = this.project ? `${this.project.bpm} BPM · ${signatureOf(this.project.timeSignature)}` : '';
     this.$('projectTracksEmpty').hidden = tracks.length > 0;
     this.$('projectTracksEmpty').textContent = this.owned ? 'No tracks yet: add one from an audio file.' : 'This project has no tracks yet.';

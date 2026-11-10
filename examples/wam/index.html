@@ -127,7 +127,6 @@
           <tl-button id="projectSave" variant="primary" icon="save" hidden disabled>Save project</tl-button>
           <tl-menu id="projectMore" label="More project actions">
             <button id="studioUseMix" type="button" aria-haspopup="dialog" hidden disabled><tl-icon name="play" size="15"></tl-icon>Export to play along</button>
-            <button id="projectSeparate" type="button" aria-haspopup="dialog" hidden disabled><tl-icon name="sliders" size="15"></tl-icon><span>Separate instruments…</span></button>
             <button id="projectMenuImport" type="button" aria-haspopup="dialog" hidden><tl-icon name="audio" size="15"></tl-icon>Import audio</button>
             <button id="projectResetMix" type="button" title="Back to the owner's mix" hidden><tl-icon name="undo" size="15"></tl-icon>Reset mix</button>
             <button id="projectLeave" type="button" aria-haspopup="dialog" title="Stop seeing this project" hidden><tl-icon name="close" size="15"></tl-icon>Leave project</button>
@@ -159,10 +158,6 @@
           <div id="studioRemovedTracks" class="studio-separation-options" hidden>
             <label>Removed tracks<select id="studioRemovedTrack" aria-label="Removed tracks"></select></label>
             <tl-button id="studioRestoreTrack" size="sm">Restore track</tl-button>
-          </div>
-          <div class="studio-separation-options">
-            <label>Audio to separate<select id="studioSource"></select></label>
-
           </div>
           <div class="studio-separation-options"><label>Saved separations<select id="studioSavedResult" aria-label="Saved separations"></select></label></div>
             <label>Mix export range<select id="studioExportRange" aria-label="Mix export range" hidden><option value="song">Export entire song</option><option value="loop">Export A/B loop only</option></select></label>

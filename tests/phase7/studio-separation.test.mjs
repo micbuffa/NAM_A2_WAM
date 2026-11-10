@@ -260,7 +260,7 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
   globalThis.document = {body:new Element('body'),createElement:tag=>new Element(tag)};
   try {
     for (const [index, modelId] of ['htdemucs_4s_onnx','bs_roformer_sw_6s'].entries()) {
-      const f = await fixture(), fields = {studioSource:{value:String(f.source.id)}};
+      const f = await fixture(), fields = {};
       const view = Object.create(StudioSeparationView.prototype);
       const w = {owned:true,project:{id:7,tracks:[f.source]},accountLoadEpoch:1};
       Object.assign(view,{workspace:w,controller:f.separation,ready:Promise.resolve(),$:id=>fields[id]});
@@ -276,6 +276,7 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
       await choices[index].onclick();
       assert.equal(runs.length,1);assert.equal(runs[0].modelId,modelId);
       assert.equal(runs[0].projectId,7);assert.equal(runs[0].seconds,index===0?0:30);
+      assert.equal(runs[0].track.id,f.source.id,'without a track id, the first separable track is used');
       assert.equal(view.modelDialog,null);
       await view.chooseModel();
       assert.equal(view.modelDialog.children[1].children[0].children[0].value,'0','a previous excerpt is not reused');
@@ -284,6 +285,11 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
       const keep=view.modelDialog.children[1].children.find(e=>e.textContent==='Keep as one track');
       assert.equal(keep.textContent,'Keep as one track');
       keep.onclick();assert.equal(runs.length,1,'keeping the import never invokes inference');
+      const other={...f.source,id:f.source.id+100,name:'Other audio'};w.project.tracks=[f.source,other];
+      await view.chooseModel({sourceId:other.id});
+      await view.modelDialog.children[1].children.find(e=>e.className==='studio-model-choices').children[0].onclick();
+      assert.equal(runs.length,2);assert.equal(runs[1].track.id,other.id,'the track whose ⋯ menu asked is the one separated');
+      runs.length=1;w.project.tracks=[f.source];
       await view.chooseModel();w.accountLoadEpoch++;
       await view.modelDialog.children[1].children.find(e=>e.className==='studio-model-choices').children[0].onclick();
       assert.equal(runs.length,1,'a dialog opened under another account cannot start inference');

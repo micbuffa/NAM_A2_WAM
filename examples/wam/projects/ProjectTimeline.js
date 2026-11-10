@@ -25,8 +25,8 @@ export class ProjectTimeline {
   // onMove(id, index): reorder; onSeek(seconds); onLoop({start, end}): a drawn loop region;
   // onTake(id, value): a version picked in the track's take selector (see setTakes);
   // createRenderer(options): a WaveSurfer renderer.
-  constructor(list, {root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, onRetry, onTake, createRenderer}) {
-    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onDelete, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, onRetry, onTake, createRenderer});
+  constructor(list, {root, ruler, onSelect, onChange, onEdit, onDelete, onSeparate, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, onRetry, onTake, createRenderer}) {
+    Object.assign(this, {list, root, ruler, onSelect, onChange, onEdit, onDelete, onSeparate, onGestureStart, onGestureEnd, onMonitor, onArm, onMove, onSeek, onLoop, onRetry, onTake, createRenderer});
     this.rows = new Map();
     this.takes = new Map();
     globalThis.addEventListener?.('nam-appearance-change', () => {
@@ -107,8 +107,9 @@ export class ProjectTimeline {
   }
 
   // presetName(track): what the row says about the track's tone.
-  render(tracks, {selectedId = null, editable = false, structuralLock = '', presetName = () => ''} = {}) {
-    this.presetName = presetName;
+  // separateLabel(track): the track's ⋯ menu entry for separating it ('' = none).
+  render(tracks, {selectedId = null, editable = false, structuralLock = '', presetName = () => '', separateLabel = () => ''} = {}) {
+    Object.assign(this, {presetName, separateLabel});
     for (const row of this.rows.values()) { row.renderer?.destroy(); row.liveRenderer?.destroy(); }
     this.rows = new Map(tracks.map((track) => {
       const row = this.row(track, editable); row.structuralLocked = Boolean(structuralLock);
@@ -394,7 +395,7 @@ export class ProjectTimeline {
     const name = element('strong', 'track-name');
     handle.append(badge, name);
     title.append(handle);
-    // Edit and Delete: in the track's ⋯ menu, at the right end of its title row.
+    // Edit, Separate instruments and Delete: in the track's ⋯ menu, at the right end of its title row.
     let menu = null;
     if (editable) {
       menu = document.createElement('tl-menu');
@@ -409,6 +410,8 @@ export class ProjectTimeline {
         menu.append(button);
       };
       item('edit', 'Edit track', () => { this.onSelect(id); this.onEdit(id); });
+      const separate = this.onSeparate && this.separateLabel(track);
+      if (separate) item('sliders', separate, () => { this.onSelect(id); this.onSeparate(id); });
       if (this.onDelete) item('trash', 'Delete track', () => this.onDelete(id));
       menu.onclick = (event) => event.stopPropagation();
       title.append(menu); structuralControls.push(menu);

@@ -364,9 +364,9 @@ when deploying this update. Processed DI mix export is also available; see
 [Processed mix export](docs/PROCESSED_MIX_EXPORT.md). See
 [RECORD_TRACKS_SPECIFICATION.md](RECORD_TRACKS_SPECIFICATION.md).
 
-In **Studio**, import accompaniment audio, choose Demucs (4 instruments, guitar
-in Other) or BS Roformer SW (6 instruments, dedicated guitar/piano), and click
-**Separate instruments**. The default processes the entire song; short excerpts
+In **Studio**, import accompaniment audio, open that track's **⋯ › Separate
+instruments…**, and choose Demucs (4 instruments, guitar in Other) or BS Roformer
+SW (6 instruments, dedicated guitar/piano). The default processes the entire song; short excerpts
 are available in the main panel. WebGPU is preferred when initialized successfully;
 CPU/WASM and cache checks are under **Change model / settings**; model notices remain in the distribution files.
 The Stop button cancels computation and keeps any already available partial result.

@@ -351,7 +351,7 @@ export class StudioRecording {
     for (const id of ['projectNew', 'projectImport', 'projectMenuImport', 'projectResetMix', 'projectAddTrack', 'projectEdit', 'projectShare', 'projectLeave', 'projectSave', 'projectUndo', 'projectRedo', 'projectPlay', 'projectRewind', 'projectLoop', 'projectLoopReset']) {
       if (this.busy && $(id)) { this.disabled ??= new Map(); if (!this.disabled.has($(id))) this.disabled.set($(id), $(id).disabled); $(id).disabled = true; }
     }
-    for (const id of ['studioUseMix', 'projectSeparate']) if ($(id) && this.busy) $(id).disabled = true;
+    if ($('studioUseMix') && this.busy) $('studioUseMix').disabled = true;
     if($('projectTracks'))$('projectTracks').inert=Boolean(w.saving);
     for (const id of ['projectRuler','studioSeparation']) if($(id))$(id).inert=this.busy||Boolean(w.saving);
   }
