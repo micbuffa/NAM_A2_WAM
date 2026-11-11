@@ -309,6 +309,7 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .led-toggle[aria-pressed="true"] { color: var(--tl-accent); background: var(--tl-accent-tint); border-color: var(--tl-accent-border); }
 .led-toggle[aria-pressed="true"] i { background: var(--tl-accent); box-shadow: var(--tl-glow-led, none); }
 .project-tempo { margin-left: auto; color: var(--tl-text-muted); font: 500 var(--tl-fs-xs) var(--tl-font-mono); }
+.project-tempo[data-bpm-source="default"], .project-tempo[data-bpm-source="estimated"] { font-style: italic; opacity: .75; }
 /* Ruler and lanes share the track rows' grid and the lanes' inset, so bar 1 lines up with the clips. */
 .project-ruler-row { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); height: 54px; background: var(--tl-bg);
   border-bottom: 1px solid var(--tl-border-subtle); }
@@ -610,8 +611,6 @@ body[data-workspace="projects"] .studio-separation-actions tl-button { height: 3
 .track-mode-r.active { color:#fff; background:#a52b35; border-color:#a52b35; }
 .project-count-in { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--tl-text-muted); white-space:nowrap; }
 .project-count-in select { padding:4px; }
-.project-tempo-suggestion { flex:none; display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:6px 12px; color:var(--tl-text-2); font-size:11px; }
-.project-tempo-suggestion[hidden] { display:none; }
 
 body[data-workspace="projects"] .project-timeline-head { gap:8px; }
 body[data-workspace="projects"] .project-clock { min-width:76px; }

@@ -85,6 +85,7 @@ export class StudioSeparationView {
     });
     workspace.player.addEventListener('statechange', () => this.render());
     c.addEventListener('source-audio',({detail})=>workspace.maybeDetectTempo?.(detail.id,detail.buffer));
+    c.addEventListener('drums-audio',({detail})=>{if(detail.projectId===workspace.project?.id)workspace.estimateTempoFrom?.(detail.pcm,detail.sampleRate);});
     c.addEventListener('audio', () => {
       if (!this.waveTimer) this.waveTimer = setTimeout(() => { this.waveTimer = null; this.flushWaves(); }, 250);
     });

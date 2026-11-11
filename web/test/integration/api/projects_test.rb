@@ -17,6 +17,21 @@ class Api::ProjectsTest < ActionDispatch::IntegrationTest
     assert_equal "3/4", Project.find(value["id"]).time_signature
   end
 
+  test "bpm source says who set the tempo; a tempo sent alone counts as chosen" do
+    sign_in_as users(:alice)
+    post api_projects_path, params: { name: "Untimed" }, as: :json
+    value = response.parsed_body
+    assert_equal [ 120, "default" ], value.values_at("bpm", "bpmSource")
+    patch api_project_path(value["id"]), params: { name: "Renamed" }, as: :json
+    assert_equal "default", response.parsed_body["bpmSource"]
+    patch api_project_path(value["id"]), params: { bpm: 75, bpmSource: "estimated" }, as: :json
+    assert_equal [ 75, "estimated" ], response.parsed_body.values_at("bpm", "bpmSource")
+    patch api_project_path(value["id"]), params: { bpm: 150 }, as: :json
+    assert_equal [ 150, "user" ], response.parsed_body.values_at("bpm", "bpmSource")
+    patch api_project_path(value["id"]), params: { bpmSource: "nope" }, as: :json
+    assert_response :unprocessable_content
+  end
+
   test "requires a session" do
     get api_projects_path
     assert_response :unauthorized

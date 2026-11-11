@@ -10,6 +10,8 @@ class Project < ApplicationRecord
   validates :name, presence: true, length: { maximum: 120 }
   validates :time_signature, inclusion: { in: %w[2/4 3/4 4/4 5/4 6/8 7/8] }
   validates :bpm, numericality: { only_integer: true, in: 30..300 }
+  BPM_SOURCES = %w[default estimated user].freeze
+  validates :bpm_source, inclusion: { in: BPM_SOURCES }
 
   # Projects a user can open: their own and those shared with them.
   scope :visible_to, ->(user) {

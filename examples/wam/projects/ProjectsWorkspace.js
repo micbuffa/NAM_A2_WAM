@@ -28,7 +28,7 @@ import {separationSources} from './StudioSeparation.js';
 import {ProjectTimeline} from './ProjectTimeline.js';
 import {BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describeProject, formatClock, projectTrackCount, timelineTracks,
   initials, instrumentLabel, originLabel, liveTrackId, loopAround, loopFromBars, loopLabel, loopToBars, moveTrack, rememberLoop, rememberedLoop, nameFromFile, orderChanged, shareSummary, plural, presetValue, timelineLength, toggleMonitoring,
-  trackChanges, twoDigits, usesPreset, usesTrackPreset, withInstrument, defaultPresetFields} from './ProjectsModel.js';
+  tempoLabel, trackChanges, twoDigits, usesPreset, usesTrackPreset, withInstrument, defaultPresetFields} from './ProjectsModel.js';
 
 const LAST_PROJECT_KEY = 'nam-a2-wam.project';
 const LOOPS_KEY = 'nam-a2-wam.project-loops'; // each project's loop, in bars (this browser only)
@@ -68,10 +68,9 @@ export class ProjectsWorkspace extends EventTarget {
     this.projects = [];
     this.tempoDetection = new TempoDetection({onResult: result => {
       if(!this.tempoSource || this.tempoSource.projectId!==this.project?.id)return;
-      this.tempoSuggestion=result ?? {unavailable:true};this.renderTempoSuggestion();
+      this.tempoSource=null;
+      if(result?.bpm)void this.applyEstimatedTempo(result.bpm);
     }});
-    if(this.$('projectApplyTempo'))this.$('projectApplyTempo').onclick=()=>{if(this.tempoSuggestion?.bpm && this.owned && !this.saving && !this.recording?.busy && !this.separation?.busy){this.edit({bpm:this.tempoSuggestion.bpm});this.tempoSuggestion=null;this.renderTempoSuggestion();}};
-    if(this.$('projectDismissTempo'))this.$('projectDismissTempo').onclick=()=>{this.tempoDetection.cancel();this.tempoSource=null;this.tempoSuggestion=null;this.renderTempoSuggestion();};
     this.project = null;
     this.saved = null; // the project as last loaded or saved
     this.selectedId = null;
@@ -221,7 +220,7 @@ export class ProjectsWorkspace extends EventTarget {
   // Unsaved edits of an owned project.
   get dirty() {
     if (!this.owned || !this.saved) return false;
-    return Boolean(this.recording?.pending.size || this.recording?.loopReview) || Boolean(this.hasPendingSoundExport?.()) || this.project.name !== this.saved.name || this.project.bpm !== this.saved.bpm || signatureOf(this.project.timeSignature) !== signatureOf(this.saved.timeSignature)
+    return Boolean(this.recording?.pending.size || this.recording?.loopReview) || Boolean(this.hasPendingSoundExport?.()) || this.project.name !== this.saved.name || this.project.bpm !== this.saved.bpm || this.project.bpmSource !== this.saved.bpmSource || signatureOf(this.project.timeSignature) !== signatureOf(this.saved.timeSignature)
       || orderChanged(this.saved.tracks, this.project.tracks) || trackChanges(this.saved.tracks, this.project.tracks).length > 0;
   }
 
@@ -302,7 +301,7 @@ export class ProjectsWorkspace extends EventTarget {
     if (!beforeLayout && !preserveHistory) this.history?.clear();
     this.historyGesture = null;
     if (project?.id !== this.project?.id) {
-      this.tempoDetection?.cancel();this.tempoSource=null;this.tempoSuggestion=null;
+      this.tempoDetection?.cancel();this.tempoSource=null;this.pendingTempo=null;
       this.recording?.clear();
       this.mixExporter?.invalidate();
       if (this.$?.('studioExportRange')) this.$('studioExportRange').value='song';
@@ -404,8 +403,8 @@ export class ProjectsWorkspace extends EventTarget {
     try {
       const {project, saved} = this;
       await this.recording?.save();
-      if (project.name !== saved.name || project.bpm !== saved.bpm || signatureOf(project.timeSignature) !== signatureOf(saved.timeSignature)) {
-        Object.assign(saved, await this.api.updateProject(project.id, {name: project.name, bpm: project.bpm, timeSignature: signatureOf(project.timeSignature)}), {tracks: saved.tracks});
+      if (project.name !== saved.name || project.bpm !== saved.bpm || project.bpmSource !== saved.bpmSource || signatureOf(project.timeSignature) !== signatureOf(saved.timeSignature)) {
+        Object.assign(saved, await this.api.updateProject(project.id, {name: project.name, bpm: project.bpm, bpmSource: project.bpmSource ?? 'user', timeSignature: signatureOf(project.timeSignature)}), {tracks: saved.tracks});
       }
       if (orderChanged(saved.tracks, project.tracks)) {
         await this.api.reorderTracks(project.id, project.tracks.map((track) => track.id));
@@ -435,6 +434,7 @@ export class ProjectsWorkspace extends EventTarget {
       this.report(`${error.projectAudioSaved?'Project and audio saved; reusable preset not created yet. Retry Save project':'Project not saved'}: ${error.message}`, true);
     }
     this.saving = false;
+    if(this.pendingTempo)void this.applyEstimatedTempo(this.pendingTempo);
     this.render();return success;
   }
 
@@ -514,7 +514,7 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   async create({name, bpm, timeSignature}) {
-    const project = await this.api.createProject({name, bpm, timeSignature:signatureOf(timeSignature)});
+    const project = await this.api.createProject({name, bpm, bpmSource: 'user', timeSignature:signatureOf(timeSignature)});
     this.projects.unshift({...project, trackCount: 0});
     await this.open(project.id, {confirm: false});
     return project;
@@ -739,7 +739,8 @@ export class ProjectsWorkspace extends EventTarget {
     if (!this.owned) return;
     const values = await projectDialog({title: 'Edit project', confirmLabel: 'Apply', name: this.project.name, bpm: this.project.bpm, timeSignature: signatureOf(this.project.timeSignature),
       intro: 'Update the project name and tempo, then save the project.'});
-    if (values) this.edit(values);
+    // Choosing a tempo makes it the user's; renaming leaves its origin alone.
+    if (values) this.edit(values.bpm === this.project.bpm ? values : {...values, bpmSource: 'user'});
   }
 
   async importAudioDialog() {
@@ -976,24 +977,37 @@ export class ProjectsWorkspace extends EventTarget {
     if (this.project) this.timeline.setLength(timelineLength(this.player?.duration ?? 0, this.project.bpm, 16, this.project.timeSignature));
   }
 
+  // Imports estimate a tempo (first 60 s, in a worker) and fill it in while nobody has chosen one.
   requestTempo(id) {
-    if(!id)return;this.tempoDetection?.cancel();this.tempoSource={projectId:this.project?.id,id,started:false};this.tempoSuggestion={loading:true};
-    const buffer=this.player?.channels?.get(id)?.buffer;if(buffer)this.maybeDetectTempo(id,buffer);this.renderTempoSuggestion();
+    if(!id)return;this.tempoDetection?.cancel();this.tempoSource={projectId:this.project?.id,id,started:false};
+    const buffer=this.player?.channels?.get(id)?.buffer;if(buffer)this.maybeDetectTempo(id,buffer);
   }
   maybeDetectTempo(id,buffer) {
     if(!this.tempoSource||this.tempoSource.projectId!==this.project?.id||this.tempoSource.id!==id||this.tempoSource.started)return;
     this.tempoSource.started=true;
-    try{this.tempoDetection.analyse(buffer);}catch{this.tempoSuggestion={unavailable:true};this.renderTempoSuggestion();}
+    try{this.tempoDetection.analyse(buffer);}catch{this.tempoSource=null;}
   }
-  renderTempoSuggestion() {
-    const root=this.$('projectTempoSuggestion');if(!root)return;
-    const suggestion=this.tempoSuggestion;root.hidden=!suggestion;if(!suggestion)return;
-    this.$('projectTempoEstimate').textContent=suggestion.loading?'Estimating tempo…':suggestion.bpm?`Estimated ${suggestion.bpm} BPM · verify (half/double possible)`:'No clear beat detected · set BPM manually';
-    this.$('projectApplyTempo').hidden=!suggestion.bpm;
-    this.$('projectApplyTempo').disabled=Boolean(this.saving||this.recording?.busy||this.separation?.busy);
+  // Separated drums refine the import estimate; starting this cancels a mix analysis still running.
+  estimateTempoFrom(pcm,sampleRate) {
+    if(!this.project)return;
+    this.tempoSource={projectId:this.project.id,id:'drums',started:true};
+    try{this.tempoDetection.analyse({pcm,sampleRate});}catch{this.tempoSource=null;}
+  }
+  // Saved at once, outside Save project and Undo: like the import itself, not a user edit.
+  // A tempo the user chose (open or saved) is never replaced; failures keep the current tempo.
+  async applyEstimatedTempo(bpm) {
+    const project=this.project,saved=this.saved;
+    this.pendingTempo=null;
+    if(!project||!saved||!this.owned||project.bpmSource==='user'||saved.bpmSource==='user')return false;
+    if(this.saving){this.pendingTempo=bpm;return false;}
+    try{
+      const updated=await this.api.updateProject(project.id,{bpm,bpmSource:'estimated'});
+      if(this.project!==project||this.saved!==saved)return false;
+      for(const target of [project,saved])Object.assign(target,{bpm:updated.bpm,bpmSource:updated.bpmSource});
+      this.replaceSummary(project);this.render();return true;
+    }catch{return false;}
   }
   renderTransport() {
-    this.renderTempoSuggestion();
     const {player} = this;
     const playing = Boolean(player?.playing);
     if(this.$('projectMasterVolume')){const volume=Math.round((player?.masterVolume??1)*100);this.$('projectMasterVolume').value=String(volume);this.$('projectMasterVolume').setAttribute('aria-valuetext',volume+'%');this.$('projectMasterValue').textContent=volume+'%';}
@@ -1202,7 +1216,10 @@ export class ProjectsWorkspace extends EventTarget {
   renderTracks() {
     const tracks = this.displayTracks;
     this.timeline.render(tracks, {selectedId: this.selectedId, editable: this.owned, structuralLock: this.separation?.result ? (this.separation.busy ? 'Stop separation, then Save project to edit these instruments.' : 'Save project to edit these instruments and enable Undo/Redo.') : '', presetName: (track) => this.toneLabel(track), separateLabel: (track) => this.separateLabel(track)});
-    this.$('projectTimelineTempo').textContent = this.project ? `${this.project.bpm} BPM · ${signatureOf(this.project.timeSignature)}` : '';
+    const tempo = this.$('projectTimelineTempo'), label = this.project ? tempoLabel(this.project, signatureOf(this.project.timeSignature)) : null;
+    tempo.textContent = label?.text ?? '';
+    tempo.title = label?.title ?? '';
+    tempo.dataset.bpmSource = label?.source ?? '';
     this.$('projectTracksEmpty').hidden = tracks.length > 0;
     this.$('projectTracksEmpty').textContent = this.owned ? 'No tracks yet: add one from an audio file.' : 'This project has no tracks yet.';
   }

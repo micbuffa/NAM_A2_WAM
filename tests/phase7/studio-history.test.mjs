@@ -67,6 +67,8 @@ test('patches restore only changed fields, order, project metadata and loop, nev
   const patch = editPatch(before,after);
   assert.deepEqual(patch.order, [[1,2],[2,1]]); assert.deepEqual(patch.tracks, [{id:1,fields:{pan:[0,-20]}}]);
   assert.deepEqual(patch.project.bpm,[120,140]); assert.equal(editPatch(before,structuredClone(before)),null);
+  const chosen = structuredClone(before); chosen.bpm = 75; chosen.bpmSource = 'user';
+  assert.deepEqual(editPatch({...before, bpmSource:'default'}, chosen).project, {bpm:[120,75], bpmSource:['default','user']});
 });
 
 test('Studio volume undo/redo works across Save and preserves unrelated live monitoring', async () => {

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {barBeat, loopAround, loopFromBars, loopLabel, loopToBars, rememberLoop, rememberedLoop, snapLoop, clampBpm, initials, moveTrack, orderChanged, shareSummary, defaultTrackName, describeProject, formatClock, groupProjects, liveTrackId, nameFromFile, panLabel, presetFields, presetValue,
+import {tempoLabel, barBeat, loopAround, loopFromBars, loopLabel, loopToBars, rememberLoop, rememberedLoop, snapLoop, clampBpm, initials, moveTrack, orderChanged, shareSummary, defaultTrackName, describeProject, formatClock, groupProjects, liveTrackId, nameFromFile, panLabel, presetFields, presetValue,
   usesTrackPreset, originLabel, projectOptionLabel, rulerBars, timelineLength, toggleMonitoring, trackChanges, trackGain, volumeLabel, withInstrument}
   from '../../examples/wam/projects/ProjectsModel.js';
 import {ProjectPlayer} from '../../examples/wam/projects/ProjectPlayer.js';
@@ -559,4 +559,80 @@ test('refreshing a project summary discards stale embedded tracks from its initi
   ProjectsWorkspace.prototype.replaceSummary.call(w,project);
   assert.equal(projectOptionLabel(w.projects[0]),'Song · 6 tracks');
   assert.equal(w.projects[0].tracks,undefined);
+});
+
+test('the tempo label says when the tempo is a default or an estimate', () => {
+  assert.deepEqual(tempoLabel({bpm:120, bpmSource:'default'}), {text:'120 BPM · default · 4/4', title:'Tempo not set yet — click to set it', source:'default'});
+  assert.equal(tempoLabel({bpm:75, bpmSource:'estimated'}, '3/4').text, '75 BPM · estimated · 3/4');
+  assert.equal(tempoLabel({bpm:92, bpmSource:'user'}).text, '92 BPM · 4/4');
+  assert.equal(tempoLabel({bpm:92}).source, 'user');
+});
+
+test('an import estimate fills a tempo nobody chose, saved at once without marking the project unsaved', async () => {
+  const workspace = ({source = 'default', savedSource = source, update} = {}) => {
+    const w = Object.create(ProjectsWorkspace.prototype), calls = [];
+    const base = {id: 7, name: 'Song', owned: true, bpm: 120, bpmSource: source, timeSignature: '4/4', tracks: []};
+    Object.assign(w, {project: base, saved: {...base, bpmSource: savedSource}, projects: [{id: 7}], calls,
+      api: {updateProject: async (id, attributes) => { calls.push([id, attributes]); return update ? update() : {...base, ...attributes}; }},
+      render() {}});
+    return w;
+  };
+  const w = workspace();
+  assert.equal(await w.applyEstimatedTempo(75), true);
+  assert.deepEqual(w.calls, [[7, {bpm: 75, bpmSource: 'estimated'}]]);
+  assert.deepEqual([w.project.bpm, w.project.bpmSource, w.saved.bpm, w.saved.bpmSource], [75, 'estimated', 75, 'estimated']);
+  assert.equal(w.dirty, false);
+  assert.equal(w.projects[0].bpm, 75);
+  assert.equal(await w.applyEstimatedTempo(150), true, 'a later estimate refines an estimated tempo');
+
+  for (const options of [{source: 'user'}, {source: 'default', savedSource: 'user'}]) {
+    const chosen = workspace(options);
+    assert.equal(await chosen.applyEstimatedTempo(75), false);
+    assert.deepEqual(chosen.calls, []);
+    assert.equal(chosen.project.bpm, 120);
+  }
+
+  const failing = workspace({update: () => { throw Error('offline'); }});
+  assert.equal(await failing.applyEstimatedTempo(75), false);
+  assert.deepEqual([failing.project.bpm, failing.project.bpmSource], [120, 'default']);
+
+  const switched = workspace({update: () => { switched.project = {...switched.project, id: 8}; return {bpm: 75, bpmSource: 'estimated'}; }});
+  const opened = switched.saved;
+  assert.equal(await switched.applyEstimatedTempo(75), false, 'another project opened meanwhile');
+  assert.equal(opened.bpm, 120);
+
+  const saving = workspace(); saving.saving = true;
+  assert.equal(await saving.applyEstimatedTempo(75), false);
+  assert.equal(saving.pendingTempo, 75);
+  assert.deepEqual(saving.calls, []);
+});
+
+test('separated drums refine the tempo and win over a mix analysis still running', async () => {
+  const analysed = [], w = Object.create(ProjectsWorkspace.prototype), base = {id: 7, owned: true, bpm: 75, bpmSource: 'estimated', tracks: []};
+  Object.assign(w, {project: base, saved: {...base}, projects: [], render() {},
+    api: {updateProject: async (id, attributes) => ({...base, ...attributes})},
+    tempoDetection: {analyse: input => analysed.push(input)}});
+  w.tempoSource = {projectId: 7, id: 3, started: true}; // mix analysis in flight
+  const pcm = new Float32Array(10);
+  w.estimateTempoFrom(pcm, 44100);
+  assert.deepEqual(analysed, [{pcm, sampleRate: 44100}]);
+  assert.equal(w.tempoSource.id, 'drums');
+  assert.equal(await w.applyEstimatedTempo(150), true);
+  assert.deepEqual([w.project.bpm, w.project.bpmSource], [150, 'estimated']);
+});
+
+test('a newer tempo analysis drops the result of the one it replaced', async () => {
+  const {TempoDetection} = await import('../../examples/wam/projects/TempoDetection.js');
+  const workers = [], results = [];
+  const detection = new TempoDetection({onResult: value => results.push(value), workerFactory: () => {
+    const worker = {posted: null, postMessage(data) { worker.posted = data; }, terminate() {}}; workers.push(worker); return worker;
+  }});
+  detection.analyse({sampleRate: 44100, length: 4, getChannelData: () => new Float32Array(4)});
+  const pcm = new Float32Array(8);
+  detection.analyse({pcm, sampleRate: 44100});
+  assert.equal(workers[1].posted.pcm, pcm);
+  workers[0].onmessage({data: {result: {bpm: 75}}});
+  workers[1].onmessage({data: {result: {bpm: 150}}});
+  assert.deepEqual(results, [{bpm: 150}]);
+  detection.cancel();
 });

@@ -159,6 +159,13 @@ export function trackGain(track, tracks = []) {
   return db === -Infinity ? 0 : 10 ** (db / 20);
 }
 
+// Transport tempo label: says when nobody chose the tempo (default) or analysis guessed it.
+export function tempoLabel({bpm, bpmSource = 'user'} = {}, signature = '4/4') {
+  const source = bpmSource === 'default' || bpmSource === 'estimated' ? bpmSource : 'user';
+  const title = {default: 'Tempo not set yet — click to set it', estimated: 'Estimated tempo — click to change it', user: 'Project tempo and time signature'}[source];
+  return {text: `${bpm} BPM${source === 'user' ? '' : ` · ${source}`} · ${signature}`, title, source};
+}
+
 // The timeline counts 4/4 bars: at least `minBars`, enough for the longest track.
 export const BEATS_PER_BAR = 4;
 export const barSeconds = (bpm, signature = '4/4') => timing(clampBpm(bpm), signature).barSeconds;

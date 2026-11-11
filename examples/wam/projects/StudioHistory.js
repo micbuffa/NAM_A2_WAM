@@ -35,7 +35,7 @@ export class StudioHistory {
 
 const FIELDS = ['name', 'instrument', 'presetId', 'factoryPreset', 'volume', 'pan', 'mute', 'solo', 'presetSnapshot', 'snapshotId'];
 export function editState(project, loop) {
-  return {name: project.name, bpm: project.bpm, timeSignature:project.timeSignature ?? '4/4', loop: loop && {...loop},
+  return {name: project.name, bpm: project.bpm, bpmSource: project.bpmSource, timeSignature:project.timeSignature ?? '4/4', loop: loop && {...loop},
     tracks: project.tracks.map(track => Object.fromEntries(['id', ...FIELDS].map(key => [key, track[key]])))};
 }
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -43,7 +43,7 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 // baseline must not be restored from an old whole-project snapshot.
 export function editPatch(before, after) {
   const patch = {project: {}, tracks: [], order: null, loop: null};
-  for (const key of ['name', 'bpm', 'timeSignature']) if (before[key] !== after[key]) patch.project[key] = [before[key], after[key]];
+  for (const key of ['name', 'bpm', 'bpmSource', 'timeSignature']) if (before[key] !== after[key]) patch.project[key] = [before[key], after[key]];
   for (const track of before.tracks) {
     const next = after.tracks.find(entry => entry.id === track.id);
     if (!next) continue;

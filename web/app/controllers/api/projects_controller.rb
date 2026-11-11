@@ -41,6 +41,10 @@ class Api::ProjectsController < Api::BaseController
     def project_attributes
       attributes = json_body.slice("name", "bpm")
       attributes["time_signature"] = json_body["timeSignature"] if json_body.key?("timeSignature")
+      # A tempo sent without its origin was chosen by someone, never left as "default".
+      if json_body.key?("bpmSource") then attributes["bpm_source"] = json_body["bpmSource"]
+      elsif attributes.key?("bpm") then attributes["bpm_source"] = "user"
+      end
       attributes
     end
     def project_id = params[:id]

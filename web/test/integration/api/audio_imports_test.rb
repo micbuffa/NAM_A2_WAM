@@ -41,6 +41,7 @@ class Api::AudioImportsTest < ActionDispatch::IntegrationTest
     assert_difference("Project.count",1) {YoutubeImportJob.perform_now(record.id)}
     assert_equal "ready",record.reload.state
     track=Project.find(record.project_id).tracks.first
+    assert_equal [120,"default"],Project.find(record.project_id).values_at(:bpm,:bpm_source)
     assert_equal "original",track.origin;assert_equal "youtube",track.import_metadata["kind"];assert track.audio.attached?
     assert_equal users(:alice),track.creator
     assert_no_difference("Track.count") {YoutubeImportJob.perform_now(record.id)}

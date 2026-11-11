@@ -17,11 +17,12 @@ Trois parcours prioritaires :
 
 ## 2. État réel du projet
 
-- `TempoAnalysis.js` : estimation d’un seul BPM par autocorrélation d’une enveloppe d’attaques, environ60–180BPM, suggestion à confirmer.
+- `TempoAnalysis.js` : estimation d’un seul BPM par autocorrélation d’une enveloppe d’attaques, environ60–180BPM, résultat appliqué au projet tant que personne n’a choisi le tempo (voir ci-dessous).
 - `TempoDetection.js` et `tempo-worker.js` : au plus60secondes du premier canal déjà décodé, analyse hors UI. Aucune liste de beats/downbeats ni carte.
 - `ProjectTiming.js` : BPM fixe de noire et signatures2/4,3/4,4/4,5/4,6/8,7/8. En6/8, les clics actuels sont des croches ; ne pas confondre pulsation détectée et unité de notation.
 - `ProjectPlayer`, capture WAM/ring buffer/Worker et compensation utilisent l’horloge audio et les frames. A/B sert au punch si Loop est décoché, aux prises successives si coché.
 - Le projet conserve un BPM et une signature ; pas de persistance de carte. Les drums adaptatifs décrits ici n’existent pas encore.
+- **Origine du BPM (11 novembre 2026)** : `projects.bpm_source` vaut `default` (120 non choisi), `estimated` (analyse) ou `user` (saisi ou validé ; projets antérieurs migrés en `user`). Le libellé du transport affiche « · default » ou « · estimated ». Après un import, l’estimation sur le mix est sauvegardée immédiatement (hors Save project et Undo) si la source n’est pas `user` ; pendant une séparation, la piste Drums (60 premières secondes, ou au moins 20 s d’un arrêt) affine ce BPM selon la même règle. Corriger passe par « Edit project » et rend la source `user`. Plus de bannière « Use estimated tempo ».
 
 Ces comportements restent la référence de compatibilité jusqu’à livraison et validation des étapes ci-dessous.
 
@@ -33,7 +34,7 @@ Ajouter au dialogue d’import existant un choix compact, valable pour fichier e
 
 | Choix | Effet proposé |
 |---|---|
-| **Tempo fixe — rapide** (défaut initial recommandé) | Estimation légère actuelle ; appliquer/ignorer le BPM proposé |
+| **Tempo fixe — rapide** (défaut initial recommandé) | Estimation légère actuelle, remplie automatiquement tant que le tempo n’est pas `user`, affinée par les drums si séparation |
 | **Suivre le morceau — prise live / tempo variable** | Analyse ML beats/downbeats sur l’audio complet, puis proposition de carte |
 | **Ne pas analyser** | Conserver le tempo du projet sans travail supplémentaire |
 
@@ -47,7 +48,7 @@ Par défaut **conserver la carte/le tempo actuel**. Proposer « Analyser cette n
 
 Prévoir une préférence « Analyse rythmique à l’import » : rapide / proposer le choix / avancée automatique / désactivée. L’analyse avancée automatique pourra devenir le défaut après qualification des performances et de la qualité ; elle n’est pas le défaut imposé de la première livraison.
 
-Le premier téléchargement ML affiche modèle, taille réelle du manifeste, progression et cache ; l’utilisateur l’autorise. Une préférence automatique ne doit pas déclencher silencieusement le premier gros téléchargement. Les imports suivants peuvent réutiliser le modèle autorisé/cache. **Analyse automatique n’implique jamais application automatique d’une carte** : le projet actif n’est pas modifié sans validation. Annulation/indisponibilité garde le tempo existant et propose éventuellement le BPM simple, clairement identifié.
+Le premier téléchargement ML affiche modèle, taille réelle du manifeste, progression et cache ; l’utilisateur l’autorise. Une préférence automatique ne doit pas déclencher silencieusement le premier gros téléchargement. Les imports suivants peuvent réutiliser le modèle autorisé/cache. **Analyse automatique n’implique jamais application automatique d’une carte** : le projet actif n’est pas modifié sans validation. Exception limitée au BPM fixe : un tempo `default` ou `estimated` est rempli par l’estimation, visiblement marqué et corrigeable ; un tempo `user` n’est jamais remplacé. Annulation/indisponibilité garde le tempo existant.
 
 ## 4. Analyser une piste déjà enregistrée
 

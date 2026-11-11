@@ -10,6 +10,9 @@ class ProjectTest < ActiveSupport::TestCase
     assert project.valid?
     assert_equal "Late night", project.name
     assert_equal 120, project.bpm
+    assert_equal "default", project.bpm_source
+    project.bpm_source = "guessed"
+    assert_not project.valid?
   end
 
   test "lists tracks in timeline order" do

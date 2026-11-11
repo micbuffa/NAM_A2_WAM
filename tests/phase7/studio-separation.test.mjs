@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {StudioPlayer} from '../../examples/wam/projects/StudioPlayer.js';
-import {StudioSeparation, separationSources} from '../../examples/wam/projects/StudioSeparation.js';
+import {StudioSeparation, separationSources, drumsPcm} from '../../examples/wam/projects/StudioSeparation.js';
 import {ProgressiveMultitrackEngine} from '../../examples/wam/source-separation/ProgressiveMultitrackEngine.js';
 
 const models = JSON.parse(await readFile(new URL('../../examples/wam/source-separation/studio-models.json', import.meta.url))).models;
@@ -410,4 +410,28 @@ test('an empty guitar track keeps monitoring while four separated tracks play, l
   player.setTracks([...stems,guitar],5);assert.equal(input.targets.size,1);
   player.stop();assert.equal(player.liveId,5);assert.equal(input.targets.size,1);
   player.destroy();assert.equal(input.targets.size,0);
+});
+
+test('the drums of the first minute go to tempo estimation once, or at least 20 s of a stopped run', () => {
+  const second = 44100, block = frames => ({getChannelData: () => Float32Array.from({length: frames}, (_, i) => i % 7)});
+  const engine = (seconds, total = 180) => {
+    const chunks = []; let start = 0;
+    while (start < seconds * second) { const length = Math.min(30 * second, seconds * second - start); chunks.push({startFrame: start, length, tracks: [{buffer: block(1)}, {buffer: block(length)}]}); start += length; }
+    return {tracks: [{role: 'bass'}, {role: 'drums'}], chunks, availableFrames: seconds * second, totalFrames: total * second};
+  };
+  assert.equal(drumsPcm(engine(30)), null, 'waits for a minute of drums');
+  assert.equal(drumsPcm(engine(90)).length, 60 * second);
+  assert.equal(drumsPcm(engine(90))[30 * second + 8], 1, 'chunks are laid end to end');
+  assert.equal(drumsPcm(engine(15), {final: true}), null, 'too short a stopped run');
+  assert.equal(drumsPcm(engine(30), {final: true}).length, 30 * second);
+  assert.equal(drumsPcm(engine(40, 40)).length, 40 * second, 'a song shorter than a minute');
+  assert.equal(drumsPcm({...engine(90), tracks: [{role: 'bass'}, {role: 'other'}]}), null);
+
+  const c = Object.create(StudioSeparation.prototype), sent = [];
+  c.dispatchEvent = event => sent.push(event);
+  c.result = {engine: engine(90), projectId: 4};
+  c.emitDrums(); c.emitDrums({final: true});
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].type, 'drums-audio');
+  assert.deepEqual([sent[0].detail.projectId, sent[0].detail.sampleRate, sent[0].detail.pcm.length], [4, 44100, 60 * second]);
 });

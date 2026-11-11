@@ -13,6 +13,20 @@ export const SEPARATING = 'Separating';
 export const PRODUCT_MODELS =['htdemucs_4s_onnx', 'bs_roformer_sw_6s'];
 export const separationSources = tracks => tracks.filter(track => !track.removedAt && track.audio?.url && ['original', 'legacy'].includes(track.origin ?? 'legacy'));
 const abort = () => new DOMException('Stopped', 'AbortError');
+// Tempo refinement: the drums of the first minute, as soon as they exist, or at least 20 s of a stopped run.
+export const DRUMS_TEMPO_FRAMES = 60 * 44100, DRUMS_TEMPO_MIN_FRAMES = 20 * 44100;
+export function drumsPcm(engine, {final = false} = {}) {
+  const index = engine?.tracks?.findIndex(track => track.role === 'drums') ?? -1;
+  if (index < 0) return null;
+  const frames = Math.min(DRUMS_TEMPO_FRAMES, engine.totalFrames);
+  if (engine.availableFrames < frames && !(final && engine.availableFrames >= DRUMS_TEMPO_MIN_FRAMES)) return null;
+  const pcm = new Float32Array(Math.min(frames, engine.availableFrames));
+  for (const chunk of engine.chunks) {
+    if (chunk.startFrame >= pcm.length) break;
+    pcm.set(chunk.tracks[index].buffer.getChannelData(0).subarray(0, pcm.length - chunk.startFrame), chunk.startFrame);
+  }
+  return pcm;
+}
 let nextTrackId = -1;
 
 // The model cache is persistent; working PCM and the mix are RAM-only in P5.2.
@@ -48,6 +62,14 @@ export class StudioSeparation extends EventTarget {
   get viewTracks() { return this.result?.tracks ?? (this.mode === 'stems' ? this.savedTracks : null); }
   get hasAudio() { return Boolean(this.result?.engine.availableFrames || (!this.result && this.savedTracks?.length)); }
   changed() { this.dispatchEvent(new Event('change')); }
+  // Once per separation: hands the drums to tempo estimation (cleaner beats than the mix).
+  emitDrums(options) {
+    if (!this.result || this.result.drumsSent) return;
+    const pcm = drumsPcm(this.result.engine, options);
+    if (!pcm) return;
+    this.result.drumsSent = true;
+    this.dispatchEvent(new CustomEvent('drums-audio', {detail: {pcm, sampleRate: 44100, projectId: this.result.projectId}}));
+  }
   // detail: technical facts shown as the status line's tooltip (saved separation only).
   setStatus(status, progress = null, detail = '') { this.idle = false; this.status = status; this.progress = progress; this.statusDetail = detail; this.changed(); }
   // An invitation to separate, not news: the view keeps it out of sight.
@@ -71,6 +93,7 @@ export class StudioSeparation extends EventTarget {
     for (const id of this.manager.tasks.keys()) this.manager.cancel(id);
     if (this.result && !this.result.engine.complete) this.result.engine.finish(true);
     this.busy = false;
+    if (!reset) this.emitDrums({final: true});
     if (reset) {
       this.clearResult();
     }
@@ -196,9 +219,11 @@ export class StudioSeparation extends EventTarget {
           for (let bin = 0; bin < peaks.length; bin++) tracks[i].peaks[bin] = Math.max(tracks[i].peaks[bin], peaks[bin]);
         }
         this.dispatchEvent(new Event('audio'));
+        this.emitDrums();
       }});
       current();
       engine.finish();
+      this.emitDrums({final: true});
       this.result.webnnEvidence = result.evidence ?? null;
       this.result.fallbackReason = result.fallbackReason ?? null;
       this.effectiveBackend = result.backend ?? backend;
@@ -206,6 +231,7 @@ export class StudioSeparation extends EventTarget {
     } catch (error) {
       if (epoch !== this.epoch) return;
       if (this.result && !this.result.engine.complete) this.result.engine.finish(true);
+      this.emitDrums({final: true});
       this.setStatus(`${error.name === 'AbortError' ? 'Separation stopped.' : `Separation failed: ${error.message}`}${this.hasAudio ? ' Partial result kept in RAM.' : ''}`);
     } finally {
       if (epoch === this.epoch) { this.busy = false; this.changed(); }
