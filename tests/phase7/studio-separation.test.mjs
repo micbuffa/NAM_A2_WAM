@@ -435,3 +435,23 @@ test('the drums of the first minute go to tempo estimation once, or at least 20 
   assert.equal(sent[0].type, 'drums-audio');
   assert.deepEqual([sent[0].detail.projectId, sent[0].detail.sampleRate, sent[0].detail.pcm.length], [4, 44100, 60 * second]);
 });
+
+test('a plain Save project leaves the separation strip hidden, so the tracks do not move', async () => {
+  const {StudioSeparationView} = await import('../../examples/wam/projects/StudioSeparationView.js');
+  const element = () => ({hidden: false, disabled: false, textContent: '', value: '', title: '', options: [], children: [],
+    replaceChildren(...children) { this.children = children; this.options = children; }, removeAttribute() {}, append() {},
+    closest() { return this.label ??= element(); }, querySelector() { return this.option ??= element(); }});
+  const f = await fixture(), fields = {}, view = Object.create(StudioSeparationView.prototype);
+  const w = {owned: true, saving: true, project: {id: 7, tracks: [f.source], separations: []}, player: {waiting: false}};
+  Object.assign(view, {workspace: w, controller: f.separation, $: id => fields[id] ??= element()});
+  const originalOption = globalThis.Option;
+  globalThis.Option = class { constructor(label, value) { Object.assign(this, {label, value, disabled: false}); } };
+  try {
+    f.separation.prompt('Separate instruments from a track');
+    view.render();
+    assert.equal(fields.studioProgress.hidden, true); assert.equal(fields.studioStatus.hidden, true);
+    f.separation.setStatus('Saving instruments · 1/4 · bass · upload', 25);
+    view.render();
+    assert.equal(fields.studioProgress.hidden, false); assert.equal(fields.studioStatus.hidden, false);
+  } finally { globalThis.Option = originalOption; }
+});

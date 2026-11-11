@@ -238,9 +238,11 @@ export class StudioSeparationView {
     const status = separationStatusLine(c, w.player.waiting);
     if (this.$('studioStatus').textContent !== status) this.$('studioStatus').textContent = status;
     this.$('studioStatus').title = c.statusDetail || '';
-    this.$('studioStatus').hidden = c.idle && !c.busy && !w.saving;
+    // A plain Save project says "Saving audio…" in the header: the strip (status + bar) would
+    // only push the tracks down for a moment. It reports saves of separated instruments.
+    this.$('studioStatus').hidden = c.idle && !c.busy;
     const progress = this.$('studioProgress');
-    progress.hidden = !c.busy && !w.saving;
+    progress.hidden = !c.busy && !(w.saving && !c.idle);
     if (c.progress === null) progress.removeAttribute('value');
     else progress.value = c.progress;
     if (this.lastModelId !== c.modelId || this.lastBackend !== c.backend || this.lastDirectAvailable !== c.directAssets?.available) {
