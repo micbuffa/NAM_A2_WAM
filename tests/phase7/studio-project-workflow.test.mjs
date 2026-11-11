@@ -86,3 +86,56 @@ test('file selection supplies a default project name without overwriting a manua
   assert.deepEqual(result.destination,{name:'new song'});assert.equal(result.file,file.files[0]);
  }finally{globalThis.document=previous;}
 });
+
+test('YouTube import resumes only a running job and opens the finished project by itself', async () => {
+ class Element extends EventTarget {
+  constructor(tag){super();this.tag=tag;this.children=[];this.hidden=false;}
+  append(...children){this.children.push(...children);}
+  setAttribute(){}removeAttribute(){}remove(){}showModal(){}
+  close(){this.closed=true;this.dispatchEvent(new Event('close'));}
+ }
+ const all=(node)=>[node,...(node.children??[]).flatMap(all)];
+ const previous=globalThis.document;const body=new Element('body');globalThis.document={body,createElement:tag=>new Element(tag)};
+ const tick=()=>new Promise(r=>setImmediate(r));
+ const setup=({jobs,confirm=true})=>{
+  const calls=[];
+  const w=Object.create(ProjectsWorkspace.prototype);
+  Object.assign(w,{accountLoadEpoch:1,project:null,calls,ensureSignedIn:async()=>true,report(){},
+   confirmSavedMixDiscard:async()=>confirm,confirmPreviewDiscard:async()=>true,
+   open:async id=>{calls.push(['open',id]);w.project={id};},requestTempo:id=>calls.push(['tempo',id]),
+   separationView:{chooseModel:options=>calls.push(['separate',options.sourceId])},
+   api:{audioImportCapabilities:async()=>({available:true}),listAudioImports:async()=>jobs,listProjects:async()=>[]}});
+  return w;
+ };
+ const dialogOf=()=>body.children.at(-1),find=text=>all(dialogOf()).find(node=>node.textContent===text);
+ try{
+  // A finished import is not shown again.
+  const idle=setup({jobs:[{id:1,state:'ready',projectId:9,sourceTrackId:3,message:'Audio ready in Studio',metadata:{title:'Wicked Game',url:'u'}}]});
+  await idle.youtubeImportDialog();
+  assert.equal(idle.calls.length,0);
+  assert.equal(find('Open in Studio').hidden,true);
+  assert.equal(all(dialogOf()).find(node=>node.tag==='form').hidden,false);
+  assert.ok(!all(dialogOf()).some(node=>String(node.textContent).includes('Wicked Game')));
+  dialogOf().close();
+
+  // A running import hides the form, then opens its project once when ready.
+  const running={id:2,state:'downloading',progress:40,projectId:null};
+  const w=setup({jobs:[running]});let poll;
+  w.api.getAudioImport=async()=>poll;
+  await w.youtubeImportDialog();
+  assert.equal(all(dialogOf()).find(node=>node.tag==='form').hidden,true);
+  poll={id:2,state:'ready',projectId:9,sourceTrackId:3};
+  await new Promise(r=>setTimeout(r,1100));await tick();await tick();
+  assert.deepEqual(w.calls,[['open',9],['tempo',3],['separate',3]]);
+  assert.equal(dialogOf().closed,true);
+
+  // Declining to discard unsaved work keeps the dialog with an Open in Studio fallback.
+  const declined=setup({jobs:[running],confirm:false});
+  declined.api.getAudioImport=async()=>poll;
+  await declined.youtubeImportDialog();
+  await new Promise(r=>setTimeout(r,1100));await tick();await tick();
+  assert.deepEqual(declined.calls,[]);
+  assert.equal(find('Open in Studio').hidden,false);
+  dialogOf().close();
+ }finally{globalThis.document=previous;}
+});

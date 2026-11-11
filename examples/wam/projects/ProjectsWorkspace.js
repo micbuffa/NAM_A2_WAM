@@ -755,6 +755,8 @@ export class ProjectsWorkspace extends EventTarget {
     dialog.showModal();
   }
 
+  // Launch an import and follow it; the finished project opens by itself (Studio) or loads in Play.
+  // Only a running import is resumed on reopening: a finished one is already in the project list.
   async youtubeImportDialog({onImported = null} = {}) {
     if (!await this.ensureSignedIn()) return;
     const {dialog,body,id}=createDialog({title:'Import from YouTube'});
@@ -763,25 +765,49 @@ export class ProjectsWorkspace extends EventTarget {
     const url=element('input',{id:`${id}-url`,type:'url',required:true,placeholder:'https://www.youtube.com/watch?v=…',autocomplete:'off'});
     const label=element('label',{htmlFor:url.id,textContent:'Video URL'});
     const start=button('Import audio',{type:'submit',primary:true});
+    // Fallback only: shown when opening by itself was declined or failed.
     const cancel=button('Cancel import'),open=button(onImported ? 'Use in Play' : 'Open in Studio',{primary:true}),close=button('Close');
     const status=element('p',{role:'status',textContent:'Checking server…'});
     const progress=element('progress',{max:100,hidden:true});
-    const provenance=element('p',{className:'host-help'});
-    let job=null,available=false,pending=false,closed=false;
+    let job=null,available=false,pending=false,closed=false,opening=false,openedId=null,retry=false;
     const render=value=>{
-      job=value;const active=importActive(job);
-      status.textContent=(onImported && job?.state==='ready' ? 'Audio ready. Use in Play to load it without separation.' : job?.message || job?.state) || 'Ready. Up to 30 minutes / 100 MiB. Import audio you are allowed to use.';
+      job=value;const active=importActive(job),ready=job?.state==='ready'&&Boolean(job.projectId);
+      status.textContent=(ready ? (retry ? 'Audio ready.' : 'Audio ready · opening…') : job?.message || job?.state) || 'Ready. Up to 30 minutes / 100 MiB. Import audio you are allowed to use.';
       progress.hidden=!active;
       if(Number.isFinite(job?.progress))progress.value=job.progress;else progress.removeAttribute('value');
+      form.hidden=active||ready||(pending&&!job);
       start.disabled=!available||active||pending;url.disabled=active||pending;destination.root.inert=active||pending;
       cancel.hidden=!active;cancel.disabled=pending;
-      open.hidden=job?.state!=='ready'||!job.projectId;
-      provenance.textContent=job?.metadata?.title ? `${job.metadata.title} · ${job.metadata.url}` : '';
+      open.hidden=!(ready&&retry);open.disabled=opening;
+      if(ready&&openedId!==job.id){openedId=job.id;void openImported();}
+    };
+    const openImported=async()=>{
+      if(opening||job?.state!=='ready')return;
+      const imported=job,epoch=this.accountLoadEpoch;
+      opening=true;retry=false;render(job);
+      try {
+        if (onImported) {
+          status.textContent='Loading audio in Play…';
+          await onImported(imported);
+          if (this.accountLoadEpoch === epoch && !closed) dialog.close();
+          return;
+        }
+        if(!await this.confirmSavedMixDiscard() || !await this.confirmPreviewDiscard()){retry=true;return;}
+        const target=imported.projectId;dialog.close();
+        this.projects=await this.api.listProjects();this.separation?.stop({reset:true});await this.open(target,{confirm:false,historyLabel:'Import YouTube audio'});
+        if(this.project?.id===target){this.requestTempo(imported.sourceTrackId);void this.separationView?.chooseModel({sourceId:imported.sourceTrackId,allowUnseparated:true});}
+      } catch (error) {
+        retry=true;
+        if(closed)this.report(error.message,true);else status.textContent=error.message;
+      } finally {
+        opening=false;
+        if(!closed){const message=retry&&status.textContent;render(job);if(message&&message!=='Audio ready · opening…')status.textContent=message;}
+      }
     };
     const watcher=new AudioImportWatcher({api:this.api,onChange:render});
     this.audioImportDialog?.close();this.audioImportDialog=dialog;
     form.append(label,url,destination.root,actionsRow(start));
-    body.append(form,status,progress,provenance,actionsRow(cancel,open,close));
+    body.append(form,status,progress,actionsRow(cancel,open,close));
     close.onclick=()=>dialog.close();
     dialog.addEventListener('close',()=>{closed=true;watcher.stop();if(this.audioImportDialog===dialog)this.audioImportDialog=null;},{once:true});
     cancel.onclick=async()=>{
@@ -794,34 +820,17 @@ export class ProjectsWorkspace extends EventTarget {
       event.preventDefault();if(start.disabled)return;
       pending=true;render(job);
       try{const value=await this.api.startAudioImport(url.value.trim(),destination.read());if(!closed)watcher.watch(value);}
-      catch(error){if(!closed)status.textContent=error.message;}
+      catch(error){if(!closed){pending=false;render(job);status.textContent=error.message;}}
       finally{pending=false;if(!closed){start.disabled=!available||importActive(job);url.disabled=importActive(job);}}
     };
-    open.onclick=async()=>{
-      if (onImported) {
-        if (pending || job?.state !== 'ready') return;
-        const imported = job, epoch = this.accountLoadEpoch;
-        pending = true; open.disabled = true; status.textContent = 'Loading audio in Play…';
-        try {
-          await onImported(imported);
-          if (this.accountLoadEpoch === epoch && !closed) dialog.close();
-        } catch (error) { if (!closed) status.textContent = error.message; }
-        finally { pending = false; if (!closed) open.disabled = false; }
-        return;
-      }
-      if(await this.confirmSavedMixDiscard() && await this.confirmPreviewDiscard()) {
-        const target=job.projectId;dialog.close();
-        try{this.projects=await this.api.listProjects();this.separation?.stop({reset:true});await this.open(target,{confirm:false,historyLabel:'Import YouTube audio'});if(this.project?.id===target){this.requestTempo(job.sourceTrackId);void this.separationView?.chooseModel({sourceId:job.sourceTrackId,allowUnseparated:true});}}
-        catch(error){this.report(error.message,true);}
-      }
-    };
+    open.onclick=()=>void openImported();
     dialog.showModal();start.disabled=true;cancel.hidden=open.hidden=true;
     try{
       const [capabilities,jobs]=await Promise.all([this.api.audioImportCapabilities(),this.api.listAudioImports()]);
       if(closed)return;
       available=capabilities.available;
-      const recent=jobs.find(importActive)||jobs[0];
-      if(recent)watcher.watch(recent);else render(null);
+      const running=jobs.find(importActive);
+      if(running)watcher.watch(running);else render(null);
       if(!available)status.textContent='YouTube import is unavailable on this server. Rails needs yt-dlp, Node.js and FFmpeg; a static deployment cannot download YouTube audio.';
     }catch(error){if(!closed)status.textContent=error.message;}
   }
