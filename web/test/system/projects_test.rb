@@ -158,24 +158,26 @@ class ProjectsTest < ApplicationSystemTestCase
   test "the owner reorders tracks by dragging them or with the arrow keys" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects
+    find("tr", text: "Alice song").click
     assert_equal %w[Rhythm Drums], all(".track-name").map(&:text)
-    find("button[aria-label='Move Drums']").drag_to(find("button[aria-label='Move Rhythm']"))
+    # Anywhere in the header that is not a control grabs the track; drop on the top half of Rhythm.
+    find(".track-row", text: "Drums").find(".track-level-meter").drag_to(find(".track-row", text: "Rhythm").find(".track-title-row"))
     assert_equal %w[Drums Rhythm], all(".track-name").map(&:text)
     assert_selector "#projectSaveState", text: /unsaved/i
     click_on "Save project"
     assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
     assert_equal %w[Drums Rhythm], projects(:alice_song).tracks.reload.map(&:name)
 
-    find("button[aria-label='Move Drums']").send_keys(:arrow_down)
+    find("button[aria-label='Mute Drums']").send_keys([ :alt, :arrow_down ])
     assert_equal %w[Rhythm Drums], all(".track-name").map(&:text)
-    assert_selector "#inspectorTrackNumber", text: /Track 02/i
     click_on "Save project"
     assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
     assert_equal %w[Rhythm Drums], projects(:alice_song).tracks.reload.map(&:name)
 
-    find("#projectSelect").find("option", text: "Bob jam").select_option
+    find("#hostSidebar [data-nav='projects']").click # back to the project list
+    find("tr", text: "Bob jam").click
     assert_selector ".track-name", text: "Bass"
-    assert_no_selector ".track-handle[draggable=true]"
+    assert_no_selector ".track-label.reorderable"
   end
 
   test "a shared project's mix can be tried but not saved" do
@@ -349,7 +351,7 @@ class ProjectsTest < ApplicationSystemTestCase
     def edit_track(name) = track_menu(name, "Edit track")
 
     def switch_workspace(name)
-      page.execute_script("const s = document.getElementById('workspaceSwitch'); s.value = arguments[0]; s.dispatchEvent(new Event('change'))", name)
+      find("#hostSidebar [data-nav='#{name}']").click
       assert_selector "body[data-workspace=#{name}]"
     end
 end

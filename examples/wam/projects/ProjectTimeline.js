@@ -11,6 +11,8 @@ import {LiveWaveform} from './recording/LiveWaveform.js';
 import {formatClock, instrumentLabel, originLabel, panLabel, recordableTrack, resizeLoop, rulerBars, snapLoop, usesTrackPreset, volumeLabel} from './ProjectsModel.js';
 
 const element = (tag, className, properties = {}) => Object.assign(document.createElement(tag), {className, ...properties});
+// Pressing one of these in a track header works the control; anywhere else drags the track.
+const HEADER_CONTROLS = 'button, input, select, a, tl-slider, tl-knob, tl-menu';
 // A track control that does not apply to this track: invisible and out of reach, but still taking its place.
 const placeholder = (button, unused) => {
   button.classList.toggle('track-mode-placeholder', unused);
@@ -115,6 +117,7 @@ export class ProjectTimeline {
       const row = this.row(track, editable); row.structuralLocked = Boolean(structuralLock);
       if (structuralLock) for (const control of row.structuralControls) {
         control.disabled = true; control.draggable = false; control.title = structuralLock;
+        control.classList.remove('reorderable');
       }
       return [track.id, row];
     }));
@@ -381,7 +384,7 @@ export class ProjectTimeline {
     icon.setAttribute('size', '16');
     const badge = element('span', 'track-icon');
     badge.append(icon);
-    // Icon + name: the handle that drags the track to a new place (owner only).
+    // Icon + name. The whole header (label) drags the track to a new place (owner only).
     const handle = element('span', 'track-handle');
     const meter = element('div', 'track-level-meter');
     meter.setAttribute('role', 'meter'); meter.setAttribute('aria-label', `Level ${track.name}`);
@@ -483,11 +486,20 @@ export class ProjectTimeline {
     controls.append(modeGroup, fader, knob);
     strip.append(title, meta, controls);
     if (editable) {
-      handle.draggable = true;
-      handle.title = 'Drag to reorder · Alt+↑/↓';
-      handle.ondragstart = (event) => this.startDrag(event, id);
-      handle.ondragend = () => this.endDrag();
-      structuralControls.push(handle);
+      label.draggable = true;
+      label.classList.add('reorderable'); // grab cursor; the draggable attribute flips per press
+      label.title = 'Drag to reorder · Alt+↑/↓';
+      label.ondragstart = (event) => this.startDrag(event, id);
+      label.ondragend = () => this.endDrag();
+      // Draggable only for a press outside the controls: a fader or knob pulled inside a
+      // draggable header would otherwise drag the whole track. composedPath() sees the
+      // tl-slider / tl-knob hosts of a press inside their shadow roots; it ends with document
+      // and window, which are not elements (matches() first, then contains()).
+      label.addEventListener('pointerdown', (event) => {
+        if (this.rows.get(id)?.structuralLocked) return;
+        label.draggable = !event.composedPath().some((node) => node !== label && node.matches?.(HEADER_CONTROLS) && label.contains(node));
+      }, true);
+      structuralControls.push(label);
       // Alt+Up/Down moves the track from any of its controls. Captured first, so a focused
       // fader or knob does not also take the arrow.
       root.addEventListener('keydown', (event) => {
