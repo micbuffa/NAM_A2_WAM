@@ -40,6 +40,7 @@ import {guardCalibrationAudio} from './projects/recording/CalibrationAudioGuard.
 import {TunerView} from './TunerView.js';
 import {WamPluginRegistry} from './WamPluginRegistry.js';
 import {setupAccount} from './account/index.js';
+import {installSaveShortcut} from './SaveShortcut.js';
 import {installTonelabSkin} from './wamPlugins/utils/tonelab-skin.js';
 const TONE3000_CALLBACK_CHANNEL = 'nam-a2-wam.tone3000.callback';
 const TONE3000_CALLBACK_STORAGE_KEY = 'nam-a2-wam.tone3000.callback';
@@ -568,6 +569,10 @@ async function initialize() {
       syncSourceTrim();
     },
     suggestName: async () => (await node.getState()).model?.name?.replace(/\.nam$/iu, '') || ''});
+  // ⌘S / Ctrl+S: Save Preset in Play, Save project in Studio.
+  const saveShortcut=installSaveShortcut({workspaces,buttons:{tone:()=>$('#presetSaveButton'),projects:()=>$('#projectSave')}});
+  presets.saveShortcut=saveShortcut;presets.render();
+  Object.assign($('#projectSave'),{title:`Save project (${saveShortcut.label})`}).setAttribute('aria-keyshortcuts',saveShortcut.aria);
   // Factory presets build on the default rack, known once the presets are attached.
   projects.attachTones(trackTones);
   // In Play, each backing track opens the rack on its preset.

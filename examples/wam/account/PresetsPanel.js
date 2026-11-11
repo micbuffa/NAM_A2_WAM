@@ -267,7 +267,7 @@ export default class PresetsPanel extends EventTarget {
       this.$('presetMeta').textContent=editor.busy?'Loading the track sound…':origin?`From “${origin.name}”${editor.originModified?' · modified':''}`:'Own sound';
       const unsaved=this.$('presetUnsaved');unsaved.textContent='Not applied';unsaved.title='Apply to track, then Save project';unsaved.hidden=!editor.modified;this.$('presetRename').hidden=this.$('presetDelete').hidden=true;
       const revert=this.$('presetRevert');revert.hidden=false;revert.disabled=editor.busy||!editor.modified;revert.title='Revert to the sound applied to the track';revert.setAttribute('aria-label',revert.title);
-      this.$('presetNew').disabled=true;const save=this.$('presetSaveButton');save.textContent='Apply to track';save.disabled=editor.busy||!editor.modified;save.title='Apply this sound to the track. Use Save project to keep it.';save.toggleAttribute('dot',editor.modified);return;
+      this.$('presetNew').disabled=true;const save=this.$('presetSaveButton');save.textContent='Apply to track';save.disabled=editor.busy||!editor.modified;save.title='Apply this sound to the track. Use Save project to keep it.';save.removeAttribute('aria-keyshortcuts');save.toggleAttribute('dot',editor.modified);return;
     }
     this.$('presetSaveButton').textContent='Save Preset';this.$('presetKicker').textContent='Current preset';
     this.$('presetUnsaved').textContent='Unsaved changes';this.$('presetUnsaved').title='';
@@ -292,6 +292,8 @@ export default class PresetsPanel extends EventTarget {
     save.toggleAttribute('dot', this.modified);
     save.title = this.needsSignIn ? 'Sign in to save the current rack'
       : mine ? `Save the current rack to “${active.name}”` : 'Save the current rack as a new preset';
+    // ⌘S / Ctrl+S (SaveShortcut.js, installed by main.js) presses this button in Play.
+    if (this.saveShortcut) { save.title += ` (${this.saveShortcut.label})`; save.setAttribute('aria-keyshortcuts', this.saveShortcut.aria); }
     this.$('presetNew').title = this.needsSignIn ? 'Sign in to create a preset' : '';
     this.dispatchEvent(new CustomEvent('change', {detail: {name, meta: this.modified ? `${meta} · Unsaved changes` : meta, modified: this.modified}}));
   }
