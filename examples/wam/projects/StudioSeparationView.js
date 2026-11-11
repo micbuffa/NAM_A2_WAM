@@ -1,11 +1,19 @@
 import {directWebNNAvailability} from '../source-separation/DirectWebNNAssets.js';
 import {backendLabel, isDirectWebNN, studioRecommendation, isWebNN, studioBackendOptions} from '../source-separation/StudioWebNN.js';
-import {StudioSeparation, separationSources} from './StudioSeparation.js';
+import {SEPARATING, StudioSeparation, separationSources} from './StudioSeparation.js';
 
 export function separationTrackState(controller) {
   if (!controller.result) return '';
-  if (controller.busy) return 'Separating · tracks update live';
+  // While separating, Stop + the progress line already say so; only the follow-up action needs a badge.
+  if (controller.busy) return '';
   return controller.result.engine.partial ? 'Unsaved instruments · stopped result · Save project' : 'Unsaved instruments · Save project';
+}
+
+// One status line while separating: percent and audio already playable, built here
+// so the controller's phases never repeat it.
+export function separationStatusLine(controller, buffering = false) {
+  if (!(controller.busy && controller.result && controller.status === SEPARATING)) return controller.status;
+  return `${SEPARATING} · ${Math.floor(controller.progress ?? 0)}% · ${controller.result.engine.availableDuration.toFixed(1)} s ready${buffering ? ' · buffering' : ''}`;
 }
 
 // Adapts the transient separation deck to the existing Studio timeline. Progress
@@ -226,7 +234,7 @@ export class StudioSeparationView {
     trackState.hidden = !trackState.textContent;
     this.$('studioStop').hidden = !c.busy;
     this.$('studioCheckCache').disabled = this.$('studioRemoveCache').disabled = c.busy || !model || isDirectWebNN(c.backend);
-    const status = `${c.status}${c.result && c.busy ? ` · ${c.result.engine.availableDuration.toFixed(1)} s ready${w.player.waiting ? ' · buffering' : ''}` : ''}`;
+    const status = separationStatusLine(c, w.player.waiting);
     if (this.$('studioStatus').textContent !== status) this.$('studioStatus').textContent = status;
     this.$('studioStatus').title = c.statusDetail || '';
     this.$('studioStatus').hidden = c.idle && !c.busy && !w.saving;

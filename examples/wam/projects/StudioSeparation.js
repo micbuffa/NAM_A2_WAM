@@ -9,7 +9,8 @@ import {ProgressiveMultitrackEngine} from '../source-separation/ProgressiveMulti
 import {makeTracks} from '../source-separation/AudioData.js';
 
 export const STEM_NAMES = {drums: 'Drums', bass: 'Bass', other: 'Other', vocals: 'Vocals', guitar: 'Guitar', piano: 'Piano'};
-export const PRODUCT_MODELS = ['htdemucs_4s_onnx', 'bs_roformer_sw_6s'];
+export const SEPARATING = 'Separating';
+export const PRODUCT_MODELS =['htdemucs_4s_onnx', 'bs_roformer_sw_6s'];
 export const separationSources = tracks => tracks.filter(track => !track.removedAt && track.audio?.url && ['original', 'legacy'].includes(track.origin ?? 'legacy'));
 const abort = () => new DOMException('Stopped', 'AbortError');
 let nextTrackId = -1;
@@ -114,11 +115,12 @@ export class StudioSeparation extends EventTarget {
     this.mode = this.savedTracks?.length ? 'stems' : 'original';
     const batch = this.savedBatches.find(batch => batch.id === this.activeSavedId);
     if (batch && PRODUCT_MODELS.includes(batch.manifest.modelId)) this.modelId = batch.manifest.modelId;
-    // A saved separation only says where the tracks come from (count, engine and length add nothing here).
-    const detail = batch && [batch.manifest.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4', `${this.savedTracks?.length ?? 0} tracks`,
-      backendLabel(batch.manifest.backend), `${(batch.manifest.frames / 44100).toFixed(1)} s separated`].join(' · ');
     if (!batch) return this.prompt('Choose accompaniment audio to separate.');
-    this.setStatus(`From instrument separation${batch.manifest.partial ? ' · interrupted, partial result' : ''}`, null, detail);
+    // The separated tracks speak for themselves; only a stopped run needs a word, saying how much was covered.
+    if (!batch.manifest.partial) return this.prompt('');
+    const {frames, totalFrames} = batch.manifest, seconds = value => `${(value / 44100).toFixed(1)} s`;
+    const detail = [batch.manifest.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4', `${this.savedTracks?.length ?? 0} tracks`, backendLabel(batch.manifest.backend)].join(' · ');
+    this.setStatus(`Partial separation · ${seconds(frames)}${totalFrames ? ` of ${seconds(totalFrames)}` : ''}`, null, detail);
   }
   updateTrack(id, fields) {
     const track = this.result?.tracks.find(track => track.id === id);
@@ -162,10 +164,10 @@ export class StudioSeparation extends EventTarget {
         if (data.backend) this.effectiveBackend = data.backend;
         if (data.phase === 'fallback') this.setStatus(`Experimental/GPU backend unavailable · switching to CPU / WASM (${data.message})`);
         else if (data.phase === 'load') this.setStatus(`Loading model · ${backendLabel(this.effectiveBackend)}…`);
-        else if (data.phase === 'chunk-ready') this.setStatus(`Separating · ${Math.floor(data.completedFrames / data.totalFrames * 100)}% · ${(data.completedFrames / 44100).toFixed(1)} s ready`, data.completedFrames / data.totalFrames * 100);
+        else if (data.phase === 'chunk-ready') this.setStatus(SEPARATING, data.completedFrames / data.totalFrames * 100);
         else if (data.phase === 'track-complete') this.setStatus(`Separation · track ${data.trackIndex + 1}/${data.totalTracks} · ${STEM_NAMES[data.trackRole]} · done!`, 100);
         else if (data.phase === 'validation') this.setStatus(`Checking experimental WebNN audio against WASM · segment ${data.chunkIndex + 1}/${data.totalChunks}…`, this.progress ?? 0);
-        else if (data.phase === 'inference') this.setStatus(`Model loaded · separating${data.totalChunks ? ` · segment ${data.chunkIndex + 1}/${data.totalChunks}` : ''}…`, this.progress ?? 0);
+        else if (data.phase === 'inference') this.setStatus(SEPARATING, this.progress ?? 0);
       };
       let backend = this.backend;
       this.effectiveBackend = backend;

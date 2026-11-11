@@ -239,9 +239,14 @@ test('restoring a six-stem project restores its model and exact saved deck, then
   assert.equal(c.viewTracks[0].pan,-3);
   await c.init(); // Capability discovery completing after restore must not reset it to four.
   assert.equal(c.modelId,'bs_roformer_sw_6s');
+  assert.ok(c.idle, 'a complete saved separation shows no status line');
   c.selectSaved(4);
   assert.equal(c.modelId,'htdemucs_4s_onnx');
   assert.deepEqual(c.viewTracks,four);
+  project.separations[0].manifest = {...project.separations[0].manifest, partial:true, totalFrames:441000};
+  c.selectSaved(4);
+  assert.equal(c.status,'Partial separation · 1.0 s of 10.0 s');
+  assert.match(c.statusDetail,/Demucs 4 · 4 tracks/);
   c.restore({tracks:[],separations:[]});
   assert.equal(c.viewTracks,null);
 });
@@ -375,9 +380,13 @@ test('one timeline keeps the instruments through streaming, Stop and legacy proj
 });
 
 test('single timeline labels separate processing, stopped unsaved audio and completed unsaved audio',async()=>{
- const {separationTrackState}=await import('../../examples/wam/projects/StudioSeparationView.js');
+ const {separationTrackState,separationStatusLine}=await import('../../examples/wam/projects/StudioSeparationView.js');
  assert.equal(separationTrackState({}), '');
- assert.match(separationTrackState({busy:true,result:{engine:{partial:false}}}),/Separating.*live/);
+ assert.equal(separationTrackState({busy:true,result:{engine:{partial:false}}}), '');
+ const running={busy:true,status:'Separating',progress:49.7,result:{engine:{availableDuration:134.63}}};
+ assert.equal(separationStatusLine(running), 'Separating · 49% · 134.6 s ready');
+ assert.equal(separationStatusLine(running,true), 'Separating · 49% · 134.6 s ready · buffering');
+ assert.equal(separationStatusLine({...running,status:'Loading model · WebGPU…'}), 'Loading model · WebGPU…');
  assert.match(separationTrackState({busy:false,result:{engine:{partial:true}}}),/Unsaved.*stopped.*Save project/);
  assert.equal(separationTrackState({busy:false,result:{engine:{partial:false}}}), 'Unsaved instruments · Save project');
 });
