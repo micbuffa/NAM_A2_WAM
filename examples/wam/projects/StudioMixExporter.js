@@ -140,12 +140,15 @@ export class StudioMixExporter {
 // Explain every disabled state beside the action, not only in a hover title.
 export function mixExportAvailability({owned,working,separating,pending,temporary=false,tracks,channels,previewEngine=null,toneReady=true,presetRendering=false}) {
   const blocked=(message,failedIds=[])=>({ready:false,message,failedIds});
+  // Waits that end on their own (audio loading, saving, Play's player starting): no help line
+  // beside the action for them, only its title, so the header does not grow then shrink.
+  const waiting=message=>({...blocked(message),transient:true});
   if(!owned)return blocked('Only the project owner can create a backing track.');
-  if(working)return blocked('Preparing audio…');
+  if(working)return waiting('Preparing audio…');
   if(separating)return blocked('Wait for separation to finish, or Stop separation to use the audio already produced.');
   if(previewEngine){
     if(!previewEngine.complete||!previewEngine.availableFrames)return blocked('Stop separation after some audio is ready before using its mix.');
-    if(!toneReady)return blocked('Preparing the Play backing-track player…');
+    if(!toneReady)return waiting('Preparing the Play backing-track player…');
     return {ready:true,failedIds:[],message:'Export to play along: play over the available instrument mix in Play, without saving. This temporary MP3 lasts for this session.'};
   }
   const audio=tracks.filter(track=>track.audio);
@@ -153,9 +156,9 @@ export function mixExportAvailability({owned,working,separating,pending,temporar
   const failed=audio.filter(track=>channels.get(track.id)?.error);
   if(failed.length)return blocked(`Saved audio could not be loaded: ${failed.map(track=>`${track.name} (${channels.get(track.id).error.message})`).join(', ')}. Your saved project is kept. Use Retry on the track.`,failed.map(track=>track.id));
   const loaded=audio.filter(track=>channels.get(track.id)?.buffer).length;
-  if(loaded<audio.length)return blocked(`Preparing saved audio · ${loaded}/${audio.length} tracks ready. The button becomes available when all tracks are loaded.`);
+  if(loaded<audio.length)return waiting(`Preparing saved audio · ${loaded}/${audio.length} tracks ready. The button becomes available when all tracks are loaded.`);
   if(!presetRendering&&audio.some(track=>track.presetId || track.factoryPreset || track.presetSnapshot))return blocked('Export a separated-instrument mix or tracks without presets. WAM preset rendering is not available yet.');
   if(audio.some(track=>track.inputMonitoring))return blocked('Turn off input monitoring before exporting the recorded mix.');
-  if(!toneReady)return blocked('Preparing the Play backing-track player…');
+  if(!toneReady)return waiting('Preparing the Play backing-track player…');
   return {ready:true,failedIds:[],message:pending||temporary?'Export to play along: turn this mix into a temporary backing track and play over it in Play, without saving.':'Export to play along: turn this mix into a saved backing track and play over it in Play. Press Play there to listen.'};
 }

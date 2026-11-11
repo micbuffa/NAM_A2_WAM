@@ -1155,8 +1155,9 @@ export class ProjectsWorkspace extends EventTarget {
     if(help){
       // Only why export is unavailable: when it is ready, its confirmation says whether the backing
       // track is saved or temporary. A track that failed to load is reported by a notification and on
-      // its row; the button's title still explains why export is unavailable.
-      help.hidden=!this.owned || Boolean(this.separation?.busy) || state.failedIds.length>0 || state.ready;
+      // its row; the button's title still explains why export is unavailable. Neither do waits that
+      // end on their own (audio still loading…): the line would appear, then vanish and shift the tracks.
+      help.hidden=!this.owned || Boolean(this.separation?.busy) || state.failedIds.length>0 || state.ready || Boolean(state.transient);
       help.textContent=state.message;
     }
 
