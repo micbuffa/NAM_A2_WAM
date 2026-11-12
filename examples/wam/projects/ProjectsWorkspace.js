@@ -774,8 +774,8 @@ export class ProjectsWorkspace extends EventTarget {
     const label=element('label',{htmlFor:url.id,textContent:'Video URL'});
     const start=button('Import audio',{type:'submit',primary:true});
     // Fallback only: shown when opening by itself was declined or failed.
-    const cancel=button('Cancel import'),open=button(onImported ? 'Use in Play' : 'Open in Studio',{primary:true}),close=button('Close');
-    const status=element('p',{role:'status',textContent:'Checking server…'});
+    const cancel=button('Cancel import'),open=button(onImported ? 'Use in Play' : 'Open in Studio',{primary:true});
+    const status=element('p',{role:'status',className:'host-help',textContent:'Checking server…'});
     const progress=element('progress',{max:100,hidden:true});
     let job=null,available=false,pending=false,closed=false,opening=false,openedId=null,retry=false;
     const render=value=>{
@@ -816,8 +816,7 @@ export class ProjectsWorkspace extends EventTarget {
     const watcher=new AudioImportWatcher({api:this.api,onChange:render});
     this.audioImportDialog?.close();this.audioImportDialog=dialog;
     form.append(label,url,destination.root,actionsRow(start));
-    body.append(form,status,progress,actionsRow(cancel,open,close));
-    close.onclick=()=>dialog.close();
+    body.append(form,status,progress,actionsRow(cancel,open));
     dialog.addEventListener('close',()=>{closed=true;watcher.stop();if(this.audioImportDialog===dialog)this.audioImportDialog=null;},{once:true});
     cancel.onclick=async()=>{
       pending=true;render(job);watcher.stop();
@@ -1332,10 +1331,11 @@ function projectDialog({title, confirmLabel, intro, name = '', bpm = BPM_RANGE.d
     const signature=element('select',{id:`${id}-signature`});
     for(const value of TIME_SIGNATURES)signature.append(element('option',{value,textContent:value}));
     signature.value=signatureOf(timeSignature);
+    const signatureSkin=document.createElement('tl-select');signatureSkin.append(signature);
     const tempo = element('div', {className: 'project-bpm-field'});
     tempo.append(bpmInput, element('strong', {textContent: 'BPM'}));
     const [tempoLabel] = field('Tempo · quarter-note BPM', bpmInput);
-    form.append(element('p', {textContent: intro}), ...field('Project name', nameInput), tempoLabel, tempo, ...field('Time signature',signature),
+    form.append(element('p', {textContent: intro}), ...field('Project name', nameInput), tempoLabel, tempo, element('label',{htmlFor:signature.id,textContent:'Time signature'}),signatureSkin,
       formActions(dialog, confirmLabel));
     body.append(form);
     dialog.addEventListener('close', () => resolve(dialog.returnValue === 'ok' && nameInput.value.trim()

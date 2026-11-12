@@ -272,7 +272,7 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
       const runs=[];f.separation.run = async options => runs.push({modelId:f.separation.modelId,...options});
       await view.chooseModel();
       const body=view.modelDialog.children[1];
-      const duration=body.children[0].children[0];
+      const duration=body.children[0].children[0].children[0];
       const choices=body.children.find(e=>e.className==='studio-model-choices').children;
       assert.equal(duration.value,'0','every dialog defaults to the entire song');
       assert.deepEqual(duration.children.map(option=>option.value),['0','5','10','30','60']);
@@ -284,7 +284,7 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
       assert.equal(runs[0].track.id,f.source.id,'without a track id, the first separable track is used');
       assert.equal(view.modelDialog,null);
       await view.chooseModel();
-      assert.equal(view.modelDialog.children[1].children[0].children[0].value,'0','a previous excerpt is not reused');
+      assert.equal(view.modelDialog.children[1].children[0].children[0].children[0].value,'0','a previous excerpt is not reused');
       view.modelDialog.close();assert.equal(runs.length,1,'closing the dialog does not start separation');
       await view.chooseModel({sourceId:f.source.id,allowUnseparated:true});
       const keep=view.modelDialog.children[1].children.find(e=>e.textContent==='Keep as one track');
@@ -304,16 +304,16 @@ test('the minimal model dialog offers two choices and starts only the chosen mod
     Object.assign(view,{workspace:{owned:true,project:{id:7,tracks:[f.source]},accountLoadEpoch:1},controller:f.separation,ready:Promise.resolve(),$:()=>({value:String(f.source.id)})});
     const runs=[];f.separation.run=async options=>runs.push({backend:f.separation.backend,...options});
     await view.chooseModel();
-    let body=view.modelDialog.children[1],engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
+    let body=view.modelDialog.children[1],engine=body.children.find(e=>e.children?.[0]?.children?.[0]?.id==='studioDialogBackend').children[0].children[0];
     assert.equal(engine.children.filter(option=>option.value.startsWith('webnn')&&!option.disabled).length,6);
     view.modelDialog.close();f.separation.directAssets={available:false};await view.chooseModel();
-    body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
+    body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.children?.[0]?.id==='studioDialogBackend').children[0].children[0];
     assert.equal(engine.children.filter(option=>option.value.startsWith('webnn')&&!option.disabled).length,3,'no native direct choice without deployed assets');
     assert.throws(()=>f.separation.configure('htdemucs_4s_onnx','webnn-direct-cpu'),/not included/);
     view.modelDialog.close();f.separation.directAssets={available:true};await view.chooseModel();
-    body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
+    body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.children?.[0]?.id==='studioDialogBackend').children[0].children[0];
     engine.value='webnn-npu';engine.onchange();view.modelDialog.close();assert.equal(f.separation.backend,'webgpu','cancel keeps previous backend');
-    await view.chooseModel();body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.id==='studioDialogBackend').children[0];
+    await view.chooseModel();body=view.modelDialog.children[1];engine=body.children.find(e=>e.children?.[0]?.children?.[0]?.id==='studioDialogBackend').children[0].children[0];
     engine.value='webnn-npu';engine.onchange();const choices=body.children.find(e=>e.className==='studio-model-choices').children;
     assert.equal(choices[0].disabled,false);assert.equal(choices[1].disabled,true,'SW6 cannot launch with WebNN');
     await choices[0].onclick();assert.equal(runs[0].backend,'webnn-npu');assert.equal(f.separation.backend,'webnn-npu');
@@ -379,16 +379,12 @@ test('one timeline keeps the instruments through streaming, Stop and legacy proj
  assert.ok(!tracks.some(track=>track.id===source.id));
 });
 
-test('single timeline labels separate processing, stopped unsaved audio and completed unsaved audio',async()=>{
- const {separationTrackState,separationStatusLine}=await import('../../examples/wam/projects/StudioSeparationView.js');
- assert.equal(separationTrackState({}), '');
- assert.equal(separationTrackState({busy:true,result:{engine:{partial:false}}}), '');
+test('the separation status line reports progress and playable audio',async()=>{
+ const {separationStatusLine}=await import('../../examples/wam/projects/StudioSeparationView.js');
  const running={busy:true,status:'Separating',progress:49.7,result:{engine:{availableDuration:134.63}}};
  assert.equal(separationStatusLine(running), 'Separating · 49% · 134.6 s ready');
  assert.equal(separationStatusLine(running,true), 'Separating · 49% · 134.6 s ready · buffering');
  assert.equal(separationStatusLine({...running,status:'Loading model · WebGPU…'}), 'Loading model · WebGPU…');
- assert.match(separationTrackState({busy:false,result:{engine:{partial:true}}}),/Unsaved.*stopped.*Save project/);
- assert.equal(separationTrackState({busy:false,result:{engine:{partial:false}}}), 'Unsaved instruments · Save project');
 });
 
 test('an empty guitar track keeps monitoring while four separated tracks play, loop and stop',async()=>{
@@ -438,8 +434,9 @@ test('the drums of the first minute go to tempo estimation once, or at least 20 
 
 test('a plain Save project leaves the separation strip hidden, so the tracks do not move', async () => {
   const {StudioSeparationView} = await import('../../examples/wam/projects/StudioSeparationView.js');
-  const element = () => ({hidden: false, disabled: false, textContent: '', value: '', title: '', options: [], children: [],
+  const element = () => ({hidden: false, disabled: false, style: {}, textContent: '', value: '', title: '', options: [], children: [],
     replaceChildren(...children) { this.children = children; this.options = children; }, removeAttribute() {}, append() {},
+    classList: {names: new Set(), toggle(name, on) { on ? this.names.add(name) : this.names.delete(name); }, contains(name) { return this.names.has(name); }},
     closest() { return this.label ??= element(); }, querySelector() { return this.option ??= element(); }});
   const f = await fixture(), fields = {}, view = Object.create(StudioSeparationView.prototype);
   const w = {owned: true, saving: true, project: {id: 7, tracks: [f.source], separations: []}, player: {waiting: false}};
@@ -453,5 +450,34 @@ test('a plain Save project leaves the separation strip hidden, so the tracks do 
     f.separation.setStatus('Saving instruments · 1/4 · bass · upload', 25);
     view.render();
     assert.equal(fields.studioProgress.hidden, false); assert.equal(fields.studioStatus.hidden, false);
+  } finally { globalThis.Option = originalOption; }
+});
+
+test('a finished separation keeps its strip in place until another project opens', async () => {
+  const {StudioSeparationView} = await import('../../examples/wam/projects/StudioSeparationView.js');
+  const element = () => ({hidden: false, disabled: false, inert: false, style: {}, textContent: '', value: '', title: '', options: [], children: [],
+    replaceChildren(...children) { this.children = children; this.options = children; }, removeAttribute() { this.value = ''; }, append() {},
+    classList: {names: new Set(), toggle(name, on) { on ? this.names.add(name) : this.names.delete(name); }, contains(name) { return this.names.has(name); }},
+    closest() { return this.label ??= element(); }, querySelector() { return this.option ??= element(); }});
+  const f = await fixture(), fields = {}, view = Object.create(StudioSeparationView.prototype);
+  const w = {owned: true, saving: false, project: {id: 7, tracks: [f.source], separations: []}, player: {waiting: false}};
+  Object.assign(view, {workspace: w, controller: f.separation, $: id => fields[id] ??= element()});
+  const originalOption = globalThis.Option;
+  globalThis.Option = class { constructor(label, value) { Object.assign(this, {label, value, disabled: false}); } };
+  try {
+    f.separation.busy = true; f.separation.setStatus('Separating', 40);
+    view.render();
+    assert.equal(fields.studioStop.hidden, false); assert.equal(fields.studioSeparation.classList.contains('is-settled'), false);
+    f.separation.busy = false; f.separation.setStatus('Done · 4 instruments', 100);
+    view.render();
+    assert.deepEqual([fields.studioStop.hidden, fields.studioStop.inert, fields.studioStatus.hidden, fields.studioProgress.hidden, fields.studioProgress.value],
+      [false, true, false, false, 100]);
+    assert.equal(fields.studioSeparation.classList.contains('is-settled'), true);
+    f.separation.prompt('');
+    view.render();
+    assert.equal(fields.studioStatus.hidden, false, 'saving the instruments keeps the strip');
+    w.project = {id: 8, tracks: [f.source], separations: []};
+    view.render();
+    assert.deepEqual([fields.studioStop.hidden, fields.studioStatus.hidden, fields.studioProgress.hidden], [true, true, true]);
   } finally { globalThis.Option = originalOption; }
 });

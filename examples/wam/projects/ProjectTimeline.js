@@ -432,7 +432,10 @@ export class ProjectTimeline {
         button.textContent='';appendTrackControlGlyphs(button,text==='I'?'monitor':'arm');
       }
       labels.push([button, label]);
-      button.onclick = (event) => { event.stopPropagation(); this.onSelect(id); toggle(); };
+      // A click never leaves focus on M/S/I/R: no ring, and Space keeps driving the transport.
+      // Tab still reaches them from the keyboard.
+      button.addEventListener('mousedown', event => event.preventDefault());
+      button.onclick =(event) => { event.stopPropagation(); this.onSelect(id); toggle(); };
       modeGroup.append(button);
       return button;
     };

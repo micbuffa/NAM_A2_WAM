@@ -25,7 +25,7 @@ $('projectTitle').textContent='Studio layout · '+count+' tracks';$('projectMeta
 for(const id of ['projectSaveState','projectShare','projectUndo','projectRedo','projectSave','projectAddTrack'])$(id).hidden=false;
 $('projectSaveState').textContent='Saved';
 $('projectTimeline').hidden=count===0;$('projectsEmpty').hidden=count!==0;$('studioSeparation').hidden=count===0;
-$('studioBackendLabel').textContent='Demucs 4 · WebGPU';$('studioUseMix').hidden=false;$('studioTrackState').hidden=!query.has('preview');$('studioTrackState').textContent='Separating · tracks update live';
+$('studioUseMix').hidden=false;
 $('studioStatus').textContent=query.has('preview')?'Separating · '+count+' instruments · not saved yet':'Saved project · '+count+' tracks';if(query.has('preview'))$('projectSaveState').textContent='Unsaved instruments';$('studioUnfinished').textContent='';
 if(query.has('preview')){$('projectAddTrack').disabled=true;$('projectAddTrack').title='Stop separation before adding a track; partial instruments are preserved.';}
 $('projectPlay').disabled=false;$('projectLoop').disabled=false;$('projectLoopReset').disabled=false;

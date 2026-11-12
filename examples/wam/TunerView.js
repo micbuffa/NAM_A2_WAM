@@ -11,7 +11,7 @@ export class TunerView {
     this.dialog.className = 'host-tuner tl-modal';
     this.dialog.id = 'tunerDialog';
     this.dialog.setAttribute('aria-labelledby', 'tunerTitle');
-    this.dialog.innerHTML = '<header class="tl-modal-header"><div><p class="tl-eyebrow">Before effects</p><h2 class="tl-modal-title" id="tunerTitle">Tuner</h2></div><tl-icon-button icon="close" variant="ghost" aria-label="Close tuner"></tl-icon-button></header><div class="tl-modal-body"><label class="tuner-input-choice" hidden>Tuner input<select aria-label="Tuner input"></select></label><p class="host-help tuner-input-status" role="status"></p><div class="tuner-mount" role="status"></div></div>';
+    this.dialog.innerHTML = '<header class="tl-modal-header"><div><p class="tl-eyebrow">Before effects</p><h2 class="tl-modal-title" id="tunerTitle">Tuner</h2></div><tl-icon-button icon="close" variant="ghost" aria-label="Close tuner"></tl-icon-button></header><div class="tl-modal-body"><label class="tuner-input-choice" hidden>Tuner input<tl-select><select aria-label="Tuner input"></select></tl-select></label><p class="host-help tuner-input-status" role="status"></p><div class="tuner-mount" role="status"></div></div>';
     document.body.append(this.dialog);
     this.mount = this.dialog.querySelector('.tuner-mount');
     this.inputChoice = this.dialog.querySelector('.tuner-input-choice');

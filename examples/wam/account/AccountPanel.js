@@ -81,9 +81,9 @@ export default class AccountPanel {
       avatar.append(icon);
     }
     const text = document.createElement('span');
-    const sync = element('span', `account-sync${user ? '' : ' local'}`);
-    sync.append(document.createElement('i'), user ? 'Synced' : 'Stored in this browser only');
-    text.append(element('strong', '', user ? user.email : 'Guest'), sync);
+    // Signed in, the email says it all; a guest is told where their work stays.
+    text.append(element('strong', '', user ? user.email : 'Guest'));
+    if (!user) text.append(element('span', 'account-local', 'Stored in this browser only'));
     const error = element('p', 'host-help error');
     error.setAttribute('role', 'alert');
     const action = document.createElement('tl-button');

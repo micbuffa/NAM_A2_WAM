@@ -2,15 +2,11 @@ import {directWebNNAvailability} from '../source-separation/DirectWebNNAssets.js
 import {backendLabel, isDirectWebNN, studioRecommendation, isWebNN, studioBackendOptions} from '../source-separation/StudioWebNN.js';
 import {SEPARATING, StudioSeparation, separationSources} from './StudioSeparation.js';
 
-export function separationTrackState(controller) {
-  if (!controller.result) return '';
-  // While separating, Stop + the progress line already say so; only the follow-up action needs a badge.
-  if (controller.busy) return '';
-  return controller.result.engine.partial ? 'Unsaved instruments · stopped result · Save project' : 'Unsaved instruments · Save project';
-}
-
 // One status line while separating: percent and audio already playable, built here
 // so the controller's phases never repeat it.
+// Native <select> in the TONELAB skin (light DOM kept: .value, onchange, options).
+const skinned = select => { const skin = document.createElement('tl-select'); skin.append(select); return skin; };
+
 export function separationStatusLine(controller, buffering = false) {
   if (!(controller.busy && controller.result && controller.status === SEPARATING)) return controller.status;
   return `${SEPARATING} · ${Math.floor(controller.progress ?? 0)}% · ${controller.result.engine.availableDuration.toFixed(1)} s ready${buffering ? ' · buffering' : ''}`;
@@ -112,13 +108,13 @@ export class StudioSeparationView {
       duration.append(option);
     }
     duration.value = '0';
-    durationLabel.append(duration);
+    durationLabel.append(skinned(duration));
     const engineLabel = document.createElement('label'), engine = document.createElement('select');
     engineLabel.textContent = 'Execution engine';engine.id = 'studioDialogBackend';
     for(const {value,label,disabled} of studioBackendOptions({webgpu:c.gpu,webnn:c.webnn,directAvailable:!!c.directAssets?.available})){
       const option=document.createElement('option');Object.assign(option,{value,textContent:label,disabled});engine.append(option);
     }
-    engine.value=c.backend;engineLabel.append(engine);
+    engine.value=c.backend;engineLabel.append(skinned(engine));
     const engineHelp=document.createElement('p');engineHelp.className='host-help';engineHelp.setAttribute('role','status');
     const choices = document.createElement('div');
     choices.className = 'studio-model-choices';
@@ -226,24 +222,28 @@ export class StudioSeparationView {
     this.$('studioBackend').value = c.backend;
     this.$('studioBackend').querySelector('[value="webgpu"]').disabled = !c.gpu;
     for(const {value,disabled} of studioBackendOptions({webgpu:c.gpu,webnn:c.webnn,modelId:c.modelId,directAvailable:!!c.directAssets?.available}))this.$('studioBackend').querySelector(`[value="${value}"]`).disabled=disabled;
-    // Model · engine in use: shown only while a separation runs.
-    const backendLabelEl = this.$('studioBackendLabel');
-    backendLabelEl.hidden = !c.busy;
-    backendLabelEl.textContent = backendLabelEl.hidden ? '' : `${c.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4'} · ${backendLabel(c.busy ? c.effectiveBackend ?? c.backend : c.backend)}`;
-    const trackState = this.$('studioTrackState');
-    trackState.textContent = separationTrackState(c);
-    trackState.hidden = !trackState.textContent;
-    this.$('studioStop').hidden = !c.busy;
+    // Once a separation runs, the strip keeps its place until another project opens:
+    // the tracks never jump up when it ends or when its instruments are saved.
+    if (c.busy && w.project) this.heldFor = w.project.id;
+    const held = Boolean(w.project) && this.heldFor === w.project.id;
+    const reporting = c.busy || (w.saving && !c.idle);
+    this.$('studioSeparation').classList.toggle('is-settled', held && !reporting);
+    // Held strip: Stop keeps its slot unseen, and only a running separation shows it (not a save).
+    this.$('studioStop').hidden = !c.busy && !held;
+    this.$('studioStop').inert = !c.busy;
+    this.$('studioStop').style.visibility = c.busy ? '' : 'hidden';
     this.$('studioCheckCache').disabled = this.$('studioRemoveCache').disabled = c.busy || !model || isDirectWebNN(c.backend);
     const status = separationStatusLine(c, w.player.waiting);
     if (this.$('studioStatus').textContent !== status) this.$('studioStatus').textContent = status;
-    this.$('studioStatus').title = c.statusDetail || '';
+    // Model · engine in use, for whoever wonders: the strip itself only says how far it got.
+    this.$('studioStatus').title = c.statusDetail || (c.busy ? `${c.modelId === 'bs_roformer_sw_6s' ? 'SW 6' : 'Demucs 4'} · ${backendLabel(c.effectiveBackend ?? c.backend)}` : '');
     // A plain Save project says "Saving audio…" in the header: the strip (status + bar) would
     // only push the tracks down for a moment. It reports saves of separated instruments.
-    this.$('studioStatus').hidden = c.idle && !c.busy;
+    this.$('studioStatus').hidden = c.idle && !c.busy && !held;
     const progress = this.$('studioProgress');
-    progress.hidden = !c.busy && !(w.saving && !c.idle);
-    if (c.progress === null) progress.removeAttribute('value');
+    progress.hidden = !reporting && !held;
+    if (!reporting) progress.value = 100;
+    else if (c.progress === null) progress.removeAttribute('value');
     else progress.value = c.progress;
     if (this.lastModelId !== c.modelId || this.lastBackend !== c.backend || this.lastDirectAvailable !== c.directAssets?.available) {
       this.lastDirectAvailable=c.directAssets?.available;

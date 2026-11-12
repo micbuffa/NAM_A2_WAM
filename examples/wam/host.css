@@ -120,9 +120,7 @@ body[data-host-nav="collapsed"] .host-nav-toggle tl-icon { transform: rotate(-90
   border-radius: 50%; font-size: 10px; font-weight: 700; letter-spacing: .04em; }
 .account-chip-text, .account-identity > span:last-child { display: flex; flex-direction: column; min-width: 0; }
 .account-chip strong { max-width: 180px; overflow: hidden; font-size: var(--tl-fs-control); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-.account-sync { display: flex; align-items: center; gap: 5px; margin-top: 2px; color: var(--tl-text-muted); font-size: var(--tl-fs-sm); }
-.account-sync i { width: 5px; height: 5px; border-radius: 50%; background: var(--tl-success); }
-.account-sync.local i { background: var(--tl-text-faint); }
+.account-local { margin-top: 2px; color: var(--tl-text-muted); font-size: var(--tl-fs-sm); }
 .account-identity { display: flex; align-items: center; gap: var(--tl-space-3); margin-top: var(--tl-space-4); padding: var(--tl-space-3);
   background: var(--tl-surface-1); border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-md); }
 .account-identity > span:nth-child(2) { flex: 1; }
@@ -488,19 +486,21 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .host-tuner .tuner-mount { display: flex; justify-content: center; min-height: 50px; color: var(--tl-text-2); font-size: var(--tl-fs-sm); }
 
 /* Studio separation uses the host's tokens and the existing track timeline. */
-.studio-separation { margin-bottom: 12px; padding: 0 0 12px; border: 0; border-bottom: 1px solid var(--tl-border, #30352c); background: transparent; }
+.studio-separation { margin-bottom: 12px; padding: 0 0 12px; border: 0; background: transparent; }
 .studio-separation[hidden] { display: none; }
 /* Nothing running, nothing to report: no empty strip with its divider under the title. */
-.studio-separation:not(:has(#studioStop:not([hidden]), #studioBackendLabel:not([hidden]), #studioTrackState:not([hidden]),
+.studio-separation:not(:has(#studioStop:not([hidden]),
   #studioExportHelp:not([hidden]), #studioUnfinished:not(:empty), #studioStatus:not([hidden]), #studioProgress:not([hidden]))) { display: none; }
 .studio-separation-options { display: grid; grid-template-columns: 1fr .8fr; gap: 12px; }
 .studio-separation label { display: grid; gap: 6px; min-width: 0; font-size: 12px; color: var(--tl-text-muted, #a1a59c); }
-.studio-separation select { width: 100%; min-width: 0; padding: 8px; color: inherit; background: var(--tl-surface-2); border: 1px solid var(--tl-border); border-radius: 6px; }
 .studio-separation-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 0; }
 .studio-listen { padding: 7px 10px; border: 1px solid var(--tl-border); border-radius: 6px; color: var(--tl-text-2); background: transparent; cursor: pointer; }
 .studio-listen[aria-pressed="true"] { color: var(--tl-accent); border-color: var(--tl-accent-border); }
 .studio-listen:disabled { opacity: .4; cursor: default; }
 .studio-separation progress { width: 100%; height: 7px; accent-color: var(--tl-accent); }
+/* Finished separation: same height as while it ran, the bar keeps its slot unseen (Stop: see the view). */
+.studio-separation.is-settled progress { visibility: hidden; }
+.studio-separation.is-settled #studioStatus { min-height: 1lh; }
 .studio-separation-settings summary { cursor: pointer; font-size: 12px; margin-top: 10px; color: var(--tl-text-2); }
 .studio-separation-settings label { max-width: 340px; margin-top: 12px; }
 @media (max-width: 800px) { .studio-separation-options { grid-template-columns: 1fr; } }
@@ -535,7 +535,6 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 #projectPlay[disabled] { opacity: .65; }
 
 .host-tuner .tuner-input-choice:not([hidden]) { display: grid; gap: 6px; margin-bottom: 12px; font-size: var(--tl-fs-sm); }
-.host-tuner .tuner-input-choice select { width: 100%; padding: 8px; color: var(--tl-text-1); background: var(--tl-surface-2); border: 1px solid var(--tl-border, #555); border-radius: 6px; }
 
 .record-calibration progress { display: block; width: 100%; margin-top: 12px; }
 .record-calibration progress[hidden] { display: none; }
@@ -604,8 +603,6 @@ body[data-workspace="projects"] .studio-separation-actions tl-button { height: 3
 
 .track-mode-r:disabled { opacity: .7; }
 
-.studio-track-state { font-size: 11px; color: var(--tl-accent); padding: 4px 8px; background: var(--tl-accent-tint); border: 1px solid var(--tl-accent-border); border-radius: var(--tl-radius-sm); }
-.studio-track-state[hidden] { display: none; }
 
 .track-mode { display: inline-grid; place-items: center; }
 .track-mode-i.active { color:var(--tl-on-accent); background:var(--tl-accent); }
@@ -621,7 +618,7 @@ body[data-workspace="projects"] .project-master input { width:80px; }
 .studio-options-content { display: grid; gap: 12px; }
 .studio-options-content[hidden] { display: none !important; }
 .studio-options-content label { display: grid; gap: 6px; font-size: 12px; color: var(--tl-text-muted); }
-.studio-options-content select, .studio-options-content input[type="number"] { width: 100%; min-width: 0; padding: 8px; color: var(--tl-text); background: var(--tl-surface-2); border: 1px solid var(--tl-border); border-radius: 6px; }
+.studio-options-content input[type="number"] { width: 100%; min-width: 0; padding: 8px; color: var(--tl-text); background: var(--tl-surface-2); border: 1px solid var(--tl-border); border-radius: 6px; }
 .studio-options-dialog .studio-separation-options { grid-template-columns: 1fr; }
 .tl-modal .track-sound-reuse { display: flex; align-items: center; gap: 8px; font-size: 13px; }
 .tl-modal .track-sound-reuse input[type="checkbox"] { appearance: auto; width: 16px; height: 16px; min-height: 0; flex: 0 0 16px; padding: 0; margin: 0; accent-color: var(--tl-accent); }
@@ -671,7 +668,7 @@ body[data-workspace="projects"] .project-master input { width: 72px; }
 /* Play page in two parts: Play live (PlayLive.js: input, preset, level meter,
    live toggle) above Play on a backing track (the Play along library/track). */
 .play-section-kicker { margin: 0; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); font-weight: 600; letter-spacing: var(--tl-tracking-label); text-transform: uppercase; }
-.play-live { flex: none; display: grid; gap: 8px; padding: 12px 16px 16px; }
+.play-live { flex: none; display: grid; gap: 8px; padding: 18px 16px 16px; } /* same gap under the header as Studio's project table */
 .play-live-card, .play-along-card { min-width: 0; background: var(--tl-surface-1); border: 1px solid var(--tl-border-subtle); border-radius: var(--tl-radius-md, 8px); }
 .play-live-card { display: flex; align-items: center; gap: 14px; padding: 12px 16px; transition: border-color .15s, box-shadow .15s; }
 /* The Play along keeps its own 16px inner padding; the card only frames it. */

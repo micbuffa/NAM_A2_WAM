@@ -71,7 +71,7 @@ export class RecordingCalibration {
     const {dialog,body}=createDialog({title:'Calibrate recording latency',eyebrow:'Physical output → input',className:'record-calibration'});this.dialog=dialog;
     const instructions=document.createElement('p');
     const methodLabel=document.createElement('label'),method=document.createElement('select');method.setAttribute('aria-label','Calibration method');
-    method.append(...[['cable','Cable · recommended'],['acoustic','Speakers → microphone · acoustic test']].map(([value,textContent])=>Object.assign(document.createElement('option'),{value,textContent})));method.value=this.mode??'cable';methodLabel.append('Method ',method);
+    method.append(...[['cable','Cable · recommended'],['acoustic','Speakers → microphone · acoustic test']].map(([value,textContent])=>Object.assign(document.createElement('option'),{value,textContent})));method.value=this.mode??'cable';const methodSkin=document.createElement('tl-select');methodSkin.append(method);methodLabel.append('Method',methodSkin);
     const levelLabel=document.createElement('label'),level=document.createElement('input'),levelValue=document.createElement('span');
     Object.assign(level,{type:'range',min:-30,max:-6,step:3,value:-18});level.setAttribute('aria-label','Test signal level');levelValue.textContent='-18 dBFS';levelLabel.append('Test signal level ',level,levelValue);
     const acknowledgement=document.createElement('label'),check=document.createElement('input'),checkText=document.createTextNode('');check.type='checkbox';check.disabled=r.source.mode!=='live';acknowledgement.append(check,checkText);

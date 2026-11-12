@@ -54,7 +54,7 @@
           <button class="host-nav-item" id="accountSignIn" type="button" aria-haspopup="dialog" title="Sign in: keep presets, favorites and preferences on every device"><tl-icon name="user"></tl-icon><span>Sign in</span></button>
           <button class="host-nav-item account-chip" id="accountChip" type="button" aria-haspopup="dialog" title="Account" hidden>
             <span class="account-avatar" id="accountAvatar" aria-hidden="true"></span>
-            <span class="account-chip-text"><strong id="accountEmail"></strong><span class="account-sync"><i></i>Synced</span></span>
+            <span class="account-chip-text"><strong id="accountEmail"></strong></span>
           </button>
         </div>
         <button class="host-nav-item host-nav-toggle" id="hostNavToggle" type="button" aria-controls="hostSidebar" aria-expanded="true" aria-label="Collapse navigation" title="Collapse navigation"><tl-icon name="chevron"></tl-icon><span>Collapse</span></button>
@@ -154,8 +154,6 @@
         <section id="studioSeparation" class="studio-separation" aria-label="Separate instruments" hidden>
           <div class="studio-separation-actions">
             <tl-button id="studioStop" hidden>Stop separation</tl-button>
-            <span id="studioBackendLabel" class="host-help"></span>
-            <span id="studioTrackState" class="studio-track-state" role="status" hidden></span>
           </div>
           <p id="studioExportHelp" class="host-help" role="status" aria-live="polite" hidden></p>
           <div id="studioUnfinished" class="host-help"></div>
@@ -164,19 +162,19 @@
           <progress id="studioProgress" max="100" aria-label="Separation progress" hidden></progress>
           <div id="studioOptionsPanel" class="studio-options-content" hidden>
             <h3>Studio</h3><p class="host-help">Display, separation and mix export. Project-specific lists follow the currently open project.</p>
-            <label>Track density<select id="projectTrackDensity" aria-label="Track density"><option value="compact" selected>Compact</option><option value="comfortable">Comfortable</option></select></label>
+            <label>Track density<tl-select size="sm"><select id="projectTrackDensity" aria-label="Track density"><option value="compact" selected>Compact</option><option value="comfortable">Comfortable</option></select></tl-select></label>
           <div id="studioRemovedTracks" class="studio-separation-options" hidden>
-            <label>Removed tracks<select id="studioRemovedTrack" aria-label="Removed tracks"></select></label>
+            <label>Removed tracks<tl-select size="sm"><select id="studioRemovedTrack" aria-label="Removed tracks"></select></tl-select></label>
             <tl-button id="studioRestoreTrack" size="sm">Restore track</tl-button>
           </div>
-          <div class="studio-separation-options"><label>Saved separations<select id="studioSavedResult" aria-label="Saved separations"></select></label></div>
+          <div class="studio-separation-options"><label>Saved separations<tl-select size="sm"><select id="studioSavedResult" aria-label="Saved separations"></select></tl-select></label></div>
             <label>Mix export range<select id="studioExportRange" aria-label="Mix export range" hidden><option value="song">Export entire song</option><option value="loop">Export A/B loop only</option></select></label>
             <label>Effect tail (seconds)<input id="studioExportTail" type="number" min="0" max="10" step="0.5" value="2"></label>
             <p class="host-help">For entire-song exports with track effects. A/B exports keep their exact length.</p>
-            <label>Separation model<select id="studioModel" aria-label="Separation model"></select></label>
+            <label>Separation model<tl-select size="sm"><select id="studioModel" aria-label="Separation model"></select></tl-select></label>
             <p id="studioModelHelp" class="host-help"></p>
             <p class="host-help">Direct WebNN: experimental 4 or 6 tracks, enabled only when WebNN is exposed. No ONNX Runtime or WASM inference in the direct path. Six-track compilation can be slow; WebGPU remains the quick-start recommendation. ONNX → WebNN remains limited to 4 tracks with per-block WASM checks. CPU/GPU/NPU are requested devices, not verified hardware.</p>
-            <label>Execution engine<select id="studioBackend"><option value="webgpu">WebGPU (preferred when available)</option><option value="wasm">CPU / WASM fallback</option><option value="webnn-cpu">ONNX → WebNN / CPU · experimental</option><option value="webnn-gpu">ONNX → WebNN / GPU · experimental</option><option value="webnn-npu">ONNX → WebNN / NPU · experimental</option><option value="webnn-direct-cpu" disabled>Direct WebNN / CPU · experimental</option><option value="webnn-direct-gpu" disabled>Direct WebNN / GPU · experimental</option><option value="webnn-direct-npu" disabled>Direct WebNN / NPU · experimental</option></select></label>
+            <label>Execution engine<tl-select size="sm"><select id="studioBackend"><option value="webgpu">WebGPU (preferred when available)</option><option value="wasm">CPU / WASM fallback</option><option value="webnn-cpu">ONNX → WebNN / CPU · experimental</option><option value="webnn-gpu">ONNX → WebNN / GPU · experimental</option><option value="webnn-npu">ONNX → WebNN / NPU · experimental</option><option value="webnn-direct-cpu" disabled>Direct WebNN / CPU · experimental</option><option value="webnn-direct-gpu" disabled>Direct WebNN / GPU · experimental</option><option value="webnn-direct-npu" disabled>Direct WebNN / NPU · experimental</option></select></tl-select></label>
             <p class="host-help" id="studioModelSize"></p>
             <p class="host-help">Computation stays on this machine. Use Save project to keep the original, instruments and mix in your account. Unsaved previews are lost on reload. Storage limits: 512 MiB per instrument, 2 GiB per project, 5 GiB per account. Existing personal parts are preserved when the instruments are saved.</p>
             <tl-button id="studioCheckCache" size="sm">Check cache</tl-button>
@@ -211,11 +209,11 @@
           <div id="recordStatusBar" class="record-status-bar" hidden><strong id="recordTrackName"></strong><span id="recordStatus" role="status"></span></div>
             <div id="recordOptionsPanel" class="studio-options-content" hidden>
               <h3>Recording</h3><p class="host-help">Input monitoring and arming are independent. Record starts immediately with the count-in configured below. Re-recording replaces only the captured interval; Undo keeps two audio operations.</p>
-              <label class="project-count-in">Count-in <select id="projectCountIn" aria-label="Recording count-in"><option value="0">Off</option><option value="1" selected>1 bar</option><option value="2">2 bars</option></select></label>
+              <label class="project-count-in">Count-in <tl-select size="sm"><select id="projectCountIn" aria-label="Recording count-in"><option value="0">Off</option><option value="1" selected>1 bar</option><option value="2">2 bars</option></select></tl-select></label>
               <p id="recordSettingsTrack" class="host-help"></p>
               <div class="record-actions"><tl-button id="recordCurrentTone" size="sm" variant="ghost">Use current Play sound</tl-button><tl-button id="recordDiscard" size="sm" variant="ghost" hidden>Discard unsaved take</tl-button></div>
               <label>Manual compensation (ms)<input id="recordCompensation" aria-label="Recording latency compensation in milliseconds" type="number" min="0" max="2000" step="any" value="14"></label>
-              <label>Calibration output<select id="recordCalibrationOutput" aria-label="Calibration output"><option value="0">Output 1 · Left</option><option value="1">Output 2 · Right</option></select></label>
+              <label>Calibration output<tl-select size="sm"><select id="recordCalibrationOutput" aria-label="Calibration output"><option value="0">Output 1 · Left</option><option value="1">Output 2 · Right</option></select></tl-select></label>
               <div class="record-actions"><tl-button id="recordCalibrate">Calibrate input latency</tl-button><tl-button id="recordUseCalibration" hidden>Use saved calibration</tl-button><tl-button id="recordResetCalibration" variant="ghost">Reset to 14 ms</tl-button></div>
               <p id="recordCalibrationStatus" class="host-help" role="status"></p>
               <p class="host-help">Choose your input and channel in Audio devices / Play. Calibration requires a physical output-to-input cable and measures the round trip. A saved measurement must match the interface and buffer settings.</p>

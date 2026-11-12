@@ -39,6 +39,11 @@
   color: var(--tl-text); background: var(--tl-surface-sunken); border: 1px solid var(--tl-border); border-radius: var(--tl-radius-md);
   font: 500 var(--tl-fs-md) var(--tl-font-ui); outline: none; }
 .tl-modal input:focus-visible { border-color: var(--tl-accent-border); box-shadow: var(--tl-focus-ring); }
+.tl-modal label:has(> tl-select) { display: grid; gap: 6px; }
+.tl-modal progress { display: block; width: 100%; height: 7px; accent-color: var(--tl-accent); }
+.tl-modal progress[hidden] { display: none; }
+/* Help under a field is a caption: smaller and quieter than the field's label. */
+.tl-modal .host-help { font-size: var(--tl-fs-xs); color: var(--tl-text-muted); }
 .tl-modal-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--tl-space-2); margin-top: var(--tl-space-2); }
 /* A modal without header (confirm-style): content sits directly in the dialog. */
 .tl-modal:not(:has(> .tl-modal-header)) { padding: 20px; }

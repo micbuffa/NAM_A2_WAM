@@ -39,7 +39,7 @@ class RackMarkupTest < ActionDispatch::IntegrationTest
     assert_select "#recordOptionsPanel[hidden]", count: 1
     assert_select "#studioProgress[aria-label='Separation progress']", count: 1
     assert_select "#studioOriginal, #studioInstruments", count: 0
-    assert_select "#studioTrackState[role='status']", count: 1
+    assert_select "#studioTrackState", count: 0
   end
 
   test "Studio exposes an accessible playback master volume" do
