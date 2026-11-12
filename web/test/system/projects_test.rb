@@ -20,9 +20,8 @@ class ProjectsTest < ApplicationSystemTestCase
       click_on "Create project"
     end
     assert_selector "#projectTitle", text: "Late night"
-    assert_selector "#projectBpm", text: "84"
+    assert_selector "#projectTimelineTempo", text: "84 BPM · 4/4"
     assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
-    assert_selector "#projectSelect optgroup[label='My projects'] option", text: "Late night · 0 tracks", visible: :all
 
     find("#projectEdit").click
     within("dialog[open]") do
@@ -35,34 +34,30 @@ class ProjectsTest < ApplicationSystemTestCase
     click_on "Save project"
     assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
     assert_equal [ "Later night", 84 ], Project.last.values_at(:name, :bpm)
+
+    switch_to_projects # a second click: the project list
+    assert_selector "#studioHome tr", text: /Later night\s+You.*\s0\s+84/
   end
 
   test "imports an audio file as a new project" do
     open_rack_signed_in "carol@example.com"
     switch_to_projects
-    click_on "Import audio"
-    within("dialog[open]") do
-      find("input[type=file]", visible: :all).attach_file(file_fixture("silence.wav"))
-      assert_text "silence.wav"
-      select "Bass", from: "Instrument"
-      click_on "Import project"
-    end
+    import_audio "silence.wav"
     assert_selector "#projectTitle", text: "silence"
-    assert_selector ".track-row .track-meta", text: "Bass · No preset"
-    assert_selector ".track-lane", text: "silence.wav"
+    assert_selector ".track-name", text: "silence"
     track = Project.last.tracks.sole
-    assert_equal [ "bass", "silence.wav" ], [ track.instrument, track.audio.filename.to_s ]
+    assert_equal [ "other", "original", "silence.wav" ], [ track.instrument, track.origin, track.audio.filename.to_s ]
   end
 
   test "a project shared with me is read-only" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects
-    find("#projectSelect").find("option", text: "Bob jam").select_option
-    assert_selector "#projectKicker", text: /Shared by bob@example.com · 1 track/i
+    assert_selector "#studioHome tr", text: /Bob jam\s+bob@example.com/
+    open_project "Bob jam"
+    assert_selector "#projectKicker", text: /Shared by bob@example.com · 1 track/i, visible: :all
     assert_selector "#projectSaveState", text: /\ARead-only\z/i
     assert_no_selector "#projectEdit", visible: true
     assert_no_selector "#projectSave", visible: true
-    assert_selector "#projectSelect optgroup[label='Shared with me'] option", text: "Bob jam", visible: :all
   end
 
   test "the link of the share email opens the shared project, after signing in too" do
@@ -81,63 +76,69 @@ class ProjectsTest < ApplicationSystemTestCase
     open_rack_signed_in "alice@example.com"
     switch_to_projects
     assert_no_selector "#projectLeave", visible: true # Alice song is hers
-    find("#projectSelect").find("option", text: "Bob jam").select_option
-    click_on "Leave"
+    open_project "Bob jam"
+    project_menu "Leave project"
     within("dialog[open]") do
       assert_text "“Bob jam” will no longer be listed for you. bob@example.com can share it with you again."
       click_on "Leave"
     end
     assert_text "You left “Bob jam”"
-    assert_selector "#projectTitle", text: "Alice song"
-    assert_no_selector "#projectSelect option", text: "Bob jam", visible: :all
+    assert_selector "#studioHome tr", text: "Alice song" # back to the project list
+    assert_no_selector "#studioHome tr", text: "Bob jam"
     assert_not projects(:bob_jam).shares.exists?(user: users(:alice))
   end
 
   test "adds a track, mixes it, picks a preset and saves the project" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects
-    find("#projectSelect").find("option", text: "Alice song").select_option
+    open_project "Alice song"
     assert_selector ".track-row", count: 2
 
     click_on "Add track"
     within("dialog[open]") do
-      find("input[type=file]", visible: :all).attach_file(file_fixture("silence.wav"))
       select "Bass", from: "Instrument"
       click_on "Add track"
     end
     assert_selector ".track-row.selected .track-name", text: "Bass 1"
-    assert_selector "#inspectorTrackName", text: "Bass 1"
-    assert_equal "silence.wav", Track.find_by(name: "Bass 1").audio.filename.to_s
+    expand_rack_dock
+    assert_selector "#presetTitle", text: "Bass 1" # the rack dock shows the selected track's sound
+    assert_equal [ "personal", "bass", false ], Track.find_by(name: "Bass 1").then { |track| [ track.origin, track.instrument, track.audio.attached? ] }
 
     within(".track-row.selected") do
       find("button[aria-label='Mute Bass 1']").click
       find("input[aria-label='Volume for Bass 1']", visible: :all).execute_script("this.value = 60; this.dispatchEvent(new Event('input'))")
     end
-    find("#inspectorPreset").find("option", text: "SVT Bass · Bass").select_option
-    assert_selector ".track-row.selected .track-meta", text: "Bass · SVT Bass"
+    assert_selector "#presetKicker", text: /track sound/i
+    find("#presetSelect").find("option", text: "British Edge").select_option
+    assert_selector "#presetMeta", text: "From “British Edge"
+    find("#presetSaveButton:not([disabled])", text: "Apply to track").click
+    assert_selector ".track-row.selected .track-name[aria-description*='Bass · British Edge']"
     assert_selector "#projectSaveState", text: /\AUnsaved changes\z/i
 
     click_on "Save project"
+    within("dialog[open]") { click_on "Save project" } if page.has_css?("dialog[open]", text: "reusable Play preset", wait: 1)
     assert_no_selector "#projectSaveState", visible: :visible # saved: no badge
-    assert_equal [ true, 60, "factory:svt-bass" ], Track.find_by(name: "Bass 1").values_at(:mute, :volume, :factory_preset)
+    track = Track.find_by(name: "Bass 1")
+    assert_equal [ true, 60 ], track.values_at(:mute, :volume)
+    assert track.preset_snapshot.present?, "the chosen sound is saved with the track"
   end
 
   test "input monitoring is for one guitar or bass track at a time" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects
-    find("#projectSelect").find("option", text: "Alice song").select_option
+    open_project "Alice song"
     find("button[aria-label='Input monitoring Rhythm']").click
     assert_selector "button[aria-label='Input monitoring Rhythm'][aria-pressed=true]"
-    assert_selector "button[aria-label='Input monitoring Drums'][disabled]"
+    assert_selector "button[aria-label='Input monitoring Drums'][disabled][aria-hidden]", visible: :all # keeps its place, unseen
     find(".track-row", text: "Drums").click
-    assert_selector "#inspectorPresetHelp", text: "Tone presets apply to guitar and bass tracks."
-    assert_no_selector "#inspectorPresetField", visible: true
+    assert_selector "#inspectorTrackMeta", text: "Drums", visible: :all
+    assert_no_selector "#rackDockPlaceholder", visible: true # drums play as recorded: nothing to say about their sound
   end
 
   test "renames a track, changes its instrument and deletes it" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects
-    find("#projectSelect").find("option", text: "Alice song").select_option
+    open_project "Alice song"
     edit_track "Rhythm"
     within("dialog[open]") do
       fill_in "Track name", with: "Lead vocal"
@@ -152,13 +153,13 @@ class ProjectsTest < ApplicationSystemTestCase
     track_menu "Lead vocal", "Delete track"
     within("dialog[open]") { click_on "Delete" }
     assert_no_selector ".track-row", text: "Lead vocal"
-    assert_not Track.exists?(tracks(:alice_rhythm).id)
+    assert tracks(:alice_rhythm).reload.removed_at.present?, "deleted tracks stay restorable from Options"
   end
 
   test "the owner reorders tracks by dragging them or with the arrow keys" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects
-    find("tr", text: "Alice song").click
+    open_project "Alice song"
     assert_equal %w[Rhythm Drums], all(".track-name").map(&:text)
     # Anywhere in the header that is not a control grabs the track; drop on the top half of Rhythm.
     find(".track-row", text: "Drums").find(".track-level-meter").drag_to(find(".track-row", text: "Rhythm").find(".track-title-row"))
@@ -175,7 +176,7 @@ class ProjectsTest < ApplicationSystemTestCase
     assert_equal %w[Rhythm Drums], projects(:alice_song).tracks.reload.map(&:name)
 
     find("#hostSidebar [data-nav='projects']").click # back to the project list
-    find("tr", text: "Bob jam").click
+    open_project "Bob jam"
     assert_selector ".track-name", text: "Bass"
     assert_no_selector ".track-label.reorderable"
   end
@@ -183,17 +184,16 @@ class ProjectsTest < ApplicationSystemTestCase
   test "a shared project's mix can be tried but not saved" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects
-    find("#projectSelect").find("option", text: "Bob jam").select_option
+    open_project "Bob jam"
     assert_no_selector "tl-menu[label='Track actions: Bass']"
     find("button[aria-label='Mute Bass']").click
     assert_selector "button[aria-label='Mute Bass'][aria-pressed=true]"
     assert_selector "#projectSaveState", text: /\ARead-only\z/i
-    assert_selector "#inspectorPreset[disabled]", visible: :all
-    assert_no_selector "#inspectorEditPreset", visible: true
+    assert_selector "#rackDockPlaceholder", text: "Preset: SVT Bass.", visible: :all # a summary, no track sound to edit
     assert_no_selector "#projectShare", visible: true
     assert_not tracks(:bob_bass).reload.mute
 
-    click_on "Reset mix" # back to the owner's mix
+    project_menu "Reset mix" # back to the owner's mix
     assert_selector "button[aria-label='Mute Bass'][aria-pressed=false]"
     assert_no_selector "#projectResetMix", visible: true
   end
@@ -201,7 +201,7 @@ class ProjectsTest < ApplicationSystemTestCase
   test "the owner shares a project read-only and stops sharing it" do
     open_rack_signed_in "alice@example.com"
     switch_to_projects
-    find("#projectSelect").find("option", text: "Alice song").select_option
+    open_project "Alice song"
     click_on "Share"
     within("dialog[open]") do
       assert_text "Only you can open this project."
@@ -214,7 +214,7 @@ class ProjectsTest < ApplicationSystemTestCase
       assert_selector ".share-person", text: users(:bob).display_name
       assert_text /People with access · 01/i
     end
-    assert_selector "#projectKicker", text: /Shared with/i
+    assert_selector "#projectKicker", text: /Shared with/i, visible: :all
     assert_equal [ users(:bob) ], projects(:alice_song).shared_with.to_a
 
     within("dialog[open]") do
@@ -228,11 +228,7 @@ class ProjectsTest < ApplicationSystemTestCase
   test "plays a project, seeks in a lane and keeps playing in Tone" do
     open_rack_signed_in "carol@example.com"
     switch_to_projects
-    click_on "Import audio"
-    within("dialog[open]") do
-      find("input[type=file]", visible: :all).attach_file(file_fixture("tone.wav"))
-      click_on "Import project"
-    end
+    import_audio "tone.wav"
     assert_selector ".track-clip .track-clip-name", text: "tone.wav" # decoded and drawn
     assert_selector "#projectRuler span", text: "1"
 
@@ -254,50 +250,28 @@ class ProjectsTest < ApplicationSystemTestCase
   end
 
   test "guitar tracks play through their preset; input monitoring takes the live guitar" do
-    open_rack_signed_in "carol@example.com"
+    id = with_audio(tracks(:alice_rhythm)).id
+    open_rack_signed_in "alice@example.com"
     switch_to_projects
-    click_on "Import audio"
-    within("dialog[open]") do
-      find("input[type=file]", visible: :all).attach_file(file_fixture("tone.wav"))
-      click_on "Import project"
-    end
-    find("#inspectorPreset").find("option", text: "British Edge · Crunch").select_option
-    assert_selector ".track-meta", text: "Guitar · British Edge (loading…)"
-    assert_selector ".track-meta", text: /\AGuitar · British Edge\z/, wait: 20
-    id = Project.last.tracks.sole.id
-    assert_equal [ "ready", "lite" ], tone_of(id)
+    open_project "Alice song"
+    assert_track_meta "Rhythm", "Existing part · Guitar · Alice clean", wait: 20
+    assert_equal [ "ready", "full" ], tone_of(id) # selected on opening: the live guitar would play through it
 
-    find("button[aria-label='Input monitoring tone']").click
-    assert_selector "#inspectorPresetHelp", text: "your live guitar plays through this preset"
-    assert_equal id, page.evaluate_script("phase3Debug.projectPlayer.monitoredId")
+    find("button[aria-label='Input monitoring Rhythm']").click
+    assert_selector "button[aria-label='Input monitoring Rhythm'][aria-pressed=true]"
+    assert_selector "#rackDockPlaceholder", text: "your live guitar plays through this preset", visible: :all
+    assert_equal id, evaluate_until("phase3Debug.projectPlayer.liveId", id), "the live guitar goes to the monitoring track"
     assert_equal "full", tone_of(id).last
-    switch_workspace "tone" # Tone's rack takes the live guitar back
-    assert_not page.evaluate_script("Boolean(phase3Debug.projectPlayer.liveTarget)")
-    switch_to_projects
-    assert page.evaluate_script("Boolean(phase3Debug.projectPlayer.liveTarget)")
-
-    find("#inspectorPreset").find("option", text: "No preset").select_option
-    assert_selector ".track-meta", text: /\AGuitar · No preset\z/
-    assert_nil page.evaluate_script("phase3Debug.trackTones.status(#{id})")
   end
 
   test "a preset saved, renamed or deleted in Tone follows on its tracks" do
-    open_rack_signed_in "carol@example.com"
-    click_on "New preset"
-    within("dialog[open]") do
-      fill_in "Preset name", with: "Clean"
-      click_on "Create preset"
-    end
-    assert_selector "#presetTitle", exact_text: "Clean"
+    id = with_audio(tracks(:alice_rhythm)).id # plays "Alice clean", a preset of the library
+    open_rack_signed_in "alice@example.com"
+    find("#presetSelect").find("option", exact_text: "Alice clean").select_option
+    assert_selector "#presetTitle", exact_text: "Alice clean"
     switch_to_projects
-    click_on "Import audio"
-    within("dialog[open]") do
-      find("input[type=file]", visible: :all).attach_file(file_fixture("tone.wav"))
-      click_on "Import project"
-    end
-    find("#inspectorPreset").find("option", exact_text: "Clean").select_option
-    assert_selector ".track-meta", text: /\AGuitar · Clean\z/, wait: 20
-    id = Project.last.tracks.sole.id
+    open_project "Alice song"
+    assert_track_meta "Rhythm", "Existing part · Guitar · Alice clean", wait: 20
     page.execute_script("phase3Debug.trackTones.tones.get(#{id}).rack.before = true")
 
     switch_workspace "tone"
@@ -308,9 +282,9 @@ class ProjectsTest < ApplicationSystemTestCase
       rack.a.insert(pedal, rack.a.entries[0].id).then(() => done());
     JS
     click_on "Save"
-    assert_toast "Preset “Clean” saved."
+    assert_toast "Preset “Alice clean” saved."
     switch_to_projects
-    assert_selector ".track-meta", text: /\AGuitar · Clean\z/, wait: 20
+    assert_track_meta "Rhythm", "Existing part · Guitar · Alice clean", wait: 20
     assert_equal [ false, "effect>nam>cabinet" ], JSON.parse(page.evaluate_async_script(<<~JS))
       const done = arguments[0];
       const {rack} = phase3Debug.trackTones.tones.get(#{id});
@@ -324,17 +298,63 @@ class ProjectsTest < ApplicationSystemTestCase
       click_on "Rename"
     end
     switch_to_projects
-    assert_selector ".track-meta", text: /\AGuitar · Crisp\z/
+    assert_track_meta "Rhythm", "Existing part · Guitar · Crisp"
 
     switch_workspace "tone"
     find("#presetDelete").click
     within("dialog[open]") { click_on "Delete" }
     switch_to_projects
-    assert_selector ".track-meta", text: /\AGuitar · No preset\z/
+    assert_track_meta "Rhythm", "Existing part · Guitar · No preset"
     assert_nil page.evaluate_script("phase3Debug.trackTones.status(#{id})")
   end
 
   private
+    # A guitar track plays through its preset only with audio to play.
+    def with_audio(track)
+      track.audio.attach(io: file_fixture("tone.wav").open, filename: "tone.wav", content_type: "audio/wav")
+      track
+    end
+
+    # A track's instrument and sound: hidden under its name, read as its description.
+    def assert_track_meta(name, meta, **options)
+      assert_selector ".track-name[aria-description='#{meta}']", text: name, **options
+    end
+
+    # The page state moves on asynchronously: read it until it matches (or time runs out).
+    def evaluate_until(script, expected, wait: Capybara.default_max_wait_time)
+      deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + wait
+      loop do
+        value = page.evaluate_script(script)
+        return value if value == expected || Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
+        sleep 0.1
+      end
+    end
+
+    def expand_rack_dock
+      find("#rackDockToggle").click if page.has_css?("body[data-rack-dock=collapsed]", wait: 0)
+      assert_selector "body[data-rack-dock=expanded]"
+    end
+
+    # Import audio > Import from a file, then keep it as one track (no separation).
+    def import_audio(fixture)
+      click_on "Import audio"
+      within("dialog[open]") { click_on "Import from a file" }
+      within("dialog[open]") do
+        find("input[type=file]", visible: :all).attach_file(file_fixture(fixture))
+        click_on "Import audio"
+      end
+      within("dialog[open]", text: "Keep audio or separate instruments") { click_on "Keep as one track" }
+    end
+
+    def open_project(name) = find("#studioHome tr", text: name).click
+
+    # Leave, Reset mix, Delete… live in the project's ⋯ menu.
+    def project_menu(action)
+      menu = find("#projectMore")
+      menu.shadow_root.find("[part=trigger]").click
+      within(menu) { click_on action }
+    end
+
     def tone_of(id)
       page.evaluate_script("(t => t && [t.state, t.applied])(phase3Debug.trackTones.tones.get(#{id}))")
     end
