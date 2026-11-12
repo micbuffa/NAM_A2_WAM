@@ -1,6 +1,7 @@
 # Immutable provenance of a rendered accompaniment; no live input or output mix.
 class ProjectMix
-  def self.validate!(project, manifest)
+  # The audio contract alone: what an export of unsaved work (a draft) can prove.
+  def self.validate_contract!(manifest)
     raise ArgumentError, "Invalid mix manifest" unless manifest.is_a?(Hash)
     rate = manifest["sampleRate"]
     frames = manifest["frames"]
@@ -11,8 +12,14 @@ class ProjectMix
       range["end"] > range["start"] && ((range["end"]-range["start"])*rate-frames).abs <= 1 &&
       manifest.values_at("peak", "attenuation").all? { |v| v.is_a?(Numeric) && v.finite? && v >= 0 } &&
       manifest["attenuation"].positive? && manifest["attenuation"] <= 1 && manifest["peak"]*manifest["attenuation"] <= 0.891251
+    raise ArgumentError, "Invalid mix audio contract" unless valid
+    true
+  end
+
+  def self.validate!(project, manifest)
+    validate_contract!(manifest)
     sources = manifest["sources"]
-    valid &&= sources.is_a?(Array) && sources.any? && sources.length <= 200 && sources.all? { |s| s.is_a?(Hash) } && sources.map { |s| s["id"] }.uniq.length == sources.length
+    valid = sources.is_a?(Array) && sources.any? && sources.length <= 200 && sources.all? { |s| s.is_a?(Hash) } && sources.map { |s| s["id"] }.uniq.length == sources.length
     raise ArgumentError, "Invalid mix audio contract" unless valid
     tracks = project.tracks.with_attached_audio.where(id: sources.map { |s| s["id"] }).index_by(&:id)
     sources.each do |source|

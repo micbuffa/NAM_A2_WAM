@@ -17,11 +17,11 @@ import {audioImportDialog, importDestinationFields} from './AudioImportDialog.js
 // it keeps playing in Play, to play along with the live guitar. Guitar and
 // bass tracks play through their preset (TrackTones, attached once the rack
 // engine is up).
-import {actionsRow, button, confirmDialog, createDialog} from '../account/dialogs.js';
+import {actionsRow, button, confirmDialog, createDialog, promptDialog} from '../account/dialogs.js';
 import {FACTORY_PRESETS} from '../account/FactoryPresets.js';
 import {buildWaveformPeaks} from '../source-separation/CompactWaveform.js';
 import {AudioImportWatcher, importActive} from './AudioImportWatcher.js';
-import {StudioMixExporter, exportRange, mixExportAvailability} from './StudioMixExporter.js';
+import {StudioMixExporter, exportRange, mixExportAvailability, mixExportName} from './StudioMixExporter.js';
 import {SeparationPersistence} from './SeparationPersistence.js';
 import {StudioSeparationView} from './StudioSeparationView.js';
 import {separationSources} from './StudioSeparation.js';
@@ -124,6 +124,7 @@ export class ProjectsWorkspace extends EventTarget {
     if (this.$('studioUseMix')) this.$('studioUseMix').onclick = () => void this.confirmMixExport();
     this.$('projectShare').onclick = () => this.shareDialog();
     this.$('projectLeave').onclick = () => this.leave();
+    this.$('projectDelete').onclick = () => void this.deleteProject();
     this.$('projectResetMix').onclick = () => this.setTracks(structuredClone(this.saved.tracks));
     this.$('projectAddTrack').onclick = () => this.addTrackDialog();
     this.$('projectsEmptyAction').onclick = () => this.emptyAction?.();
@@ -445,25 +446,34 @@ export class ProjectsWorkspace extends EventTarget {
     void this.player?.retryFailed();
   }
 
-  // ⋯ › Export to play along: says what the export does (saved or session-only backing) before running it.
+  // ⋯ › Export to play along: names the backing track saved in Play. Only a partial
+  // instrument preview (separation stopped early) stays a session-only backing.
   async confirmMixExport() {
     const project = this.project;
     if (!project) return;
-    const temporary = Boolean((this.separation?.mode === 'stems' && this.separation.result?.engine) || this.dirty || this.pendingSeparation);
-    const confirmed = await confirmDialog({title: 'Export to play along?', confirmLabel: 'Export',
-      message: `The current mix of “${project.name}” (volumes, pans, mutes and effects) becomes a backing track, opened in Play so you can play over it. `
-        + (temporary ? 'There are unsaved changes, so this backing track is temporary and lasts for this session.' : 'The MP3 is saved: find it again anytime in Play on a backing track.')});
-    if (confirmed && this.project === project) await this.useMixInTone();
+    const intro = `The current mix of “${project.name}” (volumes, pans, mutes and effects) becomes a backing track, opened in Play so you can play over it.`;
+    if (this.separation?.mode === 'stems' && this.separation.result?.engine?.partial) {
+      const confirmed = await confirmDialog({title: 'Export to play along?', confirmLabel: 'Export',
+        message: `${intro} The separation is incomplete, so this backing track is temporary and lasts for this session.`});
+      if (confirmed && this.project === project) await this.useMixInTone();
+      return;
+    }
+    const unsaved = this.dirty || this.pendingSeparation || this.separation?.mode === 'stems';
+    const name = await promptDialog({title: 'Export to play along?', label: 'Backing track name', confirmLabel: 'Export', maxLength: 80,
+      value: mixExportName(project, this.$('studioExportRange').value),
+      message: `${intro} It is saved in Play${unsaved ? '; the project itself stays unsaved' : ''}.`});
+    if (name && this.project === project) await this.useMixInTone(name);
   }
 
-  async useMixInTone() {
+  async useMixInTone(name = null) {
     if (!this.owned || this.saving || this.recording?.busy || this.separation?.busy) return;
     const project = this.project;
     this.saving = true; this.render();
     try {
       const preview=this.separation?.mode==='stems'?this.separation.result?.engine:null;
       const range = exportRange(preview?preview.availableFrames/44100:this.player.duration, this.player.loop, this.$('studioExportRange').value);
-      if(preview||this.dirty||this.pendingSeparation){
+      const options={project,tracks:this.displayTracks,channels:this.player.channels,range,selection:this.$('studioExportRange').value,tailSeconds:Number(this.$('studioExportTail')?.value??2),name};
+      if(preview?.partial){
         const epoch=this.accountLoadEpoch;
         const entry=await this.mixExporter.preview({project,tracks:this.displayTracks,channels:this.player.channels,range,engine:preview,selection:this.$('studioExportRange').value,tailSeconds:Number(this.$('studioExportTail')?.value??2)},
           (status,progress=null)=>this.separation?.setStatus(status,progress));
@@ -471,15 +481,12 @@ export class ProjectsWorkspace extends EventTarget {
         if(await this.onUseMix?.(entry)===false)throw Error('Temporary backing could not be loaded.');
         this.report('Temporary mix ready in Play · project remains unsaved.');return;
       }
-      const entry = await this.mixExporter.export({project,tracks:this.displayTracks,channels:this.player.channels,range,
-        separationId:null, selection:this.$('studioExportRange').value,tailSeconds:Number(this.$('studioExportTail')?.value??2)},
-        (status,progress=null)=>this.separation?.setStatus(status,progress));
-      if (this.project !== project) throw Error('Project changed during export. Reopen its backing from the library.');
-      const full = await this.api.getProject(project.id);
-      if (this.project !== project) throw Error('Project changed during export.');
-      this.setProject(full, {preserveHistory: true});this.replaceSummary(full);
+      // Unsaved work (changed mix, unsaved instruments) is saved in Play as a draft; the project stays unsaved.
+      const draft=Boolean(preview||this.dirty||this.pendingSeparation),status=(text,progress=null)=>this.separation?.setStatus(text,progress);
+      const entry = draft ? await this.mixExporter.exportDraft({...options,engine:preview},status) : await this.mixExporter.export({...options,separationId:null},status);
+      if (this.project !== project) throw Error('Project changed during export. Find the backing track in Play.');
       await this.onUseMix?.(entry);
-      this.report(`Backing track saved${entry.manifest.attenuation<1 ? ' · level reduced to prevent clipping' : ''}`);
+      this.report(`“${entry.title}” saved in Play${entry.manifest?.attenuation<1 ? ' · level reduced to prevent clipping' : ''}`);
     } catch(error) {
       this.separation?.setStatus(`Mix export stopped: ${error.message}`);
       this.report(error.message,true);
@@ -756,12 +763,13 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   // Launch an import and follow it; the finished project opens by itself (Studio) or loads in Play.
-  // Only a running import is resumed on reopening: a finished one is already in the project list.
+  // From Play (onImported) the audio becomes a Play backing track: no Studio project to choose or create.
+  // Only a running import is resumed on reopening: a finished one is already in the project list or My tracks.
   async youtubeImportDialog({onImported = null} = {}) {
     if (!await this.ensureSignedIn()) return;
     const {dialog,body,id}=createDialog({title:'Import from YouTube'});
     const form=element('form');
-    const destination=importDestinationFields({project:this.project,id,name:'YouTube audio'});
+    const destination=onImported ? {root:element('div',{hidden:true}),read:()=>({target:'play'})} : importDestinationFields({project:this.project,id,name:'YouTube audio'});
     const url=element('input',{id:`${id}-url`,type:'url',required:true,placeholder:'https://www.youtube.com/watch?v=…',autocomplete:'off'});
     const label=element('label',{htmlFor:url.id,textContent:'Video URL'});
     const start=button('Import audio',{type:'submit',primary:true});
@@ -771,7 +779,7 @@ export class ProjectsWorkspace extends EventTarget {
     const progress=element('progress',{max:100,hidden:true});
     let job=null,available=false,pending=false,closed=false,opening=false,openedId=null,retry=false;
     const render=value=>{
-      job=value;const active=importActive(job),ready=job?.state==='ready'&&Boolean(job.projectId);
+      job=value;const active=importActive(job),ready=job?.state==='ready'&&Boolean(job.projectId||job.backingTrackId);
       status.textContent=(ready ? (retry ? 'Audio ready.' : 'Audio ready · opening…') : job?.message || job?.state) || 'Ready. Up to 30 minutes / 100 MiB. Import audio you are allowed to use.';
       progress.hidden=!active;
       if(Number.isFinite(job?.progress))progress.value=job.progress;else progress.removeAttribute('value');
@@ -793,6 +801,7 @@ export class ProjectsWorkspace extends EventTarget {
           return;
         }
         if(!await this.confirmSavedMixDiscard() || !await this.confirmPreviewDiscard()){retry=true;return;}
+        if(!imported.projectId)throw Error('This import was saved in Play, in My tracks.');
         const target=imported.projectId;dialog.close();
         this.projects=await this.api.listProjects();this.separation?.stop({reset:true});await this.open(target,{confirm:false,historyLabel:'Import YouTube audio'});
         if(this.project?.id===target){this.requestTempo(imported.sourceTrackId);void this.separationView?.chooseModel({sourceId:imported.sourceTrackId,allowUnseparated:true});}
@@ -1082,7 +1091,7 @@ export class ProjectsWorkspace extends EventTarget {
   }
 
   // Home: one table of the projects (mine and shared with me), and New project
-  // (only there). A row opens its project; Delete is offered on owned ones.
+  // (only there). A row opens its project; Delete lives in the open project's ⋯ menu.
   // Without projects, #projectsEmpty explains.
   renderHome() {
     const home = this.$('studioHome');
@@ -1098,7 +1107,7 @@ export class ProjectsWorkspace extends EventTarget {
     if (home.hidden) return home.replaceChildren();
     const table = element('table', {className: 'studio-projects'});
     const head = element('tr');
-    head.append(...['Title', 'Created by', 'Created', 'Tracks', 'BPM', 'Duration', 'Action'].map((label) => element('th', {scope: 'col', textContent: label})));
+    head.append(...['Title', 'Created by', 'Created', 'Tracks', 'BPM', 'Duration'].map((label) => element('th', {scope: 'col', textContent: label})));
     table.append(element('thead'), element('tbody'));
     table.tHead.append(head);
     for (const project of this.projects) {
@@ -1111,35 +1120,27 @@ export class ProjectsWorkspace extends EventTarget {
         created && !Number.isNaN(created.getTime()) ? created.toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'}) : '—',
         String(projectTrackCount(project)), project.bpm ? String(project.bpm) : '—', Number.isFinite(project.duration) ? formatDuration(project.duration) : '—'];
       row.append(...cells.map((content) => { const cell = element('td'); cell.append(content); return cell; }));
-      const action = element('td', {className: 'studio-project-action'});
-      if (project.owned) {
-        const remove = element('tl-button', {textContent: 'Delete'});
-        remove.setAttribute('size', 'sm'); remove.setAttribute('variant', 'ghost'); remove.setAttribute('icon', 'trash');
-        remove.title = `Delete “${project.name}”`;
-        remove.disabled = this.saving;
-        remove.onclick = (event) => { event.stopPropagation(); void this.deleteProject(project); };
-        action.append(remove);
-      }
-      row.append(action);
       table.tBodies[0].append(row);
     }
     home.replaceChildren(table);
   }
 
-  // Delete from Home (the project is not open): confirm, then drop it from the list.
-  async deleteProject(project) {
-    if (this.saving || !project.owned) return;
+  // Delete from the open project's ⋯ menu (owner only): confirm, delete, then back to Home.
+  async deleteProject(project = this.project) {
+    if (!project?.owned || this.saving || this.separation?.busy || this.recording?.busy) return;
     const confirmed = await confirmDialog({title: 'Delete project?', confirmLabel: 'Delete',
       message: `“${project.name}”, its ${plural(projectTrackCount(project), 'track')} and their audio files will be deleted.`});
     if (!confirmed) return;
     try {
       await this.api.deleteProject(project.id);
-      this.projects = this.projects.filter((entry) => entry.id !== project.id);
       this.report(`“${project.name}” deleted`);
     } catch (error) {
       this.report(`Project not deleted: ${error.message}`, true);
+      return;
     }
-    this.render();
+    // Unsaved edits went with the project: reload the list, which closes it.
+    if (this.project?.id === project.id) await this.load();
+    else { this.projects = this.projects.filter((entry) => entry.id !== project.id); this.render(); }
   }
 
   renderMixExport() {
@@ -1178,6 +1179,8 @@ export class ProjectsWorkspace extends EventTarget {
     state.setAttribute('tone', dirty ? 'warning' : owned ? 'success' : 'neutral');
     this.$('projectShare').hidden = !owned;
     this.$('projectLeave').hidden = owned || !this.project;
+    this.$('projectDelete').hidden = !owned;
+    this.$('projectDelete').disabled = Boolean(this.saving || this.separation?.busy || this.recording?.busy);
     // A shared viewer's mix is never saved: it can go back to the owner's.
     this.$('projectResetMix').hidden = owned || !this.project || !trackChanges(this.saved?.tracks, this.project.tracks).length;
     this.$('projectShare').title = shareSummary(this.project?.shares) || 'Share this project read-only';
@@ -1247,7 +1250,7 @@ export class ProjectsWorkspace extends EventTarget {
     if (imported) {
       const metadata = track?.importMetadata;
       imported.hidden = !metadata;
-      imported.textContent = metadata?.kind==='youtube' ? `YouTube source: ${metadata.url} · ${metadata.duration} s` : metadata?.kind==='studio_mix' ? `Imported from Studio project ${metadata.sourceProjectId}, mix ${metadata.sourceTrackId}.` : metadata?.kind==='bundled' ? 'Imported from the Play backing library.' : metadata ? 'Imported from a local file.' : '';
+      imported.textContent = metadata?.kind==='youtube' ? `YouTube source: ${metadata.url} · ${metadata.duration} s` : metadata?.kind==='studio_mix' ? `Imported from Studio project ${metadata.sourceProjectId}, mix ${metadata.sourceTrackId}.` : metadata?.kind==='bundled' ? 'Imported from the Play backing library.' : metadata?.kind==='play_backing' ? (metadata.source==='youtube' ? `From a YouTube video saved in Play: ${metadata.url}` : 'Imported from My tracks in Play.') : metadata ? 'Imported from a local file.' : '';
     }
     if (!placeholder) return;
     // Accompaniment tracks play as recorded: nothing to say about their sound.

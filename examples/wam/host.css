@@ -275,7 +275,6 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .studio-projects tbody tr:hover td { background: var(--tl-surface-2); }
 .studio-project-open { min-height: 0; max-width: 40ch; overflow: hidden; padding: 0; border: 0; background: none; color: var(--tl-text); font: inherit; font-weight: 600; text-align: left; text-overflow: ellipsis; }
 .studio-project-open:hover { background: none; color: var(--tl-accent); }
-.studio-project-action { width: 1%; text-align: right; }
 .rack-track-meta[hidden] { display: none; }
 .projects-empty { display: grid; justify-items: center; gap: var(--tl-space-3); max-width: 460px; margin: 40px auto; padding: var(--tl-space-7) var(--tl-space-6);
   text-align: center; background: var(--tl-surface-1); border: 1px dashed var(--tl-border); border-radius: var(--tl-radius-lg); }

@@ -22,7 +22,9 @@ Rails.application.routes.draw do
     resources :audio_imports, only: %i[index create show destroy] do
       get :capabilities, on: :collection
     end
-    resources :backing_tracks, only: :index
+    resources :backing_tracks, only: %i[index create update destroy] do
+      get :audio, on: :member
+    end
     resources :presets, except: %i[new edit]
     resources :favorites, only: %i[index create destroy] do
       delete "", on: :collection, action: :destroy_by_ref

@@ -2,17 +2,11 @@
 class BackingProjectImport
   def self.call(user:, id: nil, audio: nil, title: nil, project_id: nil, name: nil)
     blob = nil; owned_blob = false; metadata = { "kind" => "local" }
-    if id.to_s.match?(/\Astudio-[1-9][0-9]*\z/)
-      source = Track.where(project: Project.visible_to(user), origin: "mix").with_attached_audio.find(id.delete_prefix("studio-"))
-      raise ArgumentError, "Backing audio is missing" unless source.audio.attached?
+    if id.to_s.match?(/\Aupload-[1-9][0-9]*\z/)
+      # A Play backing track (upload, YouTube import or mix sent from Studio): only its creator's, bytes shared.
+      source = BackingTrack.owned_by(user).with_attached_audio.find(id.delete_prefix("upload-"))
       blob = source.audio.blob; title = source.name
-      metadata = {"kind"=>"studio_mix", "sourceProjectId"=>source.project_id, "sourceTrackId"=>source.id, "checksum"=>blob.checksum}
-    elsif id.to_s.match?(/\Astudio-source-[1-9][0-9]*\z/)
-      source = Track.where(project: Project.visible_to(user), origin: "original", removed_at: nil).with_attached_audio.find(id.delete_prefix("studio-source-"))
-      raise ActiveRecord::RecordNotFound unless source.import_metadata&.dig("kind") == "youtube"
-      raise ArgumentError, "Backing audio is missing" unless source.audio.attached?
-      blob = source.audio.blob; title = source.name
-      metadata = source.import_metadata.merge("kind"=>"studio_source", "sourceProjectId"=>source.project_id, "sourceTrackId"=>source.id, "checksum"=>blob.checksum)
+      metadata = (source.import_metadata || {}).merge("kind"=>"play_backing", "source"=>source.source, "backingTrackId"=>source.id, "checksum"=>blob.checksum)
     elsif id.to_s.match?(/\Abt-[a-f0-9]{16}\z/)
       directory = Rails.root.join("public/rack/assets/backingTracks")
       entry = JSON.parse(directory.join("tracks.json").read).fetch("tracks").find { |t| t["id"] == id }

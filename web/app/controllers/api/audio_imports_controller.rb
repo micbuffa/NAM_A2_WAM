@@ -11,7 +11,8 @@ class Api::AudioImportsController < Api::BaseController
     return render json:{error:"YouTube service unavailable on this server"},status: :service_unavailable unless YoutubeDownloader.available?
     url=AudioImport.youtube_url(json_body["url"])
     AudioImport.expire_stale!
-    destination = json_body.slice("projectId", "name")
+    destination = json_body.slice("projectId", "name", "target")
+    destination.delete("target") unless destination["target"] == "play"
     current_user.projects.find(destination["projectId"]) if destination["projectId"].present?
     record=current_user.with_lock do
       raise ArgumentError,"An import is already running" if current_user.audio_imports.where(state:AudioImport::ACTIVE).exists?

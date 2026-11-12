@@ -10,17 +10,18 @@ class Api::BackingImportsTest < ActionDispatch::IntegrationTest
     assert_equal "original",track["origin"];assert_nil track["presetId"];assert_equal "local",track["importMetadata"]["kind"]
     get track["audio"]["url"];assert_response :success
   end
-  test "saved Tone mix reuses authorized blob; foreign mix and arbitrary URL are refused" do
-    source=tracks(:alice_drums)
-    source.update_columns(origin:"mix",mix_manifest:{"frames"=>4410})
-    source.audio.attach(io:file_fixture("studio-mix.mp3").open,filename:"mix.mp3",content_type:"audio/mpeg")
+  test "a Studio mix sent to Play reuses its blob; someone else's and arbitrary URLs are refused" do
+    source=users(:alice).backing_tracks.new(name:"Alice song · Mix",source:"studio",import_metadata:{"kind"=>"studio_mix","projectId"=>projects(:alice_song).id})
+    source.audio.attach(io:file_fixture("studio-mix.mp3").open,filename:"mix.mp3",content_type:"audio/mpeg");source.save!
     assert_no_difference("ActiveStorage::Blob.count") do
-      post "/api/projects/from_backing",params:{id:"studio-#{source.id}"},as: :json;assert_response :created
+      post "/api/projects/from_backing",params:{id:"upload-#{source.id}"},as: :json;assert_response :created
     end
     track=Track.find(response.parsed_body["tracks"].first["id"])
     assert_equal source.audio.blob,track.audio.blob;assert_equal "original",track.origin
+    assert_equal ["play_backing","studio"],track.import_metadata.values_at("kind","source")
+    post "/api/projects/from_backing",params:{id:"studio-#{tracks(:alice_drums).id}"},as: :json;assert_response :unprocessable_content
     sign_in_as users(:bob)
-    post "/api/projects/from_backing",params:{id:"studio-#{source.id}"},as: :json;assert_response :not_found
+    post "/api/projects/from_backing",params:{id:"upload-#{source.id}"},as: :json;assert_response :not_found
     post "/api/projects/from_backing",params:{id:"https://evil.test/audio"},as: :json;assert_response :unprocessable_content
   end
   test "invalid local audio and quota refusal leave no project or orphan blob" do

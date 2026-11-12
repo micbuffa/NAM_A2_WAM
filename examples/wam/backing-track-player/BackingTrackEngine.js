@@ -34,6 +34,8 @@ export class BackingTrackEngine extends EventTarget {
     if(loaded&&this.pendingLocalState?.track.id===id){const state=this.pendingLocalState;this.pendingLocalState=null;await this.setState(state);}
     return loaded;
   }
+  // The local file now saved on the server takes its library identity, without reloading the audio.
+  adopt(localId,track){if(this.track?.id!==localId||this.loading)return false;this.track={id:track.id,title:track.title,local:false};this.emit('track-change',this.track);this.changed();return true;}
   async load(track,file) {
     if(this.destroyed)throw Error('Player destroyed');
     const generation=++this.generation;this.abort?.abort();const abort=this.abort=new AbortController();

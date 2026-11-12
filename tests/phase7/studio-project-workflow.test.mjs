@@ -137,5 +137,20 @@ test('YouTube import resumes only a running job and opens the finished project b
   assert.deepEqual(declined.calls,[]);
   assert.equal(find('Open in Studio').hidden,false);
   dialogOf().close();
+
+  // From Play: no project to choose, the import targets Play and its backing track loads there.
+  const play=setup({jobs:[]});let started,polled;
+  play.api.startAudioImport=async(url,destination)=>{started=[url,destination];return {id:4,state:'queued'};};
+  play.api.getAudioImport=async()=>polled;
+  const imported=[];
+  await play.youtubeImportDialog({onImported:async job=>imported.push(job.backingTrackId)});
+  assert.ok(!all(dialogOf()).some(node=>node.tag==='select'));
+  const form=all(dialogOf()).find(node=>node.tag==='form'),url=all(dialogOf()).find(node=>node.tag==='input');
+  url.value=' https://youtu.be/9rPbKNMjuzI ';await form.onsubmit({preventDefault(){}});
+  assert.deepEqual(started,['https://youtu.be/9rPbKNMjuzI',{target:'play'}]);
+  polled={id:4,state:'ready',projectId:null,backingTrackId:'upload-5',message:'Audio ready in Play'};
+  await new Promise(r=>setTimeout(r,1100));await tick();await tick();
+  assert.deepEqual(imported,['upload-5']);assert.deepEqual(play.calls,[]);
+  assert.equal(dialogOf().closed,true);
  }finally{globalThis.document=previous;}
 });

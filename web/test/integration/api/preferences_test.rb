@@ -31,11 +31,11 @@ class Api::PreferencesTest < ActionDispatch::IntegrationTest
 
   test "song presets keep valid track and preset ids only" do
     sign_in_as users(:alice)
-    patch api_preferences_path, params: { songPresets: { "bt-e593dafe4c5eefe3" => "factory:twin-clean", "studio-12" => 7,
-      "../etc/passwd" => 3, "studio-13" => "drop table", "studio-14" => nil, "studio-15" => -2 } }, as: :json
-    assert_equal({ "bt-e593dafe4c5eefe3" => "factory:twin-clean", "studio-12" => 7 }, response.parsed_body["songPresets"])
+    patch api_preferences_path, params: { songPresets: { "bt-e593dafe4c5eefe3" => "factory:twin-clean", "upload-12" => 7,
+      "../etc/passwd" => 3, "upload-13" => "drop table", "upload-14" => nil, "upload-15" => -2 } }, as: :json
+    assert_equal({ "bt-e593dafe4c5eefe3" => "factory:twin-clean", "upload-12" => 7 }, response.parsed_body["songPresets"])
 
     patch api_preferences_path, params: { songPresets: "loud" }, as: :json
-    assert_equal({ "bt-e593dafe4c5eefe3" => "factory:twin-clean", "studio-12" => 7 }, response.parsed_body["songPresets"], "a non-object leaves the stored value")
+    assert_equal({ "bt-e593dafe4c5eefe3" => "factory:twin-clean", "upload-12" => 7 }, response.parsed_body["songPresets"], "a non-object leaves the stored value")
   end
 end

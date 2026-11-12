@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   PREFERENCE_KEYS = %w[autoLevel modelVariant lastPresetId playAlong songPresets].freeze
-  # Play along (Tone): the last bundled backing track and its settings, as numbers in their player ranges.
-  PLAY_ALONG_TRACK_FORMAT = /\A(?:bt-[0-9a-f]{16}|studio-[1-9][0-9]*)\z/
+  # Play along (Tone): the last backing track (bundled, or one of the user's) and its settings, as numbers in their player ranges.
+  PLAY_ALONG_TRACK_FORMAT = /\A(?:bt-[0-9a-f]{16}|upload-[1-9][0-9]*)\z/
   PLAY_ALONG_RANGES = { "rate" => 0.7..1.3, "volumeDb" => -60..6, "mix" => 0..1, "guitarPan" => -1..1 }.freeze
   PLAY_ALONG_FLAGS = %w[muted normalized autoNormalize expanded].freeze
   PLAY_ALONG_VIEWS = %w[library track].freeze
@@ -11,6 +11,7 @@ class User < ApplicationRecord
   SONG_PRESETS_MAX = 500
 
   has_many :audio_imports, dependent: :destroy
+  has_many :backing_tracks, dependent: :destroy
   has_many :sessions, dependent: :destroy
   has_many :presets, dependent: :destroy
   has_many :favorites, dependent: :destroy

@@ -58,11 +58,44 @@ test('Studio has no breadcrumb, and the canvas holds the project list', async ()
   assert.match(workspace, /this\.\$\('projectNew'\)\.hidden = Boolean\(this\.project\)/, 'New project only on Home');
 });
 
-test('Delete on Home never deletes a shared project', async () => {
+test('Delete never deletes a shared project', async () => {
   const deleted = [], reports = [];
   const w = Object.create(ProjectsWorkspace.prototype);
   Object.assign(w, {saving: false, projects: [{id: 1, name: 'Mine', owned: true, trackCount: 2}, {id: 2, name: 'Theirs', owned: false, trackCount: 1}],
     api: {deleteProject: async (id) => deleted.push(id)}, report: (text) => reports.push(text), render() {}});
   await w.deleteProject(w.projects[1]);
   assert.deepEqual(deleted, []);
+});
+
+test('Delete project lives in the open project ⋯ menu, not in the Home table', async () => {
+  for (const path of ['../../examples/wam/index.html', '../../web/app/views/rack/show.html.erb']) {
+    const html = await readFile(new URL(path, import.meta.url), 'utf8');
+    assert.match(html, /<tl-menu id="projectMore"[\s\S]*id="projectDelete"[\s\S]*<\/tl-menu>/, path);
+  }
+  const workspace = await readFile(new URL('../../examples/wam/projects/ProjectsWorkspace.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(workspace, /'Action'\]|studio-project-action/);
+});
+
+// Minimal DOM where every dialog is confirmed as soon as it opens.
+function confirmingDocument() {
+  const element = () => new Proxy({listeners: {}, classList: {add() {}, remove() {}, toggle() {}}, style: {}, dataset: {}}, {get(target, key) {
+    if (key in target) return target[key];
+    if (key === 'addEventListener') return (type, listener) => { target.listeners[type] = listener; };
+    if (key === 'showModal') return () => { target.returnValue = 'ok'; queueMicrotask(() => target.listeners.close?.()); };
+    return () => {};
+  }, set(target, key, value) { target[key] = value; return true; }});
+  return {body: element(), createElement: element};
+}
+
+test('Deleting the open project goes back to Home', async () => {
+  const deleted = [], previous = globalThis.document;
+  let loads = 0;
+  const project = {id: 7, name: 'Open', owned: true, tracks: []};
+  const w = Object.create(ProjectsWorkspace.prototype);
+  Object.assign(w, {saving: false, project, projects: [project], report() {},
+    api: {deleteProject: async (id) => deleted.push(id)}, load: async () => { loads += 1; }});
+  globalThis.document = confirmingDocument();
+  try { await w.deleteProject(); } finally { globalThis.document = previous; }
+  assert.deepEqual(deleted, [7]);
+  assert.equal(loads, 1);
 });

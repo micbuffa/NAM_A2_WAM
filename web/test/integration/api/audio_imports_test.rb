@@ -124,6 +124,48 @@ class Api::AudioImportsTest < ActionDispatch::IntegrationTest
     YoutubeDownloader.define_method(:download,download) if download
   end
 
+  test "a YouTube import from Play becomes a private Play backing track, without a Studio project" do
+    post "/api/audio_imports",params:{url:"https://youtu.be/9rPbKNMjuzI",target:"play",projectId:"",name:""},as: :json
+    assert_response :accepted
+    record=AudioImport.find(response.parsed_body["id"])
+    assert_equal({"target"=>"play","projectId"=>"","name"=>""},record.destination)
+    download=YoutubeDownloader.instance_method(:download)
+    source=file_fixture("studio-mix.mp3").to_s
+    YoutubeDownloader.define_method(:download) { [source,{"kind"=>"youtube","videoId"=>"9rPbKNMjuzI","title"=>"Play clip","duration"=>3.2,"url"=>@record.url}] }
+    assert_no_difference(["Project.count","Track.count"]) { assert_difference("BackingTrack.count",1) {YoutubeImportJob.perform_now(record.id)} }
+    track=users(:alice).backing_tracks.last
+    assert_equal ["youtube","Play clip",3.2,"9rPbKNMjuzI"],[track.source,track.name,track.duration,track.import_metadata["videoId"]]
+    assert_equal ["ready","upload-#{track.id}","play"],record.reload.snapshot.values_at(:state,:backingTrackId,:target)
+    assert_nil record.project_id
+    get "/api/backing_tracks"
+    entry=response.parsed_body.find { |item| item["id"]=="upload-#{track.id}" }
+    assert_equal ["youtube","9rPbKNMjuzI",true],entry.values_at("origin","videoId","editable")
+    assert_no_difference("BackingTrack.count") {YoutubeImportJob.perform_now(record.id)}
+    sign_in_as users(:bob);get "/api/backing_tracks";assert_empty response.parsed_body
+  ensure
+    YoutubeDownloader.define_method(:download,download) if download
+  end
+
+  test "Play YouTube imports count Play backing tracks in the account quota" do
+    download=YoutubeDownloader.instance_method(:download)
+    storage=BackingTrack.method(:storage_bytes)
+    source=file_fixture("studio-mix.mp3").to_s
+    YoutubeDownloader.define_method(:download) { [source,{"kind"=>"youtube","videoId"=>"9rPbKNMjuzI","title"=>"Too much"}] }
+    BackingTrack.define_singleton_method(:storage_bytes) { |*| Separation::USER_QUOTA }
+    record=users(:alice).audio_imports.create!(url:"https://youtu.be/9rPbKNMjuzI",destination:{"target"=>"play"})
+    assert_no_difference(["BackingTrack.count","ActiveStorage::Blob.count"]) {YoutubeImportJob.perform_now(record.id)}
+    assert_equal "error",record.reload.state;assert_match(/quota/,record.message)
+  ensure
+    YoutubeDownloader.define_method(:download,download) if download
+    BackingTrack.define_singleton_method(:storage_bytes,storage) if storage
+  end
+
+  test "only Play is accepted as an import target" do
+    post "/api/audio_imports",params:{url:"https://youtu.be/9rPbKNMjuzI",target:"elsewhere"},as: :json
+    assert_response :accepted
+    assert_not AudioImport.find(response.parsed_body["id"]).destination.key?("target")
+  end
+
   test "a deleted YouTube destination fails rather than creating a different project" do
     project=users(:alice).projects.create!(name:"Temporary",bpm:120)
     record=users(:alice).audio_imports.create!(url:"https://youtu.be/9rPbKNMjuzI",destination:{"projectId"=>project.id})

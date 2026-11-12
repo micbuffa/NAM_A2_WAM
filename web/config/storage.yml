@@ -1,5 +1,11 @@
 # Track audio files (Project tracks). Production keeps them on the persistent
 # web_storage volume mounted at /rails/storage (config/deploy.yml).
+#
+# TODO (production): store all audio (Studio tracks, recordings, separation
+# parts, saved backing tracks) on S3 or an S3-compatible service instead of the
+# local disk: add an S3 service here, the aws-sdk-s3 gem and credentials, point
+# config/environments/production.rb at it, then migrate the existing blobs.
+# Keep every audio feature on Active Storage so the switch stays a config change.
 test:
   service: Disk
   root: <%= Rails.root.join("tmp/storage") %>

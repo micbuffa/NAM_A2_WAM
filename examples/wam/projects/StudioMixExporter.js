@@ -11,6 +11,8 @@ export function mixSources(tracks,channels,{persisted=true,allowPresets=false}={
   if(persisted&&sources.some(track=>track.id<1 || !track.audio.checksum))throw Error('Save project before using this mix in Play.');
   return sources;
 }
+// Suggested name of an exported backing track (at most 80 characters, like any backing track).
+export const mixExportName=(project,selection='song')=>`${(project?.name||'Studio').trim().slice(0,70)} · ${selection==='loop'?'Loop':'Mix'}`;
 export function exportRange(duration,loop,selection='song') {
   if(selection==='song')return {start:0,end:duration};
   if(selection!=='loop' || !loop || loop.end-loop.start<.05 || loop.start<0 || loop.end>duration+.001)throw Error('Select an A/B loop first.');
@@ -109,12 +111,25 @@ export class StudioMixExporter {
       file:new File([result.blob],`${title}.mp3`,{type:'audio/mpeg'}),
       manifest:{partial,selection,range:rendered.range,render:rendered.render,sampleRate:buffer.sampleRate??44100,frames:buffer.length,attenuation:result.attenuation}};
   }
-  async export({project,tracks,channels,range,separationId=null,selection='song',tailSeconds=2},onProgress=()=>{}) {
+  // The mix of unsaved work (changed mix, unsaved instruments): rendered from the current settings
+  // like preview(), but saved in Play as a draft. The server checks its audio, not its sources.
+  async exportDraft({project,tracks,channels,range,engine=null,selection='song',tailSeconds=2,name=null},onProgress=()=>{}) {
+    const epoch=this.epoch,snapshot=structuredClone(tracks),sampleRate=mp3SampleRate(this.sampleRate());
+    onProgress('Rendering mix…');
+    const rendered=engine?{buffer:await this.renderPreview({tracks:snapshot,engine,range,sampleRate}),range}:await this.renderAudio({tracks:snapshot,channels,range,selection,tailSeconds,persisted:false,sampleRate},epoch,onProgress);
+    const {buffer}=rendered;this.current(epoch);
+    const result=await this.encode(buffer,percent=>onProgress(`Encoding MP3 · ${percent}%`,percent));this.current(epoch);
+    const manifest={selection,format:'mp3',sampleRate:buffer.sampleRate??sampleRate,bitrate:192,frames:buffer.length,range:rendered.range,...(rendered.render?{render:rendered.render}:{}),
+      peak:result.peak,attenuation:result.attenuation};
+    this.pending={key:null,projectId:project.id,token:this.token(),manifest,blob:result.blob,name,draft:true};
+    return this.retry(onProgress);
+  }
+  async export({project,tracks,channels,range,separationId=null,selection='song',tailSeconds=2,name=null},onProgress=()=>{}) {
     const epoch=this.epoch;
     const sources=mixSources(tracks,channels,{allowPresets:!!this.toneRenderer}),snapshot=structuredClone(sources);
     const sampleRate=mp3SampleRate(this.sampleRate());
     const key=JSON.stringify({sampleRate,projectId:project.id,tracks:snapshot.map(track=>[track.id,track.audio.checksum,track.volume,track.pan,track.mute,track.solo,track.presetId,track.factoryPreset,track.snapshotId,track.updatedAt]),range,separationId,selection,tailSeconds});
-    if(this.pending?.key===key)return this.retry(onProgress);
+    if(this.pending?.key===key){this.pending.name=name;return this.retry(onProgress);}
     onProgress('Rendering recorded mix…');
     const rendered=await this.renderAudio({tracks:snapshot,channels,range,sampleRate,selection,tailSeconds},epoch,onProgress);
     const {buffer}=rendered;this.current(epoch);
@@ -124,13 +139,14 @@ export class StudioMixExporter {
       peak:result.peak,attenuation:result.attenuation,sources:snapshot.map(track=>({id:track.id,checksum:track.audio.checksum,volume:track.volume,pan:track.pan,mute:Boolean(track.mute),solo:Boolean(track.solo),inputMonitoring:false}))};
     // Retain bytes/token after an upload failure. Retrying this unchanged mix
     // does not re-render and cannot create a duplicate after a lost response.
-    this.pending={key,projectId:project.id,token:this.token(),manifest,blob:result.blob};
+    this.pending={key,projectId:project.id,token:this.token(),manifest,blob:result.blob,name};
     return this.retry(onProgress);
   }
   async retry(onProgress=()=>{}) {
     const epoch=this.epoch,pending=this.pending;if(!pending)throw Error('No pending mix export');
     onProgress('Saving backing track…');
-    let backing;try{backing=await this.api.createMix(pending.projectId,{token:pending.token,manifest:pending.manifest},pending.blob);}
+    const attributes={token:pending.token,manifest:pending.manifest,...(pending.name?{name:pending.name}:{}),...(pending.draft?{draft:true}:{})};
+    let backing;try{backing=await this.api.createMix(pending.projectId,attributes,pending.blob);}
     catch(error){if(error.status===422)this.pending=null;throw error;}
     this.current(epoch);this.pending=null;return backing;
   }
@@ -149,7 +165,7 @@ export function mixExportAvailability({owned,working,separating,pending,temporar
   if(previewEngine){
     if(!previewEngine.complete||!previewEngine.availableFrames)return blocked('Stop separation after some audio is ready before using its mix.');
     if(!toneReady)return waiting('Preparing the Play backing-track player…');
-    return {ready:true,failedIds:[],message:'Export to play along: play over the available instrument mix in Play, without saving. This temporary MP3 lasts for this session.'};
+    return {ready:true,failedIds:[],message:previewEngine.partial?'Export to play along: play over the available instrument mix in Play, without saving. This temporary MP3 lasts for this session.':'Export to play along: turn the instrument mix into a backing track saved in Play. The project itself stays unsaved.'};
   }
   const audio=tracks.filter(track=>track.audio);
   if(!audio.length)return blocked('Import an audio file before creating a backing track.');
@@ -160,5 +176,5 @@ export function mixExportAvailability({owned,working,separating,pending,temporar
   if(!presetRendering&&audio.some(track=>track.presetId || track.factoryPreset || track.presetSnapshot))return blocked('Export a separated-instrument mix or tracks without presets. WAM preset rendering is not available yet.');
   if(audio.some(track=>track.inputMonitoring))return blocked('Turn off input monitoring before exporting the recorded mix.');
   if(!toneReady)return waiting('Preparing the Play backing-track player…');
-  return {ready:true,failedIds:[],message:pending||temporary?'Export to play along: turn this mix into a temporary backing track and play over it in Play, without saving.':'Export to play along: turn this mix into a saved backing track and play over it in Play. Press Play there to listen.'};
+  return {ready:true,failedIds:[],message:pending||temporary?'Export to play along: turn the current mix into a backing track saved in Play. The project itself stays unsaved.':'Export to play along: turn this mix into a backing track saved in Play. Press Play there to listen.'};
 }

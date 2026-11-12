@@ -70,7 +70,7 @@ test('export availability explains unsaved, loading, failed, unsupported and rea
   const {mixExportAvailability:state}=await import('../../examples/wam/projects/StudioMixExporter.js');
   const input={owned:true,tracks,channels};
   assert.equal(state(input).ready,true);
-  assert.equal(state({...input,pending:true}).ready,true);assert.match(state({...input,pending:true}).message,/temporary.*without saving/);
+  assert.equal(state({...input,pending:true}).ready,true);assert.match(state({...input,pending:true}).message,/saved in Play.*project itself stays unsaved/);
   assert.match(state({...input,separating:true}).message,/Stop separation/);
   assert.match(state({...input,toneReady:false}).message,/Preparing.*Play/);
   const unloaded=new Map([[1,{buffer:{duration:2}}],[2,{loading:true}]]);
@@ -91,9 +91,9 @@ test('compact Studio hides export during separation and exposes unsaved mixes af
   const render=()=>ProjectsWorkspace.prototype.renderMixExport.call(w);
   render();assert.equal(fields.studioUseMix.hidden,true);assert.equal(fields.studioExportHelp.hidden,true);
   w.separation.busy=false;w.pendingSeparation=true;render();
-  // Ready: no note under the title, the export confirmation says the backing track is temporary.
+  // Ready: no note under the title; the backing track is saved in Play, the project stays unsaved.
   assert.equal(fields.studioUseMix.hidden,false);assert.equal(fields.studioUseMix.disabled,false);assert.equal(fields.studioExportHelp.hidden,true);
-  assert.match(fields.studioUseMix.title,/temporary/);
+  assert.match(fields.studioUseMix.title,/saved in Play.*stays unsaved/);
   w.pendingSeparation=false;render();
   assert.equal(fields.studioUseMix.hidden,false);assert.equal(fields.studioUseMix.disabled,false);assert.equal(fields.studioExportHelp.hidden,true);
   w.player.channels=new Map([[1,{buffer:{duration:2}}],[2,{error:Error('HTTP 500')}]]);render();
@@ -160,4 +160,37 @@ test('Retry on a track row reloads failed saved audio, never while saving', asyn
   ProjectsWorkspace.prototype.retryAudio.call(w);assert.equal(retries,0);
   w.saving=false;ProjectsWorkspace.prototype.retryAudio.call(w);
   assert.equal(retries,1);assert.deepEqual(waves,[[2,{state:'loading'}]]);
+});
+
+test('an unsaved mix is saved in Play as a named draft, and a retry renames instead of duplicating',async()=>{
+ const bodies=[];let fail=true;
+ const exporter=new StudioMixExporter({api:{async createMix(id,body,blob){bodies.push({id,...body});assert.ok(blob instanceof Blob);if(fail){fail=false;throw Error('lost response');}return {id:'upload-4',title:body.name};}},
+  render:async()=>({length:4410,sampleRate:44100,getChannelData:()=>new Float32Array(4410)}),token:()=> 'draft-token-0000001'});
+ exporter.encode=async()=>({blob:new Blob(['mp3']),peak:.5,attenuation:1});
+ const options={project:{id:7,name:'Rock'},tracks:[track(-1,{mute:true})],channels:new Map(),range:{start:0,end:.1},name:'Rock · No guitar'};
+ await assert.rejects(exporter.exportDraft(options),/lost response/);
+ const entry=await exporter.retry();
+ assert.equal(entry.id,'upload-4');assert.equal(bodies.length,2);
+ assert.deepEqual(bodies.map(b=>[b.id,b.token,b.name,b.draft]),[[7,'draft-token-0000001','Rock · No guitar',true],[7,'draft-token-0000001','Rock · No guitar',true]]);
+ assert.deepEqual(Object.keys(bodies[0].manifest).sort(),['attenuation','bitrate','format','frames','peak','range','sampleRate','selection']);
+ assert.equal(bodies[0].manifest.bitrate,192);
+});
+
+test('workspace saves the mix of a changed project in Play under the chosen name, without saving the project',async()=>{
+ const {ProjectsWorkspace}=await import('../../examples/wam/projects/ProjectsWorkspace.js');
+ const project={id:7,name:'Rock'},events=[];
+ const w={owned:true,saving:false,dirty:true,pendingSeparation:false,accountLoadEpoch:1,project,displayTracks:[track(1,{mute:true})],separation:{busy:false,setStatus(){}},
+  player:{duration:50,loop:null,channels:new Map()},$:()=>({value:'song'}),render(){},report:message=>events.push(message),
+  save:()=>assert.fail('must not save'),api:{getProject:()=>assert.fail('must not reload the project')},
+  mixExporter:{preview:()=>assert.fail('not temporary'),export:()=>assert.fail('not a saved-project mix'),exportDraft:async options=>{assert.equal(options.name,'Rock · No guitar');return {id:'upload-4',title:options.name,manifest:{attenuation:1}};}},
+  onUseMix:async entry=>events.push(entry.id)};
+ await ProjectsWorkspace.prototype.useMixInTone.call(w,'Rock · No guitar');
+ assert.deepEqual(events,['upload-4','“Rock · No guitar” saved in Play']);assert.equal(w.dirty,true);assert.equal(w.saving,false);
+});
+
+test('the suggested backing track name follows the project and the exported range',async()=>{
+ const {mixExportName}=await import('../../examples/wam/projects/StudioMixExporter.js');
+ assert.equal(mixExportName({name:'Always on the run'}),'Always on the run · Mix');
+ assert.equal(mixExportName({name:'Always on the run'},'loop'),'Always on the run · Loop');
+ assert.ok(mixExportName({name:'x'.repeat(200)}).length<=80);
 });

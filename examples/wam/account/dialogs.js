@@ -15,7 +15,7 @@ export function button(label, {type = 'button', primary = false, value = ''} = {
 }
 
 // Resolves with the trimmed text, or null when cancelled.
-export function promptDialog({title, label, value = '', confirmLabel = 'Save', maxLength = 100}) {
+export function promptDialog({title, label, value = '', confirmLabel = 'Save', maxLength = 100, message = ''}) {
   return new Promise((resolve) => {
     const {dialog, body, id} = createDialog({title});
     const form = document.createElement('form');
@@ -32,6 +32,7 @@ export function promptDialog({title, label, value = '', confirmLabel = 'Save', m
     const cancel = button('Cancel', {value: 'cancel'});
     cancel.onclick = () => dialog.close('cancel');
     form.append(field, input, actionsRow(cancel, button(confirmLabel, {type: 'submit', primary: true, value: 'ok'})));
+    if (message) { const text = document.createElement('p'); text.textContent = message; body.append(text); }
     body.append(form);
     dialog.addEventListener('close', () => resolve(dialog.returnValue === 'ok' && input.value.trim() ? input.value.trim() : null), {once: true});
     dialog.showModal();

@@ -2,7 +2,8 @@
 // loop, balance, pan, volume, level) plus its view (library or track). Kept in
 // this browser, and in the account preferences when signed in, so the dock
 // comes back as it was on every device. Restoring never starts playback;
-// files imported from the device are not remembered.
+// files imported from the device are not remembered (signed in, they are saved
+// to My tracks and remembered as that saved track).
 export const STORAGE_KEY = 'nam-a2-wam.playAlong';
 const SAVE_DELAY = 800;
 

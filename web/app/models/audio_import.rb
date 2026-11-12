@@ -20,6 +20,6 @@ class AudioImport < ApplicationRecord
     raise ArgumentError, "Invalid YouTube URL"
   end
   def snapshot
-    {id:,state:,progress:,message:,metadata:,projectId:project_id,sourceTrackId:metadata["sourceTrackId"]}
+    {id:,state:,progress:,message:,metadata:,projectId:project_id,sourceTrackId:metadata["sourceTrackId"],backingTrackId:metadata["backingTrackId"]&.then { |id| "upload-#{id}" },target:destination["target"]}
   end
 end

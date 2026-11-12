@@ -85,6 +85,15 @@
             <p class="preset-meta" id="playMeta">Plug in and play through your rig, alone or over a backing track.</p>
           </div>
         </div>
+        <!-- The open backing track's actions, like a Studio project's (main.js, from the player's headline). -->
+        <div class="preset-header-actions play-header-actions" id="playTrackActions" hidden>
+          <tl-button id="playSeparate" size="sm" disabled>Separate instruments</tl-button>
+          <tl-button id="playRename" size="sm" icon="edit" aria-haspopup="dialog" hidden>Rename</tl-button>
+          <tl-menu id="playMore" label="More backing track actions">
+            <button id="playDownload" type="button" title="Download the entire source as MP3, without the live guitar or playback settings"><tl-icon name="download" size="15"></tl-icon>Download MP3</button>
+            <button id="playDelete" type="button" aria-haspopup="dialog" hidden><tl-icon name="trash" size="15"></tl-icon>Delete</button>
+          </tl-menu>
+        </div>
       </header>
       <!-- Play live (PlayLive.js): the guitar through the rack, with or without a backing track. -->
       <section class="play-live" id="playLive" aria-labelledby="playLiveTitle" data-live="off">
@@ -130,6 +139,7 @@
             <button id="projectMenuImport" type="button" aria-haspopup="dialog" hidden><tl-icon name="audio" size="15"></tl-icon>Import audio</button>
             <button id="projectResetMix" type="button" title="Back to the owner's mix" hidden><tl-icon name="undo" size="15"></tl-icon>Reset mix</button>
             <button id="projectLeave" type="button" aria-haspopup="dialog" title="Stop seeing this project" hidden><tl-icon name="close" size="15"></tl-icon>Leave project</button>
+            <button id="projectDelete" type="button" aria-haspopup="dialog" hidden><tl-icon name="trash" size="15"></tl-icon>Delete project</button>
           </tl-menu>
         </div>
       </header>

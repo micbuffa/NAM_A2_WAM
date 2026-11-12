@@ -8,13 +8,14 @@ import '../ui/components/tl-icon-button.js';
 import '../ui/components/tl-icon.js';
 import '../ui/components/tl-badge.js';
 import {toast} from '../ui/components/tl-toast.js';
+import {confirmDialog, promptDialog} from '../account/dialogs.js';
 const time=s=>`${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`;
-// Factory = the bundled catalogue (no origin); My tracks = everything else (YouTube, Studio mixes, temporary mixes, this device's file).
+// Factory = the bundled catalogue (no origin); My tracks = everything else (uploads, YouTube, Studio mixes, temporary mixes, this device's file).
 const isFactory=track=>!track.local&&!track.ephemeral&&!track.origin;
-const ORIGINS={factory:['Factory','neutral'],local:['This device','neutral'],temporary:['Temporary','warning'],youtube:['YouTube','danger'],studio:['Studio','accent']};
+const ORIGINS={factory:['Factory','neutral'],local:['This device','neutral'],upload:['Uploaded','success'],temporary:['Temporary','warning'],youtube:['YouTube','danger'],studio:['Studio','accent']};
 // Date and time a saved track was added (YouTube import, Studio mix); empty for Factory and this device's file.
 const added=track=>{const date=track.createdAt&&!track.local?new Date(track.createdAt):null;return date&&!Number.isNaN(date.getTime())?date.toLocaleString(undefined,{dateStyle:'short',timeStyle:'short'}):'';};
-const originOf=track=>track.local?'local':track.ephemeral?'temporary':track.origin==='youtube'?'youtube':track.origin==='studio'?'studio':'factory';
+const originOf=track=>track.local?'local':track.ephemeral?'temporary':track.origin==='youtube'?'youtube':track.origin==='studio'?'studio':track.origin==='upload'?'upload':'factory';
 export class BackingTrackPlayerElement extends HTMLElement {
  constructor(){super();this.attachShadow({mode:'open'});this.shadowRoot.innerHTML=`
  <link rel="stylesheet" href="${new URL('./backing-track-player.css',import.meta.url)}">
@@ -28,7 +29,7 @@ export class BackingTrackPlayerElement extends HTMLElement {
  <div id="status" role="status" aria-live="polite">Loading library\u2026</div>
  <div id="body"><div id="libraryView" class="library-view"><div class="library-toolbar"><h3 class="library-head">Library</h3></div><div id="listScroll" class="list-scroll"><table id="list" aria-label="Backing tracks"><thead><tr><th class="title" scope="col">Title</th><th class="origin" scope="col">Origin</th><th class="added" scope="col">Added</th><th class="num duration" scope="col">Time</th><th class="num bpm" scope="col">BPM</th><th class="num key" scope="col">Key</th></tr></thead></table></div></div>
  <div id="trackView" class="track-view" hidden><div class="wave-container"><div id="wave" tabindex="0" role="slider" aria-label="Position in backing track" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><canvas></canvas><div id="region" class="region"></div><div id="head" class="head"></div><span class="hint">Click to seek \u00b7 Drag to loop \u00b7 Drop audio \u00b7 Space to play</span><strong id="empty" class="empty">Choose or import a backing track</strong></div><div id="loadProgress" hidden><div id="loadRing" role="progressbar" aria-label="Audio download" aria-valuemin="0" aria-valuemax="100"><svg viewBox="0 0 80 80" aria-hidden="true"><circle class="load-track" cx="40" cy="40" r="33"/><circle id="loadArc" cx="40" cy="40" r="33" pathLength="100"/></svg><strong id="loadPercent">0%</strong></div><span id="loadPhase">Downloading\u2026</span></div></div>
- <div class="studio-mix-actions"><tl-button id="separateInstruments" size="sm" disabled>Separate instruments</tl-button><tl-button id="downloadMix" size="sm" hidden title="Download the entire source as MP3, without the live guitar or playback settings">Download MP3</tl-button></div><div class="tools">
+ <div class="tools">
   <div class="tool"><span class="tool-head">Speed <output id="rateValue">100%</output></span><tl-slider bipolar><input id="rate" type="range" min=".7" max="1.3" step=".01" value="1" disabled aria-label="Playback speed"></tl-slider><tl-button id="rateReset" size="sm" variant="ghost">Reset</tl-button></div>
   <div class="tool"><span class="tool-head">Guitar \u2194 Backing <output id="balanceValue">50 / 50</output></span><tl-slider bipolar><input id="balance" type="range" min="0" max="1" step=".01" value=".5" aria-label="Guitar to backing balance"></tl-slider><tl-button id="balanceReset" size="sm" variant="ghost">Reset</tl-button></div>
   <div class="tool"><span class="tool-head">Guitar pan <output id="panValue">C</output></span><tl-slider bipolar><input id="pan" type="range" min="-1" max="1" step=".01" value="0" aria-label="Guitar global pan"></tl-slider><tl-button id="panReset" size="sm" variant="ghost">Reset</tl-button></div>
@@ -71,10 +72,17 @@ export class BackingTrackPlayerElement extends HTMLElement {
  }
  // What the Play page header shows, like a Studio project: the track's name and its details in the track view, nothing in the library.
  get headline(){
-  const track=this.view==='track'?this.engine?.track:null;if(!track)return {view:'library',title:null,meta:null};
+  const playing=this.view==='track'?this.engine?.track:null;if(!playing)return {view:'library',title:null,meta:null};
+  // The engine keeps only id and title: origin, BPM and key come from the library entry.
+  const track=playing.local?playing:{...this.library.tracks.find(entry=>entry.id===playing.id),...playing};
   const seconds=this.engine.duration||Number(track.duration);
-  return {view:'track',title:track.title,meta:[ORIGINS[originOf(track)][0],seconds>0?time(seconds):null,track.bpm?`${Math.round(track.bpm)} BPM`:null,track.key||null].filter(Boolean).join(' \u00b7 ')};
+  const ready=!!this.engine.buffer&&!this.engine.loading,editable=!!this.editableEntry;
+  // The header's actions (main.js): Separate instruments and Rename as buttons, Download MP3 and Delete in its ⋯ menu.
+  const actions={separate:ready,rename:editable,delete:editable,download:ready&&!this.downloading,downloading:!!this.downloading,busy:!ready};
+  return {view:'track',title:track.title,meta:[ORIGINS[originOf(track)][0],seconds>0?time(seconds):null,track.bpm?`${Math.round(track.bpm)} BPM`:null,track.key||null].filter(Boolean).join(' \u00b7 '),actions};
  }
+ // Opens the loaded track in Studio to separate its instruments (main.js listens).
+ separateInstruments(){const e=this.engine;if(e.buffer&&!e.loading)this.dispatchEvent(new CustomEvent('separate-instruments',{detail:{track:{...e.track},file:e.sourceFile??null},bubbles:true,composed:true}));}
  announceHeadline(){const headline=this.headline,key=JSON.stringify(headline);if(key===this.lastHeadline)return;this.lastHeadline=key;this.dispatchEvent(new CustomEvent('headline-change',{detail:headline,bubbles:true,composed:true}));}
  // Import audio lives in the Play page header: an audio file from this device, or a YouTube video when Studio is available.
  openImport(){playAlongImportDialog({local:()=>this.$('file').click(),youtube:this.importYoutube,error:error=>this.status(error.message,true)});}
@@ -83,13 +91,17 @@ export class BackingTrackPlayerElement extends HTMLElement {
   if(track.id===e.track?.id&&e.buffer){this.setView('track');return;}
   const loading=track.local?null:e.loadTrack(track.id);this.setView('track');await loading;
  });}
- openFile(file){return this.act(async()=>{const loading=this.engine.loadFile(file);this.setView('track');await loading;});}
+ openFile(file){return this.act(async()=>{const loading=this.engine.loadFile(file);this.setView('track');if(await loading&&this.library.canSave)await this.saveFile(file);});}
+ // Signed in: the imported file is saved in My tracks and keeps playing as that saved track.
+ async saveFile(file){
+  const localId=this.engine.track?.id;this.status(`Saving ${file.name} to My tracks…`);
+  try{const entry=await this.library.save(file,{duration:this.engine.duration});if(!this.engine.adopt(localId,entry))this.renderList();this.status('');toast('Saved to My tracks');}
+  catch(error){this.status(`Not saved to My tracks: ${error.message}`,true);}
+ }
  status(message,error=false){this.$('status').textContent=message;this.$('status').classList.toggle('error',error);}
  act(operation){return Promise.resolve().then(operation).catch(error=>{this.status(error.message,true);this.sync();this.dispatchEvent(new CustomEvent('player-error',{detail:{message:error.message},bubbles:true,composed:true}));});}
  bind(){
   const e=this.engine,on=(id,event,fn)=>this.$(id).addEventListener(event,()=>this.act(fn),{signal:this.listeners.signal});
-  on('separateInstruments','click',()=>{if(e.buffer&&!e.loading)this.dispatchEvent(new CustomEvent('separate-instruments',{detail:{track:{...e.track},file:e.sourceFile??null},bubbles:true,composed:true}));});
-  on('downloadMix','click',()=>this.downloadMp3());
   on('play','click',()=>e.playing?e.pause():e.play());on('stop','click',()=>e.stop());
 
   on('volume','input',()=>e.setVolumeDb(this.$('volume').value));on('mute','click',()=>e.setMuted(!e.muted));
@@ -108,6 +120,23 @@ this.$('file').addEventListener('change',()=>{const file=this.$('file').files[0]
    if(event.key===' '){event.preventDefault();if(!event.repeat)this.act(()=>e.playing?e.pause():e.play());}
    else if(['ArrowLeft','ArrowRight'].includes(event.key)&&event.target!==wave){event.preventDefault();this.act(()=>e.seek(e.position+(event.key==='ArrowRight'?5:-5)));}},{signal:this.listeners.signal});
   for(const target of [wave,this.$('libraryView')])for(const type of ['dragover','drop'])target.addEventListener(type,event=>{event.preventDefault();if(e.loading)return;if(type==='drop'&&event.dataTransfer.files[0])this.openFile(event.dataTransfer.files[0]);},{signal:this.listeners.signal});
+ }
+ // The library entry of the open track when its creator may rename or delete it (uploads, YouTube imports).
+ get editableEntry(){const id=this.engine?.track?.id,entry=id&&this.library.tracks.find(track=>track.id===id);return entry?.editable?entry:null;}
+ async renameTrack(){
+  const entry=this.editableEntry;if(!entry||this.engine.loading)return;
+  const title=await promptDialog({title:'Rename backing track',label:'Name',value:entry.title,confirmLabel:'Rename',maxLength:80});
+  if(!title||title===entry.title)return;
+  const saved=await this.library.rename(entry.id,title);
+  if(this.engine.track?.id===entry.id)this.engine.track={...this.engine.track,title:saved};
+  this.renderList();this.sync();toast('Backing track renamed');
+ }
+ async deleteTrack(){
+  const entry=this.editableEntry;if(!entry||this.engine.loading)return;
+  if(!await confirmDialog({title:'Delete backing track?',message:`"${entry.title}" will be removed from My tracks and its audio deleted from the server. This cannot be undone.`,confirmLabel:'Delete'}))return;
+  await this.library.remove(entry.id);
+  if(this.engine.track?.id===entry.id)this.engine.clear();
+  this.setView('library');this.renderList();this.sync();toast('Backing track deleted');
  }
  async downloadMp3(){
   const e=this.engine;if(!e.buffer||e.loading||this.downloading)return;
@@ -145,7 +174,7 @@ this.$('file').addEventListener('change',()=>{const file=this.$('file').files[0]
  }
  // Scrolls the table only (scrollIntoView would also scroll the page), below its sticky header.
  revealSelected(){const scroll=this.$('listScroll'),row=this.$('list').querySelector('tr[aria-selected=true]');if(!row||!scroll.clientHeight)return;const head=this.$('list').tHead.offsetHeight,top=row.offsetTop;if(top-head<scroll.scrollTop||top+row.offsetHeight>scroll.scrollTop+scroll.clientHeight)scroll.scrollTop=top-head-(scroll.clientHeight-head-row.offsetHeight)/2;}
- sync(){const e=this.engine;if(!e)return;this.$('downloadMix').hidden=!e.buffer;this.$('downloadMix').disabled=!!e.loading||!!this.downloading;this.$('downloadMix').textContent=this.downloading?'Preparing MP3…':'Download MP3';if(!e.buffer&&!e.loading&&this.view==='track')this.setView('library');this.$('play').setAttribute('icon',e.playing?'pause':'play');this.$('play').setAttribute('aria-label',e.playing?'Pause backing track':'Play backing track');this.$('play').disabled=!!e.loading||!e.buffer;this.$('separateInstruments').disabled=!!e.loading||!e.buffer;this.$('loadProgress').hidden=!e.loading;this.$('transport').classList.toggle('loading',!!e.loading);this.$('transport').setAttribute('aria-busy',String(!!e.loading));this.$('wave').inert=!!e.loading;this.$('wave').setAttribute('aria-disabled',String(!!e.loading));if(e.loading)this.drag=null;this.$('stop').disabled=!e.buffer;
+ sync(){const e=this.engine;if(!e)return;if(!e.buffer&&!e.loading&&this.view==='track')this.setView('library');this.$('play').setAttribute('icon',e.playing?'pause':'play');this.$('play').setAttribute('aria-label',e.playing?'Pause backing track':'Play backing track');this.$('play').disabled=!!e.loading||!e.buffer;this.$('loadProgress').hidden=!e.loading;this.$('transport').classList.toggle('loading',!!e.loading);this.$('transport').setAttribute('aria-busy',String(!!e.loading));this.$('wave').inert=!!e.loading;this.$('wave').setAttribute('aria-disabled',String(!!e.loading));if(e.loading)this.drag=null;this.$('stop').disabled=!e.buffer;
   for(const [id,value]of [['volume',e.volumeDb],['rate',e.rate],['pan',e.guitarPan],['balance',e.mix]])if(this.shadowRoot.activeElement!==this.$(id))this.$(id).value=value;
   this.$('rate').disabled=!e.stretchReady;this.$('rateReset').disabled=!e.stretchReady||e.rate===1;this.$('rateValue').textContent=`${Math.round(e.rate*100)}%`;{const db=`${e.volumeDb.toFixed(0)} dB`;this.$('volume').title=db;this.$('volume').setAttribute('aria-valuetext',db);}this.$('panValue').textContent=Math.abs(e.guitarPan)<.01?'C':`${e.guitarPan<0?'L':'R'} ${Math.round(Math.abs(e.guitarPan)*100)}`;this.$('balanceValue').textContent=`${Math.round((1-e.mix)*100)} / ${Math.round(e.mix*100)}`;
   this.$('loop').setAttribute('aria-pressed',String(e.loop.enabled));this.$('full').disabled=!e.buffer||!!e.loading||(e.loop.startSeconds<=0&&e.loop.endSeconds>=e.duration);this.$('loop').querySelector('span').textContent=e.loop.enabled?'On':'Off';this.$('empty').hidden=!!e.buffer||!!e.loading;this.$('auto').checked=e.autoNormalize;this.$('normalize').setAttribute('aria-pressed',String(e.normalized));this.$('mute').setAttribute('aria-pressed',String(e.muted));this.$('wave').setAttribute('aria-valuemax',e.duration);this.updateRegion(e.loop.startSeconds,e.loop.endSeconds);

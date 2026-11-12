@@ -12,19 +12,40 @@ class Api::ProjectMixesTest < ActionDispatch::IntegrationTest
       "sources"=>[{"id"=>@source.id,"checksum"=>@source.audio.checksum,"volume"=>65,"pan"=>-20,"mute"=>false,"solo"=>false,"inputMonitoring"=>false}] }
   end
 
-  def save_mix(manifest: @manifest, token: @token, file: nil)
-    post "/api/projects/#{@project.id}/mixes", params: {token:,manifest:manifest.to_json,audio:file || fixture_file_upload("studio-mix.mp3","audio/mpeg")}
+  def save_mix(manifest: @manifest, token: @token, file: nil, **extra)
+    post "/api/projects/#{@project.id}/mixes", params: {token:,manifest:manifest.to_json,audio:file || fixture_file_upload("studio-mix.mp3","audio/mpeg"),**extra}
   end
 
-  test "rendered backing is private, idempotent, persists across login and links its project" do
-    assert_difference("Track.count",1) { save_mix; assert_response :created }
+  test "the sender names the mix, and a retry with another name renames it instead of duplicating it" do
+    save_mix(name: "  Always   on the run · No guitar ");assert_response :created
     entry=response.parsed_body
-    assert_match(/\Astudio-\d+\z/,entry["id"])
-    assert_equal @project.id,entry["projectId"]
+    assert_equal "Always on the run · No guitar",entry["title"]
+    assert_no_difference("BackingTrack.count") { save_mix(name: "Take two");assert_response :success }
+    assert_equal "Take two",BackingTrack.find(entry["id"].delete_prefix("upload-")).name
+    save_mix(token: SecureRandom.uuid, name: "x" * 81);assert_response :unprocessable_content
+  end
+
+  test "a draft (unsaved project) is saved in Play on its audio contract alone, never a Studio track" do
+    unsaved = @manifest.except("sources","separationId")
+    save_mix(manifest: unsaved);assert_response :unprocessable_content
+    assert_no_difference("Track.count") { assert_difference("BackingTrack.count",1) { save_mix(manifest: unsaved, draft: true);assert_response :created } }
+    backing=BackingTrack.find(response.parsed_body["id"].delete_prefix("upload-"))
+    assert_equal ["studio",true,"Alice song · Mix"],[backing.source,backing.import_metadata["draft"],backing.name]
+    save_mix(manifest: unsaved.merge("peak"=>2), token: SecureRandom.uuid, draft: true);assert_response :unprocessable_content
+    sign_in_as users(:bob)
+    save_mix(manifest: unsaved, token: SecureRandom.uuid, draft: true);assert_response :not_found
+  end
+
+  test "Use in Play makes the mix a private Play backing track of its sender, idempotent and independent of the project" do
+    assert_no_difference("Track.count") { assert_difference("BackingTrack.count",1) { save_mix; assert_response :created } }
+    entry=response.parsed_body
+    assert_match(/\Aupload-\d+\z/,entry["id"])
+    assert_equal [@project.id,"Alice song","studio",true],entry.values_at("projectId","projectName","origin","editable")
     assert_equal @manifest,entry["manifest"]
-    track=Track.find(entry["id"].delete_prefix("studio-"))
-    assert_equal ["mix",users(:alice).id,nil],track.values_at(:origin,:creator_id,:preset_id)
-    assert_no_difference("Track.count") {save_mix;assert_response :success}
+    assert_equal "Alice song · Mix",entry["title"]
+    assert_in_delta 0.1,entry["duration"]
+    assert_equal users(:alice),BackingTrack.find(entry["id"].delete_prefix("upload-")).user
+    assert_no_difference("BackingTrack.count") {save_mix;assert_response :success}
     save_mix(manifest:@manifest.merge("peak"=>0.3));assert_response :conflict
     sign_in_as users(:alice)
     get "/api/backing_tracks";assert_response :success
@@ -34,12 +55,12 @@ class Api::ProjectMixesTest < ActionDispatch::IntegrationTest
     get entry["url"],headers:{"Range"=>"bytes=0-99"};assert_response :partial_content
     @project.shares.create!(user:users(:bob))
     sign_in_as users(:bob)
-    get "/api/backing_tracks";assert_equal entry["id"],response.parsed_body.first["id"]
-    get entry["url"];assert_response :success
-    save_mix;assert_response :forbidden
-    @project.shares.destroy_all
-    get entry["url"];assert_response :not_found
     get "/api/backing_tracks";assert_empty response.parsed_body
+    get entry["url"];assert_response :not_found
+    save_mix;assert_response :forbidden
+    sign_in_as users(:alice)
+    @project.destroy!
+    get entry["url"];assert_response :success
   end
 
   test "stale source, unqualified preset, monitoring, malformed format and excessive level cannot publish a mix" do
@@ -54,24 +75,25 @@ class Api::ProjectMixesTest < ActionDispatch::IntegrationTest
     save_mix(file:fixture_file_upload("silence.wav","audio/wav"));assert_response :unprocessable_content
   end
 
-  test "quota refusal leaves no blob and saved mix files cannot be replaced or manually deleted" do
-    original=Separation.method(:storage_bytes)
-    Separation.define_singleton_method(:storage_bytes) { |*| Separation::USER_QUOTA }
+  test "quota refusal leaves no blob, and the sender renames or deletes the mix in Play" do
+    original=BackingTrack.method(:storage_bytes)
+    BackingTrack.define_singleton_method(:storage_bytes) { |*| Separation::USER_QUOTA }
     assert_no_difference("ActiveStorage::Blob.count") {save_mix;assert_response :unprocessable_content}
-    Separation.define_singleton_method(:storage_bytes,original)
+    BackingTrack.define_singleton_method(:storage_bytes,original)
     save_mix;assert_response :created
-    id=response.parsed_body["id"].delete_prefix("studio-")
-    patch "/api/projects/#{@project.id}/tracks/#{id}",params:{audio:fixture_file_upload("silence.wav","audio/wav")};assert_response :unprocessable_content
-    delete "/api/projects/#{@project.id}/tracks/#{id}";assert_response :unprocessable_content
-    assert_equal "studio-#{id}",User.sanitize_preferences({"playAlong"=>{"trackId"=>"studio-#{id}"}}).dig("playAlong","trackId")
+    id=response.parsed_body["id"]
+    assert_equal id,User.sanitize_preferences({"playAlong"=>{"trackId"=>id}}).dig("playAlong","trackId")
+    patch "/api/backing_tracks/#{id.delete_prefix("upload-")}",params:{name:"Practice mix"};assert_response :success
+    delete "/api/backing_tracks/#{id.delete_prefix("upload-")}";assert_response :no_content
+    assert_equal "Alice song",@project.reload.name
   ensure
-    Separation.define_singleton_method(:storage_bytes,original) if original
+    BackingTrack.define_singleton_method(:storage_bytes,original) if original
   end
   test "failed storage cannot publish a backing and a retry succeeds without changing the source" do
     service=ActiveStorage::Blob.service
     original=service.method(:upload)
     service.define_singleton_method(:upload) { |*| raise IOError, "disk full" }
-    assert_no_difference(["Track.count", "ActiveStorage::Blob.count"]) do
+    assert_no_difference(["BackingTrack.count", "ActiveStorage::Blob.count"]) do
       assert_raises(IOError) { save_mix }
     end
     service.define_singleton_method(:upload,original)

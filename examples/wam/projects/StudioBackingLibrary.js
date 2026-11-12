@@ -17,6 +17,26 @@ export class StudioBackingLibrary extends BackingTrackLibrary {
     this.tracks=[...this.temporary,...this.tracks.filter(t=>!t.ephemeral)];
   }
   clearAccount() {++this.version;this.temporary=[];this.tracks=[...this.bundled];}
+  // Signed in, a file imported from this device is saved on the server, in My tracks.
+  get canSave() {return !!this.account?.signedIn;}
+  async save(file,{title=file.name.replace(/\.[^.]+$/,''),duration=null}={}) {
+    const version=this.version;
+    const saved=await this.account.api.createBackingTrack(title.slice(0,80)||'Backing track',file,Number.isFinite(duration)&&duration>0?duration:null);
+    const entry={...saved,url:new URL(saved.url,this.url).href};
+    // Signed out meanwhile: the account's track stays out of the library.
+    if(version===this.version)this.tracks=[...this.temporary,entry,...this.tracks.filter(t=>!t.ephemeral&&t.id!==entry.id)];
+    return entry;
+  }
+  // Only the creator's own backing tracks (editable): uploads and YouTube imports.
+  async rename(id,title) {
+    const saved=await this.account.api.renameBackingTrack(id,title);
+    this.tracks=this.tracks.map(t=>t.id===id?{...t,title:saved.title}:t);
+    return saved.title;
+  }
+  async remove(id) {
+    await this.account.api.deleteBackingTrack(id);
+    this.tracks=this.tracks.filter(t=>t.id!==id);
+  }
 }
 
 // Loading a generated backing never resumes the previously playing track.
@@ -30,18 +50,11 @@ export async function useBackingInTone({entry,library,player,projectPlayer,works
 }
 
 
-// Load the already downloaded MP3, without opening Studio or starting inference.
+// Load the already downloaded MP3 (a Play backing track), without opening Studio or starting inference.
 export async function useYoutubeInTone({job, library, player, projectPlayer, workspaces}) {
   projectPlayer.pause();player.engine.pause();
   await library.list();player.renderList();
-  let id=job.sourceTrackId ? `studio-source-${job.sourceTrackId}` : null;
-  // Jobs created before sourceTrackId was recorded can still be opened when
-  // their project contains exactly one matching, authorized YouTube source.
-  if(!id){
-    const matches=library.tracks.filter(track=>track.origin==='youtube'&&track.projectId===job.projectId&&(!job.metadata?.videoId||track.videoId===job.metadata.videoId));
-    if(matches.length===1)id=matches[0].id;
-  }
-  if(!id)throw Error('This older import has no unique available source. Import the video again.');
-  if(!await player.engine.loadTrack(id))throw Error('YouTube audio was not loaded. Try again.');
+  if(!job.backingTrackId)throw Error('This import was saved in a Studio project. Open it in Studio.');
+  if(!await player.engine.loadTrack(job.backingTrackId))throw Error('YouTube audio was not loaded. Try again.');
   player.setView('track');workspaces.show('tone');return true;
 }

@@ -320,7 +320,16 @@ async function initialize() {
   await playAlong.initialize({audioContext:context,library:studioLibrary,
     importYoutube: projects.available ? () => projects.youtubeImportDialog({onImported: job => useYoutubeInTone({job,library:studioLibrary,player:playAlong,projectPlayer,workspaces})}) : null});
   // Play header, like Studio's: the open track's name and details, or Play over the library.
-  const playHeader=({title,meta})=>{$('#playTitle').textContent=title??'Play';$('#playTitle').title=title??'';$('#playMeta').textContent=meta??'Plug in and play through your rig, alone or over a backing track.';$('#playMeta').title=meta??'';};
+  const playHeader=({title,meta,actions})=>{$('#playTitle').textContent=title??'Play';$('#playTitle').title=title??'';$('#playMeta').textContent=meta??'Plug in and play through your rig, alone or over a backing track.';$('#playMeta').title=meta??'';
+    // The open track's actions: Separate instruments, Rename (the user's own tracks), and Download MP3 / Delete in ⋯.
+    $('#playTrackActions').hidden=!actions;if(!actions)return;
+    $('#playSeparate').disabled=!actions.separate;$('#playRename').hidden=!actions.rename;$('#playRename').disabled=actions.busy;
+    $('#playDownload').disabled=!actions.download;$('#playDownload').lastChild.textContent=actions.downloading?'Preparing MP3…':'Download MP3';
+    $('#playDelete').hidden=!actions.delete;$('#playDelete').disabled=actions.busy;};
+  $('#playSeparate').addEventListener('click',()=>playAlong.separateInstruments());
+  $('#playRename').addEventListener('click',()=>playAlong.act(()=>playAlong.renameTrack()));
+  $('#playDownload').addEventListener('click',()=>playAlong.act(()=>playAlong.downloadMp3()));
+  $('#playDelete').addEventListener('click',()=>playAlong.act(()=>playAlong.deleteTrack()));
   playAlong.addEventListener('headline-change',({detail})=>playHeader(detail));playHeader(playAlong.headline);
   playAlong.addEventListener('view-change',({detail})=>playLive.setOverTrack(detail.view==='track'));playLive.setOverTrack(playAlong.view==='track');
   $('#playImport').addEventListener('click',()=>playAlong.openImport());$('#playImport').disabled=false;
@@ -328,7 +337,7 @@ async function initialize() {
   projects.renderMixExport();
   accountIntegration.account?.addEventListener('change',()=>{
     studioLibrary.clearAccount();
-    if(playAlong.engine.track?.id.startsWith('studio-'))playAlong.engine.clear();
+    if(playAlong.engine.track?.id?.startsWith('upload-'))playAlong.engine.clear();
     projects.mixExporter.invalidate();
     playAlong.renderList();playAlong.sync();
     studioLibrary.list().then(()=>{playAlong.renderList();playAlong.sync();}).catch(error=>message(error.message,true));

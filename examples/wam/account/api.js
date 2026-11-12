@@ -107,6 +107,10 @@ export default class AccountApi {
   cancelAudioImport(id) { return this.request('DELETE', `/api/audio_imports/${encodeURIComponent(id)}`); }
 
   listBackingTracks() { return this.request('GET', '/api/backing_tracks'); }
+  // Backing tracks uploaded in Play, private to their creator; ids are the library's "upload-<id>".
+  createBackingTrack(name, audio, duration = null) { return this.request('POST', '/api/backing_tracks', trackBody({name, duration}, audio)); }
+  renameBackingTrack(id, name) { return this.request('PATCH', backingTrackPath(id), {name}); }
+  deleteBackingTrack(id) { return this.request('DELETE', backingTrackPath(id)); }
   createMix(projectId, attributes, audio) {
     return this.request('POST', `${projectPath(projectId)}/mixes`, trackBody({...attributes, manifest:JSON.stringify(attributes.manifest)}, new File([audio], 'studio-mix.mp3', {type:'audio/mpeg'})));
   }
@@ -122,6 +126,7 @@ export default class AccountApi {
 }
 
 const projectPath = (id) => `/api/projects/${encodeURIComponent(id)}`;
+const backingTrackPath = (id) => `/api/backing_tracks/${encodeURIComponent(String(id).replace(/^upload-/, ''))}`;
 
 // Multipart only when a file is sent; null values become empty fields, which
 // Rails reads as nil.

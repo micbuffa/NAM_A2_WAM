@@ -46,17 +46,7 @@ module ProjectJson
       audio: audio(track), updatedAt: track.updated_at }
   end
 
-  def backing(track)
-    { id: "studio-#{track.id}", title: track.name, projectId: track.project_id, projectName: track.project.name,
-      url: audio(track)[:url], filename: track.audio.filename.to_s, duration: track.mix_manifest["frames"].to_f / (track.mix_manifest["sampleRate"] || 44100),
-      origin: "studio", manifest: track.mix_manifest, createdAt: track.created_at }
-  end
 
-  def youtube_backing(track)
-    { id: "studio-source-#{track.id}", title: track.name, projectId: track.project_id, projectName: track.project.name,
-      url: audio(track)[:url], filename: track.audio.filename.to_s, contentType: track.audio.content_type,
-      duration: track.import_metadata["duration"], sourceTrackId: track.id, videoId: track.import_metadata["videoId"], origin: "youtube", createdAt: track.created_at }
-  end
 
   def share(share)
     { id: share.id, userId: share.user_id, email: share.user.email, name: share.user.display_name }
