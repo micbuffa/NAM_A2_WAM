@@ -491,12 +491,14 @@ test('tracks move to an index of the timeline; the order is saved when it change
 
 test('a shared-project link opens that project and leaves the URL clean', () => {
   const stored = new Map(), replaced = [];
-  const storage = {setItem: (key, value) => stored.set(key, value)};
+  const storage = {setItem: (key, value) => stored.set(key, value), getItem: (key) => stored.get(key) ?? null};
   const history = {state: null, replaceState: (state, title, url) => replaced.push(String(url))};
-  assert.equal(takeLinkedProject({location: {href: 'https://rack.test/rack/?project=12&auto'}, history, storage}), true);
-  assert.equal(stored.get('nam-a2-wam.project'), '12');
-  assert.deepEqual(replaced, ['https://rack.test/rack/?auto=']);
   assert.equal(takeLinkedProject({location: {href: 'https://rack.test/rack/'}, history, storage}), false);
+  assert.equal(takeLinkedProject({location: {href: 'https://rack.test/rack/?project=12&auto'}, history, storage}), true);
+  assert.equal(stored.get('nam-a2-wam.linked-project'), '12');
+  assert.deepEqual(replaced, ['https://rack.test/rack/?auto=']);
+  // Signing in reloads /rack/ without the parameter: the link still waits.
+  assert.equal(takeLinkedProject({location: {href: 'https://rack.test/rack/'}, history, storage}), true);
   assert.equal(replaced.length, 1);
 });
 

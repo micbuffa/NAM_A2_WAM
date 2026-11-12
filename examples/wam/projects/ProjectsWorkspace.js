@@ -31,16 +31,18 @@ import {BPM_RANGE, INSTRUMENTS, barBeat, clampBpm, defaultTrackName, describePro
   tempoLabel, trackChanges, twoDigits, usesPreset, usesTrackPreset, withInstrument, defaultPresetFields} from './ProjectsModel.js';
 
 const LAST_PROJECT_KEY = 'nam-a2-wam.project';
+const LINKED_PROJECT_KEY = 'nam-a2-wam.linked-project'; // from a share email, until signed in
 const LOOPS_KEY = 'nam-a2-wam.project-loops'; // each project's loop, in bars (this browser only)
 
 // The shared-project email links to the rack with ?project=<id>: that project
-// becomes the one to open (after signing in too) and the URL drops the
-// parameter. Returns whether there was one.
+// becomes the one to open and the URL drops the parameter. The link waits in
+// this browser until someone is signed in, since signing in reloads /rack/
+// without it. Returns whether a linked project waits to be opened.
 export function takeLinkedProject({location = globalThis.location, history = globalThis.history, storage = globalThis.localStorage} = {}) {
   const url = new URL(location.href);
   const id = url.searchParams.get('project');
-  if (!id) return false;
-  try { storage?.setItem(LAST_PROJECT_KEY, id); } catch { /* Opens the last project instead. */ }
+  if (!id) { try { return Boolean(storage?.getItem(LINKED_PROJECT_KEY)); } catch { return false; } }
+  try { storage?.setItem(LINKED_PROJECT_KEY, id); } catch { /* Opens Home instead. */ }
   url.searchParams.delete('project');
   history.replaceState(history.state, '', url);
   return true;
@@ -239,8 +241,8 @@ export class ProjectsWorkspace extends EventTarget {
       catch (error) { this.report(`Projects not loaded: ${error.message}`, true); }
     }
     // Studio opens on Home; only a shared-project link (takeLinkedProject) opens one, once signed in.
-    const linked = this.openLinked ? this.remembered() : null;
-    if (this.signedIn) this.openLinked = false;
+    const linked = this.openLinked ? this.linkedProject() : null;
+    if (this.signedIn && this.openLinked) { this.openLinked = false; this.forgetLinkedProject(); }
     const target = linked && this.projects.find((project) => String(project.id) === linked);
     if (target) await this.open(target.id, {confirm: false});
     else { this.render(); this.dispatchEvent(new CustomEvent('change', {detail: {project: null}})); }
@@ -1293,8 +1295,12 @@ export class ProjectsWorkspace extends EventTarget {
       tracks: undefined, activeSeparationId: project.activeSeparationId, trackCount: projectTrackCount(project)};
   }
 
-  remembered() {
-    try { return this.storage?.getItem(LAST_PROJECT_KEY) ?? null; } catch { return null; }
+  linkedProject() {
+    try { return this.storage?.getItem(LINKED_PROJECT_KEY) ?? null; } catch { return null; }
+  }
+
+  forgetLinkedProject() {
+    try { this.storage?.removeItem(LINKED_PROJECT_KEY); } catch { /* Opened once anyway: openLinked is off. */ }
   }
 
   remember(id) {
