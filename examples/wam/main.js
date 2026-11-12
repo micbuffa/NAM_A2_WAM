@@ -276,9 +276,9 @@ async function initialize() {
   projects = new ProjectsWorkspace({api: accountIntegration.account?.api ?? null, account: accountIntegration.account,
     requestSignIn: () => $('#accountSignIn').click(), report: message,
     player: projectPlayer, createRenderer: (options) => new Renderer(options), liveInputEnabled: () => liveInputEnabled, openLinked: linkedProject});
-  // Studio in the navigation leads to the project list (Home).
+  // Clicking Studio again in the navigation leads to the project list (Home).
   hostNav.addEventListener('home', () => void projects.home());
-  // Play in the navigation leads to the backing track library, the same way.
+  // Clicking Play again leads to the backing track library, the same way.
   hostNav.addEventListener('library', () => playAlong?.setView('library'));
   void projects.load();
   const [groupId] = await initializeWamHost(context, 'nam-a2-phase3-host');

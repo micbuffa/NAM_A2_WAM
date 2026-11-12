@@ -41,7 +41,7 @@ test('unavailable storage keeps the navigation expanded and usable', () => {
   assert.equal(f.root.dataset.hostNav, 'collapsed');
 });
 
-test('nav drives Workspaces: Studio always leads to its Home, devices is an action', () => {
+test('nav drives Workspaces: switching keeps where each was left, a second click goes to its list', () => {
   const f = fixture();
   const root = {dataset: {}};
   const workspaces = new Workspaces({control: f.hostNav, root, storage: null});
@@ -56,11 +56,12 @@ test('nav drives Workspaces: Studio always leads to its Home, devices is an acti
   f.hostNav.click({target: f.by.projects});
   assert.equal(workspaces.current, 'projects');
   f.hostNav.click({target: f.by.devices});
-  assert.deepEqual(events, ['home', 'home', 'devices']);
+  assert.deepEqual(events, ['home', 'devices'], 'switching to Studio keeps the open project; a second click goes Home');
   assert.equal(workspaces.current, 'projects');
   f.hostNav.click({target: f.by.tone});
+  assert.deepEqual(events.slice(2), [], 'switching to Play keeps the Play along view');
   f.hostNav.click({target: f.by.tone});
-  assert.deepEqual(events.slice(3), ['library', 'library'], 'Play leads to its library, even when already there');
+  assert.deepEqual(events.slice(2), ['library'], 'a second click on Play leads to its library');
   assert.equal(workspaces.current, 'tone');
 });
 

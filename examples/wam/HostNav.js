@@ -1,8 +1,10 @@
 // Left navigation column: Play, Studio, Audio devices, and the
 // entries stacked at the bottom. It is the Workspaces control (value + 'change'),
 // so Play/Studio keep their internal values ('tone', 'projects').
-// Studio opens Studio and fires 'home' (Studio always starts on its project
-// list); Play likewise fires 'library' (Play along's track list); Audio devices fires 'devices'.
+// Switching to Studio or Play returns to where it was left (the open project,
+// the Play along track); clicking the current one again goes back to its list:
+// Studio fires 'home' (project list), Play fires 'library' (Play along's track
+// list). Audio devices fires 'devices'.
 // Collapsing keeps an icon rail (titles stay as tooltips). UI-only preference,
 // remembered in this browser; never touches audio, presets or projects.
 const KEY = 'nam-a2.host-nav';
@@ -36,7 +38,7 @@ export class HostNav extends EventTarget {
     const workspace = WORKSPACE_ITEMS[target];
     if (workspace) {
       if (this.locked) return;
-      if (workspace !== this.current) { this.current = workspace; this.render(); this.dispatchEvent(new Event('change')); }
+      if (workspace !== this.current) { this.current = workspace; this.render(); this.dispatchEvent(new Event('change')); return; }
       if (workspace === 'projects') this.dispatchEvent(new Event('home'));
       if (workspace === 'tone') this.dispatchEvent(new Event('library'));
       return;
