@@ -256,7 +256,6 @@ export class FxChainView {
           if(this.selectionKey(event,entry.id))event.stopPropagation();
         });
         this.dropTarget(card,entry.id);
-        image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail({id:entry.id,name:entry.record?.name||entry.kind});};
         card.append(photo);const captures=entry.plugin?.getCaptureChoices?this.createCaptureSelector(entry):null;if(captures)card.append(captures.root);this.container.append(card);this.cards.set(entry.id,{card,image,photo,inputMeter,outputMeter,captures});
       }add(null);
       // Rebuilt cards keep the selection; a removed effect drops it.
@@ -275,9 +274,21 @@ export class FxChainView {
       if(e.plugin&&e.kind!=='effect'){const params=await e.plugin.audioNode.getParameterValues(false,'bypass');e.bypass=Number(params.bypass?.value)>=.5;}
       // NAM/Cabinet resolve Factory pictures from their manifest (saved URLs can be stale).
       if(e.plugin?.resolveImageUrl)image=await e.plugin.resolveImageUrl().catch(()=>image)||image;
-      const fallback=fallbackThumbnail({id:e.id,name});image ||= fallback;
-      // Every new picture gets its own try: only a failing one falls back.
-      if(card.image.dataset.source!==image){card.image.dataset.source=image;card.image.onerror=()=>{card.image.onerror=null;card.image.src=fallback;};card.image.src=image;}
+      const fallback=fallbackThumbnail({id:e.id,name});
+      const candidates=[...new Set([image,e.record?.thumbnailUrl,fallback].filter(Boolean))];
+      const sources=JSON.stringify(candidates);
+      // Try the plugin thumbnail when the model has no photo or its photo fails.
+      if(card.image.dataset.source!==sources){
+        card.image.dataset.source=sources;
+        let index=0;
+        card.image.onerror=()=>{
+          index+=1;
+          if(index===candidates.length-1)card.image.onerror=null;
+          card.image.src=candidates[index];
+        };
+        if(candidates.length===1)card.image.onerror=null;
+        card.image.src=candidates[0];
+      }
       card.image.alt=name;card.photo.title=e.error?`${name}: ${e.error}`:name;card.photo.setAttribute('aria-label',`${name} — Enter to edit`);
       card.card.setAttribute('heading',name);
       if(card.captures)await this.refreshCaptureSelector(e,card.captures);
