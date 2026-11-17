@@ -1,3 +1,4 @@
+import {LoopAnchors} from '../ui/LoopAnchors.js';
 import {appendTrackControlGlyphs} from '../ui/TrackControlStyle.js';
 import {LiveWaveform} from './recording/LiveWaveform.js';
 // Track rows of the Projects timeline (TONELAB mockup): name + rename, M/S/I,
@@ -52,58 +53,12 @@ export class ProjectTimeline {
     this.waves = new Map(); // track id -> {peaks, duration} or {state: 'loading' | 'error'}
     this.length = {bars: 16, seconds: 32};
     this.position = 0;
-    this.loop = {enabled: false, start: 0, end: 0};
-    this.anchors = ['A', 'B'].map(name => {
-      const anchor = element('button', `loop-anchor loop-anchor-${name.toLowerCase()}`, {type: 'button', textContent: name});
-      anchor.dataset.loopAnchor = name;
-      anchor.setAttribute('role', 'slider');
-      anchor.setAttribute('aria-label', `Loop ${name === 'A' ? 'start A' : 'end B'}`);
-      anchor.title = `Drag ${name} to resize the loop · Alt: precise · Arrow keys: move`;
-      anchor.onkeydown = event => {
-        const current = this.loop.end > this.loop.start ? this.loop : {start: 0, end: this.length.seconds};
-        const step = event.altKey ? .1 : this.length.seconds / this.length.bars;
-        const position = name === 'A' ? current.start : current.end;
-        const seconds = {ArrowLeft: position - step, ArrowRight: position + step, Home: 0, End: this.length.seconds}[event.key];
-        if (seconds === undefined) return;
-        event.preventDefault(); event.stopPropagation();
-        this.onLoop(resizeLoop(current, name, seconds, this.length, {free: event.altKey}));
-      };
-      return anchor;
-    });
-    this.loopDrag = null; // {x, from, moved}: a loop being drawn on the ruler
-    ruler.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0) return;
-      if (this.loopDrag) return;
-      ruler.setPointerCapture?.(event.pointerId);
-      const anchor = event.target.closest?.('[data-loop-anchor]')?.dataset.loopAnchor;
-      const rect = ruler.getBoundingClientRect();
-      const boundary = anchor === 'A' ? (this.loop.end > this.loop.start ? this.loop.start : 0)
-        : (this.loop.end > this.loop.start ? this.loop.end : this.length.seconds);
-      this.loopDrag = {x: event.clientX, from: this.timeAt(event), moved: false,
-        anchor, loop: {...this.loop}, pointerId: event.pointerId,
-        offset: anchor ? event.clientX - (rect.left + boundary / this.length.seconds * rect.width) : 0};
-    });
-    ruler.addEventListener('pointermove', (event) => {
-      const drag = this.loopDrag;
-      if (!drag || event.pointerId !== drag.pointerId || (!drag.moved && Math.abs(event.clientX - drag.x) < 4)) return;
-      drag.moved = true;
-      this.showLoop({enabled: true, ...this.drawnLoop(event)});
-    });
-    ruler.addEventListener('pointerup', (event) => {
-      const drag = this.loopDrag;
-      if (!drag || event.pointerId !== drag.pointerId) return;
-      this.loopDrag = null;
-      if (drag?.moved) this.onLoop(this.drawnLoop(event, drag));
-      else if (!drag.anchor) this.onSeek(drag.from);
-    });
-    ruler.addEventListener('pointercancel', () => {
-      this.loopDrag = null;
-      this.showLoop(this.loop);
-    });
-    ruler.addEventListener('lostpointercapture', () => {
-      if (!this.loopDrag) return;
-      this.loopDrag = null;
-      this.showLoop(this.loop);
+    this.loopHandles = new LoopAnchors({
+      surface: ruler, root, duration: () => this.length.seconds, minimum: .05,
+      step: () => this.length.seconds / this.length.bars,
+      resize: (loop, anchor, seconds, free) => resizeLoop(loop, anchor, seconds, this.length, {free}),
+      draw: (from, to, free) => snapLoop(from, to, this.length, {free}),
+      formatTime: formatClock, onSeek, onLoop,
     });
     if (typeof ResizeObserver === 'function') new ResizeObserver(() => { this.renderRuler(); for (const id of this.rows.keys()) if (this.waves.get(id)?.live) this.drawWave(id); }).observe(ruler);
   }
@@ -167,39 +122,7 @@ export class ProjectTimeline {
     for (const row of this.list.children) row.classList.remove('dragging', 'drop-before', 'drop-after');
   }
 
-  // Seconds at a pointer event's position on the ruler.
-  timeAt(event) {
-    const rect = this.ruler.getBoundingClientRect();
-    return rect.width ? Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * this.length.seconds : 0;
-  }
-
-  drawnLoop(event, drag = this.loopDrag) {
-    if (drag.anchor) return resizeLoop(drag.loop, drag.anchor, this.timeAt({clientX: event.clientX - drag.offset}), this.length, {free: event.altKey});
-    return snapLoop(drag.from, this.timeAt(event), this.length, {free: event.altKey});
-  }
-
-  // The player's loop ({enabled, start, end}); a region being drawn stays shown.
-  setLoop(loop) {
-    this.loop = loop;
-    if (!this.loopDrag?.moved) this.showLoop(loop);
-  }
-
-  showLoop({enabled, start, end}) {
-    const {style, classList} = this.root;
-    style.setProperty('--loop-start', String(Math.min(1, start / this.length.seconds)));
-    style.setProperty('--loop-end', String(Math.min(1, end / this.length.seconds)));
-    classList.toggle('has-loop', end > start);
-    classList.toggle('loop-off', !enabled);
-    const region = end > start ? {start, end} : {start: 0, end: this.length.seconds};
-    for (const [index, anchor] of this.anchors.entries()) {
-      const time = index ? region.end : region.start;
-      anchor.style.left = `${Math.max(0, Math.min(100, time / this.length.seconds * 100))}%`;
-      anchor.setAttribute('aria-valuemin', String(index ? region.start + .05 : 0));
-      anchor.setAttribute('aria-valuemax', String(index ? this.length.seconds : region.end - .05));
-      anchor.setAttribute('aria-valuenow', String(time));
-      anchor.setAttribute('aria-valuetext', formatClock(time));
-    }
-  }
+  setLoop(loop) { this.loopHandles.setLoop(loop); }
 
   // The timeline's length ({bars, seconds}, from timelineLength()).
   setLength(length) {
@@ -211,7 +134,6 @@ export class ProjectTimeline {
       if (this.waves.get(id)?.live) this.drawWave(id); else this.placeClip(id);
     }
     this.setPosition(this.position);
-    this.showLoop(this.loop);
   }
 
   // A track's decoded audio ({peaks, duration}), or {state: 'loading' | 'error'}.
@@ -248,8 +170,8 @@ export class ProjectTimeline {
       mark.setAttribute('aria-hidden', 'true');
       mark.style.left = `${fraction * 100}%`;
       return mark;
-    }), element('i', 'playhead'), ...this.anchors);
-    this.showLoop(this.loop);
+    }), element('i', 'playhead'), ...this.loopHandles.anchors);
+    this.loopHandles.render();
   }
 
   placeClip(id) {

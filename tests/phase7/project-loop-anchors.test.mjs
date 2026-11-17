@@ -46,7 +46,7 @@ function fixture(run) {
 }
 
 test('dragging A previews then commits with no seek, no grab-position jump and no second pointer takeover',()=>fixture(({timeline,root,commits,seeks,pointer})=>{
-  const [a]=timeline.anchors;
+  const [a]=timeline.loopHandles.anchors;
   pointer('pointerdown',145,{target:a}); // boundary at140, grabbed5px into the tab
   pointer('pointermove',185,{pointerId:2});assert.equal(commits.length,0);
   pointer('pointermove',185);assert.equal(root.style['--loop-start'],'0.25');
@@ -55,18 +55,18 @@ test('dragging A previews then commits with no seek, no grab-position jump and n
 }));
 
 test('B precise resizing, pointer cancellation and capture loss restore the saved boundary',()=>fixture(({timeline,commits,pointer})=>{
-  const b=timeline.anchors[1];
+  const b=timeline.loopHandles.anchors[1];
   pointer('pointerdown',255,{target:b}); // boundary260, grabbed5px left of it
   pointer('pointermove',282,{altKey:true});pointer('pointerup',282,{altKey:true});
   assert.deepEqual(commits,[{start:4,end:18.7}]);
   pointer('pointerdown',282,{target:b});pointer('pointermove',190);
   pointer('pointercancel',190);assert.equal(b.attributes['aria-valuenow'],'18.7');assert.equal(commits.length,1);
   pointer('pointerdown',282,{target:b});pointer('pointermove',200);pointer('lostpointercapture',200);
-  assert.equal(timeline.loopDrag,null);assert.equal(b.attributes['aria-valuenow'],'18.7');assert.equal(commits.length,1);
+  assert.equal(timeline.loopHandles.drag,null);assert.equal(b.attributes['aria-valuenow'],'18.7');assert.equal(commits.length,1);
 }));
 
 test('A/B keyboard resizing activates the loop; ruler clicks and drawing keep working; anchors survive redraws',()=>fixture(({timeline,ruler,commits,seeks,pointer})=>{
-  const [a,b]=timeline.anchors;
+  const [a,b]=timeline.loopHandles.anchors;
   const key=(anchor,key,altKey=false)=>anchor.onkeydown({key,altKey,preventDefault(){},stopPropagation(){}});
   key(a,'ArrowRight');assert.deepEqual(commits.at(-1),{start:6,end:16});
   key(b,'ArrowLeft',true);assert.deepEqual(commits.at(-1),{start:6,end:15.9});
@@ -74,7 +74,7 @@ test('A/B keyboard resizing activates the loop; ruler clicks and drawing keep wo
   key(b,'End');assert.equal(commits.at(-1).end,32);
   timeline.setLoop({enabled:false,start:0,end:0});key(b,'ArrowLeft');
   assert.deepEqual(commits.at(-1),{start:0,end:30});
-  assert.equal(timeline.loop.enabled,true);
+  assert.equal(timeline.loopHandles.loop.enabled,true);
   pointer('pointerdown',180);pointer('pointerup',180);assert.deepEqual(seeks,[8]);
   pointer('pointerdown',145);pointer('pointermove',205);pointer('pointerup',205);
   assert.deepEqual(commits.at(-1),{start:4,end:12});

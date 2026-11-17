@@ -1,0 +1,11 @@
+/* A and B side by side under the bar numbers, so they line up and leave the numbers readable. */
+.loop-anchor { position: absolute; z-index: 5; top: var(--loop-anchor-top, 19px); width: 22px; height: 16px; min-height: 0; padding: 0; box-sizing: border-box;
+  border: 1px solid var(--tl-accent, #c7f65b); border-radius: 4px; background: var(--tl-accent, #c7f65b); color: var(--tl-bg, #090b0b);
+  font: 700 11px/1 var(--tl-font-mono, monospace); cursor: ew-resize; touch-action: none; }
+/* Square on the side of their line: A's left edge and B's right edge sit on it. */
+.loop-anchor-a { border-radius: 0 4px 4px 0; }
+.loop-anchor-b { transform: translateX(-100%); border-radius: 4px 0 0 4px; }
+.loop-anchor:focus-visible { outline: 2px solid var(--tl-text, #f3f5f1); outline-offset: 2px; z-index: 6; }
+.loop-off .loop-anchor { background: var(--tl-surface, #171a19); color: var(--tl-accent, #c7f65b); }
+/* Stagger the handles if their tabs would overlap. */
+.short-loop .loop-anchor-b { top: calc(var(--loop-anchor-top, 19px) + 16px); }

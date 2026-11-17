@@ -1,3 +1,5 @@
+@import "./ui/loop-anchors.css";
+
 /* Rack page shell (navigation column, page headers, preset header, canvas). Every value comes from the TONELAB
    tokens in ui/tokens.css; tl-* components style themselves. The --host-* aliases stay for
    older code (plugin views, fx-chain.css) until those are migrated. */
@@ -25,6 +27,7 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
   column-gap: var(--host-gutter, 20px); } /* gutter between the navigation column and the workspace */
 /* Sidebar on the left of both rows; the workspace above the rack dock (RackDock.js) in the last column. */
 .host-sidebar { grid-row: 1 / 3; }
+.host-workspace { display: contents; }
 .rack-stage, .tracks-stage { grid-column: -2; grid-row: 1; }
 .rack-dock { grid-column: -2; grid-row: 2; margin-left: calc(-1 * var(--host-gutter, 20px)); } /* the preset dock stays against the navigation column */
 /* Workspaces (Workspaces.js): only what belongs to the current one is shown; audio keeps running. */
@@ -243,14 +246,24 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 @media (min-width: 1100px) and (min-height: 650px) {
   .host-shell { height: 100dvh; min-height: 0; }
   .rack-stage, .tracks-stage { min-height: 0; overflow: hidden; }
-  /* Play along takes the height left above the rack: its library fills it (its track view keeps its own height). */
+  /* Play Along takes the height left above the rack. The track controls and
+     the smallest usable waveform reserve their space before the rack grows. */
   .play-along-section { flex: 1 1 auto; min-height: 0; }
   .play-along-card { flex: 1 1 auto; min-height: 0; }
   .play-along-card > backing-track-player { flex: 1 1 auto; min-height: 62px; overflow: auto; scrollbar-width: thin; }
-  /* The track view keeps its own height: the card ends below its tools (the library fills the card). */
-  .play-along-card:has(> backing-track-player[view="track"]) { flex: 0 1 auto; }
+  body[data-workspace="tone"] .host-workspace:has(backing-track-player[view="track"]) {
+    grid-column: -2;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+  .rack-stage:has(backing-track-player[view="track"]) { flex: 1 0 auto; }
+  .play-along-card > backing-track-player[view="track"] { min-height: 0; overflow: visible; }
   .rack-dock { max-height: min(var(--rack-dock-fit, 70dvh), 70dvh); overflow: auto; scrollbar-width: thin; box-shadow: 0 -12px 28px rgba(0, 0, 0, .22); }
   .rack-dock > .rack-header { position: sticky; top: 0; z-index: 4; }
+  .host-workspace:has(backing-track-player[view="track"]) .rack-dock { flex: 0 1 auto; }
   /* Studio keeps room for the timeline above a track's sound. */
   body[data-workspace="projects"] .rack-dock { max-height: min(var(--rack-dock-fit, 40dvh), 40dvh); }
 }
@@ -322,15 +335,6 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
 .project-timeline.has-loop .loop-region, .project-timeline.has-loop .track-lane-area::before { display: block; }
 .project-timeline.loop-off .loop-region, .project-timeline.loop-off .track-lane-area::before { opacity: .35; }
 .project-ruler span { position: absolute; top: 7px; padding-left: 4px; border-left: 1px solid var(--tl-border); line-height: 1; }
-/* A and B side by side under the bar numbers, so they line up and leave the numbers readable. */
-.loop-anchor { position: absolute; z-index: 5; top: 19px; width: 22px; height: 16px; min-height: 0; padding: 0; box-sizing: border-box; /* inside the 54px ruler, above the playhead head */
-  border: 1px solid var(--tl-accent); border-radius: 4px; background: var(--tl-accent); color: var(--tl-bg);
-  font: 700 11px/1 var(--tl-font-mono); cursor: ew-resize; touch-action: none; }
-/* Square on the side of their line: A's left edge and B's right edge sit on it. */
-.loop-anchor-a { border-radius: 0 4px 4px 0; }
-.loop-anchor-b { transform: translateX(-100%); border-radius: 4px 0 0 4px; }
-.loop-anchor:focus-visible { outline: 2px solid var(--tl-text); outline-offset: 2px; z-index: 6; }
-.project-timeline.loop-off .loop-anchor { background: var(--tl-surface); color: var(--tl-accent); }
 .project-tracks { margin: 0; padding: 0; list-style: none; }
 .track-row { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); min-height: 92px; border-bottom: 1px solid var(--tl-border-subtle); cursor: pointer; }
 .track-row:last-child { border-bottom: 0; }

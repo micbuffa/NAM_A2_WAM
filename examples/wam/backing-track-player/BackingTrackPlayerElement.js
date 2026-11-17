@@ -1,3 +1,4 @@
+import {LoopAnchors} from '../ui/LoopAnchors.js';
 import {PlayAlongMp3, playAlongImportDialog, saveAudioDownload} from './PlayAlongActions.js';
 import {BackingTrackEngine} from './BackingTrackEngine.js';
 import {BackingTrackLibrary} from './BackingTrackLibrary.js';
@@ -28,12 +29,12 @@ export class BackingTrackPlayerElement extends HTMLElement {
  </header>
  <div id="status" role="status" aria-live="polite">Loading library\u2026</div>
  <div id="body"><div id="libraryView" class="library-view"><div class="library-toolbar"><h3 class="library-head">Library</h3></div><div id="listScroll" class="list-scroll"><table id="list" aria-label="Backing tracks"><thead><tr><th class="title" scope="col">Title</th><th class="origin" scope="col">Origin</th><th class="added" scope="col">Added</th><th class="num duration" scope="col">Time</th><th class="num bpm" scope="col">BPM</th><th class="num key" scope="col">Key</th></tr></thead></table></div></div>
- <div id="trackView" class="track-view" hidden><div class="wave-container"><div id="wave" tabindex="0" role="slider" aria-label="Position in backing track" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><canvas></canvas><div id="region" class="region"></div><div id="head" class="head"></div><span class="hint">Click to seek \u00b7 Drag to loop \u00b7 Drop audio \u00b7 Space to play</span><strong id="empty" class="empty">Choose or import a backing track</strong></div><div id="loadProgress" hidden><div id="loadRing" role="progressbar" aria-label="Audio download" aria-valuemin="0" aria-valuemax="100"><svg viewBox="0 0 80 80" aria-hidden="true"><circle class="load-track" cx="40" cy="40" r="33"/><circle id="loadArc" cx="40" cy="40" r="33" pathLength="100"/></svg><strong id="loadPercent">0%</strong></div><span id="loadPhase">Downloading\u2026</span></div></div>
+ <div id="trackView" class="track-view" hidden><div class="wave-container"><div id="wave"><canvas></canvas><div id="region" class="region"></div><div id="head" class="head"></div><div id="waveSeek" tabindex="0" role="slider" aria-label="Position in backing track" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"></div><span class="hint">Click to seek \u00b7 Drag to select a loop \u00b7 Move A/B to adjust</span><strong id="empty" class="empty">Choose or import a backing track</strong></div><div id="loadProgress" hidden><div id="loadRing" role="progressbar" aria-label="Audio download" aria-valuemin="0" aria-valuemax="100"><svg viewBox="0 0 80 80" aria-hidden="true"><circle class="load-track" cx="40" cy="40" r="33"/><circle id="loadArc" cx="40" cy="40" r="33" pathLength="100"/></svg><strong id="loadPercent">0%</strong></div><span id="loadPhase">Downloading\u2026</span></div></div>
  <div class="tools">
   <div class="tool"><span class="tool-head">Speed <output id="rateValue">100%</output></span><tl-slider bipolar><input id="rate" type="range" min=".7" max="1.3" step=".01" value="1" disabled aria-label="Playback speed"></tl-slider><tl-button id="rateReset" size="sm" variant="ghost">Reset</tl-button></div>
   <div class="tool"><span class="tool-head">Guitar \u2194 Backing <output id="balanceValue">50 / 50</output></span><tl-slider bipolar><input id="balance" type="range" min="0" max="1" step=".01" value=".5" aria-label="Guitar to backing balance"></tl-slider><tl-button id="balanceReset" size="sm" variant="ghost">Reset</tl-button></div>
   <div class="tool"><span class="tool-head">Guitar pan <output id="panValue">C</output></span><tl-slider bipolar><input id="pan" type="range" min="-1" max="1" step=".01" value="0" aria-label="Guitar global pan"></tl-slider><tl-button id="panReset" size="sm" variant="ghost">Reset</tl-button></div>
-  <div class="tool loop"><span class="tool-head">Loop A\u2013B</span><div class="tool-row"><button id="loop" class="led-toggle" aria-pressed="true" aria-label="Loop"><i></i><span>On</span></button><tl-button id="full" size="sm" title="Loop the whole track again (drag on the waveform to loop a part)">Full track</tl-button></div></div>
+  <div class="tool loop"><span class="tool-head">Loop A–B</span><div class="tool-row"><button id="loop" type="button" class="led-toggle" aria-pressed="true"><i></i>Loop</button><tl-icon-button id="clearLoop" size="sm" variant="ghost" icon="close" aria-label="Clear the loop" title="Clear the loop" hidden></tl-icon-button></div></div>
   <div class="tool"><span class="tool-head">Level</span><div class="tool-row normalize"><tl-button id="normalize" size="sm" aria-pressed="false">Normalize</tl-button><label><tl-checkbox variant="switch"><input id="auto" type="checkbox" checked></tl-checkbox> at load</label></div></div>
  </div></div></div>
  <input id="file" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac" hidden></section>`;
@@ -107,18 +108,39 @@ export class BackingTrackPlayerElement extends HTMLElement {
   on('volume','input',()=>e.setVolumeDb(this.$('volume').value));on('mute','click',()=>e.setMuted(!e.muted));
   for(const [id,setter,reset] of [['rate','setRate',1],['pan','setGuitarPan',0],['balance','setMix',.5]]){on(id,'input',()=>e[setter](this.$(id).value));on(id+'Reset','click',()=>e[setter](reset));}
   on('loop','click',()=>e.setLoop({enabled:!e.loop.enabled}));
-  on('full','click',()=>e.setLoop({startSeconds:0,endSeconds:e.duration}));on('normalize','click',()=>e.setNormalized(!e.normalized));on('auto','change',()=>{e.autoNormalize=this.$('auto').checked;e.changed();});
+  on('clearLoop','click',()=>e.setLoop({enabled:false,startSeconds:0,endSeconds:e.duration}));on('normalize','click',()=>e.setNormalized(!e.normalized));on('auto','change',()=>{e.autoNormalize=this.$('auto').checked;e.changed();});
 this.$('file').addEventListener('change',()=>{const file=this.$('file').files[0];this.$('file').value='';if(file)this.openFile(file);},{signal:this.listeners.signal});
-  const wave=this.$('wave'),coordinate=event=>Math.max(0,Math.min(1,(event.clientX-wave.getBoundingClientRect().left)/wave.clientWidth))*e.duration;
-  wave.addEventListener('pointerdown',event=>{if(e.loading||event.button!==0||!e.buffer)return;this.drag={x:event.clientX,start:coordinate(event),end:coordinate(event)};wave.setPointerCapture(event.pointerId);});
-  wave.addEventListener('pointermove',event=>{if(this.drag){this.drag.end=coordinate(event);this.updateRegion(this.drag.start,this.drag.end);}});
-  wave.addEventListener('pointerup',event=>{if(e.loading||!this.drag)return;const drag=this.drag;this.drag=null;this.act(()=>Math.abs(event.clientX-drag.x)<5?e.seek(coordinate(event)):e.setLoop({enabled:true,startSeconds:drag.start,endSeconds:drag.end}));});
-  wave.addEventListener('pointercancel',()=>{this.drag=null;this.sync();});
-  wave.addEventListener('keydown',event=>{if(e.loading)return;if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();this.act(()=>e.seek(event.key==='Home'?0:event.key==='End'?e.duration:e.position+(event.key==='ArrowRight'?1:-1)));}});
+  const wave = this.$('wave'), seek = this.$('waveSeek');
+  const minimum = .05;
+  const commit = ({start, end}) => this.act(() => e.setLoop({enabled: true, startSeconds: start, endSeconds: end}));
+  this.loopHandles = new LoopAnchors({
+   surface: wave, duration: () => e.duration, minimum, step: () => 1,
+   available: () => Boolean(e.buffer && !e.loading), signal: this.listeners.signal,
+   resize: ({start, end}, anchor, seconds) => {
+    const gap = Math.min(minimum, e.duration);
+    return anchor === 'A' ? {start: Math.max(0, Math.min(seconds, end - gap)), end}
+     : {start, end: Math.min(e.duration, Math.max(seconds, start + gap))};
+   },
+   draw: (from, to) => {
+    const end = Math.min(e.duration, Math.max(from, to, Math.min(minimum, e.duration)));
+    return {start: Math.min(from, to, end - Math.min(minimum, e.duration)), end};
+   },
+   formatTime: seconds => `${seconds.toFixed(2)} s`,
+   onSeek: seconds => this.act(() => e.seek(seconds)),
+   onLoop: commit,
+  });
+  wave.append(...this.loopHandles.anchors);
+  seek.addEventListener('keydown', event => {
+   if (e.loading || !e.buffer) return;
+   const position = {Home: 0, End: e.duration, ArrowLeft: e.position - 1, ArrowRight: e.position + 1}[event.key];
+   if (position === undefined) return;
+   event.preventDefault();
+   this.act(() => e.seek(position));
+  }, {signal: this.listeners.signal});
   // Dock shortcuts, focus in the dock but not on a control: Space plays/pauses, arrows move 5 s (1 s on the waveform, above).
   this.shadowRoot.addEventListener('keydown',event=>{if(e.loading||!e.buffer||event.altKey||event.ctrlKey||event.metaKey||event.target.closest?.('input,button,tl-button,tl-icon-button,tl-checkbox,tl-slider'))return;
    if(event.key===' '){event.preventDefault();if(!event.repeat)this.act(()=>e.playing?e.pause():e.play());}
-   else if(['ArrowLeft','ArrowRight'].includes(event.key)&&event.target!==wave){event.preventDefault();this.act(()=>e.seek(e.position+(event.key==='ArrowRight'?5:-5)));}},{signal:this.listeners.signal});
+   else if(['ArrowLeft','ArrowRight'].includes(event.key)&&event.target!==seek){event.preventDefault();this.act(()=>e.seek(e.position+(event.key==='ArrowRight'?5:-5)));}},{signal:this.listeners.signal});
   for(const target of [wave,this.$('libraryView')])for(const type of ['dragover','drop'])target.addEventListener(type,event=>{event.preventDefault();if(e.loading)return;if(type==='drop'&&event.dataTransfer.files[0])this.openFile(event.dataTransfer.files[0]);},{signal:this.listeners.signal});
  }
  // The library entry of the open track when its creator may rename or delete it (uploads, YouTube imports).
@@ -174,16 +196,25 @@ this.$('file').addEventListener('change',()=>{const file=this.$('file').files[0]
  }
  // Scrolls the table only (scrollIntoView would also scroll the page), below its sticky header.
  revealSelected(){const scroll=this.$('listScroll'),row=this.$('list').querySelector('tr[aria-selected=true]');if(!row||!scroll.clientHeight)return;const head=this.$('list').tHead.offsetHeight,top=row.offsetTop;if(top-head<scroll.scrollTop||top+row.offsetHeight>scroll.scrollTop+scroll.clientHeight)scroll.scrollTop=top-head-(scroll.clientHeight-head-row.offsetHeight)/2;}
- sync(){const e=this.engine;if(!e)return;if(!e.buffer&&!e.loading&&this.view==='track')this.setView('library');this.$('play').setAttribute('icon',e.playing?'pause':'play');this.$('play').setAttribute('aria-label',e.playing?'Pause backing track':'Play backing track');this.$('play').disabled=!!e.loading||!e.buffer;this.$('loadProgress').hidden=!e.loading;this.$('transport').classList.toggle('loading',!!e.loading);this.$('transport').setAttribute('aria-busy',String(!!e.loading));this.$('wave').inert=!!e.loading;this.$('wave').setAttribute('aria-disabled',String(!!e.loading));if(e.loading)this.drag=null;this.$('stop').disabled=!e.buffer;
+ sync(){const e=this.engine;if(!e)return;if(!e.buffer&&!e.loading&&this.view==='track')this.setView('library');this.$('play').setAttribute('icon',e.playing?'pause':'play');this.$('play').setAttribute('aria-label',e.playing?'Pause backing track':'Play backing track');this.$('play').disabled=!!e.loading||!e.buffer;this.$('loadProgress').hidden=!e.loading;this.$('transport').classList.toggle('loading',!!e.loading);this.$('transport').setAttribute('aria-busy',String(!!e.loading));this.$('wave').inert=!!e.loading;this.$('wave').setAttribute('aria-disabled',String(!!e.loading));if(e.loading||!e.buffer)this.loopHandles?.cancel();this.$('stop').disabled=!e.buffer;
   for(const [id,value]of [['volume',e.volumeDb],['rate',e.rate],['pan',e.guitarPan],['balance',e.mix]])if(this.shadowRoot.activeElement!==this.$(id))this.$(id).value=value;
   this.$('rate').disabled=!e.stretchReady;this.$('rateReset').disabled=!e.stretchReady||e.rate===1;this.$('rateValue').textContent=`${Math.round(e.rate*100)}%`;{const db=`${e.volumeDb.toFixed(0)} dB`;this.$('volume').title=db;this.$('volume').setAttribute('aria-valuetext',db);}this.$('panValue').textContent=Math.abs(e.guitarPan)<.01?'C':`${e.guitarPan<0?'L':'R'} ${Math.round(Math.abs(e.guitarPan)*100)}`;this.$('balanceValue').textContent=`${Math.round((1-e.mix)*100)} / ${Math.round(e.mix*100)}`;
-  this.$('loop').setAttribute('aria-pressed',String(e.loop.enabled));this.$('full').disabled=!e.buffer||!!e.loading||(e.loop.startSeconds<=0&&e.loop.endSeconds>=e.duration);this.$('loop').querySelector('span').textContent=e.loop.enabled?'On':'Off';this.$('empty').hidden=!!e.buffer||!!e.loading;this.$('auto').checked=e.autoNormalize;this.$('normalize').setAttribute('aria-pressed',String(e.normalized));this.$('mute').setAttribute('aria-pressed',String(e.muted));this.$('wave').setAttribute('aria-valuemax',e.duration);this.updateRegion(e.loop.startSeconds,e.loop.endSeconds);
+  const {enabled, startSeconds: start, endSeconds: end} = e.loop;
+  this.$('loop').setAttribute('aria-pressed', String(enabled));
+  this.$('loop').disabled = !e.buffer || e.loading;
+  this.$('clearLoop').hidden = !enabled && start === 0 && end === e.duration;
+  this.$('clearLoop').disabled = !e.buffer || e.loading;
+  this.$('empty').hidden=!!e.buffer||!!e.loading;this.$('auto').checked=e.autoNormalize;this.$('normalize').setAttribute('aria-pressed',String(e.normalized));this.$('mute').setAttribute('aria-pressed',String(e.muted));
+  this.$('waveSeek').setAttribute('aria-valuemax',e.duration);
+  this.loopHandles?.setLoop({enabled, start, end});
   this.announceHeadline();
  }
- updateRegion(a,b){const duration=this.engine.duration||1,whole=!this.drag&&Math.min(a,b)<=0&&Math.max(a,b)>=duration;const region=this.$('region');region.style.left=`${Math.min(a,b)/duration*100}%`;region.style.width=`${Math.abs(b-a)/duration*100}%`;region.style.opacity=whole?'0':this.engine.loop.enabled||this.drag?'1':'.25';}
- draw(){this.drawWave(this.$('wave'));}
+ draw(){
+  this.drawWave(this.$('wave'));
+  if (!this.loopHandles?.drag?.moved) this.loopHandles?.render();
+ }
  drawWave(wave){const canvas=wave.querySelector('canvas'),width=wave.clientWidth,height=wave.clientHeight;if(!width||!height)return;const dpr=globalThis.devicePixelRatio||1;canvas.width=width*dpr;canvas.height=height*dpr;const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,width,height);const buffer=this.engine?.buffer;if(!buffer)return;const data=buffer.getChannelData(0),step=Math.ceil(data.length/width);ctx.fillStyle=getComputedStyle(this).getPropertyValue('--tl-accent-muted').trim()||'#91a675';ctx.globalAlpha=.55;for(let x=0;x<width;x++){let low=1,high=-1;for(let i=x*step;i<Math.min(data.length,(x+1)*step);i++){low=Math.min(low,data[i]);high=Math.max(high,data[i]);}ctx.fillRect(x,(1-high)*height/2,1,Math.max(1,(high-low)*height/2));}}
- startAnimation(){if(this.frame||!this.isConnected||this.destroyed)return;const animate=()=>{if(!document.hidden&&this.engine){const e=this.engine;this.$('position').textContent=time(e.position);this.$('duration').textContent=time(e.duration);const at=`${e.position/(e.duration||1)*100}%`;this.$('head').style.left=at;this.$('wave').setAttribute('aria-valuenow',e.position.toFixed(2));}this.frame=requestAnimationFrame(animate);};this.frame=requestAnimationFrame(animate);}
+ startAnimation(){if(this.frame||!this.isConnected||this.destroyed)return;const animate=()=>{if(!document.hidden&&this.engine){const e=this.engine;this.$('position').textContent=time(e.position);this.$('duration').textContent=time(e.duration);const at=`${e.position/(e.duration||1)*100}%`;this.$('head').style.left=at;this.$('waveSeek').setAttribute('aria-valuenow',e.position.toFixed(2));}this.frame=requestAnimationFrame(animate);};this.frame=requestAnimationFrame(animate);}
  connectedCallback(){this.appearanceChange ??= ()=>this.draw();globalThis.addEventListener('nam-appearance-change',this.appearanceChange);this.observer.observe(this.$('wave'));this.startAnimation();}
  disconnectedCallback(){globalThis.removeEventListener('nam-appearance-change',this.appearanceChange);this.observer.disconnect();cancelAnimationFrame(this.frame);this.frame=null;}
  getState(){return this.engine.getState();}setState(state){return this.engine.setState(state);}
