@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {calibratedInputGain, InputGainCalibration} from '../../examples/wam/InputGainCalibration.js';
+import {inputGainDialog} from '../../examples/wam/InputGainView.js';
 import {toneMonitoringGain} from '../../examples/wam/LiveMonitoring.js';
 
 test('Studio never leaks the Tone rack: only track monitoring owns live audio', () => {
@@ -47,4 +48,67 @@ test('cancel, source changes and suspended audio release taps without applying a
 });
 test('silent and clipped calibration fail without leaking analysis nodes',async()=>{
   for(const peak of [0,1]){const h=harness();h.context.peak=peak;const done=h.calibration.start();h.tick(5);await assert.rejects(done);assert.equal(h.source.releases,1);}
+});
+
+test('a loud clean input proposes attenuation, and retry or cancel leaves gain unchanged until confirmed', async ({mock}) => {
+  mock.timers.enable({apis: ['setInterval']});
+  class Element extends EventTarget {
+    children = [];
+    append(...children) { this.children.push(...children); }
+    setAttribute() {}
+    focus() {}
+    remove() {}
+    showModal() { this.open = true; }
+    close() { this.open = false; this.dispatchEvent(new Event('close')); }
+  }
+  const oldDocument = globalThis.document;
+  const body = new Element();
+  globalThis.document = {body, createElement: () => new Element()};
+  try {
+    const {context, source} = harness();
+    context.resume = async () => {};
+    Object.assign(source, {mode: 'live', liveInput: {}});
+    let gain = 6, channel = 1;
+    const open = () => {
+      inputGainDialog({context, source, getChannel: () => channel, getGain: () => gain, apply: db => { gain = db; }});
+      const dialog = body.children.at(-1);
+      const [, , status, actions] = dialog.children[1].children;
+      const [cancel, start, keep] = actions.children;
+      return {dialog, status, cancel, start, keep};
+    };
+    const measure = async (view, peak) => {
+      context.peak = peak;
+      const run = view.start.onclick();
+      await Promise.resolve();
+      assert.equal(view.keep.hidden, true);
+      context.currentTime += 5;
+      mock.timers.tick(25);
+      await run;
+    };
+
+    const view = open();
+    await measure(view, .9);
+    assert.match(view.status.textContent, /Suggested gain: -5\.0 dB \(current: 6\.0 dB\)/);
+    assert.equal(gain, 6);
+    assert.equal(view.keep.hidden, false);
+    assert.equal(view.start.textContent, 'Try again');
+    await measure(view, .25);
+    assert.match(view.status.textContent, /Suggested gain: 6\.0 dB/);
+    view.cancel.onclick();
+    assert.equal(gain, 6);
+
+    const next = open();
+    await measure(next, .9);
+    channel = 0;
+    next.keep.onclick();
+    assert.equal(gain, 6);
+    assert.equal(next.keep.hidden, true);
+    await measure(next, .9);
+    assert.equal(source.channel, 0);
+    next.keep.onclick();
+    assert.equal(gain, -5);
+    assert.equal(next.dialog.open, false);
+  } finally {
+    globalThis.document = oldDocument;
+  }
 });

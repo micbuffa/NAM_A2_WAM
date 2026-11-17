@@ -463,16 +463,19 @@ async function initialize() {
     const value = sourceManager.setTrimDb(Number($('#sourceTrim').value), trackSoundEditor?.active||$('#audioSource').value === 'live' ? 'live' : 'file');
     $('#sourceTrimValue').textContent = `${value.toFixed(1)} dB`;trackSoundEditor?.syncInputGain();presets.scheduleCheck();
   };
-  const autoGain = (channel, apply) => {
-    try { inputGainDialog({context,source:sourceManager,channel,apply,allowed:()=>!projects.recording?.busy&&!trackSoundEditor?.busy&&!calibrationMuted}); }
+  const autoGain = (getChannel, getGain, apply) => {
+    try { inputGainDialog({context,source:sourceManager,getChannel,getGain,apply,allowed:()=>!projects.recording?.busy&&!trackSoundEditor?.busy&&!calibrationMuted}); }
     catch(error) { message(error.message,true); }
   };
-  $('#chainInputAuto').onclick=()=>autoGain(sourceManager.liveInput?.channelIndex, db=>{
-    $('#sourceTrim').value=db;$('#sourceTrim').dispatchEvent(new Event('input',{bubbles:true}));
+  $('#chainInputAuto').onclick=()=>autoGain(()=>sourceManager.liveInput?.channelIndex, ()=>sourceManager.trimDb.live, db=>{
+    sourceManager.setTrimDb(db, 'live');
+    syncSourceTrim();
+    trackSoundEditor?.syncInputGain();
+    presets.scheduleCheck();
   });
   $('#chainBInputAuto').onclick=()=>{
     if(rack.route)return message('Chain B uses the routed signal from A. Adjust Input A instead.',true);
-    autoGain(rack.channelB,db=>rack.setInputDbB(db));
+    autoGain(()=>rack.route ? null : rack.channelB, ()=>rack.inputDbB, db=>rack.setInputDbB(db));
   };
   $('#chainInputReset').onclick=()=>{
     const mode=trackSoundEditor?.active||$('#audioSource').value==='live'?'live':'file';
