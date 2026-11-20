@@ -226,6 +226,8 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .editor-navigation [hidden] { display:none; }
         /* In a host editor the host bar shows the photo, name, credit and Change amp model: no face card. */
         nam-a2-gui[host-tabs] .module-head,nam-a2-gui[host-tabs] .editor-action,nam-a2-gui[host-tabs] .back-to-amp,nam-a2-gui[host-tabs] .change-model,nam-a2-gui[host-tabs] .editor-navigation { display:none!important; }
+        /* Section titles repeat the host tab and bar; Help keeps its title and text, without the eyebrow. */
+        nam-a2-gui[host-tabs] .panel-intro:not(.aboutBody .panel-intro),nam-a2-gui[host-tabs] .aboutBody .panel-intro .plugin-face-eyebrow { display:none }
         nam-a2-gui .modelCalibration { margin:12px 16px;padding:12px;border:1px solid var(--tl-border-strong,#484052);border-radius:8px; }
         nam-a2-gui .calibrationActions { display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px; }
         nam-a2-gui .calibrationActions .level-actions { margin:0;flex-wrap:wrap; }
