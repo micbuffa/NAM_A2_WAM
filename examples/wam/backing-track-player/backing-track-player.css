@@ -54,8 +54,12 @@ header{display:grid;grid-template-columns:auto auto minmax(90px,130px) auto;just
  :host([placement=top][view=track]){display:flex;flex-direction:column}
  :host([placement=top][view=track]) section{height:auto;flex:1 1 auto}
  :host([placement=top][view=track]) #body{min-height:auto}
- :host([placement=top]) .track-view{flex:1 1 auto}
- :host([placement=top]) .wave-container{height:auto}
+ /* The waveform tops out at 160px: extra height stays below the mix tools instead of stretching it,
+    and a short window still shrinks it to 64px before squeezing the rack. */
+ :host([placement=top]) .track-view{flex:1 1 auto;flex-direction:column}
+ :host([placement=top]) .track-view:not([hidden]){display:flex}
+ :host([placement=top]) .track-view>*{flex:none}
+ :host([placement=top]) .wave-container{flex:1 1 64px;height:auto;max-height:160px}
 }
 .library-toolbar{display:flex;align-items:center;gap:var(--tl-space-3,12px)}
 .library-head{margin:0;color:var(--tl-text-2,#aab1ad);font-size:var(--tl-fs-md,13px);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
