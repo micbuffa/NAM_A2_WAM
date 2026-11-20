@@ -151,7 +151,9 @@
 .fx-editor-photo[hidden] { display: none; }
 .fx-editor-titles .tl-modal-title { overflow: hidden; font-size: var(--tl-fs-xl); white-space: nowrap; text-overflow: ellipsis; }
 .fx-editor .fx-editor-subtitle { margin-top: 6px; overflow: hidden; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); white-space: nowrap; text-overflow: ellipsis; }
-.fx-editor-actions { display: flex; align-items: center; gap: var(--tl-space-2); }
+.fx-editor-actions { display: flex; align-items: flex-start; gap: var(--tl-space-2); }
+.fx-editor-main { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.fx-editor-main > tl-badge { align-self: center; }
 .fx-editor-close { border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); }
 .fx-editor-state { padding: 6px 11px; border: 1px solid color-mix(in srgb, var(--tl-warning) 45%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--tl-warning) 10%, transparent); color: var(--tl-warning); font-size: var(--tl-fs-xs); font-weight: 600; }
 .fx-editor-state[hidden] { display: none; }

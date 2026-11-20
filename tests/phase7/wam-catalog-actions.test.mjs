@@ -57,14 +57,32 @@ test('editor settings key summarises large payloads but still sees a model or pa
  assert.notEqual(key(a),key({...a,state:{...a.state,parameterValues:{gain:{value:2}}}}));
  assert.notEqual(key(a),key({...a,inputDb:-1}));
 });
-test('editor bar shows the rack card picture and the model credit',()=>{
+test('editor bar shows the rack card picture',()=>{
  const f=setup();try{
   const photo=new Element('img');photo.hidden=true;photo.getAttribute=key=>photo.attributes[key]??null;f.view.photo=photo;
   f.view.cards.set(f.entry.id,{image:{currentSrc:'/models/fender/cover.jpg'}});
   f.view.syncEditorPhoto(f.entry,'Fender Deluxe');assert.equal(photo.hidden,false);assert.equal(photo.attributes.src,'/models/fender/cover.jpg');assert.equal(photo.title,'Fender Deluxe');
   f.view.cards.set(f.entry.id,{image:{currentSrc:''}});f.view.syncEditorPhoto(f.entry,'x');assert.equal(photo.hidden,true);assert.equal(photo.attributes.src,undefined);
-  assert.equal(FxChainView.modelCredit({source:'Factory',modeledBy:'amalgamaudio'}),'Factory · Modeled by amalgamaudio');
-  assert.equal(FxChainView.modelCredit({modeledBy:'Unknown',provenance:{source:'TONE3000',creator:'2dor'}}),'TONE3000 · Modeled by 2dor');
-  assert.equal(FxChainView.modelCredit(null),'');
  }finally{f.restore();}
+});
+test('editor bar subtitle uses the GUI credit, with the amp / cabinet defaults',()=>{
+ const f=setup();try{
+  const text=()=>{const e=new Element('p');e.textContent='';return e;};
+  Object.assign(f.view,{title:text(),subtitle:text(),syncEditorPhoto(){},syncEditorState(){},dialog:{open:true}});
+  const nam={id:'amp',kind:'nam',record:{name:'NeuralWAMp Amp Sim'},plugin:{audioNode:{getModelSnapshot:()=>({provenance:{title:'Fender'}})}}};
+  f.view.chain.find=()=>nam;f.view.activeId='amp';
+  nam.gui=f.view.gui={editorCredit:'Factory · Modeled by amalgamaudio'};f.view.syncEditorHeader();
+  assert.equal(f.view.title.textContent,'Fender');assert.equal(f.view.subtitle.textContent,'NeuralWAMp Amp Sim · Factory · Modeled by amalgamaudio');
+  nam.gui=f.view.gui={editorCredit:''};f.view.syncEditorHeader();assert.equal(f.view.subtitle.textContent,'NeuralWAMp Amp Sim · Active model');
+  // A GUI still loading for another module does not lend its credit.
+  nam.gui={};f.view.gui={editorCredit:'Other'};f.view.syncEditorHeader();assert.equal(f.view.subtitle.textContent,'NeuralWAMp Amp Sim · Active model');
+ }finally{f.restore();}
+});
+test('amp and cabinet GUIs implement the host editor contract and hide what the bar shows',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const nam=await readFile(new URL('../../src/nam-wam/gui.js',import.meta.url),'utf8'),cab=await readFile(new URL('../../src/cabinet-wam/gui.js',import.meta.url),'utf8');
+ for(const source of [nam,cab]){assert.match(source,/get editorPrimaryAction\(\)/u);assert.match(source,/get editorCredit\(\)/u);}
+ assert.match(nam,/label:'Change amp model'/u);assert.match(cab,/label:'Change cabinet model'/u);
+ assert.match(nam,/nam-a2-gui\[host-tabs\] \.change-model,nam-a2-gui\[host-tabs\] \.editor-navigation/u);
+ for(const hidden of ['.current-artwork','.currentIr','.change-ir'])assert.ok(cab.includes(`nam-cabinet-gui[host-tabs] ${hidden}`),hidden);
 });

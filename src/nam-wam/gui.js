@@ -569,6 +569,12 @@ class NamA2Gui extends HTMLElement {
   get activeEditorTab() {return this._activePluginTab;}
   // Host contract (FxChainView): the model catalogue is the editor's main action, drawn by the host in its bar.
   get editorPrimaryAction() {return {label:'Change amp model',icon:'audio',run:()=>this.setPluginTab('models')};}
+  // Host contract: the loaded model's credit, shown in the host bar subtitle.
+  get editorCredit() {
+    const m=this.node._metadata;if(!m)return '';
+    const creator=m.modeledBy&&m.modeledBy!=='Unknown'?m.modeledBy:m.provenance?.creator;
+    return [m.source||m.provenance?.source,creator&&`Modeled by ${creator}`].filter(Boolean).join(' · ');
+  }
   showEditorTab(id) {this.setPluginTab(id);}
 
   modelHoverInfo(value) {

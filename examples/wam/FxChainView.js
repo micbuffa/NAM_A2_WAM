@@ -32,11 +32,15 @@ export class FxChainView {
     this.subtitle=element('p','fx-editor-subtitle');titles.append(this.kicker,this.title,this.subtitle);
     const close=attrs(element('tl-icon-button','fx-editor-close'),{icon:'close','aria-label':'Close editor'});
     this.state=attrs(element('tl-badge','fx-editor-state'),{tone:'warning',dot:'',role:'status'});this.state.hidden=true;
-    // A GUI may offer one main action (editorPrimaryAction: {label, icon, run}), e.g. the amp's model
-    // catalogue: the host shows it as the prominent button of the editor bar.
+    // Host editor contract, for a GUI shown with host tabs (editorTabs): the bar shows the module picture
+    // (its rack card image), the loaded model / IR as title, `editorCredit` (text) in the subtitle and
+    // `editorPrimaryAction` ({label, icon, run}, e.g. the model catalogue) as its main button. The GUI
+    // hides what the bar already shows (picture, model name, change button) when it has host-tabs.
     this.primaryAction=attrs(element('tl-button','fx-editor-primary'),{variant:'primary','aria-haspopup':'dialog'});this.primaryAction.hidden=true;
     this.primaryAction.onclick=()=>this.gui?.editorPrimaryAction?.run();
-    const actions=element('div','fx-editor-actions');actions.append(this.state,this.primaryAction,close);
+    // The bypass badge sits under the main button, so a long title keeps the bar's width.
+    const main=element('div','fx-editor-main');main.append(this.primaryAction,this.state);
+    const actions=element('div','fx-editor-actions');actions.append(main,close);
     // The module's picture, the same one as its rack card (model photo or plugin thumbnail).
     this.photo=attrs(element('img','fx-editor-photo'),{alt:''});this.photo.hidden=true;
     bar.append(this.photo,titles,actions);this.mount=element('div','fx-editor-mount');this.mount.id=`fx-editor-mount-${editorSequence}`;
@@ -319,7 +323,8 @@ export class FxChainView {
   syncEditorHeader() {
     const e=this.activeId&&this.chain.find(this.activeId);if(!e||!this.dialog.open)return;
     const plugin=e.record?.name||(e.kind==='nam'?'NeuralWAMp':'NeuralWAMp Cabinet'),{name}=this.describe(e);
-    const [title,subtitle]=e.kind==='nam'&&e.plugin?[name,`${plugin} · ${FxChainView.modelCredit(e.plugin.audioNode.getModelSnapshot())||'Active model'}`]:e.kind==='cabinet'&&e.plugin?[name,`${plugin} · Active impulse response`]:[plugin,''];
+    const credit=e.plugin&&e.gui&&this.gui===e.gui?this.gui.editorCredit:'';
+    const [title,subtitle]=e.kind==='nam'&&e.plugin?[name,`${plugin} · ${credit||'Active model'}`]:e.kind==='cabinet'&&e.plugin?[name,`${plugin} · ${credit||'Active impulse response'}`]:[plugin,credit||''];
     if(this.title.textContent!==title)this.title.textContent=title;if(this.subtitle.textContent!==subtitle)this.subtitle.textContent=subtitle;
     this.subtitle.hidden=!subtitle;this.syncEditorPhoto(e,title);this.syncEditorState(e);
   }
@@ -328,13 +333,7 @@ export class FxChainView {
     if(this.photo.getAttribute('src')!==src){if(src)this.photo.setAttribute('src',src);else this.photo.removeAttribute('src');}
     this.photo.hidden=!src;this.photo.title=title;
   }
-  // "Factory · Modeled by …" for a NAM model, as the amp GUI showed it.
-  static modelCredit(m) {
-    if(!m)return '';
-    const creator=m.modeledBy&&m.modeledBy!=='Unknown'?m.modeledBy:m.provenance?.creator;
-    return [m.source||m.provenance?.source,creator&&`Modeled by ${creator}`].filter(Boolean).join(' · ');
-  }
-  // Bypass is shown once, beside the close button: why the module is silent
+  // Bypass is shown once, under the main button (beside Close without one): why the module is silent
   // (AUTO routing or a manual bypass), without colouring the editor content.
   syncEditorState(e) {
     let label='',title='';
