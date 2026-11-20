@@ -68,7 +68,7 @@ test('editor bar shows the rack card picture',()=>{
 test('editor bar subtitle uses the GUI credit, with the amp / cabinet defaults',()=>{
  const f=setup();try{
   const text=()=>{const e=new Element('p');e.textContent='';return e;};
-  Object.assign(f.view,{title:text(),subtitle:text(),syncEditorPhoto(){},syncEditorState(){},dialog:{open:true}});
+  Object.assign(f.view,{title:text(),subtitle:text(),syncEditorPhoto(){},syncEditorState(){},syncLaneNotice(){},dialog:{open:true}});
   const nam={id:'amp',kind:'nam',record:{name:'NeuralWAMp Amp Sim'},plugin:{audioNode:{getModelSnapshot:()=>({provenance:{title:'Fender'}})}}};
   f.view.chain.find=()=>nam;f.view.activeId='amp';
   nam.gui=f.view.gui={editorCredit:'Factory · Modeled by amalgamaudio'};f.view.syncEditorHeader();

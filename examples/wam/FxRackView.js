@@ -18,6 +18,8 @@ export class FxRackView {
     this.routeLabel=el('button','fx-route-label');this.gutter.append(this.routeLabel);
     this.routeLabel.onclick=()=>this.routeMenu(this.rack.route?.index||0,this.routeLabel,true);
     this.root.replaceChildren(this.left,this.scroller,this.right);
+    // A muted lane says so on its input and output, where the eye starts and ends; render() shows it.
+    for(const panel of [input,output])panel.querySelector('.fx-endpoint-titles small').append(Object.assign(el('span','fx-endpoint-muted','Muted'),{hidden:true}));
     this.inputB=input.cloneNode(true);this.outputB=output.cloneNode(true);
     const rename=(panel,side)=>{
       panel.setAttribute('aria-label',`Chain B ${side.toLowerCase()}`);panel.querySelector('.fx-endpoint-titles strong').textContent=`${side} B`;
@@ -31,7 +33,7 @@ export class FxRackView {
     const mute=panel=>{const b=el('tl-button','fx-lane-enable');b.setAttribute('size','sm');b.setAttribute('icon','audio');b.append(el('span','','Mute'),el('strong'));panel.querySelector('.fx-endpoint-actions').append(b);return b;};
     this.muteA=mute(output);this.enableB=mute(this.outputB);
     this.dialog=el('dialog','fx-confirm fx-routing-dialog tl-modal');document.body.append(this.dialog);
-    this.aView=new FxChainView(rack.a,strip,report,{onRoute:(index,button)=>this.routeMenu(index,button),onLayout:()=>this.scheduleLayout(),onOpen:()=>this.bView?.close()});
+    this.strip=strip;this.inputA=input;this.aView=new FxChainView(rack.a,strip,report,{laneMuted:()=>rack.mutedA,unmuteLane:()=>rack.setMutedA(false),onRoute:(index,button)=>this.routeMenu(index,button),onLayout:()=>this.scheduleLayout(),onOpen:()=>this.bView?.close()});
     this.toggle.onchange=async()=>{
       this.toggle.disabled=true;
       try{await this.act(()=>rack.setVisible(this.toggle.value==='2'));}finally{this.toggle.disabled=false;this.renderChainToggle();}
@@ -60,14 +62,11 @@ export class FxRackView {
   render(){
     const r=this.rack;
     if(!this.toggle.disabled)this.renderChainToggle();
-    if(r.b&&!this.bView)this.bView=new FxChainView(r.b,this.bStrip,this.report,{secondary:true,meterPrefix:'chainB',onLayout:()=>this.scheduleLayout(),onOpen:()=>this.aView.close()});
+    if(r.b&&!this.bView)this.bView=new FxChainView(r.b,this.bStrip,this.report,{laneMuted:()=>!r.enabledB,unmuteLane:()=>r.setEnabledB(true),secondary:true,meterPrefix:'chainB',onLayout:()=>this.scheduleLayout(),onOpen:()=>this.aView.close()});
     this.bLeft.hidden=this.bRight.hidden=this.bStrip.hidden=this.gutter.hidden=!r.activeB;
     this.inputB.style.visibility=r.route?'hidden':'visible';
     this.root.classList.toggle('has-chain-b',r.activeB);
-    for(const [button,muted,lane] of [[this.muteA,r.mutedA,'A'],[this.enableB,!r.enabledB,'B']]){
-      button.querySelector('strong').textContent=muted?'On':'Off';button.setAttribute('aria-label',`Mute chain ${lane}`);button.setAttribute('aria-pressed',String(muted));
-      button.closest('.fx-endpoint').classList.toggle('is-muted',muted);
-    }
+    this.syncMuted();
     this.status.textContent=`${r.visible?(r.route?'A → B split':'Independent inputs'):'One chain'} · Mix ${r.mixDb} dB`;
     const selector=this.inputB.querySelector('#inputChannelB'),aOptions=document.querySelector('#inputChannel').options;
     const options=[...aOptions].filter(o=>/^\d+$/.test(o.value));
@@ -85,6 +84,18 @@ export class FxRackView {
       input.value=pan;input.setAttribute('aria-valuetext',pan===0?'Center':`${Math.round(Math.abs(pan)*100)}% ${pan<0?'left':'right'}`);document.getElementById(id+'Value').textContent=text;
     }
     this.scheduleLayout();
+  }
+  // A muted lane is silent whatever its modules do: its Mute button, a dimmed strip, tagged endpoints and the open editor say so.
+  syncMuted(){
+    const r=this.rack,lanes=[[this.muteA,r.mutedA,'A',this.strip,this.inputA],[this.enableB,!r.enabledB,'B',this.bStrip,this.inputB]];
+    for(const [button,muted,lane,strip,input] of lanes){
+      button.querySelector('strong').textContent=muted?'On':'Off';button.setAttribute('aria-label',`Mute chain ${lane}`);button.setAttribute('aria-pressed',String(muted));
+      strip.classList.toggle('is-muted',muted);
+      for(const panel of [input,button.closest('.fx-endpoint')]){
+        panel.classList.toggle('is-muted',muted);const tag=panel.querySelector('.fx-endpoint-muted');tag.hidden=!muted;tag.title=`Chain ${lane} is muted: its modules are not heard`;
+      }
+    }
+    this.aView.syncLaneNotice();this.bView?.syncLaneNotice();
   }
   scheduleLayout(){if(this.layoutQueued)return;this.layoutQueued=true;requestAnimationFrame(()=>{this.layoutQueued=false;this.layout();});}
   layout(){

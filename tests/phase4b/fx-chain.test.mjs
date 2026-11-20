@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {AudioLevel} from '../../examples/wam/AudioLevel.js';
 import {FxRack} from '../../examples/wam/FxRack.js';
 import {FxChain} from '../../examples/wam/FxChain.js';
+import {FxChainView} from '../../examples/wam/FxChainView.js';
+import {FxRackView} from '../../examples/wam/FxRackView.js';
 import {loadDefaultAsset} from '../../src/shared/defaultAssets.js';
 
 class Node extends EventTarget {
@@ -307,4 +309,35 @@ test('captureEntry records the state at call time even while the chain queue is 
  let release;const gate=new Promise(done=>release=done);chain.enqueue(()=>gate);
  const pending=chain.captureEntry(fx.id);chain.setEntryGain(fx.id,'input',5);release();
  assert.equal((await pending).inputDb,-3);chain.destroy();
+});
+// Minimal elements for the muted-lane views: classes, attributes, a hidden tag and text.
+class Fake {
+  constructor(){this.classes=new Set();this.attributes={};this.hidden=false;this.textContent='';this.title='';this.children={};}
+  get classList(){const c=this.classes;return {toggle:(name,on)=>on?c.add(name):c.delete(name),contains:name=>c.has(name)};}
+  setAttribute(name,value){this.attributes[name]=value;} getAttribute(name){return this.attributes[name];}
+  querySelector(selector){return this.children[selector];} closest(selector){return this.children[`closest:${selector}`];}
+}
+function lane(){
+  const output=new Fake(),input=new Fake(),button=new Fake(),strip=new Fake();
+  output.children['.fx-endpoint-muted']=new Fake();input.children['.fx-endpoint-muted']=new Fake();
+  button.children.strong=new Fake();button.children['closest:.fx-endpoint']=output;return {output,input,button,strip};
+}
+test('a muted lane dims its strip, tags both endpoints and warns in its open editor',()=>{
+  const a=lane(),b=lane(),notices=[];
+  const view={rack:{mutedA:false,enabledB:false},muteA:a.button,enableB:b.button,strip:a.strip,bStrip:b.strip,inputA:a.input,inputB:b.input,
+    aView:{syncLaneNotice:()=>notices.push('A')},bView:{syncLaneNotice:()=>notices.push('B')}};
+  FxRackView.prototype.syncMuted.call(view);
+  assert.equal(b.strip.classList.contains('is-muted'),true);assert.equal(b.button.getAttribute('aria-pressed'),'true');
+  for(const panel of [b.input,b.output]){assert.equal(panel.classList.contains('is-muted'),true);assert.equal(panel.querySelector('.fx-endpoint-muted').hidden,false);}
+  assert.equal(a.strip.classList.contains('is-muted'),false);assert.equal(a.input.querySelector('.fx-endpoint-muted').hidden,true);
+  assert.deepEqual(notices,['A','B']);
+  view.rack.mutedA=true;view.rack.enabledB=true;FxRackView.prototype.syncMuted.call(view);
+  assert.equal(a.strip.classList.contains('is-muted'),true);assert.equal(a.output.querySelector('.fx-endpoint-muted').hidden,false);
+  assert.equal(b.strip.classList.contains('is-muted'),false);assert.equal(b.output.querySelector('.fx-endpoint-muted').hidden,true);
+  // The editor notice follows the lane while the editor is open, and names the lane.
+  let muted=true;const editor={dialog:{open:true},options:{secondary:true,laneMuted:()=>muted},laneNotice:new Fake(),laneNoticeText:new Fake(),unmuteLane:new Fake()};
+  FxChainView.prototype.syncLaneNotice.call(editor);
+  assert.equal(editor.laneNotice.hidden,false);assert.match(editor.laneNoticeText.textContent,/^Chain B is muted/u);assert.equal(editor.unmuteLane.textContent,'Unmute chain B');
+  muted=false;FxChainView.prototype.syncLaneNotice.call(editor);assert.equal(editor.laneNotice.hidden,true);
+  muted=true;editor.dialog.open=false;FxChainView.prototype.syncLaneNotice.call(editor);assert.equal(editor.laneNotice.hidden,true);
 });

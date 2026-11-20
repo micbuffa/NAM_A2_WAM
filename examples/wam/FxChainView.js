@@ -54,7 +54,12 @@ export class FxChainView {
     const footerActions=element('div','fx-editor-footer-actions');footerActions.append(revert,keep);
     this.footer.append(attrs(element('span','fx-editor-status','Modified since opening'),{role:'status'}),footerActions);
     revert.onclick=()=>this.revertActive();keep.onclick=()=>this.close();
-    this.dialog.append(bar,this.tabs,body,this.footer);document.body.append(this.dialog);
+    // A module of a muted lane is not heard: say so above its GUI, with the lane's unmute (options.laneMuted / unmuteLane).
+    this.laneNotice=attrs(element('div','fx-editor-muted'),{role:'status'});this.laneNotice.hidden=true;
+    this.laneNoticeText=element('span');this.unmuteLane=attrs(element('tl-button','',''),{size:'sm',icon:'audio'});
+    this.unmuteLane.onclick=async()=>{try{await this.options.unmuteLane?.();}catch(error){this.report(error.message,true);}this.syncLaneNotice();};
+    this.laneNotice.append(icon('audio',14),this.laneNoticeText,this.unmuteLane);
+    this.dialog.append(bar,this.laneNotice,this.tabs,body,this.footer);document.body.append(this.dialog);
     // The cabinet GUI asks the host to apply AUTO/ON/BYPASS (cancelable event):
     // the chain decides the bypass and sends the new routing status back.
     this.mount.addEventListener('cabinet-routing-mode',event=>{if(event.target!==this.gui)return;event.preventDefault();this.chain.enqueue(()=>this.chain.applyRouting()).catch(error=>this.report(error.message,true));});
@@ -326,7 +331,13 @@ export class FxChainView {
     const credit=e.plugin&&e.gui&&this.gui===e.gui?this.gui.editorCredit:'';
     const [title,subtitle]=e.kind==='nam'&&e.plugin?[name,`${plugin} · ${credit||'Active model'}`]:e.kind==='cabinet'&&e.plugin?[name,`${plugin} · ${credit||'Active impulse response'}`]:[plugin,credit||''];
     if(this.title.textContent!==title)this.title.textContent=title;if(this.subtitle.textContent!==subtitle)this.subtitle.textContent=subtitle;
-    this.subtitle.hidden=!subtitle;this.syncEditorPhoto(e,title);this.syncEditorState(e);
+    this.subtitle.hidden=!subtitle;this.syncEditorPhoto(e,title);this.syncEditorState(e);this.syncLaneNotice();
+  }
+  syncLaneNotice() {
+    const muted=Boolean(this.dialog.open&&this.options.laneMuted?.()),lane=this.options.secondary?'B':'A';
+    this.laneNotice.hidden=!muted;if(!muted)return;
+    const text=`Chain ${lane} is muted: changes to this module won't be heard.`,label=`Unmute chain ${lane}`;
+    if(this.laneNoticeText.textContent!==text)this.laneNoticeText.textContent=text;if(this.unmuteLane.textContent!==label)this.unmuteLane.textContent=label;
   }
   syncEditorPhoto(e,title) {
     const image=this.cards.get(e.id)?.image,src=image?.currentSrc||image?.getAttribute?.('src')||'';

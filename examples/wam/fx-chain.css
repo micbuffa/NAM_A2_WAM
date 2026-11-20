@@ -33,6 +33,11 @@
 .fx-endpoint-titles small { color: var(--tl-text-muted); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
 .fx-endpoint-titles strong { margin-top: 3px; overflow: hidden; color: var(--tl-text); font-size: var(--tl-fs-sm); white-space: nowrap; text-overflow: ellipsis; }
 /* Status LED: lit while the endpoint carries signal (above the -60 dBFS meter floor). */
+/* A muted lane: a tag in its endpoint heads and its effects dimmed (still editable). */
+.fx-endpoint-muted { margin-left: 5px; padding: 1px 5px; border: 1px solid color-mix(in srgb, var(--tl-danger) 50%, transparent); border-radius: var(--tl-radius-pill); color: var(--tl-danger); background: var(--tl-danger-tint);
+  font: 600 8px var(--tl-font-mono); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+.fx-chain.is-muted > * { opacity: .4; filter: saturate(.35); transition: opacity .15s, filter .15s; }
+.fx-chain.is-muted > *:hover, .fx-chain.is-muted > *:focus-within { opacity: .75; }
 .fx-endpoint-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--tl-text-faint); transition: background .15s, box-shadow .15s; }
 .fx-endpoint.has-signal .fx-endpoint-dot { background: var(--tl-accent); box-shadow: 0 0 8px var(--tl-accent-glow); }
 .fx-endpoint label { min-width: 0; color: var(--tl-text-2); }
@@ -157,6 +162,12 @@
 .fx-editor-close { border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); }
 .fx-editor-state { padding: 6px 11px; border: 1px solid color-mix(in srgb, var(--tl-warning) 45%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--tl-warning) 10%, transparent); color: var(--tl-warning); font-size: var(--tl-fs-xs); font-weight: 600; }
 .fx-editor-state[hidden] { display: none; }
+/* Muted lane notice, between the bar and the GUI. */
+.fx-editor-muted { display: flex; flex: none; align-items: center; gap: 10px; margin: 12px 24px 0; padding: 8px 8px 8px 12px; border: 1px solid color-mix(in srgb, var(--tl-danger) 45%, transparent);
+  border-radius: var(--tl-radius-sm); color: var(--tl-danger); background: var(--tl-danger-tint); font-size: var(--tl-fs-xs); }
+.fx-editor-muted > span { flex: 1; min-width: 0; }
+.fx-editor-muted > tl-button { flex: none; }
+.fx-editor-muted[hidden] { display: none; }
 .fx-editor-tabs { flex: none; display: flex; gap: 8px; padding: 0 24px; overflow-x: auto; border-bottom: 1px solid var(--tl-border); scrollbar-width: none; }
 .fx-editor-tabs[hidden] { display: none; }
 .fx-editor-tab { position: relative; flex: none; min-height: 0; padding: 18px 14px 16px; color: var(--tl-text-muted); background: none; border: 0; border-radius: 0;
@@ -254,6 +265,7 @@
 }
 @media (max-width: 520px) {
   .fx-editor-bar { padding: 14px 16px 12px; }
+  .fx-editor-muted { margin: 10px 16px 0; }
   .fx-editor-photo { width: 72px; height: 54px; }
   .fx-editor-tabs { padding: 0 8px; gap: 0; }
   .fx-editor-tab { padding: 14px 10px 12px; }
