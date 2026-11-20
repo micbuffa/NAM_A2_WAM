@@ -116,19 +116,6 @@ export class FxChain extends EventTarget {
     entry[side].gain.setTargetAtTime(10**(entry[side+'Db']/20),this.context.currentTime,.008);
     this.changed();return entry[side+'Db'];
   }
-  replace(id,record) {return this.enqueue(async()=>{
-    const previous=this.find(id);
-    // Prepare first: a failed import must leave the existing sound and editor intact.
-    const plugin=await this.registry.instantiate(record,{groupId:this.groupId,audioContext:this.context});
-    const entry=this.wrap({id,plugin,record,kind:['nam','cabinet'].includes(record.role)?record.role:'effect',inputDb:previous.inputDb,outputDb:previous.outputDb});
-    try {
-      await this.transition(()=>{
-        this.entries[this.entries.indexOf(previous)]=entry;
-        this.reconnect();this.dispose(previous);
-      });
-    } catch(error){if(!this.entries.includes(entry))this.dispose(entry);throw error;}
-    await this.applyRouting();return entry;
-  });}
   swap(id,targetId) {return this.enqueue(async()=>{
     const entry=this.find(id),target=this.find(targetId);if(entry===target)return;
     await this.transition(()=>{
@@ -170,6 +157,23 @@ export class FxChain extends EventTarget {
     else {e.dry.gain.setTargetAtTime(bypass||!e.plugin?1:0,this.context.currentTime,.008);e.wet.gain.setTargetAtTime(bypass||!e.plugin?0:1,this.context.currentTime,.008);}
     e.bypass=bypass;if(e.kind==='nam')await this.applyRouting();this.changed();
   }); }
+  // One module's settings, for the editor's Revert: WAM state (model / IR included), host gains and bypass.
+  // Read at call time, outside the queue: an editor opening while the queue is busy (e.g. loading its
+  // GUI) must not record a gesture made in the meantime as the original state.
+  async captureEntry(id) {
+    const e=this.find(id);if(!e?.plugin)return null;
+    const {inputDb,outputDb,bypass}=e;
+    return {state:clone(await e.plugin.audioNode.getState()),inputDb,outputDb,bypass};
+  }
+  restoreEntry(id,snapshot) {return this.enqueue(async()=>{
+    const e=this.find(id);if(!e?.plugin||!snapshot)return;
+    await e.plugin.audioNode.setState(clone(snapshot.state));
+    this.setEntryGain(id,'input',snapshot.inputDb);this.setEntryGain(id,'output',snapshot.outputDb);
+    // NAM and Cabinet carry their bypass in their state; other effects use the host dry/wet pair.
+    if(e.kind==='effect'){e.dry.gain.setTargetAtTime(snapshot.bypass?1:0,this.context.currentTime,.008);e.wet.gain.setTargetAtTime(snapshot.bypass?0:1,this.context.currentTime,.008);}
+    if(e.kind!=='cabinet')e.bypass=snapshot.bypass;
+    await this.applyRouting();this.changed();
+  });}
   async getGui(id) {
     const e=this.find(id);if(!e.plugin)throw Error('Unavailable plugin; its saved state is retained');
     if(!e.guiPromise)e.guiPromise=Promise.resolve().then(()=>e.plugin.createGui()).then(gui=>{

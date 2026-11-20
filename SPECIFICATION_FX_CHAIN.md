@@ -370,6 +370,8 @@ Chaque WAM propose son propre menu de six presets d’usine (Default et les cinq
 
 ### Replace
 
+> **Retiré le 2026-11-20.** L’éditeur n’a plus de bouton Replace et le catalogue n’a plus de mode remplacement (`FxChain.replace` supprimé). Pour changer de module : supprimer le cadre puis insérer au même connecteur. Le modèle d’ampli se change avec **Change amp model**. Le texte ci-dessous est conservé pour l’historique.
+
 - Le bouton **Replace** dans la barre de l’éditeur ouvre le même catalogue que `+`, au-dessus de l’éditeur. Annuler conserve le plugin et sa GUI.
 - Le nouveau plugin est instancié avant de retirer l’ancien. Une erreur de chargement laisse l’ancienne instance en place et affiche l’erreur.
 - Le remplacement garde l’identifiant du cadre, sa position, les gains et le point de split. Il démarre avec les réglages par défaut du nouveau plugin ; le bypass/Cabinet AUTO suit les règles de ce nouveau module.
@@ -403,7 +405,7 @@ Correction complémentaire du 6 octobre : fermer aussi le groupe « Downloaded o
 Complément du 7 octobre — accès audio : l’en-tête expose **Enable live input** puis l’icône légendée **Change audio source**. Le premier bouton fonctionne aussi depuis une source fichier : sélection immédiate de Live input, arrêt du lecteur de guitare sèche, activation du périphérique/canal choisi. Il devient **Disable live input** pendant l’écoute. L’accès au lecteur d’accompagnement est indépendant. Le second bouton ouvre/ferme le panneau gauche. En cas d’échec du micro, le panneau s’ouvre sur le statut d’erreur. Aucun démarrage automatique de capture au chargement.
 
 
-En-tête des vues détaillées (7 octobre) : supprimer le bouton Bypass ON/OFF ajouté par l’hôte. Conserver Replace, Remove et Fermer. Le bypass reste accessible sur les cartes et dans les GUIs des plugins qui le proposent.
+En-tête des vues détaillées (7 octobre) : supprimer le bouton Bypass ON/OFF ajouté par l’hôte. Conserver Replace, Remove et Fermer (Replace retiré le 2026-11-20, voir § Replace). Le bypass reste accessible sur les cartes et dans les GUIs des plugins qui le proposent.
 
 
 ### Accordeur dans l’en-tête — 2026-10-07
@@ -437,3 +439,11 @@ Sélection de captures (8 octobre) : après chargement TONE3000 réussi, le host
 Navigation (9 octobre) : **Back to rack** sous les listes de captures Factory/Favorites permet de terminer la sélection depuis le modèle chargé ; les listes génériques et les téléchargements disposent également de ce retour direct. La calibration précise que sa normalisation de référence ne garantit pas le même volume entre amplis clean et saturés pour tout signal d’entrée.
 
 Calibration guitare (9 octobre) : le bouton Calibrate level utilise 12 secondes de Funky-Guitar (8–20 s, canal gauche), trim de référence −18 dB plus gain d’entrée NAM, mesure dans un Worker isolé. Cible −24 dBFS RMS, plafond de crête de référence −1 dBFS, correction mesurée ±36 dB. La correction remplace celle des métadonnées ; elle reste enregistrée par capture/variante dans l’état WAM. Aucun signal de test dans le graphe audible.
+
+### Popup d’édition d’un module — 2026-11-20
+
+- **Plus de Replace** : ni dans l’en-tête, ni dans le catalogue (voir § Replace).
+- **Action principale du GUI** : un GUI peut exposer `editorPrimaryAction` (`{label, icon, run}`). L’hôte l’affiche en bouton principal dans l’en-tête, à gauche de Fermer. NeuralWAMp expose **Change amp model**, qui ouvre son catalogue ; son propre bouton est masqué en mode `host-tabs`. Sans action, pas de bouton.
+- **Photo dans l’en-tête** : chaque module affiche à gauche du titre la même image que sa carte du rack (photo du modèle/IR, sinon miniature du plugin). Pour NeuralWAMp, le sous-titre donne le plugin puis « Factory · Modeled by … » (« Active model » sans crédit).
+- **Amp settings** : en mode `host-tabs`, plus de carte photo/nom (déjà dans l’en-tête) ; l’onglet commence par Gain staging. L’en-tête « Neural Amp Modeler · Web Audio Module · NAM A2 » est supprimé. Le GUI autonome garde une carte avec la photo du modèle, son nom et ses crédits.
+- **Modifications et Revert** : les réglages s’appliquent en direct ; fermer (croix, Échap) les garde. À l’ouverture, l’hôte relève l’état du module (`FxChain.captureEntry` : état WAM, modèle/IR compris, gains IN/OUT, bypass), au moment de l’appel et hors de la file de la chaîne. Le pied de page reste masqué tant que le module est identique à cet état ; ensuite il affiche « Modified since opening », **Revert changes** (`FxChain.restoreEntry`, popup ouverte) et **Keep changes** (ferme). Revenir manuellement à l’état d’ouverture masque à nouveau le pied de page. La comparaison résume les gros contenus (texte du modèle, échantillons d’IR). Done et « Changes apply live to the rack » sont supprimés.

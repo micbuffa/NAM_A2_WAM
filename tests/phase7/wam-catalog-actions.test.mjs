@@ -6,6 +6,7 @@ class Element {
  constructor(tag){this.tagName=tag;this.children=[];this.dataset={};this.attributes={};this.listeners={};}
  append(...children){for(const child of children){if(typeof child==='string')continue;child.parent=this;this.children.push(child);}}
  setAttribute(key,value){this.attributes[key]=value;}
+ removeAttribute(key){delete this.attributes[key];}
  addEventListener(type,callback){(this.listeners[type]??=[]).push(callback);}
  emit(type){const event={preventDefault(){this.defaultPrevented=true;}};for(const callback of this.listeners[type]??[])callback(event);return event;}
  querySelectorAll(selector){const selectors=selector.split(',');return this.children.flatMap(child=>[...(selectors.includes(child.tagName)?[child]:[]),...child.querySelectorAll(selector)]);}
@@ -20,9 +21,9 @@ function setup(){
  const record={name:'Test delay',category:'delay',thumbnailUrl:'/test.png',entryUrl:'/test/index.js'};
  const entry={id:'same-slot',record,inputDb:-7,outputDb:2};const calls=[];
  const view=Object.assign(Object.create(FxChainView.prototype),{options:{},chain:{entries:[entry],registry:{records:[record]},find:()=>entry,
-  insert:async(...args)=>calls.push(['insert',...args]),replace:async(...args)=>{calls.push(['replace',...args]);return entry;}},
+  insert:async(...args)=>calls.push(['insert',...args])},
   report:(...args)=>calls.push(['error',...args]),cards:new Map(),container:{querySelector:()=>null},open:async(...args)=>calls.push(['open',...args]),
-  dialog:{open:true},activeId:entry.id,replaceButton:new Element('tl-button')});
+  dialog:{open:true},activeId:entry.id});
  return {view,record,entry,calls,restore:()=>{globalThis.document=previous;}};
 }
 function card(dialog){const item=dialog.querySelectorAll('article')[0];return {item,preview:item.children[0],insert:item.children[1],uri:item.children[2]};}
@@ -38,21 +39,32 @@ test('catalog double-click and Insert share one guarded operation; URI double-cl
   resolve();await pending;assert.equal(dialog.open,false);
  }finally{f.restore();}
 });
-test('Replace opens catalog over editor, cancel keeps instance, success opens same slot',async()=>{
+test('the GUI main action (amp: Change amp model) is the editor bar primary button',()=>{
  const f=setup();try{
-  const cancelled=f.view.replaceActive();assert.equal(f.view.replaceActive(),cancelled);cancelled.close();
-  assert.equal(f.view.dialog.open,true);assert.equal(f.calls.length,0);
-  const dialog=f.view.replaceActive(),{item,preview}=card(dialog);await item.ondblclick({target:preview});
-  assert.deepEqual(f.calls,[['replace',f.entry.id,f.record],['open',f.entry.id,undefined]]);
-  assert.equal(dialog.open,false);
+  const button=new Element('tl-button');button.hidden=true;let runs=0;f.view.primaryAction=button;
+  button.onclick=()=>f.view.gui?.editorPrimaryAction?.run();
+  f.view.gui={editorPrimaryAction:{label:'Change amp model',icon:'audio',run:()=>runs++}};f.view.syncPrimaryAction();
+  assert.equal(button.hidden,false);assert.equal(button.textContent,'Change amp model');assert.equal(button.attributes.icon,'audio');
+  button.onclick();assert.equal(runs,1);
+  f.view.gui={};f.view.syncPrimaryAction();assert.equal(button.hidden,true);
  }finally{f.restore();}
 });
-test('failed replacement preserves editor and permits retry from Insert/Replace button',async()=>{
+test('editor settings key summarises large payloads but still sees a model or parameter change',()=>{
+ const model='x'.repeat(5000),key=FxChainView.settingsKey;
+ const a={state:{model:{data:model+'a'},parameterValues:{gain:{value:1}},ir:new Float32Array([1,2,3,4])},inputDb:0};
+ assert.ok(key(a).length<1000);assert.equal(key(a),key(structuredClone(a)));
+ assert.notEqual(key(a),key({...a,state:{...a.state,model:{data:model+'b'}}}));
+ assert.notEqual(key(a),key({...a,state:{...a.state,parameterValues:{gain:{value:2}}}}));
+ assert.notEqual(key(a),key({...a,inputDb:-1}));
+});
+test('editor bar shows the rack card picture and the model credit',()=>{
  const f=setup();try{
-  f.view.chain.replace=async()=>{throw Error('Cannot load module');};
-  const dialog=f.view.replaceActive(),{insert}=card(dialog);await insert.onclick();
-  assert.equal(dialog.open,true);assert.equal(f.view.dialog.open,true);assert.equal(insert.disabled,false);
-  assert.deepEqual(f.calls,[['error','Cannot load module',true]]);
-  f.view.chain.replace=async()=>f.entry;await insert.onclick();assert.equal(dialog.open,false);
+  const photo=new Element('img');photo.hidden=true;photo.getAttribute=key=>photo.attributes[key]??null;f.view.photo=photo;
+  f.view.cards.set(f.entry.id,{image:{currentSrc:'/models/fender/cover.jpg'}});
+  f.view.syncEditorPhoto(f.entry,'Fender Deluxe');assert.equal(photo.hidden,false);assert.equal(photo.attributes.src,'/models/fender/cover.jpg');assert.equal(photo.title,'Fender Deluxe');
+  f.view.cards.set(f.entry.id,{image:{currentSrc:''}});f.view.syncEditorPhoto(f.entry,'x');assert.equal(photo.hidden,true);assert.equal(photo.attributes.src,undefined);
+  assert.equal(FxChainView.modelCredit({source:'Factory',modeledBy:'amalgamaudio'}),'Factory · Modeled by amalgamaudio');
+  assert.equal(FxChainView.modelCredit({modeledBy:'Unknown',provenance:{source:'TONE3000',creator:'2dor'}}),'TONE3000 · Modeled by 2dor');
+  assert.equal(FxChainView.modelCredit(null),'');
  }finally{f.restore();}
 });

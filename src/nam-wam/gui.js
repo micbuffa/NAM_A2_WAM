@@ -224,7 +224,8 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .amp-controls .noise-side .knob-pointer { top:4px;height:10px;transform-origin:50% 12px; }
         nam-a2-gui .amp-controls .noise-side .knob-input { inset:-3px;width:42px;height:42px; }
         nam-a2-gui .editor-navigation [hidden] { display:none; }
-        nam-a2-gui[host-tabs] .module-head,nam-a2-gui[host-tabs] .editor-action,nam-a2-gui[host-tabs] .back-to-amp { display:none!important; }
+        /* In a host editor the host bar shows the photo, name, credit and Change amp model: no face card. */
+        nam-a2-gui[host-tabs] .module-head,nam-a2-gui[host-tabs] .editor-action,nam-a2-gui[host-tabs] .back-to-amp,nam-a2-gui[host-tabs] .change-model,nam-a2-gui[host-tabs] .editor-navigation { display:none!important; }
         nam-a2-gui .modelCalibration { margin:12px 16px;padding:12px;border:1px solid var(--tl-border-strong,#484052);border-radius:8px; }
         nam-a2-gui .calibrationActions { display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px; }
         nam-a2-gui .calibrationActions .level-actions { margin:0;flex-wrap:wrap; }
@@ -243,12 +244,11 @@ class NamA2Gui extends HTMLElement {
         nam-a2-gui .editor-navigation { display:block;justify-items:stretch;padding:0;overflow:hidden;background:var(--tl-surface-3,#181b19);border:1px solid var(--tl-border-strong,#3a3642);border-radius:12px }
         nam-a2-gui[data-editor-view="preferences"] .editor-navigation,nam-a2-gui[data-editor-view="about"] .editor-navigation,nam-a2-gui[data-editor-view="details"] .editor-navigation { display:none }
         nam-a2-gui:not([host-tabs])[data-editor-view="preferences"] .editor-navigation,nam-a2-gui:not([host-tabs])[data-editor-view="about"] .editor-navigation,nam-a2-gui:not([host-tabs])[data-editor-view="details"] .editor-navigation { display:block }
-        nam-a2-gui .plugin-face-head { display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--tl-border,#34303b) }
-        nam-a2-gui .plugin-face-head>div { display:grid;gap:2px;flex:1;min-width:0 } nam-a2-gui .plugin-face-head strong { color:var(--tl-text,#f3f0f7);font-size:12px }
-        nam-a2-gui .plugin-face-head small,nam-a2-gui .plugin-face-format,nam-a2-gui .plugin-face-eyebrow { color:var(--tl-text-muted,#898391);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase }
-        nam-a2-gui .plugin-face-format { font-family:var(--tl-font-mono,ui-monospace,monospace);letter-spacing:.06em }
-        nam-a2-gui .plugin-face-icon { display:grid;place-items:center;flex:none;width:34px;height:34px;color:var(--nam-accent);background:var(--tl-accent-tint,#a688ff1a);border:1px solid var(--tl-accent-border,#4c435b);border-radius:8px }
-        nam-a2-gui .plugin-face-icon svg { width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round }
+        nam-a2-gui .plugin-face-eyebrow { color:var(--tl-text-muted,#898391);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase }
+        /* Face card: the loaded model photo (or the NAM fallback), then its name and metadata. */
+        nam-a2-gui .plugin-face-photo { flex:none;width:168px;height:112px;overflow:hidden;background:var(--tl-surface-0,#0d0d11);border:1px solid var(--tl-border-strong,#443d4d);border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.3) }
+        nam-a2-gui .plugin-face-photo .editor-model-image { display:block;width:100%;height:100%;object-fit:contain } nam-a2-gui .plugin-face-photo [hidden] { display:none }
+        @media(max-width:520px){nam-a2-gui .plugin-face-photo{width:100%;height:160px}}
         nam-a2-gui .plugin-face-model { display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:20px 20px 22px }
         nam-a2-gui .plugin-face-copy { display:grid;gap:6px;min-width:0;flex:1 1 240px }
         nam-a2-gui .editor-navigation .editor-model-name { max-width:100%;color:var(--tl-text,#f3f0f7);font-size:19px;line-height:1.25;white-space:normal;overflow-wrap:anywhere;font-weight:700;letter-spacing:-.01em }
@@ -353,7 +353,7 @@ class NamA2Gui extends HTMLElement {
           ${neuralWampLogoMarkup}<div class="module-identity"><div class="module-name-row"><h2>NeuralWAMp</h2></div><span class="module-subtitle">NAM A2 neural amplifier</span><a class="module-author" href="https://github.com/micbuffa" target="_blank" rel="noopener noreferrer">by @micbuffa</a></div>
           <label class="bypass-label"><input class="bypass" type="checkbox"> Bypass</label>
         </header>
-        <div class="editor-navigation"><header class="plugin-face-head"><span class="plugin-face-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"/></svg></span><div><strong>Neural Amp Modeler</strong><small>Web Audio Module</small></div><span class="plugin-face-format">NAM · <span class="editor-model-mode">A2</span></span></header><div class="plugin-face-model"><div class="plugin-face-copy"><span class="plugin-face-eyebrow">Loaded amp model</span><strong class="editor-model-name">Amp settings</strong><small class="editor-model-meta"></small></div><div class="editor-actions"><button class="change-model" type="button">Change amp model</button><button class="editor-action" id="namTabPreferences" type="button" aria-pressed="false" aria-controls="namPanelPreferences" data-editor-view="preferences">Preferences</button><button class="editor-action" id="namTabAbout" type="button" aria-pressed="false" aria-controls="namPanelAbout" data-editor-view="about">Help</button></div></div><button class="back-to-amp" type="button" hidden>Back to amp settings</button></div>
+        <div class="editor-navigation"><div class="plugin-face-model"><div class="plugin-face-photo"><img class="editor-model-image" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" hidden><div class="currentModelFallback editor-model-fallback"><strong>NAM</strong><small>Model capture</small></div></div><div class="plugin-face-copy"><span class="plugin-face-eyebrow">Loaded amp model</span><strong class="editor-model-name">Amp settings</strong><small class="editor-model-meta"></small></div><div class="editor-actions"><button class="change-model" type="button">Change amp model</button><button class="editor-action" id="namTabPreferences" type="button" aria-pressed="false" aria-controls="namPanelPreferences" data-editor-view="preferences">Preferences</button><button class="editor-action" id="namTabAbout" type="button" aria-pressed="false" aria-controls="namPanelAbout" data-editor-view="about">Help</button></div></div><button class="back-to-amp" type="button" hidden>Back to amp settings</button></div>
         <section class="plugin-panel amp-knobs ampPanel" id="namPanelAmp" role="region" aria-label="Amp settings" data-plugin-panel="amp" hidden><section class="modelCalibration" aria-label="Model level calibration"><label class="preferenceRow"><span><span class="plugin-face-eyebrow">Gain staging</span><strong>Automatic model level</strong><small>Normalizes the model at a reference level (−18 dB target, ±12 dB correction). Calibrate level measures a 12-second Funky-Guitar excerpt at −18 dB input trim, targeting −24 dBFS with peak protection. Other playing levels may still differ.</small></span><input class="autoLevel" type="checkbox" checked></label><div class="calibrationActions"><span class="chip modelLevel inactive" title="Automatic model-level correction">LEVEL —</span><div class="level-actions"><button class="calibrateLevel" type="button" disabled>Calibrate level</button><button class="useMetadataLevel" type="button" hidden>Use metadata</button></div></div><p class="calibrationStatus" role="status"></p></section>        <div class="amp-controls"><section class="eq-panel" id="namEqPanel">
           <div class="eq-toolbar"><div class="eq-toolbar-group"><label><input class="eqEnabled" type="checkbox" checked> EQ enabled</label><label>Position <select class="eqPosition"><option value="0">POST NAM</option><option value="1">PRE NAM</option></select></label></div><div class="noise-side">${knobMarkup('noise','Threshold',-100,0,1,-80,' dB')}<label class="section-switch noise-switch"><input class="noiseEnabled" type="checkbox"> Noise gate</label></div><section class="tone-strip" aria-label="Tone stack settings"><div class="amp-switches"><label class="section-switch"><input class="toneEnabled" type="checkbox" checked> Tone</label></div>${knobMarkup('bass','Bass',0,10,.1,5)}${knobMarkup('middle','Middle',0,10,.1,5)}${knobMarkup('treble','Treble',0,10,.1,5)}</section></div>
           <div class="eq-subtoolbar"><span class="eq-spectrum-legend" aria-label="Spectrum legend"><span class="input">Input</span><span class="filtered">Filtered</span><span class="final">Final output</span></span><button class="eqReset" type="button">Reset EQ</button></div>
@@ -404,7 +404,8 @@ class NamA2Gui extends HTMLElement {
       toneSelection: this.querySelector('.tone3000Selection'), toneInfo: this.querySelector('.tone3000Tone'), toneTitle: this.querySelector('.tone3000Title'),
       toneUseCapture:this.querySelector('.tone3000UseCapture'), toneCaptureList: this.querySelector('.tone3000CaptureList'), toneCaptureLabel: this.querySelector('.tone3000CaptureLabel'), toneCapturePrevious: this.querySelector('.tone3000CapturePrevious'), toneCaptureNext: this.querySelector('.tone3000CaptureNext'), toneCapturePick: this.querySelector('.tone3000CapturePick'), toneFilename: this.querySelector('.tone3000Filename'), toneCounter: this.querySelector('.tone3000Counter'), toneVisual: this.querySelector('.tone3000Visual'),
       toneImage: this.querySelector('.tone3000Image'), currentToneImage: this.querySelector('.currentToneImage'),
-      currentModelFallback: this.querySelector('.currentModelFallback'),
+      currentModelFallback: this.querySelector('.current-model .currentModelFallback'),
+      editorModelImage: this.querySelector('.editor-model-image'), editorModelFallback: this.querySelector('.editor-model-fallback'),
       toneAuth: this.querySelector('.tone3000Auth'), toneAuthenticate: this.querySelector('.tone3000Authenticate'), toneBrowser: this.querySelector('.tone3000Browser'),
       toneCatalog: this.querySelector('.tone3000Catalog'), toneCards: this.querySelector('.tone3000Cards'), tonePage: this.querySelector('.tone3000Page'), tonePrev: this.querySelector('.tone3000Prev'), toneNext: this.querySelector('.tone3000Next'),
       toneDownloadedList: this.querySelector('.tone3000DownloadedList'), toneClear: this.querySelector('.tone3000Clear'),
@@ -431,6 +432,7 @@ class NamA2Gui extends HTMLElement {
       this.updateKnob(id,Number(input.value));
     }
     this.bindModelHover(this.controls.currentToneImage,()=>this.node._metadata);
+    this.bindModelHover(this.controls.editorModelImage,()=>this.node._metadata);
     this.bindModelHover(this.controls.toneImage,()=>this.toneSelectionHoverData());
     for(const id of ['noiseEnabled','toneEnabled','eqEnabled'])this.controls[id].onchange=()=>{setParam(id,this.controls[id].checked?1:0);if(id==='noiseEnabled')this.syncNoiseGateVisual();if(id==='eqEnabled')this.syncEqEnabledVisual();this.renderSignalFlow();};
     this.controls.eqPosition.onchange=()=>{setParam('eqPre',Number(this.controls.eqPosition.value));this.renderSignalFlow();};
@@ -563,6 +565,8 @@ class NamA2Gui extends HTMLElement {
   // host draws these tabs and this GUI hides its own header and navigation.
   get editorTabs() {return [{id:'amp',label:'Amp settings'},{id:'details',label:'Amp details'},{id:'preferences',label:'Preferences'},{id:'about',label:'Help'}];}
   get activeEditorTab() {return this._activePluginTab;}
+  // Host contract (FxChainView): the model catalogue is the editor's main action, drawn by the host in its bar.
+  get editorPrimaryAction() {return {label:'Change amp model',icon:'audio',run:()=>this.setPluginTab('models')};}
   showEditorTab(id) {this.setPluginTab(id);}
 
   modelHoverInfo(value) {
@@ -761,9 +765,13 @@ class NamA2Gui extends HTMLElement {
     element.src = imageUrl;
   }
 
+  // The loaded model's photo, in the main view and on the Amp settings face card.
   setCurrentArtwork(metadata) {
-    const image = this.controls.currentToneImage;
-    const fallback = this.controls.currentModelFallback;
+    this.showModelArtwork(metadata,this.controls.currentToneImage,this.controls.currentModelFallback);
+    this.showModelArtwork(metadata,this.controls.editorModelImage,this.controls.editorModelFallback);
+  }
+
+  showModelArtwork(metadata,image,fallback) {
     const provenance = metadata.provenance || {};
     const raw = metadata.rawMetadata || provenance.metadata || {};
     const source = metadata.source || provenance.source || 'NAM';
@@ -794,7 +802,6 @@ class NamA2Gui extends HTMLElement {
     this.querySelector('.editor-model-name').textContent=this.controls.currentModel.textContent;
     this.controls.modelMode.textContent = m.subtype || 'A2';
     const creator=m.modeledBy&&m.modeledBy!=='Unknown'?m.modeledBy:m.provenance?.creator;
-    this.querySelector('.editor-model-mode').textContent=m.subtype||'A2';
     this.querySelector('.editor-model-meta').textContent=[m.source||m.provenance?.source,creator&&`Modeled by ${creator}`].filter(Boolean).join(' · ');
     const hasLoudness = Number.isFinite(m.loudness);
     const correction = Number(m.autoLevelCompensationDb);

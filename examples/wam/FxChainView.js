@@ -32,16 +32,25 @@ export class FxChainView {
     this.subtitle=element('p','fx-editor-subtitle');titles.append(this.kicker,this.title,this.subtitle);
     const close=attrs(element('tl-icon-button','fx-editor-close'),{icon:'close','aria-label':'Close editor'});
     this.state=attrs(element('tl-badge','fx-editor-state'),{tone:'warning',dot:'',role:'status'});this.state.hidden=true;
-    this.replaceButton=attrs(element('tl-button','','Replace'),{size:'sm',variant:'ghost','aria-haspopup':'dialog'});
-    this.replaceButton.onclick=()=>this.replaceActive();
-    const actions=element('div','fx-editor-actions');actions.append(this.state,this.replaceButton,close);
-    bar.append(titles,actions);this.mount=element('div','fx-editor-mount');this.mount.id=`fx-editor-mount-${editorSequence}`;
+    // A GUI may offer one main action (editorPrimaryAction: {label, icon, run}), e.g. the amp's model
+    // catalogue: the host shows it as the prominent button of the editor bar.
+    this.primaryAction=attrs(element('tl-button','fx-editor-primary'),{variant:'primary','aria-haspopup':'dialog'});this.primaryAction.hidden=true;
+    this.primaryAction.onclick=()=>this.gui?.editorPrimaryAction?.run();
+    const actions=element('div','fx-editor-actions');actions.append(this.state,this.primaryAction,close);
+    // The module's picture, the same one as its rack card (model photo or plugin thumbnail).
+    this.photo=attrs(element('img','fx-editor-photo'),{alt:''});this.photo.hidden=true;
+    bar.append(this.photo,titles,actions);this.mount=element('div','fx-editor-mount');this.mount.id=`fx-editor-mount-${editorSequence}`;
     this.tabs=attrs(element('nav','fx-editor-tabs'),{role:'tablist','aria-label':'Editor sections'});this.tabs.hidden=true;
     const body=element('div','fx-editor-body');this.editorSides={input:this.createEditorSide('input'),output:this.createEditorSide('output')};
     body.append(this.editorSides.input.root,this.mount,this.editorSides.output.root);
-    const footer=element('footer','fx-editor-footer'),done=attrs(element('tl-button','','Done'),{variant:'primary'});
-    footer.append(element('span','fx-editor-status','Changes apply live to the rack'),done);done.onclick=()=>this.close();
-    this.dialog.append(bar,this.tabs,body,footer);document.body.append(this.dialog);
+    // Settings apply live and closing keeps them. Once the module differs from its state at opening,
+    // the footer offers Revert changes (back to that state) and Keep changes (close).
+    this.footer=element('footer','fx-editor-footer');this.footer.hidden=true;
+    const revert=attrs(element('tl-button','','Revert changes'),{variant:'ghost',icon:'undo'}),keep=attrs(element('tl-button','','Keep changes'),{variant:'primary'});
+    const footerActions=element('div','fx-editor-footer-actions');footerActions.append(revert,keep);
+    this.footer.append(attrs(element('span','fx-editor-status','Modified since opening'),{role:'status'}),footerActions);
+    revert.onclick=()=>this.revertActive();keep.onclick=()=>this.close();
+    this.dialog.append(bar,this.tabs,body,this.footer);document.body.append(this.dialog);
     // The cabinet GUI asks the host to apply AUTO/ON/BYPASS (cancelable event):
     // the chain decides the bypass and sends the new routing status back.
     this.mount.addEventListener('cabinet-routing-mode',event=>{if(event.target!==this.gui)return;event.preventDefault();this.chain.enqueue(()=>this.chain.applyRouting()).catch(error=>this.report(error.message,true));});
@@ -56,7 +65,7 @@ export class FxChainView {
     this.mount.addEventListener('request-close-editor',event=>{if(event.target===this.gui&&this.dialog.open){event.stopPropagation();this.close();}});
     close.onclick=()=>this.close();this.dialog.addEventListener('cancel',event=>{event.preventDefault();this.close();});
     this.confirmation=element('dialog','fx-confirm tl-modal');document.body.append(this.confirmation);
-    chain.addEventListener('change',()=>this.render());chain.addEventListener('error',e=>report(e.detail.message,true));
+    chain.addEventListener('change',()=>{this.render();this.scheduleDirtyCheck();});chain.addEventListener('error',e=>report(e.detail.message,true));
     this.setupGainLabels();this.render();this.animateLevels();this.timer=setInterval(()=>this.refresh().catch(error=>report(error.message,true)),350);
   }
   createThinMeter(label) {
@@ -109,6 +118,10 @@ export class FxChainView {
       this.tabs.append(tab);
     }
     this.syncTabs();
+  }
+  syncPrimaryAction() {
+    const action=this.gui?.editorPrimaryAction;this.primaryAction.hidden=!action;if(!action)return;
+    this.primaryAction.textContent=action.label;action.icon?this.primaryAction.setAttribute('icon',action.icon):this.primaryAction.removeAttribute('icon');
   }
   syncTabs() {
     const active=this.gui?.activeEditorTab;
@@ -306,9 +319,20 @@ export class FxChainView {
   syncEditorHeader() {
     const e=this.activeId&&this.chain.find(this.activeId);if(!e||!this.dialog.open)return;
     const plugin=e.record?.name||(e.kind==='nam'?'NeuralWAMp':'NeuralWAMp Cabinet'),{name}=this.describe(e);
-    const [title,subtitle]=e.kind==='nam'&&e.plugin?[name,`${plugin} · Active model`]:e.kind==='cabinet'&&e.plugin?[name,`${plugin} · Active impulse response`]:[plugin,''];
+    const [title,subtitle]=e.kind==='nam'&&e.plugin?[name,`${plugin} · ${FxChainView.modelCredit(e.plugin.audioNode.getModelSnapshot())||'Active model'}`]:e.kind==='cabinet'&&e.plugin?[name,`${plugin} · Active impulse response`]:[plugin,''];
     if(this.title.textContent!==title)this.title.textContent=title;if(this.subtitle.textContent!==subtitle)this.subtitle.textContent=subtitle;
-    this.subtitle.hidden=!subtitle;this.syncEditorState(e);
+    this.subtitle.hidden=!subtitle;this.syncEditorPhoto(e,title);this.syncEditorState(e);
+  }
+  syncEditorPhoto(e,title) {
+    const image=this.cards.get(e.id)?.image,src=image?.currentSrc||image?.getAttribute?.('src')||'';
+    if(this.photo.getAttribute('src')!==src){if(src)this.photo.setAttribute('src',src);else this.photo.removeAttribute('src');}
+    this.photo.hidden=!src;this.photo.title=title;
+  }
+  // "Factory · Modeled by …" for a NAM model, as the amp GUI showed it.
+  static modelCredit(m) {
+    if(!m)return '';
+    const creator=m.modeledBy&&m.modeledBy!=='Unknown'?m.modeledBy:m.provenance?.creator;
+    return [m.source||m.provenance?.source,creator&&`Modeled by ${creator}`].filter(Boolean).join(' · ');
   }
   // Bypass is shown once, beside the close button: why the module is silent
   // (AUTO routing or a manual bypass), without colouring the editor content.
@@ -339,8 +363,32 @@ export class FxChainView {
     ui.select.disabled=!!choices.busy||choices.items.length<2;
     ui.previous.disabled=!!choices.busy||choices.index<=0;ui.next.disabled=!!choices.busy||choices.index<0||choices.index>=choices.items.length-1;
   }
+  // Editor changes compared with the module's state at opening. Large payloads (model text, IR samples)
+  // are summarised so the comparison stays cheap; a model change still changes its summary.
+  static settingsKey(snapshot) {
+    return JSON.stringify(snapshot,(key,value)=>{
+      if(ArrayBuffer.isView(value))return `[${value.length}:${value[0]}:${value[value.length>>1]}:${value[value.length-1]}]`;
+      if(typeof value==='string'&&value.length>512)return `${value.length}:${value.slice(0,128)}:${value.slice(-128)}`;
+      return value;
+    });
+  }
+  scheduleDirtyCheck() {
+    if(!this.dialog.open||!this.snapshot)return;
+    clearTimeout(this.dirtyTimer);this.dirtyTimer=setTimeout(()=>this.checkDirty().catch(error=>this.report(error.message,true)),200);
+  }
+  async checkDirty() {
+    const serial=this.openSerial,id=this.activeId,snapshot=this.snapshot;if(!snapshot||!id)return;
+    const current=await this.chain.captureEntry(id);if(serial!==this.openSerial||!current)return;
+    this.footer.hidden=FxChainView.settingsKey(current)===snapshot.key;
+  }
+  async revertActive() {
+    const id=this.activeId,snapshot=this.snapshot;if(!id||!snapshot||this.reverting)return;
+    this.reverting=true;
+    try{await this.chain.restoreEntry(id,snapshot.value);this.syncEditorGains();await this.refresh();await this.checkDirty();}
+    catch(error){this.report(error.message,true);}finally{this.reverting=false;}
+  }
   close() {
-    this.openSerial++;this.activeId=null;
+    this.openSerial++;this.activeId=null;this.snapshot=null;clearTimeout(this.dirtyTimer);this.footer.hidden=true;
     for(const gui of [...this.mount.children]){gui.setEditorVisible?.(false);this.parking.append(gui);}
     this.dialog.close();this.returnFocus?.focus();
   }
@@ -348,7 +396,9 @@ export class FxChainView {
     this.options.onOpen?.();
     if(this.dialog.open)this.close();const serial=++this.openSerial;this.activeId=id;this.returnFocus=trigger;
     const e=this.chain.find(id);this.kicker.textContent=`Chain ${this.options.secondary?'B':'A'} · ${kindLabel(e)}`;
-    this.toggleSide(null,false);this.gui=null;this.tabs.hidden=true;this.tabs.replaceChildren();
+    this.toggleSide(null,false);this.gui=null;this.tabs.hidden=true;this.tabs.replaceChildren();this.primaryAction.hidden=true;this.photo.hidden=true;this.photo.removeAttribute('src');
+    this.snapshot=null;this.footer.hidden=true;
+    this.chain.captureEntry(id).then(value=>{if(serial===this.openSerial&&value)this.snapshot={value,key:FxChainView.settingsKey(value)};}).catch(error=>this.report(error.message,true));
     // Amp and cabinet editors fill the large frame (WAM amp sims too: their GUIs are fluid and would
     // collapse in a fit-content frame); a pedal GUI sizes the editor to itself.
     const large=e.kind==='nam'||e.kind==='cabinet'||['amplifier','cabinet'].includes(e.record?.category);
@@ -357,25 +407,22 @@ export class FxChainView {
     try {
       const gui=await this.chain.getGui(id);
       if(serial!==this.openSerial){if(!gui.isConnected)this.parking.append(gui);return;}
-      this.gui=gui;this.mount.replaceChildren(gui);gui.setEditorVisible?.(true);this.buildTabs();
+      this.gui=gui;this.mount.replaceChildren(gui);gui.setEditorVisible?.(true);this.buildTabs();this.syncPrimaryAction();
       if(e.kind==='cabinet')gui.setRoutingStatus(e.plugin.audioNode.routingMode,e.routingStatus||'');
       await this.refresh();
     }catch(error){if(serial===this.openSerial)this.mount.textContent=`Editor unavailable: ${error.message}`;this.report(error.message,true);}
   }
-  replaceActive() {
-    if(this.activeId&&this.dialog.open)return this.showMenu(null,this.replaceButton,this.activeId);
-  }
-  showMenu(beforeId,trigger,replaceId=null) {
+  showMenu(beforeId,trigger) {
     if(this.menu?.open)return this.menu;
-    const index=beforeId?this.chain.entries.indexOf(this.chain.find(beforeId)):this.chain.entries.length,lane=this.options.secondary?'B':'A',replaced=replaceId&&this.chain.find(replaceId);
-    const {dialog,body}=createModal({title:replaceId?'Replace module':'Insert a WAM',eyebrow:replaced?`Chain ${lane} · ${replaced.record?.name||kindLabel(replaced)}`:`Chain ${lane} · Position ${index+1}`,className:'fx-menu',wide:true});
+    const index=beforeId?this.chain.entries.indexOf(this.chain.find(beforeId)):this.chain.entries.length,lane=this.options.secondary?'B':'A';
+    const {dialog,body}=createModal({title:'Insert a WAM',eyebrow:`Chain ${lane} · Position ${index+1}`,className:'fx-menu',wide:true});
     this.menu=dialog;let busy=false;
     dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
     const intro=element('div','fx-menu-intro'),copy=element('div'),count=element('span','fx-menu-count'),status=element('p','fx-menu-status');status.setAttribute('aria-live','polite');
-    copy.append(element('strong','','Choose an audio module'),element('span','',replaceId?'It takes the place of the current module, with its gains.':'The module will be inserted exactly at the selected connector.'));
+    copy.append(element('strong','','Choose an audio module'),element('span','','The module will be inserted exactly at the selected connector.'));
     intro.append(copy,count);body.append(intro,status);
     let side=null;
-    if(!replaceId&&this.chain.junction?.index===index){
+    if(this.chain.junction?.index===index){
       side=element('select');side.append(new Option('After split — A only','after'),new Option('Before split — A + B','before'));
       const label=element('label','fx-menu-side'),skin=attrs(element('tl-select'),{size:'sm'});skin.append(side);label.append(element('span','','Position relative to split'),skin);body.append(label);
     }
@@ -391,9 +438,9 @@ export class FxChainView {
       for(const record of records){
         const item=element('article','fx-menu-entry'),preview=element('div','fx-menu-item'),image=element('img'),button=element('button','fx-menu-insert');
         image.src=record.thumbnailUrl||fallbackThumbnail(record);image.alt='';image.onerror=()=>{image.onerror=null;image.src=fallbackThumbnail(record);};
-        preview.title=replaceId?'Double-click to replace':'Double-click to insert';
+        preview.title='Double-click to insert';
         preview.append(image,element('strong','',record.name));
-        button.append(icon('plus',12),replaceId?'Replace':'Insert module');button.setAttribute('aria-label',`${replaceId?'Replace with':'Insert'} ${record.name}`);
+        button.append(icon('plus',12),'Insert module');button.setAttribute('aria-label',`Insert ${record.name}`);
         const uri=element('button','fx-copy-uri');uri.append(icon('copy',11),element('span','',record.entryUrl));uri.title=`Copy ${record.entryUrl}`;uri.setAttribute('aria-label',`Copy WAM URI for ${record.name}`);
         uri.onclick=async()=>{try{await navigator.clipboard.writeText(record.entryUrl);status.textContent=`WAM URI copied: ${record.entryUrl}`;}catch{status.textContent=`Copy this WAM URI: ${record.entryUrl}`;}};
         item.append(preview,button,uri);group.append(item);
@@ -401,8 +448,7 @@ export class FxChainView {
           if(busy||!dialog.open)return;busy=true;
           dialog.querySelectorAll('button,tl-icon-button').forEach(b=>b.disabled=true);status.textContent=`Loading ${record.name}…`;
           try{
-            if(replaceId){const entry=await this.chain.replace(replaceId,record);dialog.close();await this.open(entry.id,this.cards.get(entry.id)?.photo);}
-            else{await this.chain.insert(record,beforeId,side?.value||'after');dialog.close();this.container.querySelector('button')?.focus();}
+            await this.chain.insert(record,beforeId,side?.value||'after');dialog.close();this.container.querySelector('button')?.focus();
           }
           catch(error){status.textContent=error.message;this.report(error.message,true);}
           finally{busy=false;dialog.querySelectorAll('button,tl-icon-button').forEach(b=>b.disabled=false);}

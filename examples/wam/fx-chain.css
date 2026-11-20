@@ -147,6 +147,8 @@
 .fx-editor.is-compact .fx-editor-mount > * { margin: auto; }
 .fx-editor-bar { flex: none; align-items: center; gap: var(--tl-space-3); padding: 16px 24px 14px; }
 .fx-editor-titles { flex: 1; min-width: 0; }
+.fx-editor-photo { flex: none; align-self: center; width: 112px; height: 84px; object-fit: contain; background: var(--tl-surface-0); border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); }
+.fx-editor-photo[hidden] { display: none; }
 .fx-editor-titles .tl-modal-title { overflow: hidden; font-size: var(--tl-fs-xl); white-space: nowrap; text-overflow: ellipsis; }
 .fx-editor .fx-editor-subtitle { margin-top: 6px; overflow: hidden; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); white-space: nowrap; text-overflow: ellipsis; }
 .fx-editor-actions { display: flex; align-items: center; gap: var(--tl-space-2); }
@@ -186,6 +188,8 @@
 .fx-gain-panel-body > tl-button { justify-self: center; }
 .fx-editor-footer { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--tl-space-3); padding: 14px 24px; border-top: 1px solid var(--tl-border); }
 .fx-editor-status { color: var(--tl-text-muted); font-size: var(--tl-fs-xs); }
+.fx-editor-footer[hidden] { display: none; }
+.fx-editor-footer-actions { display: flex; gap: var(--tl-space-2); }
 
 /* Insert / replace library (tl-modal wide, neutral surfaces with sage accents as in the mock-up). */
 .fx-menu.tl-modal { width: min(920px, calc(100vw - 32px)); border-color: var(--tl-border-strong); box-shadow: 0 35px 90px rgba(0, 0, 0, .68); }
@@ -248,6 +252,7 @@
 }
 @media (max-width: 520px) {
   .fx-editor-bar { padding: 14px 16px 12px; }
+  .fx-editor-photo { width: 72px; height: 54px; }
   .fx-editor-tabs { padding: 0 8px; gap: 0; }
   .fx-editor-tab { padding: 14px 10px 12px; }
   /* IN and OUT share a row above the plugin, which keeps the full width. */

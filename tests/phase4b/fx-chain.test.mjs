@@ -240,18 +240,6 @@ test('per-plugin gain is bounded, serialized, restored and defaults to unity for
  for(const item of chain.entries){assert.equal(item.inputDb,0);assert.equal(item.outputDb,0);}
  chain.destroy();
 });
-test('replacement prepares before removal, preserves slot, gains and split, and disposes old resources',async()=>{
- const {chain,record}=await setup();const old=await chain.insert(record);chain.junction={index:2};
- chain.setEntryGain(old.id,'input',-7);chain.setEntryGain(old.id,'output',2);const order=chain.entries.map(e=>e.id);
- const instantiate=chain.registry.instantiate;chain.registry.instantiate=async()=>{throw Error('Cannot load');};
- await assert.rejects(chain.replace(old.id,record),/Cannot load/);assert.equal(chain.find(old.id),old);assert.equal(old.disposed,false);
- chain.registry.instantiate=instantiate;const replacement=await chain.replace(old.id,record);
- assert.deepEqual(chain.entries.map(e=>e.id),order);assert.equal(chain.junction.index,2);assert.notEqual(replacement.plugin,old.plugin);assert.equal(replacement.inputDb,-7);assert.equal(replacement.outputDb,2);
- assert.equal(old.disposed,true);assert.equal(old.plugin.audioNode.destroyed,true);assert.equal(old.outputMeter.splitter.connections.size,0);
- chain.destroy();
-});
-
-
 test('hiding B isolates both ends of B and showing it again restores the split without changing its state',async()=>{
   const {rack,a,source}=await setupRack();await rack.setVisible(true);await rack.connectRoute(1);
   const b=rack.b,ids=b.entries.map(e=>e.id);rack.setPan('b',.4);b.setOutputDb(-8);
@@ -302,4 +290,21 @@ test('hiding then showing B keeps it muted when it was muted',async()=>{
   await rack.connectRoute(1);await rack.setEnabledB(false);
   await rack.setVisible(false);await rack.setVisible(true);assert.equal(rack.enabledB,false);
   await rack.setEnabledB(true);await rack.setVisible(false);await rack.setVisible(true);assert.equal(rack.enabledB,true);
+});
+test('editor Revert: captureEntry/restoreEntry bring back one module state, gains and host bypass',async()=>{
+ const {chain,record}=await setup();const fx=await chain.insert(record),other=await chain.insert(record);
+ fx.plugin.audioNode.state.value=3;chain.setEntryGain(fx.id,'input',-4);
+ const snapshot=await chain.captureEntry(fx.id);
+ fx.plugin.audioNode.state.value=9;chain.setEntryGain(fx.id,'input',6);chain.setEntryGain(fx.id,'output',-2);await chain.setBypass(fx.id,true);other.plugin.audioNode.state.value=5;
+ await chain.restoreEntry(fx.id,snapshot);
+ assert.equal(fx.plugin.audioNode.state.value,3);assert.equal(fx.inputDb,-4);assert.equal(fx.outputDb,0);assert.equal(fx.bypass,false);
+ assert.equal(fx.wet.gain.value,1);assert.equal(fx.dry.gain.value,0);assert.equal(other.plugin.audioNode.state.value,5);
+ snapshot.state.value=42;assert.equal(fx.plugin.audioNode.state.value,3);
+ chain.destroy();
+});
+test('captureEntry records the state at call time even while the chain queue is busy',async()=>{
+ const {chain,record}=await setup();const fx=await chain.insert(record);chain.setEntryGain(fx.id,'input',-3);
+ let release;const gate=new Promise(done=>release=done);chain.enqueue(()=>gate);
+ const pending=chain.captureEntry(fx.id);chain.setEntryGain(fx.id,'input',5);release();
+ assert.equal((await pending).inputDb,-3);chain.destroy();
 });
