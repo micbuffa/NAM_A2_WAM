@@ -262,7 +262,8 @@ body[data-rack-dock="collapsed"] .rack-dock-toggle { transform: rotate(180deg); 
   .rack-stage:has(backing-track-player[view="track"]) { flex: 1 0 auto; }
   .play-along-card > backing-track-player[view="track"] { min-height: 0; overflow: visible; }
   .rack-dock { max-height: min(var(--rack-dock-fit, 70dvh), 70dvh); overflow: auto; scrollbar-width: thin; box-shadow: 0 -12px 28px rgba(0, 0, 0, .22); }
-  .rack-dock > .rack-header { position: sticky; top: 0; z-index: 4; }
+  /* Sticky over the scrolled chains: the translucent header tint sits on the dock's opaque surface. */
+  .rack-dock > .rack-header { position: sticky; top: 0; z-index: 4; background: linear-gradient(var(--tl-workspace-header), var(--tl-workspace-header)), var(--tl-surface-0); }
   .host-workspace:has(backing-track-player[view="track"]) .rack-dock { flex: 0 1 auto; }
   /* Studio keeps room for the timeline above a track's sound. */
   body[data-workspace="projects"] .rack-dock { max-height: min(var(--rack-dock-fit, 40dvh), 40dvh); }
