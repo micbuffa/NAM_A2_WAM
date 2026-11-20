@@ -1,3 +1,5 @@
+> Historical NAM/WASM implementation plan. For current entry points and checks, see [README.md](README.md). Phase labels below describe their original checkpoints.
+
 I want you to help me implement an open-source **Web Audio Modules v2 (WAM v2)** guitar amplifier plugin capable of loading and running **Neural Amp Modeler Architecture A2 / NAM A2 `.nam` profiles** directly in the browser.
 
 ## Important context

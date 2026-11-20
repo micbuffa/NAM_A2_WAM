@@ -1,5 +1,8 @@
 # NeuralWAMp — Integrated FX Chain
 
+> Historical rack integration plan. Rack presets are now available. See the [audio routing contract](docs/audio-routing.md) and [rack preset system tests](web/test/system/rack_presets_test.rb).
+
+
 Status: serial chain, ergonomics and first two-chain implementation available. Browser routing and deterministic audio checks pass; physical two-input listening validation remains pending. Preset phase 7.2 remains on hold.
 Updated: 2026-09-24
 

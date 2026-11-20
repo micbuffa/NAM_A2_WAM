@@ -87,12 +87,13 @@ For IR bundles, set `tone.format` to `ir`; asset files are WAV files and `archit
 The NAM GUI contains a hidden panel enabled only by `?maintainer=1`; hiding it is a UX choice, not an access-control mechanism. Open one of these URLs and then open **Models & sources → TONE3000**:
 
 ```text
-http://127.0.0.1:8765/examples/wam/index.html?maintainer=1
+http://127.0.0.1:8765/rack/?maintainer=1
+http://127.0.0.1:8765/dist/NAM_A2_WAM/?maintainer=1
 https://mainline.i3s.unice.fr/NAM_A2_WAM/?maintainer=1
 ```
 
 1. Authenticate through the existing OAuth/PKCE integration.
-2. Use `prompt=select_tone` so the maintainer explicitly chooses one tone.
+2. Choose **Select NAM A2 tone** or **Select IR tone**. The selector uses `prompt=select_tone` for one explicit choice.
 3. Fetch that tone's metadata and model list.
 4. Let the maintainer select individual models, or all models in that explicitly selected tone when permitted.
 5. Download each selected `model_url` immediately; never persist the temporary URL.
@@ -100,7 +101,22 @@ https://mainline.i3s.unice.fr/NAM_A2_WAM/?maintainer=1
 7. Generate `tone.json`, SHA-256 hashes, and sanitized paths while preserving the original model names.
 8. Download a ZIP containing the complete `tone3000/creator/tone--id/` subtree.
 9. Unzip that subtree into `src/nam-wam/models` for NAM or `src/cabinet-wam/IRs` for IR.
-10. Run `npm run factory-assets`, inspect the generated manifest, test the application, and only then commit the curated bundle.
+10. Regenerate and inspect the manifests, rebuild the distribution, then run the tests before committing the curated bundle.
+
+From the repository root, extract a NAM ZIP with
+`unzip ~/Downloads/bundle.zip -d src/nam-wam/models`. For an IR ZIP use
+`src/cabinet-wam/IRs` as the destination. Existing loose assets can coexist
+with bundles. For a re-export, replace only the matching tone directory and
+check the resulting manifest for duplicate IDs or mismatched hashes.
+
+```sh
+npm run factory-assets
+npm run dist
+npm test
+```
+
+See the [bundle exporter](../src/nam-wam/tone3000/FactoryBundle.js) and
+[manifest generator](../tools/generate-factory-manifests.mjs).
 
 The NAM Factory browser exposes **All**, **Guitar**, **Bass**, and **Pedals** filters with generated capture counts. Classification is stored per asset in `models-manifest.json`; the runtime does not repeat filename heuristics.
 
@@ -115,10 +131,3 @@ The runtime continues consuming generated manifests, not scanning directories. T
 3. computed properties such as hashes and relative paths.
 
 Invalid manifests, missing files, hash mismatches, and duplicate TONE3000 model identities fail the build. Existing loose files remain supported during migration and use their embedded metadata plus optional same-name images or `cover.*`.
-
-## Remaining improvements
-
-1. Add image resizing/normalization and maximum dimensions before ZIP generation.
-2. Add a repository policy file that lists licenses approved for Factory redistribution.
-3. Add a visual pre-commit report for imported tones and duplicate content hashes.
-4. Migrate the current Factory files incrementally; do not require a disruptive all-at-once rename.

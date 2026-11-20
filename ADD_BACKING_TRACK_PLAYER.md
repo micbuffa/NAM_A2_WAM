@@ -1,5 +1,8 @@
 # Import du lecteur de backing tracks dans NAM_A2_WAM
 
+> Plan historique de la première livraison. Le guide [Play Along](examples/wam/backing-track-player/README.md) décrit le composant actuel. Rails prend en charge la bibliothèque privée.
+
+
 Date : 5 octobre 2026. Statut : **première version implémentée et validée automatiquement**. Les sections 1–10 conservent la proposition approuvée ; le bilan de livraison ci-dessous précise les résultats et limites.
 
 ## 1. Objectif et décision proposée
@@ -143,7 +146,7 @@ Faire évoluer le manifeste de la liste de noms vers des objets avec `id`, `titl
 3. **Fiabilisation** : transport, boucles, changements de vitesse, normalisation non destructive, annulations de chargement, nettoyage et erreurs.
 4. **Intégration hôte** : panneau sous le rack, bus de mix commun, pan global et balance sans toucher aux contrôles A/B.
 5. **Assets et état** : copie des 29 pistes, manifeste stable, commande de mise à jour, sauvegarde/restauration de session et distribution portable.
-6. **Validation et documentation** : tests, écoute comparative, mise à jour de `HANDOFF.md` et du présent document avec résultats et limites.
+6. **Validation et documentation** : tests, écoute comparative, consignation des résultats et limites dans la PR.
 
 Ne pas commencer une implémentation backend, multipiste ou ML dans cette livraison.
 

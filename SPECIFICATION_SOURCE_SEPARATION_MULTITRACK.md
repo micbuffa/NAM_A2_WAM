@@ -1,3 +1,5 @@
+> Journal historique de l’intégration Studio. Pour les points d’entrée actuels, voir le [README](README.md). Le [banc tempo](examples/wam/projects/tempo/README.md) couvre T1/T2 au stade de prototype. La carte appliquée au projet reste planifiée.
+
 ## 3 novembre 2026 — Carte de tempo et guitare de référence [SPECIFIED / NOT IMPLEMENTED]
 
 Spécification dédiée : [TEMPO_MAP_SPECIFICATION.md](TEMPO_MAP_SPECIFICATION.md). Import rapide par défaut et option Suivre le morceau (live/tempo variable), préférence avancée automatique à qualifier, analyse Beat This! final0 sur audio importé ou prise personnelle après Stop. Carte commune explicite, prévisualisation/corrections avant application, persistance/Undo, grille/métronome/A/B et futurs drums suivant la rythmique, sans déplacer ni time-stretcher l’audio. T0documentaire DONE ; T1àT7TODO. Aucun runtime, modèle, téléchargement ou défaut produit modifié.
