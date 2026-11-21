@@ -446,7 +446,7 @@ Calibration guitare (9 octobre) : le bouton Calibrate level utilise 12 secondes 
 - **Contrat de l’en-tête (tous les GUI à onglets hôtes, `editorTabs`)** : l’hôte affiche la photo du module (celle de sa carte), le modèle/IR chargé en titre, et ce que le GUI expose :
   - `editorPrimaryAction` (`{label, icon, run}`) : bouton principal, à gauche de Fermer (sans action, pas de bouton) ;
   - `editorCredit` (texte) : sous-titre `plugin · crédit` ; à défaut, « Active model » (ampli) ou « Active impulse response » (cabinet).
-  Le badge de bypass reste dans l’en-tête pour tous les modules, sous le bouton principal (à côté de Fermer sans bouton), pour laisser la largeur au titre.
+  Le badge de bypass reste dans l’en-tête pour tous les modules, sous le titre et le sous-titre. Pour le cabinet, il distingue « Auto-bypassed » (routage AUTO, raison dans l’infobulle) de « Bypassed » (bypass manuel).
   En mode `host-tabs`, le GUI masque ce que l’en-tête montre déjà : photo, nom du modèle/IR, bouton de changement. NeuralWAMp expose **Change amp model** et « Factory · Modeled by … » ; NeuralWAMp Cabinet expose **Change cabinet model** et « Factory · by … », et sa première carte ne garde que la description, les étiquettes et les tags.
 - **Photo dans l’en-tête** : chaque module affiche à gauche du titre la même image que sa carte du rack (photo du modèle/IR, sinon miniature du plugin). Le sous-titre suit `editorCredit` (voir le contrat de l’en-tête).
 - **Amp settings** : en mode `host-tabs`, plus de carte photo/nom (déjà dans l’en-tête) ; l’onglet commence par Gain staging. L’en-tête « Neural Amp Modeler · Web Audio Module · NAM A2 » est supprimé. Le GUI autonome garde une carte avec la photo du modèle, son nom et ses crédits.

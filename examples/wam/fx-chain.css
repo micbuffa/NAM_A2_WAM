@@ -152,13 +152,12 @@
 .fx-editor.is-compact .fx-editor-mount > * { margin: auto; }
 .fx-editor-bar { flex: none; align-items: center; gap: var(--tl-space-3); padding: 16px 24px 14px; }
 .fx-editor-titles { flex: 1; min-width: 0; }
-.fx-editor-photo { flex: none; align-self: center; width: 112px; height: 84px; object-fit: contain; background: var(--tl-surface-0); border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); }
+.fx-editor-photo { flex: none; align-self: center; width: 168px; height: 126px; object-fit: contain; background: var(--tl-surface-0); border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); }
 .fx-editor-photo[hidden] { display: none; }
 .fx-editor-titles .tl-modal-title { overflow: hidden; font-size: var(--tl-fs-xl); white-space: nowrap; text-overflow: ellipsis; }
 .fx-editor .fx-editor-subtitle { margin-top: 6px; overflow: hidden; color: var(--tl-text-muted); font-size: var(--tl-fs-xs); white-space: nowrap; text-overflow: ellipsis; }
 .fx-editor-actions { display: flex; align-items: flex-start; gap: var(--tl-space-2); }
-.fx-editor-main { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
-.fx-editor-main > tl-badge { align-self: center; }
+.fx-editor-titles > .fx-editor-state { display: inline-flex; margin-top: 8px; }
 .fx-editor-close { border: 1px solid var(--tl-border-strong); border-radius: var(--tl-radius-md); }
 .fx-editor-state { padding: 6px 11px; border: 1px solid color-mix(in srgb, var(--tl-warning) 45%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--tl-warning) 10%, transparent); color: var(--tl-warning); font-size: var(--tl-fs-xs); font-weight: 600; }
 .fx-editor-state[hidden] { display: none; }
@@ -266,7 +265,7 @@
 @media (max-width: 520px) {
   .fx-editor-bar { padding: 14px 16px 12px; }
   .fx-editor-muted { margin: 10px 16px 0; }
-  .fx-editor-photo { width: 72px; height: 54px; }
+  .fx-editor-photo { width: 104px; height: 78px; }
   .fx-editor-tabs { padding: 0 8px; gap: 0; }
   .fx-editor-tab { padding: 14px 10px 12px; }
   /* IN and OUT share a row above the plugin, which keeps the full width. */

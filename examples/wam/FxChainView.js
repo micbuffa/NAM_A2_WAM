@@ -31,16 +31,16 @@ export class FxChainView {
     this.kicker=element('p','tl-eyebrow');this.title=element('h2','tl-modal-title');this.title.id=`fx-editor-title-${++editorSequence}`;this.dialog.setAttribute('aria-labelledby',this.title.id);
     this.subtitle=element('p','fx-editor-subtitle');titles.append(this.kicker,this.title,this.subtitle);
     const close=attrs(element('tl-icon-button','fx-editor-close'),{icon:'close','aria-label':'Close editor'});
-    this.state=attrs(element('tl-badge','fx-editor-state'),{tone:'warning',dot:'',role:'status'});this.state.hidden=true;
+    this.state=attrs(element('tl-badge','fx-editor-state'),{tone:'warning',role:'status'});this.state.hidden=true;
     // Host editor contract, for a GUI shown with host tabs (editorTabs): the bar shows the module picture
     // (its rack card image), the loaded model / IR as title, `editorCredit` (text) in the subtitle and
     // `editorPrimaryAction` ({label, icon, run}, e.g. the model catalogue) as its main button. The GUI
     // hides what the bar already shows (picture, model name, change button) when it has host-tabs.
     this.primaryAction=attrs(element('tl-button','fx-editor-primary'),{variant:'primary','aria-haspopup':'dialog'});this.primaryAction.hidden=true;
     this.primaryAction.onclick=()=>this.gui?.editorPrimaryAction?.run();
-    // The bypass badge sits under the main button, so a long title keeps the bar's width.
-    const main=element('div','fx-editor-main');main.append(this.primaryAction,this.state);
-    const actions=element('div','fx-editor-actions');actions.append(main,close);
+    // The bypass badge sits under the title and subtitle, next to what it describes.
+    titles.append(this.state);
+    const actions=element('div','fx-editor-actions');actions.append(this.primaryAction,close);
     // The module's picture, the same one as its rack card (model photo or plugin thumbnail).
     this.photo=attrs(element('img','fx-editor-photo'),{alt:''});this.photo.hidden=true;
     bar.append(this.photo,titles,actions);this.mount=element('div','fx-editor-mount');this.mount.id=`fx-editor-mount-${editorSequence}`;
@@ -344,13 +344,13 @@ export class FxChainView {
     if(this.photo.getAttribute('src')!==src){if(src)this.photo.setAttribute('src',src);else this.photo.removeAttribute('src');}
     this.photo.hidden=!src;this.photo.title=title;
   }
-  // Bypass is shown once, under the main button (beside Close without one): why the module is silent
+  // Bypass is shown once, under the title and subtitle: why the module is silent
   // (AUTO routing or a manual bypass), without colouring the editor content.
   syncEditorState(e) {
     let label='',title='';
     if(e.plugin&&e.bypass&&e.kind==='cabinet'){
       const auto=e.plugin.audioNode.routingMode==='auto',reason=(e.routingStatus||'').split(' — ')[1];
-      label=auto?'Bypassed · Auto':'Bypassed';
+      label=auto?'Auto-bypassed':'Bypassed';
       title=auto?`AUTO routing: the amp model already includes a cabinet${reason?` (${reason})`:''}`:'Cabinet bypassed manually';
     }else if(e.plugin&&e.bypass)title=`${e.kind==='nam'?'Amp':'Module'} bypassed: the signal passes through unprocessed`,label='Bypassed';
     if(this.state.textContent!==label)this.state.textContent=label;if(this.state.title!==title)this.state.title=title;this.state.hidden=!label;
